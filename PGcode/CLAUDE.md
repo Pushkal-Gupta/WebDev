@@ -61,6 +61,17 @@ How to slot it in is undecided — could be a new top-level area (`/ml`) with it
 
 When the user gives the green light to start, they want to discuss the partitioning before any content lands. Until then: do not start writing ML content.
 
+## Planned expansion — EntrantHub features + VisuAlgo visualize overhaul (HARD — in progress)
+
+Full plan: `docs/PLAN_ENTRANTHUB_VISUALGO.md`; wiki: `docs/llm-wiki/entranthub-visualgo-integration.md`. Three workstreams the user requested 2026-06-14:
+1. **VisuAlgo-style `/visualize` overhaul** — gallery of colorful category cards (mini animated SVG preview + tags), grouping our 24+ existing interactive viz + building the missing VisuAlgo categories.
+2. **Contest aggregation** — unified upcoming/past contest calendar across LeetCode/Codeforces/AtCoder/CodeChef + DevPost/Kaggle/GSoC, plus LeetCode contest analytics (rankings, question stats, rating prediction). New `PGcode_external_contests` table + `fetch-contests` edge function. Keep our internal ICPC-style contests as a separate tab.
+3. **Group pages for Companies & Concepts** — mirror the `MLGroup` (`/ml/g/:groupSlug`) pattern; each group opens its own tab/page.
+
+**HARD rule:** entranthub.com and visualgo.net are reference scaffolding to MATCH then DELETE — never link to, credit, or leave "inspired by" copy referencing them. Reimplement in PGcode's own voice; original visualizations only.
+
+Refinements (2026-06-14 PM): (a) Visualize gallery is a **routed drill-down** — category card → `/visualize/c/:category` module page (submodule/viz cards) → `/visualize/:slug` viz page with the editable-code panel; never expand viz lists inline under a category. (b) The Compete LeetCode profile/compare presents the live `lc-user` data as a coherent **chart-heavy visual dashboard** (submission/difficulty/beats/rating-timeline/win-loss/contest-table/tag charts), two-profile overlay — original SVG charts, theme tokens, never text dumps. (c) Profiles carry a `leetcode_handle`; when set, their live LeetCode stats render into one coherent shareable card.
+
 ## Content-quality bars (HARD)
 
 - **Concepts** must hit: intro 60+ w, whyItMatters 70+ w, **intuition ≥ 200 w**, **visualization ≥ 8 fenced ASCII lines**, bruteForce 60+ w, **optimal ≥ 200 w**, complexity 40+ w, pitfalls ≥ 4 items, interviewTips 3 items, code blocks for all 4 languages (Python / JS / Java / C++).

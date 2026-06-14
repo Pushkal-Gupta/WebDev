@@ -3,10 +3,10 @@
   overflow-y: auto;
   overflow-x: hidden;
   min-height: 0;
-  width: 100%;
-  max-width: 1680px;
+  width: 94%;
+  max-width: var(--container-w);
   margin: 0 auto;
-  padding: 1.2rem clamp(1.5rem, 4vw, 4rem) 4rem;
+  padding: 1.2rem 0 4rem;
   font-family: var(--mono);
 }
 

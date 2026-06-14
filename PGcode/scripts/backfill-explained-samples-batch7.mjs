@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Backfill PGcode_problems.explained_samples — batch 7 (30 problems, trees + BST focus).
+// Backfill PGcode_problems.explained_samples — batch 7 (30 fresh problems, spread across Easy/Medium/Hard).
 // Same shape as batches 1..6: { inputs: [str], expected: str, explanation_md: str, viz_anchor: null }.
+// Selected only problems whose explained_samples was empty and that hold >=3 graded test cases.
 // Run: node scripts/backfill-explained-samples-batch7.mjs
 
 import fs from 'node:fs';
@@ -25,842 +26,725 @@ if (!URL || !SVC) {
 const sb = createClient(URL, SVC);
 
 const PAYLOAD = {
-  'binary-tree-inorder-traversal': [
+  // ---------- EASY ----------
+  'gcd': [
     {
-      inputs: ['[1,null,2,3]'],
-      expected: '[1,3,2]',
+      inputs: ['48', '18'],
+      expected: '6',
       explanation_md:
-        'The canonical LC example. Inorder visits **left → node → right**. Iterative version: push every left descendant onto a stack until null. Pop, record value, then descend the popped node\'s right subtree. Trace for `[1,null,2,3]`: push `1` (no left). Pop `1`, record `[1]`, go right to `2`. Push `2`, then push `3` (its left). Pop `3`, record `[1,3]`, no right. Pop `2`, record `[1,3,2]`, no right. Stack empty, return. **O(n)** time, **O(h)** space where `h` is tree height.',
+        'Euclid\'s algorithm: replace the pair `(a, b)` with `(b, a mod b)` until the second number is `0`; the surviving first number is the GCD. Trace `gcd(48, 18)`: `48 mod 18 = 12` gives `gcd(18, 12)`. `18 mod 12 = 6` gives `gcd(12, 6)`. `12 mod 6 = 0` gives `gcd(6, 0)`, stop. Return `6`. Each step strictly shrinks the numbers, so it terminates in **O(log min(a,b))** iterations, far faster than trial-dividing every candidate from `min(a,b)` downward.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]'],
-      expected: '[]',
+      inputs: ['7', '13'],
+      expected: '1',
       explanation_md:
-        'The empty-tree edge case. Root is null, the iterative loop never pushes anything, the stack stays empty, return `[]`. A recursive implementation hits the base case `if not node: return` immediately. Proves the algorithm handles null root without special-casing — both styles short-circuit naturally. A brittle implementation that reads `root.left` before checking for null would NPE.',
+        'Two coprime numbers, whose only common divisor is `1`. Trace: `gcd(7, 13)`. `7 mod 13 = 7` gives `gcd(13, 7)`. `13 mod 7 = 6` gives `gcd(7, 6)`. `7 mod 6 = 1` gives `gcd(6, 1)`. `6 mod 1 = 0` gives `gcd(1, 0)`, stop, return `1`. Proves the algorithm correctly reports `1` when no shared factor exists. The first swap is automatic: when `a < b`, `a mod b = a`, which simply flips the pair on the next step.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1,2,3,4,5,null,8,null,null,6,7,9]'],
-      expected: '[4,2,6,5,7,1,3,9,8]',
+      inputs: ['0', '5'],
+      expected: '5',
       explanation_md:
-        'A deeper tree exposing why the stack is essential. Walking the leftmost path pushes `1, 2, 4`. Pop `4`, record, go right (null). Pop `2`, record, descend into `5`; push `5`, then push `6` (its left). Pop `6`, record, no right; pop `5`, record, go right to `7`; push `7`, pop `7`, record. Pop `1`, record, descend right into `3`; push `3`, no left; pop `3`, record; go right to `8`; push `8`, push `9`; pop `9`, record; pop `8`, record. Final: `[4,2,6,5,7,1,3,9,8]`. Recursion would do the same with implicit stack — explicit stack just makes the order visible.',
+        'The zero edge case. By definition `gcd(0, n) = n`, because every number divides `0`, so the largest common divisor is `n` itself. Trace: `gcd(0, 5)`. `0 mod 5 = 0` gives `gcd(5, 0)`, the second argument is `0`, stop, return `5`. Proves the recursion bottoms out correctly when one input is `0`. An implementation that loops `while b != 0` and computes `a mod b` still lands here in a single step.',
       viz_anchor: null,
     },
   ],
 
-  'binary-tree-preorder-traversal': [
+  'power': [
     {
-      inputs: ['[1,null,2,3]'],
+      inputs: ['2', '10'],
+      expected: '1024',
+      explanation_md:
+        'Fast exponentiation by squaring. Instead of multiplying `x` by itself `n` times in **O(n)**, square the base and halve the exponent: `x^n = (x^2)^(n/2)` for even `n`, peeling off one factor when `n` is odd. Trace `2^10`: `2^10 = 4^5 = 4 * 4^4 = 4 * 16^2 = 4 * 256 = 1024`. Only about `log2(10)` is roughly 4 multiplications instead of 10. Return `1024`. **O(log n)** time, **O(1)** space iteratively.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['2', '0'],
+      expected: '1',
+      explanation_md:
+        'The zero-exponent edge case. Any base raised to the power `0` is `1` by definition. The loop condition `while n > 0` never fires, the accumulated result stays at its initial value `1`, and the function returns `1`. Proves the algorithm handles `n = 0` without special-casing: the multiplicative identity seeds the accumulator. An implementation that multiplies once before the loop would wrongly return `2` here.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['1', '100'],
+      expected: '1',
+      explanation_md:
+        'A base of `1` with a large exponent. `1` squared is still `1`, so every step of the squaring loop leaves the result at `1`. Even though `n = 100` triggers about 7 iterations, each multiplies by a power of `1`. Return `1`. Proves the algorithm stays correct and never overflows when the base cannot grow, a useful sanity case that a naive **O(n)** loop would also pass but in 100 iterations versus 7.',
+      viz_anchor: null,
+    },
+  ],
+
+  'base-7': [
+    {
+      inputs: ['100'],
+      expected: '"202"',
+      explanation_md:
+        'Convert to base 7 by repeated division: divide by `7`, prepend the remainder, repeat until the quotient is `0`. Trace `100`: `100 / 7 = 14` remainder `2`. `14 / 7 = 2` remainder `0`. `2 / 7 = 0` remainder `2`. Reading remainders bottom-up gives `"202"`. Check: `2*49 + 0*7 + 2 = 98 + 2 = 100`. Return `"202"`. **O(log n)** divisions. The remainders are produced least-significant-first, so they must be reversed or prepended.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['-7'],
+      expected: '"-10"',
+      explanation_md:
+        'A negative input. Convert the absolute value, then prepend a minus sign. Trace `|-7| = 7`: `7 / 7 = 1` remainder `0`. `1 / 7 = 0` remainder `1`. Digits bottom-up are `"10"`. Reattach the sign to get `"-10"`. Check: `-(1*7 + 0) = -7`. Proves the algorithm handles the sign separately from digit extraction. An implementation that takes `mod` of a negative number directly would produce a wrong remainder in many languages.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['0'],
+      expected: '"0"',
+      explanation_md:
+        'The zero edge case. The division loop `while num != 0` never runs, leaving an empty digit string. The function must special-case this and return `"0"` directly. Proves why the `num == 0` guard is mandatory: without it the answer would be the empty string instead of `"0"`. Every number-to-string base conversion needs exactly this single guard at the top before the division loop.',
+      viz_anchor: null,
+    },
+  ],
+
+  'fibonacci': [
+    {
+      inputs: ['5'],
+      expected: '5',
+      explanation_md:
+        'The Fibonacci sequence: `F(0)=0`, `F(1)=1`, `F(n)=F(n-1)+F(n-2)`. Compute iteratively with two rolling variables `a=0, b=1`, updating `(a, b) = (b, a+b)` `n` times. Trace for `n=5`: start `a=0,b=1`. Step 1 gives `(1,1)`, step 2 `(1,2)`, step 3 `(2,3)`, step 4 `(3,5)`, step 5 `(5,8)`. Return `a=5`. **O(n)** time, **O(1)** space. The naive recursion recomputes subproblems exponentially; the rolling pair collapses it to linear.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['0'],
+      expected: '0',
+      explanation_md:
+        'The base case. `F(0) = 0` by definition. With the rolling pair seeded at `a=0, b=1`, the update loop runs zero times, so `a` keeps its initial value `0` and that is returned. Proves the algorithm correctly returns the first seed without iterating even once. An implementation that always runs at least one update step before reading the answer would wrongly return `1` here, a classic off-by-one error at the loop boundary that this smallest case is designed to catch.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['2'],
+      expected: '1',
+      explanation_md:
+        'The first non-trivial term. `F(2) = F(1) + F(0) = 1 + 0 = 1`. Trace with the rolling pair `a=0,b=1`: step 1 gives `(1,1)`, step 2 gives `(1,2)`, return `a=1`. Proves the recurrence is wired correctly at the boundary where both seeds first combine. Off-by-one errors in the loop count surface here: running the loop `n+1` times instead of `n` would return `2`.',
+      viz_anchor: null,
+    },
+  ],
+
+  'factorial': [
+    {
+      inputs: ['5'],
+      expected: '120',
+      explanation_md:
+        'Factorial multiplies every integer from `1` to `n`. Iterative accumulation: start `result = 1`, multiply by each `i` from `2` to `n`. Trace `5!`: `1 * 2 = 2`, then `* 3 = 6`, `* 4 = 24`, `* 5 = 120`. Return `120`. **O(n)** time, **O(1)** space. The accumulator seeds at `1`, the multiplicative identity, which is exactly why `0!` and `1!` both come out as `1` with no special-casing needed.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['0'],
+      expected: '1',
+      explanation_md:
+        'The `0!` edge case, defined as `1`, the empty product. The accumulation loop from `2` to `0` never executes, leaving `result` at its seed value `1`. Return `1`. Proves why seeding the accumulator at `1` is the entire trick: the empty-range product is the identity element. An implementation that initializes `result = n` would wrongly return `0` here, since it would multiply by zero.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['3'],
+      expected: '6',
+      explanation_md:
+        'A small case showing the multiply-chain. `3! = 1 * 2 * 3`. Trace: `result=1`, multiply by `2` to get `2`, multiply by `3` to get `6`. Return `6`. Proves the loop bounds are inclusive of `n`: stopping at `i < n` instead of `i <= n` would return `2`. The recursive form `n * factorial(n-1)` produces the same chain, bottoming out at `factorial(0) = 1`.',
+      viz_anchor: null,
+    },
+  ],
+
+  'leap-year': [
+    {
+      inputs: ['2000'],
+      expected: 'true',
+      explanation_md:
+        'A year is a leap year if divisible by `4`, except centuries, which must also be divisible by `400`. Trace `2000`: divisible by `4`? yes. Divisible by `100`? yes, so it must clear the `400` gate. Divisible by `400`? `2000 / 400 = 5` exactly, yes. So `2000` is a leap year. Return `true`. This is the famous case that catches the naive "divisible by 4" rule: `2000` survives only because it also passes the `400` exception.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['1900'],
+      expected: 'false',
+      explanation_md:
+        'The century trap. `1900` is divisible by `4` (quotient `475`), so the naive rule would call it a leap year. But it is also divisible by `100`, triggering the exception, and `1900 / 400 = 4.75` is not exact, so it fails the `400` gate. Return `false`. Proves the century exception is essential: this exact pair, `1900` false and `2000` true, distinguishes a correct implementation from the "divisible by 4" shortcut.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['2023'],
+      expected: 'false',
+      explanation_md:
+        'A plain non-leap year. `2023 mod 4 = 3`, so it fails the very first divisibility test and the century rules never come into play. Return `false`. Proves the common path short-circuits cleanly: three years out of every four exit at the first check. The full century rule only matters for the minority of years that are divisible by `4`.',
+      viz_anchor: null,
+    },
+  ],
+
+  'add-digits': [
+    {
+      inputs: ['38'],
+      expected: '2',
+      explanation_md:
+        'Repeatedly sum the digits until a single digit remains. Trace `38`: `3 + 8 = 11`, then `1 + 1 = 2`. Return `2`. The **O(1)** trick is the digital root: for `n > 0`, the answer is `1 + (n - 1) mod 9`. Check: `1 + (38 - 1) mod 9 = 1 + 37 mod 9 = 1 + 1 = 2`. Both the iterative loop and the closed form agree, because a number is congruent to its digit sum modulo `9`.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['0'],
+      expected: '0',
+      explanation_md:
+        'The zero edge case. A single-digit input is already its own digital root, so `0` returns `0`. The closed form `1 + (n-1) mod 9` must be guarded: plugging `n = 0` would give a wrong value, so the formula applies only for `n > 0` and `0` is returned directly. Proves the `n == 0` special case is mandatory for the constant-time version. The iterative loop handles it naturally with no summing.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['18'],
+      expected: '9',
+      explanation_md:
+        'A multiple of `9`. Trace iteratively: `1 + 8 = 9`, already a single digit, return `9`. The closed form: `1 + (18 - 1) mod 9 = 1 + 17 mod 9 = 1 + 8 = 9`. Proves the digital root of any positive multiple of `9` is `9`, not `0`. The `1 + (n-1) mod 9` shaping is what avoids the off-by-one that a plain `n mod 9` would produce, which gives `0` here.',
+      viz_anchor: null,
+    },
+  ],
+
+  'move-zeroes': [
+    {
+      inputs: ['[0,1,0,3,12]'],
+      expected: '[1,3,12,0,0]',
+      explanation_md:
+        'Move all zeros to the end while keeping the order of non-zeros. Two-pointer: a `write` index marks where the next non-zero goes. Scan with `read`; on each non-zero, copy it to `nums[write]` and advance `write`. After the scan, fill the rest with zeros. Trace `[0,1,0,3,12]`: non-zeros in order are `1, 3, 12`, written to indices `0,1,2`. Positions `3,4` get zeroed, giving `[1,3,12,0,0]`. **O(n)** time, **O(1)** space; the relative order is preserved by the single left-to-right pass.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[0]'],
+      expected: '[0]',
+      explanation_md:
+        'A single zero. The read scan finds no non-zeros, so the `write` pointer stays at `0` throughout. The fill phase then writes a zero into position `0`, a no-op since that slot is already zero. The result is `[0]`. Proves the algorithm handles an all-zero array of length one cleanly, with no out-of-bounds write and no spurious shift of the element. The `write` pointer simply never advances past the start, so the fill range and the original content coincide exactly.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[1,2,3]'],
       expected: '[1,2,3]',
       explanation_md:
-        'The canonical LC example. Preorder visits **node → left → right**. Iterative version: push root onto a stack. Pop, record value, push right child first, then left (so left is popped first). Trace: stack `[1]`. Pop `1`, record `[1]`, push right `2`. Stack `[2]`. Pop `2`, record `[1,2]`, push right (none), push left `3`. Stack `[3]`. Pop `3`, record `[1,2,3]`. Stack empty, return. **O(n)** time, **O(h)** space. The right-then-left push order is the only subtlety.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]'],
-      expected: '[]',
-      explanation_md:
-        'The empty-tree edge case. Root is null, never pushed onto the stack. The loop\'s `while stack` condition fails immediately, return `[]`. A recursive solution hits the base case at the first call. Proves the algorithm handles null root without crashing. The early return `if not root: return []` is the standard guard for tree-traversal algorithms.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[3,1,2]'],
-      expected: '[3,1,2]',
-      explanation_md:
-        'A small full-depth-2 tree showing standard preorder order. Push `3`. Pop `3`, record `[3]`, push right `2`, push left `1`. Stack `[2, 1]`. Pop `1`, record `[3, 1]`, no children. Pop `2`, record `[3, 1, 2]`. Return. Proves the right-first push order produces left-first visit. Inverting (push left then right) would produce `[3, 2, 1]` — wrong by spec. The stack reverses the push order automatically.',
+        'A no-zeros case. Every element is non-zero, so each is written straight back to its own index and `write` keeps pace with `read`. After the scan `write == n`, so the zero-fill phase has nothing to do. Result unchanged `[1,2,3]`. Proves the algorithm degrades to a harmless identity copy when no movement is needed; no element is ever displaced from its original position.',
       viz_anchor: null,
     },
   ],
 
-  'binary-tree-postorder-traversal': [
+  'add-strings': [
     {
-      inputs: ['[1,null,2,3]'],
-      expected: '[3,2,1]',
+      inputs: ['"11"', '"123"'],
+      expected: '"134"',
       explanation_md:
-        'The canonical LC example. Postorder visits **left → right → node**. Trick: do a modified preorder (node, right, left) onto an output list, then reverse. Trace: push `1`. Pop `1`, prepend `[1]`, push left (none), push right `2`. Pop `2`, prepend `[2, 1]`, push left `3`. Pop `3`, prepend `[3, 2, 1]`. Return. Equivalently, a recursive version: postorder(left), postorder(right), record(node). **O(n)** time, **O(h)** space. The reverse-preorder trick avoids the trickier "two-stack" iterative pattern.',
+        'Add two numbers given as strings without converting to integers, since they may exceed native int range. Walk both from the right, adding digit-by-digit with a carry. Trace `"11" + "123"`: align right as `_11` and `123`. Units `1+3=4`, tens `1+2=3`, hundreds `0+1=1`, no carry left. Read top-down to get `"134"`. **O(max(m,n))** time. The right-to-left walk plus a carry is the manual long-addition you learned on paper, encoded directly.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['"0"', '"0"'],
+      expected: '"0"',
+      explanation_md:
+        'The zero edge case. Units digit `0 + 0 = 0`, carry `0`, no more digits. Result `"0"`. Proves the algorithm does not emit a leading `0` followed by nothing or an empty string: the single produced digit is exactly right. An implementation that strips leading zeros too aggressively could turn this into the empty string; here the loop writes one digit and stops.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['"99"', '"1"'],
+      expected: '"100"',
+      explanation_md:
+        'The carry-propagation case. Units `9 + 1 = 10`, write `0`, carry `1`. Tens `9 + 0 + carry 1 = 10`, write `0`, carry `1`. No more digits, but the carry is `1`, so write a leading `1`. Read top-down to get `"100"`. Proves the post-loop carry-flush is mandatory: without appending the final carry, the result would be the wrong `"00"`. This is the classic off-by-one a naive implementation drops.',
+      viz_anchor: null,
+    },
+  ],
+
+  'summary-ranges': [
+    {
+      inputs: ['[0,1,2,4,5,7]'],
+      expected: '["0->2","4->5","7"]',
+      explanation_md:
+        'Collapse a sorted array into its consecutive ranges. Walk with a `start` marker; whenever the next element is not exactly one more than the current, close the run. Trace `[0,1,2,4,5,7]`: `0,1,2` are consecutive, giving `"0->2"`. Break at `4` (not `3`); `4,5` consecutive gives `"4->5"`. Break at `7`; `7` alone gives `"7"`. Result `["0->2","4->5","7"]`. **O(n)** time. Single-element runs render as just the number, multi-element runs as `"a->b"`.',
       viz_anchor: null,
     },
     {
       inputs: ['[]'],
       expected: '[]',
       explanation_md:
-        'The empty-tree edge case. Root is null, return `[]` immediately. Both iterative and recursive variants short-circuit at the null check before any recursion. Proves the algorithm handles the null root without crashing. The early return guard is required because the next step would read `root.left` / `root.right`.',
+        'The empty-array edge case. There are no elements to scan, so the loop never starts, no `start` marker is set, and no range is ever opened or closed. The function returns the empty list `[]` directly. Proves the algorithm short-circuits cleanly on empty input. An implementation that reads `nums[0]` to seed `start` before checking the array length would throw an index error here, so the length guard placed before the first element access is mandatory for correctness.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[1,3,5,7]'],
+      expected: '["1","3","5","7"]',
+      explanation_md:
+        'An all-gaps case. No two adjacent values differ by exactly `1`, so every element is its own singleton range. Each range opens and closes on the same element, then renders as a bare number, giving `["1","3","5","7"]`. Proves the single-element formatting branch fires for every element when no consecutive runs exist anywhere in the input. The `start == end` check at each closure decides between emitting the plain `"x"` form and the two-ended `"a->b"` form, and here it always picks the plain form.',
+      viz_anchor: null,
+    },
+  ],
+
+  'prime-factors': [
+    {
+      inputs: ['60'],
+      expected: '[2,2,3,5]',
+      explanation_md:
+        'Trial division for the prime factorization. Divide out each factor `d` starting at `2` as many times as it goes, then move on. Trace `60`: `60 / 2 = 30`, `/ 2 = 15` (2 stops dividing). Try `3`: `15 / 3 = 5`. Try `5`: `5 / 5 = 1`. Collected factors `[2,2,3,5]`; check `2*2*3*5 = 60`. **O(sqrt(n))** because once `d*d > n` the remaining `n` (if `> 1`) is itself prime. Repeated factors appear as many times as they divide.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['1'],
+      expected: '[]',
+      explanation_md:
+        'The unit edge case. `1` has no prime factors, being neither prime nor composite. The trial-division loop starts with `n = 1`, already at the termination bound, so no divisor ever divides it and nothing is collected. Return `[]`. Proves the algorithm correctly emits the empty list for `1`. An implementation that always appends the final `n > 1` remainder must guard against adding a leftover `1`.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['7'],
+      expected: '[7]',
+      explanation_md:
+        'A prime input. Trial division tries `2` (does not divide `7`), and once the candidate exceeds `sqrt(7)` near `2.6` the loop stops with `n` still `7` and greater than `1`. That leftover `n` is itself prime, so append it, giving `[7]`. Proves the post-loop "remaining n is prime" step is essential: without it, primes larger than `sqrt(original)` would be dropped and the product would be wrong.',
+      viz_anchor: null,
+    },
+  ],
+
+  // ---------- MEDIUM ----------
+  'peak': [
+    {
+      inputs: ['[1,2,3,1]'],
+      expected: '2',
+      explanation_md:
+        'Find any index whose value exceeds both neighbors, with out-of-bounds neighbors treated as negative infinity. Binary search on the slope: compare `nums[mid]` with `nums[mid+1]`. If ascending, a peak lies to the right, so go right; otherwise go left or stay. Trace `[1,2,3,1]`: `mid=1`, `nums[1]=2 < nums[2]=3` ascending, search right; converge on index `2` where `3 > 1`. Return `2`. **O(log n)** time, since a rising slope always points toward a peak.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[1]'],
+      expected: '0',
+      explanation_md:
+        'A single element. Both of its neighbors are out of bounds, treated as negative infinity, so the lone element is trivially greater than both and is a valid peak. Binary search collapses immediately with `lo == hi == 0` and never compares anything. Return `0`. Proves the boundary-as-negative-infinity convention makes the single-element case fall out for free, with no special check needed before the binary-search loop begins. The same convention is what lets the algorithm treat the two array ends uniformly with interior positions.',
       viz_anchor: null,
     },
     {
       inputs: ['[1,2,3,4,5]'],
-      expected: '[4,5,2,3,1]',
-      explanation_md:
-        'A complete tree showing how postorder leaves come first. Tree: root `1`, left `2` (children `4`, `5`), right `3`. Recursive postorder: visit left subtree of `2` → `4`, right subtree → `5`, then `2`. Visit `3` (no children). Visit `1` last. Result: `[4, 5, 2, 3, 1]`. Postorder is the canonical traversal for problems like "delete a tree" or "compute subtree-sums" — every child is processed before its parent.',
-      viz_anchor: null,
-    },
-  ],
-
-  'count-good-nodes-in-binary-tree': [
-    {
-      inputs: ['[3,1,4,3,null,1,5]'],
       expected: '4',
       explanation_md:
-        'The canonical LC example. A "good" node has no ancestor with a strictly larger value. DFS while carrying `maxSoFar` (root\'s value initially). At each node, if `node.val >= maxSoFar`, increment the count and update `maxSoFar` for children. Trace: root `3` (good, max=3). Left `1` (1<3, skip). Left-left `3` (good, max=3). Right `4` (4>=3, good, max=4). Right-left `1` (1<4, skip). Right-right `5` (5>=4, good, max=5). Total: `4` good nodes. **O(n)** time, **O(h)** space.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
-      expected: '1',
-      explanation_md:
-        'The single-node edge case. The root is always good — it has no ancestors. Return `1`. Proves the algorithm correctly handles `n = 1`. A brittle implementation that initializes `maxSoFar = root.val` and checks `node.val > maxSoFar` (strictly greater) would miss the root since `1 > 1` is false. The `>=` comparison is required.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[3,3,null,4,2]'],
-      expected: '3',
-      explanation_md:
-        'A case where ties count as good. Root `3` (good, max=3). Left `3` (3>=3, good, max=3). Left-left `4` (good, max=4). Left-right `2` (2<4, skip). Total: `3`. Proves the **`>=` rule** — equal-valued ancestors do not disqualify a descendant. A brittle implementation using strict `>` would return `2`, missing the left child. The test `node.val >= maxSoFar` is the entire algorithm.',
+        'A strictly increasing array, so the peak must be the last element, whose right neighbor is negative infinity. Binary search keeps seeing `nums[mid] < nums[mid+1]` (always ascending) and pushes `lo` rightward until it lands on the final index `4`. Return `4`. Proves the "go right when ascending" rule correctly walks an entire monotonic run to its end, since the slope never reverses.',
       viz_anchor: null,
     },
   ],
 
-  'validate-binary-search-tree': [
+  '2-sum': [
     {
-      inputs: ['[2,1,3]'],
-      expected: 'true',
+      inputs: ['[2,7,11,15]', '9'],
+      expected: '[0,1]',
       explanation_md:
-        'The canonical LC example. A BST requires every node\'s value to lie in `(lo, hi)` where `lo`/`hi` propagate down from ancestors. DFS recursively passing the open bounds. Root `2` is in `(-inf, +inf)`. Left `1` must be in `(-inf, 2)` — yes. Right `3` must be in `(2, +inf)` — yes. Return `true`. **O(n)** time, **O(h)** space. The naive "check left.val < node.val < right.val" only checks immediate children and misses deeper violations.',
+        'Find the two indices whose values sum to the target. One-pass hash map: for each `nums[i]`, check if `target - nums[i]` was already seen; if so, return the stored index and `i`. Trace `[2,7,11,15]`, target `9`: at `i=0` store `2 -> 0`. At `i=1`, need `9 - 7 = 2`, which is in the map at index `0`, so return `[0,1]`. **O(n)** time, **O(n)** space. The map turns the inner complement search from **O(n)** into **O(1)**.',
       viz_anchor: null,
     },
     {
-      inputs: ['[5,1,4,null,null,3,6]'],
-      expected: 'false',
+      inputs: ['[3,3]', '6'],
+      expected: '[0,1]',
       explanation_md:
-        'A classic trap where local checks pass but global ordering fails. Root `5`. Right subtree root `4` violates `4 > 5` — caught immediately. Even if we got past that, `3` (deep in the right subtree) would need to be `> 5`, which fails. Bounds propagation: when descending right of `5`, child must be in `(5, +inf)`. `4 > 5` is false → return `false`. Proves the bounds-passing approach is essential — checking only direct children is insufficient.',
+        'A duplicate-value case. At `i=0` store `3 -> 0`. At `i=1`, the complement `6 - 3 = 3` is already in the map at index `0`, so return `[0,1]`. Proves the one-pass approach uses two distinct indices even when the values are equal, because the first `3` was stored before the second is checked. A two-pass build-then-search that overwrites the key would lose index `0` and break here.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]'],
-      expected: 'true',
+      inputs: ['[0,4,3,0]', '0'],
+      expected: '[0,3]',
       explanation_md:
-        'The empty-tree edge case. An empty tree is vacuously a BST. The recursive base case `if not node: return True` short-circuits at the first call. Proves the algorithm handles null root cleanly. A brittle implementation that reads `root.val` before checking for null would NPE. The trivial-true answer holds for the same reason that "every X in an empty set satisfies P" is true.',
-      viz_anchor: null,
-    },
-  ],
-
-  'kth-smallest-element-in-a-bst': [
-    {
-      inputs: ['[3,1,4,null,2]', '1'],
-      expected: '1',
-      explanation_md:
-        'The canonical LC example. Inorder traversal of a BST visits values in **sorted ascending order**. Walk inorder; when we have emitted `k` values, return the last one. Iterative stack version: push left descendants. Pop `1` (first inorder value). `k=1` matches — return `1`. **O(h + k)** time, **O(h)** space. We never need to traverse the full tree; we stop as soon as we hit the `k`th inorder visit.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[5,3,6,2,4,null,null,1]', '3'],
-      expected: '3',
-      explanation_md:
-        'A deeper tree with `k = 3`. Inorder visits: `1, 2, 3, 4, 5, 6`. The 3rd value is `3`. Iterative trace: push `5, 3, 2, 1`. Pop `1` (count=1). Pop `2` (count=2). Pop `3` (count=3, return). We never even visit `4, 5, 6`. Proves the early-exit optimization — for small `k` on a balanced BST, runtime is **O(log n + k)** instead of full **O(n)** inorder. The stack pattern enables this stop-when-found behavior cleanly.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]', '1'],
-      expected: '1',
-      explanation_md:
-        'The single-node edge case. Only one value exists; `k = 1` returns it. The iterative loop pushes `1`, pops it, count reaches 1, returns. Proves the algorithm handles minimum-size BSTs without special-casing. The pop-and-count pattern works identically regardless of tree shape — a single node is just a degenerate case of the general recursion.',
+        'A target of `0` with two zeros. At `i=0` store `0 -> 0`. Values `4` and `3` need complements `-4` and `-3`, both absent. At `i=3`, value `0` needs `0 - 0 = 0`, found at index `0`, so return `[0,3]`. Proves the algorithm handles zero targets and zero values correctly: the complement of `0` is `0`, and the earlier index is recalled. Skipping zero-valued keys would miss this pair.',
       viz_anchor: null,
     },
   ],
 
-  'binary-tree-maximum-path-sum': [
+  'kadane': [
     {
-      inputs: ['[1,2,3]'],
+      inputs: ['[-2,1,-3,4,-1,2,1,-5,4]'],
       expected: '6',
       explanation_md:
-        'The canonical LC example. A path goes node-to-node through any sequence of edges, can bend once. DFS returning the **best straight-down gain** from each node. At each node compute `bestThroughHere = node.val + max(0, leftGain) + max(0, rightGain)` and update a global `maxSum`. Then return `node.val + max(0, max(leftGain, rightGain))` to the parent (only one side can extend upward). Trace: leaf gains are `2` and `3`. At root `1`, `bestThroughHere = 1+2+3 = 6`. Return `6`. **O(n)** time, **O(h)** space.',
+        'Kadane\'s algorithm for the maximum contiguous subarray sum. Track `cur`, the best sum ending here, and `best`, the global max. At each element `cur = max(nums[i], cur + nums[i])`, either extending the running sum or restarting at the current element. Trace: `cur` runs `-2,1,-2,4,3,5,6,1,5`; `best` peaks at `6`. The winning subarray is `[4,-1,2,1]`. Return `6`. **O(n)** time, **O(1)** space. The restart-versus-extend choice is the whole idea.',
       viz_anchor: null,
     },
     {
-      inputs: ['[-3]'],
-      expected: '-3',
+      inputs: ['[-2,-3,-1,-4]'],
+      expected: '-1',
       explanation_md:
-        'A single negative node. The path must include at least one node, so the answer is `-3`, not `0`. A brittle implementation that initializes `maxSum = 0` (or returns `max(0, val)`) would wrongly return `0`. The fix: initialize `maxSum = -inf` and let the first node update it. Proves the bend-or-not logic must allow negative answers when no positive paths exist.',
+        'An all-negative array. Since at least one element must be chosen, the answer is the largest single element, `-1`, not `0`. The `max(nums[i], cur+nums[i])` rule always prefers the standalone element when extending only adds more negativity, so `best = -1`. Proves `best` must be seeded with the first element or negative infinity, not `0`: seeding at `0` would wrongly report `0` for an empty selection that is not allowed.',
       viz_anchor: null,
     },
     {
-      inputs: ['[-10,9,20,null,null,15,7]'],
-      expected: '42',
-      explanation_md:
-        'The classic test where the best path **skips the root**. Best path: `15 → 20 → 7`, sum `42`. At node `20`, `leftGain = 15`, `rightGain = 7`, `bestThroughHere = 20 + 15 + 7 = 42`. Update `maxSum`. Then return `20 + max(15, 7) = 35` to root. At root `-10`, the available extension is `max(0, 35) = 35` from right; left subtree gain `9` also positive; `bestThroughHere = -10 + 9 + 35 = 34 < 42`. Final `maxSum = 42`. Proves the bend can happen at any node, not just the root.',
-      viz_anchor: null,
-    },
-  ],
-
-  'serialize-and-deserialize-binary-tree': [
-    {
-      inputs: ['[1,2,3,null,null,4,5]'],
-      expected: '[1,2,3,null,null,4,5]',
-      explanation_md:
-        'The canonical LC example. Serialize via BFS, recording every position including null children, joined by commas: `"1,2,3,N,N,4,5"`. Deserialize: split tokens, pop the first as root, then queue parent-pointers. For each parent, consume two tokens (left, right). Build tree, push non-null children onto the queue. Round-trip yields the original structure: root `1`, left `2` (no children), right `3` with children `4, 5`. **O(n)** time and space — every node serialized exactly once.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]'],
-      expected: '[]',
-      explanation_md:
-        'The empty-tree edge case. Serialize returns `""` (or `"N"`). Deserialize sees an empty/null-only token list and returns null. Proves the codec handles the trivial case cleanly. A brittle implementation that assumes at least one node would crash on the first `queue.pop()`. The early return guards in both serialize and deserialize handle this.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,null,2,null,3,null,4]'],
-      expected: '[1,null,2,null,3,null,4]',
-      explanation_md:
-        'A right-skewed tree (linked list shape). Serialize: `"1,N,2,N,3,N,4,N,N"`. Each right-child of the chain has a null left and a right that continues the chain. Deserialize rebuilds the chain by reading tokens in BFS order: root `1`, left null, right `2`, left null, right `3`, etc. Proves the codec handles unbalanced trees correctly — the BFS queue only enqueues non-null nodes, so the parent-pointer queue stays in sync with the token stream regardless of skew.',
-      viz_anchor: null,
-    },
-  ],
-
-  'lowest-common-ancestor-of-a-binary-tree': [
-    {
-      inputs: ['[3,5,1,6,2,0,8,null,null,7,4]', '5', '1'],
-      expected: '3',
-      explanation_md:
-        'The canonical LC example. Recursive LCA: at each node, recurse left and right. If either returns null, propagate the other. If both return non-null, the current node IS the LCA. Trace: root `3` checks both children. Left subtree (rooted at `5`) finds `5`. Right subtree (rooted at `1`) finds `1`. Both non-null → root `3` is the LCA. Return `3`. **O(n)** time, **O(h)** space. The elegance: one DFS pass, no parent pointers, no hash maps.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[3,5,1,6,2,0,8,null,null,7,4]', '5', '4'],
-      expected: '5',
-      explanation_md:
-        'A case where one target is the ancestor of the other. The recursion at node `5` finds itself (return `5`). Continues into left subtree (finds nothing), into right subtree (finds `4` deep). At node `5`, **both branches** return non-null → `5` is the LCA. But the base case `if node == p or node == q: return node` already returned `5` before exploring its children — so we never actually compare both sides. Either short-circuit works because the deeper target is necessarily a descendant.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,2]', '1', '2'],
-      expected: '1',
-      explanation_md:
-        'The minimum-tree edge case. Root `1`, left child `2`. LCA of root and any descendant is the root. The recursion at `1` matches `p`, returns `1`. The right subtree is empty (returns null). At root level, left returns `1` (the early match), right returns null → propagate left. Final LCA = `1`. Proves the early-return-on-match pattern handles ancestor cases without extra branching.',
-      viz_anchor: null,
-    },
-  ],
-
-  'binary-search-tree-iterator': [
-    {
-      inputs: ['["BSTIterator","next","next","hasNext","next","hasNext","next","hasNext","next","hasNext"]', '[[[7,3,15,null,null,9,20]],[],[],[],[],[],[],[],[],[]]'],
-      expected: '[null,3,7,true,9,true,15,true,20,false]',
-      explanation_md:
-        'The canonical LC example. Implement an inorder iterator using **O(h)** space. The constructor pushes every left descendant of the root onto a stack: `[7, 3]`. `next()` pops top, captures value, then pushes left descendants of its right child. Pop `3` → return `3`, push left chain of `3.right` (nothing). Pop `7` → return `7`, push left chain of `7.right = 15` → push `15, 9`. Pop `9`, etc. **Amortized O(1)** per `next()` because each node is pushed and popped exactly once across the iterator\'s lifetime.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['["BSTIterator","hasNext","next","hasNext"]', '[[[1]],[],[],[]]'],
-      expected: '[null,true,1,false]',
-      explanation_md:
-        'A single-node BST. Constructor pushes `1` onto the stack. `hasNext()` → stack non-empty, true. `next()` pops `1`, returns `1`, tries to push left chain of `1.right` (null) — nothing added. Stack now empty. `hasNext()` → false. Proves the iterator correctly signals exhaustion after the single value. A brittle implementation that checks `next != null` instead of stack-emptiness would mis-report `hasNext()` here.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['["BSTIterator","next","next","next","next","hasNext"]', '[[[3,1,4,null,2]],[],[],[],[],[]]'],
-      expected: '[null,1,2,3,4,false]',
-      explanation_md:
-        'A tree forcing the right-then-left-chain refill behavior. Constructor pushes left chain of root `3`: `[3, 1]`. Pop `1` → return `1`, push left chain of `1.right = 2`: stack becomes `[3, 2]`. Pop `2` → return `2`, no right child, nothing pushed: stack `[3]`. Pop `3` → return `3`, push left chain of `3.right = 4`: stack `[4]`. Pop `4` → return `4`. Stack empty, `hasNext = false`. Proves the iterator correctly weaves between deep-left descents — total push count is exactly `n`.',
-      viz_anchor: null,
-    },
-  ],
-
-  'delete-node-in-a-bst': [
-    {
-      inputs: ['[5,3,6,2,4,null,7]', '3'],
-      expected: '[5,4,6,2,null,null,7]',
-      explanation_md:
-        'The canonical LC example. Delete from a BST: recurse left or right based on comparison. When found, three cases. (1) No left → return right. (2) No right → return left. (3) Both children → find inorder successor (leftmost of right subtree), copy its value into the node, then delete the successor from the right subtree. Here node `3` has both children. Successor is `4` (leftmost of subtree rooted at `4`). Copy `4` into the slot, delete the original `4`. Result tree: `[5,4,6,2,null,null,7]`. **O(h)** time and space.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]', '0'],
-      expected: '[]',
-      explanation_md:
-        'The empty-tree edge case. Nothing to delete, return null. The recursion\'s null base case `if not root: return None` short-circuits. Equivalent: deleting a key that doesn\'t exist from any tree returns the tree unchanged — the recursion bottoms out at a null subtree without modifying any pointers. Proves the algorithm handles the no-op case cleanly without throwing.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[5,3,6,2,4,null,7]', '7'],
-      expected: '[5,3,6,2,4]',
-      explanation_md:
-        'Deleting a leaf — the simplest case. Recurse right (`7 > 5`), recurse right again (`7 > 6`), found `7`. Both children null → return null (no-left case). The parent `6` now has its right pointer set to null. Tree becomes `[5,3,6,2,4]`. Proves the no-children case requires no successor-finding work — just return null and let the parent unhook the pointer. A brittle implementation that always searches for the inorder successor would crash on a leaf delete.',
-      viz_anchor: null,
-    },
-  ],
-
-  'insert-into-a-binary-search-tree': [
-    {
-      inputs: ['[4,2,7,1,3]', '5'],
-      expected: '[4,2,7,1,3,5]',
-      explanation_md:
-        'The canonical LC example. Walk the BST following the comparison rules: if `val < node.val` go left, else go right. When we reach a null pointer, attach a new node there. Trace: `5 > 4` go right. At `7`, `5 < 7` go left. Left of `7` is null → attach new node `5` there. Result: `[4,2,7,1,3,5]`. **O(h)** time, **O(1)** iterative or **O(h)** recursive. Any valid BST is acceptable per the problem — multiple correct trees exist.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]', '5'],
-      expected: '[5]',
-      explanation_md:
-        'The empty-tree edge case. With root null, insert creates and returns a new node `5` as the root. The recursive base case `if not root: return TreeNode(val)` handles this in one line. Proves the algorithm correctly bootstraps from an empty tree. A brittle implementation that always tries to compare against `root.val` would NPE here.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[40,20,60,10,30,50,70]', '25'],
-      expected: '[40,20,60,10,30,50,70,null,null,25]',
-      explanation_md:
-        'Insert into a deeper balanced BST. Walk: `25 < 40` left, `25 > 20` right, `25 < 30` left, null → attach `25`. The new node lands as the left child of `30`, three levels below root. Tree grows by exactly one node, no rotations or rebalancing needed (problem doesn\'t require balanced output). Proves the algorithm preserves BST property by inserting at the first null slot along the comparison path — the new node\'s value is necessarily greater than all left-ancestors and less than all right-ancestors by construction.',
-      viz_anchor: null,
-    },
-  ],
-
-  'search-in-a-binary-search-tree': [
-    {
-      inputs: ['[4,2,7,1,3]', '2'],
-      expected: '[2,1,3]',
-      explanation_md:
-        'The canonical LC example. Walk the BST: if `val == node.val`, return the node (subtree). If `val < node.val`, recurse left; else right. Trace: `2 < 4` go left to `2`. Match → return the subtree rooted at `2`, which is `[2, 1, 3]`. **O(h)** time, **O(1)** iterative. The BST property turns linear search into logarithmic on balanced trees. The return is a subtree pointer, not just a value — the rest of the tree below the found node comes along.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[4,2,7,1,3]', '5'],
-      expected: '[]',
-      explanation_md:
-        'A missing-value case. Walk: `5 > 4` go right to `7`. `5 < 7` go left of `7` — null. Return null. Proves the algorithm correctly returns null when the value isn\'t present. The BST property guarantees we never need to search the other side of any comparison — once we go right of `4`, we never need to revisit the left subtree because all left values are `< 4 < 5`.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]', '1'],
-      expected: '[]',
-      explanation_md:
-        'The empty-tree edge case. Root is null, return null. The recursive base case `if not root or root.val == val: return root` handles both null and match cases in one line. Proves the algorithm short-circuits cleanly on the trivial input. A brittle implementation that reads `root.val` before checking for null would NPE.',
-      viz_anchor: null,
-    },
-  ],
-
-  'range-sum-of-bst': [
-    {
-      inputs: ['[10,5,15,3,7,null,18]', '7', '15'],
-      expected: '32',
-      explanation_md:
-        'The canonical LC example. Sum every node value in `[low, high]`. DFS while pruning by BST property: if `node.val < low`, only recurse right (left subtree is all smaller). If `node.val > high`, only recurse left. Else include `node.val` and recurse both sides. Trace: `10` in range, include, recurse both. Left `5 < 7`, prune left subtree, recurse right `7` (in range, include). Right `15` in range, include, recurse both. Right-right `18 > 15`, prune. Sum: `10 + 7 + 15 = 32`. **O(n)** worst-case but typically much less.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[10,5,15,3,7,13,18,1,null,6]', '6', '10'],
+      inputs: ['[5,4,-1,7,8]'],
       expected: '23',
       explanation_md:
-        'A wider tree showing pruning saves real work. Include `10` (in `[6, 10]`). Left `5 < 6` → prune `5`\'s left subtree (`3`, `1`), recurse only right `7` (in range, include). Recurse `7`\'s right (none) and left `6` (in range, include). Right of `10` is `15 > 10` → prune entire right subtree (`15, 13, 18`). Sum: `10 + 7 + 6 = 23`. We never visit `1, 3, 13, 15, 18` — pruning skipped 5 out of 10 nodes. Proves the BST pruning is the entire point — naive full-DFS would visit every node.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[10]', '5', '15'],
-      expected: '10',
-      explanation_md:
-        'A single-node BST. Root `10` is in `[5, 15]`, include. No children to recurse. Return `10`. Proves the algorithm handles `n = 1` cleanly — the recursive base case `if not node: return 0` only fires on children. The single-node case still goes through the in-range check first. A brittle implementation that special-cases leaves separately would over-complicate this.',
+        'A nearly-all-positive array. The running sum never benefits from restarting because the dip at `-1` is more than covered by its neighbors. Trace `cur`: `5,9,8,15,23`; `best = 23`, the whole array. Return `23`. Proves the extend branch wins whenever the running prefix stays positive. Kadane only restarts when `cur + nums[i]` falls below `nums[i]` alone, which never happens on this input.',
       viz_anchor: null,
     },
   ],
 
-  'path-sum-ii': [
+  'rotate': [
     {
-      inputs: ['[5,4,8,11,null,13,4,7,2,null,null,5,1]', '22'],
-      expected: '[[5,4,11,2],[5,8,4,5]]',
+      inputs: ['[1,2,3,4,5,6,7]', '3'],
+      expected: '[5,6,7,1,2,3,4]',
       explanation_md:
-        'The canonical LC example. Find ALL root-to-leaf paths summing to `targetSum`. DFS carrying the current path and remaining target. At each node, push value, subtract from target. If leaf and target hits zero, record a copy. Pop value on the way back (classic backtracking). Two valid paths here: `5 → 4 → 11 → 2` (sum 22) and `5 → 8 → 4 → 5` (sum 22). **O(n^2)** worst case (path copy at each match) but usually much less. The path-copy is essential — sharing the mutable list would corrupt earlier results.',
+        'Rotate the array right by `k` using the three-reversal trick. Reverse the whole array, then reverse the first `k` elements, then reverse the rest. Trace `[1..7]`, `k=3`: reverse all gives `[7,6,5,4,3,2,1]`. Reverse first `3` gives `[5,6,7,4,3,2,1]`. Reverse last `4` gives `[5,6,7,1,2,3,4]`. **O(n)** time, **O(1)** space. The double reversal restores internal order within each block while swapping the two blocks\' positions.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1,2,3]', '5'],
-      expected: '[]',
+      inputs: ['[1,2,3]', '3'],
+      expected: '[1,2,3]',
       explanation_md:
-        'A case with no matching paths. Two root-to-leaf paths exist: `1 → 2` (sum 3) and `1 → 3` (sum 4). Neither matches `5`. The DFS visits both leaves, target never hits zero, no records made. Return `[]`. Proves the algorithm correctly returns an empty list when no path matches — the leaf-check `if not node.left and not node.right and remaining == 0` simply never fires.',
+        'A rotation by exactly the length. Rotating `n` elements right by `n` returns the original array. The fix is to take `k mod n` first: `3 mod 3 = 0`, so effectively no rotation happens. Reverse-all then reverse-first-0 then reverse-rest is equivalent to reversing twice, the identity. Result `[1,2,3]`. Proves the `k % n` normalization is mandatory; without it a full reversal cycle could mishandle the block split.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]', '0'],
-      expected: '[]',
+      inputs: ['[1]', '5'],
+      expected: '[1]',
       explanation_md:
-        'The empty-tree edge case. No paths exist, return `[]`. The DFS never starts; the recursive null base case returns immediately. Note: even though `target = 0`, an empty tree has no root-to-LEAF path (no nodes), so the answer is empty — NOT `[[]]`. Proves the algorithm correctly handles null root and distinguishes "tree exists with sum 0" from "no tree at all". A brittle implementation that records on null nodes (treating null as a leaf) would wrongly add `[]` to the result.',
+        'A single element rotated by `5`. After `k mod n = 5 mod 1 = 0`, there is nothing to rotate. Result `[1]`. Proves the modulo step keeps `k` within bounds for tiny arrays: a raw `k = 5` would try to reverse the first `5` elements of a length-one array and go out of bounds. The normalization makes the reversal trick robust for any `k`, however large.',
       viz_anchor: null,
     },
   ],
 
-  'path-sum-iii': [
+  'missing': [
     {
-      inputs: ['[10,5,-3,3,2,null,11,3,-2,null,1]', '8'],
-      expected: '3',
-      explanation_md:
-        'The canonical LC example. Count paths summing to `target` — paths go top-down but need not start at root. Trick: prefix-sum hash map. DFS while accumulating `curSum`. The count of valid paths ending at the current node is `prefixCount[curSum - target]`. Insert `curSum` into the map, recurse, then remove on the way back (backtrack). Three paths: `5 → 3`, `5 → 2 → 1`, and `-3 → 11`. **O(n)** time, **O(h)** space. The brute-force "start a DFS at every node" is **O(n²)** — the prefix trick collapses it.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,-2,-3]', '-1'],
+      inputs: ['[3,0,1]'],
       expected: '2',
       explanation_md:
-        'A small tree with negative values. Paths summing to `-1`: just `-1`? No — values are `1, -2, -3`. Try `1 → -2` (sum `-1` ✓). Try `-2` alone (`-2` ✗). Try `-3` alone (`-3` ✗). Try `1` alone (`1` ✗). Wait — also any single-node path. Just one match: `1 → -2 = -1`. But also `-3 + ...` (no, only one node deep). The accepted answer is `2`: paths are `[1, -2]` and `[-2, 1]` is not a path — recheck. The path `-2` itself is `-2 ≠ -1`. Two matches: `1 → -2 = -1` and... hmm, also consider all single-node paths plus longer. The expected is `2` per LC — verified against canonical solution.',
+        'Find the one number missing from `0..n`. The sum of `0..n` is `n(n+1)/2`; subtract the actual array sum to reveal the gap. Here `n = 3`, expected sum `3*4/2 = 6`, actual sum `3+0+1 = 4`, missing `6 - 4 = 2`. Return `2`. **O(n)** time, **O(1)** space. An equivalent XOR approach (XOR of `0..n` with all elements) avoids any overflow risk while producing the same answer.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]', '0'],
+      inputs: ['[0]'],
+      expected: '1',
+      explanation_md:
+        'A single element. The range is `0..1`, expected sum `1*2/2 = 1`, actual sum `0`, missing `1 - 0 = 1`. Return `1`. Proves the algorithm correctly identifies that the missing number can be `n` itself, the top of the range, not just an interior gap. An implementation that only scans for interior holes between present values would fail to report `1`.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[1]'],
       expected: '0',
       explanation_md:
-        'The empty-tree edge case. No paths exist, return `0`. The recursive base case `if not node: return 0` short-circuits. Even though `target = 0` might suggest an empty-path match, the problem requires at least one node in a path. Proves the algorithm distinguishes "valid path of zero nodes" (doesn\'t exist) from "valid path summing to zero" (would require nodes). A brittle implementation initializing the prefix map with `{0: 1}` correctly handles the "path starting from root" case without over-counting.',
+        'The mirror edge case where `0` itself is missing. Range `0..1`, expected sum `1`, actual sum `1`, missing `1 - 1 = 0`. Return `0`. Proves the formula handles a missing `0` correctly: the difference comes out to `0`, which is a valid answer, not a "nothing missing" signal. The sum-difference method makes no assumption about where the gap is located.',
       viz_anchor: null,
     },
   ],
 
-  'sum-root-to-leaf-numbers': [
+  'union': [
     {
-      inputs: ['[1,2,3]'],
-      expected: '25',
+      inputs: ['[1,2,5,6,2,3,5,7,3]', '[2,4,5,6,8,9,4,6,5,4]'],
+      expected: '[1,2,3,4,5,6,7,8,9]',
       explanation_md:
-        'The canonical LC example. Each root-to-leaf path forms a decimal number; sum them all. DFS carrying a running value `cur = cur * 10 + node.val`. At a leaf, add `cur` to the total. Trace: path `1 → 2` forms `12`. Path `1 → 3` forms `13`. Sum: `12 + 13 = 25`. **O(n)** time, **O(h)** space. The `cur * 10 + node.val` recurrence is the classic "build a number digit by digit" pattern — no string concatenation or parsing needed.',
+        'The union of two arrays: every distinct value appearing in either, sorted. Insert all elements of both arrays into a set, which dedupes automatically, then output the sorted values. From array A the distinct values are `{1,2,3,5,6,7}`; from B `{2,4,5,6,8,9}`; the union is `{1,2,3,4,5,6,7,8,9}`. Sorted, that is `[1,2,3,4,5,6,7,8,9]`. **O((m+n) log(m+n))** dominated by the sort. The set absorbs all internal repeats in both inputs.',
       viz_anchor: null,
     },
     {
-      inputs: ['[4,9,0,5,1]'],
-      expected: '1026',
-      explanation_md:
-        'A 3-level tree. Three paths: `4 → 9 → 5 = 495`. `4 → 9 → 1 = 491`. `4 → 0 = 40`. Sum: `495 + 491 + 40 = 1026`. Proves the algorithm correctly handles digits `0` (path `4 → 0` produces `40`, not `4`) and accumulates from multiple branches. A brittle implementation that adds `node.val` to the parent\'s `cur` instead of multiplying by 10 first would wrongly produce sums of digits, not concatenations.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
-      expected: '1',
-      explanation_md:
-        'The single-node edge case. The root is also a leaf, so its value forms the only "number": `1`. Return `1`. Proves the algorithm correctly handles `n = 1` — the leaf-check fires immediately, `cur = 0 * 10 + 1 = 1` is recorded. A brittle implementation that requires both children to exist before treating something as a leaf would miss this case entirely.',
-      viz_anchor: null,
-    },
-  ],
-
-  'symmetric-tree': [
-    {
-      inputs: ['[1,2,2,3,4,4,3]'],
-      expected: 'true',
-      explanation_md:
-        'The canonical LC example. Check if the tree mirrors itself across the root. Recursive `isMirror(a, b)`: both null → true; one null → false; values differ → false; else recurse on `isMirror(a.left, b.right)` AND `isMirror(a.right, b.left)`. Start with `isMirror(root.left, root.right)`. Trace: `2 == 2`, recurse on `(3, 3)` (left.left vs right.right) and `(4, 4)` (left.right vs right.left). Both pairs match at leaves. Return `true`. **O(n)** time, **O(h)** space.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,2,2,null,3,null,3]'],
-      expected: 'false',
-      explanation_md:
-        'A tree that looks balanced but isn\'t symmetric. Both children are `2`, but the left subtree has only a right child (`3`) and so does the right — but symmetry requires the LEFT subtree\'s right child to mirror the RIGHT subtree\'s LEFT child. So `2.right = 3` should match `2.left` of the right subtree, which is null. Mismatch → return `false`. Proves the cross-comparison (left.left vs right.right, left.right vs right.left) is essential — comparing in straight order would falsely report symmetric.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
-      expected: 'true',
-      explanation_md:
-        'The single-node edge case. A single node is trivially symmetric — no children to compare. The `isMirror(root.left, root.right)` call sees `(null, null)` and returns true. Proves the algorithm handles `n = 1` cleanly. The base case `if not a and not b: return True` covers both leaf-pair and root-with-no-children scenarios.',
-      viz_anchor: null,
-    },
-  ],
-
-  'merge-two-binary-trees': [
-    {
-      inputs: ['[1,3,2,5]', '[2,1,3,null,4,null,7]'],
-      expected: '[3,4,5,5,4,null,7]',
-      explanation_md:
-        'The canonical LC example. Merge in place via parallel DFS. At each step: if one node is null, return the other. Else create a node with summed value and recurse on left/right pairs. Trace at root: `1 + 2 = 3`. Left pair: `3 + 1 = 4`. Right pair: `2 + 3 = 5`. Recurse further until one side is null, then attach the other unchanged. Result: `[3,4,5,5,4,null,7]`. **O(n)** time where `n` is the smaller tree (we only recurse where both have nodes), **O(h)** space.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]', '[1]'],
+      inputs: ['[1,1,1]', '[1,1,1]'],
       expected: '[1]',
       explanation_md:
-        'One tree empty. The base case `if not t1: return t2` (or vice versa) attaches the non-null tree wholesale to the result. No recursion needed past the first call. Proves the algorithm short-circuits correctly when one input is null — we don\'t need to allocate new nodes for the non-null side. The result is literally the surviving tree, no copy.',
+        'Both arrays are all `1`s. As each element is inserted, the set collapses every duplicate copy into a single `1`, so the final set holds just one value. The sorted output is `[1]`. Proves the dedup is global across both inputs: six total occurrences of `1` across the two arrays yield exactly one element. An implementation that only dedupes within each array separately, then concatenates the two distinct results, would wrongly emit `[1,1]` because the cross-array duplicate would survive.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1]', '[]'],
-      expected: '[1]',
+      inputs: ['[1,2,3]', '[]'],
+      expected: '[1,2,3]',
       explanation_md:
-        'Mirror of the previous edge case — symmetry check. The function returns `t1` directly because `t2` is null. Proves the merge is commutative on null inputs. A brittle implementation that only handles `t1 == null` and not `t2 == null` would NPE here. The two base-case checks are non-negotiable.',
+        'One array empty. Inserting the elements of A gives the set `{1,2,3}`, and iterating the empty B adds nothing, so the set is unchanged. The sorted union is just the distinct elements of the non-empty array, `[1,2,3]`. Proves the algorithm handles an empty operand cleanly: the loop over the empty array runs zero times and never touches the set. The result equals A here because A already contains no internal duplicates that the set would need to collapse.',
       viz_anchor: null,
     },
   ],
 
-  'leaf-similar-trees': [
+  'floyd': [
     {
-      inputs: ['[3,5,1,6,2,9,8,null,null,7,4]', '[3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]'],
-      expected: 'true',
+      inputs: ['3'],
+      expected: '["1","2 3","4 5 6"]',
       explanation_md:
-        'The canonical LC example. Two trees are "leaf-similar" if their leaf sequences (left-to-right) match. DFS each tree, append `node.val` to a list when both children are null. Compare lists. Both trees yield leaves `[6, 7, 4, 9, 8]` despite very different internal structures. Return `true`. **O(n1 + n2)** time, **O(h1 + h2)** space. The structural shapes can differ wildly as long as the leaf sequence matches.',
+        'Floyd\'s triangle: row `i` contains `i` consecutive integers, continuing a running counter that never resets. Maintain a counter starting at `1`; for each row from `1` to `n`, emit that many numbers space-joined. Trace `n=3`: row 1 gives `"1"` (counter now 2), row 2 gives `"2 3"` (counter now 4), row 3 gives `"4 5 6"`. Result `["1","2 3","4 5 6"]`. **O(n^2)** numbers total. The key is the counter persisting across rows, never reset per row.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1,2,3]', '[1,3,2]'],
-      expected: 'true',
+      inputs: ['1'],
+      expected: '["1"]',
       explanation_md:
-        'A subtle case — different trees but identical leaf sequences. Tree 1: root `1` with leaves `2, 3`. Tree 2: root `1` with leaves `3, 2`. Wait — leaf order is LEFT-to-RIGHT. Tree 1 leaves: `[2, 3]`. Tree 2 leaves: `[3, 2]`. These differ — would return `false`. Verifying expected: per LC convention, only the leaf VALUES matter in DFS order. Recheck: `[1,3,2]` means root `1`, left `3`, right `2`. Both `3` and `2` are leaves of tree 2. Sequences: `[2,3]` vs `[3,2]` — not equal. Expected here is actually `false`.',
+        'The smallest non-empty triangle, one row holding a single number `1`. The running counter starts at `1`, the first and only row consumes one number and emits `"1"`, and then the loop is done. Result `["1"]`. Proves the algorithm produces exactly one row for `n=1` with no trailing whitespace. The space-join over a single-element list yields the bare string `"1"` rather than `"1 "`, which is why building each row by joining a collected list of numbers beats appending a separator after every number.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1]', '[2]'],
-      expected: 'true',
-      explanation_md:
-        'Wait — single-node trees. Tree 1 leaf: `[1]`. Tree 2 leaf: `[2]`. These differ → expected `false`. The single-node case is degenerate but exercises the leaf-check correctly: a node with no children IS a leaf, so its value gets recorded. The comparison then proceeds on the sequences. Proves the algorithm treats the root as a leaf when both children are null — required for `n = 1`. A brittle implementation that only flags interior null-children as leaves would skip the root entirely.',
-      viz_anchor: null,
-    },
-  ],
-
-  'maximum-binary-tree': [
-    {
-      inputs: ['[3,2,1,6,0,5]'],
-      expected: '[6,3,5,null,2,0,null,null,1]',
-      explanation_md:
-        'The canonical LC example. Recursively build a tree where the root is the max of the array, left subtree is built from the prefix, right subtree from the suffix. Max of `[3,2,1,6,0,5]` is `6` at index 3. Recurse left on `[3,2,1]` (max `3`, then recurse on `[]` left and `[2,1]` right where `2` is root etc.) and right on `[0,5]` (max `5`, left `[0]`, right `[]`). Result tree: `[6, 3, 5, null, 2, 0, null, null, 1]`. **O(n²)** naive, **O(n)** with a monotonic-stack optimization.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[3,2,1]'],
-      expected: '[3,null,2,null,1]',
-      explanation_md:
-        'A strictly decreasing array — produces a right-skewed tree. Max is `3` at index 0. Left subtree is built from `[]` (null). Right from `[2, 1]`: max `2`, then null left and `[1]` right. Result is a chain `3 → null right → 2 → null right → 1`. Proves the algorithm correctly handles cases where one side is always empty. A brittle implementation that recurses without checking for empty subarrays would crash on the empty-prefix or empty-suffix.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,2,3]'],
-      expected: '[3,2,null,1]',
-      explanation_md:
-        'A strictly increasing array — produces a left-skewed tree. Max is `3` at the END (index 2). Left subtree from `[1, 2]`: max is `2`, left from `[1]` (leaf), right from `[]` (null). Right of `3` is `[]` (null). Final tree: `3` with left child `2` (which has left child `1`). Mirrors the previous case. Proves left-skew and right-skew are both handled by the same recursion — the max position determines the skew direction.',
-      viz_anchor: null,
-    },
-  ],
-
-  'binary-tree-tilt': [
-    {
-      inputs: ['[1,2,3]'],
-      expected: '1',
-      explanation_md:
-        'The canonical LC example. Tilt of a node = `|sumLeft - sumRight|`. Total tilt = sum over all nodes. Postorder DFS returning subtree sum; accumulate tilt globally. Trace: leaf `2` returns `2`, tilt `0`. Leaf `3` returns `3`, tilt `0`. Root `1`: `|2 - 3| = 1`, returns `1 + 2 + 3 = 6`. Total tilt = `0 + 0 + 1 = 1`. **O(n)** time, **O(h)** space. The key insight: subtree sum and tilt accumulation can happen in the same single pass.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[4,2,9,3,5,null,7]'],
-      expected: '15',
-      explanation_md:
-        'A multi-level tree. Subtree sums: leaf `3`→3, leaf `5`→5, leaf `7`→7. Node `2`: `|3-5| = 2`, sum=`2+3+5=10`. Node `9`: `|0-7| = 7`, sum=`9+7=16`. Root `4`: `|10-16| = 6`, sum=`4+10+16=30`. Total tilt: `0+0+0+2+7+6 = 15`. Proves the algorithm correctly aggregates tilt from every level — a node with only one child has tilt equal to its other subtree\'s sum (the missing side contributes 0).',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]'],
-      expected: '0',
-      explanation_md:
-        'The empty-tree edge case. No nodes, no tilt, return `0`. The recursive base case `if not node: return 0` short-circuits at the first call without modifying the global accumulator. Proves the algorithm handles null root cleanly. A brittle implementation that initializes the accumulator with a non-zero value or reads `root.val` before the null check would fail here.',
-      viz_anchor: null,
-    },
-  ],
-
-  'two-sum-iv-input-is-a-bst': [
-    {
-      inputs: ['[5,3,6,2,4,null,7]', '9'],
-      expected: 'true',
-      explanation_md:
-        'The canonical LC example. Find two distinct nodes summing to `k`. Trick: BST inorder is sorted, so use two-pointer style with two stacks — one descends left (smallest first), one descends right (largest first). Compare top sums; advance the appropriate side. Stack-left top `2`, stack-right top `7`. Sum `9` matches `k` → return `true`. **O(n)** time, **O(h)** space. Alternative: inorder into a sorted array then two-pointer — same time, worse space. The dual-stack avoids materializing the full array.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[5,3,6,2,4,null,7]', '28'],
-      expected: 'false',
-      explanation_md:
-        'A target too large to reach. The two largest values are `7` and `6`, summing to `13`. Two-pointer advances right-pointer leftward, summing combos: `7+2=9`, `7+3=10`, etc., never reaching `28`. Eventually pointers meet, return `false`. Proves the algorithm correctly terminates when no pair exists. The pointers-meet condition is the standard "exhausted all combinations" signal.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]', '2'],
-      expected: 'false',
-      explanation_md:
-        'A single-node BST. Only one value exists; "two distinct nodes" requires at least two. Both stacks would point to the same node. The check `left.val < right.val` (or pointer-identity check) catches this and returns `false` without claiming `1 + 1 = 2`. Proves the algorithm correctly rejects single-node trees regardless of target — even if `k = 2 * root.val`, we cannot use the same node twice.',
-      viz_anchor: null,
-    },
-  ],
-
-  'convert-sorted-array-to-binary-search-tree': [
-    {
-      inputs: ['[-10,-3,0,5,9]'],
-      expected: '[0,-3,9,-10,null,5]',
-      explanation_md:
-        'The canonical LC example. Build a height-balanced BST from a sorted array. Pick the **middle** element as the root, recurse on left half for left subtree and right half for right subtree. Trace: middle of `[-10,-3,0,5,9]` is `0` at index 2. Left from `[-10, -3]`: middle `-3`, left `-10` (leaf), right empty. Right from `[5, 9]`: middle `9`, left `5`, right empty. Final shape: `[0,-3,9,-10,null,5]`. **O(n)** time, **O(log n)** space (recursion depth). Mid-element root guarantees `|leftSize - rightSize| <= 1` at every node.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,3]'],
-      expected: '[3,1]',
-      explanation_md:
-        'A two-element array. Middle index `(0 + 1) / 2 = 0` would pick `1` as root, OR `1` as the middle in some conventions. Per LC convention, middle of `[1, 3]` can be either — both `[1, null, 3]` and `[3, 1]` are valid balanced BSTs. Most reference solutions use `mid = lo + (hi - lo + 1) / 2` (right-middle) producing `[3, 1]`. Proves the algorithm is flexible — the choice of left-mid vs right-mid only affects which valid output is produced, not correctness.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]'],
+      inputs: ['0'],
       expected: '[]',
       explanation_md:
-        'The empty-array edge case. Return null. The recursive base case `if lo > hi: return None` short-circuits immediately. Proves the algorithm correctly handles empty input. A brittle implementation that always reads `nums[mid]` without checking the bounds would crash on `mid = 0` of an empty array. The bounds-check before indexing is mandatory.',
+        'The zero edge case. No rows are requested, so the outer loop from `1` to `0` never runs and the counter is never touched. Return `[]`. Proves the algorithm handles `n=0` by emitting an empty list rather than a list with a blank string. An implementation that always builds at least one row would wrongly return `[""]`, a single empty row.',
       viz_anchor: null,
     },
   ],
 
-  'convert-bst-to-greater-tree': [
+  'largest': [
     {
-      inputs: ['[4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]'],
-      expected: '[30,36,21,36,35,26,15,null,null,null,33,null,null,null,8]',
+      inputs: ['[3,1,4,1,5,9,2,6]'],
+      expected: '9',
       explanation_md:
-        'The canonical LC example. Each node\'s new value = sum of itself plus all values STRICTLY GREATER. Trick: **reverse inorder** (right → node → left) visits values in descending order. Maintain a running sum. At each node, add its value to running sum, then assign the new sum back to the node. Right subtree first guarantees we\'ve seen all greater values before touching the current node. **O(n)** time, **O(h)** space. The reverse-inorder pattern is the canonical "I need descending sorted order from a BST" trick.',
+        'Return the maximum element with a single linear scan. Seed `best` with the first element, then for each subsequent element keep the larger of `best` and it. Trace `[3,1,4,1,5,9,2,6]`: `best` climbs `3,4,5,9` and never exceeds `9` afterward. Return `9`. **O(n)** time, **O(1)** space. Seeding `best` with `nums[0]` rather than `0` or a blind constant keeps it correct for arrays of any sign.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1]'],
-      expected: '[1]',
+      inputs: ['[-1,-2,-3]'],
+      expected: '-1',
       explanation_md:
-        'A single-node BST. No greater values exist, so the node stays at `1`. Running sum starts at `0`. Visit root: `running += 1 = 1`, node becomes `1`. Return. Proves the algorithm correctly handles `n = 1`. A brittle implementation that initializes running sum to `node.val` instead of `0` would double-count the root\'s own value.',
+        'An all-negative array. Seeded with `best = -1`, the scan compares against `-2` and `-3`, neither larger, so `best` stays `-1`. Return `-1`. Proves why seeding with the first element matters: an implementation that seeds `best = 0` would wrongly return `0`, a value not even present in the array. The first-element seed is the safe initialization for any signed input.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]'],
-      expected: '[]',
-      explanation_md:
-        'The empty-tree edge case. Return null. The recursive base case `if not node: return` short-circuits at the first call. Proves the algorithm handles null root cleanly. A brittle implementation that initializes the running sum but never checks for null root would still return correctly here (no mutation happens) but it\'s cleaner to short-circuit explicitly.',
-      viz_anchor: null,
-    },
-  ],
-
-  'increasing-order-search-tree': [
-    {
-      inputs: ['[5,3,6,2,4,null,8,1,null,null,null,7,9]'],
-      expected: '[1,null,2,null,3,null,4,null,5,null,6,null,7,null,8,null,9]',
-      explanation_md:
-        'The canonical LC example. Rearrange a BST so every node has no left child and the structure is a right-skewed chain in inorder order. Inorder traversal yields `[1, 2, 3, 4, 5, 6, 7, 8, 9]`. Build a new chain: for each visited node, set `current.left = null`, `current.right = next visited`. A dummy head simplifies the first-node handoff. Result: a right-only spine from `1` to `9`. **O(n)** time, **O(h)** space (recursion).',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[5,1,7]'],
-      expected: '[1,null,5,null,7]',
-      explanation_md:
-        'A 3-node tree. Inorder yields `[1, 5, 7]`. Chain becomes `1 → 5 → 7` via right pointers. Each node\'s left pointer set to null. Proves the algorithm correctly handles a balanced 3-node tree — the in-place pointer rewiring works regardless of starting shape. The inorder visit produces the sorted order, the chain assembly produces the right-skewed structure.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
-      expected: '[1]',
-      explanation_md:
-        'A single-node BST. Inorder yields `[1]`. The chain is just `1` with no children. Return. Proves the algorithm handles `n = 1` cleanly. The dummy head\'s `right` becomes the single node; both `left` and `right` of the node remain null. A brittle implementation that always tries to attach a right child would crash here.',
-      viz_anchor: null,
-    },
-  ],
-
-  'minimum-absolute-difference-in-bst': [
-    {
-      inputs: ['[4,2,6,1,3]'],
-      expected: '1',
-      explanation_md:
-        'The canonical LC example. In a BST, the minimum absolute difference between any two nodes equals the minimum difference between **adjacent inorder values**. Inorder yields `[1, 2, 3, 4, 6]`. Compute consecutive diffs: `1, 1, 1, 2`. Min is `1`. Return `1`. **O(n)** time, **O(h)** space. The BST property guarantees: any pair of values has at least one inorder-adjacent pair with difference no larger — so checking only adjacent values is sufficient.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,0,48,null,null,12,49]'],
-      expected: '1',
-      explanation_md:
-        'A wider tree. Inorder yields `[0, 1, 12, 48, 49]`. Consecutive diffs: `1, 11, 36, 1`. Min is `1` (tied between `0,1` and `48,49`). Return `1`. Proves the algorithm correctly handles cases where the min difference appears at multiple inorder-adjacent pairs. A brute-force "compare every pair" is **O(n²)** — the inorder trick is **O(n)** thanks to BST ordering.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[10,5]'],
+      inputs: ['[5]'],
       expected: '5',
       explanation_md:
-        'A two-node BST. Inorder yields `[5, 10]`. Single diff: `5`. Return `5`. Proves the algorithm correctly handles the minimum-size case where only one comparison is possible. A brittle implementation that requires at least 3 inorder values to start comparing would skip this case. The single diff between adjacent values is the answer.',
+        'A single element. The variable `best` is seeded with the only value `5`, and the scan loop over the remaining elements has nothing further to compare against. The function returns `5`. Proves the algorithm handles length-one input without ever entering the comparison body of the loop. An implementation that starts the scan at index `1` simply finds an empty remaining range and returns the seed directly, which is exactly the lone value, so no special-case branch for single-element arrays is needed.',
       viz_anchor: null,
     },
   ],
 
-  'find-largest-value-in-each-tree-row': [
+  'leaders': [
     {
-      inputs: ['[1,3,2,5,3,null,9]'],
-      expected: '[1,3,9]',
+      inputs: ['[16,17,4,3,5,2]'],
+      expected: '[17,5,2]',
       explanation_md:
-        'The canonical LC example. BFS level by level; track max of each level. Trace: level 0 `[1]`, max `1`. Level 1 `[3, 2]`, max `3`. Level 2 `[5, 3, 9]`, max `9`. Return `[1, 3, 9]`. **O(n)** time, **O(w)** space where `w` is max level width. The level-size snapshot pattern (capture queue size, process exactly that many nodes) is the standard for "do something per BFS level".',
+        'A leader is an element greater than every element to its right. Scan right-to-left tracking the running max-so-far; an element is a leader if it exceeds that max. Trace `[16,17,4,3,5,2]` from the right: `2` (leader, max 2), `5 > 2` (leader, max 5), `3 < 5`, `4 < 5`, `17 > 5` (leader, max 17), `16 < 17`. Leaders collected `[2,5,17]`, reversed to source order, give `[17,5,2]`. **O(n)** time. The rightmost element is always a leader.',
       viz_anchor: null,
     },
     {
-      inputs: ['[1]'],
-      expected: '[1]',
+      inputs: ['[5,4,3,2,1]'],
+      expected: '[5,4,3,2,1]',
       explanation_md:
-        'A single-node tree. One level, one value, max is `1`. The BFS loop runs once with level-size 1. Return `[1]`. Proves the algorithm correctly handles `n = 1`. The level max is initialized to `-inf` (or the first value), so a single-value level still produces the correct max.',
+        'A strictly decreasing array, so every element is larger than all to its right and thus every element is a leader. Scanning right-to-left, the running max only ever equals the current element, so each one qualifies. The result is the whole array `[5,4,3,2,1]`. Proves the algorithm returns all `n` elements when the input is monotonically decreasing, with the max rising by exactly each new leftward element.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]'],
-      expected: '[]',
+      inputs: ['[1,2,3,4,0]'],
+      expected: '[4,0]',
       explanation_md:
-        'The empty-tree edge case. No levels, empty result. The BFS queue starts empty; the outer loop never enters. Return `[]`. Proves the algorithm correctly handles null root. A brittle implementation that initializes a level max before checking the queue would push a `-inf` into the result — wrong by spec.',
-      viz_anchor: null,
-    },
-  ],
-
-  'cousins-in-binary-tree': [
-    {
-      inputs: ['[1,2,3,4]', '4', '3'],
-      expected: 'false',
-      explanation_md:
-        'The canonical LC example. Two nodes are "cousins" if they are at the **same depth** but have **different parents**. BFS while tracking each node\'s parent. For `[1,2,3,4]`, BFS visits `1` (depth 0), then `2, 3` (depth 1), then `4` (depth 2 under `2`). Target `4` is at depth 2, parent `2`. Target `3` is at depth 1, parent `1`. Different depths → not cousins → return `false`. **O(n)** time, **O(w)** space.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,2,3,null,4,null,5]', '5', '4'],
-      expected: 'true',
-      explanation_md:
-        'The cousin case. BFS visits `1` (depth 0), `2, 3` (depth 1), `4, 5` (depth 2 — `4` under `2`, `5` under `3`). Both targets at depth 2 with different parents (`2` and `3`) → cousins → return `true`. Proves the algorithm correctly distinguishes siblings (same parent) from cousins (different parents). A brittle implementation that only checks depth equality would wrongly call siblings cousins.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,2,3,null,4]', '2', '3'],
-      expected: 'false',
-      explanation_md:
-        'Same-depth same-parent case. `2` and `3` are both at depth 1 with parent `1` — they are SIBLINGS, not cousins. The parent-equality check fires and returns `false`. Proves the algorithm correctly rejects sibling pairs. The two conditions (same depth, different parent) must both hold — a brittle implementation that only checks depth would return `true` here.',
+        'An increasing run followed by a small tail. Right-to-left: `0` (leader, max 0), `4 > 0` (leader, max 4), `3 < 4`, `2 < 4`, `1 < 4`. Leaders `[0,4]`, reversed, give `[4,0]`. Proves the algorithm correctly drops earlier elements dominated by a later larger value: `1,2,3` are all overshadowed by `4` to their right, so none are leaders despite the ascending prefix.',
       viz_anchor: null,
     },
   ],
 
-  'maximum-level-sum-of-a-binary-tree': [
+  'islands': [
     {
-      inputs: ['[1,7,0,7,-8,null,null]'],
-      expected: '2',
-      explanation_md:
-        'The canonical LC example. Find the 1-indexed level with the maximum sum. BFS level by level; track each level\'s sum and update the best. Level 1 `[1]`, sum `1`. Level 2 `[7, 0]`, sum `7`. Level 3 `[7, -8]`, sum `-1`. Max is `7` at level `2`. Return `2`. **O(n)** time, **O(w)** space. The 1-indexed convention is a trap — initialize the answer at level `1` and increment as you go.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[989,null,10250,98693,-89388,null,null,null,-32127]'],
-      expected: '2',
-      explanation_md:
-        'A deeper tree with negative values. Level sums: L1 `989`. L2 `10250`. L3 `98693 + (-89388) = 9305`. L4 `-32127`. Max sum is `10250` at level `2`. Return `2`. Proves the algorithm correctly handles trees with mixed signs at different depths — a deeper level\'s sum may be smaller than an earlier level\'s. The first-occurrence rule means ties resolve to the smallest level number.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
+      inputs: ['[["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]'],
       expected: '1',
       explanation_md:
-        'A single-node tree. One level, sum `1`, level number `1`. Return `1`. Proves the algorithm correctly handles `n = 1` and the 1-indexed convention. A brittle implementation using 0-indexed levels (return `0`) would fail the LC spec. The level counter must start at `1`.',
+        'Count connected components of `"1"` cells using 4-directional adjacency. Scan every cell; on an unvisited `"1"`, run a flood fill (DFS or BFS) that sinks the whole island to `"0"`, and increment the count once. Here all the `"1"`s in the top-left form one connected blob, so the first flood fill from `(0,0)` reaches every land cell. Count `1`. **O(rows*cols)** time; each cell is visited at most once across all floods.',
       viz_anchor: null,
     },
-  ],
-
-  'all-elements-in-two-binary-search-trees': [
     {
-      inputs: ['[2,1,4]', '[1,0,3]'],
-      expected: '[0,1,1,2,3,4]',
+      inputs: ['[["1","0","1"],["0","1","0"],["1","0","1"]]'],
+      expected: '5',
       explanation_md:
-        'The canonical LC example. Inorder of a BST is sorted. Inorder traversal of tree 1: `[1, 2, 4]`. Tree 2: `[0, 1, 3]`. Then merge two sorted arrays into `[0, 1, 1, 2, 3, 4]`. **O(n + m)** time, **O(n + m)** space. Crucial: duplicates from both trees both appear in the output (the merged list keeps both `1`s). A brittle implementation using a set would wrongly dedupe.',
+        'A checkerboard of land. No two `"1"`s share an edge, only diagonal corners, which do not connect under 4-directional adjacency. So each of the five `"1"` cells is its own island, requiring five separate flood fills, count `5`. Proves the algorithm uses 4-directional connectivity, not 8: an implementation that also checks diagonals would wrongly merge these into one island and return a smaller count.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]', '[5,1,7,0,2]'],
-      expected: '[0,1,2,5,7]',
-      explanation_md:
-        'One tree empty. Inorder of tree 1 yields `[]`. Tree 2 inorder yields `[0, 1, 2, 5, 7]`. Merge: just tree 2\'s values. Proves the algorithm correctly handles empty inputs — the merge\'s "drain remaining" branch fires for the non-empty side. A brittle implementation that crashes on empty input from one side would fail here.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]', '[]'],
-      expected: '[]',
-      explanation_md:
-        'Both trees empty. Both inorder traversals yield `[]`. Merge of two empty lists is `[]`. Return. Proves the algorithm handles the doubly-empty case cleanly. Both DFS calls short-circuit on null root; the merge loop never enters. A brittle implementation that allocates a result buffer of `n + m = 0` size and reads index 0 would crash, but the iterator pattern stays safe.',
-      viz_anchor: null,
-    },
-  ],
-
-  'maximum-width-of-binary-tree': [
-    {
-      inputs: ['[1,3,2,5,3,null,9]'],
-      expected: '4',
-      explanation_md:
-        'The canonical LC example. Width of a level = distance between leftmost and rightmost non-null nodes, counting nulls in between. Trick: assign each node an index — root is `0`, left child is `2*i`, right child is `2*i + 1`. BFS while tracking (node, index). Level 0 width 1. Level 1 width `2`. Level 2: leftmost index 8 (5 → 2*2+... ), rightmost 11 (9). Width = `11 - 8 + 1 = 4`. Max width = `4`. **O(n)** time, **O(w)** space. The index scheme captures the "ghost" nodes implicitly.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1,3,null,5,3]'],
-      expected: '2',
-      explanation_md:
-        'A left-skewed-at-the-top tree. Level 0 width 1. Level 1: only left child `3` exists, width 1. Level 2: `5` (index 4) and `3` (index 5), width 2. Max = `2`. Proves the algorithm correctly handles asymmetric trees — even though level 1 has only one node, level 2 can still be wider because both children of the surviving node exist. The index-based width counts the gaps correctly.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
-      expected: '1',
-      explanation_md:
-        'A single-node tree. Only level 0 with one node, width `1`. Return `1`. Proves the algorithm correctly handles `n = 1`. The BFS loop runs once with one (node, index) pair; rightmost minus leftmost plus one equals `1`. A brittle implementation that requires at least two nodes per level to compute width would fail here.',
-      viz_anchor: null,
-    },
-  ],
-
-  'maximum-depth-of-n-ary-tree': [
-    {
-      inputs: ['[1,null,3,2,4,null,5,6]'],
-      expected: '3',
-      explanation_md:
-        'The canonical LC example for an N-ary tree. Depth = 1 + max child depth. Recurse on each child, take the max. Trace: root `1` has children `3, 2, 4`. Child `3` has children `5, 6` (each leaf, depth 1) → depth `2`. Children `2, 4` are leaves, depth `1`. Root depth = `1 + max(2, 1, 1) = 3`. **O(n)** time, **O(h)** space. The LC N-ary serialization uses `null` separators between sibling groups — a parsing detail to be aware of.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[1]'],
-      expected: '1',
-      explanation_md:
-        'A single-node N-ary tree. The root has no children, depth `1`. The recursion returns `1 + max(empty) = 1` (or just `1` directly when no children). Proves the algorithm correctly handles `n = 1`. A brittle implementation that always assumes at least one child would fail or return `2` here.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[]'],
+      inputs: ['[["0"]]'],
       expected: '0',
       explanation_md:
-        'The empty-tree edge case. No root, depth `0`. The recursive base case `if not node: return 0` fires immediately. Proves the algorithm correctly handles null root. The depth-zero convention matches the binary-tree variant — an empty tree has no levels.',
+        'A single water cell. The outer scan visits the one cell, finds it is `"0"` rather than `"1"`, so no flood fill ever launches and the island count stays at its initial value `0`. The function returns `0`. Proves the algorithm handles an all-water grid cleanly: the count is initialized to `0` and only incremented at the moment a new piece of unvisited land is discovered. The single-cell grid exercises the base scan with zero islands present and no recursion ever triggered.',
       viz_anchor: null,
     },
   ],
 
-  'serialize-and-deserialize-bst': [
+  'pangram': [
     {
-      inputs: ['[2,1,3]'],
-      expected: '[2,1,3]',
+      inputs: ['"thequickbrownfoxjumpsoverthelazydog"'],
+      expected: 'true',
       explanation_md:
-        'The canonical LC example. For BSTs, **preorder traversal** is enough to reconstruct (no nulls needed because BST property determines structure from values + bounds). Serialize: preorder yields `"2,1,3"`. Deserialize: take first token as root (`2`). For subsequent tokens, place them into the BST using standard BST insert (compare and descend). `1 < 2` → left of root. `3 > 2` → right of root. Tree rebuilt: `[2, 1, 3]`. **O(n)** time and space.',
+        'A pangram contains every letter `a` through `z` at least once. Collect the distinct lowercase letters into a set and check that the size reaches `26`. The classic sentence "the quick brown fox jumps over the lazy dog" with spaces removed hits all 26 letters, so the set fills completely. Return `true`. **O(n)** time, **O(1)** space since the set is capped at 26. A single pass building the set is enough; no per-letter recount is needed.',
       viz_anchor: null,
     },
     {
-      inputs: ['[]'],
+      inputs: ['"leetcode"'],
+      expected: 'false',
+      explanation_md:
+        'A short word using only the letters `{l,e,t,c,o,d}`, six distinct letters, far short of the required `26`. The set built from the string never fills, so the final size check `size == 26` fails and the answer is `false`. Proves the algorithm correctly rejects strings that are missing letters of the alphabet. An implementation that checks only whether the string length is at least 26 is not enough, since you still need 26 unique letters, which this word lacks even before considering its repeated characters.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['"abcdefghijklmnopqrstuvwxyz"'],
+      expected: 'true',
+      explanation_md:
+        'The minimal pangram, exactly one of each letter, length `26`. The set fills to all 26 distinct letters with no repeats, so the size equals `26` and the answer is `true`. Proves the boundary case where the string is precisely the alphabet. Any shorter distinct-letter string cannot be a pangram, making length `26` the hard floor for a valid answer.',
+      viz_anchor: null,
+    },
+  ],
+
+  'conway': [
+    {
+      inputs: ['[[1,1],[1,0]]'],
+      expected: '[[1,1],[1,1]]',
+      explanation_md:
+        'Conway\'s Game of Life: each cell\'s next state depends on its eight neighbors. A live cell survives with 2 or 3 live neighbors; a dead cell becomes live with exactly 3. On the `2x2` board `[[1,1],[1,0]]`, each cell borders the other three. The three live cells each have 2 live neighbors (survive); the dead bottom-right has exactly 3 (born). All become live, giving `[[1,1],[1,1]]`. **O(rows*cols)** time, computing every neighbor sum from the original board.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[[1]]'],
+      expected: '[[0]]',
+      explanation_md:
+        'A single live cell with no neighbors. A live cell with fewer than 2 live neighbors dies of underpopulation; here it has `0` neighbors, so it dies. Result `[[0]]`. Proves the underpopulation rule fires at the boundary: even one isolated live cell cannot survive. The neighbor count for a lone cell is `0`, well below the survival threshold of `2`.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[[1,1,1],[1,1,1],[1,1,1]]'],
+      expected: '[[1,0,1],[0,0,0],[1,0,1]]',
+      explanation_md:
+        'A full `3x3` block. The center cell has 8 live neighbors and dies of overpopulation. Each edge-midpoint cell has 5 neighbors and dies. Each corner has 3 neighbors and survives. So only the four corners stay live, giving `[[1,0,1],[0,0,0],[1,0,1]]`. Proves both the overpopulation rule and that all updates must read the original grid simultaneously; mutating in place would corrupt later neighbor counts.',
+      viz_anchor: null,
+    },
+  ],
+
+  // ---------- HARD ----------
+  'four-sum': [
+    {
+      inputs: ['[1,0,-1,0,-2,2]', '0'],
+      expected: '[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]',
+      explanation_md:
+        'Find all unique quadruplets summing to the target. Sort the array, fix the first two indices in nested loops, then run a two-pointer sweep over the rest. On the sorted input `[-2,-1,0,0,1,2]`: fixing `-2,-1` the inner pointers find `1,2` (sum 0); fixing `-2,0` they find `0,2`; fixing `-1,0` they find `0,1`. Result `[[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]`. **O(n^3)** time. Sorting is what enables both the converging two-pointer sweep on the inner pair and the easy duplicate-skipping applied at every one of the four levels.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[2,2,2,2,2]', '8'],
+      expected: '[[2,2,2,2]]',
+      explanation_md:
+        'All identical values. The only quadruplet that sums to `8` is `2+2+2+2`, and it must appear exactly once even though many different index combinations all produce the same four values. Duplicate-skipping at each fixed level, advancing the pointer past equal values after one has been used, is what collapses those combinations into the single result `[[2,2,2,2]]`. Proves the dedup logic is essential: an implementation that lacks skip-on-duplicate would emit the same quadruplet many times over, once per redundant index choice.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[]', '0'],
       expected: '[]',
       explanation_md:
-        'The empty-tree edge case. Serialize returns `""`. Deserialize sees an empty token list and returns null. Proves the codec handles null root cleanly. A brittle implementation that always reads at least one token would crash. The early return on empty input is mandatory.',
-      viz_anchor: null,
-    },
-    {
-      inputs: ['[8,5,15,2,7,null,20]'],
-      expected: '[8,5,15,2,7,null,20]',
-      explanation_md:
-        'A deeper BST. Preorder: `8, 5, 2, 7, 15, 20`. Serialize as `"8,5,2,7,15,20"`. Deserialize: read `8` as root. Read `5` → left of `8`. Read `2` → left of `5`. Read `7` → `7 > 5` go right, `7 < 8` ancestor check — place at right of `5`. Read `15` → right of `8`. Read `20` → right of `15`. Round-trip restores the structure. The BST-aware codec is **2x smaller** than the binary-tree codec (no null markers) — proves leveraging structural invariants saves bandwidth.',
+        'The empty-input edge case. With fewer than four elements present there can be no quadruplet at all, so the nested fixing loops never produce a candidate and the result list stays empty. Return `[]`. Proves the algorithm short-circuits on tiny inputs without ever indexing out of bounds: the two outer loops simply have no valid index range to iterate over on a zero-length array, so the inner two-pointer sweep is never reached and no comparison is attempted. The same safety holds for any input of size one, two, or three.',
       viz_anchor: null,
     },
   ],
 
-  'recover-binary-search-tree': [
+  'kmp': [
     {
-      inputs: ['[1,3,null,null,2]'],
-      expected: '[3,1,null,null,2]',
+      inputs: ['"abcabcabc"', '"abc"'],
+      expected: '[0,3,6]',
       explanation_md:
-        'The canonical LC example. Two nodes have been swapped in a BST; recover by swapping them back. Inorder of a valid BST is sorted ascending. Walk inorder while tracking `prev`. If `prev.val > current.val`, we\'ve found a violation. Two cases: (1) ADJACENT swap — one violation: swap `prev` and `current`. (2) NON-ADJACENT swap — two violations: first violation marks the LARGER misplaced (use `prev`), second violation marks the SMALLER (use `current`). Here: inorder `1, 3, 2`. Violation at `3 > 2` (adjacent). Swap `3` and `2`. Result: `[3, 1, null, null, 2]`. **O(n)** time, **O(h)** space.',
+        'Knuth-Morris-Pratt finds all occurrences of a pattern in linear time. It precomputes a failure table so that on a mismatch it skips ahead without re-checking matched characters. Searching `"abc"` in `"abcabcabc"`: a match starts at index `0`, then the scan continues without backtracking the text pointer and finds further matches at `3` and `6`. Result `[0,3,6]`. **O(n+m)** time. The overlapping structure of the text is exactly why the no-backtrack guarantee pays off.',
       viz_anchor: null,
     },
     {
-      inputs: ['[3,1,4,null,null,2]'],
-      expected: '[2,1,4,null,null,3]',
+      inputs: ['"aabaaabaaac"', '"aabaaac"'],
+      expected: '[4]',
       explanation_md:
-        'The non-adjacent swap case. Inorder yields `1, 3, 2, 4`. Two violations: `3 > 2` (first) and... wait, after `3 > 2` is `2 < 4` (no violation). Only ONE violation visible because the swapped pair (`3` and `2`) are adjacent in inorder. Swap `3` and `2`. Result: `[2, 1, 4, null, null, 3]`. Actually verifying: original swap might be in source data — the swapped pair appears adjacent in inorder, so the "single violation" branch handles it. Proves the algorithm distinguishes adjacent from non-adjacent by counting violations during the inorder walk.',
+        'A case engineered to exercise the failure table. The pattern `"aabaaac"` shares prefixes with itself, so a naive search would repeatedly re-scan. On a mismatch deep in the pattern, KMP jumps the pattern pointer back via the precomputed table instead of resetting the text pointer. The only full match begins at index `4`. Return `[4]`. Proves the failure-link reuse: the partial match is not thrown away, it informs the next alignment.',
       viz_anchor: null,
     },
     {
-      inputs: ['[2,1]'],
-      expected: '[2,1]',
+      inputs: ['"abc"', '"d"'],
+      expected: '[]',
       explanation_md:
-        'A valid 2-node BST (no swap needed). Inorder: `1, 2`. Sorted. No violation found. Return unchanged. Proves the algorithm correctly handles already-valid input — the `if prev.val > current.val` check never fires, no swaps performed. A brittle implementation that always swaps two nodes (assuming the problem guarantees exactly one swap to undo) would corrupt valid input.',
+        'A no-match case. The single-character pattern `"d"` never matches any character of the text `"abc"`, so no occurrence is ever recorded. Return `[]`. Proves the algorithm correctly returns an empty list when the pattern is entirely absent from the text. The text pointer advances through all three characters in turn, the pattern pointer never reaches the end that signals a full match, and the result accumulator stays empty throughout the scan. Even the failure-table lookups, though computed, are never needed because the pattern is only one character long.',
+      viz_anchor: null,
+    },
+  ],
+
+  'nth-digit': [
+    {
+      inputs: ['11'],
+      expected: '0',
+      explanation_md:
+        'Find the `n`-th digit in the infinite string `123456789101112...`. Digits group by length: positions `1` to `9` are the nine one-digit numbers, positions `10` to `189` the ninety two-digit numbers. For `n=11`: subtract the first 9 to get offset `2` into the two-digit block, which starts at `10`. The number is `10 + (2-1)/2 = 10`, digit index `(2-1) mod 2 = 1`, so the second digit of `10`, which is `0`. Return `0`.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['3'],
+      expected: '3',
+      explanation_md:
+        'A small `n` inside the first one-digit block. Positions `1` to `9` map directly to the digits `1` to `9`, so position `3` is simply the number `3`. No block subtraction is needed because `n <= 9`. Return `3`. Proves the algorithm handles the trivial first block without entering the multi-digit arithmetic; the block-length loop exits immediately when `n` fits the one-digit range.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['1000'],
+      expected: '3',
+      explanation_md:
+        'A larger `n` requiring block walking. Subtract the 9 one-digit positions to get `n=991`, then the 180 two-digit positions to get `n=811`; now we are in the three-digit block starting at `100`. The number is `100 + (811-1)/3 = 370`, and the digit index is `(811-1) mod 3 = 0`, the first digit of `370`, which is `3`. Return `3`. Proves the algorithm scales by collapsing whole length-blocks at once instead of generating the string.',
+      viz_anchor: null,
+    },
+  ],
+
+  'detect-cycle': [
+    {
+      inputs: ['[3,2,0,-4]', '1'],
+      expected: 'true',
+      explanation_md:
+        'Floyd\'s tortoise-and-hare detects a cycle in a linked list. A slow pointer advances one node and a fast pointer two; if they ever meet, there is a cycle. The list `[3,2,0,-4]` has its tail `-4` linked back to index `1`, the node `2`, forming a loop. The fast pointer eventually laps the slow one inside the loop and they collide, so return `true`. **O(n)** time, **O(1)** space, with no extra set of visited nodes needed.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[1]', '-1'],
+      expected: 'false',
+      explanation_md:
+        'A single node with no cycle, where `pos = -1` means the tail points to null. The fast pointer immediately walks off the end, since its lookahead is null, before any meeting can occur, so the loop exits and returns `false`. Proves the algorithm correctly reports no cycle for a one-node list. The null-check on the fast pointer\'s two-step lookahead is what prevents a false positive here.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[1,2,3,4,5]', '-1'],
+      expected: 'false',
+      explanation_md:
+        'A straight list of five nodes with no back-link. The fast pointer races ahead two nodes at a time and hits null at the end while the slow pointer trails behind and never catches it, so the loop terminates without the two ever meeting and the function returns `false`. Proves the tortoise-and-hare correctly distinguishes a finite acyclic list from a cyclic one: the fast pointer reaching the null tail is the definitive no-cycle signal, and it always happens within about `n/2` steps on a list of length `n`.',
+      viz_anchor: null,
+    },
+  ],
+
+  'set-matrix-0': [
+    {
+      inputs: ['[[1,1,1],[1,0,1],[1,1,1]]'],
+      expected: '[[1,0,1],[0,0,0],[1,0,1]]',
+      explanation_md:
+        'If any cell is `0`, zero out its entire row and column. The **O(1)**-space trick uses the first row and column as marker storage: a first pass records, for each `0`, a flag in its row\'s and column\'s header cell. Here the single `0` at `(1,1)` flags row 1 and column 1. The second pass zeroes every cell whose row or column header is flagged, so row 1 and column 1 become all zeros, giving `[[1,0,1],[0,0,0],[1,0,1]]`. **O(rows*cols)** time, **O(1)** extra space.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[[1,2,3],[4,5,6],[7,8,9]]'],
+      expected: '[[1,2,3],[4,5,6],[7,8,9]]',
+      explanation_md:
+        'A matrix with no zeros. The first pass finds nothing to flag, so the second pass zeroes nothing and the matrix is returned unchanged. Result identical to input. Proves the algorithm is a no-op when no zero exists; it does not spuriously clear any row or column. The first-row and first-column marker headers stay clean, gating the second pass off entirely.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[[0,0,0],[0,0,0]]'],
+      expected: '[[0,0,0],[0,0,0]]',
+      explanation_md:
+        'An all-zero matrix. Every cell is a `0`, so the first pass flags every row and every column via the header cells, and the second pass then zeroes everything, which leaves the already-all-zero matrix unchanged. Result `[[0,0,0],[0,0,0]]`. Proves the algorithm handles the fully saturated case without error. The first-row and first-column marker scheme still works here because all headers end up flagged and the output stays consistent, demonstrating that reusing the borders for storage does not break when the borders themselves contain zeros.',
+      viz_anchor: null,
+    },
+  ],
+
+  'matrix-spiral': [
+    {
+      inputs: ['[[1,2,3],[4,5,6],[7,8,9]]'],
+      expected: '[1,2,3,6,9,8,7,4,5]',
+      explanation_md:
+        'Traverse the matrix in spiral order using four shrinking boundaries: `top, bottom, left, right`. Walk the top row left-to-right, the right column top-to-bottom, the bottom row right-to-left, the left column bottom-to-top, then shrink inward and repeat. Trace the `3x3`: top row `1,2,3`, right col `6,9`, bottom row `8,7`, left col `4`, inner cell `5`. Result `[1,2,3,6,9,8,7,4,5]`. **O(rows*cols)** time; each boundary moves inward after its pass, preventing re-visits.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[[1]]'],
+      expected: '[1]',
+      explanation_md:
+        'A single cell. The top-row pass emits `1`, then `top` is incremented past `bottom`, so the boundaries cross and the loop condition fails before any further pass runs. The traversal stops with result `[1]`. Proves the boundary-crossing termination check prevents re-reading the lone cell through the right-column or bottom-row passes. Without the `top <= bottom and left <= right` guard checked between each of the four passes, a `1x1` matrix could emit the same element multiple times as the spiral tried to wrap a non-existent ring.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['[[1,2,3,4,5]]'],
+      expected: '[1,2,3,4,5]',
+      explanation_md:
+        'A single row. The top-row pass emits `1,2,3,4,5` left-to-right, then `top` is incremented and now exceeds `bottom`, so the right-column, bottom-row, and left-column passes are all guarded off by the boundary checks. The result is `[1,2,3,4,5]`. Proves the algorithm handles degenerate single-row or single-column matrices: the inter-pass boundary checks stop it from wrapping around a second dimension that does not exist. A naive four-direction loop without these guards would re-read cells or index out of bounds on such a flat matrix.',
+      viz_anchor: null,
+    },
+  ],
+
+  'valid-number': [
+    {
+      inputs: ['"0"'],
+      expected: 'true',
+      explanation_md:
+        'Validate whether a string is a well-formed number, allowing an optional sign, digits, a decimal point, and an exponent. A single digit `"0"` is the simplest valid number, needing no sign, point, or exponent. The state machine, or careful flag-tracking, sees a digit and reaches an accepting state. Return `true`. **O(n)** time. The core requirement is that at least one digit appears in the mantissa, which `"0"` satisfies directly.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['"e"'],
+      expected: 'false',
+      explanation_md:
+        'A lone exponent marker. `"e"` has no mantissa digits before it and no exponent digits after it, so it is not a number. The parser requires digits on both sides of an `e`, and neither exists here, so it returns `false`. Proves the algorithm enforces the digits-required-around-the-exponent rule. An implementation that treats any `e`-containing string as scientific notation would wrongly accept this.',
+      viz_anchor: null,
+    },
+    {
+      inputs: ['"."'],
+      expected: 'false',
+      explanation_md:
+        'A bare decimal point with no digits. A valid number needs at least one digit somewhere in the mantissa, and `"."` has none. The parser sees the point but never a digit, so it cannot reach an accepting state and returns `false`. Proves the at-least-one-digit requirement is checked independently of the decimal point: `"."`, `"+"`, and `"e"` alone are all rejected for the same missing-digit reason.',
       viz_anchor: null,
     },
   ],
@@ -869,9 +753,9 @@ const PAYLOAD = {
 async function main() {
   const ids = Object.keys(PAYLOAD);
   const { data: rows, error: readErr } = await sb
-    .from('PGcode_problems').select('id').in('id', ids);
+    .from('PGcode_problems').select('id,explained_samples').in('id', ids);
   if (readErr) { console.error('READ ERR', readErr.message); process.exit(1); }
-  const present = new Set(rows.map(r => r.id));
+  const present = new Map(rows.map(r => [r.id, r]));
 
   let ok = 0, skipped = 0, failed = 0;
   for (const id of ids) {
@@ -881,6 +765,8 @@ async function main() {
       skipped++;
       continue;
     }
+    // Rows in this batch were empty when selected; we overwrite with this batch's
+    // canonical 3-sample payload so a re-run refreshes any corrected prose.
     if (!Array.isArray(samples) || samples.length !== 3) {
       console.log(`ERR    ${id}  (payload length ${samples?.length} != 3)`);
       failed++;
@@ -888,14 +774,19 @@ async function main() {
     }
     let shapeOk = true;
     for (const s of samples) {
-      if (!Array.isArray(s.inputs) || typeof s.expected !== 'string'
-          || typeof s.explanation_md !== 'string'
-          || (s.viz_anchor !== null && typeof s.viz_anchor !== 'string')) {
-        shapeOk = false; break;
+      const words = s.explanation_md.split(/\s+/).filter(Boolean).length;
+      const ok2 = Array.isArray(s.inputs) && typeof s.expected === 'string'
+        && typeof s.explanation_md === 'string'
+        && (s.viz_anchor === null || typeof s.viz_anchor === 'string')
+        && words >= 60 && words <= 120;
+      if (!ok2) {
+        shapeOk = false;
+        console.log(`  bad sample for ${id}: words=${words}`);
+        break;
       }
     }
     if (!shapeOk) {
-      console.log(`ERR    ${id}  (sample shape invalid)`);
+      console.log(`ERR    ${id}  (sample shape/word-count invalid)`);
       failed++;
       continue;
     }
@@ -906,7 +797,7 @@ async function main() {
       console.log(`ERR    ${id}  ${error.message}`);
       failed++;
     } else {
-      console.log(`ok ${id}`);
+      console.log(`OK     ${id}`);
       ok++;
     }
   }

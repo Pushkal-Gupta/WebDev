@@ -70,17 +70,6 @@ function buildAutomaton(patterns) {
   return nodes;
 }
 
-function gotoNext(nodes, state, ch) {
-  let s = state;
-  while (s !== 0 && nodes[s].children[ch] === undefined) {
-    s = nodes[s].fail;
-  }
-  if (nodes[s].children[ch] !== undefined) {
-    return nodes[s].children[ch];
-  }
-  return 0;
-}
-
 function buildFrames(patterns, text) {
   const nodes = buildAutomaton(patterns);
   const frames = [];
@@ -212,9 +201,6 @@ export default function AhoCorasickViz() {
   const [isRunningRaw, setIsRunningRaw] = useState(false);
   const [speed, setSpeed] = useState(1.5);
   const runTimer = useRef(null);
-
-  const rng = useMemo(() => mulberry32(SEED), []);
-  void rng;
 
   const { frames, nodes } = useMemo(() => buildFrames(PATTERNS, TEXT), []);
   const totalSteps = frames.length;

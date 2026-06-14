@@ -1,0 +1,327 @@
+.mxv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.mxv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mxv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.mxv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.mxv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mxv-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.mxv-buttons {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.mxv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mxv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.mxv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mxv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.mxv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.mxv-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mxv-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mxv-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+
+.mxv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}
+
+.mxv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.mxv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.mxv-num {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.mxv-num-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mxv-num-input {
+  width: 90px;
+  padding: 0.4rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.mxv-num-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.mxv-num-hint {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.mxv-stage {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mxv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mxv-mat-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+.mxv-mat-result {
+  fill: var(--accent);
+}
+.mxv-mat-base {
+  fill: var(--hue-sky);
+}
+
+.mxv-mat-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.mxv-cell {
+  font-family: var(--mono);
+  font-size: 19px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.mxv-op {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  fill: var(--accent);
+  text-anchor: middle;
+}
+
+.mxv-dot-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.mxv-dot {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.mxv-bits-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.mxv-bit {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.mxv-bit-place {
+  font-family: var(--mono);
+  font-size: 9px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.mxv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+
+.mxv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.mxv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mxv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.mxv-metric-dim {
+  background: var(--bg);
+}
+
+.mxv-metric-dimval {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.mxv-metric-fib {
+  color: var(--easy);
+}
+
+.mxv-arith {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.mxv-arith-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mxv-arith-vals {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mxv-btn {
+    transition: none;
+  }
+}

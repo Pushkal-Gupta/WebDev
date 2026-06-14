@@ -1,34 +1,43 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, ArrowRight, Clock, Flame, Star } from 'lucide-react';
+import { Trophy, ArrowRight, Clock, Star } from 'lucide-react';
 import { useContests } from '../../lib/queries';
 import './Contests.css';
 
 export default function ContestsIndex() {
+  return (
+    <div className="ctx-container">
+      <header className="ctx-header">
+        <h1 className="ctx-title">Contests</h1>
+        <p className="ctx-sub">
+          Virtual ICPC-style problem sets — start whenever, the clock runs while you solve.
+        </p>
+      </header>
+
+      <InternalContests />
+    </div>
+  );
+}
+
+function InternalContests() {
   const { data: contests = [], isLoading } = useContests();
 
   if (isLoading) {
     return (
-      <div className="ctx-container">
-        <div className="ctx-skeleton">
-          <div className="skel skel-text" />
-          <div className="skel skel-row-full" />
-          <div className="skel skel-row-full" />
-        </div>
+      <div className="ctx-skeleton">
+        <div className="skel skel-text" />
+        <div className="skel skel-row-full" />
+        <div className="skel skel-row-full" />
       </div>
     );
   }
 
   if (contests.length === 0) {
     return (
-      <div className="ctx-container">
-        <div className="ctx-empty">
-          <Trophy size={32} className="ctx-empty-icon" />
-          <h2 className="ctx-empty-title">No contests yet</h2>
-          <p className="ctx-empty-sub">
-            New contests appear here as they go live.
-          </p>
-        </div>
+      <div className="ctx-empty">
+        <Trophy size={32} className="ctx-empty-icon" />
+        <h2 className="ctx-empty-title">No contests yet</h2>
+        <p className="ctx-empty-sub">New contests appear here as they go live.</p>
       </div>
     );
   }
@@ -37,15 +46,7 @@ export default function ContestsIndex() {
   const others = contests.filter(c => !c.is_featured);
 
   return (
-    <div className="ctx-container">
-      <header className="ctx-header">
-        <h1 className="ctx-title">Contests</h1>
-        <p className="ctx-sub">
-          Timed problem sets, virtual ICPC-style. Start whenever — the clock runs while you solve,
-          wrong submissions add penalty time.
-        </p>
-      </header>
-
+    <>
       {featured.length > 0 && (
         <section className="ctx-section">
           <h2 className="ctx-section-title">Featured</h2>
@@ -54,7 +55,6 @@ export default function ContestsIndex() {
           </div>
         </section>
       )}
-
       {others.length > 0 && (
         <section className="ctx-section">
           <h2 className="ctx-section-title">All contests</h2>
@@ -63,7 +63,7 @@ export default function ContestsIndex() {
           </div>
         </section>
       )}
-    </div>
+    </>
   );
 }
 

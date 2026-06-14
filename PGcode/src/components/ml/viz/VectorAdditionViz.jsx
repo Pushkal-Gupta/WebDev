@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { RotateCcw, Shuffle } from 'lucide-react';
+import './MLViz.css';
 
 function lcg(seed) {
   let s = seed >>> 0;

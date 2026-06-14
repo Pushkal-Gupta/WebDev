@@ -48,6 +48,39 @@
   align-items: center;
   gap: 0.6rem;
 }
+
+/* Mode toggle */
+.bmvv-modes {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.bmvv-mode {
+  appearance: none;
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.85rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.2s ease-out, background 0.2s ease-out;
+}
+.bmvv-mode + .bmvv-mode {
+  border-left: 1px solid var(--border);
+}
+.bmvv-mode:hover:not(.is-on) {
+  color: var(--text-main);
+  background: var(--hover-box);
+}
+.bmvv-mode.is-on {
+  color: var(--bg);
+  background: var(--accent);
+}
 .bmvv-spacer {
   flex: 1 1 auto;
   min-width: 0.5rem;
@@ -311,6 +344,41 @@
   0%   { stroke-width: 1.5; }
   35%  { stroke-width: 4; }
   100% { stroke-width: 1.5; }
+}
+
+/* Live readout row */
+.bmvv-readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+.bmvv-readout-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.bmvv-readout-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.bmvv-readout-value {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent);
+}
+.bmvv-readout-sub {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
 }
 
 /* Narration card */

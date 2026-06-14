@@ -3,7 +3,6 @@ import { Plus, Search, RotateCcw, AlertTriangle } from 'lucide-react';
 import './BloomFilterViz.css';
 
 const STEP_MS = 480;
-const SIZE_OPTIONS = [8, 16, 32];
 const K_MIN = 1;
 const K_MAX = 5;
 const DEFAULT_SIZE = 16;
@@ -405,26 +404,34 @@ export default function BloomFilterViz() {
           <label className="bf-input-label" htmlFor="bf-size">
             Size m
           </label>
-          <select id="bf-size" className="bf-select bf-select-narrow" value={size} onChange={onSizeChange}>
-            {SIZE_OPTIONS.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+          <input
+            id="bf-size"
+            type="range"
+            className="bf-range"
+            min={8}
+            max={32}
+            step={1}
+            value={size}
+            onChange={onSizeChange}
+          />
+          <span className="bf-range-value">{size}</span>
         </div>
 
         <div className="bf-control-group">
           <label className="bf-input-label" htmlFor="bf-k">
             Hashes k
           </label>
-          <select id="bf-k" className="bf-select bf-select-narrow" value={k} onChange={onKChange}>
-            {Array.from({ length: K_MAX - K_MIN + 1 }, (_, i) => i + K_MIN).map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </select>
+          <input
+            id="bf-k"
+            type="range"
+            className="bf-range"
+            min={K_MIN}
+            max={K_MAX}
+            step={1}
+            value={k}
+            onChange={onKChange}
+          />
+          <span className="bf-range-value">{k}</span>
         </div>
 
         <div className="bf-control-group">
@@ -512,6 +519,7 @@ export default function BloomFilterViz() {
         <svg
           className="bf-svg"
           viewBox={`0 0 ${layout.width} ${layout.height}`}
+          preserveAspectRatio="xMidYMid meet"
           role="img"
           aria-label="Bloom filter bit array visualization"
         >

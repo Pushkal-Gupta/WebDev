@@ -261,6 +261,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   const [friendProgress, setFriendProgress] = useState({});
   const [displayName, setDisplayName] = useState('');
   const [profileUsername, setProfileUsername] = useState('');
+  const [leetcodeHandle, setLeetcodeHandle] = useState('');
   const [message, setMessage] = useState(null);
   const [githubUsername, setGithubUsername] = useState(() => localStorage.getItem('pg-github-username') || '');
   const [ghStats, setGhStats] = useState(() => {
@@ -329,6 +330,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
       if (data) {
         setDisplayName(data.display_name || '');
         setProfileUsername(data.username || '');
+        setLeetcodeHandle(data.leetcode_handle || '');
       }
     };
     const loadFriends = async () => {
@@ -387,6 +389,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
     const { error } = await supabase.from('PGcode_profiles').upsert({
       user_id: session.user.id,
       display_name: displayName,
+      leetcode_handle: leetcodeHandle.trim() || null,
     });
     setMessage(
       error
@@ -674,6 +677,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
                     presetUsername={profileUsername || session.user.email?.split('@')[0]}
                     presetDisplayName={displayName || session.user.user_metadata?.full_name || session.user.email?.split('@')[0]}
                     githubStats={ghStats}
+                    leetcodeHandle={leetcodeHandle}
                   />
                 </div>
               )}
@@ -687,6 +691,19 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
                   onChange={(e) => setDisplayName(e.target.value)}
                   placeholder="Your display name"
                 />
+                <label className="settings-label" style={{ marginTop: '0.6rem' }}>
+                  <Code2 size={12} /> LeetCode username
+                </label>
+                <input
+                  type="text"
+                  className="settings-input"
+                  value={leetcodeHandle}
+                  onChange={(e) => setLeetcodeHandle(e.target.value)}
+                  placeholder="your-leetcode-username"
+                  spellCheck={false}
+                  autoComplete="off"
+                />
+                <p className="settings-hint">Adds your live LeetCode rating, rank, and contest history to your shareable card.</p>
                 <p className="settings-hint">Email: {session?.user?.email}</p>
                 <button className="settings-save-btn" onClick={saveProfile}>Save Profile</button>
               </div>

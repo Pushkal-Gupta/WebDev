@@ -71,34 +71,28 @@ export default function QuizIndex() {
         <CustomQuizPanel onClose={() => setCustomOpen(false)} />
       )}
 
-      <div className="quiz-topics">
-        {topics.map(t => (
-          <section key={t.topic} className="quiz-topic-section">
-            <h2 className="quiz-topic-heading">{t.label}</h2>
-            <ul className="quiz-grid">
-              {t.quizzes.map(q => (
-                <li key={q.id} className="quiz-card">
-                  <div className="quiz-card-head">
-                    <h3 className="quiz-card-title">{q.title}</h3>
-                    <span className={`quiz-pill ${DIFFICULTY_CLASS[q.difficulty] || ''}`}>
-                      {q.difficulty}
-                    </span>
-                  </div>
-                  <p className="quiz-card-summary">{q.summary}</p>
-                  <div className="quiz-card-meta">
-                    <span className="quiz-meta-chip">
-                      <ListChecks size={11} /> {q.questions.length} questions
-                    </span>
-                    <Link to={`/quiz/${q.id}`} className="quiz-card-cta">
-                      Start <ArrowRight size={12} />
-                    </Link>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+      <ul className="quiz-grid">
+        {topics.flatMap(t => t.quizzes.map(q => ({ ...q, _topic: t.label }))).map(q => (
+          <li key={q.id} className="quiz-card">
+            <div className="quiz-card-head">
+              <span className="quiz-card-topic">{q._topic}</span>
+              <span className={`quiz-pill ${DIFFICULTY_CLASS[q.difficulty] || ''}`}>
+                {q.difficulty}
+              </span>
+            </div>
+            <h3 className="quiz-card-title">{q.title}</h3>
+            <p className="quiz-card-summary">{q.summary}</p>
+            <div className="quiz-card-meta">
+              <span className="quiz-meta-chip">
+                <ListChecks size={11} /> {q.questions.length} questions
+              </span>
+              <Link to={`/quiz/${q.id}`} className="quiz-card-cta">
+                Start <ArrowRight size={12} />
+              </Link>
+            </div>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

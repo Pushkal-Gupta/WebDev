@@ -100,6 +100,7 @@ function pushFrame(frames, tree, caption, extras = {}) {
     recolor: extras.recolor || [],
     newId: extras.newId || null,
     rotation: extras.rotation || null,
+    rbCase: extras.rbCase || null,
   });
 }
 
@@ -178,6 +179,7 @@ function insertFrames(srcTree, value) {
     pushFrame(frames, tree, `Tree empty. Place ${value} as a red root.`, {
       newId: z.id,
       highlight: [z.id],
+      rbCase: 'insert red leaf',
     });
   } else {
     pushFrame(
@@ -187,6 +189,7 @@ function insertFrames(srcTree, value) {
       {
         newId: z.id,
         highlight: [...path.map((p) => p.id), z.id],
+        rbCase: 'insert red leaf',
       },
     );
   }
@@ -199,11 +202,13 @@ function insertFrames(srcTree, value) {
     pushFrame(frames, tree, `Root must be black. Recolour ${tree.root.value} from red to black.`, {
       highlight: [tree.root.id],
       recolor: [tree.root.id],
+      rbCase: 'root -> black',
     });
   }
 
   pushFrame(frames, tree, `Insert of ${value} complete. All RB invariants restored.`, {
     highlight: [z.id],
+    rbCase: 'balanced',
   });
 
   return { frames, tree };
@@ -226,6 +231,7 @@ function insertFixupFrames(tree, z, frames) {
             highlight: [z.id, parent.id, uncle.id, grand.id],
             recolor: [parent.id, uncle.id, grand.id],
             flash: [parent.id, uncle.id, grand.id],
+            rbCase: 'uncle red -> recolor',
           },
         );
         parent.color = 'B';
@@ -246,6 +252,7 @@ function insertFixupFrames(tree, z, frames) {
               highlight: [z.id, parent.id, grand.id],
               flash: [z.id, parent.id],
               rotation: { type: 'left', pivot: parent.id },
+              rbCase: 'triangle -> rotate',
             },
           );
           z = parent;
@@ -264,6 +271,7 @@ function insertFixupFrames(tree, z, frames) {
             recolor: [z.parent.id, z.parent.parent.id],
             flash: [z.parent.id, z.parent.parent.id],
             rotation: { type: 'right', pivot: z.parent.parent.id },
+            rbCase: 'line -> rotate + recolor',
           },
         );
         z.parent.color = 'B';
@@ -284,6 +292,7 @@ function insertFixupFrames(tree, z, frames) {
             highlight: [z.id, parent.id, uncle.id, grand.id],
             recolor: [parent.id, uncle.id, grand.id],
             flash: [parent.id, uncle.id, grand.id],
+            rbCase: 'uncle red -> recolor',
           },
         );
         parent.color = 'B';
@@ -303,6 +312,7 @@ function insertFixupFrames(tree, z, frames) {
               highlight: [z.id, parent.id, grand.id],
               flash: [z.id, parent.id],
               rotation: { type: 'right', pivot: parent.id },
+              rbCase: 'triangle -> rotate',
             },
           );
           z = parent;
@@ -320,6 +330,7 @@ function insertFixupFrames(tree, z, frames) {
             recolor: [z.parent.id, z.parent.parent.id],
             flash: [z.parent.id, z.parent.parent.id],
             rotation: { type: 'left', pivot: z.parent.parent.id },
+            rbCase: 'line -> rotate + recolor',
           },
         );
         z.parent.color = 'B';
@@ -587,6 +598,15 @@ export default function RedBlackTreeViz() {
       ? currentFrame.caption
       : 'Press Insert or Run sequence to step through Red-Black fix-up.';
 
+  // Carry the most recent case label forward so intermediate frames still show context.
+  const rbCase = useMemo(() => {
+    if (idx < 0) return '—';
+    for (let i = Math.min(idx, frames.length - 1); i >= 0; i -= 1) {
+      if (frames[i] && frames[i].rbCase) return frames[i].rbCase;
+    }
+    return '—';
+  }, [idx, frames]);
+
   const isEmpty = displayTree.root === displayTree.NIL;
 
   return (
@@ -787,6 +807,10 @@ export default function RedBlackTreeViz() {
         <div className="rbviz-stat rbviz-stat-grow">
           <span className="rbviz-stat-label">Operation</span>
           <span className="rbviz-stat-value">{opLabel}</span>
+        </div>
+        <div className="rbviz-stat">
+          <span className="rbviz-stat-label">RB case</span>
+          <span className="rbviz-stat-value">{rbCase}</span>
         </div>
         <div className="rbviz-stat">
           <span className="rbviz-stat-label">Black height</span>

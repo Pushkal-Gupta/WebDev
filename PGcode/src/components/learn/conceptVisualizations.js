@@ -9966,6 +9966,96 @@ function boyerMooreSearchFrames(text = 'HERE-IS-A-SIMPLE-EXAMPLE', pattern = 'EX
   return frames;
 }
 
+// Tarjan's SCC: single DFS tracking disc[u]/low[u] + an on-stack set. When
+// low[u] === disc[u], u roots an SCC and the stack is popped down to u.
+// Rendered with the 'graph' renderer; node label carries "id\nd/l", node state
+// encodes discovered/on-stack/settled, edge state highlights the active edge.
+function tarjanSccFrames() {
+  const n = 7;
+  const edges = [
+    { a: 0, b: 1 }, { a: 1, b: 2 }, { a: 2, b: 0 },
+    { a: 1, b: 3 }, { a: 3, b: 4 }, { a: 4, b: 3 },
+    { a: 4, b: 5 }, { a: 2, b: 6 }, { a: 6, b: 5 },
+  ];
+  const adj = Array.from({ length: n }, () => []);
+  for (const e of edges) adj[e.a].push(e.b);
+
+  const disc = new Array(n).fill(-1);
+  const low = new Array(n).fill(-1);
+  const onStack = new Array(n).fill(false);
+  const compOf = new Array(n).fill(-1);
+  const stack = [];
+  let timer = 0;
+  let compCount = 0;
+  const frames = [];
+
+  const edgeKey = (a, b) => `${a}->${b}`;
+
+  const snapshot = (activeNode, activeEdge, caption) => {
+    const nodes = Array.from({ length: n }, (_, i) => {
+      const label = disc[i] < 0 ? `${i}\n—` : `${i}\n${disc[i]}/${low[i]}`;
+      let state;
+      if (i === activeNode) state = 'current';
+      else if (compOf[i] >= 0) state = 'done';
+      else if (onStack[i]) state = 'frontier';
+      return { id: i, label, state };
+    });
+    const es = edges.map((e) => ({
+      a: e.a,
+      b: e.b,
+      state: activeEdge === edgeKey(e.a, e.b) ? 'visited' : undefined,
+    }));
+    const stackStr = stack.length ? `[bottom ${stack.join(' ')} top]` : '[empty]';
+    return { nodes, edges: es, caption, chip: `SCCs: ${compCount}   stack: ${stackStr}` };
+  };
+
+  frames.push(snapshot(-1, null, `Tarjan's SCC on a ${n}-node directed graph. One DFS finds every strongly connected component in O(V + E). Each node shows id and (disc/low).`));
+  frames.push(snapshot(-1, null, `disc[u] = the time we first reach u. low[u] = the smallest disc reachable from u using tree edges plus at most one back/forward edge to a node still on the stack. Start DFS at node 0.`));
+
+  function dfs(u) {
+    disc[u] = low[u] = timer++;
+    stack.push(u);
+    onStack[u] = true;
+    frames.push(snapshot(u, null, `Discover ${u}: disc[${u}] = low[${u}] = ${disc[u]}. Push ${u} onto the stack (it is now "on stack").`));
+
+    for (const v of adj[u]) {
+      if (disc[v] === -1) {
+        frames.push(snapshot(u, edgeKey(u, v), `Edge ${u}→${v}: ${v} is undiscovered, so this is a tree edge. Recurse into ${v}.`));
+        dfs(v);
+        const prev = low[u];
+        low[u] = Math.min(low[u], low[v]);
+        frames.push(snapshot(u, edgeKey(u, v), `Return to ${u} from subtree ${v}: low[${u}] = min(${prev}, low[${v}]=${low[v]}) = ${low[u]}.`));
+      } else if (onStack[v]) {
+        const prev = low[u];
+        low[u] = Math.min(low[u], disc[v]);
+        frames.push(snapshot(u, edgeKey(u, v), `Edge ${u}→${v}: ${v} is on the stack, so this is a back edge into the current SCC. low[${u}] = min(${prev}, disc[${v}]=${disc[v]}) = ${low[u]}.`));
+      } else {
+        frames.push(snapshot(u, edgeKey(u, v), `Edge ${u}→${v}: ${v} already belongs to a finished SCC (not on the stack). Ignore it — it cannot grow ${u}'s component.`));
+      }
+    }
+
+    if (low[u] === disc[u]) {
+      const members = [];
+      let w;
+      do {
+        w = stack.pop();
+        onStack[w] = false;
+        compOf[w] = compCount;
+        members.push(w);
+      } while (w !== u);
+      compCount += 1;
+      frames.push(snapshot(u, null, `low[${u}] === disc[${u}] = ${disc[u]} → ${u} is the root of an SCC. Pop the stack down to ${u}: component #${compCount - 1} = {${members.slice().sort((p, q) => p - q).join(', ')}}.`));
+    } else {
+      frames.push(snapshot(u, null, `Leave ${u}: low[${u}] = ${low[u]} < disc[${u}] = ${disc[u]}, so ${u} can still reach an earlier on-stack node. It stays on the stack — not an SCC root yet.`));
+    }
+  }
+
+  for (let i = 0; i < n; i += 1) if (disc[i] === -1) dfs(i);
+
+  frames.push(snapshot(-1, null, `Done. ${compCount} strongly connected components found in a single DFS pass — total work O(V + E). Each SCC was popped off the stack the moment its root finished.`));
+  return frames;
+}
+
 export const VISUALIZATIONS = {
   'binary-search': {
     title: 'Binary search walkthrough', renderer: 'array',
@@ -10772,6 +10862,12 @@ export const VISUALIZATIONS = {
     title: 'DSU on tree: small-to-large merging', renderer: 'array',
     cases: [
       { label: 'Default (7 nodes, colours [1,2,1,2,3,2,1])', frames: dsuOnTreeVariantFrames() },
+    ],
+  },
+  'tarjan-scc': {
+    title: "Tarjan's strongly connected components in one DFS pass", renderer: 'graph',
+    cases: [
+      { label: 'Default — SCCs {0,1,2}, {3,4}, {5}, {6}', frames: tarjanSccFrames() },
     ],
   },
   'two-sat': {

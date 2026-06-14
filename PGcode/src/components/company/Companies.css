@@ -48,6 +48,22 @@
   gap: 0.7rem;
 }
 
+.comp-group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 0.7rem;
+}
+
+.comp-group-card .comp-card-desc {
+  min-height: 2.4em;
+}
+
+.comp-group-card-badge {
+  margin-left: auto;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
 .comp-card {
   position: relative;
   display: flex;

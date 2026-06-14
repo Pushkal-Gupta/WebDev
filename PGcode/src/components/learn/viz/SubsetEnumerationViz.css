@@ -1,0 +1,341 @@
+.sev {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.sev-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sev-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.sev-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.sev-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.sev-nrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.sev-modes {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sev-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.sev-mode:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.sev-mode-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--text-main);
+  border-color: var(--accent);
+}
+
+.sev-labels {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sev-labels-tag {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sev-label-input {
+  width: 44px;
+  padding: 0.4rem 0.4rem;
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.sev-label-input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.sev-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.sev-buttons {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sev-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sev-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.sev-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sev-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.sev-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.sev-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sev-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sev-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+
+.sev-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}
+
+.sev-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.sev-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.sev-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.sev-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.sev-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.sev-reg-label {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+
+.sev-elem {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--accent);
+  text-anchor: middle;
+}
+
+.sev-place {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.sev-bit {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.sev-subset {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--hue-mint);
+}
+
+.sev-chip-mask {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.sev-chip-set {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+
+.sev-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+
+.sev-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.sev-metric-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sev-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.sev-metric-dim {
+  background: var(--bg);
+}
+
+.sev-metric-dimval {
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.sev-arith {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.sev-arith-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sev-arith-vals {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sev-btn,
+  .sev-mode {
+    transition: none;
+  }
+}

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Layers, Crosshair, RotateCcw, ToggleLeft, ToggleRight } from 'lucide-react';
+import './MLViz.css';
 
 const N_TOKENS = 8;
 const N_LAYERS = 4;

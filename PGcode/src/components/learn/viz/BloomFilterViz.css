@@ -98,6 +98,21 @@
   min-width: 72px;
 }
 
+.bf-range {
+  width: 96px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.bf-range-value {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 1.6em;
+  text-align: right;
+}
+
 .bf-select:focus {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);

@@ -1,8 +1,14 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, ArrowRight, MapPin, Star } from 'lucide-react';
+import {
+  Building2, ArrowRight, MapPin, Star, Layers,
+  Sparkles, Rocket, Landmark, Briefcase,
+} from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
+import { COMPANY_GROUPS, membersOf } from '../../content/companyGroups';
 import './Companies.css';
+
+const GROUP_ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin };
 
 export default function CompaniesIndex() {
   const { data: companies = [], isLoading } = useCompanies();
@@ -16,6 +22,14 @@ export default function CompaniesIndex() {
       byRegion[r].push(c);
     });
     return { featured, byRegion };
+  }, [companies]);
+
+  const groupCounts = useMemo(() => {
+    const out = {};
+    Object.entries(COMPANY_GROUPS).forEach(([slug, g]) => {
+      out[slug] = membersOf(g, companies).length;
+    });
+    return out;
   }, [companies]);
 
   if (isLoading) {
@@ -53,6 +67,30 @@ export default function CompaniesIndex() {
           ranked by frequency score.
         </p>
       </header>
+
+      <section className="comp-section">
+        <h2 className="comp-section-title">Browse by group</h2>
+        <div className="comp-group-grid">
+          {Object.entries(COMPANY_GROUPS).map(([slug, g]) => {
+            const Icon = GROUP_ICONS[g.iconName] || Building2;
+            const n = groupCounts[slug] || 0;
+            return (
+              <Link key={slug} to={`/company/g/${slug}`} className="comp-card comp-group-card">
+                <div className="comp-card-head">
+                  <Icon size={15} className="comp-card-icon" />
+                  <h3 className="comp-card-title">{g.title}</h3>
+                  <Layers size={11} className="comp-group-card-badge" />
+                </div>
+                <p className="comp-card-desc">{g.summary}</p>
+                <div className="comp-card-foot">
+                  <span className="comp-card-meta">{n} compan{n === 1 ? 'y' : 'ies'}</span>
+                  <ArrowRight size={13} className="comp-card-arrow" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
 
       {grouped.featured.length > 0 && (
         <section className="comp-section">

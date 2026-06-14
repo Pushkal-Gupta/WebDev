@@ -1,41 +1,39 @@
 #!/usr/bin/env node
 // fix-pattern1-quoting.mjs
 // ─────────────────────────────────────────────────────────────────────────────
-// Bug being repaired:
-//   During initial test-case import, string-typed inputs got JSON-encoded
-//   BEFORE storage. The stored cell ended up holding the 3-char string `"0"`
-//   (with literal double-quote chars) instead of the 1-char string `0`.
-//   The grade-submission driver reads `type === "str"` params via plain
-//   `input()` / `lines.shift()` — i.e. it takes the line VERBATIM. So the
-//   canonical receives `"0"` (3 chars) when it expects `0` (1 char) and
-//   reports the case as failing.
+// Pattern-1 quoting bug (docs/llm-wiki/pattern-1-quoting-bug.md).
 //
-//   Fix: for every problem whose params include a `str` (or `string`) field,
-//   for every stored test-case, if the value at that index starts AND ends
-//   with a literal `"`, strip one outer pair. Same fix applied to `expected`
-//   when `return_type` is also `str`/`string`.
+// String-param test inputs carry an extra layer of JSON quoting. The deployed
+// grade-submission driver reads a `str`/`string` param VERBATIM from its stdin
+// line (Python `input()`, JS `lines.shift()`, Java `sc.nextLine()` — see
+// supabase/functions/grade-submission/index.ts:71). So a value stored as the
+// 3-char string  "11"  (leading + trailing literal double-quote) is fed to the
+// canonical as  "11"  WITH the quotes — `int("11")` then raises, and the case
+// reports a false failure. The correct stored form for a str param is the bare
+// string  11 .
+//
+// Fix: for each problem whose params include a str/string field, for each test
+// case, if the stored value at that param index begins AND ends with a literal
+// double-quote, strip exactly one JSON layer (JSON.parse, which also honours
+// inner escapes). Never touch a value that is not double-quote-wrapped — that
+// rules out legitimately-escaped structured inputs (`[1,2]`, `{...}`, bare
+// numerics) which never start with `"`.
 //
 // Modes:
-//   (default)  dry-run — print every proposed fix, never write
-//   --apply    actually persist the corrected test_cases back to the DB
-//   --slug X   restrict to one problem id
-//   --limit N  process at most N problems (after filtering)
-//   --no-verify  skip the Judge0 canonical pre-flight (faster, less safe)
+//   (default)  DRY-RUN — scan, preflight a sample, write the report, no DB write
+//   --apply    persist corrected test_cases for preflight-passed problems
 //
-// Safety:
-//   Before writing back any fixed problem, run its canonical Python solution
-//   against the first 3 corrected test_cases via the `run-code` edge function
-//   and confirm each one matches expected. Any mismatch → skip the entire
-//   problem and add it to a manual-review log. Never silently corrupt cases.
+// Preflight (Judge0 is a shared bottleneck — kept light): the first
+// PREFLIGHT_LIMIT affected problems are graded through the run-code edge
+// function against their first 3 CORRECTED cases. Any failure marks the problem
+// SKIP, and --apply never writes a skipped (or un-preflighted) problem.
 //
-// Audit trail:
-//   Every change (proposed or applied) is written to
-//   `scripts/_fix-pattern1-quoting.log.json` so the user has a full record.
+// Report: scripts/report-pattern1-dryrun.json — full audit trail.
 // ─────────────────────────────────────────────────────────────────────────────
 
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -57,18 +55,10 @@ if (!URL || !SVC || !ANON) {
 const sb = createClient(URL, SVC);
 
 const args = process.argv.slice(2);
-const arg = (name, def = null) => {
-  const i = args.indexOf(`--${name}`);
-  if (i === -1) return def;
-  const v = args[i + 1];
-  return (v && !v.startsWith('--')) ? v : true;
-};
-const SLUG = arg('slug');
-const APPLY = !!arg('apply');
-const LIMIT = Number(arg('limit') || 0);
-const NO_VERIFY = !!arg('no-verify');
-
-const LOG_PATH = path.join(__dirname, '_fix-pattern1-quoting.log.json');
+const APPLY = args.includes('--apply');
+const preflightArg = args.find((a) => a.startsWith('--preflight='));
+const PREFLIGHT_LIMIT = preflightArg ? Math.max(0, parseInt(preflightArg.split('=')[1], 10) || 0) : 20; // light Judge0 use — shared bottleneck
+const REPORT_PATH = path.join(__dirname, 'report-pattern1-dryrun.json');
 
 // ── Detector / fixer ────────────────────────────────────────────────────────
 const isStringType = (t) => {
@@ -76,19 +66,18 @@ const isStringType = (t) => {
   return s === 'str' || s === 'string';
 };
 
-// Test if a stored cell looks like a JSON-double-quoted string, i.e. the
-// JS value itself begins and ends with a literal `"` character. We require
-// at least two extra chars so `""` (legitimately the empty string)
-// becomes the 0-char string — that's actually the correct unwrap.
+// Pattern-1 shape: a JS string value that begins AND ends with a literal
+// double-quote char. Anything else (structured `[...]`/`{...}`, bare numerics,
+// already-bare strings) is left untouched.
 const looksWrapped = (v) => typeof v === 'string'
   && v.length >= 2
-  && v.charCodeAt(0) === 34   // "
+  && v.charCodeAt(0) === 34
   && v.charCodeAt(v.length - 1) === 34;
 
+// Strip exactly one JSON quote layer. JSON.parse honours inner escapes
+// (`"a\\nb"` → `a\nb`); fall back to a naive strip if the value isn't strict
+// JSON but is still quote-wrapped.
 const unwrapOnce = (v) => {
-  // Prefer JSON.parse so escape sequences inside the string are honoured
-  // (e.g. `"a\\nb"` → `a\nb`). Fall back to a naive strip on parse failure
-  // since some stored values aren't strictly valid JSON.
   try {
     const parsed = JSON.parse(v);
     if (typeof parsed === 'string') return parsed;
@@ -96,55 +85,52 @@ const unwrapOnce = (v) => {
   return v.slice(1, -1);
 };
 
-// Compute a fixed test_cases array. Returns { fixed, changes } where
-// `changes` is a per-case diff descriptor and `fixed` is the new array.
+// Returns { changed, newCases, changes:[{caseIndex,paramIndex,before,after}] }.
+// paramIndex is the numeric input index, or the literal 'expected' for a
+// string-RETURN problem whose stored `expected` carries the same wrapping.
+// The driver prints a str return verbatim (_fmt: `if isinstance(v, str): return v`),
+// so a wrapped `expected` like  "134"  can never match the bare  134  the
+// canonical emits — it needs the identical one-layer strip.
 function planFix(problem) {
-  const { params, return_type, test_cases } = problem;
-  const tc = Array.isArray(test_cases) ? test_cases : [];
-  const stringIdxs = (params || []).map((p, i) => (isStringType(p?.type) ? i : -1)).filter(i => i >= 0);
-  const returnIsString = isStringType(return_type);
-  if (stringIdxs.length === 0 && !returnIsString) return { fixed: null, changes: [] };
-
-  const fixed = [];
+  const params = Array.isArray(problem.params) ? problem.params : [];
+  const stringIdx = params.map((p, i) => (isStringType(p?.type) ? i : -1)).filter((i) => i >= 0);
+  const returnsString = isStringType(problem.return_type);
+  const cases = Array.isArray(problem.test_cases) ? problem.test_cases : [];
   const changes = [];
-  let anyChange = false;
-  for (let ci = 0; ci < tc.length; ci++) {
-    const orig = tc[ci];
-    if (!orig || !Array.isArray(orig.inputs)) { fixed.push(orig); continue; }
-    const newInputs = orig.inputs.slice();
-    const caseChanges = [];
-    for (const idx of stringIdxs) {
-      const v = newInputs[idx];
-      if (looksWrapped(v)) {
-        const u = unwrapOnce(v);
-        if (u !== v) {
-          newInputs[idx] = u;
-          caseChanges.push({ kind: 'input', case: ci, idx, before: v, after: u });
+  const newCases = cases.map((tc) => ({
+    ...tc,
+    inputs: Array.isArray(tc.inputs) ? tc.inputs.slice() : tc.inputs,
+  }));
+  if (stringIdx.length === 0 && !returnsString) return { changed: false, newCases, changes };
+
+  for (let ci = 0; ci < cases.length; ci++) {
+    const inputs = Array.isArray(cases[ci].inputs) ? cases[ci].inputs : [];
+    for (const pi of stringIdx) {
+      if (pi >= inputs.length) continue;
+      const v = inputs[pi];
+      if (!looksWrapped(v)) continue;
+      const u = unwrapOnce(v);
+      if (u !== v) {
+        newCases[ci].inputs[pi] = u;
+        changes.push({ caseIndex: ci, paramIndex: pi, before: v, after: u });
+      }
+    }
+    if (returnsString) {
+      const ev = cases[ci].expected;
+      if (looksWrapped(ev)) {
+        const eu = unwrapOnce(ev);
+        if (eu !== ev) {
+          newCases[ci].expected = eu;
+          changes.push({ caseIndex: ci, paramIndex: 'expected', before: ev, after: eu });
         }
       }
     }
-    let newExpected = orig.expected;
-    if (returnIsString && looksWrapped(newExpected)) {
-      const u = unwrapOnce(newExpected);
-      if (u !== newExpected) {
-        caseChanges.push({ kind: 'expected', case: ci, before: newExpected, after: u });
-        newExpected = u;
-      }
-    }
-    if (caseChanges.length) {
-      anyChange = true;
-      changes.push(...caseChanges);
-      fixed.push({ ...orig, inputs: newInputs, expected: newExpected });
-    } else {
-      fixed.push(orig);
-    }
   }
-  return { fixed: anyChange ? fixed : null, changes };
+  return { changed: changes.length > 0, newCases, changes };
 }
 
-// ── Judge0 pre-flight ───────────────────────────────────────────────────────
+// ── Judge0 preflight (mirrors the deployed grade-submission driver) ──────────
 function buildPythonHarness(code, methodName, params) {
-  // Mirrors grade-submission/index.ts behaviour for type=str: raw input().
   const reads = (params || []).map((p, i) => {
     const t = String(p?.type || '').toLowerCase();
     if (t === 'str' || t === 'string') return `    arg${i} = input()`;
@@ -154,9 +140,7 @@ function buildPythonHarness(code, methodName, params) {
   }).join('\n');
   const argList = (params || []).map((_, i) => `arg${i}`).join(', ');
   const usesClass = /\bclass\s+Solution\b/.test(code);
-  const callExpr = usesClass
-    ? `Solution().${methodName}(${argList})`
-    : `${methodName}(${argList})`;
+  const callExpr = usesClass ? `Solution().${methodName}(${argList})` : `${methodName}(${argList})`;
   return `from __future__ import annotations
 ${code}
 
@@ -179,60 +163,64 @@ async function runOnce(source, stdin) {
     headers: { 'content-type': 'application/json', authorization: `Bearer ${ANON}` },
     body: JSON.stringify({ language: 'python', code: source, stdins: [stdin] }),
   });
-  if (!res.ok) throw new Error(`run-code ${res.status}: ${await res.text().then(t => t.slice(0, 160))}`);
+  if (!res.ok) throw new Error(`run-code ${res.status}`);
   const data = await res.json();
   const first = (data.results || [])[0];
   if (!first) throw new Error('no result');
   if (first.status && first.status !== 'success' && first.status !== 'Accepted') {
-    throw new Error(`${first.status}: ${(first.output || '').slice(0, 120)}`);
+    throw new Error(String(first.status));
   }
   return (first.output || '').replace(/\s+$/, '');
 }
 
-async function preflightCanonical(problem, fixedCases) {
-  const { method_name, params, solutions } = problem;
-  const pyEntry = solutions?.python;
-  const py = typeof pyEntry === 'string' ? pyEntry : pyEntry?.code;
-  if (!py || !method_name || !Array.isArray(params) || params.length === 0) {
-    return { ok: false, reason: 'missing solutions.python / method_name / params' };
+async function resolveSolution(problem) {
+  try {
+    const mod = await import(pathToFileURL(path.join(__dirname, '..', 'src', 'content', 'problemContent.js')).href);
+    const rich = mod.RICH_CONTENT || mod.default?.RICH_CONTENT;
+    const entry = rich?.[problem.id];
+    const pyEntry = entry?.solutions?.python;
+    const py = typeof pyEntry === 'string' ? pyEntry : pyEntry?.code;
+    if (py) return py;
+  } catch { /* fall through */ }
+  const pyEntry = problem.solutions?.python;
+  return typeof pyEntry === 'string' ? pyEntry : (pyEntry?.code || null);
+}
+
+// Grade canonical against the first 3 CORRECTED cases. { ok, reason? }.
+async function preflight(problem, newCases) {
+  const py = await resolveSolution(problem);
+  if (!py) return { ok: false, reason: 'no canonical python' };
+  if (!problem.method_name || !Array.isArray(problem.params) || problem.params.length === 0) {
+    return { ok: false, reason: 'missing method_name/params' };
   }
-  const sample = fixedCases.slice(0, 3);
-  if (sample.length === 0) return { ok: true, reason: 'no fixed cases to check' };
-  const harness = buildPythonHarness(py, method_name, params);
+  const sample = (Array.isArray(newCases) ? newCases : []).slice(0, 3);
+  if (sample.length === 0) return { ok: false, reason: 'no cases' };
+  const harness = buildPythonHarness(py, problem.method_name, problem.params);
   for (let i = 0; i < sample.length; i++) {
     const tc = sample[i];
-    const stdin = (tc.inputs || []).join('\n') + '\n';
+    const stdin = (Array.isArray(tc.inputs) ? tc.inputs : []).join('\n') + '\n';
     let out;
     try { out = await runOnce(harness, stdin); }
-    catch (e) { return { ok: false, reason: `case ${i} runtime: ${e.message.slice(0, 120)}` }; }
+    catch (e) { return { ok: false, reason: `case ${i} judge0: ${String(e.message).slice(0, 60)}` }; }
     const exp = String(tc.expected ?? '').replace(/\s+$/, '');
     if (out !== exp) {
-      return { ok: false, reason: `case ${i} mismatch: got=${JSON.stringify(out).slice(0, 80)} expected=${JSON.stringify(exp).slice(0, 80)}` };
+      return { ok: false, reason: `case ${i} mismatch got=${out.slice(0, 24)} exp=${exp.slice(0, 24)}` };
     }
   }
   return { ok: true };
 }
 
-// ── Main ────────────────────────────────────────────────────────────────────
-async function fetchCandidates() {
-  if (SLUG) {
-    const { data, error } = await sb
-      .from('PGcode_problems')
-      .select('id, method_name, params, return_type, solutions, test_cases')
-      .eq('id', SLUG);
-    if (error) throw error;
-    return data || [];
-  }
+async function fetchAllProblems() {
   const out = [];
   let from = 0;
-  const PAGE = 1000;
+  const PAGE = 1000; // PostgREST caps a single SELECT at 1000 — paginate.
   for (;;) {
     const { data, error } = await sb
       .from('PGcode_problems')
       .select('id, method_name, params, return_type, solutions, test_cases')
       .order('id', { ascending: true })
       .range(from, from + PAGE - 1);
-    if (error) throw error;
+    if (error) throw new Error(error.message);
     if (!data || data.length === 0) break;
     out.push(...data);
     if (data.length < PAGE) break;
@@ -242,94 +230,101 @@ async function fetchCandidates() {
 }
 
 async function main() {
-  console.log(`mode: ${APPLY ? 'APPLY' : 'DRY-RUN'}${NO_VERIFY ? ' (no pre-flight)' : ''}`);
-  if (SLUG) console.log(`slug filter: ${SLUG}`);
-  if (LIMIT) console.log(`limit: ${LIMIT}`);
+  console.log(`Pattern-1 quoting fix — mode: ${APPLY ? 'APPLY' : 'DRY-RUN'}`);
+  const problems = await fetchAllProblems();
+  const scanned = problems.length;
+  console.log(`Scanned ${scanned} problems.`);
 
-  const rows = await fetchCandidates();
-  console.log(`loaded ${rows.length} problem rows`);
+  let stringParamProblems = 0;
+  let totalCasesToUnwrap = 0;
+  let expectedFixes = 0;
+  const affected = []; // { id, method_name, params, solutions, newCases, changes }
 
-  // First pass: which rows have at least one string-typed param/return and at
-  // least one stored input that looks JSON-wrapped?
-  const targets = [];
-  for (const p of rows) {
-    const { fixed, changes } = planFix(p);
-    if (fixed && changes.length) targets.push({ row: p, fixed, changes });
+  for (const p of problems) {
+    const params = Array.isArray(p.params) ? p.params : [];
+    const hasStringParam = params.some((pp) => isStringType(pp?.type));
+    const returnsString = isStringType(p.return_type);
+    if (!hasStringParam && !returnsString) continue;
+    if (hasStringParam) stringParamProblems++;
+
+    const { changed, newCases, changes } = planFix(p);
+    if (!changed) continue;
+    const casesTouched = new Set(changes.map((c) => c.caseIndex)).size;
+    totalCasesToUnwrap += casesTouched;
+    expectedFixes += changes.filter((c) => c.paramIndex === 'expected').length;
+    affected.push({
+      id: p.id,
+      method_name: p.method_name,
+      params: p.params,
+      return_type: p.return_type,
+      solutions: p.solutions,
+      newCases,
+      changes,
+    });
   }
-  console.log(`problems with proposed fixes: ${targets.length}`);
-  const sliced = LIMIT ? targets.slice(0, LIMIT) : targets;
-  if (LIMIT) console.log(`processing first ${sliced.length} after --limit`);
 
-  const log = {
+  console.log(`Problems with string params: ${stringParamProblems}`);
+  console.log(`Expected-field unwraps (string-return): ${expectedFixes}`);
+  console.log(`Problems with >=1 Pattern-1 case: ${affected.length}`);
+  console.log(`Total cases that would be unwrapped: ${totalCasesToUnwrap}`);
+
+  // Preflight only the first PREFLIGHT_LIMIT affected problems.
+  const sample = affected.slice(0, PREFLIGHT_LIMIT);
+  const passed = new Set();
+  const skips = []; // { id, reason }
+  console.log(`\nPreflighting first ${sample.length} affected problem(s) through run-code...`);
+  for (const a of sample) {
+    process.stdout.write(`  ${a.id} ... `);
+    const r = await preflight(a, a.newCases);
+    if (r.ok) { passed.add(a.id); console.log('ok'); }
+    else { skips.push({ id: a.id, reason: r.reason }); console.log(`SKIP (${r.reason})`); }
+  }
+  const notPreflighted = affected.slice(PREFLIGHT_LIMIT).map((a) => a.id);
+
+  const report = {
+    generatedAt: new Date().toISOString(),
     mode: APPLY ? 'apply' : 'dry-run',
-    started: new Date().toISOString(),
-    totals: { rows_scanned: rows.length, candidates: targets.length, processed: sliced.length },
-    applied: [],
-    skipped_manual_review: [],
-    dry_run: [],
+    preflightLimit: PREFLIGHT_LIMIT,
+    counts: {
+      scanned,
+      stringParamProblems,
+      pattern1AffectedProblems: affected.length,
+      totalCasesToUnwrap,
+      expectedFixes,
+      preflightSampled: sample.length,
+      preflightPassed: passed.size,
+      preflightSkipped: skips.length,
+      notPreflighted: notPreflighted.length,
+    },
+    preflightSkips: skips,
+    notPreflighted,
+    affectedProblems: affected.map((a) => ({
+      id: a.id,
+      preflight: passed.has(a.id) ? 'pass' : (skips.find((s) => s.id === a.id) ? 'skip' : 'not-sampled'),
+      casesTouched: new Set(a.changes.map((c) => c.caseIndex)).size,
+      changeCount: a.changes.length,
+      changes: a.changes,
+    })),
   };
+  fs.writeFileSync(REPORT_PATH, JSON.stringify(report, null, 2));
+  console.log(`\nReport written: ${REPORT_PATH}`);
+  console.log(`Preflight: ${passed.size} passed, ${skips.length} skipped (${notPreflighted.length} not sampled).`);
 
-  let totalCaseFixes = 0;
-  let totalProblemsFixed = 0;
-  const writes = [];
-
-  for (const { row, fixed, changes } of sliced) {
-    totalCaseFixes += changes.length;
-    const caseIdxs = new Set(changes.map(c => c.case));
-    console.log(`\n[${row.id}] ${changes.length} field-level fixes across ${caseIdxs.size} cases`);
-    for (const c of changes.slice(0, 4)) {
-      const which = c.kind === 'input' ? `inputs[${c.idx}]` : 'expected';
-      console.log(`    case ${c.case} ${which}: ${JSON.stringify(c.before)} → ${JSON.stringify(c.after)}`);
-    }
-    if (changes.length > 4) console.log(`    … +${changes.length - 4} more`);
-
-    if (!APPLY) {
-      log.dry_run.push({ id: row.id, changes });
-      totalProblemsFixed += 1;
-      continue;
-    }
-
-    // Pre-flight: only the cases we actually changed.
-    const changedCases = [...caseIdxs].sort((a, b) => a - b).map(i => fixed[i]);
-    let preflight = { ok: true };
-    if (!NO_VERIFY) {
-      preflight = await preflightCanonical(row, changedCases);
-    }
-    if (!preflight.ok) {
-      console.log(`    pre-flight FAILED: ${preflight.reason} — skip`);
-      log.skipped_manual_review.push({ id: row.id, reason: preflight.reason, changes });
-      continue;
-    }
-    writes.push({ id: row.id, fixed, changes });
+  if (!APPLY) {
+    console.log('\n(DRY-RUN — DB NOT written. Re-run with --apply to persist preflight-passed problems.)');
+    return;
   }
 
-  if (APPLY) {
-    for (const w of writes) {
-      const { error } = await sb.from('PGcode_problems').update({ test_cases: w.fixed }).eq('id', w.id);
-      if (error) {
-        console.log(`  [${w.id}] write FAILED: ${error.message}`);
-        log.skipped_manual_review.push({ id: w.id, reason: `db write: ${error.message}`, changes: w.changes });
-        continue;
-      }
-      console.log(`  [${w.id}] wrote ${w.fixed.length} test_cases (fixed ${w.changes.length} fields)`);
-      log.applied.push({ id: w.id, field_fixes: w.changes.length, changes: w.changes });
-      totalProblemsFixed += 1;
-    }
+  // --apply: write only preflight-passed problems. Skipped and un-sampled
+  // problems are never written — we never persist an unverified correction.
+  let written = 0;
+  for (const a of affected) {
+    if (!passed.has(a.id)) continue;
+    const { error } = await sb.from('PGcode_problems').update({ test_cases: a.newCases }).eq('id', a.id);
+    if (error) console.log(`  ${a.id}: write failed: ${error.message.slice(0, 80)}`);
+    else { written++; console.log(`  ${a.id}: updated (${a.changes.length} field fixes)`); }
   }
-
-  log.totals.problems_fixed = totalProblemsFixed;
-  log.totals.field_level_fixes = totalCaseFixes;
-  log.finished = new Date().toISOString();
-  fs.writeFileSync(LOG_PATH, JSON.stringify(log, null, 2));
-
-  console.log(`\n──────────────────────────────────────────────`);
-  console.log(`mode: ${APPLY ? 'APPLY' : 'DRY-RUN'}`);
-  console.log(`candidate problems: ${targets.length}`);
-  console.log(`processed: ${sliced.length}`);
-  console.log(`fixed (problems): ${totalProblemsFixed}`);
-  console.log(`field-level changes: ${totalCaseFixes}`);
-  if (log.skipped_manual_review.length) console.log(`manual-review skips: ${log.skipped_manual_review.length}`);
-  console.log(`log: ${LOG_PATH}`);
+  console.log(`\nApplied: ${written} problem(s) updated.`);
 }
 
 main().catch((e) => { console.error(e); process.exit(1); });

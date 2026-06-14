@@ -45,7 +45,7 @@ import AlgoVisualizer, {
 } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
 import { INTERACTIVE_VIZ } from './interactiveViz';
-import { highlight } from '../../lib/syntaxHighlight';
+import RunnableCode from './RunnableCode';
 import './Learn.css';
 
 const LANG_TABS = [
@@ -229,20 +229,6 @@ function Section({ id, eyebrow, title, icon: Icon, variant, children }) {
       </header>
       <div className="cp-section-body">{children}</div>
     </section>
-  );
-}
-
-function CodeBlock({ code, lang }) {
-  if (!code) return <p className="learn-empty-sub">No code sample for this language yet.</p>;
-  const tokens = highlight(code, lang);
-  return (
-    <pre className="cp-code">
-      <code>
-        {tokens.map((tok, i) => (
-          <span key={i} className={`tok-${tok.cls}`}>{tok.text}</span>
-        ))}
-      </code>
-    </pre>
   );
 }
 
@@ -621,7 +607,7 @@ export default function ConceptPage({ session }) {
                   );
                 })}
               </div>
-              <CodeBlock code={code[resolvedLang]} lang={resolvedLang} />
+              <RunnableCode code={code} lang={resolvedLang} tabs={availableLangs} />
             </Section>
           )}
 

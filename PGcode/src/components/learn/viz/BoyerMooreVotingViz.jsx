@@ -4,8 +4,10 @@ import './BoyerMooreVotingViz.css';
 
 // Boyer-Moore Majority Vote — MANIM-style SVG step-through.
 // Standalone — render as <BoyerMooreVotingViz />. Use site theme tokens only.
+// Two modes: majority (n/2, one candidate) and extended (n/3, two candidates).
 
-const DEFAULT_ARR = [2, 2, 1, 1, 1, 2, 2];
+const DEFAULT_MAJORITY = [2, 2, 1, 1, 1, 2, 2];
+const DEFAULT_EXTENDED = [1, 1, 1, 3, 3, 2, 2, 2];
 const RUN_DELAY_MS = 750;
 
 // SVG layout
@@ -19,20 +21,15 @@ const INDEX_H = 22;
 const PANEL_GAP_Y = 36;
 const PANEL_H = 96;
 
-function buildSteps(arr) {
+// --- Majority (n/2) ---------------------------------------------------------
+function buildMajoritySteps(arr) {
   const steps = [];
 
   if (arr.length === 0) {
     steps.push({
-      i: -1,
-      candidate: null,
-      count: 0,
-      action: 'empty',
-      flash: false,
-      phase: 'done-empty',
-      verifyCount: 0,
-      verifyIndex: -1,
-      verified: null,
+      mode: 'majority', i: -1, candidates: [null], counts: [0], activeSlot: -1,
+      action: 'empty', flash: -1, phase: 'done-empty',
+      verifyCount: 0, verifyIndex: -1, verified: null,
       narration: 'Empty array — nothing to vote on.',
     });
     return steps;
@@ -43,68 +40,41 @@ function buildSteps(arr) {
 
   for (let i = 0; i < arr.length; i++) {
     const cur = arr[i];
-
     if (count === 0) {
       const prev = candidate;
       candidate = cur;
       count = 1;
       steps.push({
-        i,
-        candidate,
-        count,
-        action: i === 0 ? 'init' : 'switch',
-        flash: true,
-        prevCandidate: prev,
-        phase: 'voting',
-        verifyCount: 0,
-        verifyIndex: -1,
-        verified: null,
-        narration:
-          i === 0
-            ? `Start at index 0. count is 0, so adopt nums[0] = ${cur} as the candidate and set count = 1.`
-            : `count hit 0 at index ${i}. Drop the old candidate ${prev} and adopt nums[${i}] = ${cur} as the new candidate with count = 1.`,
+        mode: 'majority', i, candidates: [candidate], counts: [count], activeSlot: 0,
+        action: i === 0 ? 'init' : 'switch', flash: 0, phase: 'voting',
+        verifyCount: 0, verifyIndex: -1, verified: null,
+        narration: i === 0
+          ? `Start at index 0. count is 0, so adopt nums[0] = ${cur} as the candidate and set count = 1.`
+          : `count hit 0 at index ${i}. Drop the old candidate ${prev} and adopt nums[${i}] = ${cur} as the new candidate with count = 1.`,
       });
     } else if (cur === candidate) {
       count += 1;
       steps.push({
-        i,
-        candidate,
-        count,
-        action: 'support',
-        flash: false,
-        phase: 'voting',
-        verifyCount: 0,
-        verifyIndex: -1,
-        verified: null,
+        mode: 'majority', i, candidates: [candidate], counts: [count], activeSlot: 0,
+        action: 'support', flash: -1, phase: 'voting',
+        verifyCount: 0, verifyIndex: -1, verified: null,
         narration: `nums[${i}] = ${cur} matches the candidate. count rises to ${count}.`,
       });
     } else {
       count -= 1;
       steps.push({
-        i,
-        candidate,
-        count,
-        action: 'oppose',
-        flash: false,
-        phase: 'voting',
-        verifyCount: 0,
-        verifyIndex: -1,
-        verified: null,
+        mode: 'majority', i, candidates: [candidate], counts: [count], activeSlot: 0,
+        action: 'oppose', flash: -1, phase: 'voting',
+        verifyCount: 0, verifyIndex: -1, verified: null,
         narration: `nums[${i}] = ${cur} disagrees with candidate ${candidate}. count drops to ${count}.`,
       });
     }
   }
 
   steps.push({
-    i: arr.length - 1,
-    candidate,
-    count,
-    action: 'survivor',
-    flash: false,
-    phase: 'voting-done',
-    verifyCount: 0,
-    verifyIndex: -1,
-    verified: null,
+    mode: 'majority', i: arr.length - 1, candidates: [candidate], counts: [count], activeSlot: -1,
+    action: 'survivor', flash: -1, phase: 'voting-done',
+    verifyCount: 0, verifyIndex: -1, verified: null,
     narration: `Voting pass complete. Survivor candidate is ${candidate}. Run a verification pass to confirm strict majority.`,
   });
 
@@ -113,15 +83,9 @@ function buildSteps(arr) {
     const match = arr[i] === candidate;
     if (match) counted += 1;
     steps.push({
-      i: arr.length - 1,
-      candidate,
-      count,
-      action: 'verify',
-      flash: false,
-      phase: 'verifying',
-      verifyCount: counted,
-      verifyIndex: i,
-      verified: null,
+      mode: 'majority', i: arr.length - 1, candidates: [candidate], counts: [count], activeSlot: -1,
+      action: 'verify', flash: -1, phase: 'verifying',
+      verifyCount: counted, verifyIndex: i, verified: null,
       narration: match
         ? `Verify: nums[${i}] = ${arr[i]} matches ${candidate}. Real count = ${counted}.`
         : `Verify: nums[${i}] = ${arr[i]} does not match ${candidate}. Real count stays ${counted}.`,
@@ -130,21 +94,122 @@ function buildSteps(arr) {
 
   const isMajority = counted > arr.length / 2;
   steps.push({
-    i: arr.length - 1,
-    candidate,
-    count,
-    action: 'final',
-    flash: false,
-    phase: isMajority ? 'done-majority' : 'done-no-majority',
-    verifyCount: counted,
-    verifyIndex: arr.length - 1,
-    verified: isMajority,
+    mode: 'majority', i: arr.length - 1, candidates: [candidate], counts: [count], activeSlot: -1,
+    action: 'final', flash: -1, phase: isMajority ? 'done-majority' : 'done-no-majority',
+    verifyCount: counted, verifyIndex: arr.length - 1, verified: isMajority ? candidate : false,
     narration: isMajority
       ? `${candidate} appears ${counted} of ${arr.length} times — strictly more than n/2 = ${arr.length / 2}. Confirmed majority element.`
       : `${candidate} appears ${counted} of ${arr.length} times — not strictly more than n/2 = ${arr.length / 2}. No majority element exists.`,
   });
 
   return steps;
+}
+
+// --- Extended (n/3) ---------------------------------------------------------
+function buildExtendedSteps(arr) {
+  const steps = [];
+
+  if (arr.length === 0) {
+    steps.push({
+      mode: 'extended', i: -1, candidates: [null, null], counts: [0, 0], activeSlot: -1,
+      action: 'empty', flash: -1, phase: 'done-empty',
+      verifyCounts: [0, 0], verifyIndex: -1, verified: [],
+      narration: 'Empty array — nothing to vote on.',
+    });
+    return steps;
+  }
+
+  let c1 = null;
+  let c2 = null;
+  let n1 = 0;
+  let n2 = 0;
+
+  for (let i = 0; i < arr.length; i++) {
+    const cur = arr[i];
+    if (c1 !== null && cur === c1) {
+      n1 += 1;
+      steps.push({
+        mode: 'extended', i, candidates: [c1, c2], counts: [n1, n2], activeSlot: 0,
+        action: 'support', flash: -1, phase: 'voting',
+        verifyCounts: [0, 0], verifyIndex: -1, verified: null,
+        narration: `nums[${i}] = ${cur} matches candidate 1 (${c1}). count1 rises to ${n1}.`,
+      });
+    } else if (c2 !== null && cur === c2) {
+      n2 += 1;
+      steps.push({
+        mode: 'extended', i, candidates: [c1, c2], counts: [n1, n2], activeSlot: 1,
+        action: 'support', flash: -1, phase: 'voting',
+        verifyCounts: [0, 0], verifyIndex: -1, verified: null,
+        narration: `nums[${i}] = ${cur} matches candidate 2 (${c2}). count2 rises to ${n2}.`,
+      });
+    } else if (n1 === 0) {
+      c1 = cur;
+      n1 = 1;
+      steps.push({
+        mode: 'extended', i, candidates: [c1, c2], counts: [n1, n2], activeSlot: 0,
+        action: 'switch', flash: 0, phase: 'voting',
+        verifyCounts: [0, 0], verifyIndex: -1, verified: null,
+        narration: `count1 is 0 at index ${i}. Adopt nums[${i}] = ${cur} as candidate 1 with count1 = 1.`,
+      });
+    } else if (n2 === 0) {
+      c2 = cur;
+      n2 = 1;
+      steps.push({
+        mode: 'extended', i, candidates: [c1, c2], counts: [n1, n2], activeSlot: 1,
+        action: 'switch', flash: 1, phase: 'voting',
+        verifyCounts: [0, 0], verifyIndex: -1, verified: null,
+        narration: `count2 is 0 at index ${i}. Adopt nums[${i}] = ${cur} as candidate 2 with count2 = 1.`,
+      });
+    } else {
+      n1 -= 1;
+      n2 -= 1;
+      steps.push({
+        mode: 'extended', i, candidates: [c1, c2], counts: [n1, n2], activeSlot: -1,
+        action: 'oppose', flash: -1, phase: 'voting',
+        verifyCounts: [0, 0], verifyIndex: -1, verified: null,
+        narration: `nums[${i}] = ${cur} matches neither candidate. Decrement both: count1 = ${n1}, count2 = ${n2}.`,
+      });
+    }
+  }
+
+  steps.push({
+    mode: 'extended', i: arr.length - 1, candidates: [c1, c2], counts: [n1, n2], activeSlot: -1,
+    action: 'survivor', flash: -1, phase: 'voting-done',
+    verifyCounts: [0, 0], verifyIndex: -1, verified: null,
+    narration: `Voting pass complete. Surviving candidates are ${c1} and ${c2}. Verify each against the n/3 threshold.`,
+  });
+
+  let occ1 = 0;
+  let occ2 = 0;
+  for (let i = 0; i < arr.length; i++) {
+    if (c1 !== null && arr[i] === c1) occ1 += 1;
+    else if (c2 !== null && arr[i] === c2) occ2 += 1;
+    steps.push({
+      mode: 'extended', i: arr.length - 1, candidates: [c1, c2], counts: [n1, n2], activeSlot: -1,
+      action: 'verify', flash: -1, phase: 'verifying',
+      verifyCounts: [occ1, occ2], verifyIndex: i, verified: null,
+      narration: `Verify nums[${i}] = ${arr[i]}: count of ${c1} = ${occ1}, count of ${c2} = ${occ2}.`,
+    });
+  }
+
+  const thr = Math.floor(arr.length / 3);
+  const winners = [];
+  if (c1 !== null && occ1 > thr) winners.push(c1);
+  if (c2 !== null && occ2 > thr) winners.push(c2);
+  steps.push({
+    mode: 'extended', i: arr.length - 1, candidates: [c1, c2], counts: [n1, n2], activeSlot: -1,
+    action: 'final', flash: -1, phase: winners.length ? 'done-majority' : 'done-no-majority',
+    verifyCounts: [occ1, occ2], verifyIndex: arr.length - 1, verified: winners,
+    narration: winners.length
+      ? `Threshold > n/3 = ${thr}. ${c1} appears ${occ1}x, ${c2} appears ${occ2}x. Elements over n/3: {${winners.join(', ')}}.`
+      : `Threshold > n/3 = ${thr}. ${c1} appears ${occ1}x, ${c2} appears ${occ2}x. Neither exceeds n/3 — no element appears more than n/3 times.`,
+  });
+
+  return steps;
+}
+
+function buildSteps(arr, mode) {
+  return mode === 'extended' ? buildExtendedSteps(arr) : buildMajoritySteps(arr);
 }
 
 function Pointer({ index, label, offsetX, baselineY }) {
@@ -183,14 +248,16 @@ function VerifyTick({ index, offsetX, yTop }) {
   );
 }
 
-export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
-  const [arr, setArr] = useState(initialArray);
-  const [draft, setDraft] = useState(initialArray.join(','));
+export default function BoyerMooreVotingViz() {
+  const [mode, setMode] = useState('majority');
+  const [arr, setArr] = useState(DEFAULT_MAJORITY);
+  const [draft, setDraft] = useState(DEFAULT_MAJORITY.join(','));
   const [stepIdx, setStepIdx] = useState(0);
   const [isRunningRaw, setIsRunning] = useState(false);
   const runTimer = useRef(null);
 
-  const steps = useMemo(() => buildSteps(arr), [arr]);
+  const isExt = mode === 'extended';
+  const steps = useMemo(() => buildSteps(arr, mode), [arr, mode]);
   const current = steps[stepIdx] || steps[0];
   const totalSteps = steps.length;
   const isTerminal =
@@ -198,6 +265,9 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
     current.phase === 'done-no-majority' ||
     current.phase === 'done-empty';
   const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
+
+  const candidates = current.candidates;
+  const counts = current.counts;
 
   useEffect(() => {
     return () => {
@@ -253,13 +323,23 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
     setIsRunning(true);
   };
 
+  const switchMode = (m) => {
+    if (m === mode) return;
+    stop();
+    const next = m === 'extended' ? DEFAULT_EXTENDED : DEFAULT_MAJORITY;
+    setMode(m);
+    setArr(next);
+    setDraft(next.join(','));
+    setStepIdx(0);
+  };
+
   const applyDraft = () => {
     const parsed = draft
       .split(/[,\s]+/)
       .map((t) => t.trim())
       .filter((t) => t.length > 0)
       .map(Number)
-      .filter((n) => Number.isFinite(n) && Number.isInteger(n));
+      .filter((x) => Number.isFinite(x) && Number.isInteger(x));
     if (parsed.length === 0) return;
     if (parsed.length > 24) {
       parsed.length = 24;
@@ -271,15 +351,30 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
 
   const loadDefault = () => {
     stop();
-    setArr(DEFAULT_ARR);
-    setDraft(DEFAULT_ARR.join(','));
+    const next = isExt ? DEFAULT_EXTENDED : DEFAULT_MAJORITY;
+    setArr(next);
+    setDraft(next.join(','));
     setStepIdx(0);
   };
 
   const randomize = () => {
-    const n = 7 + Math.floor(Math.random() * 6); // 7-12
-    const pool = [1, 2, 3, 4];
-    const next = Array.from({ length: n }, () => pool[Math.floor(Math.random() * pool.length)]);
+    const n = 8 + Math.floor(Math.random() * 5); // 8-12
+    const next = [];
+    if (isExt) {
+      const a = 1 + Math.floor(Math.random() * 4);
+      const b = 1 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < n; i++) {
+        const r = Math.random();
+        if (r < 0.4) next.push(a);
+        else if (r < 0.75) next.push(b);
+        else next.push(1 + Math.floor(Math.random() * 6));
+      }
+    } else {
+      const maj = 1 + Math.floor(Math.random() * 4);
+      for (let i = 0; i < n; i++) {
+        next.push(Math.random() < 0.58 ? maj : 1 + Math.floor(Math.random() * 6));
+      }
+    }
     stop();
     setArr(next);
     setDraft(next.join(','));
@@ -313,14 +408,12 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
     current.phase === 'voting' || current.phase === 'voting-done';
   const showVerifyPointer = current.phase === 'verifying';
 
-  const countTone =
-    current.count === 0
-      ? 'is-zero'
-      : current.action === 'support'
-        ? 'is-up'
-        : current.action === 'oppose'
-          ? 'is-down'
-          : '';
+  const countTone = (idx) => {
+    if (counts[idx] === 0) return 'is-zero';
+    if (current.action === 'support' && current.activeSlot === idx) return 'is-up';
+    if (current.action === 'oppose') return 'is-down';
+    return '';
+  };
 
   const phaseLabel =
     current.phase === 'voting'
@@ -330,60 +423,129 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
         : current.phase === 'verifying'
           ? 'Verifying'
           : current.phase === 'done-majority'
-            ? 'Majority'
+            ? (isExt ? 'Found' : 'Majority')
             : current.phase === 'done-no-majority'
-              ? 'No majority'
+              ? 'None'
               : 'Empty';
 
   const actionLabel = (() => {
     switch (current.action) {
       case 'init': return 'init candidate';
       case 'support': return 'count + 1';
-      case 'oppose': return 'count - 1';
-      case 'switch': return 'swap candidate';
+      case 'oppose': return isExt ? 'both count - 1' : 'count - 1';
+      case 'switch': return 'adopt candidate';
       case 'survivor': return 'survivor';
       case 'verify': return 'verify pass';
-      case 'final': return current.verified ? 'majority confirmed' : 'rejected';
+      case 'final': return current.phase === 'done-majority' ? 'confirmed' : 'rejected';
       case 'empty': return 'empty';
       default: return '';
     }
   })();
 
-  // Candidate slot + count panel: SVG centered group.
+  const thresholdLabel = isExt
+    ? `n/3 threshold > ${Math.floor(arr.length / 3)}`
+    : `strict majority threshold > ${Math.floor(arr.length / 2)}`;
+
+  // Candidate slot + count panel: centered group, supports 1 or 2 candidate pairs.
   const panelCx = stageW / 2;
   const slotW = 96;
   const slotH = PANEL_H;
   const slotGap = 22;
-  const candX = panelCx - slotW - slotGap / 2;
-  const countX = panelCx + slotGap / 2;
+  const groupGap = 56;
+  const pairW = slotW * 2 + slotGap;
+  const slotKey = isExt ? candidates.length : 1;
+  // x of left edge of slot group(s)
+  const groupLeft = isExt
+    ? panelCx - pairW - groupGap / 2
+    : panelCx - pairW / 2;
+
+  // Renders one candidate+count pair starting at left edge x.
+  const renderPair = (slotIdx, leftX, labelSuffix) => {
+    const candX = leftX;
+    const countX = leftX + slotW + slotGap;
+    const cand = candidates[slotIdx];
+    return (
+      <g key={`pair-${slotIdx}`}>
+        <rect
+          className={`bmvv-slot bmvv-slot-cand ${current.flash === slotIdx ? 'is-flash' : ''}`}
+          x={candX} y={panelY} width={slotW} height={slotH} rx={10} ry={10}
+        />
+        <text className="bmvv-slot-label" x={candX + slotW / 2} y={panelY + 18}>
+          {`candidate${labelSuffix}`}
+        </text>
+        <text
+          className="bmvv-slot-value bmvv-slot-cand-value"
+          x={candX + slotW / 2} y={panelY + slotH / 2 + 12}
+        >
+          {cand == null ? '—' : cand}
+        </text>
+
+        <rect
+          className={`bmvv-slot bmvv-slot-count ${countTone(slotIdx)}`}
+          x={countX} y={panelY} width={slotW} height={slotH} rx={10} ry={10}
+        />
+        <text className="bmvv-slot-label" x={countX + slotW / 2} y={panelY + 18}>
+          {`count${labelSuffix}`}
+        </text>
+        <text
+          className={`bmvv-slot-value bmvv-slot-count-value ${countTone(slotIdx)}`}
+          x={countX + slotW / 2} y={panelY + slotH / 2 + 12}
+        >
+          {counts[slotIdx]}
+        </text>
+      </g>
+    );
+  };
+
+  const verifiedReadout = (() => {
+    if (current.verified == null) return '—';
+    if (isExt) {
+      return current.verified.length ? `{${current.verified.join(', ')}}` : 'none';
+    }
+    return current.verified === false ? 'none' : String(current.verified);
+  })();
 
   return (
     <div className="bmvv" role="group" aria-label="Boyer-Moore majority voting visualization">
       <div className="bmvv-head">
-        <h3 className="bmvv-title">Boyer-Moore Majority Vote</h3>
+        <h3 className="bmvv-title">Boyer-Moore Voting</h3>
         <div className="bmvv-step-counter">
           step <strong>{stepIdx}</strong> / {Math.max(totalSteps - 1, 0)}
         </div>
       </div>
 
       <div className="bmvv-controls">
+        <div className="bmvv-modes" role="tablist" aria-label="Voting variant">
+          <button
+            type="button"
+            className={`bmvv-mode ${!isExt ? 'is-on' : ''}`}
+            onClick={() => switchMode('majority')}
+            aria-pressed={!isExt}
+          >
+            majority (n/2)
+          </button>
+          <button
+            type="button"
+            className={`bmvv-mode ${isExt ? 'is-on' : ''}`}
+            onClick={() => switchMode('extended')}
+            aria-pressed={isExt}
+          >
+            extended (n/3)
+          </button>
+        </div>
+
         <label className="bmvv-input-group">
           <span className="bmvv-input-label">array</span>
           <input
             className="bmvv-input"
             type="text"
             value={draft}
-            placeholder="2,2,1,1,1,2,2"
+            placeholder={isExt ? '1,1,1,3,3,2,2,2' : '2,2,1,1,1,2,2'}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={(e) => { if (e.key === 'Enter') applyDraft(); }}
             aria-label="Comma-separated integers"
           />
-          <button
-            type="button"
-            className="bmvv-btn"
-            onClick={applyDraft}
-            aria-label="Apply array"
-          >
+          <button type="button" className="bmvv-btn" onClick={applyDraft} aria-label="Apply array">
             apply
           </button>
         </label>
@@ -414,11 +576,7 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
           {isRunning ? <Pause size={14} /> : <Play size={14} />}
           {isRunning ? 'Pause' : (isTerminal ? 'Replay' : 'Run')}
         </button>
-        <button
-          type="button"
-          className="bmvv-btn bmvv-btn-danger"
-          onClick={reset}
-        >
+        <button type="button" className="bmvv-btn bmvv-btn-danger" onClick={reset}>
           <RotateCcw size={14} /> Reset
         </button>
       </div>
@@ -430,16 +588,13 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
           <svg
             className="bmvv-stage"
             viewBox={`0 0 ${stageW} ${stageH}`}
-            width={stageW}
-            height={stageH}
+            preserveAspectRatio="xMidYMid meet"
             role="img"
             aria-label="Boyer-Moore voting stage"
           >
             <text className="bmvv-header-line" x={PAD_X} y={headerY + 12}>
               n = <tspan className="k">{arr.length}</tspan>
-              <tspan dx="16" fill="var(--text-dim)">
-                strict majority threshold &gt; {Math.floor(arr.length / 2)}
-              </tspan>
+              <tspan dx="16" fill="var(--text-dim)">{thresholdLabel}</tspan>
               <tspan dx="16" fill="var(--text-dim)">
                 phase: <tspan className="k">{phaseLabel}</tspan>
               </tspan>
@@ -450,23 +605,23 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
               const isCurrent =
                 (current.phase === 'voting' || current.phase === 'voting-done') &&
                 current.i === i;
-              const isCandMatch =
-                current.candidate != null &&
-                v === current.candidate &&
-                current.phase !== 'done-empty';
+              const matchesCand =
+                current.phase !== 'done-empty' &&
+                ((candidates[0] != null && v === candidates[0]) ||
+                  (isExt && candidates[1] != null && v === candidates[1]));
               const isVerifyMatch =
                 current.phase === 'verifying' &&
                 current.verifyIndex >= i &&
-                v === current.candidate;
+                matchesCand;
               const isVerifyCurrent =
                 current.phase === 'verifying' && current.verifyIndex === i;
               const isFinalMaj =
-                current.phase === 'done-majority' && v === current.candidate;
+                current.phase === 'done-majority' && matchesCand;
 
               const rectCls = [
                 'bmvv-cell-rect',
                 isCurrent && 'is-current',
-                isCandMatch && !isCurrent && 'is-cand-match',
+                matchesCand && !isCurrent && 'is-cand-match',
                 isVerifyCurrent && 'is-verify-current',
                 isVerifyMatch && !isVerifyCurrent && 'is-verify-match',
                 isFinalMaj && 'is-final-majority',
@@ -475,127 +630,79 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
               const txtCls = [
                 'bmvv-cell-value',
                 isCurrent && 'is-current',
-                isCandMatch && 'is-cand-match',
+                matchesCand && 'is-cand-match',
                 isFinalMaj && 'is-final-majority',
               ].filter(Boolean).join(' ');
 
               return (
                 <g key={i}>
-                  <rect
-                    className={rectCls}
-                    x={x}
-                    y={rowY}
-                    width={CELL_W}
-                    height={CELL_H}
-                    rx={7}
-                    ry={7}
-                  />
-                  <text
-                    className={txtCls}
-                    x={x + CELL_W / 2}
-                    y={rowY + CELL_H / 2}
-                  >
-                    {v}
-                  </text>
-                  <text
-                    className="bmvv-cell-idx"
-                    x={x + CELL_W / 2}
-                    y={indexY}
-                  >
-                    {i}
-                  </text>
+                  <rect className={rectCls} x={x} y={rowY} width={CELL_W} height={CELL_H} rx={7} ry={7} />
+                  <text className={txtCls} x={x + CELL_W / 2} y={rowY + CELL_H / 2}>{v}</text>
+                  <text className="bmvv-cell-idx" x={x + CELL_W / 2} y={indexY}>{i}</text>
                 </g>
               );
             })}
 
             {showVotingPointer && current.i >= 0 && (
-              <Pointer
-                index={current.i}
-                label="i"
-                offsetX={PAD_X}
-                baselineY={pointerBaseline}
-              />
+              <Pointer index={current.i} label="i" offsetX={PAD_X} baselineY={pointerBaseline} />
             )}
 
             {showVerifyPointer && current.verifyIndex >= 0 && (
-              <VerifyTick
-                index={current.verifyIndex}
-                offsetX={PAD_X}
-                yTop={rowY}
-              />
+              <VerifyTick index={current.verifyIndex} offsetX={PAD_X} yTop={rowY} />
             )}
 
-            {/* Candidate + count slot panel */}
-            <g className="bmvv-panel">
-              {/* Candidate slot */}
-              <rect
-                className={`bmvv-slot bmvv-slot-cand ${current.flash ? 'is-flash' : ''}`}
-                x={candX}
-                y={panelY}
-                width={slotW}
-                height={slotH}
-                rx={10}
-                ry={10}
-              />
-              <text className="bmvv-slot-label" x={candX + slotW / 2} y={panelY + 18}>
-                candidate
-              </text>
-              <text
-                className="bmvv-slot-value bmvv-slot-cand-value"
-                x={candX + slotW / 2}
-                y={panelY + slotH / 2 + 12}
-              >
-                {current.candidate == null ? '—' : current.candidate}
-              </text>
+            {/* Candidate + count panel(s) */}
+            <g className="bmvv-panel" key={`panel-${slotKey}`}>
+              {!isExt && renderPair(0, groupLeft, '')}
+              {isExt && renderPair(0, groupLeft, ' 1')}
+              {isExt && renderPair(1, groupLeft + pairW + groupGap, ' 2')}
 
-              {/* Count slot */}
-              <rect
-                className={`bmvv-slot bmvv-slot-count ${countTone}`}
-                x={countX}
-                y={panelY}
-                width={slotW}
-                height={slotH}
-                rx={10}
-                ry={10}
-              />
-              <text className="bmvv-slot-label" x={countX + slotW / 2} y={panelY + 18}>
-                count
-              </text>
-              <text
-                className={`bmvv-slot-value bmvv-slot-count-value ${countTone}`}
-                x={countX + slotW / 2}
-                y={panelY + slotH / 2 + 12}
-              >
-                {current.count}
-              </text>
-
-              {/* Action label below */}
               {actionLabel && (
-                <text
-                  className="bmvv-action-line"
-                  x={panelCx}
-                  y={panelY + slotH + 18}
-                >
+                <text className="bmvv-action-line" x={panelCx} y={panelY + slotH + 18}>
                   action: <tspan className="k">{actionLabel}</tspan>
                 </text>
               )}
 
-              {/* Verify count */}
-              {showVerify && (
-                <text
-                  className="bmvv-verify-line"
-                  x={panelCx}
-                  y={panelY + slotH + 34}
-                >
+              {showVerify && !isExt && (
+                <text className="bmvv-verify-line" x={panelCx} y={panelY + slotH + 34}>
                   real count: <tspan className="k">{current.verifyCount}</tspan>
-                  <tspan dx="10" fill="var(--text-dim)">
-                    of {arr.length}
-                  </tspan>
+                  <tspan dx="10" fill="var(--text-dim)">of {arr.length}</tspan>
+                </text>
+              )}
+              {showVerify && isExt && (
+                <text className="bmvv-verify-line" x={panelCx} y={panelY + slotH + 34}>
+                  real counts: <tspan className="k">{current.verifyCounts[0]}</tspan>
+                  <tspan dx="6" fill="var(--text-dim)">/ {candidates[0] == null ? '—' : candidates[0]}</tspan>
+                  <tspan dx="14" className="k">{current.verifyCounts[1]}</tspan>
+                  <tspan dx="6" fill="var(--text-dim)">/ {candidates[1] == null ? '—' : candidates[1]}</tspan>
                 </text>
               )}
             </g>
           </svg>
         )}
+      </div>
+
+      <div className="bmvv-readout">
+        <div className="bmvv-readout-item">
+          <span className="bmvv-readout-label">{isExt ? 'candidate 1' : 'candidate'}</span>
+          <span className="bmvv-readout-value">
+            {candidates[0] == null ? '—' : candidates[0]}
+            <span className="bmvv-readout-sub"> · cnt {counts[0]}</span>
+          </span>
+        </div>
+        {isExt && (
+          <div className="bmvv-readout-item">
+            <span className="bmvv-readout-label">candidate 2</span>
+            <span className="bmvv-readout-value">
+              {candidates[1] == null ? '—' : candidates[1]}
+              <span className="bmvv-readout-sub"> · cnt {counts[1]}</span>
+            </span>
+          </div>
+        )}
+        <div className="bmvv-readout-item">
+          <span className="bmvv-readout-label">{isExt ? 'verified (> n/3)' : 'verified majority'}</span>
+          <span className="bmvv-readout-value">{verifiedReadout}</span>
+        </div>
       </div>
 
       <div className="bmvv-narration">
@@ -606,13 +713,17 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
       {current.phase === 'done-majority' && (
         <div className="bmvv-status is-found" role="status">
           <span className="bmvv-status-dot" />
-          Majority element: {current.candidate} ({current.verifyCount} of {arr.length})
+          {isExt
+            ? `Elements appearing more than n/3 times: {${current.verified.join(', ')}}`
+            : `Majority element: ${candidates[0]} (${current.verifyCount} of ${arr.length})`}
         </div>
       )}
       {current.phase === 'done-no-majority' && (
         <div className="bmvv-status is-missing" role="status">
           <span className="bmvv-status-dot" />
-          No majority — survivor {current.candidate} only appears {current.verifyCount} of {arr.length} times
+          {isExt
+            ? 'No element appears more than n/3 times'
+            : `No majority — survivor ${candidates[0]} only appears ${current.verifyCount} of ${arr.length} times`}
         </div>
       )}
 
@@ -620,7 +731,7 @@ export default function BoyerMooreVotingViz({ initialArray = DEFAULT_ARR }) {
         <span className="bmvv-legend-item"><span className="bmvv-legend-swatch current" /> current i</span>
         <span className="bmvv-legend-item"><span className="bmvv-legend-swatch cand" /> matches candidate</span>
         <span className="bmvv-legend-item"><span className="bmvv-legend-swatch verify" /> verify scan</span>
-        <span className="bmvv-legend-item"><span className="bmvv-legend-swatch final" /> majority element</span>
+        <span className="bmvv-legend-item"><span className="bmvv-legend-swatch final" /> confirmed element</span>
       </div>
     </div>
   );

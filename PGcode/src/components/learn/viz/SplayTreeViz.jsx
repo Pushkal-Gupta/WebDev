@@ -2,296 +2,260 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Play, Pause, RotateCcw, ChevronRight, SkipForward, Search } from 'lucide-react';
 import './SplayTreeViz.css';
 
-const INSERT_KEYS = [10, 20, 30, 40, 50];
-const DEFAULT_SEARCH = 20;
-const SEED = 0x5B1A1F;
+// Splay tree as a plain node model: {key, left, right}.
+// On ACCESS we bottom-up splay the found (or last-visited) node to the root
+// using zig / zig-zig / zig-zag steps, snapshotting one frame per step so the
+// reader watches the node climb. Parent pointers are recomputed each step from
+// the live root (cheaper to reason about than threading them through clones).
 
-function mulberry32(a) {
-  return function () {
-    a |= 0;
-    a = (a + 0x6D2B79F5) | 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+function clone(n) {
+  if (!n) return null;
+  return { key: n.key, left: clone(n.left), right: clone(n.right) };
 }
 
-function clone(root) {
-  if (!root) return null;
-  return { key: root.key, left: clone(root.left), right: clone(root.right) };
+function insertBST(root, key) {
+  if (!root) return { node: { key, left: null, right: null } };
+  let cur = root;
+  while (true) {
+    if (key === cur.key) return { node: root };
+    if (key < cur.key) {
+      if (!cur.left) { cur.left = { key, left: null, right: null }; return { node: root }; }
+      cur = cur.left;
+    } else {
+      if (!cur.right) { cur.right = { key, left: null, right: null }; return { node: root }; }
+      cur = cur.right;
+    }
+  }
 }
 
-function bstInsert(root, key) {
-  if (!root) return { key, left: null, right: null };
-  if (key < root.key) root.left = bstInsert(root.left, key);
-  else if (key > root.key) root.right = bstInsert(root.right, key);
+// Walk from root toward key; return the key held at the found node, or the
+// last node visited before falling off (standard splay-tree access behaviour).
+function searchTarget(root, key) {
+  let cur = root, last = root;
+  while (cur) {
+    last = cur;
+    if (key === cur.key) return cur.key;
+    cur = key < cur.key ? cur.left : cur.right;
+  }
+  return last ? last.key : null;
+}
+
+// Build parent map + path (root..target) for the current root snapshot.
+function pathTo(root, key) {
+  const parent = new Map();
+  const path = [];
+  let cur = root;
+  parent.set(root ? root.key : null, null);
+  while (cur) {
+    path.push(cur.key);
+    if (cur.key === key) break;
+    const next = key < cur.key ? cur.left : cur.right;
+    if (next) parent.set(next.key, cur.key);
+    cur = next;
+  }
+  return { parent, path };
+}
+
+function findNode(root, key) {
+  let cur = root;
+  while (cur) {
+    if (cur.key === key) return cur;
+    cur = key < cur.key ? cur.left : cur.right;
+  }
+  return null;
+}
+
+function findParent(node, k) {
+  if (!node) return null;
+  if (node.left && node.left.key === k) return node;
+  if (node.right && node.right.key === k) return node;
+  if (k < node.key) return findParent(node.left, k);
+  return findParent(node.right, k);
+}
+
+// Rotate `childKey` above its parent. Returns the (possibly new) root.
+function rotate(root, childKey) {
+  const par = findParent(root, childKey);
+  if (!par) return root; // child is root already
+  const child = par.left && par.left.key === childKey ? par.left : par.right;
+  const gp = findParent(root, par.key);
+  const isLeftChild = par.left === child;
+
+  if (isLeftChild) {
+    par.left = child.right;
+    child.right = par;
+  } else {
+    par.right = child.left;
+    child.left = par;
+  }
+  if (!gp) return child; // par was root -> child becomes root
+  if (gp.left === par) gp.left = child; else gp.right = child;
   return root;
 }
 
-function findPath(root, key) {
-  const path = [];
-  let cur = root;
-  while (cur) {
-    path.push(cur.key);
-    if (key === cur.key) return { path, found: true };
-    cur = key < cur.key ? cur.left : cur.right;
-  }
-  return { path, found: false };
-}
-
-// Find node and its parent chain (returning array of {node, parent, gp} top-down).
-function getAncestry(root, key) {
-  const stack = []; // array of nodes top-down, including target if found
-  let cur = root;
-  while (cur) {
-    stack.push(cur);
-    if (key === cur.key) return { stack, found: true };
-    cur = key < cur.key ? cur.left : cur.right;
-  }
-  return { stack, found: false };
-}
-
-// rotate utility on a parent pointer: we'll do it by rebuilding via path
-function rotateRight(p) {
-  const l = p.left;
-  p.left = l.right;
-  l.right = p;
-  return l;
-}
-function rotateLeft(p) {
-  const r = p.right;
-  p.right = r.left;
-  r.left = p;
-  return r;
-}
-
-// Splay node with given key to root (top-down emulated by repeatedly splaying-from-bottom).
-// We'll do bottom-up: find ancestry list, then apply zig/zig-zig/zig-zag from leaf-side up.
-// To track rotations frame-by-frame, we splay one step at a time and reconnect.
-function splayStep(root, key, frames) {
-  // Find ancestry each iteration; rotate one step; record frame.
-  while (true) {
-    const { stack } = getAncestry(root, key);
-    if (stack.length < 2) return root;
-    const target = stack[stack.length - 1];
-    if (target.key !== key) return root; // not found, stop
-
-    const parent = stack[stack.length - 2];
-    const gp = stack.length >= 3 ? stack[stack.length - 3] : null;
-
-    if (!gp) {
-      // zig
-      if (parent.left === target) {
-        // rotate right at parent
-        const newSub = rotateRight(parent);
-        root = newSub;
-        frames.push({
-          tree: clone(root),
-          highlight: key,
-          rotation: `zig (right) at ${parent.key}`,
-          note: `Zig: ${target.key} is the left child of root ${parent.key}. Single right rotation lifts it to root.`,
-        });
-      } else {
-        const newSub = rotateLeft(parent);
-        root = newSub;
-        frames.push({
-          tree: clone(root),
-          highlight: key,
-          rotation: `zig (left) at ${parent.key}`,
-          note: `Zig: ${target.key} is the right child of root ${parent.key}. Single left rotation lifts it to root.`,
-        });
-      }
-      return root;
-    }
-
-    // zig-zig or zig-zag — perform two rotations at once
-    const ggp = stack.length >= 4 ? stack[stack.length - 4] : null;
-    const gpIsLeftOfGgp = ggp && ggp.left === gp;
-
-    const targetIsLeft = parent.left === target;
-    const parentIsLeft = gp.left === parent;
-
-    let newSub;
-    let rotLabel;
-    let note;
-    if (targetIsLeft && parentIsLeft) {
-      // zig-zig (both left): rotate right at gp first, then at the new root (parent).
-      newSub = rotateRight(gp);   // lifts parent above gp
-      newSub = rotateRight(newSub); // lifts target above parent
-      rotLabel = `zig-zig (right-right) at ${gp.key}`;
-      note = `Zig-zig: ${target.key}, ${parent.key}, ${gp.key} are all left-left. Rotate ${gp.key} right, then ${parent.key} right.`;
-    } else if (!targetIsLeft && !parentIsLeft) {
-      newSub = rotateLeft(gp);
-      newSub = rotateLeft(newSub);
-      rotLabel = `zig-zig (left-left) at ${gp.key}`;
-      note = `Zig-zig: ${target.key}, ${parent.key}, ${gp.key} are all right-right. Rotate ${gp.key} left, then ${parent.key} left.`;
-    } else if (targetIsLeft && !parentIsLeft) {
-      // zig-zag: target left of parent (right child of gp).
-      // Rotate right at parent first, then left at gp.
-      gp.right = rotateRight(parent);
-      newSub = rotateLeft(gp);
-      rotLabel = `zig-zag (right-left) at ${gp.key}`;
-      note = `Zig-zag: ${target.key} is left of ${parent.key}, which is right of ${gp.key}. Rotate ${parent.key} right, then ${gp.key} left.`;
-    } else {
-      // target right of parent (left child of gp). Rotate left at parent, then right at gp.
-      gp.left = rotateLeft(parent);
-      newSub = rotateRight(gp);
-      rotLabel = `zig-zag (left-right) at ${gp.key}`;
-      note = `Zig-zag: ${target.key} is right of ${parent.key}, which is left of ${gp.key}. Rotate ${parent.key} left, then ${gp.key} right.`;
-    }
-
-    if (!ggp) {
-      root = newSub;
-    } else if (gpIsLeftOfGgp) {
-      ggp.left = newSub;
-    } else {
-      ggp.right = newSub;
-    }
-
-    frames.push({
-      tree: clone(root),
-      highlight: key,
-      rotation: rotLabel,
-      note,
-    });
-  }
-}
-
-function buildInsertFrames(keys) {
+function buildFrames(values, accessKey) {
   const frames = [];
   let root = null;
 
-  frames.push({
-    tree: null,
-    highlight: null,
-    rotation: null,
-    note: 'Empty splay tree. Each insert: BST-insert the key, then splay it to the root.',
-    inserted: null,
+  const snap = (extra) => ({
+    root: clone(root),
+    activeKey: null,
+    caseKind: null,
+    moveNodes: [],
+    pathKeys: [],
+    ...extra,
   });
 
-  for (const k of keys) {
-    root = bstInsert(root, k);
-    frames.push({
-      tree: clone(root),
-      highlight: k,
-      rotation: null,
-      note: `BST-insert ${k}. Now splay it to the root.`,
-      inserted: k,
-    });
-    root = splayStep(root, k, frames);
+  // Build the starting tree (plain BST inserts, no splaying) so the reader sees
+  // an unbalanced shape that the access then fixes.
+  for (const v of values) {
+    const r = insertBST(root, v);
+    root = r.node;
   }
 
-  return { frames, finalTree: root };
-}
+  const target = searchTarget(root, accessKey);
+  const wasFound = findNode(root, accessKey) != null;
 
-function buildSearchFrames(rootIn, key) {
-  const frames = [];
-  let root = clone(rootIn);
-  const { path, found } = findPath(root, key);
+  const { path: pathBefore } = pathTo(root, target);
+  const depthBefore = pathBefore.length - 1;
 
-  frames.push({
-    tree: clone(root),
-    highlight: null,
-    rotation: null,
-    note: `Search ${key}: walk BST path ${path.join(' → ')}${found ? ' (found)' : ' (not found)'}. Splay the last node touched to root.`,
-    searchPath: path,
-  });
+  frames.push(snap({
+    phase: 'start', activeKey: target, pathKeys: pathBefore,
+    depthBefore,
+    note: wasFound
+      ? `Access ${accessKey}: found at depth ${depthBefore}. Splay it to the root so the next access of ${accessKey} is O(1).`
+      : `Access ${accessKey}: not present — splay the last node on the search path (${target}) to the root instead.`,
+  }));
 
-  if (!found) {
-    // Splay the last accessed node (its key is path[last])
-    if (path.length > 0) {
-      root = splayStep(root, path[path.length - 1], frames);
+  // Bottom-up splay loop. One or two rotations per iteration.
+  let guard = 0;
+  while (guard++ < 64) {
+    const { parent } = pathTo(root, target);
+    const p = parent.get(target);
+    if (p == null) break; // target is root -> done
+    const g = parent.get(p);
+
+    if (g == null) {
+      // ZIG: parent is root, single rotation
+      root = rotate(root, target);
+      frames.push(snap({
+        phase: 'zig', activeKey: target, caseKind: 'zig', moveNodes: [target, p],
+        depthBefore,
+        note: `zig: ${target}'s parent ${p} is the root -> single rotation lifts ${target} to the root.`,
+      }));
+      continue;
     }
-    frames.push({
-      tree: clone(root),
-      highlight: null,
-      rotation: null,
-      note: `Key ${key} not in tree. The last node on the search path is now the root.`,
-    });
-    return frames;
+
+    const gNode = findNode(root, g);
+    const pNode = findNode(root, p);
+    const pIsLeft = gNode.left && gNode.left.key === p;
+    const xIsLeft = pNode.left && pNode.left.key === target;
+
+    if (pIsLeft === xIsLeft) {
+      // ZIG-ZIG: both left or both right. Rotate grandparent (p up), then parent (x up).
+      const side = xIsLeft ? 'left' : 'right';
+      root = rotate(root, p);       // grandparent rotation first
+      root = rotate(root, target);  // then parent rotation
+      frames.push(snap({
+        phase: 'zigzig', activeKey: target, caseKind: 'zig-zig', moveNodes: [target, p, g],
+        depthBefore,
+        note: `zig-zig: ${target} and parent ${p} are both ${side} children -> rotate grandparent ${g}, then parent ${p}. ${target} rises two levels.`,
+      }));
+    } else {
+      // ZIG-ZAG: left-right or right-left. Rotate parent (x up), then grandparent (x up again).
+      const shape = xIsLeft ? 'left-then-right' : 'right-then-left';
+      root = rotate(root, target);  // parent rotation first
+      root = rotate(root, target);  // then grandparent rotation
+      frames.push(snap({
+        phase: 'zigzag', activeKey: target, caseKind: 'zig-zag', moveNodes: [target, p, g],
+        depthBefore,
+        note: `zig-zag (${shape}): ${target} is a ${xIsLeft ? 'left' : 'right'} child of a ${pIsLeft ? 'left' : 'right'} child -> rotate parent ${p}, then grandparent ${g}. ${target} rises two levels.`,
+      }));
+    }
   }
 
-  root = splayStep(root, key, frames);
-  frames.push({
-    tree: clone(root),
-    highlight: key,
-    rotation: null,
-    note: `Found ${key} and splayed it to the root. Subsequent accesses to ${key} are O(1).`,
-  });
-  return frames;
+  frames.push(snap({
+    phase: 'done', activeKey: target,
+    depthBefore,
+    note: `Done. ${target} is now the root (depth 0, was ${depthBefore}). The whole search path got shallower — the splay's amortized payoff. Inorder order is unchanged: still a valid BST.`,
+  }));
+
+  return { frames, target, wasFound, finalRoot: root };
 }
 
-function layoutTree(root) {
-  if (!root) return { positions: {}, edges: [], W: 600, H: 200 };
+function nodeHeight(n) {
+  if (!n) return 0;
+  return 1 + Math.max(nodeHeight(n.left), nodeHeight(n.right));
+}
+
+function layout(root, W) {
   const positions = {};
-  let inorderIdx = 0;
-  function assignX(node, depth) {
-    if (!node) return;
-    assignX(node.left, depth + 1);
-    positions[node.key] = { x: inorderIdx, y: depth };
-    inorderIdx++;
-    assignX(node.right, depth + 1);
+  let order = 0;
+  function walk(n, depth) {
+    if (!n) return;
+    walk(n.left, depth + 1);
+    positions[n.key] = { order: order++, depth };
+    walk(n.right, depth + 1);
   }
-  assignX(root, 0);
-
-  const keys = Object.keys(positions);
-  const maxX = Math.max(...keys.map(k => positions[k].x));
-  const maxY = Math.max(...keys.map(k => positions[k].y));
-
-  const stepX = 70;
-  const stepY = 70;
-  const padX = 40;
-  const padY = 30;
-  const W = padX * 2 + maxX * stepX;
-  const H = padY * 2 + maxY * stepY;
-
-  const final = {};
-  for (const k of keys) {
-    final[k] = {
-      x: padX + positions[k].x * stepX,
-      y: padY + positions[k].y * stepY,
+  walk(root, 0);
+  const count = order;
+  const padX = 46;
+  const usableW = W - padX * 2;
+  const stepX = count > 1 ? usableW / (count - 1) : 0;
+  const stepY = 72;
+  const out = {};
+  for (const key of Object.keys(positions)) {
+    const p = positions[key];
+    out[key] = {
+      x: count > 1 ? padX + p.order * stepX : W / 2,
+      y: 52 + p.depth * stepY,
+      depth: p.depth,
     };
   }
-
-  const edges = [];
-  function collectEdges(node) {
-    if (!node) return;
-    if (node.left) {
-      edges.push({ from: node.key, to: node.left.key });
-      collectEdges(node.left);
-    }
-    if (node.right) {
-      edges.push({ from: node.key, to: node.right.key });
-      collectEdges(node.right);
-    }
-  }
-  collectEdges(root);
-
-  return { positions: final, edges, W, H };
+  return out;
 }
 
+function edgeList(root) {
+  const edges = [];
+  function walk(n) {
+    if (!n) return;
+    if (n.left) { edges.push([n.key, n.left.key]); walk(n.left); }
+    if (n.right) { edges.push([n.key, n.right.key]); walk(n.right); }
+  }
+  walk(root);
+  return edges;
+}
+
+const PRESETS = {
+  'right-leaning chain': { tree: [10, 20, 30, 40, 50, 60], access: 60 },
+  'zig-zig (deep left)': { tree: [50, 40, 30, 20, 10], access: 10 },
+  'zig-zag mix': { tree: [50, 20, 70, 10, 30, 60, 80, 25], access: 25 },
+  'balanced, access leaf': { tree: [40, 20, 60, 10, 30, 50, 70], access: 70 },
+};
+
 export default function SplayTreeViz() {
-  const [searchInput, setSearchInput] = useState(String(DEFAULT_SEARCH));
-  const [frames, setFrames] = useState(() => buildInsertFrames(INSERT_KEYS).frames);
-  const [finalAfterInserts, setFinalAfterInserts] = useState(() => buildInsertFrames(INSERT_KEYS).finalTree);
   const [step, setStep] = useState(0);
   const [isRunningRaw, setIsRunningRaw] = useState(false);
   const [speed, setSpeed] = useState(1.5);
+  const [config, setConfig] = useState(PRESETS['right-leaning chain']);
+  const [activePreset, setActivePreset] = useState('right-leaning chain');
+  const [accessDraft, setAccessDraft] = useState('');
   const runTimer = useRef(null);
 
-  const rng = useMemo(() => mulberry32(SEED), []);
-  void rng;
+  const { frames, target, wasFound } = useMemo(
+    () => buildFrames(config.tree, config.access),
+    [config],
+  );
 
   const totalSteps = frames.length;
   const current = frames[Math.min(step, totalSteps - 1)];
   const isRunning = isRunningRaw && step < totalSteps - 1;
-  const delay = Math.round(900 / speed);
+  const delay = Math.round(1100 / speed);
 
   useEffect(() => {
     if (!isRunning) return;
     runTimer.current = setTimeout(() => {
-      setStep((s2) => Math.min(s2 + 1, totalSteps - 1));
+      setStep((s) => Math.min(s + 1, totalSteps - 1));
     }, delay);
     return () => {
       if (runTimer.current) {
@@ -303,58 +267,70 @@ export default function SplayTreeViz() {
 
   const reset = () => {
     setIsRunningRaw(false);
-    const { frames: f, finalTree } = buildInsertFrames(INSERT_KEYS);
-    setFrames(f);
-    setFinalAfterInserts(finalTree);
     setStep(0);
   };
 
-  const doSearch = () => {
-    const k = Number(searchInput);
-    if (!Number.isFinite(k)) return;
-    // Use the state at end of frames as the current tree to search.
-    const currentTree = frames[frames.length - 1]?.tree || finalAfterInserts;
-    const searchFrames = buildSearchFrames(currentTree, k);
-    setFrames((prev) => [...prev, ...searchFrames]);
-    setStep(frames.length); // jump to start of new search
-    setIsRunningRaw(true);
+  const applyConfig = (cfg, presetName) => {
+    if (!cfg.tree.length) return;
+    setIsRunningRaw(false);
+    setConfig(cfg);
+    setActivePreset(presetName || null);
+    setStep(0);
   };
 
-  const tree = current.tree;
-  const { positions, edges, W, H } = useMemo(() => layoutTree(tree), [tree]);
-  const stageW = Math.max(W, 600);
-  const stageH = Math.max(H, 220);
-  const r = 20;
+  const runAccess = () => {
+    const v = parseInt(accessDraft, 10);
+    if (Number.isNaN(v)) return;
+    applyConfig({ tree: config.tree, access: v }, null);
+    setAccessDraft('');
+  };
+
+  const W = 940;
+  const H = 420;
+
+  const positions = useMemo(() => layout(current.root, W), [current.root]);
+  const edges = useMemo(() => edgeList(current.root), [current.root]);
+
+  const nodes = useMemo(() => {
+    const list = [];
+    function walk(n) {
+      if (!n) return;
+      list.push(n);
+      walk(n.left);
+      walk(n.right);
+    }
+    walk(current.root);
+    return list;
+  }, [current.root]);
+
+  const moveSet = new Set(current.moveNodes || []);
+  const pathSet = new Set(current.pathKeys || []);
+  const kindColor = {
+    zig: 'var(--hue-sky)', 'zig-zig': 'var(--hue-violet)', 'zig-zag': 'var(--hue-pink)',
+  };
+  const activeColor = current.caseKind ? kindColor[current.caseKind] : 'var(--accent)';
+
+  const rootKey = current.root ? current.root.key : null;
+  const treeHeight = nodeHeight(current.root);
+  const targetPos = positions[target];
+  const depthNow = targetPos ? targetPos.depth : current.depthBefore;
 
   return (
-    <div className="spv">
-      <div className="spv-head">
-        <h3 className="spv-title">Splay tree — self-adjusting BST</h3>
-        <p className="spv-sub">
-          Every access (search, insert, delete) splays the touched node to the root via zig / zig-zig / zig-zag rotations. The tree often looks unbalanced — that's intentional; recently-touched keys stay near the top.
+    <div className="sptv">
+      <div className="sptv-head">
+        <h3 className="sptv-title">Splay tree — access splays the node to the root</h3>
+        <p className="sptv-sub">
+          Every search or insert moves the touched node to the root via zig / zig-zig / zig-zag rotations.
+          Recently-accessed keys end up shallow, giving O(log n) amortized cost without storing balance data.
         </p>
       </div>
 
-      <div className="spv-controls">
-        <div className="spv-field">
-          <span className="spv-label">search key</span>
-          <input
-            className="spv-input"
-            type="number"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            spellCheck={false}
-          />
-        </div>
-        <button type="button" className="spv-btn" onClick={doSearch} disabled={searchInput === ''}>
-          <Search size={14} /> Search
-        </button>
-
-        <div className="spv-actions">
-          <div className="spv-buttons">
+      <div className="sptv-controls">
+        <div className="sptv-actions">
+          <div className="sptv-buttons">
             <button
               type="button"
-              className="spv-btn spv-btn-primary"
+              className="sptv-btn sptv-btn-primary"
               onClick={() => {
                 if (step >= totalSteps - 1) setStep(0);
                 setIsRunningRaw((v) => !v);
@@ -365,123 +341,160 @@ export default function SplayTreeViz() {
             </button>
             <button
               type="button"
-              className="spv-btn"
-              onClick={() => setStep((s2) => Math.min(s2 + 1, totalSteps - 1))}
+              className="sptv-btn"
+              onClick={() => setStep((s) => Math.min(s + 1, totalSteps - 1))}
               disabled={step >= totalSteps - 1}
             >
               <ChevronRight size={14} /> Step
             </button>
             <button
               type="button"
-              className="spv-btn"
+              className="sptv-btn"
               onClick={() => setStep(totalSteps - 1)}
               disabled={step >= totalSteps - 1}
             >
               <SkipForward size={14} /> Skip
             </button>
-            <button type="button" className="spv-btn" onClick={reset}>
+            <button type="button" className="sptv-btn" onClick={reset}>
               <RotateCcw size={14} /> Reset
             </button>
           </div>
-          <label className="spv-speed">
-            <span className="spv-speed-label">speed</span>
+          <label className="sptv-speed">
+            <span className="sptv-speed-label">speed</span>
             <input
               type="range"
               min={0.5}
-              max={5}
+              max={4}
               step={0.5}
               value={speed}
               onChange={(e) => setSpeed(Number(e.target.value))}
-              className="spv-speed-range"
+              className="sptv-speed-range"
             />
-            <span className="spv-speed-value">{speed.toFixed(1)}×</span>
+            <span className="sptv-speed-value">{speed.toFixed(1)}×</span>
           </label>
-          <div className="spv-stepcount">
+          <div className="sptv-stepcount">
             step <strong>{step + 1}</strong> / {totalSteps}
+          </div>
+        </div>
+
+        <div className="sptv-access">
+          <span className="sptv-access-label">access value</span>
+          <input
+            type="text"
+            className="sptv-access-input"
+            placeholder={`e.g. ${config.tree[config.tree.length - 1] ?? 30}`}
+            value={accessDraft}
+            onChange={(e) => setAccessDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') runAccess(); }}
+          />
+          <button
+            type="button"
+            className="sptv-btn sptv-btn-primary"
+            onClick={runAccess}
+            disabled={Number.isNaN(parseInt(accessDraft, 10))}
+          >
+            <Search size={14} /> Splay
+          </button>
+          <div className="sptv-presets">
+            {Object.keys(PRESETS).map((name) => (
+              <button
+                key={name}
+                type="button"
+                className={`sptv-chip${activePreset === name ? ' sptv-chip-on' : ''}`}
+                onClick={() => applyConfig(PRESETS[name], name)}
+              >
+                {name}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="spv-stage">
-        <svg viewBox={`0 0 ${stageW} ${stageH}`} className="spv-svg" preserveAspectRatio="xMidYMid meet">
-          {/* edges */}
-          {edges.map((e, idx) => {
-            const a = positions[e.from];
-            const b = positions[e.to];
+      <div className="sptv-stage">
+        <svg viewBox={`0 0 ${W} ${H}`} className="sptv-svg" preserveAspectRatio="xMidYMid meet">
+          <rect x={10} y={10} width={W - 20} height={H - 20} fill="var(--surface)" stroke="var(--border)" rx={8} />
+
+          {!current.root && (
+            <text x={W / 2} y={H / 2} className="sptv-empty">empty tree</text>
+          )}
+
+          {edges.map(([p, c]) => {
+            const a = positions[p];
+            const b = positions[c];
             if (!a || !b) return null;
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
-            const len = Math.sqrt(dx * dx + dy * dy) || 1;
-            const sx = a.x + (dx / len) * r;
-            const sy = a.y + (dy / len) * r;
-            const ex = b.x - (dx / len) * r;
-            const ey = b.y - (dy / len) * r;
+            const onMove = moveSet.has(p) && moveSet.has(c);
+            const onPath = pathSet.has(p) && pathSet.has(c);
             return (
               <line
-                key={`e-${idx}`}
-                x1={sx}
-                y1={sy}
-                x2={ex}
-                y2={ey}
-                stroke="var(--border)"
-                strokeWidth="1.5"
+                key={`e-${p}-${c}`}
+                x1={a.x} y1={a.y} x2={b.x} y2={b.y}
+                stroke={onMove ? activeColor : onPath ? 'var(--accent)' : 'var(--text-dim)'}
+                strokeWidth={onMove ? 3 : onPath ? 2.4 : 1.6}
+                opacity={onMove || onPath ? 1 : 0.5}
+                className="sptv-edge"
               />
             );
           })}
 
-          {/* nodes */}
-          {Object.entries(positions).map(([key, p]) => {
-            const k = Number(key);
-            const isHighlight = current.highlight === k;
-            const isRoot = tree && tree.key === k;
-            const inSearch = (current.searchPath || []).includes(k);
-            const fill = isHighlight
-              ? 'var(--easy)'
-              : isRoot
-              ? 'rgba(var(--accent-rgb), 0.22)'
-              : inSearch
-              ? 'rgba(var(--accent-rgb), 0.1)'
-              : 'var(--surface)';
-            const stroke = isHighlight ? 'var(--easy)' : isRoot ? 'var(--accent)' : inSearch ? 'var(--accent)' : 'var(--border)';
-            const textFill = isHighlight ? 'var(--bg)' : 'var(--text-main)';
+          {nodes.map((nd) => {
+            const p = positions[nd.key];
+            if (!p) return null;
+            const inMove = moveSet.has(nd.key);
+            const onPath = pathSet.has(nd.key);
+            const isTarget = nd.key === target;
+            const fill = inMove
+              ? activeColor
+              : isTarget
+                ? 'rgba(var(--accent-rgb), 0.22)'
+                : 'var(--bg)';
+            const stroke = inMove
+              ? activeColor
+              : isTarget
+                ? 'var(--accent)'
+                : onPath
+                  ? 'var(--accent)'
+                  : 'var(--border)';
+            const labelFill = inMove ? 'var(--bg)' : 'var(--text-main)';
             return (
-              <g key={`n-${k}`}>
-                <circle cx={p.x} cy={p.y} r={r} fill={fill} stroke={stroke} strokeWidth={isHighlight || isRoot ? 2.2 : 1.4} />
-                <text x={p.x} y={p.y} className="spv-node-label" fill={textFill}>{k}</text>
+              <g key={`n-${nd.key}`} className="sptv-node">
+                <circle cx={p.x} cy={p.y} r={21} fill={fill} stroke={stroke} strokeWidth={inMove || isTarget ? 3 : 2} />
+                <text x={p.x} y={p.y + 5} className="sptv-node-label" style={{ fill: labelFill }}>{nd.key}</text>
+                {isTarget && (
+                  <text x={p.x} y={p.y - 30} className="sptv-node-tag" style={{ fill: activeColor }}>access</text>
+                )}
+                {nd.key === rootKey && (
+                  <text x={p.x} y={p.y + 38} className="sptv-node-root">root</text>
+                )}
               </g>
             );
           })}
-
-          {current.rotation && (
-            <text x={stageW / 2} y={stageH - 8} className="spv-rot-label">
-              {current.rotation}
-            </text>
-          )}
         </svg>
       </div>
 
-      <div className="spv-metrics">
-        <div className="spv-metric">
-          <span className="spv-metric-label">root</span>
-          <span className="spv-metric-value">{tree ? tree.key : '—'}</span>
+      <div className="sptv-metrics">
+        <div className="sptv-metric">
+          <span className="sptv-metric-label">splay case</span>
+          <span className="sptv-metric-value" style={{ color: current.caseKind ? activeColor : 'var(--text-dim)' }}>
+            {current.caseKind || (current.phase === 'done' ? 'at root' : 'start')}
+          </span>
         </div>
-        <div className="spv-metric">
-          <span className="spv-metric-label">touched</span>
-          <span className="spv-metric-value">{current.highlight ?? '—'}</span>
+        <div className="sptv-metric">
+          <span className="sptv-metric-label">depth of {target}</span>
+          <span className="sptv-metric-value">{current.depthBefore} &rarr; {depthNow}</span>
         </div>
-        <div className="spv-metric">
-          <span className="spv-metric-label">nodes</span>
-          <span className="spv-metric-value">{Object.keys(positions).length}</span>
+        <div className="sptv-metric">
+          <span className="sptv-metric-label">tree height</span>
+          <span className="sptv-metric-value">{treeHeight}</span>
         </div>
-        <div className="spv-metric spv-metric-dim">
-          <span className="spv-metric-label">rotation</span>
-          <span className="spv-metric-value spv-metric-dimval">{current.rotation || '—'}</span>
+        <div className="sptv-metric sptv-metric-dim">
+          <span className="sptv-metric-label">access {target}</span>
+          <span className="sptv-metric-value sptv-metric-dimval">{wasFound ? 'found' : 'absent, last on path'}</span>
         </div>
       </div>
 
-      <div className="spv-arith">
-        <span className="spv-arith-label">trace</span>
-        <span className="spv-arith-vals">{current.note}</span>
+      <div className="sptv-arith">
+        <span className="sptv-arith-label">trace</span>
+        <span className="sptv-arith-vals">{current.note}</span>
       </div>
     </div>
   );
