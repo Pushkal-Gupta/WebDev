@@ -542,6 +542,319 @@ INSERT INTO employees VALUES
   (10,'Jamila Karam',4,95000,'2022-12-01');
 `;
 
+const LIBRARY_SEED = `
+CREATE TABLE authors (id INTEGER PRIMARY KEY, name TEXT NOT NULL, country TEXT, birth_year INTEGER);
+CREATE TABLE books (
+  id INTEGER PRIMARY KEY, title TEXT NOT NULL,
+  author_id INTEGER REFERENCES authors(id),
+  genre TEXT, published_year INTEGER, copies INTEGER
+);
+CREATE TABLE members (id INTEGER PRIMARY KEY, name TEXT NOT NULL, joined TEXT, city TEXT);
+CREATE TABLE loans (
+  id INTEGER PRIMARY KEY, book_id INTEGER REFERENCES books(id),
+  member_id INTEGER REFERENCES members(id),
+  loaned TEXT, returned TEXT
+);
+
+INSERT INTO authors VALUES
+  (1,'Ursula K. Le Guin','USA',1929),(2,'Gabriel Garcia Marquez','Colombia',1927),
+  (3,'Chinua Achebe','Nigeria',1930),(4,'Haruki Murakami','Japan',1949),
+  (5,'Toni Morrison','USA',1931),(6,'Italo Calvino','Italy',1923),
+  (7,'Octavia Butler','USA',1947),(8,'Jorge Luis Borges','Argentina',1899);
+
+INSERT INTO books VALUES
+  (1,'The Left Hand of Darkness',1,'Sci-Fi',1969,3),
+  (2,'A Wizard of Earthsea',1,'Fantasy',1968,4),
+  (3,'One Hundred Years of Solitude',2,'Magical Realism',1967,2),
+  (4,'Love in the Time of Cholera',2,'Romance',1985,2),
+  (5,'Things Fall Apart',3,'Literary',1958,5),
+  (6,'Kafka on the Shore',4,'Magical Realism',2002,3),
+  (7,'Norwegian Wood',4,'Literary',1987,2),
+  (8,'Beloved',5,'Literary',1987,3),
+  (9,'Invisible Cities',6,'Literary',1972,1),
+  (10,'Kindred',7,'Sci-Fi',1979,4),
+  (11,'Parable of the Sower',7,'Sci-Fi',1993,3),
+  (12,'Ficciones',8,'Literary',1944,2);
+
+INSERT INTO members VALUES
+  (1,'Asha Mehta','2022-01-10','Mumbai'),(2,'Ben Carter','2022-03-22','Austin'),
+  (3,'Chen Wei','2022-05-30','Shanghai'),(4,'Divya Iyer','2022-08-14','Bengaluru'),
+  (5,'Eli Rodriguez','2023-02-01','Madrid'),(6,'Farah Hassan','2023-04-18','Cairo'),
+  (7,'Gabriel Souza','2023-07-09','Sao Paulo'),(8,'Hannah Park','2023-09-25','Seoul');
+
+INSERT INTO loans VALUES
+  (1,3,1,'2023-09-01','2023-09-20'),(2,5,2,'2023-09-03','2023-09-18'),
+  (3,6,3,'2023-09-05',NULL),(4,1,4,'2023-09-08','2023-09-28'),
+  (5,8,5,'2023-09-12','2023-09-30'),(6,10,1,'2023-09-15',NULL),
+  (7,3,6,'2023-09-18','2023-10-02'),(8,11,7,'2023-09-22',NULL),
+  (9,5,8,'2023-09-25','2023-10-10'),(10,2,2,'2023-10-01',NULL),
+  (11,6,4,'2023-10-04','2023-10-19'),(12,12,5,'2023-10-08',NULL),
+  (13,8,3,'2023-10-11','2023-10-25'),(14,1,7,'2023-10-15',NULL),
+  (15,5,1,'2023-10-18',NULL),(16,10,6,'2023-10-22','2023-11-05');
+`;
+
+const UNIVERSITY_SEED = `
+CREATE TABLE students (id INTEGER PRIMARY KEY, name TEXT NOT NULL, major TEXT, enrolled_year INTEGER);
+CREATE TABLE instructors (id INTEGER PRIMARY KEY, name TEXT NOT NULL, department TEXT);
+CREATE TABLE courses (
+  id INTEGER PRIMARY KEY, title TEXT NOT NULL,
+  department TEXT, credits INTEGER,
+  instructor_id INTEGER REFERENCES instructors(id)
+);
+CREATE TABLE enrollments (
+  id INTEGER PRIMARY KEY, student_id INTEGER REFERENCES students(id),
+  course_id INTEGER REFERENCES courses(id),
+  term TEXT, grade REAL
+);
+
+INSERT INTO instructors VALUES
+  (1,'Dr. Lin Chao','Computer Science'),(2,'Dr. Maya Okonkwo','Mathematics'),
+  (3,'Dr. Tomas Vidal','Physics'),(4,'Dr. Sara Holm','Computer Science'),
+  (5,'Dr. Raj Patel','Economics');
+
+INSERT INTO courses VALUES
+  (1,'Intro to Programming','Computer Science',4,1),
+  (2,'Data Structures','Computer Science',4,4),
+  (3,'Linear Algebra','Mathematics',3,2),
+  (4,'Calculus II','Mathematics',4,2),
+  (5,'Classical Mechanics','Physics',4,3),
+  (6,'Quantum Physics','Physics',3,3),
+  (7,'Microeconomics','Economics',3,5),
+  (8,'Databases','Computer Science',4,4);
+
+INSERT INTO students VALUES
+  (1,'Asha Mehta','Computer Science',2021),(2,'Ben Carter','Mathematics',2021),
+  (3,'Chen Wei','Physics',2022),(4,'Divya Iyer','Computer Science',2022),
+  (5,'Eli Rodriguez','Economics',2020),(6,'Farah Hassan','Mathematics',2023),
+  (7,'Gabriel Souza','Computer Science',2023),(8,'Hannah Park','Physics',2021),
+  (9,'Ivan Petrov','Economics',2022),(10,'Jamila Karam','Computer Science',2020);
+
+INSERT INTO enrollments VALUES
+  (1,1,1,'Fall 2022',3.7),(2,1,2,'Spring 2023',4.0),(3,1,8,'Fall 2023',3.3),
+  (4,2,3,'Fall 2022',3.9),(5,2,4,'Spring 2023',3.5),
+  (6,3,5,'Fall 2022',2.8),(7,3,6,'Spring 2023',3.1),
+  (8,4,1,'Fall 2022',3.4),(9,4,2,'Spring 2023',3.8),(10,4,8,'Fall 2023',4.0),
+  (11,5,7,'Fall 2022',3.0),(12,5,3,'Spring 2023',2.5),
+  (13,6,3,'Fall 2023',3.6),(14,6,4,'Fall 2023',3.2),
+  (15,7,1,'Fall 2023',3.9),(16,7,2,'Fall 2023',3.7),
+  (17,8,5,'Fall 2022',3.3),(18,8,6,'Spring 2023',3.5),
+  (19,9,7,'Fall 2022',2.9),(20,9,1,'Spring 2023',3.1),
+  (21,10,2,'Fall 2022',4.0),(22,10,8,'Spring 2023',3.8),(23,10,1,'Fall 2021',3.5);
+`;
+
+const SOCIAL_SEED = `
+CREATE TABLE users (id INTEGER PRIMARY KEY, handle TEXT NOT NULL, name TEXT, joined TEXT, city TEXT);
+CREATE TABLE follows (
+  follower_id INTEGER REFERENCES users(id),
+  followee_id INTEGER REFERENCES users(id),
+  followed_at TEXT,
+  PRIMARY KEY (follower_id, followee_id)
+);
+CREATE TABLE posts (
+  id INTEGER PRIMARY KEY, user_id INTEGER REFERENCES users(id),
+  body TEXT, created TEXT
+);
+CREATE TABLE likes (
+  user_id INTEGER REFERENCES users(id),
+  post_id INTEGER REFERENCES posts(id),
+  liked_at TEXT,
+  PRIMARY KEY (user_id, post_id)
+);
+
+INSERT INTO users VALUES
+  (1,'asha_m','Asha Mehta','2022-01-05','Mumbai'),
+  (2,'bcarter','Ben Carter','2022-02-11','Austin'),
+  (3,'chenw','Chen Wei','2022-03-19','Shanghai'),
+  (4,'divya.i','Divya Iyer','2022-05-02','Bengaluru'),
+  (5,'eli_r','Eli Rodriguez','2022-06-21','Madrid'),
+  (6,'farah_h','Farah Hassan','2022-08-08','Cairo'),
+  (7,'gsouza','Gabriel Souza','2022-09-30','Sao Paulo'),
+  (8,'hpark','Hannah Park','2022-11-14','Seoul');
+
+INSERT INTO follows VALUES
+  (1,2,'2022-03-01'),(1,3,'2022-03-05'),(1,4,'2022-04-10'),
+  (2,1,'2022-03-02'),(2,5,'2022-05-01'),
+  (3,1,'2022-03-06'),(3,4,'2022-06-15'),(3,7,'2022-07-20'),
+  (4,1,'2022-04-12'),(4,3,'2022-06-16'),(4,8,'2022-09-01'),
+  (5,2,'2022-05-03'),(5,6,'2022-08-10'),
+  (6,5,'2022-08-12'),(6,7,'2022-10-01'),
+  (7,3,'2022-07-22'),(7,1,'2022-08-05'),(7,6,'2022-10-03'),
+  (8,4,'2022-09-02'),(8,1,'2022-10-15');
+
+INSERT INTO posts VALUES
+  (1,1,'First commit of the day done.','2023-09-01'),
+  (2,1,'SQL window functions finally clicked.','2023-09-04'),
+  (3,2,'Anyone up for a code review?','2023-09-02'),
+  (4,3,'Shipped the new dashboard.','2023-09-03'),
+  (5,4,'Indexing made the query 40x faster.','2023-09-05'),
+  (6,5,'Learning Rust this month.','2023-09-06'),
+  (7,3,'Caching is hard, naming is harder.','2023-09-07'),
+  (8,6,'Took a long walk, debugged in my head.','2023-09-08'),
+  (9,7,'Refactor day. No new features.','2023-09-09'),
+  (10,4,'GROUP BY without aggregation is a trap.','2023-09-10');
+
+INSERT INTO likes VALUES
+  (2,1,'2023-09-01'),(3,1,'2023-09-01'),(4,1,'2023-09-02'),
+  (1,3,'2023-09-02'),(5,3,'2023-09-02'),
+  (1,4,'2023-09-03'),(2,4,'2023-09-03'),(7,4,'2023-09-03'),
+  (1,5,'2023-09-05'),(3,5,'2023-09-05'),(8,5,'2023-09-06'),
+  (2,2,'2023-09-04'),(3,2,'2023-09-04'),(4,2,'2023-09-04'),(7,2,'2023-09-05'),
+  (6,6,'2023-09-06'),
+  (1,7,'2023-09-07'),(4,7,'2023-09-08'),
+  (5,8,'2023-09-08'),(7,8,'2023-09-08'),
+  (3,9,'2023-09-09'),
+  (1,10,'2023-09-10'),(3,10,'2023-09-10'),(8,10,'2023-09-11');
+`;
+
+const FLIGHTS_SEED = `
+CREATE TABLE airports (
+  code TEXT PRIMARY KEY, name TEXT NOT NULL, city TEXT, country TEXT
+);
+CREATE TABLE airlines (id INTEGER PRIMARY KEY, name TEXT NOT NULL, country TEXT);
+CREATE TABLE flights (
+  id INTEGER PRIMARY KEY, flight_no TEXT,
+  airline_id INTEGER REFERENCES airlines(id),
+  origin TEXT REFERENCES airports(code),
+  destination TEXT REFERENCES airports(code),
+  depart TEXT, duration_min INTEGER, distance_km INTEGER
+);
+CREATE TABLE bookings (
+  id INTEGER PRIMARY KEY, flight_id INTEGER REFERENCES flights(id),
+  passenger TEXT, seat TEXT, fare REAL
+);
+
+INSERT INTO airports VALUES
+  ('JFK','John F. Kennedy Intl','New York','USA'),
+  ('LHR','Heathrow','London','United Kingdom'),
+  ('CDG','Charles de Gaulle','Paris','France'),
+  ('DXB','Dubai Intl','Dubai','UAE'),
+  ('SIN','Changi','Singapore','Singapore'),
+  ('HND','Haneda','Tokyo','Japan'),
+  ('DEL','Indira Gandhi Intl','Delhi','India'),
+  ('GRU','Guarulhos','Sao Paulo','Brazil'),
+  ('SYD','Kingsford Smith','Sydney','Australia'),
+  ('FRA','Frankfurt','Frankfurt','Germany');
+
+INSERT INTO airlines VALUES
+  (1,'Atlantic Air','USA'),(2,'Albion Airways','United Kingdom'),
+  (3,'Gulf Wings','UAE'),(4,'Pacific Star','Singapore'),
+  (5,'Nippon Sky','Japan'),(6,'Bharat Air','India');
+
+INSERT INTO flights VALUES
+  (1,'AA101',1,'JFK','LHR','2023-09-01 21:00',420,5540),
+  (2,'AW220',2,'LHR','CDG','2023-09-02 08:30',75,344),
+  (3,'GW440',3,'DXB','SIN','2023-09-02 02:15',455,5841),
+  (4,'PS010',4,'SIN','HND','2023-09-03 09:00',420,5312),
+  (5,'NS305',5,'HND','SYD','2023-09-03 22:00',585,7822),
+  (6,'BA777',6,'DEL','DXB','2023-09-04 04:30',210,2186),
+  (7,'AA215',1,'JFK','GRU','2023-09-04 23:45',590,7681),
+  (8,'AW118',2,'LHR','FRA','2023-09-05 11:20',95,654),
+  (9,'GW012',3,'DXB','LHR','2023-09-05 03:10',445,5500),
+  (10,'PS222',4,'SIN','SYD','2023-09-06 18:00',480,6300),
+  (11,'NS140',5,'HND','SIN','2023-09-06 10:00',430,5312),
+  (12,'BA340',6,'DEL','LHR','2023-09-07 02:00',525,6710);
+
+INSERT INTO bookings VALUES
+  (1,1,'Asha Mehta','12A',640.00),(2,1,'Ben Carter','12B',640.00),(3,1,'Chen Wei','30F',410.00),
+  (4,2,'Divya Iyer','3C',120.00),(5,3,'Eli Rodriguez','22D',520.00),(6,3,'Farah Hassan','22E',520.00),
+  (7,4,'Gabriel Souza','8A',480.00),(8,5,'Hannah Park','41K',910.00),(9,5,'Ivan Petrov','41J',910.00),
+  (10,6,'Jamila Karam','15C',230.00),(11,7,'Asha Mehta','2A',1340.00),(12,7,'Ben Carter','2B',1340.00),
+  (13,8,'Chen Wei','9D',140.00),(14,9,'Divya Iyer','18F',560.00),(15,10,'Eli Rodriguez','27A',690.00),
+  (16,11,'Farah Hassan','33C',450.00),(17,12,'Gabriel Souza','5A',780.00),(18,12,'Hannah Park','5B',780.00),
+  (19,2,'Ivan Petrov','3D',120.00),(20,4,'Jamila Karam','8B',480.00);
+`;
+
+const HOSPITAL_SEED = `
+CREATE TABLE doctors (id INTEGER PRIMARY KEY, name TEXT NOT NULL, specialty TEXT);
+CREATE TABLE patients (id INTEGER PRIMARY KEY, name TEXT NOT NULL, birth_year INTEGER, city TEXT);
+CREATE TABLE visits (
+  id INTEGER PRIMARY KEY, patient_id INTEGER REFERENCES patients(id),
+  doctor_id INTEGER REFERENCES doctors(id),
+  visit_date TEXT, reason TEXT, cost REAL
+);
+CREATE TABLE prescriptions (
+  id INTEGER PRIMARY KEY, visit_id INTEGER REFERENCES visits(id),
+  drug TEXT, days INTEGER
+);
+
+INSERT INTO doctors VALUES
+  (1,'Dr. Lin Chao','Cardiology'),(2,'Dr. Maya Okonkwo','Pediatrics'),
+  (3,'Dr. Tomas Vidal','Orthopedics'),(4,'Dr. Sara Holm','Dermatology'),
+  (5,'Dr. Raj Patel','General Medicine'),(6,'Dr. Nour Aziz','Neurology');
+
+INSERT INTO patients VALUES
+  (1,'Asha Mehta',1989,'Mumbai'),(2,'Ben Carter',1975,'Austin'),
+  (3,'Chen Wei',2001,'Shanghai'),(4,'Divya Iyer',1994,'Bengaluru'),
+  (5,'Eli Rodriguez',1968,'Madrid'),(6,'Farah Hassan',2010,'Cairo'),
+  (7,'Gabriel Souza',1982,'Sao Paulo'),(8,'Hannah Park',1999,'Seoul');
+
+INSERT INTO visits VALUES
+  (1,1,1,'2023-09-01','Chest pain',320.00),
+  (2,2,5,'2023-09-02','Annual checkup',120.00),
+  (3,3,4,'2023-09-03','Skin rash',90.00),
+  (4,6,2,'2023-09-04','Fever',75.00),
+  (5,4,3,'2023-09-05','Knee injury',410.00),
+  (6,5,1,'2023-09-06','Hypertension',280.00),
+  (7,7,6,'2023-09-07','Migraine',350.00),
+  (8,1,5,'2023-09-09','Follow-up',60.00),
+  (9,8,4,'2023-09-10','Acne',85.00),
+  (10,3,5,'2023-09-11','Cough',70.00),
+  (11,5,1,'2023-09-13','Follow-up',180.00),
+  (12,2,3,'2023-09-14','Back pain',260.00),
+  (13,6,2,'2023-09-15','Follow-up',55.00),
+  (14,4,6,'2023-09-16','Headache',300.00);
+
+INSERT INTO prescriptions VALUES
+  (1,1,'Aspirin',30),(2,1,'Atorvastatin',90),
+  (3,3,'Hydrocortisone',14),(4,4,'Paracetamol',5),
+  (5,5,'Ibuprofen',10),(6,6,'Lisinopril',90),
+  (7,7,'Sumatriptan',7),(8,9,'Benzoyl Peroxide',30),
+  (9,10,'Dextromethorphan',7),(10,11,'Lisinopril',90),
+  (11,12,'Naproxen',14),(12,14,'Sumatriptan',7),(13,2,'Multivitamin',60);
+`;
+
+const BANK_SEED = `
+CREATE TABLE branches (id INTEGER PRIMARY KEY, name TEXT NOT NULL, city TEXT);
+CREATE TABLE customers (id INTEGER PRIMARY KEY, name TEXT NOT NULL, joined TEXT, branch_id INTEGER REFERENCES branches(id));
+CREATE TABLE accounts (
+  id INTEGER PRIMARY KEY, customer_id INTEGER REFERENCES customers(id),
+  type TEXT, opened TEXT, balance REAL
+);
+CREATE TABLE transactions (
+  id INTEGER PRIMARY KEY, account_id INTEGER REFERENCES accounts(id),
+  tx_date TEXT, kind TEXT, amount REAL
+);
+
+INSERT INTO branches VALUES
+  (1,'Downtown','New York'),(2,'Riverside','Austin'),
+  (3,'Harbor','Singapore'),(4,'Central','London');
+
+INSERT INTO customers VALUES
+  (1,'Asha Mehta','2021-02-10',1),(2,'Ben Carter','2021-05-22',2),
+  (3,'Chen Wei','2021-08-14',3),(4,'Divya Iyer','2022-01-30',1),
+  (5,'Eli Rodriguez','2022-04-11',4),(6,'Farah Hassan','2022-07-19',2),
+  (7,'Gabriel Souza','2022-10-05',3),(8,'Hannah Park','2023-01-25',4);
+
+INSERT INTO accounts VALUES
+  (1,1,'checking','2021-02-10',4200.00),(2,1,'savings','2021-02-10',18500.00),
+  (3,2,'checking','2021-05-22',1320.00),(4,3,'savings','2021-08-14',9800.00),
+  (5,4,'checking','2022-01-30',560.00),(6,4,'savings','2022-01-30',12200.00),
+  (7,5,'checking','2022-04-11',3100.00),(8,6,'savings','2022-07-19',7400.00),
+  (9,7,'checking','2022-10-05',880.00),(10,8,'savings','2023-01-25',5300.00);
+
+INSERT INTO transactions VALUES
+  (1,1,'2023-09-01','deposit',1500.00),(2,1,'2023-09-03','withdrawal',-200.00),
+  (3,1,'2023-09-07','withdrawal',-450.00),(4,2,'2023-09-02','deposit',3000.00),
+  (5,3,'2023-09-04','withdrawal',-120.00),(6,3,'2023-09-09','deposit',800.00),
+  (7,4,'2023-09-05','deposit',1200.00),(8,5,'2023-09-06','withdrawal',-90.00),
+  (9,6,'2023-09-08','deposit',500.00),(10,7,'2023-09-10','withdrawal',-300.00),
+  (11,7,'2023-09-12','deposit',1000.00),(12,8,'2023-09-11','withdrawal',-220.00),
+  (13,9,'2023-09-13','deposit',640.00),(14,10,'2023-09-14','deposit',2000.00),
+  (15,2,'2023-09-15','withdrawal',-1500.00),(16,4,'2023-09-16','withdrawal',-600.00),
+  (17,1,'2023-09-18','deposit',900.00),(18,5,'2023-09-19','deposit',450.00),
+  (19,8,'2023-09-20','withdrawal',-180.00),(20,10,'2023-09-21','withdrawal',-700.00);
+`;
+
 export const SQL_COURSES = {
   'sql-basics': {
     id: 'sql-basics',
@@ -868,6 +1181,54 @@ export const SQL_COURSES = {
     blurb: 'Customers, products, orders, line items, reviews. Realistic order shape for aggregation, top-N per group, and review-rating queries.',
     tables: ['customers', 'products', 'orders', 'line_items', 'reviews'],
     seedSql: ECOMMERCE_SEED,
+  },
+  library: {
+    id: 'library',
+    kind: 'playground',
+    title: 'Library (Books & Loans)',
+    blurb: 'Authors, books, members, and loans. NULL return dates make this the natural place to practice outstanding-loan filters and LEFT JOINs.',
+    tables: ['authors', 'books', 'members', 'loans'],
+    seedSql: LIBRARY_SEED,
+  },
+  university: {
+    id: 'university',
+    kind: 'playground',
+    title: 'University (Enrollments)',
+    blurb: 'Students, instructors, courses, and enrollments with grades. GPA averages, course rosters, and per-department aggregation across terms.',
+    tables: ['students', 'instructors', 'courses', 'enrollments'],
+    seedSql: UNIVERSITY_SEED,
+  },
+  social: {
+    id: 'social',
+    kind: 'playground',
+    title: 'Social Network',
+    blurb: 'Users, follows, posts, and likes. A self-referencing follow graph for mutual-follow, most-liked, and follower-count queries.',
+    tables: ['users', 'follows', 'posts', 'likes'],
+    seedSql: SOCIAL_SEED,
+  },
+  flights: {
+    id: 'flights',
+    kind: 'playground',
+    title: 'Flights & Airports',
+    blurb: 'Airports, airlines, flights, and bookings. Origin/destination both point at airports — ideal for self-join routing and fare aggregation.',
+    tables: ['airports', 'airlines', 'flights', 'bookings'],
+    seedSql: FLIGHTS_SEED,
+  },
+  hospital: {
+    id: 'hospital',
+    kind: 'playground',
+    title: 'Hospital (Visits)',
+    blurb: 'Doctors, patients, visits, and prescriptions. Per-specialty visit counts, cost totals, and prescription drilldowns through a visit join.',
+    tables: ['doctors', 'patients', 'visits', 'prescriptions'],
+    seedSql: HOSPITAL_SEED,
+  },
+  bank: {
+    id: 'bank',
+    kind: 'playground',
+    title: 'Bank (Accounts)',
+    blurb: 'Branches, customers, accounts, and signed transactions. Running balances, deposit vs withdrawal splits, and per-branch rollups.',
+    tables: ['branches', 'customers', 'accounts', 'transactions'],
+    seedSql: BANK_SEED,
   },
 };
 

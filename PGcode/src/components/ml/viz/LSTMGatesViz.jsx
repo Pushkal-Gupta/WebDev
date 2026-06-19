@@ -130,6 +130,10 @@ function BarChart({ x, y, w, h, values, color, label, sublabel, range = 1.2, acc
 function GateBlock({ x, y, w, h, title, op, values, color, active }) {
   return (
     <g opacity={active ? 1 : 0.85}>
+      {active && (
+        <rect x={x - 3} y={y - 3} width={w + 6} height={h + 6} rx={12} ry={12}
+              fill={color} opacity={0.28} filter="url(#lstm-glow)" />
+      )}
       <rect x={x} y={y} width={w} height={h} rx={10} ry={10}
             fill={active ? `rgba(0,0,0,0)` : 'var(--surface)'}
             stroke={active ? color : 'var(--border)'}
@@ -176,12 +180,18 @@ function GateBlock({ x, y, w, h, title, op, values, color, active }) {
 
 function Arrow({ x1, y1, x2, y2, color = 'var(--text-dim)', active, dashed }) {
   const stroke = active ? color : 'var(--text-dim)';
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   return (
     <line x1={x1} y1={y1} x2={x2} y2={y2}
           stroke={stroke}
-          strokeWidth={active ? 2 : 1.1}
+          strokeWidth={active ? 2.2 : 1.1}
           opacity={active ? 1 : 0.55}
+          strokeLinecap="round"
           strokeDasharray={dashed ? '4 3' : undefined}
+          style={{ transition: reducedMotion ? 'none' : 'stroke-width 0.2s ease, opacity 0.2s ease' }}
           markerEnd="url(#lstm-arrow)" />
   );
 }
@@ -189,6 +199,10 @@ function Arrow({ x1, y1, x2, y2, color = 'var(--text-dim)', active, dashed }) {
 function Op({ cx, cy, label, color, active }) {
   return (
     <g>
+      {active && (
+        <circle cx={cx} cy={cy} r={16} fill={color} opacity={0.35}
+                filter="url(#lstm-glow)" />
+      )}
       <circle cx={cx} cy={cy} r={11}
               fill={active ? color : 'var(--surface)'}
               stroke={active ? color : 'var(--border)'}
@@ -380,6 +394,13 @@ export default function LSTMGatesViz() {
                     markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
             </marker>
+            <filter id="lstm-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+            <linearGradient id="lstm-cell-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
           </defs>
 
           {/* Side labels */}
@@ -397,7 +418,7 @@ export default function LSTMGatesViz() {
           {/* Cell container */}
           <rect x={cellX} y={cellY} width={cellW} height={cellH} rx={14}
                 fill="var(--surface)" opacity={0.55}
-                stroke="var(--border)" strokeWidth={1.2} strokeDasharray="5 4" />
+                stroke="url(#lstm-cell-grad)" strokeWidth={1.4} strokeDasharray="5 4" />
           <text x={cellX + 14} y={cellY + 18} fontSize="10"
                 fontFamily="var(--mono, monospace)"
                 fill="var(--text-dim)" letterSpacing="0.12em">
@@ -460,7 +481,7 @@ export default function LSTMGatesViz() {
           <g>
             <rect x={inputRailX - 30} y={cellY + cellH + 22}
                   width={60} height={28} rx={14}
-                  fill="rgba(245, 165, 36, 0.12)"
+                  fill="color-mix(in srgb, var(--warning) 12%, transparent)"
                   stroke={COLORS.hidden} strokeWidth={1.2} />
             <text x={inputRailX} y={cellY + cellH + 41}
                   textAnchor="middle" fontSize="12"
@@ -644,29 +665,35 @@ export default function LSTMGatesViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLORS.forget }}>f</span>
-          <span className="mlviz-val">[{fDisp.map(v => v.toFixed(2)).join(', ')}]</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLORS.input }}>i</span>
-          <span className="mlviz-val">[{iDisp.map(v => v.toFixed(2)).join(', ')}]</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLORS.candidate }}>g</span>
-          <span className="mlviz-val">[{gDisp.map(v => v.toFixed(2)).join(', ')}]</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLORS.output }}>o</span>
-          <span className="mlviz-val">[{oDisp.map(v => v.toFixed(2)).join(', ')}]</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLORS.cell }}>c_t</span>
-          <span className="mlviz-val">[{cLive.map(v => v.toFixed(2)).join(', ')}]</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLORS.hidden }}>h_t</span>
-          <span className="mlviz-val">[{hLive.map(v => v.toFixed(2)).join(', ')}]</span>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '0.4rem',
+          }}
+        >
+          {[
+            { tag: 'f', color: COLORS.forget, vals: fDisp },
+            { tag: 'i', color: COLORS.input, vals: iDisp },
+            { tag: 'g', color: COLORS.candidate, vals: gDisp },
+            { tag: 'o', color: COLORS.output, vals: oDisp },
+            { tag: 'c_t', color: COLORS.cell, vals: cLive },
+            { tag: 'h_t', color: COLORS.hidden, vals: hLive },
+          ].map((row) => (
+            <div
+              key={row.tag}
+              className="mlviz-statcard"
+              style={{ borderLeftColor: row.color }}
+            >
+              <span className="mlviz-statcard-label" style={{ color: row.color }}>{row.tag}</span>
+              <span
+                className="mlviz-statcard-val"
+                style={{ fontSize: '0.78rem', fontWeight: 600 }}
+              >
+                [{row.vals.map((v) => v.toFixed(2)).join(', ')}]
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 

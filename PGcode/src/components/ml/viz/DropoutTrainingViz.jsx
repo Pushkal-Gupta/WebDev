@@ -193,7 +193,15 @@ export default function DropoutTrainingViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: 520 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
+          <defs>
+            <filter id="dropout-node-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
+            <filter id="dropout-pulse-glow" x="-200%" y="-200%" width="500%" height="500%">
+              <feGaussianBlur stdDeviation="1.8" />
+            </filter>
+          </defs>
           {/* phase label top-left */}
           <text
             x={10}
@@ -267,14 +275,23 @@ export default function DropoutTrainingViz() {
             const px = e.a.x + (e.b.x - e.a.x) * t;
             const py = e.a.y + (e.b.y - e.a.y) * t;
             return (
-              <circle
-                key={`p${e.key}`}
-                cx={px}
-                cy={py}
-                r={2.4}
-                fill={edgeColor(e.w)}
-                opacity={0.9}
-              />
+              <g key={`p${e.key}`}>
+                <circle
+                  cx={px}
+                  cy={py}
+                  r={4}
+                  fill={edgeColor(e.w)}
+                  filter="url(#dropout-pulse-glow)"
+                  opacity={0.7}
+                />
+                <circle
+                  cx={px}
+                  cy={py}
+                  r={2.4}
+                  fill={edgeColor(e.w)}
+                  opacity={0.9}
+                />
+              </g>
             );
           })}
 
@@ -286,6 +303,17 @@ export default function DropoutTrainingViz() {
             const scaledV = v * (kept ? (mode === 'training' ? scale : 1) : 0);
             return (
               <g key={`in${i}`}>
+                {kept && (
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={radius + 2}
+                    fill="var(--accent)"
+                    filter="url(#dropout-node-glow)"
+                    opacity={0.4}
+                    style={{ transition: 'opacity 0.35s ease' }}
+                  />
+                )}
                 {kept && (
                   <circle
                     cx={pos.x}
@@ -351,6 +379,17 @@ export default function DropoutTrainingViz() {
             const active = v > 0;
             return (
               <g key={`out${i}`}>
+                {active && (
+                  <circle
+                    cx={pos.x}
+                    cy={pos.y}
+                    r={radius + 2}
+                    fill="var(--hue-sky, #5ecbff)"
+                    filter="url(#dropout-node-glow)"
+                    opacity={0.38}
+                    style={{ transition: 'opacity 0.35s ease' }}
+                  />
+                )}
                 <circle
                   cx={pos.x}
                   cy={pos.y}
@@ -433,40 +472,35 @@ export default function DropoutTrainingViz() {
           </label>
         </div>
 
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-pink, #ff66cc)' }}>drop</span>
-          <span className="mlviz-val">{droppedCount} / {N_IN} neurons</span>
-          <span className="mlviz-sub">kept: {keptCount}</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-sky, #5ecbff)' }}>W</span>
-          <span className="mlviz-val">{activeWeights} / {totalWeights} active</span>
-          <span className="mlviz-sub">
-            ({snap((activeWeights / totalWeights) * 100, 0)}% of edges carry signal)
-          </span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>scale</span>
-          <span className="mlviz-val">×{snap(scale, 3)}</span>
-          <span className="mlviz-sub">
-            {mode === 'training' ? '1 / (1 − p) keeps E[a] constant' : 'no rescale at inference'}
-          </span>
-        </div>
-
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-pink, #ff66cc)' }}>‖y‖<sub>tr</sub></span>
-          <span className="mlviz-val">{snap(trainMagnitude, 3)}</span>
-          <span className="mlviz-sub">training (sampled mask)</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-sky, #5ecbff)' }}>‖y‖<sub>inf</sub></span>
-          <span className="mlviz-val">{snap(inferMagnitude, 3)}</span>
-          <span className="mlviz-sub">inference (full inputs, no scale)</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-sub">
-            ratio: {snap(trainMagnitude / Math.max(1e-6, inferMagnitude), 2)} (target ≈ 1.0 in expectation)
-          </span>
+        <div className="mlviz-statcol">
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-pink">
+              <span className="mlviz-statcard-label">dropped / {N_IN}</span>
+              <span className="mlviz-statcard-val">{droppedCount}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">active weights</span>
+              <span className="mlviz-statcard-val">{activeWeights}/{totalWeights}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">scale</span>
+              <span className="mlviz-statcard-val">×{snap(scale, 3)}</span>
+            </div>
+          </div>
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-pink">
+              <span className="mlviz-statcard-label">‖y‖ training</span>
+              <span className="mlviz-statcard-val">{snap(trainMagnitude, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">‖y‖ inference</span>
+              <span className="mlviz-statcard-val">{snap(inferMagnitude, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">ratio (→ 1.0)</span>
+              <span className="mlviz-statcard-val">{snap(trainMagnitude / Math.max(1e-6, inferMagnitude), 2)}</span>
+            </div>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

@@ -71,7 +71,7 @@ function VecRow({ vec, accent }) {
         const positive = v >= 0;
         const bg = positive
           ? `rgba(var(--accent-rgb, 0,255,245), ${0.12 + t * 0.55})`
-          : `rgba(255, 102, 204, ${0.12 + t * 0.55})`;
+          : `color-mix(in srgb, var(--hue-pink) ${(0.12 + t * 0.55) * 100}%, transparent)`;
         return (
           <span
             key={i}
@@ -250,7 +250,7 @@ export default function AttentionHeatmap() {
                 const masked = causal && j > i;
                 const intensity = masked ? 0 : v;
                 const bg = masked
-                  ? 'rgba(120,120,120,0.06)'
+                  ? 'rgba(0,0,0,0.06)'
                   : `rgba(var(--accent-rgb, 0,255,245), ${0.06 + intensity * 0.85})`;
                 const isActiveCell = active.r === i && active.c === j;
                 const isActiveRow = active.r === i;

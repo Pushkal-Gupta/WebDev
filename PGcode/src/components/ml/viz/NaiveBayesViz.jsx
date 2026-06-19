@@ -452,9 +452,22 @@ export default function NaiveBayesViz() {
           ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg mlviz-svg-wide"
-          style={{ maxWidth: '520px', cursor: 'crosshair' }}
+          preserveAspectRatio="xMidYMid meet"
+          style={{ maxWidth: '820px', cursor: 'crosshair' }}
           onClick={handleClick}
         >
+          <defs>
+            <linearGradient id="nbayes-boundary-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="nbayes-boundary-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
+            <filter id="nbayes-query-glow" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
           {/* Plot frame */}
           <rect
             x={PLOT_X0}
@@ -467,13 +480,26 @@ export default function NaiveBayesViz() {
           />
           {gridLines}
 
-          {/* Decision boundary polylines */}
+          {/* Decision boundary polylines — glow underlay + gradient stroke */}
+          {polylines.map((line, i) => (
+            <path
+              key={`bd-glow${i}`}
+              d={polylineToPath(line)}
+              fill="none"
+              stroke="url(#nbayes-boundary-grad)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="url(#nbayes-boundary-glow)"
+              opacity="0.5"
+            />
+          ))}
           {polylines.map((line, i) => (
             <path
               key={`bd${i}`}
               d={polylineToPath(line)}
               fill="none"
-              stroke="var(--accent)"
+              stroke="url(#nbayes-boundary-grad)"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -615,6 +641,14 @@ export default function NaiveBayesViz() {
               <circle
                 cx={queryScreen.sx}
                 cy={queryScreen.sy}
+                r="10"
+                fill="var(--accent)"
+                opacity="0.22"
+                filter="url(#nbayes-query-glow)"
+              />
+              <circle
+                cx={queryScreen.sx}
+                cy={queryScreen.sy}
                 r="6"
                 fill="none"
                 stroke="var(--accent)"
@@ -664,20 +698,27 @@ export default function NaiveBayesViz() {
         </div>
 
         {queryPost ? (
-          <div className="mlviz-row mlviz-row-hi">
-            <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>q</span>
-            <span className="mlviz-val">
-              ({snap(query.x)}, {snap(query.y)})
-            </span>
-            <span className="mlviz-sub" style={{ color: COLOR_R }}>
-              P(red) = {snap(queryPost.p0, 3)}
-            </span>
-            <span className="mlviz-sub" style={{ color: COLOR_B }}>
-              P(blue) = {snap(queryPost.p1, 3)}
-            </span>
-            <span className="mlviz-sub">
-              pick: {queryPost.p0 > queryPost.p1 ? 'red' : 'blue'}
-            </span>
+          <div className="mlviz-row-hi mlviz-statcol mlviz-statrow nb-cards">
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">query (x, y)</span>
+              <span className="mlviz-statcard-val" style={{ fontSize: '0.9rem' }}>
+                ({snap(query.x)}, {snap(query.y)})
+              </span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-pink">
+              <span className="mlviz-statcard-label">P(red)</span>
+              <span className="mlviz-statcard-val">{snap(queryPost.p0, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">P(blue)</span>
+              <span className="mlviz-statcard-val">{snap(queryPost.p1, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">pick</span>
+              <span className="mlviz-statcard-val" style={{ fontSize: '0.92rem' }}>
+                {queryPost.p0 > queryPost.p1 ? 'red' : 'blue'}
+              </span>
+            </div>
           </div>
         ) : (
           <div className="mlviz-row mlviz-row-hi">

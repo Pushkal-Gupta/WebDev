@@ -1,0 +1,41 @@
+.rsv { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.rsv-head { display: flex; flex-direction: column; gap: 0.25rem; }
+.rsv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.rsv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.45; margin: 0; }
+
+.rsv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; }
+.rsv-buttons { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.rsv-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.rsv-btn:hover { border-color: var(--accent); color: var(--accent); }
+.rsv-btn:disabled { opacity: 0.45; cursor: default; }
+.rsv-btn-primary { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+.rsv-btn-shuffle:hover { border-color: var(--hue-pink); color: var(--hue-pink); }
+.rsv-speed { display: flex; align-items: center; gap: 0.45rem; font-size: 0.7rem; color: var(--text-dim); }
+.rsv-speed-range { accent-color: var(--accent); }
+.rsv-speed-val { font-weight: 600; color: var(--accent); }
+.rsv-stepcount { font-size: 0.72rem; color: var(--text-dim); }
+.rsv-stepcount strong { color: var(--accent); }
+
+.rsv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.6rem; }
+.rsv-svg { width: 100%; height: auto; display: block; }
+.rsv-rowlabel { fill: var(--text-dim); font-size: 0.74rem; font-weight: 700; }
+.rsv-cell-val { text-anchor: middle; font-size: 0.85rem; font-weight: 700; }
+.rsv-res-val { text-anchor: middle; font-size: 1.2rem; font-weight: 700; fill: var(--text-main); }
+.rsv-slot { text-anchor: middle; fill: var(--text-dim); font-size: 0.64rem; }
+
+.rsv-readouts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.rsv-metric { border: 1px solid var(--border); border-radius: 9px; background: var(--surface); padding: 0.55rem 0.7rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.rsv-metric-label { font-size: 0.64rem; color: var(--text-dim); }
+.rsv-metric-val { font-size: 0.95rem; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
+
+.rsv-trace { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px; background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.rsv-trace-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.rsv-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .rsv-readouts { grid-template-columns: repeat(2, 1fr); } }

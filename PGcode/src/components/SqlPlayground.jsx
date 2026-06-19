@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Play, Loader2, RotateCcw, Table, Database, Check, X, BookOpen, ChevronLeft, ArrowRight } from 'lucide-react';
+import { Play, Loader2, RotateCcw, Table, Database, Check, X, BookOpen, ChevronLeft, ArrowRight, ClipboardPaste, Link2, FilePlus2, Trash2, Layers } from 'lucide-react';
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { SQL_COURSES, gradeResult, listPlaygroundDbs } from '../content/sqlCourses';
 import PlaygroundSwitcher from './PlaygroundSwitcher';
@@ -14,6 +14,12 @@ const PLAYGROUND_STARTERS = {
   sakila: "-- Revenue per film category.\nSELECT c.name AS category,\n       ROUND(SUM(p.amount), 2) AS revenue\nFROM payments p\nJOIN rentals    r ON r.id = p.rental_id\nJOIN films      f ON f.id = r.film_id\nJOIN categories c ON c.id = f.category_id\nGROUP BY c.name\nORDER BY revenue DESC;\n",
   world: "-- Largest city in each country, ranked by city population.\nSELECT co.name AS country,\n       ci.name AS largest_city,\n       ci.population\nFROM countries co\nJOIN cities    ci ON ci.country_code = co.code\nGROUP BY co.code\nHAVING ci.population = MAX(ci.population)\nORDER BY ci.population DESC;\n",
   ecommerce: "-- Top-spending customers in the last 60 days.\nSELECT c.name,\n       COUNT(o.id) AS orders,\n       ROUND(SUM(o.total), 2) AS spent\nFROM customers c\nJOIN orders    o ON o.customer_id = c.id\nWHERE o.status = 'shipped'\nGROUP BY c.id\nORDER BY spent DESC\nLIMIT 5;\n",
+  library: "-- Books currently on loan (no return date yet).\nSELECT b.title,\n       a.name AS author,\n       m.name AS borrower,\n       l.loaned\nFROM loans l\nJOIN books   b ON b.id = l.book_id\nJOIN authors a ON a.id = b.author_id\nJOIN members m ON m.id = l.member_id\nWHERE l.returned IS NULL\nORDER BY l.loaned;\n",
+  university: "-- Average grade (GPA) per student, highest first.\nSELECT s.name,\n       s.major,\n       ROUND(AVG(e.grade), 2) AS gpa,\n       COUNT(e.id)            AS courses\nFROM students s\nJOIN enrollments e ON e.student_id = s.id\nGROUP BY s.id\nORDER BY gpa DESC;\n",
+  social: "-- Most-liked posts with their author.\nSELECT u.handle,\n       p.body,\n       COUNT(lk.user_id) AS likes\nFROM posts p\nJOIN users u  ON u.id = p.user_id\nLEFT JOIN likes lk ON lk.post_id = p.id\nGROUP BY p.id\nORDER BY likes DESC\nLIMIT 5;\n",
+  flights: "-- Longest flights with airline and route.\nSELECT f.flight_no,\n       al.name AS airline,\n       o.city  AS from_city,\n       d.city  AS to_city,\n       f.distance_km\nFROM flights f\nJOIN airlines al ON al.id = f.airline_id\nJOIN airports o  ON o.code = f.origin\nJOIN airports d  ON d.code = f.destination\nORDER BY f.distance_km DESC\nLIMIT 5;\n",
+  hospital: "-- Visit count and total billed per specialty.\nSELECT d.specialty,\n       COUNT(v.id)            AS visits,\n       ROUND(SUM(v.cost), 2)  AS billed\nFROM visits v\nJOIN doctors d ON d.id = v.doctor_id\nGROUP BY d.specialty\nORDER BY billed DESC;\n",
+  bank: "-- Net movement per account: deposits minus withdrawals.\nSELECT a.id AS account,\n       c.name AS holder,\n       a.type,\n       ROUND(SUM(t.amount), 2) AS net_change\nFROM accounts a\nJOIN customers c    ON c.id = a.customer_id\nJOIN transactions t ON t.account_id = a.id\nGROUP BY a.id\nORDER BY net_change DESC;\n",
 };
 
 const DEFAULT_FREE_STARTER = '-- Pick a sample database to start writing SQL.\n';
@@ -51,9 +57,73 @@ const SAMPLE_QUERIES_BY_DB = {
     { label: 'Repeat customers',        sql: 'SELECT c.name, COUNT(o.id) AS orders\nFROM customers c JOIN orders o ON o.customer_id = c.id\nGROUP BY c.id HAVING COUNT(o.id) > 1 ORDER BY orders DESC;' },
     { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
   ],
+  library: [
+    { label: 'Books on loan now',       sql: 'SELECT b.title, m.name AS borrower\nFROM loans l JOIN books b ON b.id = l.book_id\nJOIN members m ON m.id = l.member_id\nWHERE l.returned IS NULL ORDER BY l.loaned;' },
+    { label: 'Loans per book',          sql: 'SELECT b.title, COUNT(l.id) AS times_loaned\nFROM books b LEFT JOIN loans l ON l.book_id = b.id\nGROUP BY b.id ORDER BY times_loaned DESC;' },
+    { label: 'Books per genre',         sql: 'SELECT genre, COUNT(*) AS n FROM books GROUP BY genre ORDER BY n DESC;' },
+    { label: 'Authors by birth year',   sql: 'SELECT name, country, birth_year FROM authors ORDER BY birth_year;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  university: [
+    { label: 'GPA per student',         sql: 'SELECT s.name, ROUND(AVG(e.grade), 2) AS gpa\nFROM students s JOIN enrollments e ON e.student_id = s.id\nGROUP BY s.id ORDER BY gpa DESC;' },
+    { label: 'Course roster sizes',     sql: 'SELECT c.title, COUNT(e.id) AS enrolled\nFROM courses c LEFT JOIN enrollments e ON e.course_id = c.id\nGROUP BY c.id ORDER BY enrolled DESC;' },
+    { label: 'Avg grade by department', sql: 'SELECT c.department, ROUND(AVG(e.grade), 2) AS avg_grade\nFROM enrollments e JOIN courses c ON c.id = e.course_id\nGROUP BY c.department ORDER BY avg_grade DESC;' },
+    { label: 'Courses per instructor',  sql: 'SELECT i.name, COUNT(c.id) AS courses\nFROM instructors i LEFT JOIN courses c ON c.instructor_id = i.id\nGROUP BY i.id ORDER BY courses DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  social: [
+    { label: 'Follower counts',         sql: 'SELECT u.handle, COUNT(f.follower_id) AS followers\nFROM users u LEFT JOIN follows f ON f.followee_id = u.id\nGROUP BY u.id ORDER BY followers DESC;' },
+    { label: 'Most-liked posts',        sql: 'SELECT u.handle, p.body, COUNT(lk.user_id) AS likes\nFROM posts p JOIN users u ON u.id = p.user_id\nLEFT JOIN likes lk ON lk.post_id = p.id\nGROUP BY p.id ORDER BY likes DESC LIMIT 5;' },
+    { label: 'Mutual follows',          sql: 'SELECT a.follower_id, a.followee_id\nFROM follows a JOIN follows b\n  ON a.follower_id = b.followee_id AND a.followee_id = b.follower_id\nWHERE a.follower_id < a.followee_id;' },
+    { label: 'Posts per user',          sql: 'SELECT u.handle, COUNT(p.id) AS posts\nFROM users u LEFT JOIN posts p ON p.user_id = u.id\nGROUP BY u.id ORDER BY posts DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  flights: [
+    { label: 'Routes by distance',      sql: 'SELECT flight_no, origin, destination, distance_km\nFROM flights ORDER BY distance_km DESC;' },
+    { label: 'Seats sold per flight',   sql: 'SELECT f.flight_no, COUNT(b.id) AS seats, ROUND(SUM(b.fare), 2) AS revenue\nFROM flights f LEFT JOIN bookings b ON b.flight_id = f.id\nGROUP BY f.id ORDER BY revenue DESC;' },
+    { label: 'Flights per airline',     sql: 'SELECT al.name, COUNT(f.id) AS flights\nFROM airlines al LEFT JOIN flights f ON f.airline_id = al.id\nGROUP BY al.id ORDER BY flights DESC;' },
+    { label: 'Departures by country',   sql: 'SELECT a.country, COUNT(f.id) AS departures\nFROM flights f JOIN airports a ON a.code = f.origin\nGROUP BY a.country ORDER BY departures DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  hospital: [
+    { label: 'Visits per specialty',    sql: 'SELECT d.specialty, COUNT(v.id) AS visits\nFROM visits v JOIN doctors d ON d.id = v.doctor_id\nGROUP BY d.specialty ORDER BY visits DESC;' },
+    { label: 'Billing per doctor',      sql: 'SELECT d.name, ROUND(SUM(v.cost), 2) AS billed\nFROM doctors d LEFT JOIN visits v ON v.doctor_id = d.id\nGROUP BY d.id ORDER BY billed DESC;' },
+    { label: 'Visits per patient',      sql: 'SELECT p.name, COUNT(v.id) AS visits\nFROM patients p LEFT JOIN visits v ON v.patient_id = p.id\nGROUP BY p.id ORDER BY visits DESC;' },
+    { label: 'Most-prescribed drugs',   sql: 'SELECT drug, COUNT(*) AS times\nFROM prescriptions GROUP BY drug ORDER BY times DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
+  bank: [
+    { label: 'Balance per customer',    sql: 'SELECT c.name, ROUND(SUM(a.balance), 2) AS total_balance\nFROM customers c JOIN accounts a ON a.customer_id = c.id\nGROUP BY c.id ORDER BY total_balance DESC;' },
+    { label: 'Deposits vs withdrawals', sql: "SELECT kind, COUNT(*) AS n, ROUND(SUM(amount), 2) AS total\nFROM transactions GROUP BY kind ORDER BY total DESC;" },
+    { label: 'Net change per account',  sql: 'SELECT a.id, a.type, ROUND(SUM(t.amount), 2) AS net_change\nFROM accounts a JOIN transactions t ON t.account_id = a.id\nGROUP BY a.id ORDER BY net_change DESC;' },
+    { label: 'Customers per branch',    sql: 'SELECT b.name, COUNT(c.id) AS customers\nFROM branches b LEFT JOIN customers c ON c.branch_id = b.id\nGROUP BY b.id ORDER BY customers DESC;' },
+    { label: 'Schema',                  sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+  ],
 };
 
+// Rotating theme-token accents so each scenario card reads distinctly.
+const CARD_HUES = [
+  'var(--accent)',
+  'var(--hue-violet)',
+  'var(--hue-sky)',
+  'var(--hue-pink)',
+  'var(--hue-mint)',
+];
+
 const LAST_DB_KEY = 'pgcode_sql_last_playground_db';
+const CUSTOM_SEED_KEY = 'pgcode_sql_custom_seed';
+const CUSTOM_STARTER = '-- Your tables are loaded. List them, then query away.\nSELECT name FROM sqlite_master WHERE type=\'table\';\n';
+
+// Pull table names out of CREATE TABLE statements for the sidebar list.
+function parseTableNames(sqlText) {
+  const names = [];
+  const re = /CREATE\s+(?:TEMP(?:ORARY)?\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?["`[]?([A-Za-z_][\w$]*)["`\]]?/gi;
+  let m;
+  while ((m = re.exec(sqlText)) !== null) {
+    if (!names.includes(m[1])) names.push(m[1]);
+  }
+  return names;
+}
 
 export default function SqlPlayground({ theme }) {
   const navigate = useNavigate();
@@ -63,12 +133,22 @@ export default function SqlPlayground({ theme }) {
   // A course entry runs the graded surface (questions + grading panel).
   // A playground entry runs the free-form editor against the seed DB.
   // Missing entry = show the picker.
+  const customMode = courseSlug === 'custom';
   const courseMode = entry?.kind === 'course';
   const playgroundMode = entry?.kind === 'playground';
   const course = courseMode ? entry : null;
   const playgroundDb = playgroundMode ? entry : null;
 
   const playgroundDbs = useMemo(() => listPlaygroundDbs(), []);
+
+  // Custom-DB seed the user pasted or fetched. Persisted so a reload keeps the
+  // loaded schema instead of dropping back to the setup screen.
+  const [customSeed, setCustomSeed] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    try { return localStorage.getItem(CUSTOM_SEED_KEY) || ''; } catch { return ''; }
+  });
+  // The setup screen shows until a custom seed is loaded.
+  const customLoaded = customMode && !!customSeed;
 
   useEffect(() => {
     if (playgroundMode && courseSlug) {
@@ -82,18 +162,22 @@ export default function SqlPlayground({ theme }) {
   const [grade, setGrade] = useState(null); // { ok, reason } per question run
 
   // Effective seed + starter based on mode.
-  const effectiveSeed = entry?.seedSql || '';
+  const effectiveSeed = customLoaded ? customSeed : (entry?.seedSql || '');
   const localKey = course
     ? `pgcode_sql_course_${course.id}_${question?.id || 'q'}`
     : playgroundDb
       ? `pgcode_sql_pg_${playgroundDb.id}`
-      : 'pgcode_sql_picker';
+      : customLoaded
+        ? 'pgcode_sql_pg_custom'
+        : 'pgcode_sql_picker';
 
   const defaultStarter = courseMode
     ? (question?.starter || '-- write your query here')
     : playgroundDb
       ? (PLAYGROUND_STARTERS[playgroundDb.id] || DEFAULT_FREE_STARTER)
-      : DEFAULT_FREE_STARTER;
+      : customLoaded
+        ? CUSTOM_STARTER
+        : DEFAULT_FREE_STARTER;
 
   const initialSql = (typeof window !== 'undefined' && localStorage.getItem(localKey)) || defaultStarter;
   const [sql, setSql] = useState(initialSql);
@@ -120,12 +204,92 @@ export default function SqlPlayground({ theme }) {
     setElapsed(null);
   }, [playgroundMode, playgroundDbId]);
 
+  // When a custom DB is loaded (or replaced), seed the editor with its starter
+  // or the saved draft for the custom slot.
+  useEffect(() => {
+    if (!customLoaded) return;
+    const k = 'pgcode_sql_pg_custom';
+    setSql(localStorage.getItem(k) || CUSTOM_STARTER);
+    setResults([]);
+    setError(null);
+    setElapsed(null);
+  }, [customLoaded]);
+
   const [running, setRunning] = useState(false);
   const [dbReady, setDbReady] = useState(false);
   const [error, setError] = useState(null);
   const [results, setResults] = useState([]); // [{ columns: [], values: [[...], ...] }]
   const [elapsed, setElapsed] = useState(null);
   const dbRef = useRef(null);
+
+  // Custom-DB setup form (paste / fetch).
+  const [pasteSql, setPasteSql] = useState('');
+  const [fetchUrl, setFetchUrl] = useState('');
+  const [setupError, setSetupError] = useState(null);
+  const [fetching, setFetching] = useState(false);
+
+  // Validate a candidate seed by running it in a throwaway SQLite instance,
+  // then commit it as the custom DB. Surfaces SQL errors without crashing.
+  const loadCustomSeed = useCallback(async (seedText) => {
+    const text = (seedText || '').trim();
+    if (!text) {
+      setSetupError('Nothing to load — paste some SQL or fetch a URL first.');
+      return;
+    }
+    setSetupError(null);
+    try {
+      const initSqlJs = (await import('sql.js')).default;
+      const SQL = await initSqlJs({ locateFile: () => sqlWasmUrl });
+      const test = new SQL.Database();
+      test.run(text); // throws on malformed SQL
+      const tableCount = parseTableNames(text).length;
+      test.close();
+      if (tableCount === 0) {
+        setSetupError('No CREATE TABLE statements found. Include at least one table definition.');
+        return;
+      }
+      try { localStorage.setItem(CUSTOM_SEED_KEY, text); } catch { /* ignore */ }
+      setCustomSeed(text);
+    } catch (e) {
+      setSetupError(`That SQL did not load:\n${e?.message || String(e)}`);
+    }
+  }, []);
+
+  const fetchCustomSeed = useCallback(async () => {
+    const url = fetchUrl.trim();
+    if (!url) {
+      setSetupError('Enter a URL pointing at a .sql file (CREATE TABLE + INSERT statements).');
+      return;
+    }
+    setSetupError(null);
+    setFetching(true);
+    try {
+      const res = await fetch(url, { method: 'GET' });
+      if (!res.ok) {
+        setSetupError(`Fetch failed: ${res.status} ${res.statusText}. Check the URL is a raw .sql file.`);
+        return;
+      }
+      const text = await res.text();
+      await loadCustomSeed(text);
+    } catch (e) {
+      setSetupError(
+        `Could not fetch that URL — the host may block cross-origin requests (CORS) or be unreachable. Try a raw file URL (e.g. a raw gist), or paste the SQL instead.\n${e?.message || String(e)}`,
+      );
+    } finally {
+      setFetching(false);
+    }
+  }, [fetchUrl, loadCustomSeed]);
+
+  const clearCustomSeed = useCallback(() => {
+    try { localStorage.removeItem(CUSTOM_SEED_KEY); } catch { /* ignore */ }
+    try { localStorage.removeItem('pgcode_sql_pg_custom'); } catch { /* ignore */ }
+    setCustomSeed('');
+    setResults([]);
+    setError(null);
+    setElapsed(null);
+    setPasteSql('');
+    setSetupError(null);
+  }, []);
 
   const SPLIT_KEY = 'pgcode-sql-split';
   const [editorPct, setEditorPct] = useState(() => {
@@ -255,8 +419,73 @@ export default function SqlPlayground({ theme }) {
 
   const monacoTheme = theme === 'light' || theme === 'solarized' ? 'light' : 'vs-dark';
 
+  // Custom-DB setup view — paste or fetch SQL into a fresh SQLite instance.
+  if (customMode && !customLoaded) {
+    return (
+      <div className="sql-pg sql-pg-picker-page">
+        <header className="sql-pg-header">
+          <div className="sql-pg-title-row">
+            <Link to="/playground/sql" className="sql-pg-back">
+              <ChevronLeft size={12} /> Back to sample databases
+            </Link>
+            <h1 className="sql-pg-title">Bring your own database</h1>
+            <p className="sql-pg-sub">
+              <Database size={11} /> Paste SQL or fetch a raw .sql URL — it runs in SQLite in your browser, nothing leaves the page.
+            </p>
+          </div>
+        </header>
+        <div className="sql-pg-custom-setup">
+          <div className="sql-pg-custom-card">
+            <h3 className="sql-pg-side-title"><ClipboardPaste size={12} /> Paste SQL</h3>
+            <p className="sql-pg-custom-hint">
+              Drop in CREATE TABLE statements followed by INSERTs. SELECTs run later in the editor.
+            </p>
+            <textarea
+              className="sql-pg-custom-textarea"
+              value={pasteSql}
+              onChange={(e) => setPasteSql(e.target.value)}
+              spellCheck={false}
+              placeholder={'CREATE TABLE pets (id INTEGER PRIMARY KEY, name TEXT, species TEXT);\nINSERT INTO pets VALUES (1, \'Mochi\', \'cat\'), (2, \'Rex\', \'dog\');'}
+            />
+            <button
+              className="sql-pg-btn sql-pg-btn-primary"
+              onClick={() => loadCustomSeed(pasteSql)}
+            >
+              <Play size={13} /> Load &amp; open editor
+            </button>
+          </div>
+
+          <div className="sql-pg-custom-card">
+            <h3 className="sql-pg-side-title"><Link2 size={12} /> Fetch from a URL</h3>
+            <p className="sql-pg-custom-hint">
+              A plain GET of a raw .sql file (e.g. a raw gist). The host must allow cross-origin reads.
+            </p>
+            <input
+              className="sql-pg-custom-input"
+              type="url"
+              value={fetchUrl}
+              onChange={(e) => setFetchUrl(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') fetchCustomSeed(); }}
+              spellCheck={false}
+              placeholder="https://gist.githubusercontent.com/.../schema.sql"
+            />
+            <button
+              className="sql-pg-btn sql-pg-btn-primary"
+              onClick={fetchCustomSeed}
+              disabled={fetching}
+            >
+              {fetching ? <Loader2 size={13} className="sql-pg-spin" /> : <Link2 size={13} />}
+              {fetching ? 'Fetching…' : 'Fetch & load'}
+            </button>
+            {setupError && <pre className="sql-pg-error sql-pg-custom-error">{setupError}</pre>}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Picker view — no DB chosen yet. Mode-style grid of sample databases.
-  if (!courseMode && !playgroundMode) {
+  if (!courseMode && !playgroundMode && !customMode) {
     return (
       <div className="sql-pg sql-pg-picker-page">
         <header className="sql-pg-header">
@@ -270,26 +499,53 @@ export default function SqlPlayground({ theme }) {
         </header>
         <div className="sql-pg-picker">
           <div className="sql-pg-picker-grid">
-            {playgroundDbs.map(db => (
+            {playgroundDbs.map((db, i) => (
               <button
                 key={db.id}
                 className="sql-pg-picker-card"
+                style={{ '--card-accent': CARD_HUES[i % CARD_HUES.length] }}
                 onClick={() => navigate(`/playground/sql/${db.id}`)}
               >
                 <span className="sql-pg-picker-card-head">
-                  <Database size={13} />
+                  <Database size={14} />
                   <span className="sql-pg-picker-card-title">{db.title}</span>
                 </span>
                 <span className="sql-pg-picker-card-blurb">{db.blurb}</span>
                 <span className="sql-pg-picker-card-tables">
-                  {db.tables.slice(0, 6).map(t => <code key={t}>{t}</code>)}
-                  {db.tables.length > 6 && <code>+{db.tables.length - 6}</code>}
+                  {db.tables.slice(0, 5).map(t => <code key={t}>{t}</code>)}
+                  {db.tables.length > 5 && <code>+{db.tables.length - 5}</code>}
                 </span>
-                <span className="sql-pg-picker-card-cta">
-                  Open <ArrowRight size={11} />
+                <span className="sql-pg-picker-card-meta">
+                  <Layers size={11} />
+                  {db.tables.length} table{db.tables.length === 1 ? '' : 's'}
+                  <span className="sql-pg-picker-card-cta" style={{ marginLeft: 'auto', marginTop: 0 }}>
+                    Open <ArrowRight size={11} />
+                  </span>
                 </span>
               </button>
             ))}
+            <button
+              className="sql-pg-picker-card sql-pg-picker-card-custom"
+              onClick={() => navigate('/playground/sql/custom')}
+            >
+              <span className="sql-pg-picker-card-head">
+                <FilePlus2 size={14} />
+                <span className="sql-pg-picker-card-title">Bring your own database</span>
+              </span>
+              <span className="sql-pg-picker-card-blurb">
+                Paste your own CREATE TABLE + INSERT statements, or fetch them from a raw .sql URL, and query them in the same editor.
+              </span>
+              <span className="sql-pg-picker-card-tables">
+                <code>paste SQL</code><code>fetch URL</code>
+              </span>
+              <span className="sql-pg-picker-card-meta">
+                <ClipboardPaste size={11} />
+                Your schema
+                <span className="sql-pg-picker-card-cta" style={{ marginLeft: 'auto', marginTop: 0 }}>
+                  Load <ArrowRight size={11} />
+                </span>
+              </span>
+            </button>
           </div>
           <p className="sql-pg-picker-foot">
             <BookOpen size={11} /> Looking for graded exercises? Try the <Link to="/courses/sql-basics">SQL Basics course</Link> or the <Link to="/playground/sql/usda">USDA project</Link>.
@@ -299,8 +555,20 @@ export default function SqlPlayground({ theme }) {
     );
   }
 
-  const tablesList = entry?.tables || [];
-  const sampleQueries = playgroundDb ? (SAMPLE_QUERIES_BY_DB[playgroundDb.id] || []) : [];
+  const displayTitle = customLoaded ? 'Your database' : entry.title;
+  const displayBlurb = customLoaded
+    ? 'Your pasted or fetched SQL, running in browser SQLite. Reset re-seeds from the same SQL; Replace loads new SQL.'
+    : entry.blurb;
+  const tablesList = customLoaded ? parseTableNames(customSeed) : (entry?.tables || []);
+  const sampleQueries = playgroundDb
+    ? (SAMPLE_QUERIES_BY_DB[playgroundDb.id] || [])
+    : customLoaded
+      ? [
+          { label: 'List tables', sql: "SELECT name FROM sqlite_master WHERE type='table';" },
+          { label: 'Schema', sql: "SELECT name, sql FROM sqlite_master WHERE type='table';" },
+          ...(tablesList[0] ? [{ label: `Rows of ${tablesList[0]}`, sql: `SELECT * FROM ${tablesList[0]} LIMIT 50;` }] : []),
+        ]
+      : [];
 
   return (
     <div className="sql-pg">
@@ -309,9 +577,9 @@ export default function SqlPlayground({ theme }) {
           <Link to="/playground/sql" className="sql-pg-back">
             <ChevronLeft size={12} /> {courseMode ? 'Pick a sample database' : 'Change database'}
           </Link>
-          <h1 className="sql-pg-title">{entry.title}</h1>
+          <h1 className="sql-pg-title">{displayTitle}</h1>
           <p className="sql-pg-sub">
-            <Database size={11} /> {entry.blurb}
+            <Database size={11} /> {displayBlurb}
           </p>
           {playgroundMode && (
             <p className="sql-pg-sub" style={{ marginTop: '0.25rem' }}>
@@ -320,6 +588,11 @@ export default function SqlPlayground({ theme }) {
           )}
         </div>
         <div className="sql-pg-controls">
+          {customLoaded && (
+            <button className="sql-pg-btn sql-pg-btn-ghost" onClick={clearCustomSeed} title="Discard this database and load different SQL">
+              <Trash2 size={13} /> Replace
+            </button>
+          )}
           <button className="sql-pg-btn sql-pg-btn-ghost" onClick={resetDb} title="Reset to seed schema + data">
             <RotateCcw size={13} /> Reset DB
           </button>

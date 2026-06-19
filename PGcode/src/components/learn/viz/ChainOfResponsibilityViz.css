@@ -1,0 +1,433 @@
+.corv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.corv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.corv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.corv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.corv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.corv-fail {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.corv-fail-opts {
+  display: inline-flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.corv-fail-btn {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.55rem;
+  background: var(--bg);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.corv-fail-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.corv-fail-btn.is-on {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.corv-spacer {
+  flex: 1 1 auto;
+}
+
+.corv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.corv-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.corv-range {
+  width: 100px;
+  accent-color: var(--accent);
+}
+.corv-slider-val {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.corv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.corv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.corv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.corv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.corv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.corv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.corv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.corv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.corv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.corv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.corv-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.corv-inlet {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  opacity: 0.8;
+}
+
+/* arrows between boxes */
+.corv-arrow {
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: stroke 0.2s;
+}
+.corv-arrow.is-flowed {
+  stroke: var(--accent);
+}
+.corv-arrow-head {
+  fill: var(--border);
+  transition: fill 0.2s;
+}
+.corv-arrow-head.is-flowed {
+  fill: var(--accent);
+}
+
+/* handler boxes by state */
+.corv-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+  transition: stroke 0.2s, fill 0.2s;
+}
+.corv-box-idle {
+  fill: var(--surface);
+  stroke: var(--border);
+}
+.corv-box-unreached {
+  fill: var(--surface);
+  stroke: var(--border);
+  opacity: 0.4;
+}
+.corv-box-active {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+.corv-box-pass {
+  fill: rgba(var(--accent-rgb), 0.06);
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.corv-box-reject {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--hard);
+  stroke-width: 2.8;
+}
+.corv-box-fulfil {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--easy);
+  stroke-width: 2.8;
+}
+
+.corv-box-title {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+.corv-box-title-unreached {
+  fill: var(--text-dim);
+}
+.corv-box-title-reject {
+  fill: var(--hard);
+}
+.corv-box-title-fulfil {
+  fill: var(--easy);
+}
+.corv-box-title-active {
+  fill: var(--accent);
+}
+
+.corv-box-role {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.corv-box-verdict {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+.corv-box-verdict-active {
+  fill: var(--accent);
+}
+.corv-box-verdict-pass {
+  fill: var(--accent);
+}
+.corv-box-verdict-reject {
+  fill: var(--hard);
+}
+.corv-box-verdict-fulfil {
+  fill: var(--easy);
+}
+.corv-box-verdict-unreached {
+  fill: var(--text-dim);
+  opacity: 0.6;
+}
+
+/* request token chip */
+.corv-token {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.corv-token.is-reject {
+  fill: rgba(var(--accent-rgb), 0.06);
+  stroke: var(--hard);
+}
+.corv-token.is-fulfil {
+  fill: rgba(var(--accent-rgb), 0.06);
+  stroke: var(--easy);
+}
+
+.corv-token-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.corv-token-ptr {
+  fill: var(--accent);
+}
+.corv-token-ptr.is-reject {
+  fill: var(--hard);
+}
+.corv-token-ptr.is-fulfil {
+  fill: var(--easy);
+}
+
+/* terminal status badge */
+.corv-badge {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+.corv-badge-reject {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--hard);
+  stroke-width: 2.4;
+}
+.corv-badge-fulfil {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--easy);
+  stroke-width: 2.4;
+}
+
+.corv-badge-code {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+.corv-badge-code-reject {
+  fill: var(--hard);
+}
+.corv-badge-code-fulfil {
+  fill: var(--easy);
+}
+
+.corv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.corv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.corv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.corv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.corv-metric-value.is-pass { color: var(--easy); }
+.corv-metric-value.is-reject { color: var(--hard); }
+
+.corv-metric-why {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.corv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.corv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.corv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corv-btn,
+  .corv-fail-btn,
+  .corv-box,
+  .corv-arrow,
+  .corv-arrow-head,
+  .corv-token {
+    transition: none;
+  }
+}

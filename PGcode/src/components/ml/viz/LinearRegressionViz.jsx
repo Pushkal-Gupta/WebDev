@@ -283,7 +283,19 @@ export default function LinearRegressionViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="linreg-fit-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="linreg-fit-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+            <filter id="linreg-point-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+          </defs>
           <Grid />
 
           {/* axis ticks */}
@@ -349,46 +361,82 @@ export default function LinearRegressionViz() {
             );
           })}
 
-          {/* user's fitted line */}
+          {/* user's fitted line — glow underlay + gradient stroke */}
           {line && (
-            <line
-              x1={toScreen(line[0].x, line[0].y).sx}
-              y1={toScreen(line[0].x, line[0].y).sy}
-              x2={toScreen(line[1].x, line[1].y).sx}
-              y2={toScreen(line[1].x, line[1].y).sy}
-              stroke="var(--accent)"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-            />
+            <g>
+              <line
+                x1={toScreen(line[0].x, line[0].y).sx}
+                y1={toScreen(line[0].x, line[0].y).sy}
+                x2={toScreen(line[1].x, line[1].y).sx}
+                y2={toScreen(line[1].x, line[1].y).sy}
+                stroke="url(#linreg-fit-grad)"
+                strokeWidth="4.5"
+                strokeLinecap="round"
+                filter="url(#linreg-fit-glow)"
+                opacity="0.55"
+              />
+              <line
+                x1={toScreen(line[0].x, line[0].y).sx}
+                y1={toScreen(line[0].x, line[0].y).sy}
+                x2={toScreen(line[1].x, line[1].y).sx}
+                y2={toScreen(line[1].x, line[1].y).sy}
+                stroke="url(#linreg-fit-grad)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+              />
+            </g>
           )}
 
-          {/* data points */}
+          {/* data points — soft glow halo + core */}
           {residuals.map((r, i) => {
             const { sx, sy } = toScreen(r.x, r.y);
             const col = r.sign >= 0 ? colPos : colNeg;
             return (
-              <circle
-                key={`pt${i}`}
-                cx={sx}
-                cy={sy}
-                r="3.6"
-                fill={col}
-                stroke="var(--bg)"
-                strokeWidth="1"
-              />
+              <g key={`pt${i}`}>
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r="6"
+                  fill={col}
+                  opacity="0.2"
+                  filter="url(#linreg-point-glow)"
+                />
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r="3.6"
+                  fill={col}
+                  stroke="var(--bg)"
+                  strokeWidth="1"
+                />
+              </g>
             );
           })}
         </svg>
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>mse</span>
-          <span className="mlviz-val">{snap(metrics.mse, 4)}</span>
-          <span className="mlviz-sub">R&sup2; {snap(metrics.r2, 4)}</span>
-          <span className="mlviz-sub">ols m {snap(ols.m, 3)}</span>
-          <span className="mlviz-sub">ols b {snap(ols.b, 3)}</span>
-          <span className="mlviz-sub">seed {seed}</span>
+        <div className="mlviz-statcol mlviz-statrow lr-cards">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">mse</span>
+            <span className="mlviz-statcard-val">{snap(metrics.mse, 4)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-mint">
+            <span className="mlviz-statcard-label">R&sup2;</span>
+            <span className="mlviz-statcard-val">{snap(metrics.r2, 4)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">ols m</span>
+            <span className="mlviz-statcard-val">{snap(ols.m, 3)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">ols b</span>
+            <span className="mlviz-statcard-val">{snap(ols.b, 3)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">seed</span>
+            <span className="mlviz-statcard-val" style={{ fontSize: '0.82rem' }}>{seed}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-row-hi mlviz-controls">

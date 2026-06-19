@@ -211,6 +211,14 @@ export default function GaussianViz() {
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.18" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </linearGradient>
+            <linearGradient id="gauss-stroke" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--hue-violet)" />
+              <stop offset="50%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="gauss-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
           </defs>
 
           {/* sigma bands (drawn widest first so inner bands sit on top) */}
@@ -254,7 +262,8 @@ export default function GaussianViz() {
                 y={yTop}
                 width={Math.max(0, x1 - x0 - 1)}
                 height={h}
-                fill="var(--hue-pink, #ff66cc)"
+                rx="1.5"
+                fill="var(--hue-pink)"
                 opacity="0.34"
               />
             );
@@ -325,8 +334,18 @@ export default function GaussianViz() {
           <path
             d={curvePath}
             fill="none"
-            stroke="var(--accent)"
-            strokeWidth="2"
+            stroke="url(#gauss-stroke)"
+            strokeWidth="4"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter="url(#gauss-glow)"
+            opacity="0.55"
+          />
+          <path
+            d={curvePath}
+            fill="none"
+            stroke="url(#gauss-stroke)"
+            strokeWidth="2.5"
             strokeLinejoin="round"
             strokeLinecap="round"
           />
@@ -419,26 +438,28 @@ export default function GaussianViz() {
           </label>
         </div>
 
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>true</span>
-          <span className="mlviz-val">μ = {snap(mu, 2)}</span>
-          <span className="mlviz-val">σ = {snap(sigma, 2)}</span>
-          <span className="mlviz-sub">σ² = {snap(sigma * sigma, 3)}</span>
-        </div>
-
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-pink, #ff66cc)' }}>sample</span>
-          <span className="mlviz-val">n = {stats.n}</span>
-          {stats.n > 0 ? (
-            <>
-              <span className="mlviz-val">x̄ = {snap(stats.mean, 3)}</span>
-              <span className="mlviz-val">s = {snap(stats.sd, 3)}</span>
-              <span className="mlviz-sub">Δμ = {snap(stats.mean - mu, 3)}</span>
-              <span className="mlviz-sub">Δσ = {snap(stats.sd - sigma, 3)}</span>
-            </>
-          ) : (
-            <span className="mlviz-sub">draw samples to compare</span>
-          )}
+        <div className="mlviz-statcol gv-cards">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">true μ / σ / σ²</span>
+            <span className="mlviz-statcard-val">
+              {snap(mu, 2)} · {snap(sigma, 2)} · {snap(sigma * sigma, 3)}
+            </span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-pink">
+            <span className="mlviz-statcard-label">sample n = {stats.n}</span>
+            {stats.n > 0 ? (
+              <>
+                <span className="mlviz-statcard-val">
+                  x̄ {snap(stats.mean, 3)} · s {snap(stats.sd, 3)}
+                </span>
+                <span className="gv-card-sub">
+                  Δμ {snap(stats.mean - mu, 3)} · Δσ {snap(stats.sd - sigma, 3)}
+                </span>
+              </>
+            ) : (
+              <span className="mlviz-statcard-val gv-card-muted">draw to compare</span>
+            )}
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

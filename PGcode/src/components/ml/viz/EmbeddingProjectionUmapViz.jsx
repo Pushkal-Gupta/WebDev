@@ -202,7 +202,7 @@ export default function EmbeddingProjectionUmapViz() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 620, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
         >
           {/* 5D source panel (left edge sliver) */}
           <rect

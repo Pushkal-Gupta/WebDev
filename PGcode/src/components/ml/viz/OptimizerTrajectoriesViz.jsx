@@ -266,7 +266,7 @@ export default function OptimizerTrajectoriesViz() {
     return out;
   }, [lr, start]);
 
-  const contours = useMemo(buildContours, []);
+  const contours = useMemo(() => buildContours(), []);
 
   useEffect(() => {
     if (!playing || reducedMotion) return;

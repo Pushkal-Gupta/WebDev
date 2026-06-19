@@ -12,7 +12,7 @@
 
 .pg-wrap {
   width: 94%;
-  max-width: 1400px;
+  max-width: var(--container-w);
   margin: 0 auto;
 }
 

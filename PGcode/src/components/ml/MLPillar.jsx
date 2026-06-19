@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers, Clock, BarChart3 } from 'lucide-react';
 import { getPillar } from '../../content/mlContent';
+import ForgeThumb from './forge/ForgeThumb';
 import './MLHub.css';
 
 const ICONS = { Sigma, Workflow, Layers, Brain, Zap, Network };
@@ -48,22 +49,33 @@ export default function MLPillar() {
           <p>Lessons land here as they are written.</p>
         </section>
       ) : (
-        <section className="mlhub-pillars mlhub-pillars-3">
-          {lessons.map(l => (
+        <section className="mlhub-pillars mlhub-pillars-auto">
+          {lessons.map((l) => (
             <Link
               key={l.slug}
               to={`/ml/${pillarSlug}/${l.slug}`}
-              className="mlhub-pillar mlhub-pillar-group"
+              className="mlhub-pillar mlhub-lesson-card"
             >
-              <div className="mlhub-pillar-head">
-                <span className="mlhub-pillar-status">{l.difficulty}</span>
-                <span className="mlhub-pillar-status">{l.readMinutes} min</span>
+              <span className="mlhub-pillar-stripe" aria-hidden="true" />
+              <div className="mlhub-lesson-thumb" aria-hidden="true">
+                <ForgeThumb seed={l.title} label={l.title.split(/\s+/)[0]} />
               </div>
-              <h2 className="mlhub-pillar-title">{l.title}</h2>
-              <p className="mlhub-pillar-summary">{l.oneLiner}</p>
-              <span className="mlhub-pillar-cta">
-                Read <ArrowRight size={13} />
-              </span>
+              <div className="mlhub-lesson-body">
+                <div className="mlhub-lesson-head">
+                  <span className="mlhub-pillar-iconbox"><Icon size={16} /></span>
+                  <ArrowRight size={16} className="mlhub-pillar-arrow" />
+                </div>
+                <h2 className="mlhub-lesson-title">{l.title}</h2>
+                {l.oneLiner && <p className="mlhub-lesson-summary">{l.oneLiner}</p>}
+                <div className="mlhub-pillar-chips">
+                  {l.difficulty && (
+                    <span className="mlhub-chip"><BarChart3 size={12} />{l.difficulty}</span>
+                  )}
+                  {l.readMinutes != null && (
+                    <span className="mlhub-chip"><Clock size={12} />{l.readMinutes} min</span>
+                  )}
+                </div>
+              </div>
             </Link>
           ))}
         </section>

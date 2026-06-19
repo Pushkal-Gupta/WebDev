@@ -41,6 +41,11 @@ The key bound it produces: if \\(A x = b\\) and \\(A(x + \\delta x) = b + \\delt
 Relative output error is at most \\(\\kappa(A)\\) times relative input error. That single inequality is the whole reason the number is worth computing.`,
       },
       {
+        kind: 'viz',
+        component: 'ConditionNumberViz',
+        heading: 'Watch a tiny input wobble blow up when the ellipse goes thin',
+      },
+      {
         kind: 'prose',
         heading: 'Worked: a 2×2 that lies to you',
         body: `Take the matrix
@@ -180,6 +185,11 @@ CG reframes solving \\(A x = b\\) as *minimizing* the quadratic \\(f(x) = \\tfra
 The convergence rate depends on the square root of the condition number — CG needs about \\(\\sqrt{\\kappa(A)}\\) iterations to a fixed accuracy, versus \\(\\kappa(A)\\) for steepest descent. That square root is enormous in practice: a condition number of \\(10^6\\) means roughly a thousand CG iterations instead of a million steepest-descent steps. Wrapping a **preconditioner** \\(M \\approx A\\) around CG (solving \\(M^{-1} A x = M^{-1} b\\) instead) shrinks the effective condition number further and is what makes CG fast on real problems. Every entry to CG is one matrix-vector product, so the per-iteration cost stays proportional to the number of nonzeros.`,
       },
       {
+        kind: 'viz',
+        component: 'IterativeSolversViz',
+        heading: 'Step gradient descent against conjugate gradient down the same bowl',
+      },
+      {
         kind: 'ascii',
         heading: 'Pseudo-code: conjugate gradient',
         body: `def conjugate_gradient(A, b, x0, tol=1e-8, max_iter=1000):
@@ -243,6 +253,11 @@ The second instinct is **finite differences** — approximate \\(f'(x)\\) by \\(
 Picture the program as a **computational graph**: nodes are intermediate values, edges carry one value into the next operation. Evaluating the program is a forward sweep through this graph. AD attaches, to each edge, the *local* derivative of the operation it feeds — a single number computed at the current point. The chain rule then says the derivative of the output with respect to any input is the product of local derivatives along the path connecting them, summed over all paths. AD is nothing more than bookkeeping that computes those products and sums efficiently.
 
 There are two directions to sweep. **Forward mode** propagates derivatives from inputs to output alongside the values, answering "how does the output change as I wiggle *this one input*." **Reverse mode** — backpropagation — does a forward pass to record all the values, then sweeps backward from the output, answering "how does the output change as I wiggle *every input*," all in one backward sweep. For a function with many inputs and one output — exactly a neural network and its scalar loss — reverse mode computes the entire gradient in a single backward pass. That asymmetry is why training uses reverse mode.`,
+      },
+      {
+        kind: 'viz',
+        component: 'AutodiffGraphViz',
+        heading: 'Step the graph forward to fill values, then backward to accumulate adjoints',
       },
       {
         kind: 'math',
@@ -366,6 +381,11 @@ This estimator is **unbiased**: its expected value is exactly \\(I\\), for any \
 where \\(\\sigma_f\\) is the standard deviation of \\(f\\) over \\(\\Omega\\). Two consequences fall straight out. First, the error shrinks as \\(1/\\sqrt{N}\\) — to halve the error you must *quadruple* the samples, and the exponent never involves the dimension \\(d\\). Second, the error is proportional to \\(\\sigma_f\\): the more \\(f\\) varies across the region, the noisier the estimate. That second fact is the entire motivation for variance-reduction tricks like importance sampling, which reshape *where* you sample so that \\(\\sigma_f\\) effectively drops without changing \\(N\\).`,
       },
       {
+        kind: 'viz',
+        component: 'MonteCarloIntegrationViz',
+        heading: 'Throw darts at the quarter circle and watch the estimate converge inside the 1/√N band',
+      },
+      {
         kind: 'prose',
         heading: 'Worked: estimating π by throwing darts',
         body: `The canonical demonstration. Inscribe a quarter circle of radius \\(1\\) inside the unit square \\([0,1] \\times [0,1]\\). The square has area \\(1\\); the quarter circle has area \\(\\pi/4 \\approx 0.7854\\). So the fraction of the square covered by the quarter circle is \\(\\pi/4\\). If you scatter random points uniformly in the square and count what fraction land inside the circle (\\(x^2 + y^2 \\le 1\\)), that fraction estimates \\(\\pi/4\\), and four times it estimates \\(\\pi\\).
@@ -420,6 +440,228 @@ Other standard levers: **stratified sampling** (split the region into cells and 
         kind: 'prose',
         heading: 'What to take away',
         body: `Monte Carlo integration turns an integral into an average and estimates it by sampling: scatter \\(N\\) random points, average \\(f\\), multiply by the volume. The estimator is unbiased and its error falls like \\(1/\\sqrt{N}\\) independent of dimension — slow in low dimensions, but the only survivor in high ones where grids face the curse of dimensionality. To halve the error you quadruple the samples, so the real leverage is variance reduction: importance sampling and friends lower \\(\\sigma_f\\) by reshaping where you sample, buying accuracy that brute-force \\(N\\) cannot afford. It underpins Bayesian inference, reinforcement learning, and any expectation too high-dimensional to compute exactly.`,
+      },
+    ],
+  },
+  {
+    slug: 'floating-point-pitfalls',
+    title: 'Floating-point pitfalls',
+    oneLiner: 'Why a naive sum quietly loses digits, why subtracting close numbers is poison, and the two tricks — Kahan summation and log-sum-exp — that buy the precision back.',
+    difficulty: 'intermediate',
+    readMinutes: 11,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'A computer cannot hold most numbers',
+        body: `A floating-point number is not a real number — it is a real number rounded to fit a fixed budget of bits. Double precision gives you \\(52\\) bits of mantissa, about \\(15\\) to \\(16\\) significant decimal digits. Everything past that is gone the moment a value is stored. Most of the time you never notice, because losing the \\(17\\)th digit of a measurement does not matter. The trouble starts when arithmetic *moves* the error you cannot see into the digits you care about.
+
+Two operations do this, and they are the only two villains in the whole story. The first is **adding numbers of very different magnitude**. When you add a tiny value to a huge running total, the tiny value has to be lined up with the big one before the bits add — and its low-order digits fall off the right edge of the mantissa and vanish. Add a billion tiny numbers to a large total one at a time and you can throw away almost all of them, ending with a sum that is confidently, silently wrong. The total never overflowed, never threw an error; it just quietly stopped counting.
+
+The second villain is **subtracting two numbers that are nearly equal**. Each number is accurate to \\(16\\) digits, but if they agree in the first \\(14\\) digits, their difference keeps only the last \\(2\\) — and then normalization pads the result with garbage. This is **catastrophic cancellation**: the inputs were precise, the output is mostly noise, and nothing warned you. It is why \\(\\frac{f(x+h) - f(x)}{h}\\) is a terrible way to estimate a derivative, why the textbook variance formula \\(E[x^2] - E[x]^2\\) can return a negative variance, and why the quadratic formula loses accuracy on one root.
+
+The fix is never "use more precision" — that just postpones the same failure. The fix is to *rearrange the arithmetic* so the dangerous step never happens, or so its lost bits get recovered. That rearrangement is what the rest of this lesson is about: track what naive summation throws away and feed it back (Kahan), and turn a cancellation-prone exponential sum into a stable one (log-sum-exp).`,
+      },
+      {
+        kind: 'viz',
+        component: 'KahanSummationViz',
+        heading: 'Step through a sum where naive addition drops bits and Kahan recovers them',
+      },
+      {
+        kind: 'math',
+        heading: 'Catastrophic cancellation, in one inequality',
+        body: `Let \\(a\\) and \\(b\\) be stored with relative error at most machine epsilon \\(\\epsilon \\approx 2.2 \\times 10^{-16}\\), so the absolute errors are about \\(\\epsilon\\lvert a\\rvert\\) and \\(\\epsilon\\lvert b\\rvert\\). Their difference \\(a - b\\) carries an absolute error of roughly \\(\\epsilon(\\lvert a\\rvert + \\lvert b\\rvert)\\), so the *relative* error of the result is
+
+\\[
+\\frac{\\text{abs error}}{\\lvert a - b\\rvert} \\;\\approx\\; \\epsilon\\,\\frac{\\lvert a\\rvert + \\lvert b\\rvert}{\\lvert a - b\\rvert}
+\\]
+
+When \\(a \\approx b\\), the denominator \\(\\lvert a - b\\rvert\\) is tiny while the numerator stays large, so the amplification factor explodes. Subtract two numbers agreeing to \\(15\\) digits and you amplify the rounding error by \\(10^{15}\\) — every meaningful digit is gone. Naive summation is the same disease in slow motion: each addition of a small term to a large partial sum \\(S\\) rounds the result, discarding a piece of size up to \\(\\epsilon\\lvert S\\rvert\\), and over \\(n\\) additions those discards accumulate into a worst-case error of order \\(n\\,\\epsilon\\,\\max\\lvert S\\rvert\\).`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Kahan compensated summation',
+        body: `Kahan summation fixes the running-sum problem with a single extra variable. Every time you add a term and round the result, some low-order bits get chopped off. Kahan computes *exactly which bits were lost* and carries them forward in a compensation variable \\(c\\), then adds them back into the next term before it is summed. The lost bits never get a chance to vanish — they are parked in \\(c\\) and re-injected on the following step.
+
+Concretely, the loop is four lines. Subtract the running compensation \\(c\\) from the incoming value to form \\(y = x_i - c\\). Add it to the running total: \\(t = S + y\\). Now recover what was lost: \\((t - S) - y\\) is, in exact arithmetic, zero — but in floating point \\((t - S)\\) is the part of \\(y\\) that actually made it into \\(t\\), so \\((t - S) - y\\) is the negative of the part that was dropped. Store that as the new \\(c\\), set \\(S = t\\), and repeat. The transformation that recovers the error, \\(t - S\\), works precisely *because* of the rounding it is measuring.
+
+The payoff is dramatic. Where naive summation of \\(n\\) terms has worst-case error growing like \\(n\\epsilon\\), Kahan's error is bounded by roughly \\(2\\epsilon\\) plus an \\(O(n\\epsilon^2)\\) term — effectively independent of \\(n\\) for any realistic length. You sum a million terms and keep nearly full double precision, at the cost of three extra floating-point operations per element and no extra memory beyond one scalar. The viz above shows the gap open up: drag the big-term magnitude high and the naive bar climbs orders of magnitude in error while the Kahan bar stays pinned to the floor.
+
+> Note: Kahan only helps when the partial sum stays comparable in magnitude to the terms. If you can instead **sort ascending and sum**, or **sum in pairs (pairwise summation)**, you get most of the benefit for free — NumPy's \`sum\` uses pairwise internally for exactly this reason.`,
+      },
+      {
+        kind: 'code',
+        language: 'python',
+        heading: 'Naive vs Kahan, and the log-sum-exp trick',
+        body: `import math
+
+def naive_sum(xs):
+    s = 0.0
+    for x in xs:
+        s += x
+    return s
+
+def kahan_sum(xs):
+    s = 0.0
+    c = 0.0                      # running compensation (lost low-order bits)
+    for x in xs:
+        y = x - c               # bring back what we dropped last time
+        t = s + y               # the rounding happens here
+        c = (t - s) - y         # exactly the bits that fell off
+        s = t
+    return s
+
+# one huge term, then a million tiny ones
+data = [1e16] + [1.0] * 1_000_000
+print("true   :", 1e16 + 1_000_000)
+print("naive  :", naive_sum(data))   # loses almost every 1.0
+print("kahan  :", kahan_sum(data))   # recovers the full count
+
+
+def log_sum_exp(z):
+    # stable log(sum(exp(z_i))) -- never exponentiates a large positive number
+    m = max(z)                          # shift by the max
+    return m + math.log(sum(math.exp(zi - m) for zi in z))
+
+z = [1000.0, 1001.0, 1002.0]
+# naive math.exp(1000) overflows to inf; the trick stays finite:
+print("logsumexp:", log_sum_exp(z))   # ~ 1002.41`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Overflow, underflow, and the log-sum-exp trick',
+        body: `Beyond lost digits there are two harder walls: **overflow**, where a value grows past the largest representable number (about \\(1.8 \\times 10^{308}\\) in double) and becomes \\(\\infty\\), and **underflow**, where a value shrinks below the smallest normal number (about \\(2.2 \\times 10^{-308}\\)) and collapses to \\(0\\). Both destroy information instantly and irreversibly — \\(\\infty\\) and \\(0\\) carry no usable signal.
+
+The exponential is where this bites every machine-learning practitioner, because softmax and cross-entropy both need \\(\\log \\sum_i e^{z_i}\\). If any logit \\(z_i\\) is moderately large — say \\(1000\\) — then \\(e^{1000}\\) overflows to \\(\\infty\\), and \\(\\log(\\infty)\\) is \\(\\infty\\), and the whole forward pass turns to garbage. If all logits are very negative, every \\(e^{z_i}\\) underflows to \\(0\\), the sum is \\(0\\), and \\(\\log 0 = -\\infty\\). Either way the naive formula fails on perfectly ordinary inputs.
+
+The **log-sum-exp trick** rescues it with one observation: \\(\\log \\sum_i e^{z_i}\\) is unchanged if you factor out the largest term. Let \\(m = \\max_i z_i\\). Then
+
+\\[
+\\log \\sum_i e^{z_i} = m + \\log \\sum_i e^{\\,z_i - m}
+\\]
+
+Now every exponent \\(z_i - m\\) is at most \\(0\\), so every \\(e^{z_i - m}\\) is in \\((0, 1]\\) — no overflow is possible, and the largest term is exactly \\(1\\), so the sum is at least \\(1\\) and cannot underflow to zero. The result is identical in exact arithmetic and finite in floating point. This is why every framework's \`logsumexp\`, \`log_softmax\`, and \`cross_entropy\` subtracts the max internally; if you ever hand-roll a softmax over raw logits, you must do the same or watch it produce \`nan\` the first time a logit gets large.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'note',
+        body: `**Four pitfalls and their fixes.** (1) **Summing many terms naively** drops low bits as the partial sum grows — fix with Kahan summation, pairwise summation, or sorting ascending before summing. (2) **Subtracting near-equal numbers** (catastrophic cancellation) keeps only the few digits where they differ — fix by algebraically rearranging so the subtraction never happens: use \\(\\log 1p(x)\\) instead of \\(\\log(1+x)\\) for tiny \\(x\\), \\(\\text{expm1}(x)\\) instead of \\(e^x - 1\\), and the rationalized quadratic formula for the unstable root. (3) **Exponentiating large values** overflows to \\(\\infty\\) — fix with the log-sum-exp shift, subtracting the max before exponentiating. (4) **Computing variance as \\(E[x^2] - E[x]^2\\)** cancels catastrophically for data with large mean — fix with Welford's online algorithm or the two-pass formula \\(\\frac{1}{n}\\sum (x_i - \\bar x)^2\\), which subtracts the mean *first* and never forms two huge nearly-equal quantities.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `(1) You compute the sample variance of the temperatures \\(1{,}000{,}000.0\\) and \\(1{,}000{,}001.0\\) using \\(E[x^2] - E[x]^2\\). Work out why the result can come out negative in double precision, then redo it as \\(\\frac{1}{2}\\sum(x_i - \\bar x)^2\\) and confirm you get the correct \\(0.25\\). (2) For the array \\([10^{16}, 1, 1, 1]\\), what does naive left-to-right summation return, and what does Kahan return? (3) You need \\(\\log(e^{800} + e^{801})\\). The direct computation overflows — apply the log-sum-exp shift with \\(m = 801\\) and give the finite answer to two decimals. (4) In one sentence, state the single principle that connects all three fixes.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'What to take away',
+        body: `Floating point rounds every value to about \\(16\\) digits, and arithmetic can drag that invisible error into the digits you care about in exactly two ways: adding numbers of very different size (which drops the small one's low bits) and subtracting near-equal numbers (catastrophic cancellation). The cure is never more precision — it is rearranging the arithmetic. Kahan summation tracks the bits each addition discards in a compensation term and feeds them back, holding error nearly constant over any number of terms. The log-sum-exp trick factors out the maximum so exponentials never overflow or underflow. Whenever a sum, a difference, or an exponential gives a suspicious answer, the question is not "can I get more digits" but "can I reorder this so the dangerous step disappears."`,
+      },
+    ],
+  },
+  {
+    slug: 'stable-least-squares',
+    title: 'Stable least squares',
+    oneLiner: 'The normal equations are the formula in every textbook and the worst way to fit a line — forming AᵀA squares the condition number. QR gives the same answer without the damage.',
+    difficulty: 'intermediate',
+    readMinutes: 11,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'The fit that everyone derives the dangerous way',
+        body: `Least squares is the most common computation in all of applied math: given more equations than unknowns, \\(A x \\approx b\\) with \\(A\\) tall and skinny, find the \\(x\\) that makes the residual \\(\\lVert A x - b\\rVert\\) as small as possible. It is linear regression, it is the projection of a vector onto a subspace, it is the inner loop of Gauss–Newton and Kalman filtering. And the formula every course teaches first — the **normal equations** \\(A^\\top A\\, x = A^\\top b\\) — is, for finite-precision arithmetic, the worst standard way to compute it.
+
+The intuition for *why* comes straight from the condition-number lesson. The accuracy of any linear solve is governed by the condition number of the matrix you actually feed the solver. The normal equations don't solve a system in \\(A\\); they solve a system in \\(A^\\top A\\). And forming \\(A^\\top A\\) **squares the condition number**: \\(\\kappa(A^\\top A) = \\kappa(A)^2\\). If your design matrix has a moderate condition number of \\(10^6\\) — entirely normal when features are correlated or on different scales — then \\(A^\\top A\\) has condition number \\(10^{12}\\), and in double precision you have just thrown away twelve of your sixteen digits before the solver even starts. The squaring happens in the *setup*, not the solve, so no clever solver downstream can undo it.
+
+Here is the geometry. Two nearly-collinear feature columns mean the matrix maps a fat ball of inputs to a thin sliver of outputs — that thinness is the large condition number. Multiplying \\(A^\\top A\\) measures everything through dot products, and dot products of near-parallel columns are dominated by their shared component, drowning out the small differences that actually distinguish the features. Those small differences are exactly the information you need to separate the coefficients, and \\(A^\\top A\\) buries them below the rounding floor. The fit comes back with wildly wrong, often huge, coefficients — not because the data lacks the answer, but because the *method* destroyed it. QR decomposition avoids the squaring entirely by working with \\(A\\) directly, so it loses only \\(\\kappa(A)\\) digits, not \\(\\kappa(A)^2\\). Same minimizer, half the digits lost.`,
+      },
+      {
+        kind: 'viz',
+        component: 'QRvsNormalEqViz',
+        heading: 'Slide the collinearity up and watch κ(AᵀA) = κ(A)² wreck the normal-equations residual while QR holds',
+      },
+      {
+        kind: 'math',
+        heading: 'Why AᵀA squares the conditioning',
+        body: `For a tall matrix \\(A\\) with singular values \\(\\sigma_1 \\ge \\dots \\ge \\sigma_n > 0\\), the \\(2\\)-norm condition number is the ratio of extremes:
+
+\\[
+\\kappa(A) = \\frac{\\sigma_{\\max}}{\\sigma_{\\min}}
+\\]
+
+The singular values of \\(A^\\top A\\) are the *squares* of the singular values of \\(A\\) — that is what the SVD \\(A = U\\Sigma V^\\top\\) gives you, since \\(A^\\top A = V\\Sigma^2 V^\\top\\). Therefore
+
+\\[
+\\kappa(A^\\top A) = \\frac{\\sigma_{\\max}^2}{\\sigma_{\\min}^2} = \\kappa(A)^2
+\\]
+
+The QR route sidesteps this. Factor \\(A = QR\\) with \\(Q\\) having orthonormal columns (\\(Q^\\top Q = I\\)) and \\(R\\) upper-triangular. Then \\(A^\\top A = R^\\top Q^\\top Q R = R^\\top R\\), so the normal equations \\(A^\\top A\\, x = A^\\top b\\) collapse to
+
+\\[
+R\\, x = Q^\\top b
+\\]
+
+a triangular system solved by back-substitution. Because \\(Q\\) is orthonormal it has condition number exactly \\(1\\) and introduces no amplification, and \\(\\kappa(R) = \\kappa(A)\\). You solve a system whose conditioning is \\(\\kappa(A)\\), never \\(\\kappa(A)^2\\) — and you never explicitly form \\(A^\\top A\\) at all.`,
+      },
+      {
+        kind: 'code',
+        language: 'python',
+        heading: 'Three ways to fit, and how they diverge',
+        body: `import numpy as np
+
+np.random.seed(0)
+m = 100
+x = np.linspace(0, 1, m)
+# two nearly-collinear columns -> moderately ill-conditioned A
+A = np.column_stack([np.ones(m), x, x + 1e-7 * np.random.randn(m)])
+b = 1.0 + 2.0 * x + 0.01 * np.random.randn(m)
+
+print("cond(A)    =", np.linalg.cond(A))          # ~ 1e7
+print("cond(A^T A)=", np.linalg.cond(A.T @ A))    # ~ 1e14  (squared!)
+
+# 1) normal equations: forms A^T A, squares the conditioning -> least accurate
+x_ne = np.linalg.solve(A.T @ A, A.T @ b)
+
+# 2) QR: works with A directly -> stable
+Q, R = np.linalg.qr(A)
+x_qr = np.linalg.solve(R, Q.T @ b)
+
+# 3) lstsq (SVD-based, what you should actually call) -> most robust
+x_svd = np.linalg.lstsq(A, b, rcond=None)[0]
+
+def residual(xx):
+    return np.linalg.norm(A @ xx - b)
+
+print("normal eqs residual:", residual(x_ne))
+print("QR        residual:", residual(x_qr))
+print("lstsq/SVD residual:", residual(x_svd))
+# As the columns get more collinear, x_ne degrades first;
+# x_qr and x_svd track the true minimum-residual fit.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'When each method is the right call',
+        body: `The squaring penalty does not make the normal equations forbidden — it makes them a *conditional* choice. The deciding question is always: how well-conditioned is \\(A\\), and how many digits can you afford to lose?
+
+**Normal equations** are fine, fast, and convenient when \\(A\\) is well-conditioned (\\(\\kappa(A)\\) up to maybe \\(10^4\\), so the squared value stays comfortably inside double precision) and when you specifically *want* the small \\(n \\times n\\) Gram matrix \\(A^\\top A\\) — for example with \\(m\\) in the millions and \\(n\\) tiny, where forming \\(A^\\top A\\) once costs \\(O(mn^2)\\) and then every subsequent solve is cheap, or in streaming settings where you accumulate \\(A^\\top A\\) and \\(A^\\top b\\) without ever holding all of \\(A\\). Ridge regression also lives here naturally: adding \\(\\lambda I\\) to \\(A^\\top A\\) regularizes and re-conditions in one step.
+
+**QR decomposition** is the default workhorse for a one-shot dense least-squares fit. It costs about \\(2mn^2\\) flops — roughly twice the normal-equations setup — and in exchange loses only \\(\\kappa(A)\\) digits instead of \\(\\kappa(A)^2\\). For almost every regression you will write by hand, QR is the right balance of speed and stability, which is why it sits under most library \`lstsq\` calls historically.
+
+**SVD** is the heavy artillery for when \\(A\\) is severely ill-conditioned or *rank-deficient* — collinear columns so extreme that even QR struggles, or a genuinely singular \\(A\\) where the solution is not unique. The SVD reveals the rank, lets you compute the minimum-norm solution via the pseudo-inverse, and lets you *truncate* tiny singular values to regularize. It is the most expensive of the three (about \\(2mn^2 + 11n^3\\)) but the most robust, and it is what NumPy's \`lstsq\` uses today. The decision tree is short: well-conditioned and you want the Gram matrix → normal equations; the normal default dense fit → QR; ill-conditioned or rank-deficient → SVD.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'note',
+        body: `**Four pitfalls and their fixes.** (1) **Reaching for \\((A^\\top A)^{-1} A^\\top b\\) by reflex** — it squares \\(\\kappa\\) and is the single most common cause of "my regression coefficients are nonsense"; fix by calling \`lstsq\` or doing a QR solve, never forming \\(A^\\top A\\) explicitly. (2) **Explicitly inverting any matrix** with \`inv()\` then multiplying — always less accurate and slower than solving the system directly; fix with \`solve\` / triangular back-substitution. (3) **Unscaled features** — columns spanning wildly different magnitudes inflate \\(\\kappa(A)\\) before you start; fix by centering and scaling each column to comparable size, which can drop \\(\\kappa\\) by orders of magnitude. (4) **Ignoring rank deficiency** — when two features are exact duplicates, \\(A^\\top A\\) is singular and the solve returns garbage or errors; fix with SVD-based \`lstsq\` (returns the minimum-norm solution) or add ridge regularization \\(\\lambda I\\) to make the system well-posed.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `Take \\(A = \\begin{pmatrix} 1 & 1 \\\\ \\epsilon & 0 \\\\ 0 & \\epsilon \\end{pmatrix}\\) with \\(\\epsilon = 10^{-5}\\). (1) Compute \\(A^\\top A\\) by hand and write down its entries — note that the off-diagonal \\(1\\) and the diagonal \\(1 + \\epsilon^2\\) differ only in the \\(\\epsilon^2 = 10^{-10}\\) term, which rounds away in single precision. (2) Estimate \\(\\kappa(A)\\) and \\(\\kappa(A^\\top A)\\) and state how many digits each method loses in double precision. (3) For which value of \\(\\epsilon\\) does \\(A^\\top A\\) become numerically singular in double precision (so the normal equations fail) while QR still succeeds? (4) In one sentence, explain why orthonormal \\(Q\\) is the property that makes QR stable.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'What to take away',
+        body: `Least squares minimizes \\(\\lVert A x - b\\rVert\\), and the textbook normal equations \\(A^\\top A\\,x = A^\\top b\\) get the right answer in exact arithmetic but square the condition number, \\(\\kappa(A^\\top A) = \\kappa(A)^2\\) — doubling the digits lost before the solver runs. QR factorization \\(A = QR\\) reduces the problem to the triangular solve \\(R x = Q^\\top b\\), keeping the conditioning at \\(\\kappa(A)\\) because orthonormal \\(Q\\) amplifies nothing. Use normal equations only when \\(A\\) is well-conditioned and you want the cheap Gram matrix; use QR as the default dense fit; reach for SVD when \\(A\\) is severely ill-conditioned or rank-deficient. Never form \\(A^\\top A\\) or invert a matrix explicitly when a stable solve is one call away.`,
       },
     ],
   },

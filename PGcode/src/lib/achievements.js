@@ -85,7 +85,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'first-solve',
     title: 'First Solve',
-    description: 'You solved your first problem on PGcode.',
+    description: 'You solved your first problem on PG Hub.',
     icon: Sparkles,
     color: 'easy',
     category: 'solves',
@@ -319,7 +319,7 @@ export const ACHIEVEMENTS = [
   {
     id: 'contest-rookie',
     title: 'Contest Rookie',
-    description: 'Entered your first PGcode contest.',
+    description: 'Entered your first PG Hub contest.',
     icon: Swords,
     color: 'medium',
     category: 'contest',

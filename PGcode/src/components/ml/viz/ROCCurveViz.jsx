@@ -281,6 +281,13 @@ export default function ROCCurveViz() {
   const totalP = confusion.tp + confusion.fn;
   const totalN = confusion.tn + confusion.fp;
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const markerTransition = reducedMotion ? 'none' : 'cx 0.18s ease, cy 0.18s ease';
+  const lineTransition = reducedMotion ? 'none' : 'x1 0.18s ease, x2 0.18s ease';
+
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage" style={{ flexDirection: 'column', gap: '0.6rem' }}>
@@ -288,8 +295,22 @@ export default function ROCCurveViz() {
         <svg
           viewBox={`0 0 ${HW} ${HH}`}
           className="mlviz-svg mlviz-svg-wide"
-          style={{ aspectRatio: `${HW} / ${HH}`, maxWidth: '520px' }}
+          style={{ aspectRatio: `${HW} / ${HH}`, maxWidth: '820px' }}
         >
+          <defs>
+            <linearGradient id="roc-hist-pos-grad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="var(--hue-mint)" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="var(--hue-mint)" stopOpacity="0.85" />
+            </linearGradient>
+            <linearGradient id="roc-hist-neg-grad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="var(--hue-pink)" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="var(--hue-pink)" stopOpacity="0.8" />
+            </linearGradient>
+            <filter id="roc-thresh-glow" x="-60%" y="-30%" width="220%" height="160%">
+              <feGaussianBlur stdDeviation="2.4" />
+            </filter>
+          </defs>
+
           {/* y-axis label */}
           <text
             x={HPAD_L - 4}
@@ -397,8 +418,9 @@ export default function ROCCurveViz() {
                 y={histBaseY - h}
                 width={drawnBarW}
                 height={Math.max(0.5, h)}
-                fill={COLOR_NEG}
-                opacity="0.55"
+                rx="1.5"
+                fill="url(#roc-hist-neg-grad)"
+                opacity="0.7"
               />
             );
           })}
@@ -413,13 +435,25 @@ export default function ROCCurveViz() {
                 y={histBaseY - h}
                 width={drawnBarW}
                 height={Math.max(0.5, h)}
-                fill={COLOR_POS}
-                opacity="0.55"
+                rx="1.5"
+                fill="url(#roc-hist-pos-grad)"
+                opacity="0.7"
               />
             );
           })}
 
-          {/* threshold line */}
+          {/* threshold line — soft glow under crisp stroke */}
+          <line
+            x1={thresholdScreenX}
+            y1={HPAD_T - 2}
+            x2={thresholdScreenX}
+            y2={histBaseY + 4}
+            stroke="var(--accent)"
+            strokeWidth="4"
+            filter="url(#roc-thresh-glow)"
+            opacity="0.6"
+            style={{ transition: lineTransition }}
+          />
           <line
             x1={thresholdScreenX}
             y1={HPAD_T - 2}
@@ -428,6 +462,7 @@ export default function ROCCurveViz() {
             stroke="var(--accent)"
             strokeWidth="2"
             strokeDasharray="4 3"
+            style={{ transition: lineTransition }}
           />
           <rect
             x={thresholdScreenX - 18}
@@ -457,6 +492,20 @@ export default function ROCCurveViz() {
           className="mlviz-svg"
           style={{ maxWidth: '360px' }}
         >
+          <defs>
+            <linearGradient id="roc-curve-grad" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <linearGradient id="roc-auc-grad" x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--hue-violet)" stopOpacity="0.06" />
+            </linearGradient>
+            <filter id="roc-curve-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
+
           {/* plot frame */}
           <rect
             x={RPAD}
@@ -556,8 +605,7 @@ export default function ROCCurveViz() {
           {/* AUC shaded area */}
           <path
             d={aucPath}
-            fill="var(--accent)"
-            opacity="0.12"
+            fill="url(#roc-auc-grad)"
           />
 
           {/* random-classifier baseline */}
@@ -572,33 +620,54 @@ export default function ROCCurveViz() {
             opacity="0.7"
           />
 
-          {/* ROC curve */}
+          {/* ROC curve — blurred glow duplicate beneath the gradient stroke */}
           <path
             d={rocPath}
             fill="none"
-            stroke="var(--accent)"
-            strokeWidth="2.2"
+            stroke="url(#roc-curve-grad)"
+            strokeWidth="5"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter="url(#roc-curve-glow)"
+            opacity="0.55"
+          />
+          <path
+            d={rocPath}
+            fill="none"
+            stroke="url(#roc-curve-grad)"
+            strokeWidth="2.4"
             strokeLinejoin="round"
             strokeLinecap="round"
           />
 
           {/* current threshold marker */}
           {currentRoc && (
-            <g>
+            <g style={{ transition: markerTransition }}>
               <circle
                 cx={rocToScreen(currentRoc.fpr, currentRoc.tpr).sx}
                 cy={rocToScreen(currentRoc.fpr, currentRoc.tpr).sy}
-                r="9"
-                fill="var(--accent)"
-                opacity="0.25"
+                r="11"
+                fill="rgba(var(--accent-rgb), 0.18)"
+                style={{ transition: markerTransition }}
               />
               <circle
                 cx={rocToScreen(currentRoc.fpr, currentRoc.tpr).sx}
                 cy={rocToScreen(currentRoc.fpr, currentRoc.tpr).sy}
-                r="5"
+                r="6.5"
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth="1.4"
+                opacity="0.7"
+                style={{ transition: markerTransition }}
+              />
+              <circle
+                cx={rocToScreen(currentRoc.fpr, currentRoc.tpr).sx}
+                cy={rocToScreen(currentRoc.fpr, currentRoc.tpr).sy}
+                r="4"
                 fill="var(--accent)"
                 stroke="var(--bg)"
-                strokeWidth="1.5"
+                strokeWidth="1.2"
+                style={{ transition: markerTransition }}
               />
             </g>
           )}
@@ -664,7 +733,7 @@ export default function ROCCurveViz() {
               padding: '0.35rem 0.4rem',
               border: '1px solid var(--border)',
               borderRadius: '4px',
-              background: 'rgba(255, 102, 204, 0.08)',
+              background: 'color-mix(in srgb, var(--hue-pink) 8%, transparent)',
               color: 'var(--text-main)',
               textAlign: 'center',
             }}>FN {confusion.fn}</span>
@@ -674,7 +743,7 @@ export default function ROCCurveViz() {
               padding: '0.35rem 0.4rem',
               border: '1px solid var(--border)',
               borderRadius: '4px',
-              background: 'rgba(255, 102, 204, 0.08)',
+              background: 'color-mix(in srgb, var(--hue-pink) 8%, transparent)',
               color: 'var(--text-main)',
               textAlign: 'center',
             }}>FP {confusion.fp}</span>
@@ -682,47 +751,41 @@ export default function ROCCurveViz() {
               padding: '0.35rem 0.4rem',
               border: '1px solid var(--border)',
               borderRadius: '4px',
-              background: 'rgba(77, 208, 160, 0.10)',
+              background: 'color-mix(in srgb, var(--hue-mint) 10%, transparent)',
               color: 'var(--text-main)',
               textAlign: 'center',
             }}>TN {confusion.tn}</span>
           </div>
 
-          <div style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.22rem',
-            fontFamily: 'var(--mono)',
-            fontSize: '0.74rem',
-            flex: 1,
-            minWidth: '160px',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.6rem' }}>
-              <span style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}>accuracy</span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{snap(metrics.accuracy * 100, 1)}%</span>
+          <div
+            className="roc-metric-cards"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+              gap: '0.4rem',
+              flex: 1,
+              minWidth: '160px',
+            }}
+          >
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">accuracy</span>
+              <span className="mlviz-statcard-val">{snap(metrics.accuracy * 100, 1)}%</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.6rem' }}>
-              <span style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}>precision</span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{snap(metrics.precision, 3)}</span>
+            <div className="mlviz-statcard mlviz-statcard-mint">
+              <span className="mlviz-statcard-label">precision</span>
+              <span className="mlviz-statcard-val">{snap(metrics.precision, 3)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.6rem' }}>
-              <span style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}>recall</span>
-              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{snap(metrics.recall, 3)}</span>
+            <div className="mlviz-statcard mlviz-statcard-pink">
+              <span className="mlviz-statcard-label">recall</span>
+              <span className="mlviz-statcard-val">{snap(metrics.recall, 3)}</span>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '0.6rem' }}>
-              <span style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}>F1</span>
-              <span style={{ color: 'var(--accent)', fontWeight: 700 }}>{snap(metrics.f1, 3)}</span>
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">F1</span>
+              <span className="mlviz-statcard-val">{snap(metrics.f1, 3)}</span>
             </div>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              gap: '0.6rem',
-              paddingTop: '0.2rem',
-              borderTop: '1px dashed var(--border)',
-              marginTop: '0.15rem',
-            }}>
-              <span style={{ color: 'var(--text-dim)', letterSpacing: '0.06em' }}>P / N</span>
-              <span style={{ color: 'var(--text-dim)' }}>{totalP} / {totalN}</span>
+            <div className="mlviz-statcard mlviz-statcard-dim" style={{ gridColumn: '1 / -1' }}>
+              <span className="mlviz-statcard-label">P / N</span>
+              <span className="mlviz-statcard-val">{totalP} / {totalN}</span>
             </div>
           </div>
         </div>

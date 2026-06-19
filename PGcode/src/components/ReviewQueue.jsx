@@ -1,11 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCcw, Clock, ChevronRight, AlertCircle, CheckCircle, Zap } from 'lucide-react';
+import { RotateCcw, Clock, ChevronRight, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import TimelineMarker from './vault/TimelineMarker';
+import ConfidenceMeter from './vault/ConfidenceMeter';
+import './vault/vault.css';
 import './ReviewQueue.css';
 
 const CONFIDENCE_LABELS = { 1: 'Again', 2: 'Hard', 3: 'Good', 4: 'Easy', 5: 'Mastered' };
 const CONFIDENCE_COLORS = { 1: 'var(--hard)', 2: 'var(--medium)', 3: 'var(--accent)', 4: 'var(--easy)', 5: 'var(--easy)' };
+
+function overdueDays(dateStr) {
+  if (!dateStr) return 0;
+  return Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
+}
 
 function timeAgo(dateStr) {
   if (!dateStr) return 'Never';
@@ -18,15 +26,6 @@ function timeAgo(dateStr) {
   if (days === 1) return 'Yesterday';
   if (days < 30) return `${days}d ago`;
   return `${Math.floor(days / 30)}mo ago`;
-}
-
-function overdueLabel(dateStr) {
-  if (!dateStr) return '';
-  const diff = Date.now() - new Date(dateStr).getTime();
-  const days = Math.floor(diff / 86400000);
-  if (days <= 0) return 'Due today';
-  if (days === 1) return '1 day overdue';
-  return `${days} days overdue`;
 }
 
 export default function ReviewQueue({ session }) {
@@ -137,6 +136,13 @@ export default function ReviewQueue({ session }) {
 
   return (
     <div className="rq-container">
+      <nav className="vault-crumbs" aria-label="Breadcrumb">
+        <Link to="/vault" className="vault-crumbs-back">
+          <ArrowLeft size={12} /> Vault
+        </Link>
+        <span className="vault-crumbs-sep">/</span>
+        <span className="vault-crumbs-current">Review</span>
+      </nav>
       <div className="rq-header">
         <div className="rq-title-row">
           <h1 className="rq-title">Review Queue</h1>
@@ -155,15 +161,22 @@ export default function ReviewQueue({ session }) {
           <Link to="/practice" className="rq-cta">Browse Problems</Link>
         </div>
       ) : (
-        <>
+        <div className="rq-sections-wrap">
           {groupedItems.overdue.length > 0 && (
             <div className="rq-section">
               <h3 className="rq-section-title">
                 <AlertCircle size={14} /> Overdue ({groupedItems.overdue.length})
               </h3>
               <div className="rq-list">
-                {groupedItems.overdue.map(item => (
-                  <ReviewCard key={item.problem_id} item={item} problem={problems[item.problem_id]} />
+                {groupedItems.overdue.map((item, i) => (
+                  <ReviewCard
+                    key={item.problem_id}
+                    item={item}
+                    problem={problems[item.problem_id]}
+                    status="overdue"
+                    first={i === 0}
+                    last={i === groupedItems.overdue.length - 1}
+                  />
                 ))}
               </div>
             </div>
@@ -175,23 +188,36 @@ export default function ReviewQueue({ session }) {
                 <Clock size={14} /> Due Today ({groupedItems.today.length})
               </h3>
               <div className="rq-list">
-                {groupedItems.today.map(item => (
-                  <ReviewCard key={item.problem_id} item={item} problem={problems[item.problem_id]} />
+                {groupedItems.today.map((item, i) => (
+                  <ReviewCard
+                    key={item.problem_id}
+                    item={item}
+                    problem={problems[item.problem_id]}
+                    status="due-today"
+                    first={i === 0}
+                    last={i === groupedItems.today.length - 1}
+                  />
                 ))}
               </div>
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   );
 }
 
-function ReviewCard({ item, problem }) {
+function ReviewCard({ item, problem, status, first, last }) {
   if (!problem) return null;
+  const days = overdueDays(item.next_review_at);
 
   return (
-    <Link to={`/category/${problem.topic_id}/${problem.id}`} className="rq-card">
+    <Link
+      to={`/category/${problem.topic_id}/${problem.id}`}
+      className={`rq-card rq-card-${status}`}
+    >
+      <TimelineMarker status={status} height={64} first={first} last={last} />
+
       <div className="rq-card-left">
         <span className="rq-card-name">{problem.name}</span>
         <div className="rq-card-meta">
@@ -199,17 +225,26 @@ function ReviewCard({ item, problem }) {
             {problem.difficulty}
           </span>
           <span className="rq-card-topic">{problem.topic_id}</span>
-          <span className="rq-card-overdue">{overdueLabel(item.next_review_at)}</span>
+          <span className="rq-card-solved">Solved {item.solve_count || 1}x · {timeAgo(item.last_solved_at)}</span>
         </div>
       </div>
+
+      <div className="rq-card-due">
+        <span className={`rq-due-num rq-due-${status}`}>
+          {status === 'overdue' ? days : '0'}
+        </span>
+        <span className="rq-due-unit">
+          {status === 'overdue' ? `day${days === 1 ? '' : 's'} overdue` : 'due today'}
+        </span>
+      </div>
+
       <div className="rq-card-right">
-        <div className="rq-card-stats">
-          <span className="rq-card-confidence" style={{ color: CONFIDENCE_COLORS[item.confidence] || 'var(--text-dim)' }}>
-            {CONFIDENCE_LABELS[item.confidence] || 'Unrated'}
-          </span>
-          <span className="rq-card-solved">Solved {item.solve_count || 1}x</span>
-          <span className="rq-card-last">{timeAgo(item.last_solved_at)}</span>
-        </div>
+        <ConfidenceMeter
+          value={item.confidence || 0}
+          max={5}
+          color={CONFIDENCE_COLORS[item.confidence] || 'var(--hue-sky)'}
+          label="conf"
+        />
         <ChevronRight size={16} className="rq-card-arrow" />
       </div>
     </Link>

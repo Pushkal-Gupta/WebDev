@@ -17,7 +17,7 @@ function applyMatrix(M, x, y) {
   return { x: M.a * x + M.b * y, y: M.c * x + M.d * y };
 }
 
-function VectorArrow({ x, y, color, label, opacity = 1, dashed = false }) {
+function VectorArrow({ x, y, color, label, opacity = 1, dashed = false, glow = false }) {
   const { sx, sy } = toScreen(x, y);
   const dx = sx - ORIGIN;
   const dy = sy - ORIGIN;
@@ -31,6 +31,13 @@ function VectorArrow({ x, y, color, label, opacity = 1, dashed = false }) {
   const hy2 = sy - headLen * Math.sin(angle + 0.42);
   return (
     <g opacity={opacity}>
+      {glow && !dashed && (
+        <line
+          x1={ORIGIN} y1={ORIGIN} x2={sx} y2={sy}
+          stroke={color} strokeWidth="5.5" strokeLinecap="round"
+          filter="url(#mt-glow)" opacity="0.5"
+        />
+      )}
       <line
         x1={ORIGIN} y1={ORIGIN} x2={sx} y2={sy}
         stroke={color} strokeWidth="2.5" strokeLinecap="round"
@@ -128,7 +135,7 @@ function BasisHull({ M }) {
   const p11 = toScreen(p11s.x, p11s.y);
   const p01 = toScreen(p01s.x, p01s.y);
   const det = M.a * M.d - M.b * M.c;
-  const fill = det < 0 ? 'var(--hue-pink, #ff66cc)' : 'var(--accent)';
+  const fill = det < 0 ? 'var(--hue-pink)' : 'var(--accent)';
   return (
     <polygon
       points={`${p00.sx},${p00.sy} ${p10.sx},${p10.sy} ${p11.sx},${p11.sy} ${p01.sx},${p01.sy}`}
@@ -191,20 +198,26 @@ export default function MatrixTransform() {
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+          <defs>
+            <filter id="mt-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
           <OriginalGrid />
           <BasisHull M={M} />
           <TransformedGrid M={M} />
+          <circle cx={ORIGIN} cy={ORIGIN} r="5" fill="var(--accent)" opacity="0.3" filter="url(#mt-glow)" />
           <circle cx={ORIGIN} cy={ORIGIN} r="3" fill="var(--text-dim)" />
 
           {/* original v faded */}
           <VectorArrow x={V.x} y={V.y} color="var(--text-dim)" opacity={0.45} dashed />
 
           {/* transformed basis vectors */}
-          <VectorArrow x={iHat.x} y={iHat.y} color="var(--hue-sky, #5ecbff)" label="i'" opacity={0.85} />
-          <VectorArrow x={jHat.x} y={jHat.y} color="var(--hue-pink, #ff66cc)" label="j'" opacity={0.85} />
+          <VectorArrow x={iHat.x} y={iHat.y} color="var(--hue-sky)" label="i'" opacity={0.85} glow />
+          <VectorArrow x={jHat.x} y={jHat.y} color="var(--hue-pink)" label="j'" opacity={0.85} glow />
 
           {/* transformed v */}
-          <VectorArrow x={vPrime.x} y={vPrime.y} color="var(--accent)" label="v'" />
+          <VectorArrow x={vPrime.x} y={vPrime.y} color="var(--accent)" label="v'" glow />
         </svg>
       </div>
 
@@ -212,10 +225,10 @@ export default function MatrixTransform() {
         <div className="mt-matrix">
           <span className="mt-bracket mt-bracket-l">[</span>
           <div className="mt-grid">
-            <MatrixInput label="a" value={M.a} onChange={setCell('a')} color="var(--hue-sky, #5ecbff)" />
-            <MatrixInput label="b" value={M.b} onChange={setCell('b')} color="var(--hue-pink, #ff66cc)" />
-            <MatrixInput label="c" value={M.c} onChange={setCell('c')} color="var(--hue-sky, #5ecbff)" />
-            <MatrixInput label="d" value={M.d} onChange={setCell('d')} color="var(--hue-pink, #ff66cc)" />
+            <MatrixInput label="a" value={M.a} onChange={setCell('a')} color="var(--hue-sky)" />
+            <MatrixInput label="b" value={M.b} onChange={setCell('b')} color="var(--hue-pink)" />
+            <MatrixInput label="c" value={M.c} onChange={setCell('c')} color="var(--hue-sky)" />
+            <MatrixInput label="d" value={M.d} onChange={setCell('d')} color="var(--hue-pink)" />
           </div>
           <span className="mt-bracket mt-bracket-r">]</span>
         </div>
@@ -235,20 +248,22 @@ export default function MatrixTransform() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>v</span>
-          <span className="mlviz-val">[{snap(V.x)}, {snap(V.y)}]</span>
-          <span className="mlviz-sub">original</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>v'</span>
-          <span className="mlviz-val">[{snap(vPrime.x)}, {snap(vPrime.y)}]</span>
-          <span className="mlviz-sub">= M·v</span>
-        </div>
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag">det</span>
-          <span className="mlviz-val">{snap(det)}</span>
-          <span className="mlviz-sub">{detNote}</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">v</span>
+            <span className="mlviz-statcard-val">[{snap(V.x)}, {snap(V.y)}]</span>
+            <span className="gv-card-sub">original</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">v' = M·v</span>
+            <span className="mlviz-statcard-val">[{snap(vPrime.x)}, {snap(vPrime.y)}]</span>
+            <span className="gv-card-sub">transformed</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">det</span>
+            <span className="mlviz-statcard-val">{snap(det)}</span>
+            <span className="gv-card-sub">{detNote}</span>
+          </div>
         </div>
         <div className="mlviz-hint">edit a, b, c, d or pick a preset</div>
       </div>

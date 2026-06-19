@@ -50,8 +50,8 @@ function visible(s) {
   // make whitespace + control chars legible in the SVG
   return s
     .replace(/ /g, '·')
-    .replace(/ /g, '␣')
-    .replace(/ /g, '—')
+    .replace(/\u00a0/g, '␣')
+    .replace(/\u2003/g, '—')
     .replace(/\t/g, '→');
 }
 

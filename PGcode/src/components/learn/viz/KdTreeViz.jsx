@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { RotateCcw, Crosshair } from 'lucide-react';
 import './KdTreeViz.css';
 
@@ -92,7 +92,6 @@ function layoutKdTree(root) {
   const positions = new Map();
   if (!root) return positions;
 
-  const order = [];
   let inorderIdx = 0;
   let maxDepth = 0;
   const walk = (node) => {
@@ -288,7 +287,7 @@ export default function KdTreeViz() {
             onPointerMove={(e) => { if (dragging) onPlanePointer(e); }}
             onPointerUp={(e) => {
               setDragging(false);
-              try { e.currentTarget.releasePointerCapture(e.pointerId); } catch (err) { /* noop */ }
+              try { e.currentTarget.releasePointerCapture(e.pointerId); } catch { /* noop */ }
             }}
           >
             {/* Plane background */}

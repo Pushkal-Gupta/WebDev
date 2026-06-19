@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { BookOpen, ArrowRight, ChevronRight, Layers, ArrowLeft } from 'lucide-react';
 import { useModules, useAllConceptsCompact } from '../../lib/queries';
+import ForgeThumb from '../ml/forge/ForgeThumb';
 import './Learn.css';
 
 export default function LearnIndex({ session: _session }) {
@@ -217,7 +218,10 @@ export default function LearnIndex({ session: _session }) {
           }
 
           return (
-            <Link key={m.slug} to={`/learn/${m.slug}`} className="learn-module-card">
+            <Link key={m.slug} to={`/learn/${m.slug}`} className="learn-module-card learn-module-card-thumbed">
+              <div className="learn-module-card-thumb" aria-hidden="true">
+                <ForgeThumb seed={m.name} />
+              </div>
               <div className="learn-module-card-head">
                 <span className="learn-module-card-num">{displayNum}</span>
                 <h2 className="learn-module-card-title">{m.name}</h2>

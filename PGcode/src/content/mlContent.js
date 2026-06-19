@@ -183,6 +183,11 @@ print(np.linalg.norm(v_hat))        # 1.0`,
             body: `**Why \`v @ v\` equals \`|v|^2\`.** The dot product of a vector with itself is the sum of its squared components — exactly what is under the square root in the L2 norm. So \`np.sqrt(v @ v)\` and \`np.linalg.norm(v)\` compute the same number, and you will see both in ML code.`,
           },
           {
+            kind: 'callout',
+            tone: 'warning',
+            body: `**Pitfall: the curse of dimensionality breaks raw Euclidean similarity.** As dimension grows, distances and angles *concentrate* — for points drawn from the same distribution, the nearest-neighbour and farthest-neighbour distances converge toward each other, so a "closest" match in raw \\(\\ell_2\\) space stops being meaningfully closer than a random one. Naive Euclidean comparison of high-dimensional embeddings (hundreds to thousands of dims) therefore degrades into near-noise, and an ANN index built on it returns near-arbitrary neighbours. **Fix:** L2-normalise the vectors and compare with cosine similarity (it ignores the concentrating magnitude term), or reduce dimensionality first with PCA / a learned projection before measuring distance.`,
+          },
+          {
             kind: 'prose',
             heading: 'High dimensions break your intuition (this is the point)',
             body: `In 2D you can picture vectors as arrows on a page. In 3D, as arrows in a room. In 4D you cannot picture them at all, and that is fine — the algebra still works.
@@ -842,6 +847,11 @@ These eigenvectors are the **principal components**. Sorting eigenvalues by magn
             props: {},
           },
           {
+            kind: 'viz',
+            heading: 'Rotate the projection axis — the variance captured peaks exactly on the first principal component',
+            component: 'PCAExplorerViz',
+          },
+          {
             kind: 'math',
             heading: 'Projection: from x to its k-dimensional score',
             body: `Once you have the top \\(k\\) eigenvectors, stack them as the columns of a \\(d \\times k\\) matrix \\(V_k = [v_1 \\; v_2 \\; \\cdots \\; v_k]\\). For any centered point \\(x \\in \\mathbb{R}^d\\), the **projection** (the "score" vector) is
@@ -1079,6 +1089,12 @@ The **backward pass** evaluates the graph right to left. It starts by seeding th
             kind: 'viz',
             heading: 'Forward pass, then backward pass on the same graph',
             component: 'ForwardBackwardGraphViz',
+            props: {},
+          },
+          {
+            kind: 'viz',
+            heading: 'Per-edge chain rule: a 2-layer net, forward then backward to one weight update',
+            component: 'BackpropFlowViz',
             props: {},
           },
           {
@@ -1465,6 +1481,18 @@ The reconstruction term is a per-pixel cross-entropy (or MSE under Gaussian like
             component: 'SoftmaxViz',
             props: {},
             heading: 'Softmax turns logits into probabilities.',
+          },
+          {
+            kind: 'viz',
+            heading: 'Temperature sharpens or flattens softmax — watch the cross-entropy move',
+            component: 'SoftmaxTempViz',
+            props: {},
+          },
+          {
+            kind: 'viz',
+            heading: 'Drag the predicted probabilities — only the true class moves the loss',
+            component: 'CrossEntropyExplorerViz',
+            props: {},
           },
           {
             kind: 'prose',
@@ -2158,6 +2186,11 @@ Sitting downstream of the *vectors*, *cross-entropy*, and *attention* lessons, c
 - [Radford et al. — CLIP paper](https://arxiv.org/abs/2103.00020) — "Learning Transferable Visual Models From Natural Language Supervision"; image-text contrastive pretraining at 400M pairs.
 - [Lilian Weng — "Contrastive Representation Learning"](https://lilianweng.github.io/posts/2021-05-31-contrastive/) — survey of losses (InfoNCE, triplet, NT-Xent) and the methods built on them.`,
           },
+          {
+            kind: 'viz',
+            heading: 'Max-margin separation — drag the classes, slide C',
+            component: 'SVMMarginExplorerViz',
+          },
         ],
       },
       {
@@ -2190,6 +2223,12 @@ That is the whole object. Everything that follows in this lesson is a consequenc
 **Regression MLE.** Squared-error loss is the negative log-likelihood of a Gaussian observation model: assume \\(y = f(x) + \\varepsilon\\) with \\(\\varepsilon \\sim \\mathcal{N}(0, \\sigma^2)\\) and the log-likelihood drops, up to constants, to \\(-\\tfrac{1}{2\\sigma^2}(y - f(x))^2\\). Every model trained on MSE is implicitly assuming Gaussian residuals. That is also why MSE is the wrong loss for heavy-tailed targets: a Gaussian gives almost no mass to outliers, so a few extreme examples dominate the gradient.
 
 The deepest reason underneath all four is the **maximum-entropy** principle. Among all distributions on the real line with a given mean and variance, the Gaussian has the highest entropy. It is the distribution that assumes the least beyond what you have specified, which is exactly the default you want when you know only the first two moments.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Explore: move μ, widen σ, read off pdf and cdf',
+            component: 'GaussianExplorerViz',
+            props: {},
           },
           {
             kind: 'prose',
@@ -2289,6 +2328,2098 @@ That single picture explains four things at once. **First**, the Mahalanobis dis
             body: `- [3Blue1Brown — "But what is the Central Limit Theorem?"](https://www.youtube.com/watch?v=zeJD6dqJ5lo) — the visual derivation of why sums of independent variables converge to a Gaussian.
 - [Khan Academy — Normal distributions](https://www.khanacademy.org/math/statistics-probability/modeling-distributions-of-data#normal-distributions-library) — drill-style coverage of the 1D Gaussian, z-scores, and tail probabilities.
 - [Kingma & Welling — Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) — the VAE paper where the closed-form Gaussian KL term first lands in deep learning.`,
+          },
+        ],
+      },
+      {
+        slug: 'norms',
+        title: 'Norms',
+        oneLiner: 'Different rulers for measuring the size of a vector — and why the choice changes what your model learns.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'A norm is a ruler, and you get to pick the ruler',
+            body: `Before any formula: a **norm** answers one question — "how big is this vector?" — and the surprise is that there is more than one honest answer. The straight-line distance from the origin to the tip of the arrow is one answer. The number of city blocks you walk to get there on a grid is another. The single largest step in any direction is a third. All three are legitimate notions of size; they just measure different things, and which one you pick silently reshapes what your model prefers.
+
+Geometrically, the cleanest way to *see* a norm is to draw its **unit ball** — the set of all vectors whose size equals 1. Change the norm and the shape of that ball changes. The familiar Euclidean (L2) norm gives a perfect circle: every direction is treated identically, so "length 1" traces a smooth round boundary. The L1 norm gives a diamond (a square rotated 45 degrees) with sharp corners sitting exactly on the axes. The L-infinity norm gives an axis-aligned square. Same space, same vectors, three different rulers — and the corners of the L1 diamond are the entire reason L1 regularization produces sparse models, as you will see below.
+
+So a norm is not a fact about a vector; it is a *choice about how to measure it*. The drag-the-vector visualization to the side lets you walk the boundary of each unit ball and watch how the same arrow gets a different "length" depending on which ruler is active.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Walk the unit ball — circle (L2), diamond (L1), square (Linf)',
+            component: 'NormBall',
+          },
+          {
+            kind: 'math',
+            heading: 'The three norms you will actually use',
+            body: `All three are special cases of the **p-norm**:
+
+\\[
+\\|v\\|_p = \\left( \\sum_{i=1}^{n} |v_i|^p \\right)^{1/p}
+\\]
+
+Plug in specific values of \\(p\\):
+
+\\[
+\\|v\\|_1 = \\sum_i |v_i| \\qquad \\|v\\|_2 = \\sqrt{\\sum_i v_i^2} \\qquad \\|v\\|_\\infty = \\max_i |v_i|
+\\]
+
+The L2 norm is Euclidean (Pythagorean) length — the straight-line distance. The L1 norm is the Manhattan or taxicab distance — sum of absolute components. The L-infinity norm is the largest single component — used in adversarial robustness, where the threat model is "the attacker may perturb each pixel by at most \\(\\epsilon\\)."
+
+Every norm must satisfy three rules: it is zero only for the zero vector, scaling the vector scales the norm (\\(\\|\\alpha v\\| = |\\alpha|\\,\\|v\\|\\)), and the triangle inequality holds (\\(\\|u + v\\| \\le \\|u\\| + \\|v\\|\\)). Anything obeying those three is a valid ruler.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: one vector, three answers',
+            body: `Take \\(v = [3, -4]\\) and measure it three ways.
+
+**L2 (straight line).** \\(\\|v\\|_2 = \\sqrt{3^2 + (-4)^2} = \\sqrt{9 + 16} = \\sqrt{25} = 5\\). A clean 3-4-5 triangle — the tip of the arrow sits exactly 5 units from the origin as the crow flies.
+
+**L1 (taxicab).** \\(\\|v\\|_1 = |3| + |-4| = 3 + 4 = 7\\). Seven blocks of walking — three across, four down — because the grid forbids the diagonal shortcut. The sign is stripped: walking four blocks south costs the same as four blocks north.
+
+**L-infinity (largest step).** \\(\\|v\\|_\\infty = \\max(|3|, |-4|) = 4\\). Only the dominant component survives.
+
+Notice the ordering: \\(4 \\le 5 \\le 7\\). This is no accident — for any vector \\(\\|v\\|_\\infty \\le \\|v\\|_2 \\le \\|v\\|_1\\). The taxicab ruler always reports the largest number (it pays full price for every component), L-infinity the smallest (it ignores all but one), and Euclidean sits in between. The gap between L1 and L2 grows with dimension, which is exactly why L1 penalties bite so hard on high-dimensional weight vectors.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Norms in NumPy',
+            body: `import numpy as np
+
+v = np.array([3, -4])
+
+print(np.linalg.norm(v))           # 5.0   -> L2 (default)
+print(np.linalg.norm(v, ord=1))    # 7.0   -> L1 (taxicab)
+print(np.linalg.norm(v, ord=np.inf))  # 4.0 -> L-infinity (max abs)
+
+# matrix norms exist too: Frobenius is the "L2 of a flattened matrix"
+W = np.array([[1.0, 2.0], [3.0, 4.0]])
+print(np.linalg.norm(W, 'fro'))    # 5.477... = sqrt(1+4+9+16)
+
+# normalize a vector: divide by its own L2 norm -> length 1
+unit = v / np.linalg.norm(v)
+print(np.linalg.norm(unit))        # 1.0`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Why L1 gives sparse weights and L2 does not.** Picture minimizing a loss while staying inside a norm ball of fixed budget. The L2 ball is a smooth circle, so the loss contour usually touches it at a point with both coordinates nonzero. The L1 ball is a diamond whose corners sit *on the axes* — and a contour sliding into a diamond is far more likely to hit a corner, where one coordinate is exactly zero. That corner-seeking behavior is L1 (Lasso) regularization driving weights to true zero, which is why it doubles as feature selection. L2 (ridge) shrinks weights toward zero but rarely all the way there.`,
+          },
+        ],
+      },
+      {
+        slug: 'projections',
+        title: 'Projections',
+        oneLiner: 'Drop a perpendicular: the shadow one vector casts on another. The geometry behind least squares and PCA.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Projection is the shadow, nothing more',
+            body: `Hold a pencil (vector \\(b\\)) above a tabletop edge (the line through vector \\(a\\)) and shine a light straight down. The shadow the pencil casts along that edge is the **projection** of \\(b\\) onto \\(a\\). That is the entire idea, and the geometry tells you everything before any algebra: the projection is the point *on the line through \\(a\\)* that sits **closest** to \\(b\\), and the leftover — the bit of \\(b\\) that the shadow misses — is **perpendicular** to the line.
+
+Those two facts are the same fact. "Closest point on the line" and "the error is perpendicular to the line" are equivalent, because the shortest hop from a point to a line is always the one that meets the line at a right angle. This perpendicularity is the hinge that the whole of least-squares regression swings on: when you fit a line to data, you are projecting the target vector onto the column space of your features, and the residual you are minimizing is exactly the perpendicular leftover.
+
+So a projection splits \\(b\\) into two pieces that do not overlap: a part that lies **along** \\(a\\) (the shadow) and a part **orthogonal** to \\(a\\) (the error). Reassembled, the two pieces add back to \\(b\\). The drag-the-vector panel to the side lets you move \\(b\\) and watch the shadow slide along \\(a\\) while the perpendicular dotted line — the error — stays at a clean right angle.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Drag b — watch its shadow on a, and the perpendicular error',
+            component: 'ProjectionViz',
+          },
+          {
+            kind: 'math',
+            heading: 'The projection formula, read piece by piece',
+            body: `The projection of \\(b\\) onto \\(a\\) is:
+
+\\[
+\\text{proj}_a(b) = \\frac{a \\cdot b}{a \\cdot a}\\, a = \\frac{a \\cdot b}{\\|a\\|^2}\\, a
+\\]
+
+Read it right to left. The final \\(a\\) sets the **direction** — the shadow lives on the line through \\(a\\). The scalar \\(\\frac{a \\cdot b}{\\|a\\|^2}\\) sets **how far** along that line to go. The numerator \\(a \\cdot b\\) measures how aligned \\(b\\) is with \\(a\\); dividing by \\(\\|a\\|^2\\) cancels the length of \\(a\\) so the answer depends only on \\(a\\)'s direction, not its scale.
+
+When \\(a\\) is already a **unit vector** (\\(\\|a\\| = 1\\)), the denominator vanishes and the formula collapses to \\(\\text{proj}_a(b) = (a \\cdot b)\\,a\\) — the dot product alone is the signed length of the shadow.
+
+The leftover error vector is whatever the shadow missed:
+
+\\[
+e = b - \\text{proj}_a(b), \\qquad e \\cdot a = 0
+\\]
+
+That last equation — error orthogonal to \\(a\\) — is the defining property, and it is what least squares solves for.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: projecting b = [2, 3] onto a = [4, 0]',
+            body: `Let \\(a = [4, 0]\\) (pointing along the x-axis) and \\(b = [2, 3]\\).
+
+**Step 1 — dot products.** \\(a \\cdot b = 4\\cdot 2 + 0 \\cdot 3 = 8\\). And \\(a \\cdot a = 4^2 + 0^2 = 16\\).
+
+**Step 2 — the scalar.** \\(\\frac{a \\cdot b}{a \\cdot a} = \\frac{8}{16} = 0.5\\). So the shadow reaches halfway along \\(a\\).
+
+**Step 3 — the projection.** \\(\\text{proj}_a(b) = 0.5 \\cdot [4, 0] = [2, 0]\\). The shadow lands at \\((2, 0)\\) — directly below \\(b\\)'s tip, exactly as a light shining straight down onto the x-axis would cast it.
+
+**Step 4 — the error.** \\(e = b - \\text{proj}_a(b) = [2, 3] - [2, 0] = [0, 3]\\). Check orthogonality: \\(e \\cdot a = 0 \\cdot 4 + 3 \\cdot 0 = 0\\). Perpendicular, as promised — the error points straight up, the projection straight along the axis, and they meet at a right angle. Because \\(a\\) lay on the x-axis, the shadow simply kept \\(b\\)'s x-component and discarded its y-component, which is the cleanest possible illustration of "drop a perpendicular."`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Projection in NumPy',
+            body: `import numpy as np
+
+a = np.array([4.0, 0.0])
+b = np.array([2.0, 3.0])
+
+proj = (a @ b) / (a @ a) * a     # scalar coefficient times direction
+error = b - proj
+
+print(proj)            # [2. 0.]
+print(error)           # [0. 3.]
+print(error @ a)       # 0.0  -> error is perpendicular to a
+
+# least squares is projection onto the column space of X:
+X = np.array([[1.0, 1.0], [1.0, 2.0], [1.0, 3.0]])
+y = np.array([1.0, 2.0, 2.0])
+beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+y_hat = X @ beta       # the projection of y onto span(columns of X)
+print(np.round(y - y_hat, 6) @ X)  # residual orthogonal to every column`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Projection is the soul of least squares and PCA.** Fitting a regression line is projecting the target vector onto the subspace spanned by your feature columns; the residual you minimize is the perpendicular error. PCA projects each data point onto the handful of directions that retain the most variance, throwing away the perpendicular remainder. Both are the same shadow-casting move, scaled up from one line to a whole subspace via \\(\\text{proj}(b) = A(A^\\top A)^{-1}A^\\top b\\).`,
+          },
+        ],
+      },
+      {
+        slug: 'eigenvectors',
+        title: 'Eigenvectors',
+        oneLiner: 'The special directions a matrix only stretches, never rotates. The skeleton of PCA, PageRank, and stability analysis.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'The directions a transformation refuses to rotate',
+            body: `A matrix is a transformation: feed it a vector, it spits out a moved vector. Most input vectors get both **rotated and stretched** — they come out pointing somewhere new. But almost every matrix has a few rare directions that come out pointing the *exact same way* (or exactly reversed). Those special directions are the **eigenvectors**, and the factor by which each one gets stretched is its **eigenvalue**.
+
+Picture a rubber sheet being stretched. Grab it and pull diagonally: most painted arrows on the sheet swing toward the pull direction as they lengthen. But an arrow already lying along the pull axis just gets longer without turning — that axis is an eigenvector. An arrow lying along a perpendicular squeeze axis might shrink without turning — another eigenvector. The eigenvectors are the **axes of the transformation**, the skeleton it stretches along; the eigenvalues say how much stretch (eigenvalue \\(> 1\\)), shrink (between 0 and 1), or flip (negative) happens along each.
+
+This is why eigenvectors run so deep in ML. PCA finds the eigenvectors of the data's covariance matrix — the directions of maximum variance, the natural axes the data stretches along. PageRank is the dominant eigenvector of the web's link matrix. The stability of a dynamical system is read off the eigenvalues of its update matrix. The grab-and-drag panel to the side lets you transform vectors with a matrix and watch which directions stay put while everything else rotates.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Apply a matrix — eigenvectors stay on their line, others rotate',
+            component: 'EigenvectorViz',
+          },
+          {
+            kind: 'viz',
+            heading: 'Drag v until M·v points the same way — then you have found an eigenvector and its eigenvalue',
+            component: 'EigenvectorExplorerViz',
+          },
+          {
+            kind: 'math',
+            heading: 'The eigenvalue equation',
+            body: `An eigenvector \\(v\\) and its eigenvalue \\(\\lambda\\) satisfy:
+
+\\[
+A v = \\lambda v
+\\]
+
+In words: applying the matrix \\(A\\) to \\(v\\) gives back the *same* vector scaled by the number \\(\\lambda\\) — no rotation, pure stretch. To find them, rearrange to \\((A - \\lambda I)v = 0\\). A nonzero \\(v\\) exists only when the matrix \\(A - \\lambda I\\) is singular, i.e. when its determinant is zero:
+
+\\[
+\\det(A - \\lambda I) = 0
+\\]
+
+This is the **characteristic equation**; its roots are the eigenvalues. For each eigenvalue you then solve \\((A - \\lambda I)v = 0\\) for the matching eigenvector direction.
+
+Two facts worth carrying: the eigenvalues sum to the **trace** (sum of diagonal entries) and multiply to the **determinant**. They give a free sanity check on any hand computation.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: eigenvalues and eigenvectors of a 2x2',
+            body: `Take \\(A = \\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \\end{bmatrix}\\).
+
+**Step 1 — characteristic equation.** \\(A - \\lambda I = \\begin{bmatrix} 2-\\lambda & 1 \\\\ 1 & 2-\\lambda \\end{bmatrix}\\). Its determinant is \\((2-\\lambda)^2 - 1\\). Set to zero: \\((2-\\lambda)^2 = 1\\), so \\(2 - \\lambda = \\pm 1\\), giving \\(\\lambda_1 = 3\\) and \\(\\lambda_2 = 1\\).
+
+**Sanity check.** Sum \\(3 + 1 = 4 = \\text{trace}(A) = 2 + 2\\). Product \\(3 \\cdot 1 = 3 = \\det(A) = 4 - 1\\). Both match.
+
+**Step 2 — eigenvector for \\(\\lambda_1 = 3\\).** Solve \\((A - 3I)v = 0\\): \\(\\begin{bmatrix} -1 & 1 \\\\ 1 & -1 \\end{bmatrix} v = 0\\). Both rows say \\(-v_1 + v_2 = 0\\), so \\(v_1 = v_2\\). The eigenvector is the direction \\([1, 1]\\). Applying \\(A\\): \\([2+1, 1+2] = [3, 3] = 3 \\cdot [1,1]\\). Stretched by 3, no rotation.
+
+**Step 3 — eigenvector for \\(\\lambda_2 = 1\\).** Solve \\((A - I)v = 0\\): \\(\\begin{bmatrix} 1 & 1 \\\\ 1 & 1 \\end{bmatrix} v = 0\\), giving \\(v_1 + v_2 = 0\\), so the direction is \\([1, -1]\\). Applying \\(A\\): \\([2-1, 1-2] = [1, -1] = 1 \\cdot [1, -1]\\). Length unchanged.
+
+The two eigenvectors \\([1,1]\\) and \\([1,-1]\\) are perpendicular — a guarantee for symmetric matrices, and exactly why PCA's principal axes always come out orthogonal.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Eigendecomposition in NumPy',
+            body: `import numpy as np
+
+A = np.array([[2.0, 1.0],
+              [1.0, 2.0]])
+
+vals, vecs = np.linalg.eig(A)
+print(vals)            # [3. 1.]
+print(vecs)            # columns are unit eigenvectors
+
+# verify A v = lambda v for the first eigenpair
+v0 = vecs[:, 0]
+print(A @ v0)          # ~ [2.12, 2.12]
+print(vals[0] * v0)    # ~ [2.12, 2.12]  -> identical
+
+# symmetric matrices: use eigh (faster, real eigenvalues guaranteed)
+vals2, vecs2 = np.linalg.eigh(A)
+print(np.round(vecs2.T @ vecs2, 6))   # identity -> eigenvectors orthonormal`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Not every matrix is diagonalizable, and complex eigenvalues mean rotation.** A pure rotation matrix has *no* real eigenvectors — nothing stays on its own line — and its eigenvalues are complex, encoding the rotation angle. Repeated eigenvalues can leave a matrix "defective" with too few independent eigenvectors. Symmetric matrices (covariance, Gram, Laplacian — the ones that dominate ML) are the well-behaved case: always real eigenvalues, always a full set of orthogonal eigenvectors. Reach for \`np.linalg.eigh\` whenever you know your matrix is symmetric.`,
+          },
+        ],
+      },
+      {
+        slug: 'derivatives',
+        title: 'Derivatives',
+        oneLiner: 'The instantaneous slope of a function. The atom every gradient and backprop step is built from.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'A derivative is the slope you would feel if you zoomed in forever',
+            body: `Zoom into the graph of any smooth function far enough and the curve straightens into a line. The **derivative** at a point is the slope of that line — the rate at which the output changes per tiny nudge of the input, measured right there. Steep curve, large derivative; flat curve, derivative near zero; downhill curve, negative derivative. That is the whole geometric story, and it is the only fact you need to understand gradient descent: the derivative tells you which way is uphill and how steep, so the optimizer steps the opposite way.
+
+Mechanically, the derivative is the limit of the *rise over run* of a secant line as the run shrinks to nothing. Take two points on the curve a small distance \\(h\\) apart, compute the slope between them, then ask what that slope approaches as \\(h \\to 0\\). The secant pivots into the **tangent**, and its slope is the derivative.
+
+In ML this single number, generalized to many inputs, becomes the gradient — and the gradient is the entire signal that training uses to improve a model. Every weight update in every neural network is "compute the derivative of the loss with respect to this weight, step against it." Master the derivative of one variable and backpropagation is just the same idea applied a few million times via the chain rule.`,
+          },
+          {
+            kind: 'viz',
+            component: 'ParabolaDescentViz',
+            heading: 'Drag the point — the tangent slope is the derivative',
+          },
+          {
+            kind: 'math',
+            heading: 'Definition and the rules you reuse constantly',
+            body: `The derivative of \\(f\\) at \\(x\\) is the limit of the difference quotient:
+
+\\[
+f'(x) = \\lim_{h \\to 0} \\frac{f(x + h) - f(x)}{h}
+\\]
+
+You rarely compute this limit by hand; instead you memorize a handful of rules and combine them:
+
+\\[
+\\frac{d}{dx} x^n = n x^{n-1} \\qquad \\frac{d}{dx} e^x = e^x \\qquad \\frac{d}{dx} \\ln x = \\frac{1}{x}
+\\]
+
+\\[
+(f g)' = f' g + f g' \\quad\\text{(product)} \\qquad \\left(\\frac{f}{g}\\right)' = \\frac{f' g - f g'}{g^2} \\quad\\text{(quotient)}
+\\]
+
+The most important rule for ML — the **chain rule**, \\((f(g(x)))' = f'(g(x))\\,g'(x)\\) — gets its own lesson, because it is the literal engine of backpropagation.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: the slope of f(x) = x^2 at x = 3',
+            body: `Take \\(f(x) = x^2\\) and find its slope at \\(x = 3\\), two ways.
+
+**By the rule.** Power rule: \\(f'(x) = 2x\\). At \\(x = 3\\), \\(f'(3) = 6\\). The tangent line at \\((3, 9)\\) has slope 6 — nudge \\(x\\) up by a hair and \\(f\\) climbs about six times as fast.
+
+**By the limit, to see why.** Expand the difference quotient:
+
+\\[
+\\frac{f(3+h) - f(3)}{h} = \\frac{(3+h)^2 - 9}{h} = \\frac{9 + 6h + h^2 - 9}{h} = \\frac{6h + h^2}{h} = 6 + h
+\\]
+
+As \\(h \\to 0\\), the secant slope \\(6 + h\\) approaches **6**. The \\(h^2\\) term — the curvature — vanishes faster than \\(h\\), which is precisely why zooming in flattens the curve into a line of slope 6.
+
+**Numerical check.** Take a finite \\(h = 0.001\\): \\(\\frac{f(3.001) - f(3)}{0.001} = \\frac{9.006001 - 9}{0.001} = 6.001\\). Close to 6, off by exactly \\(h\\) — the same error term the algebra predicted. This finite-difference trick is how you sanity-check an analytic gradient in code: if the two disagree by more than \\(O(h)\\), your derivative is wrong.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Analytic vs numerical derivatives',
+            body: `import numpy as np
+
+def f(x):  return x**2
+def df(x): return 2*x          # analytic derivative
+
+# finite-difference (numerical) check
+def numerical_df(f, x, h=1e-5):
+    return (f(x + h) - f(x - h)) / (2 * h)   # central difference
+
+x = 3.0
+print(df(x))                 # 6.0   (exact)
+print(numerical_df(f, x))    # 5.99999...  (matches to ~1e-10)
+
+# autodiff: what PyTorch does under the hood
+import torch
+xt = torch.tensor(3.0, requires_grad=True)
+y = xt**2
+y.backward()
+print(xt.grad)               # tensor(6.)  -> same slope, computed automatically`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Central differences beat forward differences for checking gradients.** The forward formula \\(\\frac{f(x+h)-f(x)}{h}\\) has error \\(O(h)\\); the central formula \\(\\frac{f(x+h)-f(x-h)}{2h}\\) has error \\(O(h^2)\\), an order of magnitude tighter for the same step. When you gradient-check a custom layer, always use the central form, and pick \\(h \\approx 10^{-5}\\) — too large and truncation error dominates, too small and floating-point round-off does.`,
+          },
+          {
+            kind: 'viz',
+            component: 'DerivativeExplorerViz',
+            heading: 'Shrink h — watch the secant pivot into the tangent',
+          },
+        ],
+      },
+      {
+        slug: 'chain-rule',
+        title: 'Chain rule',
+        oneLiner: 'Multiply the slopes of nested functions. The literal algorithm behind backpropagation.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Nested functions multiply their sensitivities',
+            body: `Functions get composed: the output of one feeds the input of the next. A neural network is nothing *but* a deep composition — input goes through a linear layer, then an activation, then another linear layer, and so on, with the loss perched at the end. The **chain rule** answers the only question training ever asks: if I nudge an input deep inside this stack, how much does the final output move?
+
+The geometric intuition is gears. Imagine a small gear driving a medium gear driving a large gear. If turning the first gear one notch turns the second two notches, and turning the second one notch turns the third three notches, then turning the first one notch turns the third \\(2 \\times 3 = 6\\) notches. Sensitivities **multiply** through the chain. Each stage has its own local gear ratio — its derivative — and the overall ratio from one end to the other is the product of all the local ratios along the way.
+
+That is the chain rule, and that is backpropagation. A network's loss is a composition \\(L(f_n(\\dots f_2(f_1(x))))\\); the derivative of the loss with respect to an early weight is the product of every local derivative on the path from that weight to the loss. Backprop is just an efficient bookkeeping scheme for multiplying those local slopes together, from the loss backward to every weight, reusing shared sub-products instead of recomputing them. The slider panel to the side lets you compose two functions and watch how the inner and outer slopes multiply at a point.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Compose two functions — inner slope times outer slope',
+            component: 'ChainRuleViz',
+          },
+          {
+            kind: 'math',
+            heading: 'The rule, single-variable and multivariable',
+            body: `For a composition \\(y = f(g(x))\\), write the inner output as \\(u = g(x)\\). The chain rule is:
+
+\\[
+\\frac{dy}{dx} = \\frac{dy}{du} \\cdot \\frac{du}{dx} = f'(g(x)) \\cdot g'(x)
+\\]
+
+The \\(\\frac{dy}{du}\\) and \\(\\frac{du}{dx}\\) read like fractions that cancel — that is the mnemonic, and it scales to any depth: \\(\\frac{dy}{dx} = \\frac{dy}{du_n}\\frac{du_n}{du_{n-1}}\\cdots\\frac{du_1}{dx}\\), one factor per layer.
+
+For functions of several variables it becomes a sum over every path the influence can travel. If \\(z = f(x, y)\\) with \\(x = x(t)\\) and \\(y = y(t)\\):
+
+\\[
+\\frac{dz}{dt} = \\frac{\\partial z}{\\partial x}\\frac{dx}{dt} + \\frac{\\partial z}{\\partial y}\\frac{dy}{dt}
+\\]
+
+Multiply along each path, then add across paths. In a neural net this sum-over-paths is why a weight that feeds several downstream neurons accumulates gradient contributions from all of them.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: differentiating sin(x^2) at x = 1',
+            body: `Differentiate \\(y = \\sin(x^2)\\) at \\(x = 1\\).
+
+**Step 1 — name the pieces.** Outer function \\(f(u) = \\sin(u)\\); inner function \\(u = g(x) = x^2\\). So \\(y = f(g(x))\\).
+
+**Step 2 — local derivatives.** \\(f'(u) = \\cos(u)\\) and \\(g'(x) = 2x\\).
+
+**Step 3 — multiply, keeping the inner value plugged in.**
+
+\\[
+\\frac{dy}{dx} = f'(g(x)) \\cdot g'(x) = \\cos(x^2) \\cdot 2x
+\\]
+
+**Step 4 — evaluate at \\(x = 1\\).** \\(x^2 = 1\\), so \\(\\cos(1) \\approx 0.5403\\), and \\(2x = 2\\). Multiply: \\(0.5403 \\times 2 \\approx 1.0806\\).
+
+The single most common chain-rule mistake is forgetting to plug the *inner output* into the outer derivative — writing \\(\\cos(x)\\cdot 2x\\) instead of \\(\\cos(x^2)\\cdot 2x\\). The outer derivative must be evaluated at \\(u = g(x)\\), the value actually fed into it, not at the original \\(x\\). In a network this is the difference between using a layer's pre-activation versus its raw input — get it backward and your gradients are silently wrong.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Chain rule by hand vs autodiff',
+            body: `import numpy as np
+
+def chain_rule_demo(x):
+    # y = sin(x^2)
+    u   = x**2          # forward: inner
+    y   = np.sin(u)     # forward: outer
+    # backward: multiply local slopes
+    dy_du = np.cos(u)   # d sin(u)/du
+    du_dx = 2 * x       # d x^2 /dx
+    dy_dx = dy_du * du_dx
+    return y, dy_dx
+
+print(chain_rule_demo(1.0))   # (0.8414..., 1.0806...)
+
+# autodiff reproduces the same product automatically
+import torch
+xt = torch.tensor(1.0, requires_grad=True)
+yt = torch.sin(xt**2)
+yt.backward()
+print(xt.grad)                # tensor(1.0806)  -> identical`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Backprop is the chain rule, computed right-to-left for efficiency.** A network has one scalar loss but millions of weights. Multiplying the chain of derivatives *from the loss backward* lets every weight reuse the same shared downstream products — one backward pass costs about the same as one forward pass. Multiplying forward (input to loss) would recompute those shared factors once per weight, costing millions of times more. Same chain rule, same answer; the direction of traversal is the entire reason training is tractable.`,
+          },
+        ],
+      },
+      {
+        slug: 'jacobian-hessian',
+        title: 'Jacobian & Hessian',
+        oneLiner: 'The matrix of first slopes and the matrix of curvatures. Vector calculus scaled up to many dimensions.',
+        difficulty: 'core',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'First derivatives in a box, second derivatives in a box',
+            body: `Two ideas, both just "derivatives, but organized into a matrix."
+
+The **Jacobian** is what the derivative becomes when a function takes a *vector in* and gives a *vector out*. A scalar function of one variable has one slope. A function mapping \\(n\\) inputs to \\(m\\) outputs has \\(m \\times n\\) slopes — every output partially depends on every input — and the Jacobian is the grid holding all of them. Geometrically, the Jacobian is the **best linear approximation** of the function near a point: zoom in close enough and any smooth vector-to-vector map looks like multiplication by its Jacobian matrix, exactly the way a single-variable function looks like its tangent line. Its determinant tells you how the map locally stretches or shrinks volume — the change-of-variables factor in probability, the warp factor in normalizing flows.
+
+The **Hessian** is the matrix of *second* derivatives of a scalar function of many variables — it measures **curvature**. Where the gradient tells you the slope (which way is downhill), the Hessian tells you how that slope is itself changing: whether you are in a bowl (curving up in every direction, a minimum), a dome (a maximum), or a saddle (up one way, down another). It is the multivariable generalization of "the second derivative tells you concavity." Optimizers that use curvature — Newton's method, L-BFGS — are reading the Hessian (or an approximation of it) to take smarter steps than plain gradient descent, which only knows the slope.`,
+          },
+          {
+            kind: 'viz',
+            component: 'LossLandscape2DViz',
+            heading: 'Curvature of a 2-D loss surface — bowls, saddles, ridges',
+          },
+          {
+            kind: 'math',
+            heading: 'The two matrices, defined',
+            body: `For \\(f: \\mathbb{R}^n \\to \\mathbb{R}^m\\), the **Jacobian** \\(J\\) is \\(m \\times n\\) with entries the first partials of each output by each input:
+
+\\[
+J_{ij} = \\frac{\\partial f_i}{\\partial x_j}, \\qquad J = \\begin{bmatrix} \\frac{\\partial f_1}{\\partial x_1} & \\cdots & \\frac{\\partial f_1}{\\partial x_n} \\\\ \\vdots & \\ddots & \\vdots \\\\ \\frac{\\partial f_m}{\\partial x_1} & \\cdots & \\frac{\\partial f_m}{\\partial x_n} \\end{bmatrix}
+\\]
+
+For a scalar function \\(f: \\mathbb{R}^n \\to \\mathbb{R}\\), the **gradient** is the \\(1 \\times n\\) Jacobian, and the **Hessian** \\(H\\) is the \\(n \\times n\\) matrix of second partials:
+
+\\[
+H_{ij} = \\frac{\\partial^2 f}{\\partial x_i \\, \\partial x_j}
+\\]
+
+By **Clairaut's theorem** the Hessian is symmetric for smooth functions (\\(\\partial^2 f/\\partial x_i \\partial x_j = \\partial^2 f/\\partial x_j \\partial x_i\\)). Its eigenvalues classify a critical point where the gradient is zero: all positive means a minimum (a bowl), all negative a maximum, mixed signs a saddle.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: Jacobian and Hessian of a concrete function',
+            body: `**Jacobian.** Let \\(f(x, y) = [\\,x^2 y,\\; x + \\sin y\\,]\\), a map from \\(\\mathbb{R}^2\\) to \\(\\mathbb{R}^2\\). Take all four partials:
+
+\\[
+\\frac{\\partial f_1}{\\partial x} = 2xy, \\quad \\frac{\\partial f_1}{\\partial y} = x^2, \\quad \\frac{\\partial f_2}{\\partial x} = 1, \\quad \\frac{\\partial f_2}{\\partial y} = \\cos y
+\\]
+
+\\[
+J = \\begin{bmatrix} 2xy & x^2 \\\\ 1 & \\cos y \\end{bmatrix}
+\\]
+
+At \\((x, y) = (1, 0)\\): \\(J = \\begin{bmatrix} 0 & 1 \\\\ 1 & 1 \\end{bmatrix}\\). Near that point, \\(f\\) behaves like multiplication by this matrix.
+
+**Hessian.** Now a scalar function \\(g(x, y) = x^2 + 3xy + y^2\\). Gradient: \\(\\nabla g = [\\,2x + 3y,\\; 3x + 2y\\,]\\). Second partials: \\(g_{xx} = 2\\), \\(g_{yy} = 2\\), \\(g_{xy} = g_{yx} = 3\\).
+
+\\[
+H = \\begin{bmatrix} 2 & 3 \\\\ 3 & 2 \\end{bmatrix}
+\\]
+
+**Classify the critical point.** \\(\\nabla g = 0\\) only at the origin. The Hessian's eigenvalues are \\(2 \\pm 3 = \\{5, -1\\}\\) (sum 4 = trace, product \\(-5\\) = determinant). Mixed signs — so the origin is a **saddle point**: \\(g\\) curves up along the \\([1,1]\\) eigen-direction and down along \\([1,-1]\\). The symmetry \\(g_{xy} = g_{yx} = 3\\) is Clairaut's theorem in action.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Jacobian and Hessian with autodiff',
+            body: `import torch
+
+# Jacobian of a vector-valued function
+def f(v):
+    x, y = v[0], v[1]
+    return torch.stack([x**2 * y, x + torch.sin(y)])
+
+p = torch.tensor([1.0, 0.0])
+J = torch.autograd.functional.jacobian(f, p)
+print(J)        # [[0., 1.], [1., 1.]]
+
+# Hessian of a scalar function
+def g(v):
+    x, y = v[0], v[1]
+    return x**2 + 3*x*y + y**2
+
+H = torch.autograd.functional.hessian(g, torch.tensor([0.0, 0.0]))
+print(H)        # [[2., 3.], [3., 2.]]
+
+evals = torch.linalg.eigvalsh(H)
+print(evals)    # [-1.,  5.]  -> mixed signs => saddle point`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Why deep learning rarely forms the full Hessian.** For a model with \\(N\\) parameters the Hessian has \\(N^2\\) entries — for even a small network that is billions of numbers, impossible to store or invert. Second-order optimizers therefore use *implicit* curvature: L-BFGS keeps a low-rank approximation from recent gradients, and Hessian-vector products compute \\(Hv\\) directly via a second backprop pass without ever materializing \\(H\\). Plain gradient descent and Adam sidestep curvature entirely, which is why they dominate at scale despite ignoring the information the Hessian carries.`,
+          },
+        ],
+      },
+      {
+        slug: 'bayes',
+        title: "Bayes' theorem",
+        oneLiner: 'Turn a prior belief into a posterior as evidence arrives. The update rule behind every probabilistic model.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Bayes is a bookkeeping rule for changing your mind',
+            body: `Before any formula, the picture: you start with a belief about how the world is, then you see some evidence, and Bayes' theorem tells you *exactly* how much to shift that belief. Nothing more mystical than that. The starting belief is the **prior**, the evidence reweights it, and the result is the **posterior** — your updated belief after looking.
+
+The cleanest way to *see* it is as areas in a box. Draw a unit square. Slice it left-to-right by the prior: the fraction of the box that is "disease" versus "healthy" before any test. Now each slice gets shaded by how likely the evidence is *within* that slice — a sick person almost always tests positive, a healthy person rarely does. The positive tests form a little region in each slice. Bayes asks: **of all the positive-test area, what fraction sits inside the "disease" slice?** That ratio is the posterior. You are not computing a new probability from scratch; you are zooming into the slice of the box the evidence selected and re-normalizing.
+
+This reframe kills the classic trap. When a disease is rare, the "disease" slice is tiny, so even a good test produces *more* false positives from the huge "healthy" slice than true positives from the sliver of sick people. The math will say this plainly, but the box says it first: a rare prior means the evidence has to be overwhelming to move you much.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Drag the prior and the likelihood — watch the posterior shift',
+            component: 'BayesUpdateViz',
+          },
+          {
+            kind: 'math',
+            heading: 'The theorem, read piece by piece',
+            body: `Bayes' theorem relates the posterior \\(P(H \\mid E)\\) to the prior \\(P(H)\\):
+
+\\[
+P(H \\mid E) = \\frac{P(E \\mid H)\\, P(H)}{P(E)}
+\\]
+
+Read each term as a job:
+
+- \\(P(H)\\) — the **prior**, your belief in hypothesis \\(H\\) before the evidence.
+- \\(P(E \\mid H)\\) — the **likelihood**, how probable the evidence is *if* \\(H\\) were true.
+- \\(P(E)\\) — the **evidence** (or marginal), how probable the evidence is overall.
+- \\(P(H \\mid E)\\) — the **posterior**, your updated belief after seeing \\(E\\).
+
+The denominator is just a normalizer that makes the posteriors over all hypotheses sum to 1. You expand it with the law of total probability:
+
+\\[
+P(E) = P(E \\mid H)\\,P(H) + P(E \\mid \\lnot H)\\,P(\\lnot H)
+\\]
+
+The numerator \\(P(E \\mid H)\\,P(H)\\) is the "true positive" area of the box; the denominator is the *total* positive area. Their ratio re-normalizes inside the evidence slice — exactly the box picture, written in symbols.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: the rare-disease test',
+            body: `A disease affects 1 in 100 people, so the prior is \\(P(D) = 0.01\\). The test catches 99% of sick people, \\(P(+ \\mid D) = 0.99\\), and has a 5% false-positive rate, \\(P(+ \\mid \\lnot D) = 0.05\\). You test positive. What is \\(P(D \\mid +)\\)?
+
+**Step 1 — true-positive area.** \\(P(+ \\mid D)\\,P(D) = 0.99 \\times 0.01 = 0.0099\\).
+
+**Step 2 — false-positive area.** \\(P(+ \\mid \\lnot D)\\,P(\\lnot D) = 0.05 \\times 0.99 = 0.0495\\).
+
+**Step 3 — total positive area.** \\(P(+) = 0.0099 + 0.0495 = 0.0594\\).
+
+**Step 4 — the posterior.**
+
+\\[
+P(D \\mid +) = \\frac{0.0099}{0.0594} \\approx 0.167
+\\]
+
+A positive test only raises your belief from 1% to about **17%**. Most positives are false alarms, because the healthy slice is 99 times wider than the sick one — even a tiny 5% false-positive rate inside it outproduces the 99% catch rate inside the sliver. This is the base-rate fallacy, and the box explains why it surprises everyone: intuition focuses on the strong likelihood (99%) and forgets the tiny prior (1%). Bayes refuses to forget it.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: "Bayes' update in NumPy",
+            body: `import numpy as np
+
+prior = 0.01           # P(disease)
+sens  = 0.99           # P(+ | disease)
+fpr   = 0.05           # P(+ | healthy)
+
+# law of total probability for the evidence P(+)
+evidence = sens * prior + fpr * (1 - prior)
+posterior = sens * prior / evidence
+print(round(posterior, 4))     # 0.1667
+
+# sequential updating: a second independent positive test
+prior2 = posterior
+evidence2 = sens * prior2 + fpr * (1 - prior2)
+posterior2 = sens * prior2 / evidence2
+print(round(posterior2, 4))    # 0.7984  -> evidence compounds`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Today's posterior is tomorrow's prior.** Bayes composes: feed the posterior from one observation back in as the prior for the next, and beliefs accumulate. Two independent positive tests above pushed 1% to 17% to 80%. This is exactly what a naive Bayes classifier does across features, what a Kalman filter does across time steps, and what Bayesian deep learning does across minibatches. The catch is the *independence* assumption — if the two tests fail for the same correlated reason, multiplying their likelihoods double-counts the evidence and the posterior gets overconfident.`,
+          },
+          {
+            kind: 'viz',
+            component: 'BayesExplorerViz',
+            heading: 'Slide the base rate — see why a positive test rarely means sick',
+          },
+          {
+            kind: 'viz',
+            heading: 'k-NN classifier — drag the query, watch the neighbours vote',
+            component: 'KNNExplorerViz',
+          },
+        ],
+      },
+      {
+        slug: 'expectation-variance',
+        title: 'Expectation & variance',
+        oneLiner: 'The mean is where a distribution balances; variance is how far it spreads. The two numbers every loss function tracks.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'The mean is a balance point, variance is a spread',
+            body: `Picture the probability of a distribution as little weights placed along a ruler — heavier where outcomes are more likely. The **expectation** (the mean) is the single point where the ruler balances on a fingertip. Not the most likely value, not the middle value — the **center of mass**. Put 90% of the weight at 0 and 10% at 10, and the balance point sits at 1, even though no outcome is ever near 1. That is expectation: a weighted average, where the weights are probabilities.
+
+**Variance** asks a different question: once balanced, how far do the weights sprawl from that point? Pile all the weight right at the balance point and variance is zero — no spread, no surprise. Fling the weights out to the far ends and variance is large. Crucially, variance squares each distance before averaging, so outliers count enormously: a weight twice as far contributes four times as much. That squaring is why variance punishes tails and why the standard deviation — its square root — is the more human-readable "typical distance from the mean."
+
+These two numbers are the entire summary a Gaussian needs, and they drive ML everywhere: a loss is an *expected* error, gradient noise has a *variance* that sets your learning rate, and the bias-variance tradeoff is literally this spread measured on a model's predictions.`,
+          },
+          {
+            kind: 'viz',
+            component: 'GaussianViz',
+            heading: 'Move the mean and variance — watch the distribution shift and spread',
+          },
+          {
+            kind: 'math',
+            heading: 'Definitions and the shortcut',
+            body: `For a discrete random variable \\(X\\) taking value \\(x_i\\) with probability \\(p_i\\), the expectation is the probability-weighted sum:
+
+\\[
+\\mathbb{E}[X] = \\sum_i p_i\\, x_i \\qquad (\\text{written } \\mu)
+\\]
+
+The variance is the expected squared distance from the mean:
+
+\\[
+\\operatorname{Var}(X) = \\mathbb{E}\\big[(X - \\mu)^2\\big] = \\sum_i p_i\\,(x_i - \\mu)^2
+\\]
+
+In practice you almost always use the **computational shortcut**, which avoids a second pass over the data:
+
+\\[
+\\operatorname{Var}(X) = \\mathbb{E}[X^2] - \\big(\\mathbb{E}[X]\\big)^2
+\\]
+
+"The mean of the squares minus the square of the mean." Two more facts earn their keep constantly. Expectation is **linear** — \\(\\mathbb{E}[aX + b] = a\\,\\mathbb{E}[X] + b\\) — with no independence needed. Variance is **not** linear: \\(\\operatorname{Var}(aX + b) = a^2 \\operatorname{Var}(X)\\). The constant \\(b\\) shifts the balance point but never the spread, and the scale \\(a\\) hits variance squared because variance already lives in squared units.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: a single die',
+            body: `Roll a fair six-sided die. Each face \\(\\{1,2,3,4,5,6\\}\\) has probability \\(1/6\\).
+
+**Mean.** \\(\\mathbb{E}[X] = \\tfrac{1}{6}(1+2+3+4+5+6) = \\tfrac{21}{6} = 3.5\\). The balance point sits between 3 and 4 — no face shows 3.5, yet that is where the ruler balances.
+
+**Mean of the squares.** \\(\\mathbb{E}[X^2] = \\tfrac{1}{6}(1+4+9+16+25+36) = \\tfrac{91}{6} \\approx 15.167\\).
+
+**Variance via the shortcut.** \\(\\operatorname{Var}(X) = \\mathbb{E}[X^2] - \\mu^2 = 15.167 - 3.5^2 = 15.167 - 12.25 = 2.917\\).
+
+**Standard deviation.** \\(\\sigma = \\sqrt{2.917} \\approx 1.708\\) — the typical roll lands about 1.7 away from 3.5, which matches the intuition that a die roll is spread fairly evenly across the range.
+
+**Check linearity.** Define \\(Y = 2X + 10\\). Then \\(\\mathbb{E}[Y] = 2(3.5) + 10 = 17\\) and \\(\\operatorname{Var}(Y) = 2^2 \\cdot 2.917 = 11.668\\). The shift \\(+10\\) moved the center but left the spread untouched; the scale \\(\\times 2\\) quadrupled the variance.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Expectation and variance in NumPy',
+            body: `import numpy as np
+
+x = np.array([1, 2, 3, 4, 5, 6])
+p = np.full(6, 1/6)
+
+mean = np.sum(p * x)
+var  = np.sum(p * x**2) - mean**2     # E[X^2] - E[X]^2
+print(mean, round(var, 4))            # 3.5 2.9167
+print(round(np.sqrt(var), 4))         # 1.7078  -> std dev
+
+# empirical estimate from samples
+samples = np.random.randint(1, 7, size=100_000)
+print(samples.mean(), round(samples.var(), 4))  # ~ 3.5, ~ 2.917
+
+# np.var divides by N (population); pass ddof=1 for the sample (unbiased) variance
+print(round(samples.var(ddof=1), 4))`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**The \`ddof\` trap and the catastrophic-cancellation trap.** \`np.var\` defaults to dividing by \\(N\\) (the population variance), but estimating variance from a *sample* underestimates the truth — you must divide by \\(N-1\\) (\`ddof=1\`, Bessel's correction). Separately, the shortcut \\(\\mathbb{E}[X^2] - \\mathbb{E}[X]^2\\) is numerically dangerous when the mean is large and the variance small: you subtract two big nearly-equal numbers and lose precision (catastrophic cancellation). Production code uses Welford's streaming algorithm or centers the data first to stay accurate.`,
+          },
+        ],
+      },
+      {
+        slug: 'mle',
+        title: 'Maximum likelihood estimation',
+        oneLiner: 'Pick the parameters that make your observed data least surprising. The principle behind cross-entropy and most model fitting.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Run the dials until the data stops looking like a coincidence',
+            body: `You have data and a model with some knobs — the mean of a Gaussian, the bias of a coin, the weights of a network. Each setting of the knobs assigns a probability to the data you actually saw. **Maximum likelihood estimation** says: turn the knobs until the data you observed becomes as probable as the model can make it. The setting that maximizes that probability is your estimate. The slogan is "choose the parameters under which the data is least surprising."
+
+The geometric picture is a landscape. Lay the parameters out as a floor and let height be the probability the model assigns to your fixed dataset. MLE walks uphill to the peak. Flip a coin ten times and see seven heads — slide the bias \\(\\theta\\) from 0 to 1 and the probability of *that exact sequence* rises, peaks, and falls. The peak sits at \\(\\theta = 0.7\\), and unsurprisingly the maximum-likelihood estimate of a coin's bias is just the observed fraction of heads.
+
+The deep payoff comes next: because the data points are independent, their joint probability is a *product*, and products are miserable to differentiate. Taking a logarithm turns the product into a sum, and maximizing that **log-likelihood** is identical to maximizing the original. That single move — log of a product becomes a sum — is what connects MLE directly to the cross-entropy loss you minimize when training a classifier.`,
+          },
+          {
+            kind: 'math',
+            heading: 'Likelihood, log-likelihood, and the cross-entropy bridge',
+            body: `Given independent data \\(x_1, \\dots, x_n\\) and a model \\(p(x \\mid \\theta)\\), the **likelihood** is the joint probability as a function of the parameters:
+
+\\[
+L(\\theta) = \\prod_{i=1}^{n} p(x_i \\mid \\theta)
+\\]
+
+Maximizing \\(L\\) is hard (products underflow, derivatives explode). Take the log — monotonic, so it preserves the location of the maximum — and the product becomes a sum:
+
+\\[
+\\ell(\\theta) = \\log L(\\theta) = \\sum_{i=1}^{n} \\log p(x_i \\mid \\theta)
+\\]
+
+The MLE is \\(\\hat\\theta = \\arg\\max_\\theta \\ell(\\theta)\\). Flip the sign and you have the **negative log-likelihood**, which we *minimize* instead:
+
+\\[
+\\hat\\theta = \\arg\\min_\\theta \\; -\\frac{1}{n}\\sum_{i=1}^{n} \\log p(x_i \\mid \\theta)
+\\]
+
+That average negative log-likelihood **is** the cross-entropy between the data and the model. So minimizing cross-entropy when you train a classifier is not a separate idea bolted on — it is maximum likelihood, sign-flipped and averaged. The softmax outputs are \\(p(x_i \\mid \\theta)\\); pushing up the predicted probability of the true label is pushing up the log-likelihood.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: the bias of a coin',
+            body: `You flip a coin \\(n = 10\\) times and get \\(k = 7\\) heads. The model has one knob \\(\\theta\\) = probability of heads. The likelihood of this outcome (binomial, dropping the constant count factor that does not depend on \\(\\theta\\)) is:
+
+\\[
+L(\\theta) = \\theta^{7}\\,(1-\\theta)^{3}
+\\]
+
+**Step 1 — log-likelihood.** \\(\\ell(\\theta) = 7\\log\\theta + 3\\log(1-\\theta)\\).
+
+**Step 2 — differentiate and set to zero.**
+
+\\[
+\\frac{d\\ell}{d\\theta} = \\frac{7}{\\theta} - \\frac{3}{1-\\theta} = 0
+\\]
+
+**Step 3 — solve.** \\(7(1-\\theta) = 3\\theta \\Rightarrow 7 = 10\\theta \\Rightarrow \\hat\\theta = 0.7\\).
+
+The maximum-likelihood estimate is exactly the observed head fraction \\(k/n = 7/10\\). The intuition holds: the parameter that makes "7 heads in 10 flips" least surprising is the one that predicts heads 70% of the time. For a Gaussian the same procedure pops out the sample mean as the MLE of \\(\\mu\\) and the (biased) sample variance as the MLE of \\(\\sigma^2\\) — MLE rederives the everyday estimators you already trust.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'MLE by grid search and by calculus',
+            body: `import numpy as np
+
+k, n = 7, 10          # 7 heads in 10 flips
+
+# closed-form MLE
+print(k / n)          # 0.7
+
+# brute force: scan theta, pick the peak of the log-likelihood
+thetas = np.linspace(0.01, 0.99, 999)
+loglik = k * np.log(thetas) + (n - k) * np.log(1 - thetas)
+print(round(thetas[np.argmax(loglik)], 2))   # 0.7
+
+# Gaussian MLE: the sample mean and (biased) variance fall out
+data = np.random.normal(loc=5.0, scale=2.0, size=10_000)
+mu_hat = data.mean()
+var_hat = data.var()                  # /N, the MLE (not /N-1)
+print(round(mu_hat, 3), round(var_hat, 3))   # ~ 5.0, ~ 4.0`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**MLE overfits small data, and that is what priors are for.** With one flip landing heads, MLE confidently estimates \\(\\hat\\theta = 1.0\\) — heads forever — because that single point makes the data perfectly probable. Maximum likelihood has no built-in skepticism; it trusts the sample completely. The fix is to add a prior and maximize the *posterior* instead (MAP estimation), which is exactly what L2 weight decay is doing under the hood: a Gaussian prior on the weights, pulling the MLE back toward zero. MLE plus a regularizer equals MAP.`,
+          },
+        ],
+      },
+      {
+        slug: 'entropy',
+        title: 'Entropy',
+        oneLiner: 'The average surprise of a distribution, in bits. The floor on how few bits any code can use.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Entropy is your average surprise, priced in bits',
+            body: `Start with surprise. A rare event surprises you a lot; a near-certain one barely registers. Information theory makes this exact: the surprise of an outcome with probability \\(p\\) is \\(\\log_2(1/p)\\) bits. Probability 1 gives zero surprise (you already knew it). Probability \\(1/2\\) gives one bit (a single yes/no answer's worth). Probability \\(1/8\\) gives three bits. The rarer the event, the more bits its occurrence carries.
+
+**Entropy** is just the *average* surprise — what you expect to feel per draw, weighted by how often each outcome happens. A fair coin has entropy 1 bit: every flip delivers exactly one bit of genuine news. A two-headed coin has entropy 0: the outcome is known, no news ever arrives. A fair eight-sided die has entropy 3 bits. The more spread-out and unpredictable the distribution, the higher the entropy; the more it concentrates on one outcome, the lower.
+
+The coding interpretation seals it: entropy is the *minimum average number of bits* needed to encode draws from the distribution, if you assign short codes to common outcomes and long codes to rare ones. You cannot beat it — Shannon proved entropy is the hard floor. This is why a uniform distribution (maximum unpredictability) is the most expensive to encode and a near-deterministic one is nearly free. Every classification loss is built on this bits-and-surprise foundation.`,
+          },
+          {
+            kind: 'math',
+            heading: 'The entropy formula',
+            body: `For a discrete distribution \\(p\\) over outcomes \\(i\\), entropy is the expected surprise:
+
+\\[
+H(p) = -\\sum_i p_i \\log_2 p_i = \\sum_i p_i \\log_2 \\frac{1}{p_i}
+\\]
+
+The minus sign is cosmetic: \\(\\log_2 p_i\\) is negative (probabilities are below 1), so negating it makes each surprise term positive. The \\(p_i\\) out front is the weighting — you average the surprise \\(\\log_2(1/p_i)\\) over how often outcome \\(i\\) actually occurs. The convention \\(0 \\log 0 = 0\\) handles impossible outcomes (they contribute nothing).
+
+The **base of the log** is just the unit. Base 2 gives **bits**, base \\(e\\) gives **nats** (the ML default, since it pairs cleanly with the natural log in cross-entropy), base 10 gives bans. Switching base only rescales \\(H\\) by a constant.
+
+Two bounds anchor it: entropy is **maximized** by the uniform distribution, where \\(H = \\log_2 n\\) for \\(n\\) equally likely outcomes (peak unpredictability), and **minimized** at \\(H = 0\\) when one outcome has probability 1 (total certainty). Everything real lives in between.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: fair vs. biased coin',
+            body: `**Fair coin**, \\(p = [0.5, 0.5]\\):
+
+\\[
+H = -(0.5\\log_2 0.5 + 0.5\\log_2 0.5) = -(0.5 \\cdot (-1) + 0.5 \\cdot (-1)) = 1 \\text{ bit}
+\\]
+
+One bit per flip — maximum possible for two outcomes. Every flip is maximally informative because you genuinely cannot predict it.
+
+**Biased coin**, \\(p = [0.9, 0.1]\\):
+
+\\[
+H = -(0.9\\log_2 0.9 + 0.1\\log_2 0.1)
+\\]
+
+Compute the pieces: \\(\\log_2 0.9 \\approx -0.152\\) so the first term is \\(0.9 \\times 0.152 = 0.137\\); \\(\\log_2 0.1 \\approx -3.322\\) so the second is \\(0.1 \\times 3.322 = 0.332\\). Sum: \\(H \\approx 0.469\\) bits.
+
+Less than half a bit. The coin is mostly predictable — you would bet heads and be right 90% of the time — so each flip carries little real news. Push the bias to \\([0.99, 0.01]\\) and entropy drops to about 0.08 bits; push to \\([1, 0]\\) and it hits exactly 0. The biased coin is *cheaper to encode*: spend a short code on the common outcome and you average under half a bit per flip, which a fair coin can never do.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Entropy in NumPy',
+            body: `import numpy as np
+
+def entropy_bits(p):
+    p = np.asarray(p, dtype=float)
+    p = p[p > 0]                       # skip zeros: 0*log0 := 0
+    return -np.sum(p * np.log2(p))
+
+print(entropy_bits([0.5, 0.5]))        # 1.0   -> fair coin
+print(round(entropy_bits([0.9, 0.1]), 3))   # 0.469 -> biased
+print(entropy_bits([0.25] * 4))        # 2.0   -> uniform over 4 = log2(4)
+print(entropy_bits([1.0, 0.0]))        # 0.0   -> certainty, no surprise
+
+# nats (natural log) is the ML convention; entropy in nats = bits * ln(2)
+print(round(-np.sum(np.array([0.9, 0.1]) * np.log([0.9, 0.1])), 3))  # 0.325`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Bits vs. nats, and why entropy underlies cross-entropy.** Deep learning frameworks compute entropy in *nats* (natural log) because cross-entropy loss uses \`log\`, not \`log2\` — the two differ only by the constant factor \\(\\ln 2 \\approx 0.693\\), which gradient descent absorbs into the learning rate. Entropy \\(H(p)\\) is the *best achievable* average code length for distribution \\(p\\); cross-entropy \\(H(p, q)\\) is the cost when you encode \\(p\\) using a code built for \\(q\\). The gap between them — the wasted bits — is the KL divergence, the subject of the next lesson.`,
+          },
+          { kind: 'viz', heading: 'Surprise per symbol, averaged into bits', component: 'EntropyExplorerViz' },
+        ],
+      },
+      {
+        slug: 'kl-divergence',
+        title: 'KL divergence',
+        oneLiner: 'The extra bits you pay for assuming the wrong distribution. Non-negative, asymmetric, and central to VAEs and distillation.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'KL is the penalty for coding reality with the wrong codebook',
+            body: `Entropy told you the cheapest possible average code length for a distribution \\(p\\). But what if you build your code assuming the world looks like \\(q\\), and then reality turns out to be \\(p\\)? You designed short codes for what *you* thought was common and long codes for what you thought was rare — and you guessed wrong. You will pay extra bits. **KL divergence** \\(D_{KL}(p \\,\\|\\, q)\\) is exactly that excess: the average number of *wasted* bits from using the codebook for \\(q\\) when the data actually comes from \\(p\\).
+
+This makes its two headline properties intuitive. It is **non-negative**: the best you can do is guess the distribution exactly (\\(q = p\\)), which wastes zero bits; any mismatch can only cost you. It is **asymmetric**: \\(D_{KL}(p \\,\\|\\, q) \\neq D_{KL}(q \\,\\|\\, p)\\) in general, because "coding \\(p\\)-data with a \\(q\\)-codebook" is a different mistake than "coding \\(q\\)-data with a \\(p\\)-codebook." This is *not* a distance — it fails symmetry and the triangle inequality. Treating it like one is the most common KL bug.
+
+The asymmetry has teeth in ML. Minimizing \\(D_{KL}(p \\,\\|\\, q)\\) over \\(q\\) (forward KL, used in maximum likelihood) makes \\(q\\) cover all of \\(p\\)'s mass — it is "mass-covering" and produces blurry, mean-seeking fits. Minimizing \\(D_{KL}(q \\,\\|\\, p)\\) (reverse KL, used in variational inference) makes \\(q\\) lock onto one mode and ignore the rest — "mode-seeking." Choosing the direction *is* a modeling decision.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Slide the two distributions apart — watch the KL grow asymmetrically',
+            component: 'KLDivergenceViz',
+          },
+          {
+            kind: 'math',
+            heading: 'The formula, and its tie to cross-entropy',
+            body: `For discrete distributions \\(p\\) and \\(q\\) over the same outcomes:
+
+\\[
+D_{KL}(p \\,\\|\\, q) = \\sum_i p_i \\log \\frac{p_i}{q_i}
+\\]
+
+Read it as an expectation under \\(p\\) of the log-ratio \\(\\log(p_i / q_i)\\) — how much more probable \\(p\\) thinks each outcome is than \\(q\\) does, averaged over \\(p\\)'s own weighting. When \\(p_i = q_i\\) everywhere, every log-ratio is \\(\\log 1 = 0\\) and the sum vanishes.
+
+Split the log and the connection to entropy and cross-entropy falls out:
+
+\\[
+D_{KL}(p \\,\\|\\, q) = \\underbrace{-\\sum_i p_i \\log q_i}_{\\text{cross-entropy } H(p,\\,q)} - \\underbrace{\\Big(-\\sum_i p_i \\log p_i\\Big)}_{\\text{entropy } H(p)}
+\\]
+
+So \\(D_{KL}(p \\,\\|\\, q) = H(p, q) - H(p)\\): the **extra** bits beyond the unavoidable entropy floor. This is why minimizing cross-entropy and minimizing KL give the *same* gradients when \\(p\\) (the data distribution) is fixed — \\(H(p)\\) is a constant and drops out under differentiation. Watch the support: if \\(q_i = 0\\) where \\(p_i > 0\\), the ratio blows up to infinity. You cannot afford zero probability anywhere the truth has mass.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: KL is not symmetric',
+            body: `Take two distributions over three outcomes: \\(p = [0.5, 0.4, 0.1]\\) and \\(q = [0.3, 0.3, 0.4]\\). Use natural log (nats).
+
+**Forward, \\(D_{KL}(p \\,\\|\\, q)\\):**
+
+\\[
+0.5\\ln\\tfrac{0.5}{0.3} + 0.4\\ln\\tfrac{0.4}{0.3} + 0.1\\ln\\tfrac{0.1}{0.4}
+\\]
+
+Term by term: \\(0.5 \\times 0.511 = 0.255\\); \\(0.4 \\times 0.288 = 0.115\\); \\(0.1 \\times (-1.386) = -0.139\\). Sum: \\(D_{KL}(p \\,\\|\\, q) \\approx 0.231\\) nats.
+
+**Reverse, \\(D_{KL}(q \\,\\|\\, p)\\):**
+
+\\[
+0.3\\ln\\tfrac{0.3}{0.5} + 0.3\\ln\\tfrac{0.3}{0.4} + 0.4\\ln\\tfrac{0.4}{0.1}
+\\]
+
+Term by term: \\(0.3 \\times (-0.511) = -0.153\\); \\(0.3 \\times (-0.288) = -0.086\\); \\(0.4 \\times 1.386 = 0.555\\). Sum: \\(D_{KL}(q \\,\\|\\, p) \\approx 0.316\\) nats.
+
+Different numbers — \\(0.231\\) versus \\(0.316\\) — from the same pair of distributions, just swapped. Both are positive, as they must be. The reverse direction costs more here because \\(q\\) places heavy mass (0.4) on the outcome \\(p\\) thinks is rare (0.1), and that large log-ratio dominates the sum. The lesson: always check which distribution sits in front.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'KL divergence in NumPy',
+            body: `import numpy as np
+
+def kl(p, q):
+    p, q = np.asarray(p, float), np.asarray(q, float)
+    mask = p > 0                       # 0*log0 := 0; q must be > 0 where p is
+    return np.sum(p[mask] * np.log(p[mask] / q[mask]))
+
+p = np.array([0.5, 0.4, 0.1])
+q = np.array([0.3, 0.3, 0.4])
+
+print(round(kl(p, q), 4))   # 0.2314  -> forward
+print(round(kl(q, p), 4))   # 0.3164  -> reverse, NOT equal -> asymmetric
+print(round(kl(p, p), 4))   # 0.0     -> identical distributions, no waste`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Where KL shows up and how to keep it finite.** A VAE's loss adds \\(D_{KL}(q(z\\mid x) \\,\\|\\, p(z))\\) to pull the learned latent toward a standard Gaussian; knowledge distillation minimizes the KL between a student's and a teacher's softened logits; RLHF and PPO add a KL penalty to stop the policy drifting too far from the reference model. The recurring failure is the *support mismatch*: if \\(q\\) ever assigns zero probability where \\(p\\) has mass, KL is infinite. Frameworks dodge this with label smoothing, a small \\(\\epsilon\\) floor, or by always passing logits through a softmax so every probability stays strictly positive.`,
+          },
+          {
+            kind: 'viz',
+            component: 'KLDivergenceExplorerViz',
+            heading: 'Drag the Q bars — watch the wasted-bits penalty per bucket',
+          },
+        ],
+      },
+      {
+        slug: 'einsum',
+        title: 'Einstein summation',
+        oneLiner: 'One notation for dot products, matmuls, batched ops, and traces. Repeated indices sum; free indices stay.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Two rules run the whole notation',
+            body: `Einstein summation looks cryptic until you learn its two rules, after which it reads like a sentence. Every tensor operation gets written as a string of index letters, one letter per axis, like \`'ik,kj->ij'\`. The rules:
+
+**Rule 1 — a repeated index means "sum over it."** If a letter appears on both input tensors but *not* in the output, you multiply along that axis and add up the results. The index gets *contracted* — consumed by the summation, gone from the answer.
+
+**Rule 2 — a free index stays.** Any letter that survives into the output (right of the \`->\`) labels an axis of the result. Its values are not summed; they index into the answer.
+
+That is the entire system. Matrix multiply \`'ik,kj->ij'\` says: \\(k\\) is repeated and absent from the output, so sum over the shared dimension; \\(i\\) and \\(j\\) are free, so they become the rows and columns of the product. A dot product \`'i,i->'\` repeats \\(i\\) with *nothing* left over, collapsing two vectors to a scalar. A trace \`'ii->'\` repeats a letter *within one tensor*, summing the diagonal. Once "repeated sums, free stays" is reflexive, you stop memorizing separate functions for matmul, batched matmul, outer product, and contraction — they are all one string away from each other.`,
+          },
+          {
+            kind: 'math',
+            heading: 'Reading the index strings',
+            body: `Classic matrix multiplication \\(C = AB\\) in index form is:
+
+\\[
+C_{ij} = \\sum_k A_{ik} B_{kj}
+\\]
+
+Einstein's convention drops the explicit \\(\\sum\\): the repeated \\(k\\) *implies* the sum. So \\(C_{ij} = A_{ik}B_{kj}\\) means exactly the line above, and \`np.einsum('ik,kj->ij', A, B)\` is the literal transcription — the letters between the commas are the input axes, the letters after \`->\` are the output axes, and any letter that vanishes is summed.
+
+The same machine handles every common operation by changing which letters repeat and which survive:
+
+\\[
+\\begin{aligned}
+\\text{dot product} &: \\;\\; c = \\textstyle\\sum_i a_i b_i &&\\to \\;\\; \\texttt{'i,i->'} \\\\
+\\text{outer product} &: \\;\\; M_{ij} = a_i b_j &&\\to \\;\\; \\texttt{'i,j->ij'} \\\\
+\\text{trace} &: \\;\\; t = \\textstyle\\sum_i A_{ii} &&\\to \\;\\; \\texttt{'ii->'} \\\\
+\\text{transpose} &: \\;\\; B_{ji} = A_{ij} &&\\to \\;\\; \\texttt{'ij->ji'} \\\\
+\\text{batched matmul} &: \\;\\; C_{bij} = \\textstyle\\sum_k A_{bik}B_{bkj} &&\\to \\;\\; \\texttt{'bik,bkj->bij'}
+\\end{aligned}
+\\]
+
+Notice the outer product repeats *nothing* (both indices survive, the result grows a dimension) while the dot product repeats *everything* (both collapse). The batched matmul carries a \\(b\\) index untouched through both inputs and the output — that is how a batch axis "rides along" without being contracted.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: tracing matmul by hand',
+            body: `Take \\(A = \\begin{bmatrix} 1 & 2 \\\\ 3 & 4 \\end{bmatrix}\\) and \\(B = \\begin{bmatrix} 5 & 6 \\\\ 7 & 8 \\end{bmatrix}\\), and evaluate \`'ik,kj->ij'\`.
+
+The free indices \\(i, j\\) each run over \\(\\{0, 1\\}\\), giving four output entries. The repeated index \\(k\\) gets summed over \\(\\{0, 1\\}\\) for each.
+
+**\\(C_{00}\\)** (\\(i=0, j=0\\)): \\(\\sum_k A_{0k}B_{k0} = A_{00}B_{00} + A_{01}B_{10} = 1\\cdot 5 + 2\\cdot 7 = 19\\).
+
+**\\(C_{01}\\)** (\\(i=0, j=1\\)): \\(A_{00}B_{01} + A_{01}B_{11} = 1\\cdot 6 + 2\\cdot 8 = 22\\).
+
+**\\(C_{10}\\)** (\\(i=1, j=0\\)): \\(A_{10}B_{00} + A_{11}B_{10} = 3\\cdot 5 + 4\\cdot 7 = 43\\).
+
+**\\(C_{11}\\)** (\\(i=1, j=1\\)): \\(A_{10}B_{01} + A_{11}B_{11} = 3\\cdot 6 + 4\\cdot 8 = 50\\).
+
+So \\(C = \\begin{bmatrix} 19 & 22 \\\\ 43 & 50 \\end{bmatrix}\\). Every entry was a sum over the contracted \\(k\\); the free \\(i, j\\) just picked which row of \\(A\\) and column of \\(B\\) to pair. Now change one letter: \`'ik,kj->ji'\` keeps the identical sums but swaps the output axes, transposing the result for free. That is the power — the *computation* is fixed by which index repeats, the *layout* by the order of the free indices.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'einsum in NumPy',
+            body: `import numpy as np
+
+A = np.array([[1, 2], [3, 4]])
+B = np.array([[5, 6], [7, 8]])
+a = np.array([1, 2, 3])
+b = np.array([4, 5, 6])
+
+print(np.einsum('ik,kj->ij', A, B))   # matmul -> [[19 22] [43 50]]
+print(np.einsum('i,i->', a, b))       # dot product -> 32
+print(np.einsum('i,j->ij', a, b))     # outer product -> 3x3
+print(np.einsum('ii->', A))           # trace -> 5
+print(np.einsum('ij->ji', A))         # transpose
+
+# attention scores in one line: (batch, heads, query, key)
+Q = np.random.randn(2, 4, 5, 8)
+K = np.random.randn(2, 4, 6, 8)
+scores = np.einsum('bhqd,bhkd->bhqk', Q, K)   # contract the d (depth) axis
+print(scores.shape)                            # (2, 4, 5, 6)`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**einsum is readable but not always fast — and it never broadcasts.** A single \`einsum\` string can express what would otherwise be a tangle of \`transpose\`, \`reshape\`, and \`matmul\` calls, and the index letters document the shapes inline. But the default contraction order can be suboptimal for chains of three or more tensors — pass \`optimize=True\` to let NumPy pick a smarter order, sometimes orders of magnitude faster. One firm rule: every index letter must appear with a consistent dimension size; einsum does **not** broadcast size-1 axes the way ordinary operators do, so a mismatched dimension is an error, not a silent stretch.`,
+          },
+        ],
+      },
+      {
+        slug: 'covariance',
+        title: 'Covariance & correlation',
+        oneLiner: 'How two variables move together — and the matrix that packages every pairwise relationship at once.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Covariance measures shared wiggle',
+            body: `Variance asks one question about one variable: how far does it spread around its own mean? Covariance asks the two-variable version: *when one variable is above its mean, does the other tend to be above its mean too?* That is the entire idea. If tall people also tend to be heavier than average, height and weight have **positive** covariance — they wiggle together. If hours of sleep go up when stress goes down, those two have **negative** covariance — they wiggle in opposition. If two variables have nothing to do with each other, their covariance hovers near zero.
+
+The mechanism is a product of deviations. For each data point, measure how far \\(x\\) is from its mean (\\(x_i - \\bar{x}\\)) and how far \\(y\\) is from its mean (\\(y_i - \\bar{y}\\)), then multiply. When both deviations have the same sign — both above, or both below — the product is positive. When they have opposite signs, the product is negative. Average those products across all points and you get covariance: a single number whose sign tells you the *direction* of the relationship and whose magnitude grows with how strongly and how widely the two move together.
+
+The catch is that magnitude is contaminated by units. Covariance of height-in-centimetres with weight-in-kilograms is a hundred times larger than the same data in metres and grams, even though the relationship is identical. That is why **correlation** exists — it divides covariance by both standard deviations to strip out the units, landing in the clean range \\([-1, 1]\\). Correlation \\(+1\\) is a perfect upward line, \\(-1\\) a perfect downward line, \\(0\\) no linear relationship at all.`,
+          },
+          {
+            kind: 'viz',
+            component: 'PCAViz',
+            heading: 'The covariance ellipse and its principal axes',
+          },
+          {
+            kind: 'math',
+            heading: 'The formulas, and the covariance matrix',
+            body: `For two variables, covariance is the expected product of deviations:
+
+\\[
+\\operatorname{Cov}(X, Y) = \\mathbb{E}\\big[(X - \\mu_X)(Y - \\mu_Y)\\big] = \\frac{1}{n}\\sum_{i=1}^{n}(x_i - \\bar{x})(y_i - \\bar{y})
+\\]
+
+Notice \\(\\operatorname{Cov}(X, X) = \\operatorname{Var}(X)\\) — variance is just covariance of a variable with itself. Correlation normalises:
+
+\\[
+\\rho_{XY} = \\frac{\\operatorname{Cov}(X, Y)}{\\sigma_X \\, \\sigma_Y} \\in [-1, 1]
+\\]
+
+With more than two variables, you stack every pairwise covariance into the **covariance matrix** \\(\\Sigma\\). For a data matrix \\(X\\) with \\(n\\) rows (samples) and \\(d\\) columns (features), centre each column to \\(\\tilde{X}\\) and:
+
+\\[
+\\Sigma = \\frac{1}{n}\\,\\tilde{X}^{\\top}\\tilde{X}, \\qquad \\Sigma_{jk} = \\operatorname{Cov}(X_j, X_k)
+\\]
+
+This matrix is **symmetric** (\\(\\Sigma_{jk} = \\Sigma_{kj}\\)) and **positive semidefinite**. The diagonal holds the per-feature variances; the off-diagonals hold the pairwise covariances. PCA is nothing more than finding the eigenvectors of this \\(\\Sigma\\): the directions along which the data varies most. Whitening transforms the data so \\(\\Sigma\\) becomes the identity — every feature unit-variance and mutually uncorrelated.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: three points by hand',
+            body: `Take three paired observations: \\((x, y) = (1, 2), (2, 4), (3, 6)\\). These lie on a perfect line \\(y = 2x\\), so we expect strong positive covariance and correlation exactly \\(+1\\).
+
+**Step 1 — means.** \\(\\bar{x} = (1 + 2 + 3)/3 = 2\\) and \\(\\bar{y} = (2 + 4 + 6)/3 = 4\\).
+
+**Step 2 — deviations and products.**
+
+\\[
+\\begin{aligned}
+(1 - 2)(2 - 4) &= (-1)(-2) = 2 \\\\
+(2 - 2)(4 - 4) &= (0)(0) = 0 \\\\
+(3 - 2)(6 - 4) &= (1)(2) = 2
+\\end{aligned}
+\\]
+
+**Step 3 — average.** \\(\\operatorname{Cov}(X, Y) = (2 + 0 + 2)/3 = 4/3 \\approx 1.333\\). Positive, as predicted.
+
+**Step 4 — correlation.** The deviations of \\(x\\) are \\([-1, 0, 1]\\), so \\(\\sigma_X = \\sqrt{(1 + 0 + 1)/3} = \\sqrt{2/3}\\). The deviations of \\(y\\) are \\([-2, 0, 2]\\), so \\(\\sigma_Y = \\sqrt{(4 + 0 + 4)/3} = \\sqrt{8/3}\\). Then:
+
+\\[
+\\rho = \\frac{4/3}{\\sqrt{2/3}\\,\\sqrt{8/3}} = \\frac{4/3}{\\sqrt{16/9}} = \\frac{4/3}{4/3} = 1
+\\]
+
+Exactly \\(+1\\) — a perfect line, just as the picture promised. The raw covariance \\(1.333\\) would change if we rescaled the units; the correlation \\(1\\) would not.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Covariance & correlation in NumPy',
+            body: `import numpy as np
+
+x = np.array([1.0, 2.0, 3.0])
+y = np.array([2.0, 4.0, 6.0])
+
+# population covariance (divide by n, not n-1)
+cov = np.mean((x - x.mean()) * (y - y.mean()))
+print(round(cov, 4))                 # 1.3333
+
+# correlation in [-1, 1] — units cancel out
+corr = cov / (x.std() * y.std())
+print(round(corr, 4))                # 1.0
+
+# the full covariance matrix for several features
+X = np.array([[1.0, 2.0],
+              [2.0, 4.0],
+              [3.0, 6.0]])           # rows = samples, cols = features
+Sigma = np.cov(X, rowvar=False, bias=True)   # bias=True -> divide by n
+print(Sigma)                         # [[0.667 1.333] [1.333 2.667]]
+
+# eigenvectors of Sigma ARE the PCA directions
+vals, vecs = np.linalg.eigh(Sigma)
+print(np.round(vals, 3))             # variance captured along each axis`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Zero correlation does not mean independence.** Correlation only detects *linear* co-movement. Points lying perfectly on the parabola \\(y = x^2\\), symmetric around zero, have covariance exactly \\(0\\) — yet \\(y\\) is fully determined by \\(x\\). The variables are dependent in every sense except the linear one. Two more traps: covariance is wildly sensitive to outliers (one extreme point can flip its sign), and the \\(1/n\\) versus \\(1/(n-1)\\) choice (population vs. sample, NumPy's \`bias\` flag) shifts the estimate on small datasets. When you need to capture nonlinear dependence, reach for mutual information, not correlation.`,
+          },
+        ],
+      },
+      {
+        slug: 'sampling',
+        title: 'Sampling & Monte Carlo',
+        oneLiner: 'Estimate an impossible integral by averaging random draws. The trick behind every expectation you cannot solve on paper.',
+        difficulty: 'foundation',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'When you cannot integrate, throw darts',
+            body: `Half of ML is computing expectations — averages of some quantity under a probability distribution. The expected loss over the data, the expected reward of a policy, the expected value of a latent variable. Written down, these are integrals: \\(\\mathbb{E}[f(X)] = \\int f(x)\\,p(x)\\,dx\\). In one dimension over a tidy distribution you might solve that integral with calculus. In the thousand-dimensional, tangled distributions that real models induce, the integral has no closed form and grid-based numerical integration dies — a grid with ten points per axis needs \\(10^{1000}\\) evaluations.
+
+Monte Carlo sidesteps the whole problem with one disarmingly simple move: *don't integrate — sample and average.* Draw \\(N\\) independent samples \\(x_1, \\dots, x_N\\) from the distribution \\(p\\), evaluate \\(f\\) at each, and take the plain mean. That mean is an unbiased estimate of the true expectation, and by the law of large numbers it converges to the right answer as \\(N\\) grows. You traded an exact-but-impossible integral for an approximate-but-trivial average.
+
+The headline property is that the error shrinks like \\(1/\\sqrt{N}\\) **regardless of dimension**. Grid methods get exponentially worse as dimensions pile up; Monte Carlo does not even notice the dimension count. That is why it powers minibatch gradients (a random subset estimates the full-data gradient), dropout (random masks estimate an ensemble average), VAE training (sampled latents estimate the reconstruction expectation), and reinforcement learning (sampled trajectories estimate expected return). The catch — and there is always a catch — is that \\(1/\\sqrt{N}\\) is *slow*: to cut the error in half you need four times the samples.`,
+          },
+          {
+            kind: 'viz',
+            component: 'SamplingViz',
+            heading: 'Draw samples and watch the running average converge',
+          },
+          {
+            kind: 'math',
+            heading: 'The estimator and its error',
+            body: `The Monte Carlo estimate of \\(\\mathbb{E}_{p}[f(X)]\\) from \\(N\\) i.i.d. samples \\(x_i \\sim p\\) is:
+
+\\[
+\\hat{\\mu}_N = \\frac{1}{N}\\sum_{i=1}^{N} f(x_i)
+\\]
+
+It is **unbiased**: \\(\\mathbb{E}[\\hat{\\mu}_N] = \\mathbb{E}_p[f(X)]\\) exactly, for any \\(N\\). Its variance shrinks linearly in the sample count:
+
+\\[
+\\operatorname{Var}(\\hat{\\mu}_N) = \\frac{\\sigma^2}{N}, \\qquad \\text{standard error} = \\frac{\\sigma}{\\sqrt{N}}
+\\]
+
+where \\(\\sigma^2 = \\operatorname{Var}_p(f(X))\\) is the variance of the thing you are averaging. The \\(\\sqrt{N}\\) in the denominator is the famous Monte Carlo convergence rate: quadrupling the samples halves the error, no matter how many dimensions \\(x\\) lives in.
+
+When you cannot sample from \\(p\\) directly but can sample from an easier \\(q\\), **importance sampling** reweights:
+
+\\[
+\\mathbb{E}_p[f(X)] = \\mathbb{E}_q\\!\\left[f(X)\\frac{p(X)}{q(X)}\\right] \\approx \\frac{1}{N}\\sum_i f(x_i)\\frac{p(x_i)}{q(x_i)}, \\quad x_i \\sim q
+\\]
+
+The ratio \\(p/q\\) corrects for sampling from the wrong distribution. Choose \\(q\\) close to \\(p\\) (especially in the regions where \\(f\\) is large) and the variance drops; choose it badly and a few enormous weights wreck the estimate.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: estimating π by throwing darts',
+            body: `The cleanest Monte Carlo demo estimates \\(\\pi\\) with no trigonometry at all. Inscribe a quarter circle of radius 1 inside the unit square \\([0,1]^2\\). The square has area 1; the quarter circle has area \\(\\pi/4\\). So the *fraction* of the square covered by the quarter circle is \\(\\pi/4\\).
+
+**The estimator.** Throw darts uniformly at the square — draw \\((x, y)\\) with \\(x, y \\sim \\text{Uniform}(0, 1)\\). A dart lands inside the quarter circle exactly when \\(x^2 + y^2 \\le 1\\). Here \\(f(x, y)\\) is the indicator "inside the circle," whose expectation under the uniform distribution is the area fraction \\(\\pi/4\\). The Monte Carlo average is just the *hit rate*:
+
+\\[
+\\hat{\\mu}_N = \\frac{\\text{darts inside}}{N} \\approx \\frac{\\pi}{4} \\quad\\Longrightarrow\\quad \\hat{\\pi} = 4\\,\\hat{\\mu}_N
+\\]
+
+**Numbers.** Say you throw \\(N = 1000\\) darts and \\(786\\) land inside. Then \\(\\hat{\\mu} = 0.786\\) and \\(\\hat{\\pi} = 4 \\times 0.786 = 3.144\\) — already within \\(0.003\\) of the truth. The variance of a single indicator is \\(\\sigma^2 = \\mu(1-\\mu) \\approx 0.785 \\times 0.215 \\approx 0.169\\), so the standard error on \\(\\hat{\\mu}\\) is \\(\\sqrt{0.169/1000} \\approx 0.013\\), and on \\(\\hat{\\pi}\\) about \\(4 \\times 0.013 = 0.052\\). To shrink that error to \\(0.005\\) — ten times smaller — you would need \\(100\\times\\) the darts, \\(100{,}000\\). That \\(1/\\sqrt{N}\\) wall is the whole reason variance-reduction tricks exist.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Monte Carlo in NumPy',
+            body: `import numpy as np
+rng = np.random.default_rng(0)
+
+# estimate pi by sampling the unit square
+def estimate_pi(n):
+    x = rng.uniform(0, 1, n)
+    y = rng.uniform(0, 1, n)
+    inside = (x**2 + y**2) <= 1.0
+    mu = inside.mean()
+    se = inside.std() / np.sqrt(n)        # standard error of the mean
+    return 4 * mu, 4 * se
+
+for n in [100, 10_000, 1_000_000]:
+    est, se = estimate_pi(n)
+    print(f"N={n:>9}  pi~={est:.4f}  +/- {se:.4f}")
+
+# error roughly quarters... no, HALVES each 4x more samples (1/sqrt(N))
+# general expectation: E_p[f(X)] ~ mean of f over samples drawn from p
+samples = rng.normal(0, 1, 100_000)       # X ~ Normal(0,1)
+print(round((samples**2).mean(), 4))      # estimates E[X^2] = Var = 1.0`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Independence and variance are everything.** The \\(1/\\sqrt{N}\\) guarantee assumes the samples are independent and that \\(f\\) has finite variance — heavy-tailed \\(f\\) (where rare giant values dominate the mean) converges agonisingly slowly or not at all. When you cannot draw independent samples from a complex \\(p\\), Markov-Chain Monte Carlo (MCMC) generates *correlated* samples whose long-run average still converges, but the correlation inflates the effective error. And never confuse "more samples" with "better samples": a biased sampler converges fast to the *wrong* answer. Variance-reduction tools — importance sampling, control variates, antithetic variates, stratification — buy you accuracy without paying the brutal \\(4\\times\\)-samples-per-halving tax.`,
+          },
+        ],
+      },
+      {
+        slug: 'lr-schedules',
+        title: 'Learning-rate schedules',
+        oneLiner: 'Shape the step size over training — warm up, then decay. Often it matters as much as the optimizer itself.',
+        difficulty: 'intermediate',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'One number, changed over time',
+            body: `The learning rate is the single most consequential hyperparameter in training, and a **schedule** is the recognition that its best value is not constant. Early in training the weights are random and the loss surface near them is steep and chaotic; a large step here can send the loss to infinity. Late in training you are near a minimum and need delicate, tiny steps to settle into the bottom of the valley instead of bouncing around it. No single fixed learning rate serves both phases well. A schedule changes the step size as training progresses to match what each phase needs.
+
+The two universal ingredients are **warmup** and **decay**. Warmup starts the learning rate near zero and ramps it up over the first few hundred or few thousand steps. Why bother? At step zero the optimizer's running statistics (Adam's variance estimates, batch-norm's moving averages) are garbage, and the gradients are huge and noisy; a full-size step on top of that noise often diverges. Ramping up gently lets the statistics stabilise before you trust them with a big step. After warmup comes decay: the learning rate shrinks over the rest of training, large at first to cover ground quickly, small at the end to fine-tune.
+
+The *shape* of the decay is where the named schedules differ. **Step decay** holds the rate flat and then drops it by a factor (say \\(\\times 0.1\\)) at fixed milestones — simple, jagged, still common in vision. **Exponential decay** multiplies by a constant each step, a smooth geometric falloff. **Cosine decay** follows half a cosine curve from the peak down to (near) zero, which is gentle at both ends and steep in the middle; it is the modern default for transformers because it spends a long time at high rates and eases into the minimum. The right schedule can be the difference between a model that trains and one that diverges or stalls.`,
+          },
+          {
+            kind: 'viz',
+            component: 'LRScheduleViz',
+            heading: 'Compare warmup, step, exponential, and cosine decay',
+          },
+          {
+            kind: 'math',
+            heading: 'The common schedule shapes',
+            body: `Let \\(\\eta_0\\) be the peak learning rate, \\(t\\) the current step, \\(T\\) the total steps, and \\(T_w\\) the warmup length.
+
+**Linear warmup** (the first \\(T_w\\) steps), ramping from 0 up to the peak:
+
+\\[
+\\eta(t) = \\eta_0 \\cdot \\frac{t}{T_w}, \\qquad t \\le T_w
+\\]
+
+**Step decay** — drop by factor \\(\\gamma\\) every \\(s\\) steps:
+
+\\[
+\\eta(t) = \\eta_0 \\cdot \\gamma^{\\lfloor t / s \\rfloor}
+\\]
+
+**Exponential decay** — smooth geometric falloff with rate \\(\\lambda\\):
+
+\\[
+\\eta(t) = \\eta_0 \\cdot e^{-\\lambda t}
+\\]
+
+**Cosine decay** — from the peak down to a floor \\(\\eta_{\\min}\\) over the post-warmup steps:
+
+\\[
+\\eta(t) = \\eta_{\\min} + \\tfrac{1}{2}\\,(\\eta_0 - \\eta_{\\min})\\left(1 + \\cos\\!\\frac{\\pi (t - T_w)}{T - T_w}\\right)
+\\]
+
+At \\(t = T_w\\) the cosine term is \\(\\cos 0 = 1\\), giving the full peak \\(\\eta_0\\); at \\(t = T\\) it is \\(\\cos\\pi = -1\\), giving the floor \\(\\eta_{\\min}\\). The half-period cosine is gentle near both endpoints, which is exactly the desired behaviour — ease into the high-rate phase, ease out into the minimum.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: warmup then cosine, by the numbers',
+            body: `Set \\(\\eta_0 = 0.001\\), warmup \\(T_w = 100\\) steps, total \\(T = 1000\\) steps, floor \\(\\eta_{\\min} = 0\\). Trace the learning rate at four checkpoints.
+
+**Step 50 (mid-warmup).** Linear ramp: \\(\\eta = 0.001 \\times 50/100 = 0.0005\\). Halfway up.
+
+**Step 100 (warmup ends, peak).** \\(\\eta = 0.001 \\times 100/100 = 0.001\\). Full rate — and also the start of the cosine, since \\(\\cos 0 = 1\\) reproduces the peak.
+
+**Step 550 (midpoint of decay).** The cosine argument is \\(\\pi(550 - 100)/(1000 - 100) = \\pi \\times 450/900 = \\pi/2\\), and \\(\\cos(\\pi/2) = 0\\). So \\(\\eta = 0 + \\tfrac12 (0.001)(1 + 0) = 0.0005\\). Exactly half the peak, at the halfway point — the symmetry of the cosine.
+
+**Step 1000 (end).** Argument is \\(\\pi(900)/(900) = \\pi\\), \\(\\cos\\pi = -1\\), so \\(\\eta = \\tfrac12(0.001)(1 - 1) = 0\\). The rate has decayed to the floor.
+
+Notice the asymmetry in *time spent at high rates*: because cosine is flat near its peak, the rate stays above \\(0.0008\\) for roughly the first third of decay, then falls off through the steep middle, then flattens again as it approaches zero. That long high-rate plateau is why cosine generalises better than a linear ramp-down in practice — the model explores the loss surface aggressively before committing to a basin.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Schedules in NumPy',
+            body: `import numpy as np
+
+def warmup_cosine(t, eta0=1e-3, warmup=100, total=1000, eta_min=0.0):
+    if t < warmup:
+        return eta0 * t / warmup                      # linear warmup
+    progress = (t - warmup) / (total - warmup)        # in [0, 1]
+    return eta_min + 0.5 * (eta0 - eta_min) * (1 + np.cos(np.pi * progress))
+
+for t in [0, 50, 100, 550, 1000]:
+    print(f"step {t:>4}:  lr = {warmup_cosine(t):.6f}")
+
+# step decay: drop by 10x every 300 steps
+def step_decay(t, eta0=1e-3, gamma=0.1, step=300):
+    return eta0 * gamma ** (t // step)
+
+print([round(step_decay(t), 6) for t in [0, 300, 600, 900]])
+# [0.001, 0.0001, 1e-05, 1e-06]  -> staircase down
+
+# exponential decay
+def exp_decay(t, eta0=1e-3, lam=0.002):
+    return eta0 * np.exp(-lam * t)
+print(round(exp_decay(500), 6))   # 0.000368`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Tie the schedule to the real step count, and don't skip warmup on big models.** A cosine schedule baked for 1000 steps but run for 5000 decays to zero after step 1000 and then trains at a dead rate forever — always set \\(T\\) to the actual total. Warmup is not optional for large transformers or large batch sizes: without it, the first few steps' enormous gradients combined with cold Adam statistics routinely blow the loss to NaN. The peak rate and the schedule shape interact, so retune the peak whenever you change the schedule. And remember weight decay often wants its own schedule — coupling it blindly to the learning rate (as vanilla Adam does) is exactly the bug AdamW was invented to fix.`,
+          },
+        ],
+      },
+      {
+        slug: 'lagrange',
+        title: 'Lagrange multipliers & constraints',
+        oneLiner: 'Optimize subject to a constraint by balancing two gradients. The math under SVMs, KKT, and constrained training.',
+        difficulty: 'intermediate',
+        readMinutes: 10,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Optimize on a leash',
+            body: `Ordinary optimization roams free: find the lowest point of a loss anywhere in parameter space. Constrained optimization puts the parameters on a leash — minimise the loss, *but only among points that satisfy some rule*. Find the closest point on a circle to a target. Maximise return subject to a fixed budget. Train a classifier so the margin is at least 1. The constraint carves out a surface inside the space, and you are only allowed to stand on it.
+
+Here is the geometric insight that makes the whole subject click. At an unconstrained minimum, the gradient is zero — flat ground, nowhere lower to go. At a *constrained* minimum the gradient of the objective is almost never zero; if it were, you would not need the constraint. Instead, at the best feasible point, the objective's gradient points **straight out of the constraint surface** — perpendicular to it. Why? Because if the gradient had any component *along* the surface, you could slide a little in the opposite direction, stay feasible, and lower the objective. Only when the objective gradient is fully perpendicular to the constraint is there no feasible direction left that improves things. You are pinned.
+
+"Perpendicular to the constraint surface" has a precise translation: the objective gradient must be parallel to the *constraint's* gradient, since a constraint's gradient always points perpendicular to its own surface. Two parallel vectors differ only by a scalar multiple. That scalar is the **Lagrange multiplier** \\(\\lambda\\). Lagrange's method packages this balancing condition into a single function you can hand to ordinary calculus, turning a constrained problem into an unconstrained one in a slightly bigger space.`,
+          },
+          {
+            kind: 'viz',
+            component: 'SVMViz',
+            heading: 'The margin a Lagrangian maximizes — drag the support vectors',
+          },
+          {
+            kind: 'math',
+            heading: 'The Lagrangian and KKT conditions',
+            body: `To minimise \\(f(x)\\) subject to an equality constraint \\(g(x) = 0\\), form the **Lagrangian**:
+
+\\[
+\\mathcal{L}(x, \\lambda) = f(x) - \\lambda\\, g(x)
+\\]
+
+Set its gradient (with respect to *both* \\(x\\) and \\(\\lambda\\)) to zero. The \\(x\\)-part gives the parallel-gradients condition; the \\(\\lambda\\)-part recovers the constraint:
+
+\\[
+\\nabla_x f = \\lambda\\, \\nabla_x g, \\qquad g(x) = 0
+\\]
+
+The first equation is "objective gradient parallel to constraint gradient." The second just says "stay on the surface." Solve them together for \\(x\\) and \\(\\lambda\\).
+
+For **inequality** constraints \\(g(x) \\le 0\\) the generalisation is the **Karush-Kuhn-Tucker (KKT)** conditions, which add two ideas:
+
+\\[
+\\begin{aligned}
+\\nabla_x f &= \\textstyle\\sum_i \\lambda_i \\nabla_x g_i &&\\text{(stationarity)} \\\\
+g_i(x) &\\le 0,\\quad \\lambda_i \\ge 0 &&\\text{(feasibility, sign)} \\\\
+\\lambda_i\\, g_i(x) &= 0 &&\\text{(complementary slackness)}
+\\end{aligned}
+\\]
+
+**Complementary slackness** is the gem: for each constraint, *either* the multiplier \\(\\lambda_i = 0\\) (the constraint is slack — you are strictly inside it, it does not bind) *or* \\(g_i(x) = 0\\) (the constraint is active — you are pressed against it). A constraint you are not touching exerts no force. In an SVM this is exactly why only the **support vectors** — the points sitting on the margin, where the constraint is active — get nonzero multipliers and define the boundary; every other point has \\(\\lambda_i = 0\\) and could be deleted without changing the answer.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: closest point on a line to the origin... and a circle',
+            body: `**Problem.** Minimise \\(f(x, y) = x^2 + y^2\\) (squared distance to the origin) subject to \\(g(x, y) = x + y - 1 = 0\\) (the point must lie on the line \\(x + y = 1\\)).
+
+**Set up the Lagrangian.** \\(\\mathcal{L} = x^2 + y^2 - \\lambda(x + y - 1)\\).
+
+**Stationarity.** Differentiate and set to zero:
+
+\\[
+\\frac{\\partial \\mathcal{L}}{\\partial x} = 2x - \\lambda = 0, \\qquad \\frac{\\partial \\mathcal{L}}{\\partial y} = 2y - \\lambda = 0
+\\]
+
+These give \\(x = \\lambda/2\\) and \\(y = \\lambda/2\\) — so immediately \\(x = y\\). The symmetry is the geometry talking: the closest point on the line to the origin sits where the line's perpendicular through the origin hits it.
+
+**Apply the constraint.** Substitute \\(x = y\\) into \\(x + y = 1\\): \\(2x = 1\\), so \\(x = y = 1/2\\), and \\(\\lambda = 2x = 1\\).
+
+**Answer.** The closest point is \\((1/2, 1/2)\\), at distance \\(\\sqrt{(1/2)^2 + (1/2)^2} = \\sqrt{1/2} \\approx 0.707\\). Check the gradients are parallel: \\(\\nabla f = (2x, 2y) = (1, 1)\\) and \\(\\nabla g = (1, 1)\\) — identical up to the factor \\(\\lambda = 1\\). Exactly aligned, as the theory demands.
+
+**The multiplier means something.** \\(\\lambda\\) is the *sensitivity* of the optimum to the constraint. If you relax the constraint to \\(x + y = 1 + \\epsilon\\), the optimal objective value changes by approximately \\(\\lambda \\cdot \\epsilon\\). Here \\(\\lambda = 1\\), so loosening the line by a small \\(\\epsilon\\) changes the minimal squared distance by about \\(\\epsilon\\). In economics this reading of \\(\\lambda\\) is the "shadow price" — what one more unit of budget is worth. In an SVM it is how hard a support vector pushes on the decision boundary.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Solving a constrained problem in SciPy',
+            body: `import numpy as np
+from scipy.optimize import minimize
+
+# minimize x^2 + y^2 subject to x + y = 1
+f = lambda v: v[0]**2 + v[1]**2
+constraint = {'type': 'eq', 'fun': lambda v: v[0] + v[1] - 1}
+
+res = minimize(f, x0=[0.0, 0.0], constraints=[constraint])
+print(np.round(res.x, 4))            # [0.5 0.5]  -> the Lagrange answer
+print(round(res.fun, 4))             # 0.5        -> squared distance
+
+# verify gradients are parallel at the optimum: grad f = lambda * grad g
+x, y = res.x
+grad_f = np.array([2*x, 2*y])        # = [1, 1]
+grad_g = np.array([1.0, 1.0])
+print(np.round(grad_f / grad_g, 4))  # [1. 1.]  -> lambda = 1, fully aligned
+
+# inequality x + y >= 1 ('ineq' means fun >= 0); same optimum, now KKT
+ineq = {'type': 'ineq', 'fun': lambda v: v[0] + v[1] - 1}
+print(np.round(minimize(f, [0, 0], constraints=[ineq]).x, 4))  # [0.5 0.5]`,
+          },
+          {
+            kind: 'callout',
+            tone: 'note',
+            body: `**Watch the sign and check second-order conditions.** The stationarity equations find points where gradients are parallel — but parallel gradients flag minima, maxima, *and* saddle points alike. Lagrange's method gives you candidates; you still confirm which is the minimum (bordered-Hessian test, or just evaluate and compare). For inequalities the multiplier sign matters: \\(\\lambda \\ge 0\\) for \\(g(x) \\le 0\\) constraints, and getting the convention backwards silently inverts the problem. In ML the most common appearance is the dual: minimising a Lagrangian over \\(x\\) and then maximising over \\(\\lambda\\) turns the SVM primal into a cleaner dual quadratic program, and the same primal-dual machinery shows up in constrained RL and in the KKT view of regularisation (L2 penalty \\(\\Leftrightarrow\\) a norm-ball constraint).`,
+          },
+        ],
+      },
+      {
+        slug: 'mutual-information',
+        title: 'Mutual information',
+        oneLiner: 'How many bits knowing one variable saves you about another. The objective behind contrastive learning.',
+        difficulty: 'intermediate',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Shared information, measured in bits',
+            body: `Entropy measures the uncertainty in a single variable — your average surprise per draw. **Mutual information** measures how much that uncertainty *drops* once you learn the value of a second variable. Phrased as a question: before I tell you \\(Y\\), how uncertain are you about \\(X\\); and after I tell you \\(Y\\), how much less uncertain are you? The size of that reduction, averaged over all the possible values of \\(Y\\), is the mutual information \\(I(X; Y)\\). It is the amount of information the two variables share.
+
+Two extremes pin down the meaning. If \\(X\\) and \\(Y\\) are **independent**, knowing one tells you nothing about the other — the uncertainty about \\(X\\) is unchanged after learning \\(Y\\), so \\(I(X; Y) = 0\\). If \\(Y\\) is a **deterministic function** of \\(X\\) (say \\(Y\\) is just \\(X\\) relabelled), then learning \\(Y\\) pins down \\(X\\) completely, the residual uncertainty drops to zero, and \\(I(X; Y)\\) equals the full entropy of \\(X\\). Everything real lives between: partial dependence, partial information shared.
+
+Unlike correlation, mutual information catches *any* statistical dependence, not just linear co-movement. Points on \\(y = x^2\\) have zero correlation but high mutual information — knowing \\(x\\) absolutely tells you \\(y\\). This is why MI underpins so much modern representation learning. **Contrastive methods** (SimCLR, CPC, InfoNCE) train an encoder to maximise the mutual information between two views of the same data point — the model learns features that preserve what the two views share and discard what is view-specific noise. Feature selection ranks inputs by their MI with the label. The information bottleneck frames a whole network as squeezing the MI between input and representation while keeping the MI between representation and label high.`,
+          },
+          {
+            kind: 'viz',
+            component: 'ContrastiveEmbeddingViz',
+            heading: 'Contrastive learning pulls shared-information views together',
+          },
+          {
+            kind: 'math',
+            heading: 'Three equivalent definitions',
+            body: `Mutual information is the KL divergence between the *joint* distribution \\(p(x, y)\\) and the product of the *marginals* \\(p(x)p(y)\\) — it measures exactly how far the variables are from being independent:
+
+\\[
+I(X; Y) = \\sum_{x, y} p(x, y)\\,\\log\\frac{p(x, y)}{p(x)\\,p(y)} = D_{KL}\\big(p(x,y)\\,\\|\\,p(x)p(y)\\big)
+\\]
+
+If they were independent, \\(p(x,y) = p(x)p(y)\\), every log-ratio is \\(\\log 1 = 0\\), and \\(I = 0\\). Because it is a KL divergence, MI is always \\(\\ge 0\\).
+
+The "reduction in uncertainty" reading comes from rewriting it with entropies:
+
+\\[
+I(X; Y) = H(X) - H(X \\mid Y) = H(Y) - H(Y \\mid X)
+\\]
+
+\\(H(X)\\) is your uncertainty about \\(X\\) up front; \\(H(X \\mid Y)\\) is what remains after learning \\(Y\\). Their difference is the information \\(Y\\) gave you about \\(X\\). The symmetry \\(I(X;Y) = I(Y;X)\\) is built in — information is *shared*, it has no direction. A third form uses the joint entropy:
+
+\\[
+I(X; Y) = H(X) + H(Y) - H(X, Y)
+\\]
+
+Read it as a Venn diagram: two circles of "uncertainty," \\(H(X)\\) and \\(H(Y)\\); their union is the joint entropy \\(H(X,Y)\\); their overlap — counted twice if you just add the circles, hence subtracted once — is the mutual information.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: two correlated bits',
+            body: `Let \\(X\\) be a fair bit, \\(P(X{=}0) = P(X{=}1) = 0.5\\). Let \\(Y\\) be a *noisy copy*: \\(Y = X\\) with probability \\(0.9\\) and flipped with probability \\(0.1\\). Compute \\(I(X; Y)\\) in bits.
+
+**Marginals.** By symmetry \\(Y\\) is also fair: \\(P(Y{=}0) = P(Y{=}1) = 0.5\\). So \\(H(X) = H(Y) = 1\\) bit each.
+
+**Conditional entropy \\(H(Y \\mid X)\\).** Given \\(X\\), \\(Y\\) matches with prob \\(0.9\\) and flips with prob \\(0.1\\) — a biased coin with distribution \\([0.9, 0.1]\\). Its entropy (computed in the entropy lesson) is:
+
+\\[
+H(Y \\mid X) = -(0.9\\log_2 0.9 + 0.1\\log_2 0.1) \\approx 0.469 \\text{ bits}
+\\]
+
+**Mutual information.**
+
+\\[
+I(X; Y) = H(Y) - H(Y \\mid X) = 1 - 0.469 = 0.531 \\text{ bits}
+\\]
+
+Learning \\(X\\) cuts your uncertainty about \\(Y\\) from 1 bit down to 0.469 bits — a saving of about half a bit. That half-bit is the information the noisy channel preserves.
+
+**Sanity checks at the extremes.** If the channel were perfect (\\(Y = X\\) always), \\(H(Y\\mid X) = 0\\) and \\(I = 1\\) bit — full information passes through. If the channel were pure noise (\\(Y\\) a fresh fair coin regardless of \\(X\\)), \\(H(Y\\mid X) = 1\\) and \\(I = 0\\) — nothing passes. Our \\(0.531\\) sits sensibly between, exactly tracking how reliable the link is.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Mutual information in NumPy',
+            body: `import numpy as np
+
+def mutual_information(joint):
+    """joint: 2D array of p(x, y) summing to 1, in bits."""
+    joint = np.asarray(joint, float)
+    px = joint.sum(axis=1, keepdims=True)     # marginal p(x)
+    py = joint.sum(axis=0, keepdims=True)     # marginal p(y)
+    mask = joint > 0
+    return np.sum(joint[mask] * np.log2(joint[mask] / (px * py)[mask]))
+
+# noisy-copy channel: X fair, Y = X w.p. 0.9
+#            Y=0    Y=1
+joint = np.array([[0.45, 0.05],   # X=0
+                  [0.05, 0.45]])  # X=1
+print(round(mutual_information(joint), 4))    # 0.5310 bits
+
+# independent variables -> MI is zero
+indep = np.outer([0.5, 0.5], [0.5, 0.5])
+print(round(mutual_information(indep), 6))    # 0.0
+
+# perfectly coupled -> MI equals H(X) = 1 bit
+perfect = np.array([[0.5, 0.0], [0.0, 0.5]])
+print(round(mutual_information(perfect), 4))  # 1.0`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Estimating MI from samples is genuinely hard.** The clean formulas above assume you *know* the joint distribution. With only samples — the real situation — you must estimate it, and naive histogram binning is badly biased upward in high dimensions (the curse of dimensionality strikes the joint density hardest). This is why neural MI estimators (MINE, InfoNCE) sidestep direct density estimation entirely and instead optimise a *lower bound* on MI — InfoNCE's loss is provably a bound on \\(I(X;Y)\\), which is exactly why minimising the contrastive loss maximises mutual information between views. Two more cautions: MI is unbounded above for continuous variables (it can be infinite for deterministic continuous relationships), and a high MI between input and representation is not automatically good — the information bottleneck deliberately *limits* it to force compression.`,
+          },
+        ],
+      },
+      {
+        slug: 'perplexity',
+        title: 'Perplexity',
+        oneLiner: 'The exponential of cross-entropy — an effective branching factor. The standard yardstick for language models.',
+        difficulty: 'intermediate',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'How surprised is the model, on average?',
+            body: `A language model predicts the next token as a probability distribution over the vocabulary. A *good* model puts high probability on the token that actually comes next; a bad one spreads its probability thin and gets caught off guard. **Perplexity** is the single number that summarises how surprised the model is, on average, by the real text — and it has a beautifully concrete interpretation: it is the **effective branching factor**, the number of equally likely choices the model is effectively deciding between at each step.
+
+Picture a model predicting digits in a phone number, where every digit 0-9 is equally likely. A perfect model still cannot do better than guessing among 10 options — its perplexity is 10. Now imagine English text: a strong model predicting the word after "the cat sat on the" is *not* choosing uniformly among 50,000 vocabulary tokens; it has narrowed the field to a handful of plausible continuations ("mat," "floor," "sofa"). Its perplexity might be 15 or 20 — as if, at each token, it were choosing among only twenty roughly-equal options instead of fifty thousand. Lower perplexity means the model has narrowed the field more, which means it understands the text better.
+
+The mechanical definition is just the exponential of the cross-entropy loss. Cross-entropy measures the average surprise (in nats or bits); exponentiating undoes the log and converts "average bits of surprise" back into "effective number of choices." That is why the two are reported interchangeably — a cross-entropy of 2.3 nats *is* a perplexity of about 10, the same fact in two units. When a paper says it cut perplexity from 25 to 18, it cut the model's effective uncertainty from "choosing among 25 options" to "choosing among 18."`,
+          },
+          {
+            kind: 'viz',
+            component: 'PerplexityVsCalibrationViz',
+            heading: 'How confidence calibration moves perplexity',
+          },
+          {
+            kind: 'math',
+            heading: 'Perplexity is exp of cross-entropy',
+            body: `For a sequence of \\(N\\) tokens \\(w_1, \\dots, w_N\\), the model assigns each a conditional probability \\(p(w_i \\mid w_{<i})\\). The cross-entropy (average negative log-probability) is:
+
+\\[
+H = -\\frac{1}{N}\\sum_{i=1}^{N} \\log p(w_i \\mid w_{<i})
+\\]
+
+Perplexity is its exponential, using the **same base** as the log:
+
+\\[
+\\mathrm{PPL} = \\exp(H) = \\exp\\!\\left(-\\frac{1}{N}\\sum_{i=1}^{N} \\log p(w_i \\mid w_{<i})\\right)
+\\]
+
+Equivalently, it is the inverse geometric mean of the per-token probabilities:
+
+\\[
+\\mathrm{PPL} = \\left(\\prod_{i=1}^{N} p(w_i \\mid w_{<i})\\right)^{-1/N}
+\\]
+
+This last form makes the "branching factor" reading exact. If the model assigned every token probability \\(1/k\\) (a uniform choice among \\(k\\) options), the geometric mean of the probabilities is \\(1/k\\) and the perplexity is exactly \\(k\\). So perplexity reports the size of the uniform distribution that would be *equally surprising* as the model's actual predictions. The bounds are clean: a perfect model that assigns probability 1 to every correct token has \\(\\mathrm{PPL} = 1\\) (no uncertainty, one choice); a model that assigns uniform probability over a vocabulary of size \\(V\\) has \\(\\mathrm{PPL} = V\\) (maximally lost).`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: perplexity of a four-token sentence',
+            body: `Suppose a model reads the sentence and assigns these probabilities to the four actual next-tokens: \\(p_1 = 0.5\\), \\(p_2 = 0.25\\), \\(p_3 = 0.5\\), \\(p_4 = 0.1\\). Compute the perplexity.
+
+**Step 1 — average negative log (cross-entropy, in nats).**
+
+\\[
+H = -\\frac{1}{4}\\big(\\ln 0.5 + \\ln 0.25 + \\ln 0.5 + \\ln 0.1\\big)
+\\]
+
+The logs: \\(\\ln 0.5 = -0.693\\), \\(\\ln 0.25 = -1.386\\), \\(\\ln 0.5 = -0.693\\), \\(\\ln 0.1 = -2.303\\). Sum \\(= -5.075\\). Divide by 4 and negate: \\(H = 1.269\\) nats.
+
+**Step 2 — exponentiate.**
+
+\\[
+\\mathrm{PPL} = e^{1.269} \\approx 3.56
+\\]
+
+**Interpretation.** The model is, on average, about as uncertain as if it were choosing uniformly among 3.56 options at each token. Cross-check with the geometric-mean form: the product is \\(0.5 \\times 0.25 \\times 0.5 \\times 0.1 = 0.00625\\), and \\(0.00625^{-1/4} = (160)^{1/4} \\approx 3.56\\) — same answer, as it must be.
+
+**Why the low-probability token dominates.** That single \\(p_4 = 0.1\\) token contributed \\(2.303\\) of the \\(5.075\\) total negative log — nearly half — despite being one of four tokens. Perplexity punishes confident wrongness brutally: assign probability \\(0.001\\) to a token that actually appears and its \\(-\\ln(0.001) = 6.9\\) nats alone can dominate a whole sentence. This is the same reason cross-entropy training pushes so hard to never assign near-zero probability to anything real.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Perplexity in NumPy',
+            body: `import numpy as np
+
+def perplexity(token_probs):
+    """token_probs: model probability of each ACTUAL next token."""
+    p = np.asarray(token_probs, float)
+    cross_entropy = -np.mean(np.log(p))       # average negative log (nats)
+    return np.exp(cross_entropy)
+
+probs = [0.5, 0.25, 0.5, 0.1]
+print(round(perplexity(probs), 3))            # 3.557
+
+# perfect model: probability 1 on every correct token
+print(perplexity([1.0, 1.0, 1.0]))           # 1.0  -> no uncertainty
+
+# uniform guessing over a vocab of 10 -> perplexity 10
+print(round(perplexity([0.1] * 20), 3))      # 10.0
+
+# in practice you have logits, not probs: use log-softmax for stability
+logits = np.array([2.0, 1.0, 0.1])
+log_probs = logits - np.log(np.sum(np.exp(logits)))   # log-softmax
+target = 0                                            # correct token index
+print(round(np.exp(-log_probs[target]), 3))           # per-token perplexity`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Perplexity is only comparable within the same tokenizer and vocabulary.** A model that splits text into characters and one that splits into subwords produce perplexities on completely different scales — you cannot compare 1.8 (char-level) against 20 (BPE) and conclude the first is better. Always report what the units are. Two more traps: perplexity is computed on *held-out* text (perplexity on the training set is meaninglessly low), and it measures only next-token prediction quality, which correlates with but does not equal downstream usefulness — a model can have lower perplexity yet be worse at reasoning or instruction-following. Finally, watch for numerical underflow: never multiply raw probabilities for long sequences (they vanish to zero); always sum log-probabilities, exactly as the code above does.`,
+          },
+        ],
+      },
+      {
+        slug: 'conditioning',
+        title: 'Conditioning & condition number',
+        oneLiner: 'How violently a small input error gets amplified into the output. The number that predicts numerical fragility.',
+        difficulty: 'intermediate',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Amplification of error',
+            body: `Every real computation starts with slightly wrong inputs — measurements have noise, floats have rounding error, data has finite precision. The question conditioning answers is: *how much does that small input error get amplified on its way to the output?* A **well-conditioned** problem is forgiving — a tiny wobble in the input produces a tiny wobble in the answer. An **ill-conditioned** problem is treacherous — a microscopic input error explodes into a huge output error, and no algorithm, however clever, can rescue you, because the error was baked into the *problem*, not your method of solving it.
+
+This is a property of the problem itself, separate from the algorithm you use to solve it. Conditioning asks "if my input is slightly off, how far off is the true answer?" — a question about the mathematics. Stability asks "does my particular algorithm add extra error on top of that?" — a question about the implementation. You can solve a well-conditioned problem with an unstable algorithm and get garbage, or solve an ill-conditioned problem with a perfect algorithm and *still* get garbage. They are different failure modes and you need both to be healthy.
+
+The canonical example is solving a linear system \\(Ax = b\\). If \\(A\\) is ill-conditioned, then two right-hand sides \\(b\\) that are nearly identical can have wildly different solutions \\(x\\) — the matrix nearly squashes some direction flat, so undoing it (inverting) blows that direction up enormously. Geometrically, an ill-conditioned matrix maps a round ball into a long thin sliver; recovering the ball from the sliver magnifies any error along the squashed axis. This is why near-collinear features wreck linear regression, why the normal equations are numerically dangerous, and why optimizers crawl through ravine-shaped loss surfaces — they are all the same condition-number disease.`,
+          },
+          {
+            kind: 'viz',
+            component: 'LossLandscape2DViz',
+            heading: 'Ill-conditioning stretches the bowl into a thin ravine',
+          },
+          {
+            kind: 'math',
+            heading: 'The condition number',
+            body: `For a square invertible matrix \\(A\\), the **condition number** (in the 2-norm) is the ratio of its largest to smallest singular value:
+
+\\[
+\\kappa(A) = \\|A\\|\\,\\|A^{-1}\\| = \\frac{\\sigma_{\\max}(A)}{\\sigma_{\\min}(A)}
+\\]
+
+It is always \\(\\ge 1\\). A value near 1 means well-conditioned (the matrix stretches every direction by roughly the same amount — close to a rotation or scaling). A huge value means ill-conditioned (some direction is stretched far more than another, so inverting magnifies error along the squashed axis). An exactly singular matrix has \\(\\sigma_{\\min} = 0\\) and \\(\\kappa = \\infty\\).
+
+The condition number is the worst-case error amplification factor. If you solve \\(Ax = b\\) and the right-hand side carries a relative error \\(\\delta\\), the relative error in the solution can be as large as:
+
+\\[
+\\frac{\\|\\Delta x\\|}{\\|x\\|} \\le \\kappa(A)\\,\\frac{\\|\\Delta b\\|}{\\|b\\|}
+\\]
+
+A practical rule of thumb: with double-precision floats (about 16 significant decimal digits) and a condition number of \\(10^k\\), you lose roughly \\(k\\) digits of accuracy. So \\(\\kappa = 10^8\\) leaves you about 8 reliable digits; \\(\\kappa = 10^{16}\\) leaves you *zero* — the answer is pure noise. For symmetric positive-definite matrices the singular values equal the eigenvalues, so \\(\\kappa = \\lambda_{\\max}/\\lambda_{\\min}\\), which is exactly the Hessian ratio that sets how slowly gradient descent converges on a quadratic bowl.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: a nearly-singular 2×2',
+            body: `Take the matrix
+
+\\[
+A = \\begin{bmatrix} 1 & 1 \\\\ 1 & 1.001 \\end{bmatrix}
+\\]
+
+Its two rows are *almost* identical — the matrix is close to singular (if the rows were equal it would be exactly singular). Intuition says it should be badly conditioned. Let us confirm.
+
+**The system.** Solve \\(Ax = b\\) for \\(b = [2, 2]^\\top\\). The exact solution is \\(x = [2, 0]^\\top\\) (check: \\(1\\cdot 2 + 1\\cdot 0 = 2\\), and \\(1\\cdot 2 + 1.001\\cdot 0 = 2\\)). Good.
+
+**Perturb \\(b\\) by a hair.** Change the second entry by \\(0.001\\): \\(b' = [2, 2.001]^\\top\\), a relative change of about \\(0.0005\\). Re-solving gives \\(x' = [1, 1]^\\top\\) — check: \\(1 + 1 = 2\\) and \\(1 + 1.001 = 2.001\\). Correct.
+
+**The catastrophe.** The solution leapt from \\([2, 0]\\) to \\([1, 1]\\) — a relative change of order 1 (the answer changed completely) in response to a relative input change of \\(0.0005\\). The amplification factor is roughly \\(1 / 0.0005 = 2000\\). The problem magnified a one-part-in-two-thousand input wobble into a total upheaval of the answer.
+
+**The condition number predicts this.** The singular values of \\(A\\) work out to roughly \\(\\sigma_{\\max} \\approx 2.0005\\) and \\(\\sigma_{\\min} \\approx 0.0005\\), so \\(\\kappa(A) = \\sigma_{\\max}/\\sigma_{\\min} \\approx 4000\\) — squarely in line with the amplification we just witnessed. The near-equal rows squash one direction almost flat (\\(\\sigma_{\\min}\\) tiny), and inverting blows that direction up by \\(1/\\sigma_{\\min}\\). No solver can fix this; the fragility lives in \\(A\\).`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Condition numbers in NumPy',
+            body: `import numpy as np
+
+A = np.array([[1.0, 1.0],
+              [1.0, 1.001]])
+
+print(round(np.linalg.cond(A), 1))          # ~4002  -> ill-conditioned
+
+# watch a tiny input change wreck the solution
+b  = np.array([2.0, 2.0])
+b2 = np.array([2.0, 2.001])                 # 0.05% change in b
+print(np.linalg.solve(A, b))                # [2. 0.]
+print(np.linalg.solve(A, b2))               # [1. 1.]  -> totally different!
+
+# a well-conditioned matrix barely moves
+I2 = np.array([[2.0, 0.0], [0.0, 2.0]])
+print(np.linalg.cond(I2))                   # 1.0  -> perfectly conditioned
+
+# condition number = ratio of singular values
+s = np.linalg.svd(A, compute_uv=False)
+print(round(s[0] / s[-1], 1))               # same ~4002
+
+# rule of thumb: log10(cond) digits of accuracy lost
+print(f"~{np.log10(np.linalg.cond(A)):.1f} digits lost")  # ~3.6`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Never invert a matrix you can solve instead, and never form \\(A^\\top A\\) casually.** Explicitly computing \\(A^{-1}\\) and multiplying is both slower and less accurate than \`np.linalg.solve\` — let a stable factorisation (LU, Cholesky, QR) do the work. The classic ill-conditioning trap in ML is the **normal equations** \\(A^\\top A\\,x = A^\\top b\\) for least squares: forming \\(A^\\top A\\) *squares* the condition number (\\(\\kappa(A^\\top A) = \\kappa(A)^2\\)), so a mildly ill-conditioned \\(A\\) with \\(\\kappa = 10^6\\) yields a hopeless \\(10^{12}\\). Use QR or SVD on \\(A\\) directly instead. The fixes for ill-conditioning are regularisation (ridge adds \\(\\lambda I\\) to lift the smallest singular value off zero), feature normalisation (so no axis dominates), and preconditioning (reshaping the problem toward \\(\\kappa \\approx 1\\) before solving).`,
+          },
+        ],
+      },
+      {
+        slug: 'finite-differences',
+        title: 'Finite differences',
+        oneLiner: 'Approximate a derivative from nearby function values. The go-to sanity check when autodiff looks wrong.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'A derivative you can compute without calculus',
+            body: `The derivative is defined as a limit: \\(f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}\\). A computer cannot take a limit, but it *can* pick a small \\(h\\), evaluate \\(f\\) at two nearby points, and compute that ratio directly. That is a **finite difference** — an approximation of the derivative built entirely from function values, no symbolic calculus required. If you can evaluate \\(f\\), you can estimate its slope, even when \\(f\\) is a black box with no analytic form.
+
+This is profoundly useful in exactly the situation where it matters most: **gradient checking**. When you implement backpropagation by hand, or write a custom autograd operation, or suspect a bug in your gradient, finite differences give you an independent second opinion. Nudge each parameter by a tiny \\(h\\), measure how the loss changes, divide — that ratio *is* the numerical gradient, computed without touching your backprop code at all. If your analytic gradient and the finite-difference gradient disagree, you have a bug. This single technique has saved countless hours of debugging neural networks; before autodiff frameworks were trustworthy, every serious implementation shipped a gradient check.
+
+The cost is accuracy and speed. Finite differences are only approximate — they carry a truncation error that shrinks as \\(h\\) shrinks, but they also accumulate floating-point error that *grows* as \\(h\\) shrinks, so there is a sweet spot you cannot push past. And they are expensive: to check the gradient of a function with a million parameters, you need roughly two million function evaluations, one perturbation per parameter. That is fine for verifying a small layer, hopeless for training. Autodiff exists precisely because it computes the exact gradient of all million parameters in a single backward pass — but finite differences remain the trusted referee that confirms autodiff is right.`,
+          },
+          {
+            kind: 'viz',
+            component: 'GradientCheckViz',
+            heading: 'Numerical vs analytic gradient as h shrinks',
+          },
+          {
+            kind: 'math',
+            heading: 'Forward vs. central differences',
+            body: `The **forward difference** uses the function at \\(x\\) and one step ahead:
+
+\\[
+f'(x) \\approx \\frac{f(x + h) - f(x)}{h}
+\\]
+
+A Taylor expansion shows its error is \\(O(h)\\) — first order, halving \\(h\\) halves the error. The **central difference** is far better; it straddles \\(x\\) symmetrically:
+
+\\[
+f'(x) \\approx \\frac{f(x + h) - f(x - h)}{2h}
+\\]
+
+By symmetry the leading error terms cancel, leaving error \\(O(h^2)\\) — *second* order, halving \\(h\\) quarters the error. For the same cost (two evaluations) the central difference is dramatically more accurate, so it is the default for gradient checks.
+
+The catch is **two competing errors**. Truncation error (from \\(h\\) not being zero) shrinks as \\(h \\to 0\\). But **round-off error** from subtracting two nearly-equal floats *grows* as \\(h \\to 0\\): when \\(f(x+h)\\) and \\(f(x-h)\\) agree to many digits, their difference loses precision catastrophically, then dividing by the tiny \\(2h\\) amplifies the noise. The total error is roughly:
+
+\\[
+\\text{error} \\approx \\underbrace{C\\,h^2}_{\\text{truncation}} + \\underbrace{\\frac{\\epsilon}{h}}_{\\text{round-off}}
+\\]
+
+with \\(\\epsilon\\) the machine epsilon (\\(\\approx 10^{-16}\\) for float64). Minimising the sum gives an optimal step around \\(h \\approx \\epsilon^{1/3} \\approx 10^{-5}\\) for central differences — not as small as you can make it, but where the two errors balance.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: differentiating f(x) = x² at x = 2',
+            body: `The true derivative of \\(f(x) = x^2\\) is \\(f'(x) = 2x\\), so at \\(x = 2\\) the exact answer is \\(4\\). Watch the two schemes approximate it with \\(h = 0.01\\).
+
+**Forward difference.**
+
+\\[
+\\frac{f(2.01) - f(2)}{0.01} = \\frac{2.01^2 - 2^2}{0.01} = \\frac{4.0401 - 4}{0.01} = \\frac{0.0401}{0.01} = 4.01
+\\]
+
+Off by \\(0.01\\) — the error is exactly \\(h\\), confirming the \\(O(h)\\) prediction.
+
+**Central difference.**
+
+\\[
+\\frac{f(2.01) - f(1.99)}{2 \\times 0.01} = \\frac{4.0401 - 3.9601}{0.02} = \\frac{0.08}{0.02} = 4.000
+\\]
+
+Exactly \\(4\\) — for a quadratic the central difference has *zero* truncation error (the \\(O(h^2)\\) term is itself exact here because the third derivative vanishes). On a general function it would carry a small \\(O(h^2)\\) error, still vastly better than forward.
+
+**The takeaway in one line.** With the same two function evaluations, central differences turned a \\(0.01\\) error into essentially zero. That is why gradient-checking code always uses the symmetric form: \\((f(x+h) - f(x-h)) / 2h\\). When you compare it against your analytic gradient, use a *relative* error \\(|g_{\\text{analytic}} - g_{\\text{numeric}}| / (|g_{\\text{analytic}}| + |g_{\\text{numeric}}|)\\) and expect it below \\(10^{-7}\\) for a correct implementation; anything above \\(10^{-4}\\) is a bug.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Gradient checking in NumPy',
+            body: `import numpy as np
+
+def numerical_gradient(f, x, h=1e-5):
+    """Central-difference gradient of scalar f at vector x."""
+    grad = np.zeros_like(x, dtype=float)
+    for i in range(x.size):
+        step = np.zeros_like(x); step[i] = h
+        grad[i] = (f(x + step) - f(x - step)) / (2 * h)   # symmetric
+    return grad
+
+# check the gradient of f(x) = sum(x^2), whose true grad is 2x
+f = lambda x: np.sum(x**2)
+x = np.array([1.0, 2.0, 3.0])
+
+analytic = 2 * x                       # [2 4 6]
+numeric  = numerical_gradient(f, x)    # ~[2 4 6]
+print(np.round(numeric, 6))
+
+rel_err = np.abs(analytic - numeric) / (np.abs(analytic) + np.abs(numeric))
+print(rel_err.max())                   # ~1e-11  -> gradient is correct
+
+# forward vs central on f(x)=x^2 at x=2, exact answer 4
+g = lambda x: x**2
+print((g(2.01) - g(2)) / 0.01)         # 4.01   (forward, O(h) error)
+print((g(2.01) - g(1.99)) / 0.02)      # 4.0    (central, O(h^2) error)`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Choosing \\(h\\) is a balancing act, and too small is as bad as too large.** Make \\(h\\) tiny and round-off error from subtracting near-equal floats dominates — the gradient check returns noise and you "fail" a correct implementation. Make it large and truncation error dominates — you "pass" a buggy one. For float64, \\(h \\approx 10^{-5}\\) for central differences sits near the sweet spot. Other traps: gradient checking is \\(O(n)\\) function evaluations so only ever run it on a *small* network or a single layer, never during training; turn off any stochasticity (dropout, data shuffling) so the same \\(x\\) gives the same \\(f(x)\\) on both evaluations; and use *relative* not absolute error, since gradient magnitudes vary across layers. When a check fails, the bug is in your analytic gradient far more often than in the numerics.`,
+          },
+        ],
+      },
+      {
+        slug: 'broadcasting',
+        title: 'Broadcasting',
+        oneLiner: 'Stretch size-1 dimensions to align mismatched shapes — no copying, no loops. Master the rules and reshape bugs vanish.',
+        difficulty: 'foundation',
+        readMinutes: 8,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Operate on shapes that do not match',
+            body: `NumPy and every tensor framework let you add, multiply, and combine arrays whose shapes are not identical — *as long as the shapes are compatible*. **Broadcasting** is the set of rules that decides what "compatible" means and how the smaller array is virtually stretched to fit the larger one. Add a single number to a million-element array and the number is broadcast across all million slots. Add a row vector to every row of a matrix, subtract a per-channel mean from an image — broadcasting handles all of it without writing a loop and, crucially, *without copying data*. The stretching is conceptual; under the hood the framework just reuses the same memory with a stride of zero along the broadcast axis.
+
+The intuition is "stretch size-1 dimensions to match." If one array has a dimension of size 1 where the other has size \\(n\\), that size-1 dimension is repeated \\(n\\) times to line up. A column vector of shape \\((3, 1)\\) added to a row vector of shape \\((1, 4)\\) produces a \\((3, 4)\\) grid — every combination of the three rows and four columns, an outer-sum, conjured from two small vectors. This is not magic; it is the single most common source of both elegant one-liners and baffling bugs in array code.
+
+Why it matters: broadcasting is how vectorised code stays vectorised. The alternative — explicit Python loops over the mismatched dimension — is often 100x slower because it leaves the optimised C kernels. Batch normalisation broadcasts per-feature statistics across the batch. Attention broadcasts a mask across heads. Adding positional encodings broadcasts one encoding across the batch. Every time you avoid a loop by letting shapes auto-align, you are broadcasting. Learn the rules once and a whole category of \`ValueError: operands could not be broadcast\` messages stops being mysterious.`,
+          },
+          {
+            kind: 'math',
+            heading: 'The two broadcasting rules',
+            body: `To decide whether two shapes are compatible, **align them from the right** (the trailing dimension) and compare dimension by dimension. For each aligned pair, one of two conditions must hold:
+
+\\[
+\\textbf{Rule 1:} \\quad \\text{the dimensions are equal}, \\qquad \\textbf{Rule 2:} \\quad \\text{one of them is } 1.
+\\]
+
+If a dimension is 1, it is stretched (repeated) to match the other. If the arrays have different numbers of dimensions, the shorter shape is **padded with leading 1s** until the ranks match, then the same right-aligned comparison applies. If any aligned pair is neither equal nor contains a 1, the operation is illegal and you get a broadcast error.
+
+A worked shape negotiation. Combine \\(A\\) of shape \\((3, 1, 5)\\) with \\(B\\) of shape \\((4, 5)\\):
+
+\\[
+\\begin{array}{r}
+A: \\quad (3,\\; 1,\\; 5) \\\\
+B: \\quad (\\;\\;\\;\\; 4,\\; 5) \\to (1,\\; 4,\\; 5) \\quad \\text{(pad leading 1)} \\\\
+\\hline
+\\text{result}: \\quad (3,\\; 4,\\; 5)
+\\end{array}
+\\]
+
+Trailing axis: \\(5\\) vs \\(5\\), equal — fine. Middle: \\(1\\) vs \\(4\\), one is 1 — stretch \\(A\\)'s 1 to 4. Leading: \\(3\\) vs (padded) \\(1\\), one is 1 — stretch \\(B\\)'s 1 to 3. Result \\((3, 4, 5)\\). Every dimension resolved by "equal, or one is one."`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: column + row makes a grid',
+            body: `Take a column vector \\(c\\) of shape \\((3, 1)\\) and a row vector \\(r\\) of shape \\((1, 4)\\):
+
+\\[
+c = \\begin{bmatrix} 10 \\\\ 20 \\\\ 30 \\end{bmatrix}, \\qquad r = \\begin{bmatrix} 1 & 2 & 3 & 4 \\end{bmatrix}
+\\]
+
+**Shape negotiation.** Right-align: \\((3, 1)\\) and \\((1, 4)\\). Trailing axis: \\(1\\) vs \\(4\\) — stretch \\(c\\)'s column to width 4. Leading axis: \\(3\\) vs \\(1\\) — stretch \\(r\\)'s single row to height 3. Both stretch; the result is \\((3, 4)\\).
+
+**What the stretch produces.** \\(c\\) is virtually repeated across 4 columns and \\(r\\) across 3 rows, then they add element-wise:
+
+\\[
+c + r = \\begin{bmatrix} 11 & 12 & 13 & 14 \\\\ 21 & 22 & 23 & 24 \\\\ 31 & 32 & 33 & 34 \\end{bmatrix}
+\\]
+
+Entry \\((i, j)\\) is \\(c_i + r_j\\) — a full outer-sum table, built from 3 + 4 = 7 input numbers, expanded to 12 outputs, with **no intermediate copies stored**. NumPy walks the original arrays with a zero stride along the broadcast axis, so memory use stays tiny.
+
+**Why this is everywhere.** Distance matrices, attention scores, pairwise kernels — all are "every row combined with every column," exactly this \\((n,1)\\)-with-\\((1,m)\\) pattern. Computing pairwise squared distances between point sets is \`((X[:,None,:] - Y[None,:,:])**2).sum(-1)\`, a triple broadcast that replaces a double loop. Recognise the column-plus-row shape and you recognise half the vectorised tricks in ML code.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Broadcasting in NumPy',
+            body: `import numpy as np
+
+# column (3,1) + row (1,4) -> grid (3,4)
+c = np.array([[10], [20], [30]])        # shape (3, 1)
+r = np.array([[1, 2, 3, 4]])            # shape (1, 4)
+print((c + r).shape)                    # (3, 4)
+print(c + r)                            # outer-sum table
+
+# subtract a per-column mean from every row (batch normalization flavor)
+X = np.array([[1.0, 2.0, 3.0],
+              [4.0, 5.0, 6.0]])         # (2, 3)
+mean = X.mean(axis=0)                   # (3,)  -> per-feature mean
+print(X - mean)                         # (2,3) - (3,) broadcasts fine
+
+# pairwise squared distances via broadcasting, no loops
+A = np.array([[0.0, 0.0], [1.0, 1.0]]) # (2, 2)
+B = np.array([[0.0, 1.0], [2.0, 2.0]]) # (2, 2)
+d2 = ((A[:, None, :] - B[None, :, :])**2).sum(-1)  # (2, 2)
+print(d2)
+
+# this one FAILS: (3,) and (4,) -> incompatible trailing dims
+try:
+    np.array([1, 2, 3]) + np.array([1, 2, 3, 4])
+except ValueError as e:
+    print("broadcast error:", e)`,
+          },
+          {
+            kind: 'callout',
+            tone: 'warn',
+            body: `**Silent broadcasting is the bug; explicit shapes are the fix.** The dangerous case is when shapes broadcast *successfully but wrongly* — add a \\((3,)\\) vector to a \\((3, 1)\\) column and you get a \\((3, 3)\\) matrix instead of the elementwise \\((3,)\\) you intended, with no error at all. The result is silently huge and wrong. Defences: print \`.shape\` obsessively while debugging; use \`x[:, None]\` or \`np.newaxis\` to make your intent explicit rather than relying on accidental rank; and prefer \`keepdims=True\` on reductions (\`X.mean(axis=0, keepdims=True)\`) so the result stays broadcast-aligned with the original. Note that \`np.matmul\`/\`@\` and \`einsum\` do **not** broadcast their contracted dimensions the way \`+\` and \`*\` do — a size-1 axis that an elementwise op would stretch is an error inside a matmul.`,
+          },
+        ],
+      },
+      {
+        slug: 'tensor-contraction',
+        title: 'Tensor contraction',
+        oneLiner: 'Generalized matrix multiply: pick axes, multiply, sum them away. How attention scores and convolutions are computed.',
+        difficulty: 'intermediate',
+        readMinutes: 9,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'Matmul, freed from two dimensions',
+            body: `Matrix multiplication has a hidden shape rule everyone internalises: the inner dimensions must match, and they *disappear* from the result. Multiply \\((m \\times k)\\) by \\((k \\times n)\\) and the shared \\(k\\) vanishes, leaving \\((m \\times n)\\). What happened to \\(k\\)? It was **contracted** — for each output entry you multiplied along the \\(k\\) axis and summed the products away. **Tensor contraction** is exactly this operation, lifted off the restriction to 2D matrices: pick one (or more) axis on each tensor, require their sizes to match, multiply element-wise along them, and sum them out. The contracted axes vanish; every other axis survives into the output.
+
+This single idea unifies a startling range of operations. A dot product contracts the only axis of two vectors, summing it away to a scalar. Matrix multiply contracts one shared axis. Batched matrix multiply contracts one axis while *carrying* a batch axis through untouched. A convolution contracts the channel-and-kernel axes between input patches and filters. The attention score matrix contracts the head-dimension between queries and keys. Once you see "multiply along matching axes, sum them away," these stop being separate functions and become one operation parameterised by *which axes you choose to contract*.
+
+The reason this matters in practice is performance and clarity. Reframing a tangle of \`reshape\`, \`transpose\`, and \`matmul\` calls as a single contraction makes the intent explicit — you state which axes pair up and which survive — and lets the library pick an efficient execution order. Modern deep-learning compute is dominated by large contractions (the GEMM calls inside every linear layer and attention block), and the entire field of optimising them — choosing contraction order for a chain of tensors, mapping them onto GPU tensor cores — is a multi-billion-dollar engineering effort. Understanding contraction is understanding where the FLOPs go.`,
+          },
+          {
+            kind: 'math',
+            heading: 'Contraction as an indexed sum',
+            body: `A contraction picks shared index letters and sums over them. The defining example, matrix multiply, sums over the shared \\(k\\):
+
+\\[
+C_{ij} = \\sum_k A_{ik}\\,B_{kj}
+\\]
+
+The free indices \\(i, j\\) survive into \\(C\\); the contracted \\(k\\) is summed away. Generalise to tensors with any number of axes — a batched matmul carries an untouched batch index \\(b\\) and contracts \\(k\\):
+
+\\[
+C_{bij} = \\sum_k A_{bik}\\,B_{bkj}
+\\]
+
+Attention scores contract the depth axis \\(d\\) between queries \\(Q\\) and keys \\(K\\), keeping batch \\(b\\), head \\(h\\), query position \\(q\\), and key position \\(p\\):
+
+\\[
+S_{bhqp} = \\sum_d Q_{bhqd}\\,K_{bhpd}
+\\]
+
+You can contract **more than one axis at once**. The general tensor double-contraction (a Tucker-style mode product) sums over a pair of matched axes:
+
+\\[
+C_{\\,im} = \\sum_{j}\\sum_{k} A_{ijk}\\,B_{jkm}
+\\]
+
+Here both \\(j\\) and \\(k\\) are shared and summed away; only \\(i\\) and \\(m\\) survive. In Einstein-summation notation every one of these is a one-liner — \`'ik,kj->ij'\`, \`'bik,bkj->bij'\`, \`'bhqd,bhpd->bhqp'\`, \`'ijk,jkm->im'\` — where the letters that vanish are precisely the contracted axes. The notation *is* the contraction specification.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Worked: contracting a 3-tensor with a matrix',
+            body: `Take a small 3-axis tensor \\(A\\) of shape \\((2, 2, 2)\\) and a matrix \\(B\\) of shape \\((2, 3)\\), and contract \\(A\\)'s *last* axis against \\(B\\)'s *first* axis — written \`'ijk,kl->ijl'\`. The shared axis \\(k\\) (size 2) is summed away; the free axes \\(i, j\\) (from \\(A\\)) and \\(l\\) (from \\(B\\)) survive, so the result has shape \\((2, 2, 3)\\).
+
+**The numbers.** Let \\(A[i,j,:]\\) for the four \\((i,j)\\) pairs be the rows \\([1, 2], [3, 4], [5, 6], [7, 8]\\), and let
+
+\\[
+B = \\begin{bmatrix} 1 & 0 & 2 \\\\ 0 & 1 & 1 \\end{bmatrix} \\quad (\\text{shape } 2 \\times 3).
+\\]
+
+**Compute one output fibre.** For \\((i,j) = (0,0)\\), the input fibre is \\(A[0,0,:] = [1, 2]\\). Contract against each column of \\(B\\):
+
+\\[
+\\begin{aligned}
+C[0,0,0] &= 1\\cdot 1 + 2\\cdot 0 = 1 \\\\
+C[0,0,1] &= 1\\cdot 0 + 2\\cdot 1 = 2 \\\\
+C[0,0,2] &= 1\\cdot 2 + 2\\cdot 1 = 4
+\\end{aligned}
+\\]
+
+So \\(C[0,0,:] = [1, 2, 4]\\). Each output fibre is the input fibre \\([a_0, a_1]\\) times \\(B\\): for the general fibre \\([a, b]\\), the output is \\([a,\\; b,\\; 2a + b]\\). For \\((i,j) = (1,1)\\) with fibre \\([7, 8]\\): \\([7, 8, 22]\\).
+
+**The reshape view.** This contraction is *identical* to flattening \\(A\\)'s first two axes into a \\((4, 2)\\) matrix, doing an ordinary \\((4,2)\\times(2,3)\\) matmul to get \\((4, 3)\\), and reshaping back to \\((2, 2, 3)\\). That is exactly how libraries execute it under the hood — every tensor contraction is "permute the axes so the contracted ones are adjacent, reshape to 2D, call GEMM, reshape back." The \`einsum\` string just hides the bookkeeping.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Tensor contraction in NumPy',
+            body: `import numpy as np
+
+A = np.array([[[1, 2], [3, 4]],
+              [[5, 6], [7, 8]]])        # shape (2, 2, 2)
+B = np.array([[1, 0, 2],
+              [0, 1, 1]])               # shape (2, 3)
+
+# contract A's last axis (k) with B's first axis (k) -> (2, 2, 3)
+C = np.einsum('ijk,kl->ijl', A, B)
+print(C.shape)                          # (2, 2, 3)
+print(C[0, 0])                          # [1 2 4]  -> matches the worked fibre
+
+# np.tensordot does the same: axes=1 contracts the last of A, first of B
+print(np.allclose(C, np.tensordot(A, B, axes=1)))   # True
+
+# attention scores: contract the depth axis d between Q and K
+Q = np.random.randn(2, 4, 5, 8)         # (batch, heads, queries, depth)
+K = np.random.randn(2, 4, 6, 8)         # (batch, heads, keys,    depth)
+scores = np.einsum('bhqd,bhpd->bhqp', Q, K)   # sum away d
+print(scores.shape)                     # (2, 4, 5, 6)
+
+# double contraction: sum over TWO shared axes j, k at once
+X = np.random.randn(3, 4, 5)
+Y = np.random.randn(4, 5, 6)
+Z = np.einsum('ijk,jkm->im', X, Y)      # (3, 6)
+print(Z.shape)`,
+          },
+          {
+            kind: 'callout',
+            tone: 'tip',
+            body: `**Contraction order can change the cost by orders of magnitude — and contracted sizes must match exactly.** For a chain of three or more tensors, the *order* in which you contract pairs dramatically affects the total FLOPs (this is the matrix-chain-multiplication problem); \`np.einsum(..., optimize=True)\` searches for a good order automatically and can be hundreds of times faster than the naive left-to-right default. Two firm rules: the contracted axes must have *identical* sizes (contraction does **not** broadcast a size-1 axis the way \`+\` does — a mismatch is an error, not a silent stretch), and the memory of the intermediate result can blow up even when the final answer is small, so order matters for RAM as well as speed. When shapes get confusing, fall back to the reshape-to-2D-matmul mental model: it is always what the library is really doing.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Convolution is a contraction: slide a kernel, multiply, sum',
+            component: 'ConvKernelExplorerViz',
+            props: {},
           },
         ],
       },
@@ -2413,6 +4544,12 @@ So if you want to go *down* — which you do, because you are minimising — you
             kind: 'viz',
             heading: '1D picture — rolling down a parabola',
             component: 'ParabolaDescentViz',
+            props: {},
+          },
+          {
+            kind: 'viz',
+            heading: 'Explore: roll the ball down the loss',
+            component: 'LossDescentExplorerViz',
             props: {},
           },
           {
@@ -2589,6 +4726,11 @@ What this buys you is **per-parameter learning rates**. Parameters that are upda
 The defaults are nearly never worth changing: \\(\\beta_1 = 0.9\\), \\(\\beta_2 = 0.999\\), \\(\\epsilon = 10^{-8}\\).
 
 **Worked step.** Suppose at step 100, the gradient on some parameter is \\(g_t = 0.1\\), with \\(\\beta_1 = 0.9\\). Then \\(m_t = 0.9 \\cdot m_{99} + 0.1 \\cdot 0.1\\). If the previous first-moment estimate was \\(m_{99} = 0.05\\), the new value is \\(m_t = 0.045 + 0.01 = 0.055\\). The bias correction divides by \\(1 - 0.9^{100} \\approx 1.0\\) — by step 100 the bias is effectively gone — so \\(\\hat{m}_t = 0.055\\). The same arithmetic on the second moment with \\(\\beta_2 = 0.999\\) gives a smoothly tracked estimate of \\(g_t^{\\,2}\\), and the ratio \\(\\hat{m}_t / (\\sqrt{\\hat{v}_t} + \\epsilon)\\) is the per-parameter step direction and size for this coordinate.`,
+          },
+          {
+            kind: 'viz',
+            component: 'AdamMomentsViz',
+            heading: 'Watch m and v track a noisy gradient — bias correction and the effective step',
           },
           {
             kind: 'prose',
@@ -2988,6 +5130,11 @@ The two networks now disagree. The linear stack gives \\(-18\\); the ReLU stack 
 The modern rule of thumb: use GELU or SiLU for transformer feedforward layers and attention output projections. Plain ReLU is still the right default for vanilla MLPs, conv nets where compute is the bottleneck, and any architecture where you want the piecewise-linear inductive bias. Leaky ReLU is the cheap insurance policy when dead neurons have shown up in your training logs.`,
           },
           {
+            kind: 'viz',
+            component: 'ActivationExplorerViz',
+            heading: 'Explore: f(x), its gradient, and the saturated tails',
+          },
+          {
             kind: 'prose',
             heading: 'Why all-zero init never works',
             body: `The first instinct of anyone new to neural networks is to initialise every weight to zero. It is symmetric, it is simple, the bias terms get the same treatment, and the optimiser will figure out the right values from there. This fails completely, and the reason teaches you something about every later init scheme.
@@ -3219,6 +5366,12 @@ The geometric picture sharpens the intuition. Without dropout, neurons co-adapt:
 This is bagging in disguise. Bagging trains many models on bootstrap samples of the data and averages them; dropout trains many subnetworks on the same minibatch and the shared-weight averaging happens implicitly. The variance reduction is the same flavour — an exponentially large ensemble, almost free.`,
           },
           {
+            kind: 'viz',
+            heading: 'Each forward pass samples a different sub-network',
+            component: 'DropoutEnsembleViz',
+            props: {},
+          },
+          {
             kind: 'prose',
             heading: 'Worked: inverted dropout numerics',
             body: `Work a single forward pass by hand. Take a layer activation \\(a = [0.8,\\ 0.2,\\ 0.9,\\ 0.5]\\) and a drop probability \\(p = 0.5\\). Sample a Bernoulli mask with survival probability \\(1 - p = 0.5\\). Suppose the coin flips give \\(m = [1,\\ 0,\\ 1,\\ 1]\\) — the second neuron is dropped on this minibatch.
@@ -3293,6 +5446,11 @@ Now the training-time activations and the test-time activations agree in expecta
             heading: 'One layer, three minibatches, three different masks',
             component: 'DropoutMasksViz',
             props: {},
+          },
+          {
+            kind: 'viz',
+            heading: 'Step to sample a fresh mask — watch the surviving subnetwork, the 2^n ensemble, and the train-vs-test rescale',
+            component: 'DropoutExplorerViz',
           },
           {
             kind: 'prose',
@@ -3647,6 +5805,7 @@ The next lessons in this pillar push regularisation further: explicit weight pen
 - [Santurkar et al. — "How Does Batch Normalization Help Optimization?"](https://arxiv.org/abs/1805.11604) — the smoother-loss-landscape rebuttal to "internal covariate shift" as the real explanation.
 - [Ba, Kiros & Hinton — Layer Normalization paper](https://arxiv.org/abs/1607.06450) — the per-sample variant that every modern transformer uses instead of BN.`,
           },
+          { kind: 'viz', heading: 'Normalize, then rescale with γ and β', component: 'BatchNormExplorerViz' },
         ],
       },
       {
@@ -3952,6 +6111,12 @@ The standard FFN is two linear layers with a non-linearity in between, and the h
             props: {},
           },
           {
+            kind: 'viz',
+            heading: 'Q·K scoring → softmax weights → weighted sum of values',
+            component: 'QueryKeyValueViz',
+            props: {},
+          },
+          {
             kind: 'prose',
             heading: 'Why attention beats convolution for long-range dependencies',
             body: `Convolution sees a sequence through a narrow window. A 1D conv layer with kernel size \\(k = 3\\) lets every output position look at three input positions — its immediate neighbours. That is a **local receptive field**: information from token \\(i\\) cannot reach token \\(j\\) in a single layer unless \\(|i - j| \\le 1\\). To connect two tokens that are \\(d\\) positions apart, the signal has to travel through \\(d / (k - 1)\\) stacked layers. For a sequence of length \\(N = 4096\\) and a typical kernel \\(k = 3\\), the receptive field doubles each layer only if you dilate; with plain convs you need on the order of \\(\\log_2 N \\approx 12\\) layers before every output position can in principle see every input position. Twelve layers of stacked nonlinearity between two tokens means twelve chances for the signal to get diluted, distorted, or dropped — the same vanishing-information problem the RNN had, just rebranded.
@@ -4064,6 +6229,12 @@ That is the entire layer. One matrix product to compute scores, a softmax, one m
             component: 'AttentionHeatmap',
             props: {},
             heading: 'Type a sentence. See which token attends to which.',
+          },
+          {
+            kind: 'viz',
+            heading: 'Multiple heads attend in parallel — each on its own slice of the embedding',
+            component: 'MultiHeadAttentionExplorerViz',
+            props: {},
           },
           {
             kind: 'code',
@@ -4398,6 +6569,7 @@ Attention then made all of that obsolete for sequence modelling at scale by remo
 - [Andrej Karpathy — "The Unreasonable Effectiveness of Recurrent Neural Networks"](https://karpathy.github.io/2015/05/21/rnn-effectiveness/) — char-rnn samples and the intuition for why a recurrent state can carry useful structure across hundreds of tokens.
 - [Hochreiter & Schmidhuber — original LSTM paper](https://deeplearning.cs.cmu.edu/F23/document/readings/LSTM.pdf) — the 1997 Neural Computation paper; dense but worth reading once to see where the gates come from.`,
           },
+          { kind: 'viz', heading: 'Inside one LSTM step', component: 'LSTMGateExplorerViz' },
         ],
       },
       {
@@ -4622,6 +6794,11 @@ Verify the relative-offset property numerically. Compute \\(PE(1) \\cdot PE(2) =
             body: `- [Jay Alammar — "The Illustrated Transformer"](https://jalammar.github.io/illustrated-transformer/) — the section on the sinusoidal scheme that shipped with the original transformer.
 - [Su et al. — RoFormer / RoPE paper](https://arxiv.org/abs/2104.09864) — "Enhanced Transformer with Rotary Position Embedding"; the rotation-matrix scheme used by Llama, Mistral, Qwen, and almost every modern open LLM.
 - [Karpathy — nanoGPT](https://github.com/karpathy/nanoGPT) — ~300 lines of training code with both learned and rotary positional embeddings; the cleanest reading-while-running reference.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Drag across positions — read the sinusoidal heatmap',
+            component: 'PositionalEncodingExplorerViz',
           },
         ],
       },
@@ -5391,6 +7568,340 @@ The three failure modes — mode collapse, posterior collapse, miscalibrated den
             body: `- [Goodfellow et al. — GAN paper](https://arxiv.org/abs/1406.2661) — "Generative Adversarial Nets"; the 2014 paper that started one of the three families covered in this lesson.
 - [Kingma & Welling — VAE paper](https://arxiv.org/abs/1312.6114) — "Auto-Encoding Variational Bayes"; the ELBO derivation and the reparameterisation trick.
 - [Lilian Weng — "Flow-based Deep Generative Models"](https://lilianweng.github.io/posts/2018-10-13-flow-models/) — survey of the fourth family (normalising flows) and how it relates to GANs, VAEs, and diffusion.`,
+          },
+        ],
+      },
+      {
+        slug: 'kv-cache',
+        title: 'KV cache',
+        oneLiner: 'Generate token 1000 as cheaply as token 2 — by never recomputing the past.',
+        difficulty: 'intermediate',
+        readMinutes: 11,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'The intuition: stop re-reading the book from page one',
+            body: `Imagine reading a 500-page novel where, to understand each new sentence, you reread every previous page from the start. Sentence two costs you one page of rereading; sentence three costs two pages; by the final sentence you are rereading 499 pages to absorb one new line. The total work to finish the book is not 500 pages — it is the sum \\(1 + 2 + 3 + \\dots + 499\\), which is quadratic. That is exactly what a transformer does at inference time if you let it run naively. Each new token it generates needs to attend over every token that came before, and computing that attention requires the key and value vectors of all those earlier tokens. Recompute them from scratch every step and you pay the rereading tax on every single token.
+
+The KV cache is the obvious fix once you see the waste: write down what you already worked out. When the model processes token \\(t\\), it computes a key vector \\(k_t = W_K x_t\\) and a value vector \\(v_t = W_V x_t\\) for that position. Those two vectors depend only on token \\(t\\) and the fixed weight matrices — not on anything that comes later. So they will *never change*. There is no reason to recompute \\(k_5\\) and \\(v_5\\) when you generate token 6, 7, 8, and onward; they were settled the moment token 5 was processed. Store them in a buffer, the cache, and at every new step you only compute the key and value for the *one* brand-new token, append them, and attend over the whole stored stack.
+
+This single optimisation is the difference between a chatbot that responds in a second and one that grinds for minutes. It turns the per-token cost from "recompute the entire prefix" into "compute one token, read the rest from memory." The query is the only thing that has to be fresh each step — because the question the new token asks is genuinely new — but the keys and values it questions against are all old, and old means cacheable. Everything about fast LLM serving in 2025 (paged attention, grouped-query attention, multi-query attention, prefix sharing) is a refinement of this one idea: the past is immutable, so write it down once.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'What exactly gets cached, and why it is safe',
+            body: `Recall the three projections from the *Attention* lesson. Each token \\(x\\) is turned into a query \\(q = W_Q x\\), a key \\(k = W_K x\\), and a value \\(v = W_V x\\). Attention for the current token computes \\(\\text{softmax}(q \\cdot K^\\top / \\sqrt{d_k}) \\, V\\), where \\(K\\) and \\(V\\) stack the keys and values of every position the token is allowed to see.
+
+In a *decoder*, the causal mask guarantees that position \\(t\\) only ever attends to positions \\(1 \\ldots t\\). Critically, adding a new token at position \\(t+1\\) does not give earlier tokens permission to look forward — the mask still forbids it — so the keys and values of positions \\(1 \\ldots t\\) are computed once and are correct forever. This causal structure is precisely what makes caching valid. In a bidirectional *encoder*, every token sees every other token, so adding a token would change earlier representations; that is why KV caching is a decoder-only trick.
+
+The query is the one thing you cannot cache. Each generation step produces a new token whose query must attend over the entire grown cache, and that query is genuinely new every step. So the loop is: compute \\(q_{t+1}, k_{t+1}, v_{t+1}\\) for the new token, append \\(k_{t+1}\\) and \\(v_{t+1}\\) to the running \\(K\\) and \\(V\\) buffers, run one attention with the single new query against the full buffers, emit the next token, repeat. The matmul shrinks from \\((n \\times n)\\) scores to \\((1 \\times n)\\) scores — one query row instead of \\(n\\).`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Watch the cache fill, one token at a time',
+            component: 'KVCacheViz',
+            props: {},
+          },
+          {
+            kind: 'prose',
+            heading: 'The cost arithmetic: prefill vs decode',
+            body: `Generation splits into two phases with very different cost profiles. **Prefill** processes the whole prompt at once: a prompt of length \\(p\\) costs \\(O(p^2 \\cdot d)\\) to compute the full attention matrix and fills the cache with \\(p\\) entries. This phase is compute-bound — the GPU's matmul units are saturated. **Decode** then generates one token at a time. Step \\(t\\) computes a single query against a cache of size \\(p + t\\), costing \\(O((p+t) \\cdot d)\\). Summed over \\(g\\) generated tokens, decode costs \\(O(g \\cdot (p + g) \\cdot d)\\) — linear per step instead of quadratic.
+
+Without the cache, decode would cost \\(O\\big(\\sum_{t} (p+t)^2 \\cdot d\\big)\\) — cubic in total length, because each step would rebuild the whole \\((p+t) \\times (p+t)\\) score matrix. The cache collapses the per-step work from quadratic to linear, which is the entire reason long-form generation is tractable.
+
+The catch is memory. The cache stores two vectors of dimension \\(d_{\\text{model}}\\) per token, per layer. The total cache size is:
+
+\\[
+\\text{cache bytes} = 2 \\times L \\times n \\times d_{\\text{model}} \\times b
+\\]
+
+where \\(L\\) is the number of layers, \\(n\\) the sequence length, \\(b\\) the bytes per element (2 for fp16), and the factor 2 is for K and V. For a 32-layer, \\(d_{\\text{model}} = 4096\\) model at 8192 tokens in fp16, that is \\(2 \\times 32 \\times 8192 \\times 4096 \\times 2 \\approx 8.6\\) GB — for a *single* sequence. Batch eight requests and the cache alone eats 69 GB, often dwarfing the weights. Decode is therefore **memory-bandwidth-bound**: the bottleneck is streaming that cache from HBM, not the arithmetic.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'A KV cache decode loop in PyTorch',
+            body: `import torch
+import torch.nn.functional as F
+
+def decode_step(x_new, W_q, W_k, W_v, k_cache, v_cache):
+    # x_new: (1, d_model) — embedding of the single newest token
+    q = x_new @ W_q                      # (1, d_k) — fresh every step
+    k = x_new @ W_k                      # (1, d_k) — append, never recompute
+    v = x_new @ W_v                      # (1, d_v)
+
+    # grow the cache by exactly one row
+    k_cache = torch.cat([k_cache, k], dim=0)   # (n+1, d_k)
+    v_cache = torch.cat([v_cache, v], dim=0)   # (n+1, d_v)
+
+    d_k = q.size(-1)
+    scores = q @ k_cache.T / (d_k ** 0.5)      # (1, n+1) — one query row
+    weights = F.softmax(scores, dim=-1)
+    out = weights @ v_cache                      # (1, d_v)
+    return out, k_cache, v_cache`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Shrinking the cache: MQA, GQA, paged attention',
+            body: `Because the cache is the bottleneck, most modern serving tricks attack its size. **Multi-Query Attention (MQA)** keeps \\(h\\) separate query heads but shares a *single* key and value head across all of them — the cache shrinks by a factor of \\(h\\) (often 32×) at a small quality cost. **Grouped-Query Attention (GQA)**, used in Llama-2/3 and Mistral, is the middle ground: split the \\(h\\) query heads into \\(g\\) groups, one K/V head per group, recovering most of the quality of full multi-head while keeping the cache small.
+
+**Paged attention** (the idea behind vLLM) attacks fragmentation rather than per-token size. Instead of pre-allocating a contiguous cache for each request's maximum possible length, it stores the cache in fixed-size blocks like operating-system memory pages, allocating on demand and sharing identical prefixes across requests. Two chat sessions with the same system prompt can literally share the same physical cache blocks for that prefix, slashing memory and enabling far larger batch sizes.
+
+A related trick, **speculative decoding**, does not shrink the cache but reduces how many expensive decode steps you run: a small cheap model drafts several tokens, the big model verifies them in one parallel forward pass, and accepted drafts skip their own sequential steps. It pairs naturally with caching because both target the memory-bandwidth wall of autoregressive decode.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Speculative decoding — draft cheap, verify in one parallel pass',
+            component: 'SpeculativeDecodingViz',
+            props: {},
+          },
+          {
+            kind: 'prose',
+            heading: 'Pitfalls',
+            body: `**Pitfall 1 — caching in an encoder or bidirectional model.** KV caching is only valid when earlier positions never depend on later ones. A bidirectional encoder (BERT) recomputes every representation when the sequence changes, so a cache would hold stale keys. *Fix:* only cache in causal decoders; for encoders, recompute the full pass or restructure as a decoder.
+
+**Pitfall 2 — forgetting the cache grows linearly and OOMs on long context.** Teams size their GPU memory for the model weights and the prompt, then watch generation crash at token 6000 because the cache silently expanded past the budget. *Fix:* compute the cache ceiling up front with \\(2 L n\\, d_{\\text{model}} b\\), cap max sequence length, and use GQA/MQA or paged attention to fit the target context.
+
+**Pitfall 3 — applying positional encoding to cached keys twice.** With RoPE, the rotation is applied to keys *as they are computed*. If your loop re-rotates cached keys by their absolute index every step, positions drift. *Fix:* rotate each key exactly once at insertion time and store the already-rotated vector; never re-apply rotation to a cached entry.
+
+**Pitfall 4 — incorrect cache slicing during beam search or batched decode.** Beam search reorders hypotheses each step; if the cache rows are not reordered to match the surviving beams, queries attend to the wrong history. *Fix:* index the cache by the beam-reorder permutation every step (the \`reorder_cache\` hook in most libraries) so cache rows track their beam.
+
+**Pitfall 5 — measuring throughput without separating prefill from decode.** Prefill is compute-bound and decode is memory-bound, so a single tokens/sec number hides where time goes. *Fix:* benchmark prefill latency and per-token decode latency separately; optimise the one that dominates your workload (long prompts → prefill, long generations → decode).`,
+          },
+          {
+            kind: 'prose',
+            heading: 'What to take away',
+            body: `The KV cache rests on one fact: in a causal decoder, the key and value of a past token never change, so recomputing them is pure waste. Store them once, and per-token generation cost drops from quadratic to linear. The price is memory — the cache grows linearly with length, layers, and heads, and for long contexts it can dwarf the model weights, making decode memory-bandwidth-bound rather than compute-bound. Every serving optimisation worth knowing (MQA, GQA, paged attention, speculative decoding) is a response to that memory wall. Internalise the prefill-vs-decode split and the cache-size formula, and the entire landscape of "why is my LLM slow and memory-hungry" becomes legible.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Further reading',
+            body: `- [Kwon et al. — "Efficient Memory Management for LLM Serving with PagedAttention"](https://arxiv.org/abs/2309.06180) — the vLLM paper; how paging the KV cache enables high-throughput batched serving.
+- [Shazeer — "Fast Transformer Decoding: One Write-Head is All You Need"](https://arxiv.org/abs/1911.02150) — the original multi-query attention paper, the first big cut to cache size.
+- [Ainslie et al. — "GQA: Training Generalized Multi-Query Transformer Models"](https://arxiv.org/abs/2305.13245) — grouped-query attention, the MQA/MHA middle ground used in Llama and Mistral.`,
+          },
+        ],
+      },
+      {
+        slug: 'rotary-embeddings',
+        title: 'Rotary embeddings (RoPE)',
+        oneLiner: 'Encode position by rotating queries and keys — so the dot product only sees relative distance.',
+        difficulty: 'advanced',
+        readMinutes: 11,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'The intuition: position as an angle, not an address',
+            body: `Picture each pair of features in a token's query vector as the hands of a clock — a 2D point you can spin around the origin. RoPE's whole idea is to encode a token's position by *rotating* that little clock hand by an angle proportional to where the token sits in the sequence. Token at position 1 gets a small rotation, position 2 a bigger one, position 50 a much bigger one. The token's identity — the *length* of the clock hand and the relationships between feature pairs — is untouched; only the *angle* changes with position. Nothing is added to the vector. It is purely turned.
+
+Why bother spinning instead of adding, like the sinusoidal positional encoding from the earlier lesson? Because of a beautiful property of rotation that addition does not have. When attention scores token \\(m\\)'s query against token \\(n\\)'s key, it takes their dot product. If both vectors have been rotated — the query by angle \\(m\\theta\\), the key by angle \\(n\\theta\\) — then the dot product of two rotated vectors depends *only on the difference of the angles*, \\((m - n)\\theta\\). The absolute positions cancel out. The model literally cannot tell whether two tokens are at positions 3 and 5 or at positions 103 and 105; it only sees that they are two apart. Attention becomes a pure function of *relative* distance, which is exactly what language structure cares about — "the adjective two words before the noun" is the same relationship whether it happens at the start or the end of a document.
+
+This is the conceptual leap. Absolute positional encodings hand each position a fixed label and hope the model learns that "the gap between label 3 and label 5" means the same as "the gap between label 103 and label 105." RoPE bakes that invariance directly into the geometry: rotate by position, and the dot product automatically reads off relative offset. The payoff is extrapolation. A model trained on sequences up to length 2048 has seen plenty of "two apart" and "ten apart" relationships; because RoPE encodes only the relative gap, those learned relationships keep meaning the same thing at position 4000, even though the model never saw absolute position 4000 in training. Learned absolute embeddings have no such luck — position 4000 was never in the lookup table, so its embedding is undefined garbage. Rotation generalises; lookup does not.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'How the rotation is built across dimensions',
+            body: `A query vector lives in \\(\\mathbb{R}^{d}\\). RoPE chops it into \\(d/2\\) consecutive pairs of coordinates, and treats each pair as a 2D point that it rotates by its own angle. Pair \\(i\\) is rotated by \\(m \\theta_i\\), where \\(m\\) is the token's position and \\(\\theta_i = 10000^{-2i/d}\\) is a frequency that shrinks as \\(i\\) grows — exactly the same geometric frequency ladder used by the original sinusoidal encoding. The first pairs rotate fast (high frequency, sensitive to nearby positions); the last pairs rotate slowly (low frequency, sensitive to long-range position). Together they give the model a multi-scale sense of where a token sits.
+
+Concretely, for the pair \\((x_{2i}, x_{2i+1})\\) at position \\(m\\), the rotated pair is:
+
+\\[
+\\begin{pmatrix} x'_{2i} \\\\ x'_{2i+1} \\end{pmatrix} = \\begin{pmatrix} \\cos m\\theta_i & -\\sin m\\theta_i \\\\ \\sin m\\theta_i & \\cos m\\theta_i \\end{pmatrix} \\begin{pmatrix} x_{2i} \\\\ x_{2i+1} \\end{pmatrix}
+\\]
+
+That is just the standard 2D rotation matrix applied independently to each feature pair, with a position-and-frequency-dependent angle. Stack all \\(d/2\\) of these little rotations and you have rotated the whole vector. Because each pair keeps its own length, the operation is norm-preserving — RoPE never amplifies or shrinks the vector, it only reorients it.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Spin the query and key — see the dot product track relative distance',
+            component: 'RotaryEmbeddingViz',
+            props: {},
+          },
+          {
+            kind: 'math',
+            heading: 'Why the dot product becomes relative',
+            body: `This is the property that makes RoPE worth the trouble. Apply the rotation operator \\(R_m\\) to a query at position \\(m\\) and \\(R_n\\) to a key at position \\(n\\). The attention score is their dot product:
+
+\\[
+(R_m q)^\\top (R_n k) = q^\\top R_m^\\top R_n \\, k = q^\\top R_{n-m} \\, k
+\\]
+
+The step that matters is \\(R_m^\\top R_n = R_{n-m}\\): a rotation by \\(-m\\) composed with a rotation by \\(n\\) is a rotation by \\(n - m\\). Rotation matrices are orthogonal (\\(R_m^\\top = R_m^{-1} = R_{-m}\\)) and rotations add, so the absolute positions collapse into a single relative offset \\(n - m\\).
+
+The consequence is exact, not approximate: the pre-softmax attention score between two tokens is a function of their *content* \\(q, k\\) and their *relative position* \\(n - m\\) only. Shift both tokens forward by any amount and the score is unchanged. This is what learned absolute embeddings can only approximate and what additive sinusoidal encodings achieve only loosely; RoPE makes relative-position invariance a built-in algebraic identity of the attention layer.`,
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'Applying RoPE to a query/key tensor',
+            body: `import torch
+
+def build_rope(seq_len, d, base=10000.0):
+    # one angle per (position, dimension-pair)
+    i = torch.arange(0, d, 2).float()
+    theta = base ** (-i / d)                 # (d/2,) frequencies
+    pos = torch.arange(seq_len).float()       # (seq_len,)
+    angles = torch.outer(pos, theta)          # (seq_len, d/2)
+    return angles.cos(), angles.sin()         # each (seq_len, d/2)
+
+def apply_rope(x, cos, sin):
+    # x: (seq_len, d). split into even/odd coordinate of each pair
+    x1, x2 = x[..., 0::2], x[..., 1::2]       # (seq_len, d/2) each
+    # rotate each pair by its position-dependent angle
+    rot1 = x1 * cos - x2 * sin
+    rot2 = x1 * sin + x2 * cos
+    out = torch.empty_like(x)
+    out[..., 0::2], out[..., 1::2] = rot1, rot2
+    return out
+# apply identically to Q and K before computing Q @ K.T`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Extrapolation, NTK scaling, and long context',
+            body: `RoPE's relative-position property is what lets people stretch a model's context window far past its training length. The naive approach — just feed longer sequences — degrades because the slowest-rotating pairs reach angles the model never saw in training, and the high-frequency pairs alias. Two cheap fixes dominate practice. **Position interpolation** rescales positions so a model trained on 2048 tokens treats position 4096 as if it were 2048 — squeezing the rotation angles back into the trained range, then fine-tuning briefly to recover. **NTK-aware scaling** instead changes the base \\(\\theta\\) so that high frequencies are barely touched (they already generalise) while low frequencies are stretched, giving better extrapolation without retraining.
+
+These tricks work *because* RoPE encodes relative offset. You are not inventing new absolute position labels (which would be undefined); you are remapping the angle schedule so the same relative relationships land in the angular range the model understands. Llama, Mistral, Qwen, DeepSeek, and most open models past 2023 use RoPE precisely so that context extension is a matter of rescaling angles rather than retraining from scratch.
+
+There is also a clean interaction with the *KV cache* lesson: the rotation depends only on a token's own position, so you rotate each key exactly once, at the moment it enters the cache, and store the rotated key. Querying later applies the query's own rotation, and the algebra above handles the relative offset automatically — no re-rotation of old cache entries is ever needed.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Compare to additive sinusoidal positional encoding',
+            component: 'PositionalEncodingViz',
+            props: {},
+          },
+          {
+            kind: 'prose',
+            heading: 'Pitfalls',
+            body: `**Pitfall 1 — applying RoPE to values as well as queries and keys.** Only \\(Q\\) and \\(K\\) are rotated; the relative-position magic lives in their dot product. Rotating \\(V\\) corrupts the actual payload the attention mixes. *Fix:* rotate \\(Q\\) and \\(K\\) only, leave \\(V\\) untouched.
+
+**Pitfall 2 — re-rotating cached keys every step.** Because the rotation is by absolute position, a buggy loop re-applies the rotation to already-rotated cache entries, drifting positions further each step. *Fix:* rotate each key exactly once at insertion and store the rotated vector; never touch a cache entry again.
+
+**Pitfall 3 — pairing dimensions wrong.** RoPE pairs adjacent coordinates \\((x_{2i}, x_{2i+1})\\); some implementations split the vector into first-half/second-half pairs instead. Mixing the two conventions between training and inference scrambles every angle. *Fix:* use one pairing convention end to end and verify it matches the checkpoint's training code.
+
+**Pitfall 4 — extending context without rescaling angles.** Feeding sequences longer than training length without position interpolation or NTK scaling sends the slow pairs into untrained angular territory, and quality collapses. *Fix:* apply position interpolation or NTK-aware base scaling (and a short fine-tune) before serving beyond the trained window.
+
+**Pitfall 5 — assuming RoPE removes the need for any position signal at all.** RoPE *is* the position signal; without it a transformer is permutation-invariant and cannot tell word order. *Fix:* ensure RoPE (or another positional scheme) is actually applied — a silent bug that drops it produces a model that ignores order entirely.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'What to take away',
+            body: `RoPE encodes position by rotating each pair of query and key coordinates by an angle proportional to position and frequency. Because rotations compose, the dot product of a rotated query and a rotated key depends only on the *relative* offset between the two tokens — absolute positions cancel exactly. That single algebraic identity gives RoPE its two headline advantages: attention scores naturally reflect relative distance, the thing language structure actually cares about, and the model extrapolates to longer contexts because it only ever learned relative relationships, not fixed position labels. It is norm-preserving, adds no parameters, costs a handful of sin/cos multiplies, and composes cleanly with the KV cache. That combination is why nearly every open LLM since 2023 uses it.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Further reading',
+            body: `- [Su et al. — "RoFormer: Enhanced Transformer with Rotary Position Embedding"](https://arxiv.org/abs/2104.09864) — the original RoPE paper; the rotation construction and the relative-position proof.
+- [Chen et al. — "Extending Context Window via Position Interpolation"](https://arxiv.org/abs/2306.15595) — how to rescale RoPE angles to stretch context length with minimal fine-tuning.
+- [EleutherAI — "Rotary Embeddings: A Relative Revolution"](https://blog.eleuther.ai/rotary-embeddings/) — the clearest from-scratch derivation and intuition for why rotation gives relative position.`,
+          },
+        ],
+      },
+      {
+        slug: 'efficient-attention',
+        title: 'Efficient attention',
+        oneLiner: 'Beat the N×N wall: tile the score matrix in SRAM, or only score the pairs that matter.',
+        difficulty: 'advanced',
+        readMinutes: 12,
+        sections: [
+          {
+            kind: 'prose',
+            heading: 'The intuition: the bottleneck is memory, not math',
+            body: `Standard attention has a reputation for being expensive because it is quadratic — every one of \\(N\\) tokens scores against every other, so the score matrix is \\(N \\times N\\). That is true, but it hides the part that actually hurts on real hardware. A modern GPU can do arithmetic absurdly fast; what it cannot do fast is move data between its small, blazing on-chip memory (SRAM, a few megabytes) and its large, slow off-chip memory (HBM, tens of gigabytes). The quadratic pain of attention is mostly about writing that giant \\(N \\times N\\) score matrix out to HBM, reading it back to apply softmax, writing it again, reading it once more to multiply by values. For a sequence of 8192 tokens that intermediate matrix has 67 million entries *per head per layer*, and shuttling it back and forth across the slow memory bus is where the time goes. The arithmetic is cheap; the memory traffic is the wall.
+
+Two completely different strategies break that wall, and the key insight is to attack the *right* problem. The first strategy keeps attention mathematically exact but never lets the full \\(N \\times N\\) matrix exist in slow memory at all. This is **FlashAttention**: process the score matrix in small tiles that fit in SRAM, compute the softmax incrementally as you stream over tiles, and only ever write the final output back to HBM. Same answer, but the memory traffic drops from quadratic to linear in \\(N\\), and on real hardware that is a several-fold speedup with a fraction of the memory. It is the same trick a careful accountant uses to sum a huge ledger without copying it: keep a running total, read one page at a time, never photocopy the whole book.
+
+The second strategy questions whether you need all \\(N^2\\) scores in the first place. In most sequences, a token mostly cares about its nearby neighbours plus a handful of special tokens — not literally every other token equally. **Sparse attention** exploits this: only compute scores for a chosen *pattern* of token pairs (local windows, strided jumps, a few global tokens) and skip the rest. That turns the cost from \\(O(N^2)\\) to something closer to \\(O(N \\sqrt{N})\\) or \\(O(N \\log N)\\), trading a little modelling flexibility for a large compute saving. FlashAttention says "compute everything, but smartly"; sparse attention says "do not compute everything at all." Production systems often stack both: a sparse pattern to cut the number of pairs, run through a FlashAttention kernel to make each pair cheap.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'FlashAttention: tiling and the online softmax',
+            body: `The reason naive attention writes the whole \\(N \\times N\\) matrix is the softmax. Softmax over a row needs the row's maximum (for numerical stability) and the sum of exponentials — both seemingly require seeing the entire row at once. FlashAttention's core trick is the **online softmax**: a way to compute softmax over a row while streaming through it in chunks, keeping only a running maximum \\(m\\), a running sum \\(\\ell\\), and a running weighted output. When a new tile arrives with a larger max, you rescale the accumulated sum and output by \\(e^{m_{\\text{old}} - m_{\\text{new}}}\\) and fold the tile in. The final result is bit-for-bit the same softmax-weighted average, but you never materialised the full row.
+
+So the algorithm loads a block of queries into SRAM, then loops over blocks of keys and values. For each key block it computes the partial scores (a small tile that fits on chip), updates the running softmax statistics, and accumulates into the output — all without touching HBM for intermediate scores. Only the final output, of size \\(N \\times d\\), is written back. The score matrix never exists in slow memory.
+
+The win is dramatic. Memory drops from \\(O(N^2)\\) to \\(O(N)\\) because no \\(N \\times N\\) intermediate is stored. Wall-clock time drops 2–4× because HBM traffic — the actual bottleneck — is slashed, even though the FLOP count is unchanged. The backward pass uses the same tiling and recomputes the needed tiles on the fly rather than storing them, trading cheap recomputation for expensive memory. This is why FlashAttention (and its v2/v3 successors) is the default attention kernel in essentially every serious training and inference stack today.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Sweep the score matrix one SRAM tile at a time',
+            component: 'FlashAttentionTilingViz',
+            props: {},
+          },
+          {
+            kind: 'prose',
+            heading: 'Sparse attention: local, strided, and global patterns',
+            body: `The other lever is to not compute every pair. A **sparse attention pattern** fixes, ahead of time, which \\((i, j)\\) pairs are allowed to attend, and zeros out the rest. Three primitives compose into most real designs.
+
+**Local (sliding window)** attention lets each token attend to a fixed window of \\(w\\) neighbours on each side. Cost drops to \\(O(N \\cdot w)\\) — linear in \\(N\\). Stacked across \\(L\\) layers, the effective receptive field grows to \\(L \\cdot w\\), so deep local-attention models still see far, just indirectly (the same receptive-field stacking argument from convolutions). Mistral's sliding-window attention is exactly this.
+
+**Strided (dilated)** attention lets a token attend to every \\(k\\)-th position, skipping the gaps. One strided layer reaches across the whole sequence with only \\(O(N^2 / k)\\) pairs, complementing local layers that capture fine detail. Interleaving local and strided layers — the Sparse Transformer recipe — gives full coverage at sub-quadratic cost.
+
+**Global** tokens are a handful of special positions (a [CLS] token, sentinel tokens, or the first few tokens) that attend to *everything* and that everything attends to. They act as an information bus: any token can route to any other in two hops via a global token. Longformer and BigBird combine local windows + a few global tokens + some random pairs, and prove that combination keeps the model a universal sequence approximator while costing \\(O(N)\\).
+
+The trade-off is honest: sparse patterns are an inductive bias. If the true dependency is long-range and falls outside your pattern, the model cannot represent it in one layer. The art is choosing a pattern whose holes do not matter for your data, which is why "local + a few global" works so well for text — most dependencies *are* local, and the global tokens catch the rest.`,
+          },
+          {
+            kind: 'viz',
+            heading: 'Toggle local, strided, and global masks on the attention grid',
+            component: 'SparseAttentionPatternViz',
+            props: {},
+          },
+          {
+            kind: 'code',
+            language: 'python',
+            heading: 'A sliding-window sparse mask',
+            body: `import torch
+
+def sliding_window_mask(n, window):
+    # allow attention only within +/- window of each token
+    idx = torch.arange(n)
+    dist = (idx[:, None] - idx[None, :]).abs()   # (n, n) distances
+    allowed = dist <= window
+    # causal: also forbid looking forward
+    causal = idx[:, None] >= idx[None, :]
+    mask = allowed & causal                       # (n, n) bool
+    return mask
+
+def add_global_tokens(mask, num_global):
+    # first num_global tokens attend to all and are attended by all
+    mask = mask.clone()
+    mask[:num_global, :] = True
+    mask[:, :num_global] = True
+    return mask
+# pass mask to attention: scores.masked_fill(~mask, float('-inf'))`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Exact vs approximate, and how they combine',
+            body: `It is worth being precise about what each method gives up. **FlashAttention is exact** — it computes the identical numbers as naive attention, just with a memory-efficient schedule. There is no quality trade-off whatsoever; the only reason not to use it is kernel availability. **Sparse attention is approximate** — it deliberately drops some pairs, so it is a different (cheaper) function that you hope is close enough for your data. The two are orthogonal and routinely stacked: choose a sparse pattern to reduce *how many* pairs you compute, then run those pairs through a FlashAttention kernel to make *each* pair cheap on the memory bus.
+
+There is also a third family worth naming: **linear attention** replaces the softmax with a kernel feature map so that \\(\\text{softmax}(QK^\\top)V\\) can be reassociated as \\(Q(K^\\top V)\\), turning the cost into \\(O(N d^2)\\) — linear in \\(N\\). Performers, Linear Transformers, and the state-space line (Mamba, RWKV) live here. They win asymptotically for very long sequences but often lag exact attention on quality at moderate lengths, which is why FlashAttention-plus-sparse currently dominates production while linear methods own the extreme-length frontier.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Pitfalls',
+            body: `**Pitfall 1 — assuming FlashAttention changes the result.** Teams sometimes blame an accuracy drop on switching to FlashAttention. It is mathematically exact; the culprit is almost always a separate dtype or masking change. *Fix:* unit-test that FlashAttention output matches naive attention to floating-point tolerance before suspecting it.
+
+**Pitfall 2 — choosing a sparse pattern whose holes hide real dependencies.** A pure local window silently severs long-range links your task needs (e.g. matching brackets far apart in code). *Fix:* add global tokens or strided layers so every pair is reachable in a few hops, and validate on long-range probes, not just average loss.
+
+**Pitfall 3 — forgetting sparse attention still needs the causal mask.** Combining a sliding window with a decoder requires intersecting the window mask with the causal mask, or the model leaks future tokens. *Fix:* AND the sparse pattern with the lower-triangular causal mask before applying it.
+
+**Pitfall 4 — picking a window so small the receptive field never covers the sequence.** With window \\(w\\) and \\(L\\) layers the reach is only \\(L \\cdot w\\); set \\(w\\) too small and tokens at the ends never influence each other. *Fix:* size \\(w\\) so \\(L \\cdot w \\ge\\) typical sequence length, or add global/strided routing.
+
+**Pitfall 5 — expecting linear attention to match exact attention at short lengths.** Kernel-feature approximations shine only when \\(N\\) is large; below the cross-over they cost more and model worse. *Fix:* benchmark against FlashAttention at your actual sequence length before adopting linear attention; reserve it for the very-long-context regime.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'What to take away',
+            body: `Attention is quadratic, but on real hardware the binding constraint is memory traffic, not arithmetic. FlashAttention attacks the traffic: it tiles the score matrix into SRAM, runs an online softmax so the full \\(N \\times N\\) matrix never reaches slow memory, and delivers the exact same numbers with linear memory and a multi-fold speedup. Sparse attention attacks the pair count: local windows, strided jumps, and a few global tokens cut \\(O(N^2)\\) to near-linear at the cost of an inductive bias about which dependencies matter. The two are orthogonal and stack. Linear attention pushes asymptotics further for extreme lengths but trades quality at moderate ones. Reach for FlashAttention always (it is free), reach for sparsity when sequences are long and dependencies are local, and reach for linear attention only at the very-long-context frontier.`,
+          },
+          {
+            kind: 'prose',
+            heading: 'Further reading',
+            body: `- [Dao et al. — "FlashAttention: Fast and Memory-Efficient Exact Attention with IO-Awareness"](https://arxiv.org/abs/2205.14135) — the tiling + online-softmax kernel; the IO-aware analysis that frames attention as a memory problem.
+- [Child et al. — "Generating Long Sequences with Sparse Transformers"](https://arxiv.org/abs/1904.10509) — the local + strided sparse pattern that started the sparse-attention line.
+- [Beltagy et al. — "Longformer: The Long-Document Transformer"](https://arxiv.org/abs/2004.05150) — sliding-window + global-token attention scaling linearly to thousands of tokens.`,
           },
         ],
       },

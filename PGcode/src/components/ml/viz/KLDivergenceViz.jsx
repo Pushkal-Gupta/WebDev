@@ -30,6 +30,11 @@ const PRESETS = {
   disjoint: { p: [0.5, 0.5, 0.0, 0.0, 0.0], q: [0.0, 0.0, 0.0, 0.5, 0.5] },
 };
 
+const KL_REDUCE =
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function snap(v, p = 2) {
   const m = Math.pow(10, p);
   return Math.round(v * m) / m;
@@ -163,8 +168,23 @@ export default function KLDivergenceViz() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg mlviz-svg-wide"
+          preserveAspectRatio="xMidYMid meet"
           style={{ aspectRatio: `${W} / ${H}` }}
         >
+          <defs>
+            <linearGradient id="kl-grad-p" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--hue-sky)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </linearGradient>
+            <linearGradient id="kl-grad-q" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--hue-pink)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="kl-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
+
           {/* y-axis gridlines */}
           {[0.25, 0.5, 0.75, 1.0].map((tick) => {
             if (tick > maxBarVal) return null;
@@ -250,15 +270,41 @@ export default function KLDivergenceViz() {
 
             return (
               <g key={`bucket${i}`}>
+                {/* glow halo on top-contributor bars */}
+                {isTopContrib && (
+                  <>
+                    <rect
+                      x={pX}
+                      y={baseY - pH}
+                      width={BAR_W}
+                      height={Math.max(0.5, pH)}
+                      fill="url(#kl-grad-p)"
+                      filter="url(#kl-glow)"
+                      opacity="0.6"
+                      rx="3"
+                    />
+                    <rect
+                      x={qX}
+                      y={baseY - qH}
+                      width={BAR_W}
+                      height={Math.max(0.5, qH)}
+                      fill="url(#kl-grad-q)"
+                      filter="url(#kl-glow)"
+                      opacity="0.6"
+                      rx="3"
+                    />
+                  </>
+                )}
                 {/* p bar */}
                 <rect
                   x={pX}
                   y={baseY - pH}
                   width={BAR_W}
                   height={Math.max(0.5, pH)}
-                  fill={COLOR_P}
-                  opacity="0.78"
-                  rx="2"
+                  fill="url(#kl-grad-p)"
+                  opacity="0.85"
+                  rx="3"
+                  style={{ transition: KL_REDUCE ? 'none' : 'y 0.15s ease, height 0.15s ease' }}
                 />
                 {/* q bar */}
                 <rect
@@ -266,9 +312,10 @@ export default function KLDivergenceViz() {
                   y={baseY - qH}
                   width={BAR_W}
                   height={Math.max(0.5, qH)}
-                  fill={COLOR_Q}
-                  opacity="0.78"
-                  rx="2"
+                  fill="url(#kl-grad-q)"
+                  opacity="0.85"
+                  rx="3"
+                  style={{ transition: KL_REDUCE ? 'none' : 'y 0.15s ease, height 0.15s ease' }}
                 />
                 {/* overlap band - drawn over both, using accent */}
                 {overlapVal > EPS && (
@@ -395,33 +442,32 @@ export default function KLDivergenceViz() {
         ))}
 
         {/* readouts */}
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag">H(p)</span>
-          <span className="mlviz-val">{Hp.toFixed(3)}</span>
-          <span className="mlviz-sub">bits  ·  entropy of p</span>
+        <div className="mlviz-statcol mlviz-statrow mlviz-row-hi">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">D(p‖q) bits</span>
+            <span className="mlviz-statcard-val">{klPQ.toFixed(3)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-pink">
+            <span className="mlviz-statcard-label">D(q‖p) bits</span>
+            <span className="mlviz-statcard-val">{klQP.toFixed(3)}</span>
+          </div>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">JS(p,q) bits</span>
+            <span className="mlviz-statcard-val">{js.toFixed(3)}</span>
+          </div>
         </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag">H(p,q)</span>
-          <span className="mlviz-val">{Hpq.toFixed(3)}</span>
-          <span className="mlviz-sub">bits  ·  cross-entropy</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>D(p‖q)</span>
-          <span className="mlviz-val" style={{ color: 'var(--accent)' }}>{klPQ.toFixed(3)}</span>
-          <span className="mlviz-sub">= H(p,q) − H(p)</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_Q }}>D(q‖p)</span>
-          <span className="mlviz-val" style={{ color: COLOR_Q }}>{klQP.toFixed(3)}</span>
-          <span className="mlviz-sub">asymmetric: D(p‖q) ≠ D(q‖p)</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag">JS(p,q)</span>
-          <span className="mlviz-val">{js.toFixed(3)}</span>
-          <span className="mlviz-sub">symmetric ·  bounded by 1</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">H(p) entropy</span>
+            <span className="mlviz-statcard-val">{Hp.toFixed(3)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">H(p,q) cross-ent</span>
+            <span className="mlviz-statcard-val">{Hpq.toFixed(3)}</span>
+          </div>
         </div>
 
-        <div className="mlviz-hint">red ring marks buckets contributing most to D(p‖q)</div>
+        <div className="mlviz-hint">red ring marks buckets contributing most to D(p‖q) · D(p‖q) = H(p,q) − H(p) · asymmetric</div>
       </div>
     </div>
   );

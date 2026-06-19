@@ -1,257 +1,211 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Swords, UserSearch, CalendarRange, LineChart, Code2, Database,
-  GitBranch, Clock, Calendar, ArrowUpRight, CalendarOff, Radio,
+  Swords, UserSearch, CalendarRange, LineChart, Code2,
+  GitBranch, ListOrdered, Gauge, ArrowRight, ArrowLeft, Trophy, Brain, Cpu, BookOpen,
 } from 'lucide-react';
-import { useExternalContests } from '../../lib/queries';
+import ForgeThumb from '../ml/forge/ForgeThumb';
 import LeetCodeProfile from './LeetCodeProfile';
 import ExternalContestsCalendar from '../contests/ExternalContestsCalendar';
 import LeetCodeAnalytics from '../contests/LeetCodeAnalytics';
 import './CompeteHub.css';
 
-const SECTIONS = [
-  { key: 'profile',    label: 'User lookup',  icon: UserSearch },
-  { key: 'calendar',   label: 'Calendar',     icon: CalendarRange },
-  { key: 'analytics',  label: 'Analytics',    icon: LineChart },
-  { key: 'hackathons', label: 'Hackathons',   icon: Code2 },
-  { key: 'kaggle',     label: 'Kaggle',       icon: Database },
-  { key: 'gsoc',       label: 'GSoC',         icon: GitBranch },
+const SECTIONS = {
+  profile: {
+    icon: UserSearch,
+    label: 'User lookup',
+    title: 'User lookup',
+    sub: 'Pull any LeetCode profile — solved counts, streak, and contest history.',
+    Body: LeetCodeProfile,
+  },
+  analytics: {
+    icon: LineChart,
+    label: 'Analytics',
+    title: 'LeetCode analytics',
+    sub: 'Per-contest rankings, solve stats, per-question rating estimates, and a rating-delta predictor from your rank.',
+    Body: LeetCodeAnalytics,
+  },
+  calendar: {
+    icon: CalendarRange,
+    label: 'Calendar',
+    title: 'Contest calendar',
+    sub: 'Every judge and competition in one timeline, filtered by platform with live countdowns.',
+    Body: ExternalContestsCalendar,
+  },
+};
+
+const TAB_ORDER = ['profile', 'analytics', 'calendar'];
+
+// Each entry maps to a distinct ForgeThumb motif via `kind` so every card draws
+// a visibly different mini-visual; chrome stays on the teal brand accent.
+const EXPLORE = [
+  {
+    to: '/compete/leetcode/problems', icon: ListOrdered, kind: 'bars', thumbLabel: 'problems',
+    title: 'LeetCode problems', chip: 'Rated set',
+    sub: 'Every rated contest problem — difficulty rating, solve-rate estimate, and per-contest charts.',
+  },
+  {
+    to: '/compete/leetcode/contests', icon: Trophy, kind: 'rings', thumbLabel: 'contests',
+    title: 'LeetCode contests', chip: 'Weekly + biweekly',
+    sub: 'Every weekly and biweekly round with live countdowns and status.',
+  },
+  {
+    to: '/compete/competitions', icon: Gauge, kind: 'wave', thumbLabel: 'judges',
+    title: 'Competitions', chip: 'CF · AtCoder · CC',
+    sub: 'Codeforces, AtCoder, CodeChef rounds — one timeline with countdowns to the next start.',
+  },
+  {
+    to: '/compete/hackathons', icon: Code2, kind: 'network', thumbLabel: 'hackathons',
+    title: 'Hackathons', chip: 'Open sprints',
+    sub: 'Weekend build sprints with prizes — themed challenges and open submission windows.',
+  },
+  {
+    to: '/compete/conferences', icon: GitBranch, kind: 'cards', thumbLabel: 'conferences',
+    title: 'Conferences', chip: 'Deadlines',
+    sub: 'Talks, deadlines, and program windows across the research and open-source calendar.',
+  },
+  {
+    to: '/compete/kaggle', icon: Brain, kind: 'scatter', thumbLabel: 'ml comps',
+    title: 'ML competitions', chip: 'Prize pools',
+    sub: 'Live data-science and machine-learning contests — prize pools, deadlines, and fields at a glance.',
+  },
+  {
+    to: '/compete/gsoc', icon: Code2, kind: 'tree', thumbLabel: 'gsoc',
+    title: 'GSoC explorer', chip: 'Orgs + ideas',
+    sub: 'Mentoring organizations and their project ideas, filterable by domain and tech.',
+  },
+  {
+    to: '/compete/leetcode/llms', icon: Cpu, kind: 'cuda', thumbLabel: 'llms',
+    title: 'LLMs on LeetCode', chip: 'Solve rate',
+    sub: 'How language models score on rated problems — solve rate by difficulty and projected rating.',
+  },
+  {
+    to: '/compete/resources', icon: BookOpen, kind: 'paper', thumbLabel: 'resources',
+    title: 'Resources', chip: 'One shelf',
+    sub: 'Foundations, practice, interview prep, and open-source paths — linked in one shelf.',
+  },
 ];
 
-const PLATFORM_CARDS = [
+// In-page section cards — clicking opens that section as its own full view
+// rather than navigating to another route.
+const SECTION_CARDS = [
   {
-    key: 'hackathons', platform: 'devpost', icon: Code2, hue: 'var(--hue-pink)',
-    label: 'DevPost', title: 'Hackathons',
-    sub: 'Build something in a weekend — themed sprints with prizes and open submissions.',
+    section: 'profile', icon: UserSearch, kind: 'network', thumbLabel: 'lookup', chip: 'Any coder',
+    title: 'User lookup',
+    sub: 'Pull any LeetCode profile — solved counts, streak, and contest history at a glance.',
   },
   {
-    key: 'kaggle', platform: 'kaggle', icon: Database, hue: 'var(--hue-mint)',
-    label: 'Kaggle', title: 'Kaggle competitions',
-    sub: 'Modeling challenges on real datasets — climb the leaderboard, ship a notebook.',
+    section: 'analytics', icon: LineChart, kind: 'descent', thumbLabel: 'rating', chip: 'Elo model',
+    title: 'Rating predictor',
+    sub: 'Per-contest stats, per-question rating estimates, and a projected rating change from your rank.',
   },
   {
-    key: 'gsoc', platform: 'gsoc', icon: GitBranch, hue: 'var(--accent)',
-    label: 'GSoC', title: 'Open-source programs',
-    sub: 'Google Summer of Code milestones — proposal windows, coding periods, and deadlines.',
+    section: 'calendar', icon: CalendarRange, kind: 'wave', thumbLabel: 'calendar', chip: 'Every judge',
+    title: 'Contest calendar',
+    sub: 'Every judge and competition in one timeline, filtered by platform with live countdowns.',
   },
 ];
 
-function phaseOf(c, now) {
-  const start = new Date(c.start_time).getTime();
-  const end = start + (c.duration_minutes || 0) * 60_000;
-  if (now < start) return 'upcoming';
-  if (now > end) return 'finished';
-  return 'ongoing';
-}
-
-function fmtCountdown(ms) {
-  if (ms <= 0) return 'now';
-  const s = Math.floor(ms / 1000);
-  const d = Math.floor(s / 86400);
-  const h = Math.floor((s % 86400) / 3600);
-  const m = Math.floor((s % 3600) / 60);
-  if (d > 0) return `${d}d ${h}h`;
-  if (h > 0) return `${h}h ${m}m`;
-  return `${m}m`;
-}
-
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short', day: 'numeric', year: 'numeric',
-  });
-}
-
-function fmtDuration(min) {
-  if (!min) return null;
-  if (min >= 1440) {
-    const d = Math.round(min / 1440);
-    return `${d} day${d > 1 ? 's' : ''}`;
-  }
-  if (min >= 60) {
-    const h = Math.round(min / 60);
-    return `${h}h`;
-  }
-  return `${min} min`;
-}
-
-function PlatformCard({ c, meta, now }) {
-  const phase = phaseOf(c, now);
-  const start = new Date(c.start_time).getTime();
-  const dur = fmtDuration(c.duration_minutes);
-  const Icon = meta.icon;
+function CardFace({ entry }) {
+  const { icon: Icon, thumbLabel, kind, title, sub, chip } = entry;
   return (
-    <a
-      className="compete-card"
-      href={c.url || undefined}
-      target={c.url ? '_blank' : undefined}
-      rel={c.url ? 'noreferrer' : undefined}
-      style={{ '--card-hue': meta.hue }}
-    >
+    <>
+      <div className="compete-card-thumb" aria-hidden="true">
+        <ForgeThumb kind={kind} seed={title} label={thumbLabel} />
+      </div>
       <div className="compete-card-head">
-        <span className="compete-card-platform"><Icon size={11} /> {meta.label}</span>
-        <span className={`compete-card-phase${phase === 'ongoing' ? ' live' : ''}`}>
-          {phase === 'ongoing' && <><Radio size={10} /> live</>}
-          {phase === 'upcoming' && 'upcoming'}
-          {phase === 'finished' && 'ended'}
-        </span>
+        <span className="compete-card-iconbox"><Icon size={18} /></span>
+        {chip && <span className="compete-card-chip">{chip}</span>}
+        <ArrowRight size={16} className="compete-card-arrow" />
       </div>
-      <h3 className="compete-card-name">{c.name}</h3>
-      <div className="compete-card-meta">
-        <span><Calendar size={12} /> {fmtDate(c.start_time)}</span>
-        {dur && <span><Clock size={12} /> {dur}</span>}
-      </div>
-      <div className="compete-countdown">
-        {phase === 'upcoming' && (
-          <>
-            <span className="compete-countdown-val">{fmtCountdown(start - now)}</span>
-            <span className="compete-countdown-lbl">until start</span>
-          </>
-        )}
-        {phase === 'ongoing' && (
-          <>
-            <span className="compete-countdown-val">open</span>
-            <span className="compete-countdown-lbl">submissions live</span>
-          </>
-        )}
-        {phase === 'finished' && (
-          <>
-            <span className="compete-countdown-val">closed</span>
-            <span className="compete-countdown-lbl">{fmtDate(c.start_time)}</span>
-          </>
-        )}
-        {c.url && (
-          <span className="compete-card-cta" style={{ marginLeft: 'auto' }}>
-            Open <ArrowUpRight size={13} />
-          </span>
-        )}
-      </div>
-    </a>
-  );
-}
-
-function PlatformSection({ meta, contests, isLoading, now }) {
-  const Icon = meta.icon;
-  const rows = useMemo(() => {
-    const order = { ongoing: 0, upcoming: 1, finished: 2 };
-    return contests
-      .filter(c => c.platform === meta.platform)
-      .sort((a, b) => {
-        const pa = order[phaseOf(a, now)];
-        const pb = order[phaseOf(b, now)];
-        if (pa !== pb) return pa - pb;
-        return new Date(a.start_time) - new Date(b.start_time);
-      });
-  }, [contests, meta.platform, now]);
-
-  return (
-    <section className="compete-section" id={`compete-${meta.key}`}>
-      <div className="compete-section-head">
-        <Icon size={20} />
-        <div>
-          <h2 className="compete-section-title">{meta.title}</h2>
-          <p className="compete-section-sub">{meta.sub}</p>
-        </div>
-      </div>
-
-      {isLoading ? (
-        <div className="compete-skel">
-          <div className="compete-skel-card" />
-          <div className="compete-skel-card" />
-          <div className="compete-skel-card" />
-        </div>
-      ) : rows.length === 0 ? (
-        <div className="compete-empty">
-          <CalendarOff size={26} />
-          <h3 className="compete-empty-title">Nothing scheduled right now</h3>
-          <p className="compete-empty-sub">
-            {meta.label} entries appear here as soon as new rounds open.
-          </p>
-        </div>
-      ) : (
-        <div className="compete-grid">
-          {rows.map(c => <PlatformCard key={c.id} c={c} meta={meta} now={now} />)}
-        </div>
-      )}
-    </section>
+      <h3 className="compete-card-title">{title}</h3>
+      <p className="compete-card-sub">{sub}</p>
+    </>
   );
 }
 
 export default function CompeteHub() {
-  const { data: contests = [], isLoading } = useExternalContests();
-  const [now, setNow] = useState(() => Date.now());
+  const [active, setActive] = useState(null);
 
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(t);
-  }, []);
-
-  const jump = (key) => {
-    const el = document.getElementById(`compete-${key}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
+  if (active) {
+    const { icon: Icon, title, sub, Body } = SECTIONS[active];
+    return (
+      <div className="compete-hub">
+        <div className="compete-view">
+          <header className="compete-view-head">
+            <button type="button" className="compete-back" onClick={() => setActive(null)}>
+              <ArrowLeft size={15} /> Back to Battle
+            </button>
+            <nav className="compete-view-switch" aria-label="Switch section">
+              {TAB_ORDER.map((key) => {
+                const S = SECTIONS[key];
+                const SIcon = S.icon;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    className={`compete-switch-tab${key === active ? ' on' : ''}`}
+                    onClick={() => setActive(key)}
+                  >
+                    <SIcon size={13} /> {S.label}
+                  </button>
+                );
+              })}
+            </nav>
+          </header>
+          <div className="compete-view-title">
+            <span className="compete-view-iconbox"><Icon size={22} /></span>
+            <div>
+              <h1 className="compete-view-h1">{title}</h1>
+              <p className="compete-view-sub">{sub}</p>
+            </div>
+          </div>
+          <div className="compete-view-body">
+            <Body />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="compete-hub">
       <header className="compete-hero">
-        <h1 className="compete-title"><Swords size={26} /> Compete</h1>
+        <h1 className="compete-title"><Swords size={26} /> <span style={{ color: 'var(--text-dim)', fontSize: '0.62em', opacity: 0.6, fontWeight: 600 }}>PG</span>Battle</h1>
         <p className="compete-sub">
-          Look up any coder, track every contest across the judges, predict your rating, and find the next hackathon, Kaggle round, or GSoC deadline.
+          Look up any coder, track every contest across the judges, predict your rating, and jump to the next round, hackathon, or conference.
         </p>
       </header>
 
-      <nav className="compete-tabs" aria-label="Jump to section">
-        {SECTIONS.map((s) => {
-          const Icon = s.icon;
-          return (
-            <button key={s.key} className="compete-tab" onClick={() => jump(s.key)}>
-              <Icon size={13} /> {s.label}
-            </button>
-          );
-        })}
-      </nav>
-
-      <section className="compete-section" id="compete-profile">
-        <div className="compete-section-head">
-          <UserSearch size={20} />
-          <div>
-            <h2 className="compete-section-title">User lookup</h2>
-            <p className="compete-section-sub">Pull any LeetCode profile — solved counts, streak, and contest history.</p>
-          </div>
-        </div>
-        <LeetCodeProfile />
-      </section>
-
-      <section className="compete-section" id="compete-calendar">
-        <div className="compete-section-head">
-          <CalendarRange size={20} />
-          <div>
-            <h2 className="compete-section-title">Contest calendar</h2>
-            <p className="compete-section-sub">Every judge and competition in one timeline, filtered by platform with live countdowns.</p>
-          </div>
-        </div>
-        <ExternalContestsCalendar />
-      </section>
-
-      <section className="compete-section" id="compete-analytics">
-        <div className="compete-section-head">
-          <LineChart size={20} />
-          <div>
-            <h2 className="compete-section-title">LeetCode analytics</h2>
-            <p className="compete-section-sub">Per-contest rankings, solve stats, and a rating-delta predictor from your rank.</p>
-          </div>
-        </div>
-        <LeetCodeAnalytics />
-      </section>
-
-      {PLATFORM_CARDS.map(meta => (
-        <PlatformSection
-          key={meta.key}
-          meta={meta}
-          contests={contests}
-          isLoading={isLoading}
-          now={now}
-        />
-      ))}
+      <div className="compete-card-grid">
+        {/* Section cards first (minus the calendar), then explore links, then the
+            contest calendar card LAST — it's a reference timeline, not a daily entry. */}
+        {SECTION_CARDS.filter((e) => e.section !== 'calendar').map((e) => (
+          <button
+            key={e.section}
+            type="button"
+            className="compete-card"
+            onClick={() => setActive(e.section)}
+          >
+            <CardFace entry={e} />
+          </button>
+        ))}
+        {EXPLORE.map((e) => (
+          <Link key={e.to} to={e.to} className="compete-card">
+            <CardFace entry={e} />
+          </Link>
+        ))}
+        {SECTION_CARDS.filter((e) => e.section === 'calendar').map((e) => (
+          <button
+            key={e.section}
+            type="button"
+            className="compete-card"
+            onClick={() => setActive(e.section)}
+          >
+            <CardFace entry={e} />
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

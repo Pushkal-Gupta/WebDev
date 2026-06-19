@@ -326,7 +326,16 @@ export default function LogisticRegressionViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <linearGradient id="lr-boundary" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="lr-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
           {/* half-plane tints */}
           {negPath && (
             <path d={negPath} fill={cls0} opacity="0.10" />
@@ -365,15 +374,28 @@ export default function LogisticRegressionViz() {
 
           {/* decision boundary */}
           {boundary && (
-            <line
-              x1={toScreen(boundary[0].x, boundary[0].y).sx}
-              y1={toScreen(boundary[0].x, boundary[0].y).sy}
-              x2={toScreen(boundary[1].x, boundary[1].y).sx}
-              y2={toScreen(boundary[1].x, boundary[1].y).sy}
-              stroke="var(--accent)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-            />
+            <g>
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#lr-boundary)"
+                strokeWidth="5"
+                strokeLinecap="round"
+                filter="url(#lr-glow)"
+                opacity="0.55"
+              />
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#lr-boundary)"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+              />
+            </g>
           )}
 
           {/* data points */}
@@ -396,6 +418,14 @@ export default function LogisticRegressionViz() {
                 <circle
                   cx={sx}
                   cy={sy}
+                  r="6"
+                  fill={color}
+                  opacity="0.22"
+                  filter="url(#lr-glow)"
+                />
+                <circle
+                  cx={sx}
+                  cy={sy}
                   r="3.6"
                   fill={color}
                   stroke="var(--bg)"
@@ -408,11 +438,21 @@ export default function LogisticRegressionViz() {
       </div>
 
       <div className="mlviz-readout">
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">loss</span>
+            <span className="mlviz-statcard-val">{snap(metrics.loss, 4)}</span>
+          </div>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">accuracy</span>
+            <span className="mlviz-statcard-val">{snap(metrics.accuracy * 100, 1)}%</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">step</span>
+            <span className="mlviz-statcard-val">{steps}</span>
+          </div>
+        </div>
         <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>loss</span>
-          <span className="mlviz-val">{snap(metrics.loss, 4)}</span>
-          <span className="mlviz-sub">acc {snap(metrics.accuracy * 100, 1)}%</span>
-          <span className="mlviz-sub">step {steps}</span>
           <span className="mlviz-sub" style={{ color: cls0 }}>class 0 (-2, -1)</span>
           <span className="mlviz-sub" style={{ color: cls1 }}>class 1 (2, 1.5)</span>
         </div>

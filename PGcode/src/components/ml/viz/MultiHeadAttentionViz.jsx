@@ -153,10 +153,16 @@ function MiniHead({ head, matrix, tokens, active, focusedToken, onClick }) {
         role="img"
         aria-hidden="true"
       >
+        <defs>
+          <filter id={`mha-mini-glow-${head.id}`} x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="1.4" />
+          </filter>
+        </defs>
         {matrix.map((row, i) =>
           row.map((v, j) => {
             const colHi = focusedToken === j;
             const rowHi = focusedToken === i;
+            const hot = (colHi || rowHi) && v > 0.25;
             const bg = `rgba(var(--accent-rgb, 0,255,245), ${0.05 + v * 0.9})`;
             return (
               <rect
@@ -165,10 +171,11 @@ function MiniHead({ head, matrix, tokens, active, focusedToken, onClick }) {
                 y={PAD_T + i * cell}
                 width={cell - 0.5}
                 height={cell - 0.5}
-                rx="1.2"
+                rx="2"
                 fill={bg}
                 stroke={colHi || rowHi ? 'var(--accent)' : 'transparent'}
                 strokeWidth={colHi || rowHi ? 0.8 : 0}
+                filter={hot ? `url(#mha-mini-glow-${head.id})` : undefined}
               />
             );
           })
@@ -284,6 +291,11 @@ export default function MultiHeadAttentionViz() {
             role="img"
             aria-label={`${big.meta.name} attention pattern`}
           >
+            <defs>
+              <filter id="mha-cell-glow" x="-40%" y="-40%" width="180%" height="180%">
+                <feGaussianBlur stdDeviation="3" />
+              </filter>
+            </defs>
             {/* column labels */}
             {tokens.map((t, j) => (
               <text
@@ -352,14 +364,27 @@ export default function MultiHeadAttentionViz() {
                   : 'var(--border)';
                 const sw = isFocusRow || isFocusCol ? 1.4 : 0.5;
                 const textColor = v > 0.55 && !dim ? 'var(--bg)' : 'var(--text-main)';
+                const hot = !dim && v > 0.45;
                 return (
                   <g key={`bc-${i}-${j}`}>
+                    {hot && (
+                      <rect
+                        x={BIG_PAD_L + j * BIG_CELL}
+                        y={BIG_PAD_T + i * BIG_CELL}
+                        width={BIG_CELL - 2}
+                        height={BIG_CELL - 2}
+                        rx="6"
+                        fill="var(--accent)"
+                        opacity={0.2 + v * 0.4}
+                        filter="url(#mha-cell-glow)"
+                      />
+                    )}
                     <rect
                       x={BIG_PAD_L + j * BIG_CELL}
                       y={BIG_PAD_T + i * BIG_CELL}
                       width={BIG_CELL - 2}
                       height={BIG_CELL - 2}
-                      rx="4"
+                      rx="6"
                       fill={bg}
                       stroke={stroke}
                       strokeWidth={sw}
@@ -492,7 +517,14 @@ const MHA_CSS = `
 }
 .mha-card-on {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(var(--accent-rgb, 0,255,245), 0.35);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb, 0,255,245), 0.35),
+    0 0 18px rgba(var(--accent-rgb, 0,255,245), 0.28);
+}
+.mha-card-svg rect,
+.ah-heat-svg rect { transition: fill 160ms ease, opacity 160ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .mha-card-svg rect,
+  .ah-heat-svg rect { transition: none; }
 }
 .mha-card-head {
   display: flex;

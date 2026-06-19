@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Calendar, ChevronDown, Flame, Play, Shuffle, ArrowRight,
+  Calendar, ChevronDown, Flame, Play, Shuffle, ArrowRight, ArrowLeft,
 } from 'lucide-react';
 import {
   useSubmissionHistory,
@@ -17,6 +17,8 @@ import {
 import { primaryTopicLabel } from '../lib/topicLabel';
 import { supabase } from '../lib/supabase';
 import BubbleCloud from './BubbleCloud';
+import ActivityHeatmap from './vault/ActivityHeatmap';
+import './vault/vault.css';
 import './PracticeHistory.css';
 
 const WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -167,6 +169,25 @@ export default function PracticeHistory({ session, roadmapMode }) {
     return { days, maxDay, monthLabel };
   }, [useLegacy, stats, submissions, problemsById]);
 
+  // Per-day solve tally for the contribution heatmap. Same sources as the
+  // monthly bar chart — the RPC daily roll-up when present, else accepted
+  // submissions from the legacy log — but keyed across the full trailing window.
+  const dayCounts = useMemo(() => {
+    const m = new Map();
+    const bump = (ts, n) => {
+      const d = new Date(ts);
+      if (Number.isNaN(d.getTime())) return;
+      d.setHours(0, 0, 0, 0);
+      m.set(d.getTime(), (m.get(d.getTime()) || 0) + n);
+    };
+    if (!useLegacy && stats?.daily) {
+      stats.daily.forEach(row => bump(row.day, Number(row.n) || 0));
+    } else {
+      submissions.forEach(s => { if (isAcceptedVerdict(s.verdict)) bump(s.created_at, 1); });
+    }
+    return m;
+  }, [useLegacy, stats, submissions]);
+
   const bubbleItems = useMemo(() => {
     const labelById = {};
     topicsData.forEach(t => { labelById[t.id] = primaryTopicLabel(t.name); });
@@ -242,6 +263,13 @@ export default function PracticeHistory({ session, roadmapMode }) {
 
   return (
     <div className="ph-container">
+      <nav className="vault-crumbs" aria-label="Breadcrumb">
+        <Link to="/vault" className="vault-crumbs-back">
+          <ArrowLeft size={12} /> Vault
+        </Link>
+        <span className="vault-crumbs-sep">/</span>
+        <span className="vault-crumbs-current">History</span>
+      </nav>
       <section className="ph-overview">
         <div className="ph-streak-card">
           <header className="ph-streak-head">
@@ -292,6 +320,10 @@ export default function PracticeHistory({ session, roadmapMode }) {
 
       <div className="ph-grid">
         <main className="ph-left">
+          <div className="ph-heatmap-card">
+            <ActivityHeatmap counts={dayCounts} weeks={12} />
+          </div>
+
           <div className="ph-tabs" role="tablist">
             {[
               { key: 'all', label: 'All' },

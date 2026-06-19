@@ -1472,5 +1472,134 @@ log('dist matrix', d);
 `,
 };
 
+T['dutch-national-flag'] = {
+  title: 'Dutch national flag',
+  description: 'Three-way partition around a pivot in one pass. Edit the array, watch low/mid/high pointers sweep.',
+  renderer: 'array',
+  initialInput: { array: [2, 0, 2, 1, 1, 0, 2, 1, 0] },
+  stateHint: `// ArrayBarRenderer frame:
+// { array: number[], highlights: { [idx]: 'low'|'high'|'mid'|'match' } }`,
+  initialCode: `// Sort 0s, 1s, 2s in a single pass (Dutch national flag).
+const arr = [...input.array];
+let low = 0, mid = 0, high = arr.length - 1;
+step({ array: [...arr], highlights: { [low]: 'low', [mid]: 'mid', [high]: 'high' } },
+  \`low=\${low}, mid=\${mid}, high=\${high}\`);
+
+while (mid <= high) {
+  if (arr[mid] === 0) {
+    [arr[low], arr[mid]] = [arr[mid], arr[low]];
+    step({ array: [...arr], highlights: { [low]: 'match', [mid]: 'mid', [high]: 'high' } },
+      \`arr[mid]=0 -> swap into low region, advance low & mid\`);
+    low++; mid++;
+  } else if (arr[mid] === 1) {
+    step({ array: [...arr], highlights: { [low]: 'low', [mid]: 'mid', [high]: 'high' } },
+      \`arr[mid]=1 -> already in middle, advance mid\`);
+    mid++;
+  } else {
+    [arr[mid], arr[high]] = [arr[high], arr[mid]];
+    step({ array: [...arr], highlights: { [low]: 'low', [mid]: 'mid', [high]: 'match' } },
+      \`arr[mid]=2 -> swap into high region, shrink high\`);
+    high--;
+  }
+}
+const all = {};
+for (let k = 0; k < arr.length; k++) all[k] = 'match';
+step({ array: [...arr], highlights: all }, 'Partitioned: 0s | 1s | 2s');
+log('sorted', arr);
+`,
+};
+
+T['boyer-moore-majority'] = {
+  title: 'Boyer–Moore majority vote',
+  description: 'Find the element appearing more than n/2 times in O(1) space. Edit the array and watch the candidate flip.',
+  renderer: 'array',
+  initialInput: { array: [2, 2, 1, 1, 1, 2, 2] },
+  stateHint: `// ArrayBarRenderer frame:
+// { array: number[], highlights: { [idx]: 'low'|'high'|'mid'|'match' } }`,
+  initialCode: `// Boyer-Moore: maintain a candidate and a count.
+const arr = input.array;
+let candidate = null, count = 0;
+for (let i = 0; i < arr.length; i++) {
+  if (count === 0) {
+    candidate = arr[i];
+    step({ array: arr, highlights: { [i]: 'mid' } },
+      \`count 0 -> new candidate = \${candidate}\`);
+  }
+  if (arr[i] === candidate) {
+    count++;
+    step({ array: arr, highlights: { [i]: 'match' } },
+      \`arr[\${i}]=\${arr[i]} matches candidate -> count=\${count}\`);
+  } else {
+    count--;
+    step({ array: arr, highlights: { [i]: 'high' } },
+      \`arr[\${i}]=\${arr[i]} differs -> count=\${count}\`);
+  }
+}
+step({ array: arr, highlights: {} }, \`Majority candidate = \${candidate}\`);
+log('majority', candidate);
+`,
+};
+
+T['find-peak-element'] = {
+  title: 'Find a peak element',
+  description: 'Binary search on the slope: move toward the higher neighbour, a peak must lie that way.',
+  renderer: 'array',
+  initialInput: { array: [1, 2, 1, 3, 5, 6, 4] },
+  stateHint: `// ArrayBarRenderer frame:
+// { array, highlights: { [idx]: 'low'|'high'|'mid'|'match' }, eliminated?: number[] }`,
+  initialCode: `// A peak is any arr[i] greater than both neighbours. O(log n) via slope.
+const arr = input.array;
+let lo = 0, hi = arr.length - 1;
+const elim = [];
+while (lo < hi) {
+  const mid = (lo + hi) >> 1;
+  step({ array: arr, highlights: { [lo]: 'low', [hi]: 'high', [mid]: 'mid' }, eliminated: [...elim] },
+    \`Probe arr[\${mid}]=\${arr[mid]} vs arr[\${mid + 1}]=\${arr[mid + 1]}\`);
+  if (arr[mid] > arr[mid + 1]) {
+    for (let k = mid + 1; k <= hi; k++) elim.push(k);
+    hi = mid;
+    step({ array: arr, highlights: { [lo]: 'low', [hi]: 'high' }, eliminated: [...elim] },
+      \`Descending -> a peak is at or left of mid, hi=\${hi}\`);
+  } else {
+    for (let k = lo; k <= mid; k++) elim.push(k);
+    lo = mid + 1;
+    step({ array: arr, highlights: { [lo]: 'low', [hi]: 'high' }, eliminated: [...elim] },
+      \`Ascending -> a peak is right of mid, lo=\${lo}\`);
+  }
+}
+step({ array: arr, highlights: { [lo]: 'match' } }, \`Peak at index \${lo}, value \${arr[lo]}\`);
+log('peak index', lo);
+`,
+};
+
+T['array-cyclic-sort'] = {
+  title: 'Cyclic sort',
+  description: 'Place each value 1..n at its home index by repeated swaps. Linear time, O(1) space.',
+  renderer: 'array',
+  initialInput: { array: [3, 1, 5, 4, 2] },
+  stateHint: `// ArrayBarRenderer frame:
+// { array: number[], highlights: { [idx]: 'low'|'high'|'mid'|'match' } }`,
+  initialCode: `// Cyclic sort for values 1..n. Each value v belongs at index v-1.
+const arr = [...input.array];
+let i = 0;
+while (i < arr.length) {
+  const home = arr[i] - 1;
+  if (arr[i] !== arr[home]) {
+    step({ array: [...arr], highlights: { [i]: 'mid', [home]: 'high' } },
+      \`arr[\${i}]=\${arr[i]} belongs at index \${home} -> swap\`);
+    [arr[i], arr[home]] = [arr[home], arr[i]];
+  } else {
+    step({ array: [...arr], highlights: { [i]: 'match' } },
+      \`arr[\${i}]=\${arr[i]} already home -> advance\`);
+    i++;
+  }
+}
+const all = {};
+for (let k = 0; k < arr.length; k++) all[k] = 'match';
+step({ array: [...arr], highlights: all }, 'Sorted in place');
+log('sorted', arr);
+`,
+};
+
 export const INTERACTIVE_TEMPLATES = T;
 export const INTERACTIVE_SLUGS = Object.keys(T);

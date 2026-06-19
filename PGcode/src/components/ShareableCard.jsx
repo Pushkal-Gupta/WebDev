@@ -334,7 +334,7 @@ function buildSvg({ displayName, handle, solved, totalProblems, streak, byDiffic
 
   <!-- Footer / branding -->
   <text x="60" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="14" fill="${dim}">${escapeXml(dateStr)}</text>
-  <text x="${W - 60}" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="${accent}" text-anchor="end">PGcode</text>
+  <text x="${W - 60}" y="${H - 40}" font-family="Inter,system-ui,sans-serif" font-size="18" font-weight="700" fill="${accent}" text-anchor="end">PG Hub</text>
   <text x="${W - 60}" y="${H - 18}" font-family="Inter,system-ui,sans-serif" font-size="12" fill="${dim}" text-anchor="end">pushkalgupta.com/PGcode</text>
 </svg>`;
 }
@@ -486,7 +486,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
   };
 
   const handleShareTwitter = () => {
-    const url = `https://twitter.com/intent/tweet?text=Check%20out%20my%20PGcode%20stats!&url=${encodeURIComponent(cardUrl)}`;
+    const url = `https://twitter.com/intent/tweet?text=Check%20out%20my%20PG%20Hub%20stats!&url=${encodeURIComponent(cardUrl)}`;
     window.open(url, '_blank', 'noopener,noreferrer');
   };
 
@@ -655,7 +655,7 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
         <span className="sc-date">{dateStr}</span>
         <div className="sc-brand">
           <Trophy size={14} />
-          <span>PGcode</span>
+          <span>PG Hub</span>
         </div>
       </div>
     </div>

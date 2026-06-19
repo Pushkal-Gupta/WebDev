@@ -64,6 +64,17 @@ const AdminCompleteness = lazy(() => import('./components/admin/AdminCompletenes
 const ContestsIndex = lazy(() => import('./components/contests/ContestsIndex'));
 const CompeteHub = lazy(() => import('./components/compete/CompeteHub'));
 const ContestDetail = lazy(() => import('./components/contests/ContestDetail'));
+const LcProblemsBrowser = lazy(() => import('./components/compete/LcProblemsBrowser'));
+const LcProblemDetail = lazy(() => import('./components/compete/LcProblemDetail'));
+const LcContestList = lazy(() => import('./components/compete/LcContestList'));
+const LcHub = lazy(() => import('./components/compete/LcHub'));
+const CompetitionsSection = lazy(() => import('./components/compete/CompetitionsSection'));
+const HackathonsSection = lazy(() => import('./components/compete/HackathonsSection'));
+const ConferencesSection = lazy(() => import('./components/compete/ConferencesSection'));
+const GsocExplorer = lazy(() => import('./components/compete/gsoc/GsocExplorer'));
+const KaggleCompetitions = lazy(() => import('./components/compete/kaggle/KaggleCompetitions'));
+const LcLlmBenchmark = lazy(() => import('./components/compete/leetcode/LcLlmBenchmark'));
+const CompeteResources = lazy(() => import('./components/compete/resources/CompeteResources'));
 const PracticeHistory = lazy(() => import('./components/PracticeHistory'));
 const MyLists = lazy(() => import('./components/MyLists'));
 const PublicListView = lazy(() => import('./components/PublicListView'));
@@ -78,6 +89,22 @@ const SolutionPage = lazy(() => import('./components/SolutionPage'));
 const LearnIndex = lazy(() => import('./components/learn/LearnIndex'));
 const LearningHub = lazy(() => import('./components/learn/LearningHub'));
 const MLHub = lazy(() => import('./components/ml/MLHub'));
+const PGForgeHub = lazy(() => import('./components/ml/forge/PGForgeHub'));
+const PGForgePapers = lazy(() => import('./components/ml/forge/PGForgePapers'));
+const PGForgeProjects = lazy(() => import('./components/ml/forge/PGForgeProjects'));
+const PGForgeRoadmaps = lazy(() => import('./components/ml/forge/PGForgeRoadmaps'));
+const PGForgeProblems = lazy(() => import('./components/ml/forge/PGForgeProblems'));
+const PGForgeProblemDetail = lazy(() => import('./components/ml/forge/PGForgeProblemDetail'));
+const PGForgeMath = lazy(() => import('./components/ml/forge/PGForgeMath'));
+const PGForgeStudyPlans = lazy(() => import('./components/ml/forge/PGForgeStudyPlans'));
+const PGForgeStudyPlanDetail = lazy(() => import('./components/ml/forge/PGForgeStudyPlanDetail'));
+const PGForgeArena = lazy(() => import('./components/ml/forge/PGForgeArena'));
+const PGForgeCuda = lazy(() => import('./components/ml/forge/PGForgeCuda'));
+const PGForgeCudaDetail = lazy(() => import('./components/ml/forge/PGForgeCudaDetail'));
+const PGForgeProgress = lazy(() => import('./components/ml/forge/PGForgeProgress'));
+const PGForgeSheets = lazy(() => import('./components/ml/forge/PGForgeSheets'));
+const PGForgeSheetDetail = lazy(() => import('./components/ml/forge/PGForgeSheetDetail'));
+const PGVaultHub = lazy(() => import('./components/vault/PGVaultHub'));
 const MLGroup = lazy(() => import('./components/ml/MLGroup'));
 const MLPillar = lazy(() => import('./components/ml/MLPillar'));
 const MLLesson = lazy(() => import('./components/ml/MLLesson'));
@@ -249,10 +276,26 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           {/* Legacy alias */}
           <Route path="/problems" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
           <Route path="/learning" element={<LearningHub />} />
-          <Route path="/ml" element={<MLHub />} />
+          <Route path="/ml" element={<PGForgeHub />} />
+          <Route path="/ml/learn" element={<MLHub />} />
+          <Route path="/ml/papers" element={<PGForgePapers />} />
+          <Route path="/ml/projects" element={<PGForgeProjects />} />
+          <Route path="/ml/roadmaps" element={<PGForgeRoadmaps />} />
+          <Route path="/ml/problems" element={<PGForgeProblems />} />
+          <Route path="/ml/problems/:slug" element={<PGForgeProblemDetail />} />
+          <Route path="/ml/math" element={<PGForgeMath />} />
+          <Route path="/ml/study-plans" element={<PGForgeStudyPlans />} />
+          <Route path="/ml/study-plans/:slug" element={<PGForgeStudyPlanDetail />} />
+          <Route path="/ml/arena" element={<PGForgeArena />} />
+          <Route path="/ml/cuda" element={<PGForgeCuda />} />
+          <Route path="/ml/cuda/:slug" element={<PGForgeCudaDetail />} />
+          <Route path="/ml/progress" element={<PGForgeProgress />} />
+          <Route path="/ml/sheets" element={<PGForgeSheets />} />
+          <Route path="/ml/sheets/:slug" element={<PGForgeSheetDetail />} />
           <Route path="/ml/g/:groupSlug" element={<MLGroup />} />
           <Route path="/ml/:pillarSlug" element={<MLPillar />} />
           <Route path="/ml/:pillarSlug/:lessonSlug" element={<MLLesson />} />
+          <Route path="/vault" element={<PGVaultHub session={session} />} />
           <Route path="/learn" element={<LearnIndex session={session} />} />
           <Route path="/learn/:moduleSlug" element={<LearnIndex session={session} />} />
           <Route path="/learn/:moduleSlug/:conceptSlug" element={<ConceptPage session={session} />} />
@@ -278,6 +321,17 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/company/:slug" element={<CompanyDetail session={session} />} />
           <Route path="/contests" element={<ContestsIndex />} />
           <Route path="/compete" element={<CompeteHub />} />
+          <Route path="/compete/leetcode" element={<LcHub />} />
+          <Route path="/compete/leetcode/problems" element={<LcProblemsBrowser />} />
+          <Route path="/compete/leetcode/problems/:slug" element={<LcProblemDetail />} />
+          <Route path="/compete/leetcode/contests" element={<LcContestList />} />
+          <Route path="/compete/leetcode/llms" element={<LcLlmBenchmark />} />
+          <Route path="/compete/gsoc" element={<GsocExplorer />} />
+          <Route path="/compete/kaggle" element={<KaggleCompetitions />} />
+          <Route path="/compete/resources" element={<CompeteResources />} />
+          <Route path="/compete/competitions" element={<CompetitionsSection />} />
+          <Route path="/compete/hackathons" element={<HackathonsSection />} />
+          <Route path="/compete/conferences" element={<ConferencesSection />} />
           <Route path="/contests/:slug" element={<ContestDetail session={session} />} />
           <Route path="/history" element={<PracticeHistory session={session} roadmapMode={roadmapMode} />} />
           <Route path="/lists" element={<MyLists session={session} />} />
@@ -333,6 +387,24 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    // OAuth providers redirect back with `?error=...&error_description=...` (or in
+    // the hash) when the round-trip fails. detectSessionInUrl swallows these, so
+    // capture them here for the LoginModal to display, then strip from the URL.
+    try {
+      const search = new URLSearchParams(window.location.search);
+      const hashStr = window.location.hash.includes('=') ? window.location.hash.replace(/^#\/?/, '') : '';
+      const hash = new URLSearchParams(hashStr);
+      const errCode = search.get('error') || search.get('error_code') || hash.get('error') || hash.get('error_code');
+      const errDesc = search.get('error_description') || hash.get('error_description');
+      if (errCode || errDesc) {
+        const msg = (errDesc || errCode || 'OAuth sign-in failed').replace(/\+/g, ' ');
+        sessionStorage.setItem('pgcode-oauth-error', msg);
+        console.error('[auth] OAuth redirect returned an error:', errCode, errDesc);
+        const url = window.location.pathname + (window.location.hash.startsWith('#/') ? window.location.hash : '');
+        window.history.replaceState({}, '', url);
+      }
+    } catch { /* non-fatal: error surfacing is best-effort */ }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       prevUserIdRef.current = session?.user?.id || null;

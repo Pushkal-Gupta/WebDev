@@ -2,10 +2,10 @@ import React, { useMemo, useState } from 'react';
 import { Shuffle, RotateCcw } from 'lucide-react';
 import './MLViz.css';
 
-const W = 640;
+const W = 680;
 const H = 380;
-const PAD_L = 24;
-const PAD_R = 24;
+const PAD_L = 64;
+const PAD_R = 40;
 const PAD_T = 50;
 const PAD_B = 26;
 
@@ -112,7 +112,7 @@ export default function AttentionStepViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '640px' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '840px', aspectRatio: `${W} / ${H}` }}>
           {/* Stage labels along top */}
           {STAGES.map((s, i) => {
             const active = stage >= i;

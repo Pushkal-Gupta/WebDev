@@ -159,7 +159,7 @@ export default function TokenGenerationStreamViz() {
   const rngRef = useRef(null);
   const timerRef = useRef(null);
 
-  if (!rngRef.current) rngRef.current = mulberry32(SEED);
+  if (rngRef.current == null) rngRef.current = mulberry32(SEED);
 
   const isRunning = isRunningRaw && step < MAX_STEPS;
 

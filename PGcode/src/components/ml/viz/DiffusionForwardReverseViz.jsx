@@ -68,8 +68,6 @@ export default function DiffusionForwardReverseViz() {
     return () => mq.removeEventListener?.('change', sync);
   }, []);
 
-  const rng = useMemo(() => mulberry32(SEED), []);
-
   // initial clean cloud x_0: three clusters in [-1, 1]^2
   const x0 = useMemo(() => {
     const r = mulberry32(SEED + 1);

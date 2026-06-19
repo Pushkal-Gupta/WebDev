@@ -71,8 +71,6 @@ function eceToY(ece) {
 export default function PerplexityVsCalibrationViz() {
   const [step, setStep] = useState(420);
 
-  const rng = useMemo(() => mulberry32(SEED), []);
-
   const trace = useMemo(() => {
     const r = mulberry32(SEED);
     const out = [];

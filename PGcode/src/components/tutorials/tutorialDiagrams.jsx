@@ -276,15 +276,12 @@ function ForLoopFlow() {
 // 4. while loop — pre-test vs post-test side by side.
 // ---------------------------------------------------------------------------
 
-function WhileLoopFlow() {
-  const W = 760, H = 360;
-
-  function Lane({ x0, title, postTest }) {
-    const cx = x0 + 140;
-    const top = 30;
-    const condY = postTest ? 180 : 60;
-    const bodyY = postTest ? 60 : 180;
-    return (
+function WhileLoopLane({ x0, title, postTest }) {
+  const cx = x0 + 140;
+  const top = 30;
+  const condY = postTest ? 180 : 60;
+  const bodyY = postTest ? 60 : 180;
+  return (
       <g>
         <text x={cx} y={top} textAnchor="middle" className="tut-diagram-subhead">{title}</text>
 
@@ -337,13 +334,15 @@ function WhileLoopFlow() {
         <text x={cx + 110} y={condY + 32} textAnchor="middle"
           className="tut-diagram-caption">no</text>
       </g>
-    );
-  }
+  );
+}
 
+function WhileLoopFlow() {
+  const W = 760, H = 360;
   return (
     <DiagramFrame title="Pre-test vs post-test while" viewBox={`0 0 ${W} ${H}`}>
-      <Lane x0={20} title="pre-test  while (c) { ... }" postTest={false} />
-      <Lane x0={400} title="post-test  do { ... } while (c)" postTest={true} />
+      <WhileLoopLane x0={20} title="pre-test  while (c) { ... }" postTest={false} />
+      <WhileLoopLane x0={400} title="post-test  do { ... } while (c)" postTest={true} />
     </DiagramFrame>
   );
 }
@@ -937,42 +936,42 @@ function CycleDetectionDiagram() {
 // 15. Stack push / pop visualization (before / after).
 // ---------------------------------------------------------------------------
 
+function StackCells({ x, top, items, topLabel, cellH, cellW }) {
+  return (
+    <g>
+      {items.map((v, i) => (
+        <g key={i}>
+          <rect x={x} y={top + i * cellH} width={cellW} height={cellH - 4} rx={4}
+            className={`tut-diagram-node ${i === 0 ? 'accent' : ''}`} />
+          <text x={x + cellW / 2} y={top + i * cellH + cellH / 2}
+            textAnchor="middle" className="tut-diagram-node-label">{v}</text>
+        </g>
+      ))}
+      <text x={x + cellW + 14} y={top + cellH / 2 + 5} className="tut-diagram-caption">
+        {topLabel}
+      </text>
+      <text x={x + cellW + 14} y={top + (items.length - 1) * cellH + cellH / 2 + 5}
+        className="tut-diagram-caption">bottom</text>
+    </g>
+  );
+}
+
 function StackPushPopDiagram() {
   const W = 640, H = 360;
   const cellH = 44, cellW = 110;
   const x1 = 100, x2 = 420;
-
-  function Cells({ x, top, items, topLabel }) {
-    return (
-      <g>
-        {items.map((v, i) => (
-          <g key={i}>
-            <rect x={x} y={top + i * cellH} width={cellW} height={cellH - 4} rx={4}
-              className={`tut-diagram-node ${i === 0 ? 'accent' : ''}`} />
-            <text x={x + cellW / 2} y={top + i * cellH + cellH / 2}
-              textAnchor="middle" className="tut-diagram-node-label">{v}</text>
-          </g>
-        ))}
-        <text x={x + cellW + 14} y={top + cellH / 2 + 5} className="tut-diagram-caption">
-          {topLabel}
-        </text>
-        <text x={x + cellW + 14} y={top + (items.length - 1) * cellH + cellH / 2 + 5}
-          className="tut-diagram-caption">bottom</text>
-      </g>
-    );
-  }
 
   return (
     <DiagramFrame title="Stack — LIFO push / pop" viewBox={`0 0 ${W} ${H}`}>
       <text x={x1 + cellW / 2} y={30} textAnchor="middle" className="tut-diagram-subhead">
         push(4)
       </text>
-      <Cells x={x1} top={60} items={[4, 3, 2, 1]} topLabel="top" />
+      <StackCells x={x1} top={60} items={[4, 3, 2, 1]} topLabel="top" cellH={cellH} cellW={cellW} />
 
       <text x={x2 + cellW / 2} y={30} textAnchor="middle" className="tut-diagram-subhead">
         pop() → 4
       </text>
-      <Cells x={x2} top={60} items={[3, 2, 1]} topLabel="top" />
+      <StackCells x={x2} top={60} items={[3, 2, 1]} topLabel="top" cellH={cellH} cellW={cellW} />
 
       {/* arrow between the two */}
       <line x1={x1 + cellW + 70} y1={170} x2={x2 - 14} y2={170}

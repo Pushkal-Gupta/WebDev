@@ -152,6 +152,11 @@ export default function ReceptiveFieldViz() {
 
   const stageH = Math.max(STAGE_H, inputY0 + inputSizePx + 40);
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   return (
     <div className="mlviz-wrap rfv-wrap">
       <div className="mlviz-stage rfv-stage">
@@ -160,6 +165,25 @@ export default function ReceptiveFieldViz() {
           className="mlviz-svg rfv-svg"
           preserveAspectRatio="xMidYMid meet"
         >
+          <defs>
+            <linearGradient id="rfield-connector-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <linearGradient id="rfield-rf-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="rfield-rf-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.2" />
+            </filter>
+            <filter id="rfield-cell-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.4" />
+            </filter>
+            <filter id="rfield-connector-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2" />
+            </filter>
+          </defs>
           {/* Input label */}
           <text
             x={inputX0}
@@ -217,6 +241,7 @@ export default function ReceptiveFieldViz() {
                   y={inputY0 + r * inputCell}
                   width={inputCell}
                   height={inputCell}
+                  rx={isSelected ? 1.5 : 0}
                   fill={isSelected ? 'rgba(var(--accent-rgb, 0,255,245), 0.45)' : 'transparent'}
                   stroke={isSelected ? 'var(--accent)' : 'none'}
                   strokeWidth={isSelected ? 1 : 0}
@@ -240,11 +265,24 @@ export default function ReceptiveFieldViz() {
                   y={y}
                   width={w}
                   height={h}
-                  fill="rgba(var(--accent-rgb, 0,255,245), 0.18)"
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeWidth="2.2"
+                  rx={3}
+                  filter="url(#rfield-rf-glow)"
+                  opacity="0.7"
+                  style={{ transition: reducedMotion ? 'none' : 'all 0.18s ease' }}
+                />
+                <rect
+                  x={x}
+                  y={y}
+                  width={w}
+                  height={h}
+                  fill="color-mix(in srgb, var(--accent) 18%, transparent)"
                   stroke="var(--accent)"
                   strokeWidth="1.4"
                   strokeDasharray="3 2"
-                  rx={2}
+                  rx={3}
                   style={{ transition: 'all 0.18s ease' }}
                 />
                 <text
@@ -309,6 +347,19 @@ export default function ReceptiveFieldViz() {
                     />
                   </g>
                 ))}
+                {/* glow halo behind the selected feature cell */}
+                {isLayerSelected && clampedSelected.r < sz && clampedSelected.c < sz && (
+                  <rect
+                    x={xLeft + clampedSelected.c * cell}
+                    y={yTop + clampedSelected.r * cell}
+                    width={cell}
+                    height={cell}
+                    rx={1.5}
+                    fill="var(--accent)"
+                    filter="url(#rfield-cell-glow)"
+                    opacity="0.7"
+                  />
+                )}
                 {/* clickable feature cells */}
                 {Array.from({ length: sz }).map((_, r) =>
                   Array.from({ length: sz }).map((__, c) => {
@@ -320,6 +371,7 @@ export default function ReceptiveFieldViz() {
                         y={yTop + r * cell}
                         width={cell}
                         height={cell}
+                        rx={isSel ? 1.5 : 0}
                         fill={isSel ? 'rgba(var(--accent-rgb, 0,255,245), 0.6)' : 'rgba(var(--accent-rgb, 0,255,245), 0.05)'}
                         stroke={isSel ? 'var(--accent)' : 'none'}
                         strokeWidth={isSel ? 1 : 0}
@@ -361,9 +413,21 @@ export default function ReceptiveFieldViz() {
                   y1={cy}
                   x2={ix}
                   y2={iy}
-                  stroke="var(--accent)"
+                  stroke="url(#rfield-connector-grad)"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  filter="url(#rfield-connector-glow)"
+                  opacity="0.6"
+                />
+                <line
+                  x1={cx}
+                  y1={cy}
+                  x2={ix}
+                  y2={iy}
+                  stroke="url(#rfield-connector-grad)"
                   strokeWidth="0.8"
                   strokeDasharray="3 2.5"
+                  strokeLinecap="round"
                 />
               </g>
             );
@@ -457,12 +521,23 @@ export default function ReceptiveFieldViz() {
 
       {/* Readout */}
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>RF</span>
-          <span className="mlviz-val">{selectedRF}x{selectedRF}</span>
-          <span className="mlviz-sub">selected: L{clampedSelected.layer} ({clampedSelected.r}, {clampedSelected.c})</span>
-          <span className="mlviz-sub">feature scale {(equivalentScale * 100).toFixed(1)}% of input</span>
-          <span className="mlviz-sub">jump {stack[clampedSelected.layer]?.jump}</span>
+        <div className="mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">RF size</span>
+            <span className="mlviz-statcard-val">{selectedRF}x{selectedRF}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">selected layer</span>
+            <span className="mlviz-statcard-val">L{clampedSelected.layer} ({clampedSelected.r}, {clampedSelected.c})</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">feature scale</span>
+            <span className="mlviz-statcard-val">{(equivalentScale * 100).toFixed(1)}%</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">jump</span>
+            <span className="mlviz-statcard-val">{stack[clampedSelected.layer]?.jump}</span>
+          </div>
         </div>
 
         <div className="rfv-formula">

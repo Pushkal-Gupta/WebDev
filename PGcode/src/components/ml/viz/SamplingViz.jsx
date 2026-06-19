@@ -149,6 +149,14 @@ function Panel({
 }) {
   const histBinW = (PLOT_W / HIST_BINS);
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const markerTransition = reducedMotion ? 'none' : 'cx 0.12s ease-out, cy 0.12s ease-out';
+
+  const latest = trail.length ? trail[trail.length - 1] : null;
+
   return (
     <div className="mlviz-stage" style={{ flex: '1 1 0', minWidth: 0 }}>
       <div style={{
@@ -188,6 +196,16 @@ function Panel({
             <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.22" />
             <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.02" />
           </linearGradient>
+          <linearGradient id={`samp-curve-grad-${trailKind}`} x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%" stopColor="var(--accent)" />
+            <stop offset="100%" stopColor="var(--hue-violet)" />
+          </linearGradient>
+          <filter id={`samp-curve-glow-${trailKind}`} x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="3" />
+          </filter>
+          <filter id={`samp-pt-glow-${trailKind}`} x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="3.4" />
+          </filter>
         </defs>
 
         {/* vertical grid at x = -4, -2, 0, 2, 4 */}
@@ -254,12 +272,22 @@ function Panel({
           );
         })}
 
-        {/* target distribution: fill + line */}
+        {/* target distribution: fill + glow + gradient line */}
         <path d={fill} fill={`url(#samp-fill-${trailKind})`} />
         <path
           d={target}
           fill="none"
-          stroke="var(--accent)"
+          stroke={`url(#samp-curve-grad-${trailKind})`}
+          strokeWidth="3.6"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          filter={`url(#samp-curve-glow-${trailKind})`}
+          opacity="0.5"
+        />
+        <path
+          d={target}
+          fill="none"
+          stroke={`url(#samp-curve-grad-${trailKind})`}
           strokeWidth="2"
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -345,6 +373,17 @@ function Panel({
                 />
               );
             })}
+            {latest && (
+              <circle
+                cx={xToPx(latest.x)}
+                cy={yToPx(targetPdf(latest.x), Y_MAX)}
+                r={7}
+                fill={latest.accepted ? 'var(--easy, #2ecc71)' : 'var(--hard, #ff5e5e)'}
+                filter={`url(#samp-pt-glow-${trailKind})`}
+                opacity={0.55}
+                style={{ transition: markerTransition }}
+              />
+            )}
             {trail.slice(-12).map((p, i, arr) => (
               <circle
                 key={`md${i}`}
@@ -353,6 +392,7 @@ function Panel({
                 r={i === arr.length - 1 ? 3.4 : 2.2}
                 fill={p.accepted ? 'var(--easy, #2ecc71)' : 'var(--hard, #ff5e5e)'}
                 opacity={0.85}
+                style={i === arr.length - 1 ? { transition: markerTransition } : undefined}
               />
             ))}
           </g>
@@ -374,11 +414,21 @@ function Panel({
             <circle
               cx={xToPx(proposalMarker.x)}
               cy={yToPx(targetPdf(proposalMarker.x), Y_MAX)}
+              r={9}
+              fill={proposalMarker.accepted ? 'var(--easy, #2ecc71)' : 'var(--hard, #ff5e5e)'}
+              filter={`url(#samp-pt-glow-${trailKind})`}
+              opacity="0.5"
+              style={{ transition: markerTransition }}
+            />
+            <circle
+              cx={xToPx(proposalMarker.x)}
+              cy={yToPx(targetPdf(proposalMarker.x), Y_MAX)}
               r={4.5}
               fill="none"
               stroke={proposalMarker.accepted ? 'var(--easy, #2ecc71)' : 'var(--hard, #ff5e5e)'}
               strokeWidth="1.4"
               opacity="0.9"
+              style={{ transition: markerTransition }}
             />
           </g>
         )}
@@ -389,7 +439,7 @@ function Panel({
           <text x={12} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">accept</text>
           <circle cx={56} cy={6} r={3} fill="var(--hard, #ff5e5e)" />
           <text x={64} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">reject</text>
-          <line x1={102} y1={6} x2={120} y2={6} stroke="var(--accent)" strokeWidth="2" />
+          <line x1={102} y1={6} x2={120} y2={6} stroke={`url(#samp-curve-grad-${trailKind})`} strokeWidth="2" strokeLinecap="round" />
           <text x={124} y={9} fontSize="9.5" fill="var(--accent)" fontFamily="var(--mono, monospace)">target</text>
         </g>
       </svg>
@@ -415,12 +465,16 @@ function Panel({
         </button>
       </div>
 
-      <div className="mlviz-row mlviz-row-hi" style={{ marginTop: 4 }}>
-        <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>accept rate</span>
-        <span className="mlviz-val">{totalProposed > 0 ? snap(acceptRate, 3) : '—'}</span>
-        <span className="mlviz-sub">
-          {totalProposed > 0 ? `${samples.length} / ${totalProposed} proposals kept` : 'no proposals yet'}
-        </span>
+      <div className="mlviz-statcol mlviz-statrow" style={{ marginTop: 6 }}>
+        <div className="mlviz-statcard mlviz-statcard-accent">
+          <span className="mlviz-statcard-label">accept rate</span>
+          <span className="mlviz-statcard-val">{totalProposed > 0 ? snap(acceptRate, 3) : '—'}</span>
+        </div>
+        <div className="mlviz-statcard mlviz-statcard-dim">
+          <span className="mlviz-statcard-label">proposals kept</span>
+          <span className="mlviz-statcard-val">{totalProposed > 0 ? `${samples.length} / ${totalProposed}` : '—'}</span>
+          <span className="mlviz-statcard-sub">{totalProposed > 0 ? 'kept / proposed' : 'no proposals yet'}</span>
+        </div>
       </div>
     </div>
   );

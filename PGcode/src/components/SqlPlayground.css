@@ -428,63 +428,116 @@ body.pg-resizing-col * {
 
 /* ── Sample-database picker (Mode-style) ─────────────────────────────── */
 
-.sql-pg-picker-page { height: auto; min-height: calc(100vh - 100px); }
+/* The landing/picker view scrolls with the document — no fixed-height clip
+   from the base .sql-pg split-layout cap. The query/editor view keeps that
+   cap; only this view relaxes it. */
+/* The document root is overflow:hidden (see theme.css #root), so each route
+   scrolls via its own container. The scenario picker can exceed the viewport,
+   so it must be a scroll container itself — overflow:visible here would clip
+   against #root with no way to reach the lower cards. */
+.sql-pg-picker-page {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+}
 
 .sql-pg-picker {
-  flex: 1;
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1rem;
   padding-top: 0.5rem;
+  min-height: 0;
 }
 
 .sql-pg-picker-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 1rem;
+  align-content: start;
 }
 
 .sql-pg-picker-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
   text-align: left;
-  padding: 1rem 1.1rem;
+  padding: 1.1rem 1.15rem 1rem;
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   cursor: pointer;
   font-family: var(--sans);
   color: var(--text-main);
-  transition: border-color var(--t), background var(--t), transform var(--t);
+  overflow: hidden;
+  transition: border-color var(--t), background var(--t),
+    transform var(--t), box-shadow var(--t);
+}
+
+/* Accent rail down the left edge — per-card hue, lit on hover. */
+.sql-pg-picker-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--card-accent, var(--accent));
+  opacity: 0.45;
+  transition: opacity var(--t), width var(--t);
 }
 
 .sql-pg-picker-card:hover {
-  border-color: var(--accent);
+  border-color: var(--card-accent, var(--accent));
   background: var(--hover-box);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px -14px rgba(var(--accent-rgb), 0.5);
 }
+.sql-pg-picker-card:hover::before { opacity: 1; width: 4px; }
 
 .sql-pg-picker-card-head {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  color: var(--accent);
+  gap: 0.45rem;
+  color: var(--card-accent, var(--accent));
+  min-width: 0;
 }
+
+.sql-pg-picker-card-head svg { flex-shrink: 0; }
 
 .sql-pg-picker-card-title {
   font-family: var(--serif);
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.2;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .sql-pg-picker-card-blurb {
   font-size: 0.82rem;
   line-height: 1.5;
   color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
+
+.sql-pg-picker-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: auto;
+  padding-top: 0.15rem;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--card-accent, var(--accent));
+}
+.sql-pg-picker-card-meta svg { flex-shrink: 0; }
 
 .sql-pg-picker-card-tables {
   display: flex;
@@ -496,25 +549,28 @@ body.pg-resizing-col * {
 .sql-pg-picker-card-tables code {
   font-family: var(--mono);
   font-size: 0.62rem;
-  padding: 0.18rem 0.45rem;
-  border-radius: 4px;
-  background: var(--bg);
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.08);
   border: 1px solid var(--border);
   color: var(--text-dim);
+  white-space: nowrap;
 }
 
 .sql-pg-picker-card-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
-  margin-top: 0.25rem;
+  margin-top: 0.35rem;
   font-family: var(--mono);
   font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--accent);
+  color: var(--card-accent, var(--accent));
 }
+.sql-pg-picker-card-cta svg { transition: transform var(--t); }
+.sql-pg-picker-card:hover .sql-pg-picker-card-cta svg { transform: translateX(3px); }
 
 .sql-pg-picker-foot {
   display: inline-flex;
@@ -536,3 +592,77 @@ body.pg-resizing-col * {
 .sql-pg-picker-foot a:hover {
   border-bottom-color: var(--accent);
 }
+
+.sql-pg-picker-card-custom {
+  border-style: dashed;
+  --card-accent: var(--hue-mint, var(--accent));
+}
+
+/* ── Custom-DB setup (paste / fetch) ─────────────────────────────────── */
+
+.sql-pg-custom-setup {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  align-content: start;
+  padding-top: 0.5rem;
+  min-height: 0;
+}
+
+.sql-pg-custom-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.sql-pg-custom-hint {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.sql-pg-custom-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 220px;
+  resize: vertical;
+  padding: 0.7rem 0.8rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  transition: border-color var(--t);
+}
+.sql-pg-custom-textarea:focus { border-color: var(--accent); }
+.sql-pg-custom-textarea::placeholder { color: var(--text-dim); }
+
+.sql-pg-custom-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.6rem 0.75rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  outline: none;
+  transition: border-color var(--t);
+}
+.sql-pg-custom-input:focus { border-color: var(--accent); }
+.sql-pg-custom-input::placeholder { color: var(--text-dim); }
+
+.sql-pg-custom-card .sql-pg-btn { align-self: flex-start; }
+
+.sql-pg-custom-error { margin-top: 0.2rem; }

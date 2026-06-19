@@ -9,6 +9,10 @@
 //   Codeforces  REST     https://codeforces.com/api/contest.list
 //   AtCoder     scrape   https://atcoder.jp/contests/   (or kenkoooo problems API)
 //   CodeChef    REST     https://www.codechef.com/api/list/contests/all
+//   DevPost     REST     https://devpost.com/api/hackathons (open + upcoming)
+//   Kaggle      REST     https://www.kaggle.com/api/v1/competitions/list
+//                        (live only with KAGGLE_USERNAME + KAGGLE_KEY; else seed)
+//   GSoC        seed     summerofcode.withgoogle.com timeline (no public API)
 //
 // Cron schedule (set after deploy):
 //   supabase functions deploy fetch-contests
@@ -26,6 +30,8 @@
 // Env (set via `supabase secrets set`):
 //   SUPABASE_URL                 - injected automatically
 //   SUPABASE_SERVICE_ROLE_KEY    - injected automatically; used to bypass RLS on write
+//   KAGGLE_USERNAME, KAGGLE_KEY  - OPTIONAL; enables live Kaggle fetch. Without
+//                                  them Kaggle serves a curated seed list.
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -194,6 +200,211 @@ async function fetchCodeChef(): Promise<Row[]> {
   return rows;
 }
 
+// ── DevPost ─────────────────────────────────────────────────────────────────
+// Public hackathon listing JSON (no auth). Returns open + upcoming hackathons.
+// `submission_period_dates` is a human string ("Jun 14 - Aug 09, 2026"); we use
+// the structured `submission_period_starts_at` when present and fall back to
+// parsing the date string. DevPost has no fixed duration, so we derive it from
+// the submission window end where available.
+async function fetchDevPost(): Promise<Row[]> {
+  const res = await fetch(
+    "https://devpost.com/api/hackathons?status[]=upcoming&status[]=open",
+    { headers: { "Accept": "application/json" } },
+  );
+  if (!res.ok) throw new Error(`devpost ${res.status}`);
+  const json = await res.json();
+  const list = (json?.hackathons ?? []) as any[];
+  const rows: Row[] = [];
+  for (const h of list) {
+    // Prefer structured timestamps; fall back to parsing the dates string.
+    const startRaw =
+      h.submission_period_starts_at ?? h.submission_period_dates ?? null;
+    const startMs = startRaw ? Date.parse(startRaw) : NaN;
+    if (Number.isNaN(startMs)) continue;
+    const endRaw = h.submission_period_ends_at ?? null;
+    const endMs = endRaw ? Date.parse(endRaw) : NaN;
+    const durMin = Number.isNaN(endMs) ? 0 : Math.round((endMs - startMs) / 60_000);
+    // DevPost ids are stable; fall back to slug from the url.
+    const id = h.id ?? (h.url ?? "").replace(/[^a-z0-9]+/gi, "-");
+    if (!id) continue;
+    rows.push({
+      id: `dp-${id}`,
+      platform: "devpost",
+      name: h.title ?? "Untitled hackathon",
+      url: h.url ?? null,
+      start_time: new Date(startMs).toISOString(),
+      duration_minutes: durMin,
+      phase: phaseFor(startMs, durMin),
+      extra: {
+        thumbnail: h.thumbnail_url ?? null,
+        prize: h.prize_amount ?? null,
+        dates: h.submission_period_dates ?? null,
+        themes: (h.themes ?? []).map((t: any) => t?.name).filter(Boolean),
+      },
+      updated_at: new Date().toISOString(),
+    });
+  }
+  return rows;
+}
+
+// ── Kaggle ──────────────────────────────────────────────────────────────────
+// Kaggle's official competitions API requires an authenticated key
+// (KAGGLE_USERNAME + KAGGLE_KEY). When that is set we hit the live REST endpoint;
+// otherwise we fall back to a small curated seed so the platform isn't dark.
+// Seed rows are deterministic-id'd so they upsert cleanly and get replaced the
+// moment a live fetch succeeds for the same competition ref.
+const KAGGLE_SEED: Array<{
+  ref: string; name: string; url: string; start: string; end: string;
+}> = [
+  // Long-running "Getting Started" competitions that are reliably open.
+  {
+    ref: "titanic",
+    name: "Titanic - Machine Learning from Disaster",
+    url: "https://www.kaggle.com/competitions/titanic",
+    start: "2018-01-01T00:00:00Z",
+    end: "2030-01-01T00:00:00Z",
+  },
+  {
+    ref: "house-prices-advanced-regression-techniques",
+    name: "House Prices - Advanced Regression Techniques",
+    url: "https://www.kaggle.com/competitions/house-prices-advanced-regression-techniques",
+    start: "2018-01-01T00:00:00Z",
+    end: "2030-01-01T00:00:00Z",
+  },
+  {
+    ref: "digit-recognizer",
+    name: "Digit Recognizer",
+    url: "https://www.kaggle.com/competitions/digit-recognizer",
+    start: "2018-01-01T00:00:00Z",
+    end: "2030-01-01T00:00:00Z",
+  },
+  {
+    ref: "spaceship-titanic",
+    name: "Spaceship Titanic",
+    url: "https://www.kaggle.com/competitions/spaceship-titanic",
+    start: "2022-01-01T00:00:00Z",
+    end: "2030-01-01T00:00:00Z",
+  },
+];
+
+function kaggleSeedRows(): Row[] {
+  return KAGGLE_SEED.map((c): Row => {
+    const startMs = Date.parse(c.start);
+    const endMs = Date.parse(c.end);
+    const durMin = Math.round((endMs - startMs) / 60_000);
+    return {
+      id: `kg-${c.ref}`,
+      platform: "kaggle",
+      name: c.name,
+      url: c.url,
+      start_time: new Date(startMs).toISOString(),
+      duration_minutes: durMin,
+      phase: phaseFor(startMs, durMin),
+      extra: { ref: c.ref, source: "seed" },
+      updated_at: new Date().toISOString(),
+    };
+  });
+}
+
+async function fetchKaggle(): Promise<Row[]> {
+  const username = Deno.env.get("KAGGLE_USERNAME");
+  const key = Deno.env.get("KAGGLE_KEY");
+  // No credentials -> serve the curated seed so the platform isn't dark.
+  if (!username || !key) return kaggleSeedRows();
+
+  // LIVE path: Kaggle REST API uses HTTP Basic auth (username:key).
+  const auth = btoa(`${username}:${key}`);
+  const res = await fetch(
+    "https://www.kaggle.com/api/v1/competitions/list?sortBy=latestDeadline",
+    { headers: { "Authorization": `Basic ${auth}`, "Accept": "application/json" } },
+  );
+  // On any auth/upstream failure, degrade to the seed rather than throwing.
+  if (!res.ok) return kaggleSeedRows();
+  const list = (await res.json()) as any[];
+  if (!Array.isArray(list) || !list.length) return kaggleSeedRows();
+  return list.map((c: any): Row => {
+    const startMs = Date.parse(c.enabledDate ?? c.enabled_date ?? "");
+    const endMs = Date.parse(c.deadline ?? "");
+    const safeStart = Number.isNaN(startMs) ? Date.now() : startMs;
+    const durMin = Number.isNaN(endMs) ? 0 : Math.round((endMs - safeStart) / 60_000);
+    const ref = c.ref ?? c.id ?? c.title;
+    return {
+      id: `kg-${ref}`,
+      platform: "kaggle",
+      name: c.title ?? c.ref ?? "Kaggle competition",
+      url: c.ref
+        ? `https://www.kaggle.com/competitions/${String(c.ref).split("/").pop()}`
+        : (c.url ?? null),
+      start_time: new Date(safeStart).toISOString(),
+      duration_minutes: durMin,
+      phase: phaseFor(safeStart, durMin),
+      extra: {
+        ref,
+        reward: c.reward ?? null,
+        category: c.category ?? null,
+        source: "live",
+      },
+      updated_at: new Date().toISOString(),
+    };
+  });
+}
+
+// ── GSoC ────────────────────────────────────────────────────────────────────
+// Google Summer of Code is seasonal and has no public contest API. We seed the
+// current cycle's key milestone dates so the platform shows the timeline. Update
+// GSOC_CYCLE each year (dates from summerofcode.withgoogle.com program timeline).
+// If/when an official timeline JSON becomes available this can be swapped to a
+// live fetch; until then the seed is the source of truth.
+const GSOC_CYCLE = {
+  year: 2026,
+  // Each milestone: [id-suffix, label, ISO start, duration in minutes].
+  // Durations are nominal windows; single-day deadlines use one day.
+  milestones: [
+    {
+      key: "org-apps",
+      name: "GSoC 2026 — Mentoring organization applications",
+      start: "2026-01-27T18:00:00Z",
+      end: "2026-02-11T18:00:00Z",
+    },
+    {
+      key: "contributor-apps",
+      name: "GSoC 2026 — Contributor application period",
+      start: "2026-03-24T18:00:00Z",
+      end: "2026-04-08T18:00:00Z",
+    },
+    {
+      key: "coding",
+      name: "GSoC 2026 — Standard coding period",
+      start: "2026-06-01T18:00:00Z",
+      end: "2026-08-25T18:00:00Z",
+    },
+  ],
+};
+
+function gsocSeedRows(): Row[] {
+  return GSOC_CYCLE.milestones.map((m): Row => {
+    const startMs = Date.parse(m.start);
+    const endMs = Date.parse(m.end);
+    const durMin = Number.isNaN(endMs) ? 0 : Math.round((endMs - startMs) / 60_000);
+    return {
+      id: `gsoc-${GSOC_CYCLE.year}-${m.key}`,
+      platform: "gsoc",
+      name: m.name,
+      url: "https://summerofcode.withgoogle.com/",
+      start_time: new Date(startMs).toISOString(),
+      duration_minutes: durMin,
+      phase: phaseFor(startMs, durMin),
+      extra: { year: GSOC_CYCLE.year, milestone: m.key, source: "seed" },
+      updated_at: new Date().toISOString(),
+    };
+  });
+}
+
+// Seed-only for now; wrapped to match the fetcher signature + failure isolation.
+async function fetchGSoC(): Promise<Row[]> {
+  return gsocSeedRows();
+}
+
 serve(async (req) => {
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -205,6 +416,9 @@ serve(async (req) => {
     ["codeforces", fetchCodeforces],
     ["atcoder", fetchAtCoder],
     ["codechef", fetchCodeChef],
+    ["devpost", fetchDevPost],
+    ["kaggle", fetchKaggle],
+    ["gsoc", fetchGSoC],
   ];
 
   const collected: Row[] = [];

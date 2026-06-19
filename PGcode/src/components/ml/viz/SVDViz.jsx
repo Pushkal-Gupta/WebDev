@@ -307,23 +307,58 @@ export default function SVDViz() {
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+          <defs>
+            <linearGradient id="svd-ellipse-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <radialGradient id="svd-ellipse-fill" cx="50%" cy="50%" r="60%">
+              <stop offset="0%" stopColor="rgba(var(--accent-rgb), 0.20)" />
+              <stop offset="100%" stopColor="rgba(var(--accent-rgb), 0.04)" />
+            </radialGradient>
+            <filter id="svd-shape-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.4" />
+            </filter>
+            <filter id="svd-axis-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+          </defs>
+
           <Grid />
 
           {/* faint reference unit circle */}
           <path d={refPath} fill="none" stroke={C_REF} strokeWidth="1"
             strokeDasharray="4 4" opacity="0.45" />
 
+          {/* soft glow halo under the transformed shape */}
+          <path d={pathD}
+            fill="none"
+            stroke="url(#svd-ellipse-grad)"
+            strokeWidth="4.5"
+            strokeLinejoin="round"
+            filter="url(#svd-shape-glow)"
+            opacity="0.5" />
+
           {/* current transformed shape */}
           <path d={pathD}
-            fill={`rgba(var(--accent-rgb), 0.10)`}
-            stroke={C_CIRCLE}
-            strokeWidth="2" />
+            fill="url(#svd-ellipse-fill)"
+            stroke="url(#svd-ellipse-grad)"
+            strokeWidth="2.2"
+            strokeLinejoin="round" />
+
+          {/* glow halo under principal axes */}
+          <line x1={aS1n.sx} y1={aS1n.sy} x2={aS1.sx} y2={aS1.sy}
+            stroke={C_SIG1} strokeWidth="3.4" strokeLinecap="round"
+            filter="url(#svd-axis-glow)" opacity={stage === 0 ? 0.3 : 0.55} />
+          <line x1={aS2n.sx} y1={aS2n.sy} x2={aS2.sx} y2={aS2.sy}
+            stroke={C_SIG2} strokeWidth="3.4" strokeLinecap="round"
+            filter="url(#svd-axis-glow)" opacity={stage === 0 ? 0.3 : 0.55} />
 
           {/* principal axes through origin */}
           <line x1={aS1n.sx} y1={aS1n.sy} x2={aS1.sx} y2={aS1.sy}
-            stroke={C_SIG1} strokeWidth="1.6" opacity={stage === 0 ? 0.55 : 0.9} />
+            stroke={C_SIG1} strokeWidth="1.6" strokeLinecap="round" opacity={stage === 0 ? 0.55 : 0.9} />
           <line x1={aS2n.sx} y1={aS2n.sy} x2={aS2.sx} y2={aS2.sy}
-            stroke={C_SIG2} strokeWidth="1.6" opacity={stage === 0 ? 0.55 : 0.9} />
+            stroke={C_SIG2} strokeWidth="1.6" strokeLinecap="round" opacity={stage === 0 ? 0.55 : 0.9} />
 
           {/* arrowhead axes (positive direction) */}
           <ArrowHead x1={ORIGIN} y1={ORIGIN} x2={aS1.sx} y2={aS1.sy} color={C_SIG1} />

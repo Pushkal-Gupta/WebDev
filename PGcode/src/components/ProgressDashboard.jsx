@@ -1,7 +1,10 @@
 import React, { useMemo, useState, useEffect, lazy, Suspense } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X } from 'lucide-react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X, CalendarClock, PieChart, CheckCircle2, ArrowLeft } from 'lucide-react';
 import ShareableCard from './ShareableCard';
+import ProgressRing from './vault/ProgressRing';
+import { Donut, GaugeRing, HBarChart, StatCard } from './compete/Charts';
+import './vault/vault.css';
 import {
   useProblemsCompact,
   useUserProgress,
@@ -162,9 +165,41 @@ export default function ProgressDashboard({ session, roadmapMode }) {
     return cells;
   }, [progressBundle]);
 
+  // Day-of-week solve distribution for the History tab. Derived from the same
+  // last_solved_at rows the heatmap uses — answers "which days do you grind?"
+  const weekdayStats = useMemo(() => {
+    const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const counts = [0, 0, 0, 0, 0, 0, 0];
+    (progressBundle?.rows || []).forEach(r => {
+      if (!r.last_solved_at) return;
+      const d = new Date(r.last_solved_at);
+      if (!Number.isNaN(d.getTime())) counts[d.getDay()] += 1;
+    });
+    const max = Math.max(1, ...counts);
+    const totalSolves = counts.reduce((a, b) => a + b, 0);
+    return labels.map((label, i) => ({ label, count: counts[i], pct: counts[i] / max, totalSolves }));
+  }, [progressBundle]);
+
+  const TOPIC_HUES = ['var(--accent)', 'var(--hue-violet)', 'var(--hue-sky)', 'var(--hue-pink)', 'var(--hue-mint)'];
+
   const overallPctNum = totals.total === 0 ? 0 : (totals.solved / totals.total) * 100;
   const overallPct = overallPctNum.toFixed(1);
   const ring = ringStyle(overallPctNum);
+
+  // Interactive chart inputs derived from the same real `totals` the ring uses.
+  const diffDonut = useMemo(() => ([
+    { key: 'easy', label: 'Easy', value: totals.e, hue: 'var(--easy)' },
+    { key: 'med', label: 'Medium', value: totals.m, hue: 'var(--medium)' },
+    { key: 'hard', label: 'Hard', value: totals.h, hue: 'var(--hard)' },
+  ]), [totals.e, totals.m, totals.h]);
+
+  const diffBars = useMemo(() => ([
+    { key: 'easy', label: 'Easy', a: totals.e, b: totals.eT, hueA: 'var(--easy)', labelHue: 'var(--easy)' },
+    { key: 'med', label: 'Medium', a: totals.m, b: totals.mT, hueA: 'var(--medium)', labelHue: 'var(--medium)' },
+    { key: 'hard', label: 'Hard', a: totals.h, b: totals.hT, hueA: 'var(--hard)', labelHue: 'var(--hard)' },
+  ]), [totals.e, totals.m, totals.h, totals.eT, totals.mT, totals.hT]);
+
+  const pctOf = (s, t) => (t > 0 ? Math.round((s / t) * 100) : 0);
 
   const TABS = [
     { key: 'stats',        label: 'Stats',         icon: BarChart3 },
@@ -175,6 +210,13 @@ export default function ProgressDashboard({ session, roadmapMode }) {
 
   return (
     <div className="pd-container">
+      <nav className="vault-crumbs" aria-label="Breadcrumb">
+        <Link to="/vault" className="vault-crumbs-back">
+          <ArrowLeft size={12} /> Vault
+        </Link>
+        <span className="vault-crumbs-sep">/</span>
+        <span className="vault-crumbs-current">Progress</span>
+      </nav>
       <header className="pd-header">
         <div className="pd-header-row">
           <div>
@@ -251,27 +293,19 @@ export default function ProgressDashboard({ session, roadmapMode }) {
                 />
               </svg>
               <div className="pd-overall-text">
+                <div className="pd-overall-label">Overall completion</div>
                 <div className="pd-overall-pct">{overallPct}%</div>
                 <div className="pd-overall-frac">{totals.solved} / {totals.total} solved</div>
               </div>
             </div>
 
-            <div className="pd-difficulty">
-              <div className="pd-diff-row">
-                <span className="pd-diff-label pd-diff-easy">Easy</span>
-                <span className="pd-diff-count">{totals.e} / {totals.eT}</span>
-                <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-easy" style={{ width: `${totals.eT ? Math.round((totals.e / totals.eT) * 100) : 0}%` }} /></div>
-              </div>
-              <div className="pd-diff-row">
-                <span className="pd-diff-label pd-diff-med">Medium</span>
-                <span className="pd-diff-count">{totals.m} / {totals.mT}</span>
-                <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-med" style={{ width: `${totals.mT ? Math.round((totals.m / totals.mT) * 100) : 0}%` }} /></div>
-              </div>
-              <div className="pd-diff-row">
-                <span className="pd-diff-label pd-diff-hard">Hard</span>
-                <span className="pd-diff-count">{totals.h} / {totals.hT}</span>
-                <div className="pd-diff-bar"><div className="pd-diff-fill pd-diff-fill-hard" style={{ width: `${totals.hT ? Math.round((totals.h / totals.hT) * 100) : 0}%` }} /></div>
-              </div>
+            <div className="pd-donut-card">
+              <Donut
+                segments={diffDonut}
+                total={totals.solved}
+                caption="solved"
+                ariaLabel="Solved problems by difficulty"
+              />
             </div>
 
             <div className="pd-streak-card">
@@ -282,6 +316,45 @@ export default function ProgressDashboard({ session, roadmapMode }) {
                   <div className="pd-streak-sub">Best: {profile?.longest_streak || 0}</div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          <section className="pd-charts-grid">
+            <div className="pd-card pd-chart-card">
+              <div className="pd-card-head">
+                <h2 className="pd-card-title"><Target size={14} /> Completion by difficulty</h2>
+              </div>
+              <div className="pd-gauge-row">
+                <GaugeRing
+                  value={overallPctNum} max={100} suffix="%"
+                  hue="var(--accent)" caption="Overall"
+                  icon={CheckCircle2} goalLabel={`${totals.solved}/${totals.total}`}
+                />
+                <GaugeRing
+                  value={pctOf(totals.e, totals.eT)} max={100} suffix="%"
+                  hue="var(--easy)" caption="Easy" goalLabel={`${totals.e}/${totals.eT}`}
+                />
+                <GaugeRing
+                  value={pctOf(totals.m, totals.mT)} max={100} suffix="%"
+                  hue="var(--medium)" caption="Medium" goalLabel={`${totals.m}/${totals.mT}`}
+                />
+                <GaugeRing
+                  value={pctOf(totals.h, totals.hT)} max={100} suffix="%"
+                  hue="var(--hard)" caption="Hard" goalLabel={`${totals.h}/${totals.hT}`}
+                />
+              </div>
+            </div>
+
+            <div className="pd-card pd-chart-card">
+              <div className="pd-card-head">
+                <h2 className="pd-card-title"><PieChart size={14} /> Solved vs total</h2>
+              </div>
+              <div className="pd-stat-row">
+                <StatCard icon={CheckCircle2} label="Solved" value={totals.solved.toLocaleString()} hue="var(--accent)" />
+                <StatCard icon={Flame} label="Day streak" value={profile?.current_streak || 0} hue="var(--accent)" />
+                <StatCard icon={Award} label="Best streak" value={profile?.longest_streak || 0} />
+              </div>
+              <HBarChart rows={diffBars} paired scaleMax={Math.max(1, totals.eT, totals.mT, totals.hT)} />
             </div>
           </section>
 
@@ -311,9 +384,33 @@ export default function ProgressDashboard({ session, roadmapMode }) {
       )}
 
       {tab === 'history' && (
-        <Suspense fallback={<p className="pd-empty">Loading history…</p>}>
-          <PracticeHistory session={session} roadmapMode={roadmapMode} />
-        </Suspense>
+        <>
+          <section className="pd-card">
+            <div className="pd-card-head">
+              <h2 className="pd-card-title"><CalendarClock size={14} /> When you solve</h2>
+              <span className="pd-card-action" style={{ pointerEvents: 'none' }}>
+                {weekdayStats[0]?.totalSolves || 0} solves tracked
+              </span>
+            </div>
+            <div className="pd-week-chart">
+              {weekdayStats.map((d, i) => (
+                <div key={d.label} className="pd-week-col" title={`${d.count} solve${d.count === 1 ? '' : 's'} on ${d.label}`}>
+                  <span className="pd-week-count">{d.count}</span>
+                  <div className="pd-week-track">
+                    <div
+                      className="pd-week-bar"
+                      style={{ height: `${Math.max(4, Math.round(d.pct * 100))}%`, background: TOPIC_HUES[i % TOPIC_HUES.length] }}
+                    />
+                  </div>
+                  <span className="pd-week-label">{d.label}</span>
+                </div>
+              ))}
+            </div>
+          </section>
+          <Suspense fallback={<p className="pd-empty">Loading history…</p>}>
+            <PracticeHistory session={session} roadmapMode={roadmapMode} />
+          </Suspense>
+        </>
       )}
 
       {tab === 'achievements' && (
@@ -331,16 +428,20 @@ export default function ProgressDashboard({ session, roadmapMode }) {
           {topicStats.length === 0 ? (
             <p className="pd-empty">Solve a few problems to see your per-topic breakdown.</p>
           ) : (
-            <ul className="pd-topic-list">
-              {topicStats.map(t => (
-                <li key={t.topicId} className="pd-topic-row">
-                  <span className="pd-topic-name">{topicNameById[t.topicId] || t.topicId}</span>
-                  <div className="pd-topic-bar"><div className="pd-topic-fill" style={{ width: `${Math.round(t.pct * 100)}%` }} /></div>
-                  <span className="pd-topic-frac">{t.solved} / {t.total}</span>
-                  <span className="pd-topic-pct">{(t.pct * 100).toFixed(1)}%</span>
-                </li>
-              ))}
-            </ul>
+            <div className="pd-mastery-grid">
+              {topicStats.map((t, i) => {
+                const hue = TOPIC_HUES[i % TOPIC_HUES.length];
+                return (
+                  <div key={t.topicId} className="pd-mastery-card" style={{ '--card-hue': hue }}>
+                    <ProgressRing solved={t.solved} total={t.total} color={hue} size={52} stroke={6} />
+                    <div className="pd-mastery-meta">
+                      <span className="pd-mastery-name">{topicNameById[t.topicId] || t.topicId}</span>
+                      <span className="pd-mastery-frac">{t.solved} / {t.total} solved</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </section>
       )}

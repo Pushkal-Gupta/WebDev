@@ -7,9 +7,10 @@
 .sub-nav-inner {
   display: flex;
   align-items: center;
-  gap: 0.15rem;
+  justify-content: center;
+  gap: 0.625rem;
   width: 94%;
-  max-width: 1400px;
+  max-width: var(--container-w);
   margin: 0 auto;
   padding: 0.5rem 0;
   overflow-x: auto;
@@ -24,12 +25,12 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  padding: 0.4rem 0.75rem;
+  padding: 0.4rem 0.7rem;
   border-radius: 4px;
   font-family: var(--mono);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   text-decoration: none;
   color: var(--text-dim);
@@ -90,6 +91,18 @@
   60%  { transform: scale(1.18); }
   100% { transform: scale(1); }
 }
+
+/* Two-part brand tab labels: dim, smaller "PG" prefix + emphasized suffix. */
+.sub-nav-brand { display: inline-flex; align-items: baseline; }
+.sub-nav-pg {
+  font-size: 0.64em;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: -0.01em;
+  margin-right: 0.01em;
+  opacity: 0.55;
+}
+.sub-nav-link.active .sub-nav-pg { color: var(--accent); opacity: 0.85; }
 
 .sub-nav-badge {
   background: var(--accent);

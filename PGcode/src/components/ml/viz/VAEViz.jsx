@@ -133,10 +133,26 @@ function PixelGrid({ cx, cy, values, accent = 'var(--accent)' }) {
   const x0 = cx - GRID_PX / 2;
   const y0 = cy - GRID_PX / 2;
   const cells = [];
+  const halos = [];
   for (let r = 0; r < GRID_N; r++) {
     for (let c = 0; c < GRID_N; c++) {
       const i = r * GRID_N + c;
       const v = Math.max(0, Math.min(1, values[i] || 0));
+      if (v > 0.55) {
+        halos.push(
+          <rect
+            key={`hl-${r}-${c}`}
+            x={x0 + c * CELL + 0.5}
+            y={y0 + r * CELL + 0.5}
+            width={CELL - 1}
+            height={CELL - 1}
+            fill={accent}
+            opacity={(v - 0.55) * 0.7}
+            rx={3}
+            filter="url(#vae-glow)"
+          />
+        );
+      }
       cells.push(
         <rect
           key={`px-${r}-${c}`}
@@ -147,6 +163,7 @@ function PixelGrid({ cx, cy, values, accent = 'var(--accent)' }) {
           fill={accent}
           opacity={0.08 + v * 0.85}
           rx={2}
+          style={{ transition: 'opacity 0.2s ease' }}
         />
       );
     }
@@ -163,6 +180,7 @@ function PixelGrid({ cx, cy, values, accent = 'var(--accent)' }) {
         stroke="var(--border)"
         strokeWidth={1}
       />
+      {halos}
       {cells}
     </g>
   );
@@ -269,6 +287,7 @@ function LatentPlot({ cx, cy, size, mu, lv, z, eps, beta }) {
         stroke="var(--hue-mint, #6fe3a8)"
         strokeWidth={1.1}
       />
+      <circle cx={muX} cy={muY} r={7} fill="var(--hue-mint, #6fe3a8)" opacity={0.5} filter="url(#vae-glow)" />
       <circle cx={muX} cy={muY} r={3.4} fill="var(--hue-mint, #6fe3a8)" />
       <text
         x={muX + 7}
@@ -298,10 +317,22 @@ function LatentPlot({ cx, cy, size, mu, lv, z, eps, beta }) {
         y1={muY}
         x2={zX}
         y2={zY}
-        stroke="var(--hue-pink, #ff66cc)"
-        strokeWidth={1.4}
+        stroke="url(#vae-reparam)"
+        strokeWidth={3.2}
+        strokeLinecap="round"
+        opacity={0.4}
+        filter="url(#vae-glow)"
+      />
+      <line
+        x1={muX}
+        y1={muY}
+        x2={zX}
+        y2={zY}
+        stroke="url(#vae-reparam)"
+        strokeWidth={1.6}
+        strokeLinecap="round"
         markerEnd="url(#vae-arrow)"
-        opacity={0.9}
+        opacity={0.95}
       />
       <text
         x={(muX + zX) / 2 + 6}
@@ -312,6 +343,7 @@ function LatentPlot({ cx, cy, size, mu, lv, z, eps, beta }) {
       >
         σ·ε
       </text>
+      <circle cx={zX} cy={zY} r={8} fill="var(--accent)" opacity={0.5} filter="url(#vae-glow)" />
       <circle cx={zX} cy={zY} r={4} fill="var(--accent)" stroke="var(--bg)" strokeWidth={1.2} />
       <text
         x={zX + 7}
@@ -486,7 +518,16 @@ export default function VAEViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: 620 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
+          <defs>
+            <filter id="vae-glow" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+            <linearGradient id="vae-reparam" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--hue-mint, #6fe3a8)" />
+              <stop offset="100%" stopColor="var(--hue-pink, #ff66cc)" />
+            </linearGradient>
+          </defs>
           <text x={X_INPUT} y={28} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em">
             INPUT x · 4×4
           </text>
@@ -619,28 +660,23 @@ export default function VAEViz() {
           <span className="mlviz-slider-val">{snap(z2Display, 2)}</span>
         </label>
 
-        <div className="mlviz-row mlviz-row-hi" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.35rem' }}>
-          <div className="mlviz-row" style={{ gap: '0.6rem' }}>
-            <span className="mlviz-tag">L_rec</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">L_rec · MSE(x, x̂)</span>
             <span
-              className="mlviz-val"
-              style={{ color: lRec < 0.08 ? 'var(--easy, #28c244)' : lRec < 0.2 ? 'var(--warning, #f4b740)' : 'var(--hard, #ef476f)' }}
+              className="mlviz-statcard-val"
+              style={{ color: lRec < 0.08 ? 'var(--easy)' : lRec < 0.2 ? 'var(--warning)' : 'var(--hard)' }}
             >
               {snap(lRec, 4)}
             </span>
-            <span className="mlviz-sub">reconstruction loss · MSE(x, x̂)</span>
           </div>
-          <div className="mlviz-row" style={{ gap: '0.6rem' }}>
-            <span className="mlviz-tag">KL</span>
-            <span className="mlviz-val" style={{ color: 'var(--hue-violet, #b48cff)' }}>
-              {snap(lKl, 4)}
-            </span>
-            <span className="mlviz-sub">D_KL( q(z|x) ∥ N(0, I) )</span>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">KL · q ∥ N(0,I)</span>
+            <span className="mlviz-statcard-val">{snap(lKl, 4)}</span>
           </div>
-          <div className="mlviz-row" style={{ gap: '0.6rem' }}>
-            <span className="mlviz-tag">ELBO</span>
-            <span className="mlviz-val">{snap(lElbo, 4)}</span>
-            <span className="mlviz-sub">= L_rec + β · KL</span>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">ELBO · L_rec + β·KL</span>
+            <span className="mlviz-statcard-val">{snap(lElbo, 4)}</span>
           </div>
         </div>
 

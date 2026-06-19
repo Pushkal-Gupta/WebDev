@@ -218,7 +218,7 @@ export default function ContrastiveTrainingDynamicsViz() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 620, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
         >
           {/* Stage */}
           <rect

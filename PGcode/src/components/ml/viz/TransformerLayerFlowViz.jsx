@@ -81,8 +81,6 @@ export default function TransformerLayerFlowViz() {
     return () => mq.removeEventListener?.('change', sync);
   }, []);
 
-  const rng = useMemo(() => mulberry32(1729 + heads * 7), [heads]);
-
   const fields = useMemo(() => {
     // Build a fresh RNG per panel so they don't drift as we re-render
     return Array.from({ length: N_PANELS }, (_, p) => buildField(mulberry32(1009 + p * 31 + heads * 13), p, heads));

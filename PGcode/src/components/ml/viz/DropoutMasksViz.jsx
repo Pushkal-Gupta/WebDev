@@ -84,10 +84,27 @@ export default function DropoutMasksViz() {
     return out;
   }, [masks, activations, p]);
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cellTransition = reducedMotion
+    ? 'none'
+    : 'r 0.2s ease, opacity 0.2s ease, fill 0.2s ease';
+
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '600px' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
+          <defs>
+            <radialGradient id="dmask-core" cx="50%" cy="42%" r="62%">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.45" />
+            </radialGradient>
+            <filter id="dmask-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3.4" />
+            </filter>
+          </defs>
           {/* Column headers: h1..h5 */}
           {Array.from({ length: N_UNITS }, (_, u) => {
             const x = PAD_L + cellW * (u + 0.5);
@@ -209,6 +226,16 @@ export default function DropoutMasksViz() {
                   />
                   {alive ? (
                     <>
+                      {/* Glow halo behind active neuron */}
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={radius}
+                        fill="var(--accent)"
+                        opacity="0.4"
+                        filter="url(#dmask-glow)"
+                        style={{ transition: cellTransition }}
+                      />
                       {/* Outer ring */}
                       <circle
                         cx={cx}
@@ -223,8 +250,9 @@ export default function DropoutMasksViz() {
                         cx={cx}
                         cy={cy}
                         r={radius * Math.min(1, Math.abs(effective) / 2)}
-                        fill="var(--accent)"
-                        opacity="0.55"
+                        fill="url(#dmask-core)"
+                        opacity="0.75"
+                        style={{ transition: cellTransition }}
                       />
                       <text
                         x={cx}

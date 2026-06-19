@@ -1,11 +1,19 @@
-import React, { useMemo, useState } from 'react';
+import React, { useId, useMemo, useRef, useState } from 'react';
 import {
   Search, TrendingUp, TrendingDown, Trophy, Globe, Percent, Swords,
   Loader2, Info, Minus, User, Users, Check, Flame, CalendarDays,
-  Code2, Tags, Target, BarChart3,
+  Code2, Tags, Target, BarChart3, PieChart, Send,
 } from 'lucide-react';
 import { useLeetCodeUser } from '../../lib/queries';
+import {
+  StatCard, Donut, GaugeRing, HBarChart, LineChart, Legend,
+} from './Charts';
 import './LeetCodeProfile.css';
+
+const num = (v) => (typeof v === 'number' && !Number.isNaN(v) ? v : null);
+const fmtNum = (v) => (v == null ? '—' : v.toLocaleString());
+const DIFF_HUES = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
+const DIFFS = ['easy', 'medium', 'hard'];
 
 // Shown when the lc-user function isn't deployed (or the fetch fails) so the
 // UI still demonstrates the chart + readouts instead of an error wall.
@@ -110,340 +118,51 @@ const SAMPLE_B = {
   },
 };
 
-// viewBox geometry — width:100% + preserveAspectRatio keeps it scaling with no
-// horizontal scroll regardless of container width.
-const VB_W = 640;
-const VB_H = 240;
-const PAD_L = 46;
-const PAD_R = 16;
-const PAD_T = 18;
-const PAD_B = 28;
+const CMP_A = 'var(--accent)';
+const CMP_B = 'var(--hue-violet)';
 
-function plotGeometry(seriesList) {
-  // seriesList: [{ history }]. Shared y-scale across every series so the
-  // overlay lines are directly comparable; x aligned by contest index.
-  const allValid = seriesList.map((s) => (s.history || []).filter((h) => typeof h.rating === 'number'));
-  const ratings = allValid.flat().map((h) => h.rating);
-  if (ratings.length === 0) return null;
-  let lo = Math.min(...ratings);
-  let hi = Math.max(...ratings);
-  if (hi === lo) { hi += 50; lo -= 50; }
-  const pad = (hi - lo) * 0.12;
-  lo -= pad; hi += pad;
-  const maxLen = Math.max(...allValid.map((v) => v.length));
-  const plotW = VB_W - PAD_L - PAD_R;
-  const plotH = VB_H - PAD_T - PAD_B;
-  const x = (i) => PAD_L + (maxLen <= 1 ? plotW / 2 : (i / (maxLen - 1)) * plotW);
-  const y = (r) => PAD_T + plotH - ((r - lo) / (hi - lo)) * plotH;
-  return {
-    lo, hi, plotW, plotH, x, y,
-    series: allValid.map((valid) => valid.map((h, i) => ({ ...h, cx: x(i), cy: y(h.rating) }))),
-    gridY: [0, 0.25, 0.5, 0.75, 1].map((f) => ({
-      yy: PAD_T + plotH - f * plotH,
-      val: Math.round(lo + f * (hi - lo)),
-    })),
+// Shared interactive tooltip: a positioned HTML overlay sitting above an SVG
+// chart. Keeps tooltip styling in theme tokens (no SVG <text> fiddling) and
+// clamps to the chart box so it never spills or forces a scrollbar.
+function useChartTip() {
+  const ref = useRef(null);
+  const [tip, setTip] = useState(null); // { x, y, rows: [{ label, value, color }], title }
+  const move = (e, payload) => {
+    const host = ref.current;
+    if (!host || !payload) { setTip(null); return; }
+    const rect = host.getBoundingClientRect();
+    setTip({
+      ...payload,
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      w: rect.width,
+    });
   };
+  const clear = () => setTip(null);
+  return { ref, tip, move, clear };
 }
 
-const num = (v) => (typeof v === 'number' && !Number.isNaN(v) ? v : null);
-const DIFF_HUES = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
-const DIFFS = ['easy', 'medium', 'hard'];
-
-function fmtNum(v) {
-  return v == null ? '—' : v.toLocaleString();
-}
-
-// Solved / total per difficulty as proportional horizontal bars. Guards every
-// field — a null total renders the bar track only with a "—" readout.
-function DifficultyBars({ submit, totals }) {
-  if (!submit) return <div className="lcp-chart-empty">No solved-problem data.</div>;
-  const rows = DIFFS.map((d) => {
-    const solved = num(submit[d]);
-    const total = num(totals?.[d]);
-    const frac = solved != null && total != null && total > 0 ? solved / total : null;
-    return { d, solved, total, frac };
-  });
+function ChartTip({ tip }) {
+  if (!tip) return null;
+  const onRight = tip.x > tip.w * 0.5;
   return (
-    <div className="lcp-dbars">
-      {rows.map((r) => (
-        <div key={r.d} className="lcp-dbar-row">
-          <span className="lcp-dbar-label" style={{ color: DIFF_HUES[r.d] }}>{r.d}</span>
-          <div className="lcp-dbar-track">
-            <div
-              className="lcp-dbar-fill"
-              style={{ width: `${Math.round((r.frac ?? 0) * 100)}%`, background: DIFF_HUES[r.d] }}
-            />
-          </div>
-          <span className="lcp-dbar-val">
-            <strong>{fmtNum(r.solved)}</strong>
-            <span className="lcp-dbar-total"> / {fmtNum(r.total)}</span>
-          </span>
-        </div>
+    <div
+      className="lcp-tip"
+      style={{
+        left: tip.x,
+        top: tip.y,
+        transform: `translate(${onRight ? 'calc(-100% - 12px)' : '12px'}, -50%)`,
+      }}
+      role="status"
+    >
+      {tip.title && <span className="lcp-tip-title">{tip.title}</span>}
+      {tip.rows.map((r, i) => (
+        <span key={i} className="lcp-tip-row">
+          <span className="lcp-tip-dot" style={{ background: r.color }} />
+          <span className="lcp-tip-label">{r.label}</span>
+          <strong className="lcp-tip-val">{r.value}</strong>
+        </span>
       ))}
-    </div>
-  );
-}
-
-// "Beats %" — one bar per difficulty, 0..100 scale, hue-colored.
-function BeatsBars({ beats }) {
-  if (!beats) return <div className="lcp-chart-empty">No percentile data.</div>;
-  const rows = DIFFS.map((d) => ({ d, v: num(beats[d]) }));
-  if (rows.every((r) => r.v == null)) return <div className="lcp-chart-empty">No percentile data.</div>;
-  return (
-    <div className="lcp-dbars">
-      {rows.map((r) => (
-        <div key={r.d} className="lcp-dbar-row">
-          <span className="lcp-dbar-label" style={{ color: DIFF_HUES[r.d] }}>{r.d}</span>
-          <div className="lcp-dbar-track">
-            <div
-              className="lcp-dbar-fill"
-              style={{ width: `${Math.min(100, Math.max(0, r.v ?? 0))}%`, background: DIFF_HUES[r.d] }}
-            />
-          </div>
-          <span className="lcp-dbar-val">
-            <strong>{r.v == null ? '—' : `${r.v.toFixed(1)}%`}</strong>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Top languages by solved count — horizontal bars scaled to the leader.
-function LanguageBars({ languages }) {
-  const list = Array.isArray(languages)
-    ? languages.filter((l) => l && num(l.solved) != null).slice(0, 6)
-    : [];
-  if (list.length === 0) return <div className="lcp-chart-empty">No language data.</div>;
-  const max = Math.max(...list.map((l) => l.solved), 1);
-  return (
-    <div className="lcp-dbars">
-      {list.map((l, i) => (
-        <div key={l.language || i} className="lcp-dbar-row">
-          <span className="lcp-dbar-label lcp-dbar-label-lang" title={l.language}>{l.language || '—'}</span>
-          <div className="lcp-dbar-track">
-            <div
-              className="lcp-dbar-fill"
-              style={{ width: `${Math.round((l.solved / max) * 100)}%`, background: 'var(--hue-sky)' }}
-            />
-          </div>
-          <span className="lcp-dbar-val"><strong>{l.solved.toLocaleString()}</strong></span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-const SKILL_TIERS = [
-  { key: 'advanced', label: 'Advanced', hue: 'var(--hard)' },
-  { key: 'intermediate', label: 'Intermediate', hue: 'var(--medium)' },
-  { key: 'fundamental', label: 'Fundamental', hue: 'var(--easy)' },
-];
-
-// Skill tags grouped by tier, each chip showing solved count.
-function SkillTags({ skills }) {
-  if (!skills) return <div className="lcp-chart-empty">No tag data.</div>;
-  const tiers = SKILL_TIERS
-    .map((t) => ({ ...t, tags: (Array.isArray(skills[t.key]) ? skills[t.key] : []).slice(0, 6) }))
-    .filter((t) => t.tags.length > 0);
-  if (tiers.length === 0) return <div className="lcp-chart-empty">No tag data.</div>;
-  return (
-    <div className="lcp-skills">
-      {tiers.map((t) => (
-        <div key={t.key} className="lcp-skill-tier">
-          <span className="lcp-skill-tier-label" style={{ color: t.hue }}>
-            <span className="lcp-skill-dot" style={{ background: t.hue }} />{t.label}
-          </span>
-          <div className="lcp-skill-chips">
-            {t.tags.map((tag, i) => (
-              <span key={tag.tagName || i} className="lcp-skill-chip">
-                {tag.tagName || '—'}
-                <span className="lcp-skill-count">{num(tag.problemsSolved) ?? 0}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// Two profiles side-by-side per metric as paired bars (a = accent, b = pink).
-function GroupedBars({ rows }) {
-  const max = Math.max(1, ...rows.flatMap((r) => [r.av ?? 0, r.bv ?? 0]));
-  return (
-    <div className="lcp-grouped">
-      {rows.map((r) => (
-        <div key={r.label} className="lcp-grouped-row">
-          <span className="lcp-grouped-label">{r.label}</span>
-          <div className="lcp-grouped-bars">
-            <div className="lcp-grouped-track">
-              <div
-                className="lcp-grouped-fill"
-                style={{ width: `${Math.round(((r.av ?? 0) / max) * 100)}%`, background: 'var(--accent)' }}
-              />
-              <span className="lcp-grouped-num">{r.fmt ? r.fmt(r.av) : fmtNum(r.av)}</span>
-            </div>
-            <div className="lcp-grouped-track">
-              <div
-                className="lcp-grouped-fill"
-                style={{ width: `${Math.round(((r.bv ?? 0) / max) * 100)}%`, background: 'var(--hue-pink)' }}
-              />
-              <span className="lcp-grouped-num">{r.fmt ? r.fmt(r.bv) : fmtNum(r.bv)}</span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function RatingChart({ history }) {
-  const [hover, setHover] = useState(null);
-
-  const geo = useMemo(() => plotGeometry([{ history }]), [history]);
-
-  if (!geo) {
-    return <div className="lcp-chart-empty">No attended contests to plot yet.</div>;
-  }
-
-  const coords = geo.series[0];
-  const linePath = coords.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)}`).join(' ');
-  const areaPath = `${linePath} L ${coords[coords.length - 1].cx.toFixed(1)} ${(VB_H - PAD_B).toFixed(1)} L ${coords[0].cx.toFixed(1)} ${(VB_H - PAD_B).toFixed(1)} Z`;
-  const active = hover != null ? coords[hover] : coords[coords.length - 1];
-
-  return (
-    <div className="lcp-chart">
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        width="100%"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="Contest rating progression"
-        onMouseLeave={() => setHover(null)}
-      >
-        <defs>
-          <linearGradient id="lcpArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
-            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
-          </linearGradient>
-        </defs>
-
-        {geo.gridY.map((g, i) => (
-          <g key={i}>
-            <line
-              x1={PAD_L} y1={g.yy} x2={VB_W - PAD_R} y2={g.yy}
-              stroke="var(--border)" strokeWidth="1" strokeDasharray="3 4"
-            />
-            <text x={PAD_L - 8} y={g.yy + 3} textAnchor="end" className="lcp-axis-label">
-              {g.val}
-            </text>
-          </g>
-        ))}
-
-        <path d={areaPath} fill="url(#lcpArea)" />
-        <path d={linePath} fill="none" stroke="var(--accent)" strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round" />
-
-        {active && (
-          <line
-            x1={active.cx} y1={PAD_T} x2={active.cx} y2={VB_H - PAD_B}
-            stroke="var(--accent)" strokeWidth="1" strokeOpacity="0.4"
-          />
-        )}
-
-        {coords.map((p, i) => (
-          <g key={i}>
-            <circle
-              cx={p.cx} cy={p.cy} r={hover === i ? 5.5 : 3.5}
-              fill="var(--bg)" stroke="var(--accent)" strokeWidth="2"
-            />
-            <rect
-              x={p.cx - 14} y={PAD_T} width="28" height={geo.plotH}
-              fill="transparent"
-              onMouseEnter={() => setHover(i)}
-            />
-          </g>
-        ))}
-      </svg>
-
-      {active && (
-        <div className="lcp-chart-readout">
-          <span className="lcp-readout-title">{active.title}</span>
-          <span className="lcp-readout-rating">{active.rating}</span>
-          {active.ranking != null && <span className="lcp-readout-rank">rank #{active.ranking.toLocaleString()}</span>}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// Two overlaid curves on one SVG, aligned by contest index, shared y-scale.
-function CompareChart({ a, b, nameA, nameB }) {
-  const geo = useMemo(
-    () => plotGeometry([{ history: a.history || [] }, { history: b.history || [] }]),
-    [a.history, b.history],
-  );
-
-  if (!geo) {
-    return <div className="lcp-chart-empty">No attended contests to plot yet.</div>;
-  }
-
-  const colors = ['var(--accent)', 'var(--hue-pink)'];
-  const labels = [nameA, nameB];
-
-  const buildLine = (coords) =>
-    coords.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)}`).join(' ');
-
-  return (
-    <div className="lcp-chart">
-      <svg
-        viewBox={`0 0 ${VB_W} ${VB_H}`}
-        width="100%"
-        preserveAspectRatio="xMidYMid meet"
-        role="img"
-        aria-label="Overlaid contest rating progression for both profiles"
-      >
-        {geo.gridY.map((g, i) => (
-          <g key={i}>
-            <line
-              x1={PAD_L} y1={g.yy} x2={VB_W - PAD_R} y2={g.yy}
-              stroke="var(--border)" strokeWidth="1" strokeDasharray="3 4"
-            />
-            <text x={PAD_L - 8} y={g.yy + 3} textAnchor="end" className="lcp-axis-label">
-              {g.val}
-            </text>
-          </g>
-        ))}
-
-        {geo.series.map((coords, s) => (
-          <g key={s}>
-            <path
-              d={buildLine(coords)}
-              fill="none"
-              stroke={colors[s]}
-              strokeWidth="2.2"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-            {coords.map((p, i) => (
-              <circle
-                key={i}
-                cx={p.cx} cy={p.cy} r={3}
-                fill="var(--bg)" stroke={colors[s]} strokeWidth="2"
-              />
-            ))}
-          </g>
-        ))}
-      </svg>
-
-      <div className="lcp-legend">
-        {labels.map((l, i) => (
-          <span key={i} className="lcp-legend-item">
-            <span className="lcp-legend-dot" style={{ background: colors[i] }} />
-            @{l}
-          </span>
-        ))}
-      </div>
     </div>
   );
 }
@@ -456,6 +175,116 @@ function deltaFor(history, i) {
   return Math.round(cur - prev);
 }
 
+// Maps contest history to the LineChart point shape, carrying rank + delta into
+// `meta` so the hover tooltip can read them.
+function ratingPoints(history) {
+  return (history || [])
+    .filter((h) => typeof h.rating === 'number')
+    .map((h, i, arr) => ({
+      label: h.title || h.slug || `Contest ${h.index + 1}`,
+      value: h.rating,
+      meta: {
+        rank: num(h.ranking),
+        delta: i === 0 ? null : Math.round(h.rating - arr[i - 1].rating),
+      },
+    }));
+}
+
+// Solved difficulty segments for a donut from submitStats.
+function solvedSegments(submit) {
+  return DIFFS.map((d) => ({ key: d, label: d, value: num(submit?.[d]) ?? 0, hue: DIFF_HUES[d] }));
+}
+
+// ---- single-mode chart sections ----
+
+function SolvedByDifficulty({ submit, totals }) {
+  if (!submit) return <div className="chk-empty">No solved-problem data.</div>;
+  const rows = DIFFS.map((d) => {
+    const solved = num(submit[d]);
+    const total = num(totals?.[d]);
+    return {
+      key: d, label: d, labelHue: DIFF_HUES[d], hueA: DIFF_HUES[d],
+      a: solved, scaleField: total,
+      fmt: (v) => `${fmtNum(v)}${total != null ? ` / ${total.toLocaleString()}` : ''}`,
+    };
+  });
+  const max = Math.max(1, ...rows.map((r) => num(r.scaleField) ?? num(r.a) ?? 0));
+  return <HBarChart rows={rows} scaleMax={max} />;
+}
+
+function SubmissionsByDifficulty({ submit }) {
+  if (!submit) return <div className="chk-empty">No submission data.</div>;
+  const fields = { easy: 'submissionsEasy', medium: 'submissionsMedium', hard: 'submissionsHard' };
+  const rows = DIFFS.map((d) => ({
+    key: d, label: d, labelHue: DIFF_HUES[d], hueA: DIFF_HUES[d],
+    a: num(submit[fields[d]]),
+  }));
+  if (rows.every((r) => r.a == null)) return <div className="chk-empty">No submission data.</div>;
+  return <HBarChart rows={rows} />;
+}
+
+function LanguageBars({ languages }) {
+  const list = Array.isArray(languages) ? languages.filter((l) => l && num(l.solved) != null).slice(0, 6) : [];
+  if (list.length === 0) return <div className="chk-empty">No language data.</div>;
+  const rows = list.map((l, i) => ({ key: l.language || i, label: l.language || '—', a: l.solved, hueA: 'var(--hue-sky)' }));
+  return <HBarChart rows={rows} />;
+}
+
+// Tier each tag belongs to, so the bar can pick up a difficulty-matched hue.
+const TIER_HUE = { advanced: 'var(--hard)', intermediate: 'var(--medium)', fundamental: 'var(--easy)' };
+
+// Flattens all skill tiers into a single ranked list of { tag, solved, hue }
+// so the top tags render as one clean horizontal bar chart.
+function topTagRows(skills, limit = 8) {
+  if (!skills) return [];
+  const out = [];
+  ['advanced', 'intermediate', 'fundamental'].forEach((tier) => {
+    (Array.isArray(skills[tier]) ? skills[tier] : []).forEach((t) => {
+      if (!t || !t.tagName) return;
+      const solved = num(t.problemsSolved) ?? 0;
+      const existing = out.find((r) => r.label === t.tagName);
+      if (existing) {
+        existing.a += solved;
+      } else {
+        out.push({ key: t.tagName, label: t.tagName, a: solved, hueA: TIER_HUE[tier] });
+      }
+    });
+  });
+  return out.sort((x, y) => y.a - x.a).slice(0, limit);
+}
+
+function TopTags({ skills }) {
+  const rows = useMemo(() => topTagRows(skills), [skills]);
+  if (rows.length === 0) return <div className="chk-empty">No tag data.</div>;
+  return (
+    <>
+      <HBarChart rows={rows} />
+      <div className="lcp-tag-key">
+        <span className="lcp-tag-key-item"><span className="lcp-tag-key-dot" style={{ background: 'var(--hard)' }} />Advanced</span>
+        <span className="lcp-tag-key-item"><span className="lcp-tag-key-dot" style={{ background: 'var(--medium)' }} />Intermediate</span>
+        <span className="lcp-tag-key-item"><span className="lcp-tag-key-dot" style={{ background: 'var(--easy)' }} />Fundamental</span>
+      </div>
+    </>
+  );
+}
+
+function RatingSection({ history }) {
+  const points = useMemo(() => ratingPoints(history), [history]);
+  if (points.length === 0) return <div className="chk-empty">No attended contests to plot yet.</div>;
+  const peak = Math.max(...points.map((p) => p.value));
+  const latest = points[points.length - 1].value;
+  return (
+    <div className="lcp-chart">
+      <LineChart series={[{ points, color: 'var(--accent)' }]} area interactive peakLabel />
+      <div className="lcp-chart-readout">
+        <span className="lcp-readout-rating">{Math.round(latest)}</span>
+        <span className="lcp-readout-title">current · peak {Math.round(peak)}</span>
+        <span className="lcp-readout-rank">{points.length} contests</span>
+      </div>
+    </div>
+  );
+}
+
 function ProfileBody({ data }) {
   const history = useMemo(() => data.history || [], [data.history]);
   const recent = useMemo(() => {
@@ -464,14 +293,15 @@ function ProfileBody({ data }) {
   }, [history]);
 
   const submit = data.submitStats || null;
+  const act = data.activity || null;
+  const beats = data.beats || null;
   const stats = [
-    { icon: Swords, label: 'Rating', value: data.rating != null ? Math.round(data.rating) : '—', big: true },
+    { icon: Swords, label: 'Rating', value: data.rating != null ? Math.round(data.rating) : '—', hue: 'var(--accent)', big: true },
     { icon: Globe, label: 'Global rank', value: data.globalRanking != null ? `#${data.globalRanking.toLocaleString()}` : '—' },
     { icon: Percent, label: 'Top', value: data.topPercentage != null ? `${data.topPercentage.toFixed(1)}%` : '—' },
     { icon: Trophy, label: 'Attended', value: data.attendedContestsCount ?? history.length },
     { icon: Check, label: 'Solved', value: num(submit?.total) != null ? submit.total.toLocaleString() : '—' },
   ];
-  const act = data.activity || null;
 
   return (
     <div className="lcp-result">
@@ -488,43 +318,56 @@ function ProfileBody({ data }) {
 
       <div className="lcp-stats">
         {stats.map((s) => (
-          <div key={s.label} className={`lcp-stat${s.big ? ' lcp-stat-big' : ''}`}>
-            <s.icon size={15} className="lcp-stat-icon" />
-            <span className="lcp-stat-value">{s.value}</span>
-            <span className="lcp-stat-label">{s.label}</span>
-          </div>
+          <StatCard key={s.label} icon={s.icon} label={s.label} value={s.value} hue={s.hue} big={s.big} />
         ))}
       </div>
 
       <div className="lcp-grid">
         <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><TrendingUp size={14} /> Rating progression</h3>
-          <RatingChart history={history} />
+          <h3 className="lcp-panel-title"><TrendingUp size={14} /> Rating over time</h3>
+          <RatingSection history={history} />
         </section>
 
         <section className="lcp-card">
-          <h3 className="lcp-panel-title"><BarChart3 size={14} /> Solved by difficulty</h3>
-          <DifficultyBars submit={submit} totals={data.totalQuestions} />
+          <h3 className="lcp-panel-title"><PieChart size={14} /> Solved split</h3>
+          {submit
+            ? <Donut segments={solvedSegments(submit)} total={num(submit.total)} caption="solved" ariaLabel="Solved problems by difficulty" />
+            : <div className="chk-empty">No solved-problem data.</div>}
+        </section>
+
+        <section className="lcp-card">
+          <h3 className="lcp-panel-title"><BarChart3 size={14} /> Solved vs total</h3>
+          <SolvedByDifficulty submit={submit} totals={data.totalQuestions} />
         </section>
 
         <section className="lcp-card">
           <h3 className="lcp-panel-title"><Target size={14} /> Beats percentile</h3>
-          <BeatsBars beats={data.beats} />
+          {beats && DIFFS.some((d) => num(beats[d]) != null) ? (
+            <div className="lcp-gauges">
+              {DIFFS.map((d) => (
+                <GaugeRing
+                  key={d}
+                  value={num(beats[d])}
+                  max={100}
+                  suffix="%"
+                  hue={DIFF_HUES[d]}
+                  caption={d}
+                />
+              ))}
+            </div>
+          ) : <div className="chk-empty">No percentile data.</div>}
+        </section>
+
+        <section className="lcp-card">
+          <h3 className="lcp-panel-title"><Send size={14} /> Submissions by difficulty</h3>
+          <SubmissionsByDifficulty submit={submit} />
         </section>
 
         <section className="lcp-card lcp-card-activity">
           <h3 className="lcp-panel-title"><Flame size={14} /> Activity</h3>
-          <div className="lcp-act-tiles">
-            <div className="lcp-act-tile">
-              <Flame size={18} className="lcp-act-icon" />
-              <span className="lcp-act-value">{num(act?.streak) != null ? act.streak : '—'}</span>
-              <span className="lcp-act-label">Day streak</span>
-            </div>
-            <div className="lcp-act-tile">
-              <CalendarDays size={18} className="lcp-act-icon" />
-              <span className="lcp-act-value">{num(act?.totalActiveDays) != null ? act.totalActiveDays.toLocaleString() : '—'}</span>
-              <span className="lcp-act-label">Active days</span>
-            </div>
+          <div className="lcp-gauges">
+            <GaugeRing value={num(act?.streak)} max={30} hue="var(--warning)" icon={Flame} caption="Day streak" goalLabel="of 30" />
+            <GaugeRing value={num(act?.totalActiveDays)} max={365} hue="var(--accent)" icon={CalendarDays} caption="Active days" goalLabel="of 365" />
           </div>
         </section>
 
@@ -533,15 +376,15 @@ function ProfileBody({ data }) {
           <LanguageBars languages={data.languages} />
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><Tags size={14} /> Top tags</h3>
-          <SkillTags skills={data.skills} />
+        <section className="lcp-card lcp-card-wide">
+          <h3 className="lcp-panel-title"><Tags size={14} /> Top tags by solved</h3>
+          <TopTags skills={data.skills} />
         </section>
 
         <section className="lcp-card lcp-card-wide">
           <h3 className="lcp-panel-title"><Trophy size={14} /> Recent contests</h3>
           <div className="lcp-contests">
-            {recent.length === 0 && <div className="lcp-empty-list">No attended contests.</div>}
+            {recent.length === 0 && <div className="chk-empty">No attended contests.</div>}
             {recent.map((h) => (
               <div key={h.index} className="lcp-contest-row">
                 <div className="lcp-contest-main">
@@ -570,7 +413,8 @@ function ProfileBody({ data }) {
   );
 }
 
-// One identity card for the compare grid (avatar, name, badge, hue swatch).
+// ---- compare mode ----
+
 function CompareIdentity({ data, color }) {
   return (
     <div className="lcp-cmp-id">
@@ -587,70 +431,446 @@ function CompareIdentity({ data, color }) {
   );
 }
 
-// Compares two profiles. winner: 'a' | 'b' | null (tie/missing).
-function CompareTable({ a, b }) {
-  const rows = [
+// Flattens every skill tier into a single { tag -> solved } map so the two
+// profiles can be compared on the same per-tag axis.
+function tagMap(skills) {
+  const out = {};
+  if (!skills) return out;
+  ['advanced', 'intermediate', 'fundamental'].forEach((tier) => {
+    (Array.isArray(skills[tier]) ? skills[tier] : []).forEach((t) => {
+      if (!t || !t.tagName) return;
+      out[t.tagName] = (out[t.tagName] || 0) + (num(t.problemsSolved) ?? 0);
+    });
+  });
+  return out;
+}
+
+function tagCompareRows(a, b) {
+  const ma = tagMap(a.skills);
+  const mb = tagMap(b.skills);
+  const tags = Array.from(new Set([...Object.keys(ma), ...Object.keys(mb)]));
+  return tags
+    .map((t) => ({ key: t, label: t, a: ma[t] ?? 0, b: mb[t] ?? 0 }))
+    .sort((x, y) => (y.a + y.b) - (x.a + x.b))
+    .slice(0, 8);
+}
+
+function commonContests(a, b) {
+  const keyOf = (h) => (h.slug || h.title || '').toLowerCase();
+  const mapB = new Map((b.history || []).map((h) => [keyOf(h), h]));
+  return (a.history || [])
+    .map((ha) => {
+      const hb = mapB.get(keyOf(ha));
+      return hb ? { title: ha.title || ha.slug, ha, hb } : null;
+    })
+    .filter(Boolean);
+}
+
+function CommonContestsTable({ a, b }) {
+  const rows = commonContests(a, b);
+  if (rows.length === 0) return <div className="chk-empty">No common contests.</div>;
+  return (
+    <div className="lcp-common" role="table" aria-label="Contests both profiles attended">
+      <div className="lcp-common-head" role="row">
+        <span role="columnheader">Contest</span>
+        <span role="columnheader">A rank</span>
+        <span role="columnheader">B rank</span>
+        <span role="columnheader">A solved</span>
+        <span role="columnheader">B solved</span>
+      </div>
+      {rows.map((r, i) => (
+        <div key={i} className="lcp-common-row" role="row">
+          <span className="lcp-common-name" role="cell">{r.title}</span>
+          <span role="cell" style={{ color: CMP_A }}>{r.ha.ranking != null ? `#${r.ha.ranking.toLocaleString()}` : '—'}</span>
+          <span role="cell" style={{ color: CMP_B }}>{r.hb.ranking != null ? `#${r.hb.ranking.toLocaleString()}` : '—'}</span>
+          <span role="cell">{r.ha.problemsSolved != null ? `${r.ha.problemsSolved}/${r.ha.totalProblems ?? '?'}` : '—'}</span>
+          <span role="cell">{r.hb.problemsSolved != null ? `${r.hb.problemsSolved}/${r.hb.totalProblems ?? '?'}` : '—'}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function headToHeadTally(a, b) {
+  const metrics = [
+    { av: num(a.rating), bv: num(b.rating), better: 'high' },
+    { av: num(a.globalRanking), bv: num(b.globalRanking), better: 'low' },
+    { av: num(a.submitStats?.total), bv: num(b.submitStats?.total), better: 'high' },
     {
-      label: 'Rating', icon: Swords,
-      av: num(a.rating), bv: num(b.rating),
-      fmt: (v) => (v == null ? '—' : Math.round(v)),
+      av: ((num(a.beats?.easy) ?? 0) + (num(a.beats?.medium) ?? 0) + (num(a.beats?.hard) ?? 0)) / 3,
+      bv: ((num(b.beats?.easy) ?? 0) + (num(b.beats?.medium) ?? 0) + (num(b.beats?.hard) ?? 0)) / 3,
       better: 'high',
     },
     {
-      label: 'Global rank', icon: Globe,
-      av: num(a.globalRanking), bv: num(b.globalRanking),
-      fmt: (v) => (v == null ? '—' : `#${v.toLocaleString()}`),
-      better: 'low',
-    },
-    {
-      label: 'Top %', icon: Percent,
-      av: num(a.topPercentage), bv: num(b.topPercentage),
-      fmt: (v) => (v == null ? '—' : `${v.toFixed(1)}%`),
-      better: 'low',
-    },
-    {
-      label: 'Attended', icon: Trophy,
       av: num(a.attendedContestsCount) ?? (a.history || []).length,
       bv: num(b.attendedContestsCount) ?? (b.history || []).length,
-      fmt: (v) => (v == null ? '—' : v),
       better: 'high',
     },
-    {
-      label: 'Badge', icon: Trophy,
-      av: a.badge || null, bv: b.badge || null,
-      fmt: (v) => v || '—',
-      better: 'none',
-    },
   ];
+  let aWins = 0;
+  let bWins = 0;
+  metrics.forEach((m) => {
+    if (m.av == null || m.bv == null || m.av === m.bv) return;
+    const aBetter = m.better === 'high' ? m.av > m.bv : m.av < m.bv;
+    if (aBetter) aWins += 1; else bWins += 1;
+  });
+  return { a: aWins, b: bWins, total: metrics.length };
+}
 
-  const decide = (row) => {
-    if (row.better === 'none' || row.av == null || row.bv == null) return null;
-    if (row.av === row.bv) return null;
-    if (row.better === 'high') return row.av > row.bv ? 'a' : 'b';
-    return row.av < row.bv ? 'a' : 'b';
-  };
+// Per-metric head-to-head chips: each metric resolves to a winner, rendered as
+// a pill tinted to the leader's color. Drives the scoreboard tally visually.
+const H2H_METRICS = [
+  { key: 'rating', label: 'Rating', av: (d) => num(d.rating), better: 'high', fmt: (v) => Math.round(v) },
+  { key: 'rank', label: 'Global rank', av: (d) => num(d.globalRanking), better: 'low', fmt: (v) => `#${Math.round(v).toLocaleString()}` },
+  { key: 'solved', label: 'Solved', av: (d) => num(d.submitStats?.total), better: 'high', fmt: (v) => Math.round(v).toLocaleString() },
+  {
+    key: 'beats', label: 'Avg beats', better: 'high', fmt: (v) => `${v.toFixed(0)}%`,
+    av: (d) => {
+      const vals = DIFFS.map((x) => num(d.beats?.[x])).filter((v) => v != null);
+      return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+    },
+  },
+  { key: 'attended', label: 'Contests', better: 'high', fmt: (v) => Math.round(v), av: (d) => num(d.attendedContestsCount) ?? (d.history || []).length },
+];
 
+function metricWinner(m, a, b) {
+  const av = m.av(a);
+  const bv = m.av(b);
+  if (av == null || bv == null || av === bv) return { win: null, av, bv };
+  const aBetter = m.better === 'high' ? av > bv : av < bv;
+  return { win: aBetter ? 'a' : 'b', av, bv };
+}
+
+function Scoreboard({ a, b, tally, headline }) {
   return (
-    <div className="lcp-cmp-table" role="table" aria-label="Side-by-side stat comparison">
-      {rows.map((row) => {
-        const win = decide(row);
-        const Icon = row.icon;
+    <div className="lcp-board">
+      <div className="lcp-board-top">
+        <div className="lcp-board-side lcp-board-a">
+          <span className="lcp-board-dot" style={{ background: CMP_A }} />
+          <span className="lcp-board-handle">@{a.username}</span>
+        </div>
+        <div className="lcp-board-score">
+          <span className="lcp-board-tally" style={{ color: CMP_A }}>{tally.a}</span>
+          <span className="lcp-board-dash">–</span>
+          <span className="lcp-board-tally" style={{ color: CMP_B }}>{tally.b}</span>
+        </div>
+        <div className="lcp-board-side lcp-board-b">
+          <span className="lcp-board-handle">@{b.username}</span>
+          <span className="lcp-board-dot" style={{ background: CMP_B }} />
+        </div>
+      </div>
+      <div className="lcp-board-headline"><Swords size={14} /> {headline}</div>
+      <div className="lcp-board-chips">
+        {H2H_METRICS.map((m) => {
+          const { win, av, bv } = metricWinner(m, a, b);
+          const winColor = win === 'a' ? CMP_A : win === 'b' ? CMP_B : 'var(--text-dim)';
+          return (
+            <div key={m.key} className="lcp-chip">
+              <span className="lcp-chip-label">{m.label}</span>
+              <span className="lcp-chip-vals">
+                <span className={win === 'a' ? 'lcp-chip-lead' : ''} style={win === 'a' ? { color: CMP_A } : undefined}>
+                  {av == null ? '—' : m.fmt(av)}
+                </span>
+                <span className="lcp-chip-sep">vs</span>
+                <span className={win === 'b' ? 'lcp-chip-lead' : ''} style={win === 'b' ? { color: CMP_B } : undefined}>
+                  {bv == null ? '—' : m.fmt(bv)}
+                </span>
+              </span>
+              <span className="lcp-chip-bar" style={{ background: winColor }} />
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// HTML flex bar so segment widths are exact percentages and the corner radius
+// is uniform — fixes the stretched rounded "pill" the old preserveAspectRatio
+// "none" SVG produced on the trailing segment. Each segment is hover-tippable.
+function StackedRow({ row, color, handle, max, move, clear }) {
+  const fillPct = max > 0 ? (row.total / max) * 100 : 0;
+  return (
+    <div className="lcp-stack-row">
+      <div className="lcp-stack-head">
+        <span className="lcp-stack-dot" style={{ background: color }} />
+        <span className="lcp-stack-handle">@{handle}</span>
+        <span className="lcp-stack-total">{row.total.toLocaleString()}</span>
+      </div>
+      <div className="lcp-stack-track" role="img" aria-label={`Solved split for ${handle}`}>
+        <div className="lcp-stack-fill" style={{ width: `${fillPct.toFixed(2)}%` }}>
+          {row.segs.map((s) => {
+            const segPct = row.total > 0 ? (s.value / row.total) * 100 : 0;
+            if (segPct <= 0) return null;
+            return (
+              <div
+                key={s.key}
+                className="lcp-stack-seg"
+                style={{ width: `${segPct.toFixed(2)}%`, background: s.hue }}
+                onMouseMove={(e) => move(e, {
+                  title: `@${handle} · ${s.key}`,
+                  rows: [{ label: 'solved', value: s.value.toLocaleString(), color: s.hue }],
+                })}
+                onMouseLeave={clear}
+              />
+            );
+          })}
+        </div>
+      </div>
+      <div className="lcp-stack-legend">
+        {row.segs.map((s) => (
+          <span key={s.key} className="lcp-stack-leg">
+            <span className="lcp-stack-leg-dot" style={{ background: s.hue }} />{s.key} {s.value.toLocaleString()}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// One stacked segmented bar per user (Easy/Med/Hard segments), proportional to
+// the larger total so the two bars compare on a shared scale.
+function StackedDifficulty({ a, b }) {
+  const { ref, tip, move, clear } = useChartTip();
+  const segsFor = (d) => DIFFS.map((k) => ({ key: k, value: num(d.submitStats?.[k]) ?? 0, hue: DIFF_HUES[k] }));
+  const rowFor = (d) => ({ segs: segsFor(d), total: num(d.submitStats?.total) ?? segsFor(d).reduce((s, g) => s + g.value, 0) });
+  const ra = rowFor(a);
+  const rb = rowFor(b);
+  const max = Math.max(1, ra.total, rb.total);
+  return (
+    <div className="lcp-stack" ref={ref}>
+      <StackedRow row={ra} color={CMP_A} handle={a.username} max={max} move={move} clear={clear} />
+      <StackedRow row={rb} color={CMP_B} handle={b.username} max={max} move={move} clear={clear} />
+      <ChartTip tip={tip} />
+    </div>
+  );
+}
+
+// Beats percentile as concentric dual arcs per difficulty (A outer, B inner) —
+// a radial comparison instead of another flat bar.
+function BeatsGauges({ a, b }) {
+  const { ref, tip, move, clear } = useChartTip();
+  const R_OUT = 40;
+  const R_IN = 30;
+  const arc = (r, v) => {
+    const C = 2 * Math.PI * r;
+    const frac = v == null ? 0 : Math.min(1, Math.max(0, v / 100));
+    return { dash: `${(frac * C).toFixed(1)} ${C.toFixed(1)}`, C };
+  };
+  return (
+    <div className="lcp-beats" ref={ref}>
+      {DIFFS.map((d) => {
+        const av = num(a.beats?.[d]);
+        const bv = num(b.beats?.[d]);
+        const ao = arc(R_OUT, av);
+        const bi = arc(R_IN, bv);
         return (
-          <div className="lcp-cmp-row" role="row" key={row.label}>
-            <span className={`lcp-cmp-cell lcp-cmp-a${win === 'a' ? ' lcp-cmp-win' : ''}`} role="cell">
-              {win === 'a' && <Check size={13} className="lcp-cmp-check" />}
-              {row.fmt(row.av)}
-            </span>
-            <span className="lcp-cmp-label" role="rowheader">
-              <Icon size={13} /> {row.label}
-            </span>
-            <span className={`lcp-cmp-cell lcp-cmp-b${win === 'b' ? ' lcp-cmp-win' : ''}`} role="cell">
-              {row.fmt(row.bv)}
-              {win === 'b' && <Check size={13} className="lcp-cmp-check" />}
+          <div
+            key={d}
+            className="lcp-beat-cell"
+            onMouseMove={(e) => move(e, {
+              title: `${d} percentile`,
+              rows: [
+                { label: `@${a.username}`, value: av == null ? '—' : `${av.toFixed(1)}%`, color: CMP_A },
+                { label: `@${b.username}`, value: bv == null ? '—' : `${bv.toFixed(1)}%`, color: CMP_B },
+              ],
+            })}
+            onMouseLeave={clear}
+          >
+            <svg viewBox="0 0 100 100" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${d} percentile: ${a.username} ${av ?? '—'}, ${b.username} ${bv ?? '—'}`}>
+              <circle cx="50" cy="50" r={R_OUT} fill="none" stroke="var(--hover-box)" strokeWidth="6" />
+              <circle cx="50" cy="50" r={R_IN} fill="none" stroke="var(--hover-box)" strokeWidth="6" />
+              <circle cx="50" cy="50" r={R_OUT} fill="none" stroke={CMP_A} strokeWidth="6" strokeLinecap="round" strokeDasharray={ao.dash} transform="rotate(-90 50 50)" className="lcp-beat-arc" />
+              <circle cx="50" cy="50" r={R_IN} fill="none" stroke={CMP_B} strokeWidth="6" strokeLinecap="round" strokeDasharray={bi.dash} transform="rotate(-90 50 50)" className="lcp-beat-arc" />
+              <text x="50" y="47" textAnchor="middle" className="lcp-beat-a" fill={CMP_A}>{av == null ? '—' : `${av.toFixed(0)}`}</text>
+              <text x="50" y="62" textAnchor="middle" className="lcp-beat-b" fill={CMP_B}>{bv == null ? '—' : `${bv.toFixed(0)}`}</text>
+            </svg>
+            <span className="lcp-beat-cap" style={{ color: DIFF_HUES[d] }}>{d}</span>
+          </div>
+        );
+      })}
+      <ChartTip tip={tip} />
+    </div>
+  );
+}
+
+// Dumbbell tag comparison: each tag is a track with two dots joined by a
+// connector; the leading dot is enlarged and the row carries a leader marker.
+function TagDumbbell({ rows, handleA, handleB }) {
+  const { ref, tip, move, clear } = useChartTip();
+  const [active, setActive] = useState(null);
+  const max = Math.max(1, ...rows.flatMap((r) => [r.a, r.b]));
+  return (
+    <div className="lcp-dumb" ref={ref}>
+      {rows.map((r) => {
+        const aPct = (r.a / max) * 100;
+        const bPct = (r.b / max) * 100;
+        const lo = Math.min(aPct, bPct);
+        const hi = Math.max(aPct, bPct);
+        const aLead = r.a >= r.b;
+        const isActive = active === r.key;
+        return (
+          <div
+            key={r.key}
+            className={`lcp-dumb-row${isActive ? ' active' : ''}`}
+            onMouseMove={(e) => {
+              setActive(r.key);
+              move(e, {
+                title: r.label,
+                rows: [
+                  { label: `@${handleA}`, value: r.a.toLocaleString(), color: CMP_A },
+                  { label: `@${handleB}`, value: r.b.toLocaleString(), color: CMP_B },
+                ],
+              });
+            }}
+            onMouseLeave={() => { setActive(null); clear(); }}
+          >
+            <span className="lcp-dumb-label" title={r.label}>{r.label}</span>
+            <div className="lcp-dumb-track">
+              <svg viewBox="0 0 100 12" width="100%" preserveAspectRatio="none" className="lcp-dumb-svg" aria-hidden="true">
+                <line x1="0" y1="6" x2="100" y2="6" stroke="var(--hover-box)" strokeWidth="1.5" />
+                <line x1={lo} y1="6" x2={hi} y2="6" stroke="var(--border)" strokeWidth="3" strokeLinecap="round" />
+                <circle cx={bPct} cy="6" r={isActive ? 5 : aLead ? 3.4 : 4.4} fill={CMP_B} className="lcp-dumb-dot" />
+                <circle cx={aPct} cy="6" r={isActive ? 5 : aLead ? 4.4 : 3.4} fill={CMP_A} className="lcp-dumb-dot" />
+              </svg>
+            </div>
+            <span className="lcp-dumb-vals">
+              <span style={{ color: CMP_A }} className={aLead ? 'lcp-dumb-lead' : ''}>{r.a}</span>
+              <span className="lcp-dumb-sep">/</span>
+              <span style={{ color: CMP_B }} className={!aLead ? 'lcp-dumb-lead' : ''}>{r.b}</span>
             </span>
           </div>
         );
       })}
+      <ChartTip tip={tip} />
+    </div>
+  );
+}
+
+// Interactive two-series rating timeline for compare mode. A vertical guide
+// snaps to the nearest contest index and the tooltip reports both users' rating
+// at that contest, so the timeline is no longer a static curve.
+const CR_VB_W = 640;
+const CR_VB_H = 230;
+const CR_PAD_L = 44;
+const CR_PAD_R = 16;
+const CR_PAD_T = 16;
+const CR_PAD_B = 26;
+
+function smoothPath(pts) {
+  if (pts.length === 0) return '';
+  if (pts.length < 3) return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)}`).join(' ');
+  let d = `M ${pts[0].cx.toFixed(1)} ${pts[0].cy.toFixed(1)}`;
+  for (let i = 0; i < pts.length - 1; i += 1) {
+    const p0 = pts[i - 1] || pts[i];
+    const p1 = pts[i];
+    const p2 = pts[i + 1];
+    const p3 = pts[i + 2] || p2;
+    const c1x = p1.cx + (p2.cx - p0.cx) / 6;
+    const c1y = p1.cy + (p2.cy - p0.cy) / 6;
+    const c2x = p2.cx - (p3.cx - p1.cx) / 6;
+    const c2y = p2.cy - (p3.cy - p1.cy) / 6;
+    d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.cx.toFixed(1)} ${p2.cy.toFixed(1)}`;
+  }
+  return d;
+}
+
+function CompareRatingChart({ ptsA, ptsB, handleA, handleB }) {
+  const { ref, tip, move, clear } = useChartTip();
+  const [hover, setHover] = useState(null);
+  const uid = useId().replace(/[:]/g, '');
+
+  const geo = useMemo(() => {
+    const all = [...ptsA, ...ptsB].map((p) => p.value);
+    if (all.length === 0) return null;
+    let lo = Math.min(...all);
+    let hi = Math.max(...all);
+    if (hi === lo) { hi += 50; lo -= 50; }
+    const pad = (hi - lo) * 0.12;
+    lo -= pad; hi += pad;
+    const maxLen = Math.max(ptsA.length, ptsB.length);
+    const plotW = CR_VB_W - CR_PAD_L - CR_PAD_R;
+    const plotH = CR_VB_H - CR_PAD_T - CR_PAD_B;
+    const x = (i) => CR_PAD_L + (maxLen <= 1 ? plotW / 2 : (i / (maxLen - 1)) * plotW);
+    const y = (v) => CR_PAD_T + plotH - ((v - lo) / (hi - lo)) * plotH;
+    const map = (pts) => pts.map((p, i) => ({ ...p, cx: x(i), cy: y(p.value) }));
+    return {
+      a: map(ptsA), b: map(ptsB), maxLen,
+      gridY: [0, 0.5, 1].map((f) => ({ yy: CR_PAD_T + plotH - f * plotH, val: Math.round(lo + f * (hi - lo)) })),
+    };
+  }, [ptsA, ptsB]);
+
+  if (!geo) return null;
+
+  const handleMove = (e) => {
+    const host = ref.current;
+    if (!host || geo.maxLen === 0) return;
+    const rect = host.getBoundingClientRect();
+    if (rect.width === 0) return;
+    const ux = ((e.clientX - rect.left) / rect.width) * CR_VB_W;
+    let best = 0;
+    let bestDist = Infinity;
+    for (let i = 0; i < geo.maxLen; i += 1) {
+      const cx = CR_PAD_L + (geo.maxLen <= 1 ? 0 : (i / (geo.maxLen - 1)) * (CR_VB_W - CR_PAD_L - CR_PAD_R));
+      const d = Math.abs(cx - ux);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    setHover(best);
+    const pa = geo.a[best];
+    const pb = geo.b[best];
+    move(e, {
+      title: (pa || pb)?.label || `Contest ${best + 1}`,
+      rows: [
+        pa ? { label: `@${handleA}`, value: Math.round(pa.value).toLocaleString(), color: CMP_A } : null,
+        pb ? { label: `@${handleB}`, value: Math.round(pb.value).toLocaleString(), color: CMP_B } : null,
+      ].filter(Boolean),
+    });
+  };
+
+  const guideX = hover != null
+    ? CR_PAD_L + (geo.maxLen <= 1 ? 0 : (hover / (geo.maxLen - 1)) * (CR_VB_W - CR_PAD_L - CR_PAD_R))
+    : null;
+
+  const renderSeries = (coords, color) => coords.length > 0 && (
+    <path d={smoothPath(coords)} fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" filter={`url(#crGlow-${uid})`} />
+  );
+
+  return (
+    <div className="lcp-cmp-line" ref={ref}>
+      <svg
+        viewBox={`0 0 ${CR_VB_W} ${CR_VB_H}`}
+        width="100%"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="Rating over time for both profiles"
+        onMouseMove={handleMove}
+        onMouseLeave={() => { setHover(null); clear(); }}
+      >
+        <defs>
+          <filter id={`crGlow-${uid}`} x="-10%" y="-30%" width="120%" height="160%">
+            <feGaussianBlur stdDeviation="2" result="b" />
+            <feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge>
+          </filter>
+        </defs>
+        {geo.gridY.map((g, i) => (
+          <g key={i}>
+            <line x1={CR_PAD_L} y1={g.yy} x2={CR_VB_W - CR_PAD_R} y2={g.yy} stroke="var(--viz-line)" strokeWidth="1" strokeOpacity="0.35" strokeDasharray="2 5" />
+            <text x={CR_PAD_L - 8} y={g.yy + 3} textAnchor="end" className="chk-axis-label">{g.val}</text>
+          </g>
+        ))}
+        {guideX != null && (
+          <line x1={guideX} y1={CR_PAD_T} x2={guideX} y2={CR_VB_H - CR_PAD_B} stroke="var(--text-dim)" strokeWidth="1" strokeOpacity="0.5" strokeDasharray="2 3" />
+        )}
+        {renderSeries(geo.a, CMP_A)}
+        {renderSeries(geo.b, CMP_B)}
+        {hover != null && geo.a[hover] && (
+          <circle cx={geo.a[hover].cx} cy={geo.a[hover].cy} r="5" fill={CMP_A} stroke="var(--surface)" strokeWidth="2" />
+        )}
+        {hover != null && geo.b[hover] && (
+          <circle cx={geo.b[hover].cx} cy={geo.b[hover].cy} r="5" fill={CMP_B} stroke="var(--surface)" strokeWidth="2" />
+        )}
+      </svg>
+      <ChartTip tip={tip} />
     </div>
   );
 }
@@ -658,6 +878,10 @@ function CompareTable({ a, b }) {
 function CompareView({ a, b }) {
   const ratingA = num(a.rating);
   const ratingB = num(b.rating);
+  const tally = headToHeadTally(a, b);
+  const ptsA = useMemo(() => ratingPoints(a.history), [a.history]);
+  const ptsB = useMemo(() => ratingPoints(b.history), [b.history]);
+  const tagRows = tagCompareRows(a, b);
 
   let headline;
   if (ratingA == null || ratingB == null) {
@@ -672,43 +896,65 @@ function CompareView({ a, b }) {
 
   return (
     <div className="lcp-result">
-      <div className="lcp-cmp-headline">
-        <Swords size={16} />
-        <span>{headline}</span>
-      </div>
+      <Scoreboard a={a} b={b} tally={tally} headline={headline} />
 
       <div className="lcp-cmp-ids">
-        <CompareIdentity data={a} color="var(--accent)" />
-        <CompareIdentity data={b} color="var(--hue-pink)" />
+        <CompareIdentity data={a} color={CMP_A} />
+        <CompareIdentity data={b} color={CMP_B} />
       </div>
 
-      <div className="lcp-grid">
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><TrendingUp size={14} /> Rating progression</h3>
-          <CompareChart a={a} b={b} nameA={a.username} nameB={b.username} />
-        </section>
-
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><Trophy size={14} /> Head to head</h3>
-          <CompareTable a={a} b={b} />
-        </section>
-
+      {/* Uniform top-row analytics cards — every card equal size via the same
+          grid track + align-items: stretch, no per-card width overrides. */}
+      <div className="lcp-cmp-grid">
         <section className="lcp-card">
           <h3 className="lcp-panel-title"><BarChart3 size={14} /> Solved by difficulty</h3>
-          <GroupedBars rows={[
-            { label: 'Easy', av: num(a.submitStats?.easy), bv: num(b.submitStats?.easy) },
-            { label: 'Medium', av: num(a.submitStats?.medium), bv: num(b.submitStats?.medium) },
-            { label: 'Hard', av: num(a.submitStats?.hard), bv: num(b.submitStats?.hard) },
-          ]} />
+          <StackedDifficulty a={a} b={b} />
         </section>
 
         <section className="lcp-card">
           <h3 className="lcp-panel-title"><Target size={14} /> Beats percentile</h3>
-          <GroupedBars rows={[
-            { label: 'Easy', av: num(a.beats?.easy), bv: num(b.beats?.easy), fmt: (v) => (v == null ? '—' : `${v.toFixed(0)}%`) },
-            { label: 'Medium', av: num(a.beats?.medium), bv: num(b.beats?.medium), fmt: (v) => (v == null ? '—' : `${v.toFixed(0)}%`) },
-            { label: 'Hard', av: num(a.beats?.hard), bv: num(b.beats?.hard), fmt: (v) => (v == null ? '—' : `${v.toFixed(0)}%`) },
-          ]} />
+          <BeatsGauges a={a} b={b} />
+          <Legend items={[{ color: CMP_A, label: `@${a.username}` }, { color: CMP_B, label: `@${b.username}` }]} />
+        </section>
+
+        <section className="lcp-card">
+          <h3 className="lcp-panel-title"><PieChart size={14} /> Solved split</h3>
+          <div className="lcp-donuts">
+            <div className="lcp-donut-cell">
+              <div className="lcp-donut-head"><span className="lcp-donut-swatch" style={{ background: CMP_A }} /><span className="lcp-donut-name">@{a.username}</span></div>
+              <Donut segments={solvedSegments(a.submitStats)} total={num(a.submitStats?.total)} caption="solved" ariaLabel={`Solved split for ${a.username}`} />
+            </div>
+            <div className="lcp-donut-cell">
+              <div className="lcp-donut-head"><span className="lcp-donut-swatch" style={{ background: CMP_B }} /><span className="lcp-donut-name">@{b.username}</span></div>
+              <Donut segments={solvedSegments(b.submitStats)} total={num(b.submitStats?.total)} caption="solved" ariaLabel={`Solved split for ${b.username}`} />
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <div className="lcp-grid">
+        <section className="lcp-card lcp-card-wide">
+          <h3 className="lcp-panel-title"><TrendingUp size={14} /> Rating over time</h3>
+          {ptsA.length === 0 && ptsB.length === 0
+            ? <div className="chk-empty">No attended contests to plot yet.</div>
+            : (
+              <div className="lcp-chart">
+                <CompareRatingChart ptsA={ptsA} ptsB={ptsB} handleA={a.username} handleB={b.username} />
+                <Legend items={[{ color: CMP_A, label: `@${a.username}` }, { color: CMP_B, label: `@${b.username}` }]} />
+              </div>
+            )}
+        </section>
+
+        <section className="lcp-card lcp-card-wide">
+          <h3 className="lcp-panel-title"><Tags size={14} /> Tags by solved</h3>
+          {tagRows.length === 0
+            ? <div className="chk-empty">No tag data on either side.</div>
+            : <TagDumbbell rows={tagRows} handleA={a.username} handleB={b.username} />}
+        </section>
+
+        <section className="lcp-card lcp-card-wide">
+          <h3 className="lcp-panel-title"><Trophy size={14} /> Common contests</h3>
+          <CommonContestsTable a={a} b={b} />
         </section>
       </div>
     </div>
@@ -810,12 +1056,7 @@ export default function LeetCodeProfile() {
           )}
 
           {(single.isLoading && !singleSample)
-            ? (
-              <div className="lcp-loading">
-                <Loader2 size={22} className="lcp-spin" />
-                <span>Fetching contest history…</span>
-              </div>
-            )
+            ? <LoadingSkeleton label="Fetching contest history…" />
             : <ProfileBody data={singleProfile} />}
         </>
       ) : (
@@ -877,17 +1118,31 @@ export default function LeetCodeProfile() {
           )}
 
           {cmpLoading
-            ? (
-              <div className="lcp-loading">
-                <Loader2 size={22} className="lcp-spin" />
-                <span>Fetching both contest histories…</span>
-              </div>
-            )
+            ? <LoadingSkeleton label="Fetching both contest histories…" />
             : bothEmpty
               ? <CompareView a={SAMPLE} b={SAMPLE_B} />
               : <CompareView a={profileA} b={profileB} />}
         </>
       )}
+    </div>
+  );
+}
+
+// Animated placeholder grid mirroring the dashboard layout while data loads.
+function LoadingSkeleton({ label }) {
+  return (
+    <div className="lcp-skeleton" aria-busy="true" aria-label={label}>
+      <div className="lcp-skel-stats">
+        {[0, 1, 2, 3, 4].map((i) => <div key={i} className="lcp-skel-tile" />)}
+      </div>
+      <div className="lcp-skel-grid">
+        <div className="lcp-skel-card lcp-skel-wide" />
+        <div className="lcp-skel-card" />
+        <div className="lcp-skel-card" />
+        <div className="lcp-skel-card" />
+        <div className="lcp-skel-card" />
+      </div>
+      <div className="lcp-skel-foot"><Loader2 size={16} className="lcp-spin" /> {label}</div>
     </div>
   );
 }

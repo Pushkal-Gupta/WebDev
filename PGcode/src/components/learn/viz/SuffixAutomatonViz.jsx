@@ -385,7 +385,6 @@ export default function SuffixAutomatonViz() {
             const b = pos.get(e.to);
             if (!a || !b) return null;
             const t = trim(a, b, 20);
-            const dx = b.x - a.x;
             const dy = b.y - a.y;
             // curve transitions when there are multiple between same column
             const curve = Math.abs(dy) < 5 ? 0 : 0;

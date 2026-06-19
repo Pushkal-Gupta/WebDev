@@ -344,6 +344,12 @@ export default function KernelTrickViz() {
   const acc3D = fit.acc;
   const improvement = acc3D - linearAcc2D;
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const planeTransition = reducedMotion ? 'none' : 'opacity 0.3s ease';
+
   return (
     <div className="mlviz-wrap">
       <div className="ktv-stage">
@@ -353,6 +359,15 @@ export default function KernelTrickViz() {
             <span className="ktv-panel-sub">R^2 &middot; linear acc {snap(linearAcc2D * 100, 1)}%</span>
           </div>
           <svg viewBox={`0 0 ${PANEL} ${PANEL}`} className="ktv-svg">
+            <defs>
+              <linearGradient id="ktv-line-grad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={COL_LINE} />
+                <stop offset="100%" stopColor="var(--accent)" />
+              </linearGradient>
+              <filter id="ktv-line-glow" x="-60%" y="-20%" width="220%" height="140%">
+                <feGaussianBlur stdDeviation="2.6" />
+              </filter>
+            </defs>
             <Grid2D />
             {/* axis ticks */}
             {[-3, -2, -1, 1, 2, 3].map((t) => {
@@ -367,15 +382,27 @@ export default function KernelTrickViz() {
                 </g>
               );
             })}
-            {/* "best linear attempt" line */}
+            {/* "best linear attempt" line — glow duplicate underneath */}
             <line
               x1={to2D(bestLine2D.x1, bestLine2D.y1).sx}
               y1={to2D(bestLine2D.x1, bestLine2D.y1).sy}
               x2={to2D(bestLine2D.x2, bestLine2D.y2).sx}
               y2={to2D(bestLine2D.x2, bestLine2D.y2).sy}
-              stroke={COL_LINE}
+              stroke="url(#ktv-line-grad)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              filter="url(#ktv-line-glow)"
+              opacity="0.5"
+            />
+            <line
+              x1={to2D(bestLine2D.x1, bestLine2D.y1).sx}
+              y1={to2D(bestLine2D.x1, bestLine2D.y1).sy}
+              x2={to2D(bestLine2D.x2, bestLine2D.y2).sx}
+              y2={to2D(bestLine2D.x2, bestLine2D.y2).sy}
+              stroke="url(#ktv-line-grad)"
               strokeWidth="1.6"
               strokeDasharray="6 4"
+              strokeLinecap="round"
               opacity="0.7"
             />
             <text
@@ -420,6 +447,25 @@ export default function KernelTrickViz() {
             <span className="ktv-panel-sub">R^3 &middot; separable acc {snap(acc3D * 100, 1)}%</span>
           </div>
           <svg viewBox={`0 0 ${PANEL} ${PANEL}`} className="ktv-svg">
+            <defs>
+              <linearGradient id="ktv-plane-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor={COL_PLANE} />
+                <stop offset="100%" stopColor="var(--hue-violet, #b794f6)" />
+              </linearGradient>
+              <linearGradient id="ktv-zaxis-grad" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor={COL_PLANE} />
+                <stop offset="100%" stopColor="var(--hue-violet, #b794f6)" />
+              </linearGradient>
+              <filter id="ktv-plane-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="3.2" />
+              </filter>
+              <filter id="ktv-point-glow" x="-80%" y="-80%" width="260%" height="260%">
+                <feGaussianBlur stdDeviation="2.2" />
+              </filter>
+              <filter id="ktv-zaxis-glow" x="-60%" y="-30%" width="220%" height="160%">
+                <feGaussianBlur stdDeviation="1.8" />
+              </filter>
+            </defs>
             {/* floor grid */}
             {floorLines.map((l) => (
               <line key={l.key}
@@ -432,7 +478,10 @@ export default function KernelTrickViz() {
             <line x1={triad.o.sx} y1={triad.o.sy} x2={triad.ay.sx} y2={triad.ay.sy}
               stroke="var(--text-dim)" strokeWidth="1" opacity="0.7" />
             <line x1={triad.o.sx} y1={triad.o.sy} x2={triad.az.sx} y2={triad.az.sy}
-              stroke={COL_PLANE} strokeWidth="1.4" opacity="0.85" />
+              stroke="url(#ktv-zaxis-grad)" strokeWidth="3.4" strokeLinecap="round"
+              filter="url(#ktv-zaxis-glow)" opacity="0.5" />
+            <line x1={triad.o.sx} y1={triad.o.sy} x2={triad.az.sx} y2={triad.az.sy}
+              stroke="url(#ktv-zaxis-grad)" strokeWidth="1.4" strokeLinecap="round" opacity="0.9" />
             <text x={triad.ax.sx + 4} y={triad.ax.sy + 4} fontSize="9"
               fill="var(--text-dim)" fontFamily="var(--mono, monospace)">x</text>
             <text x={triad.ay.sx + 4} y={triad.ay.sy + 4} fontSize="9"
@@ -440,16 +489,28 @@ export default function KernelTrickViz() {
             <text x={triad.az.sx + 4} y={triad.az.sy} fontSize="9"
               fill={COL_PLANE} fontFamily="var(--mono, monospace)">z = phi3</text>
 
-            {/* separating plane — drawn as a tinted polygon */}
+            {/* separating plane — soft glow outline beneath the tinted polygon */}
             {progress > 0.05 && (
-              <polygon
-                points={planeCorners.map((c) => `${c.sx},${c.sy}`).join(' ')}
-                fill={COL_PLANE}
-                opacity={0.14 + 0.12 * progress}
-                stroke={COL_PLANE}
-                strokeWidth="1.2"
-                strokeDasharray="5 4"
-              />
+              <g>
+                <polygon
+                  points={planeCorners.map((c) => `${c.sx},${c.sy}`).join(' ')}
+                  fill="none"
+                  stroke="url(#ktv-plane-grad)"
+                  strokeWidth="3.4"
+                  filter="url(#ktv-plane-glow)"
+                  opacity={0.5 * progress}
+                  style={{ transition: planeTransition }}
+                />
+                <polygon
+                  points={planeCorners.map((c) => `${c.sx},${c.sy}`).join(' ')}
+                  fill="url(#ktv-plane-grad)"
+                  opacity={0.14 + 0.12 * progress}
+                  stroke="url(#ktv-plane-grad)"
+                  strokeWidth="1.2"
+                  strokeDasharray="5 4"
+                  style={{ transition: planeTransition }}
+                />
+              </g>
             )}
 
             {/* lift trails — vertical line from floor to lifted point, fades as progress reaches 1 */}
@@ -465,6 +526,23 @@ export default function KernelTrickViz() {
                   stroke={p.label === 1 ? COL_POS : COL_NEG}
                   strokeWidth="0.7"
                   opacity={0.18 + 0.22 * (1 - progress)}
+                />
+              );
+            })}
+
+            {/* glow halos behind lifted points (depth-sorted, foremost read strongest) */}
+            {liftedSorted.map((p) => {
+              const col = p.label === 1 ? COL_POS : COL_NEG;
+              const r = 3.4 + (p.depth + 3) * 0.18;
+              return (
+                <circle
+                  key={`g${p.idx}`}
+                  cx={p.sx}
+                  cy={p.sy}
+                  r={r + 2.6}
+                  fill={col}
+                  filter="url(#ktv-point-glow)"
+                  opacity={0.22 + 0.06 * (p.depth + 3)}
                 />
               );
             })}

@@ -98,7 +98,6 @@ export default function LRSchedulerLandingViz() {
   const timerRef = useRef(null);
 
   const seed = 31;
-  const rng = useMemo(() => mulberry32(seed), [seed]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -117,7 +116,7 @@ export default function LRSchedulerLandingViz() {
       ...s,
       ...runOptim(s.lr(baseLr), mulberry32(seed + i * 1009), -1.6),
     }));
-  }, [baseLr, rng]);
+  }, [baseLr]);
 
   const isRunning = isRunningRaw && stepIdx < TOTAL_STEPS;
 
@@ -146,8 +145,8 @@ export default function LRSchedulerLandingViz() {
   const curveSamples = useMemo(() => sample(lossFn, 240), []);
   const yMin = Math.min(...curveSamples) - 0.05;
   const yMax = Math.max(...curveSamples) + 0.05;
-  const xToPx = (x) => LOSS_X + ((x - X_MIN) / (X_MAX - X_MIN)) * LOSS_W;
-  const yToPx = (y) => LOSS_Y + (1 - (y - yMin) / (yMax - yMin)) * LOSS_H;
+  const xToPx = useCallback((x) => LOSS_X + ((x - X_MIN) / (X_MAX - X_MIN)) * LOSS_W, []);
+  const yToPx = useCallback((y) => LOSS_Y + (1 - (y - yMin) / (yMax - yMin)) * LOSS_H, [yMin, yMax]);
 
   const curveD = useMemo(() => {
     let d = '';
@@ -158,7 +157,7 @@ export default function LRSchedulerLandingViz() {
       d += (i === 0 ? 'M' : 'L') + px.toFixed(1) + ' ' + py.toFixed(1) + ' ';
     }
     return d;
-  }, [curveSamples]);
+  }, [curveSamples, xToPx, yToPx]);
 
   // LR curves area: x-axis = step, y-axis = lr (log scale)
   const lrMin = baseLr * 1e-3;
@@ -243,7 +242,7 @@ export default function LRSchedulerLandingViz() {
             );
           })}
 
-          {SCHEDULES.map((s, si) => {
+          {SCHEDULES.map((s) => {
             const fn = s.lr(baseLr);
             let d = '';
             const N = 80;

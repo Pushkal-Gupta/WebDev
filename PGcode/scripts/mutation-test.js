@@ -260,22 +260,6 @@ function normalize(s) {
 }
 const outputsEqual = (a, b) => a === b || normalize(a) === normalize(b);
 
-async function runOnce(source, stdin) {
-  const res = await fetchWithRetry(`${URL}/functions/v1/run-code`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${ANON}` },
-    body: JSON.stringify({ language: 'python', code: source, stdins: [stdin] }),
-  }, 'run-code');
-  if (!res.ok) throw new Error(`run-code ${res.status}`);
-  const data = await res.json();
-  const first = (data.results || [])[0];
-  if (!first) throw new Error('no result');
-  if (first.status && first.status !== 'success' && first.status !== 'Accepted') {
-    return { ok: false, status: first.status, output: (first.output || '').trim() };
-  }
-  return { ok: true, status: 'ok', output: (first.output || '').trim() };
-}
-
 async function runBatch(source, stdins) {
   // run-code accepts arrays — batch up to ~20 at a time.
   const out = [];
@@ -669,7 +653,7 @@ async function processProblem(problem) {
     if (variants.length >= maxMutations) break;
     let mutated;
     try { mutated = op.apply(py, range); }
-    catch (e) { mutated = null; }
+    catch { mutated = null; }
     if (!mutated || mutated === py || seen.has(mutated)) continue;
     seen.add(mutated);
     variants.push({ name: op.name, code: mutated });

@@ -193,6 +193,12 @@ export default function NeuralNetViz() {
               <stop offset="60%" stopColor="var(--accent)" stopOpacity="0.5" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </radialGradient>
+            <filter id="nn-nodeglow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="3.4" />
+            </filter>
+            <filter id="nn-edgeglow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="1.6" />
+            </filter>
           </defs>
 
           {/* layer labels */}
@@ -211,18 +217,33 @@ export default function NeuralNetViz() {
             IN_POS.map((ip, ii) => {
               const w = W1[hi][ii];
               const dim = phase >= 2 && phase !== 1;
+              const active = phase === 1;
               return (
-                <line
-                  key={`e1-${hi}-${ii}`}
-                  x1={ip.x}
-                  y1={ip.y}
-                  x2={hp.x}
-                  y2={hp.y}
-                  stroke={edgeColor(w)}
-                  strokeWidth={edgeWidth(w)}
-                  opacity={edgeOpacity(w, dim)}
-                  strokeLinecap="round"
-                />
+                <g key={`e1-${hi}-${ii}`}>
+                  {active && (
+                    <line
+                      x1={ip.x}
+                      y1={ip.y}
+                      x2={hp.x}
+                      y2={hp.y}
+                      stroke={edgeColor(w)}
+                      strokeWidth={edgeWidth(w) + 1.6}
+                      opacity={edgeOpacity(w, false) * 0.6}
+                      strokeLinecap="round"
+                      filter="url(#nn-edgeglow)"
+                    />
+                  )}
+                  <line
+                    x1={ip.x}
+                    y1={ip.y}
+                    x2={hp.x}
+                    y2={hp.y}
+                    stroke={edgeColor(w)}
+                    strokeWidth={edgeWidth(w)}
+                    opacity={edgeOpacity(w, dim)}
+                    strokeLinecap="round"
+                  />
+                </g>
               );
             })
           )}
@@ -232,18 +253,33 @@ export default function NeuralNetViz() {
             HID_POS.map((hp, hi) => {
               const w = W2[oi][hi];
               const dim = phase < 3 || phase === 4 ? phase < 3 : false;
+              const active = phase === 3;
               return (
-                <line
-                  key={`e2-${oi}-${hi}`}
-                  x1={hp.x}
-                  y1={hp.y}
-                  x2={op.x}
-                  y2={op.y}
-                  stroke={edgeColor(w)}
-                  strokeWidth={edgeWidth(w)}
-                  opacity={edgeOpacity(w, dim)}
-                  strokeLinecap="round"
-                />
+                <g key={`e2-${oi}-${hi}`}>
+                  {active && (
+                    <line
+                      x1={hp.x}
+                      y1={hp.y}
+                      x2={op.x}
+                      y2={op.y}
+                      stroke={edgeColor(w)}
+                      strokeWidth={edgeWidth(w) + 1.6}
+                      opacity={edgeOpacity(w, false) * 0.6}
+                      strokeLinecap="round"
+                      filter="url(#nn-edgeglow)"
+                    />
+                  )}
+                  <line
+                    x1={hp.x}
+                    y1={hp.y}
+                    x2={op.x}
+                    y2={op.y}
+                    stroke={edgeColor(w)}
+                    strokeWidth={edgeWidth(w)}
+                    opacity={edgeOpacity(w, dim)}
+                    strokeLinecap="round"
+                  />
+                </g>
               );
             })
           )}
@@ -299,14 +335,23 @@ export default function NeuralNetViz() {
               const py = ip.y + (hp.y - ip.y) * pulseT;
               const w = W1[hi][ii];
               return (
-                <circle
-                  key={`p1-${hi}-${ii}`}
-                  cx={px}
-                  cy={py}
-                  r={3.4}
-                  fill={edgeColor(w)}
-                  opacity={Math.min(1, Math.abs(w) + 0.3)}
-                />
+                <g key={`p1-${hi}-${ii}`}>
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={6}
+                    fill={edgeColor(w)}
+                    opacity={Math.min(1, Math.abs(w) + 0.3) * 0.5}
+                    filter="url(#nn-edgeglow)"
+                  />
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={3.4}
+                    fill={edgeColor(w)}
+                    opacity={Math.min(1, Math.abs(w) + 0.3)}
+                  />
+                </g>
               );
             })
           )}
@@ -320,14 +365,23 @@ export default function NeuralNetViz() {
               // dim contributions from dead ReLU units
               const liveScale = hiddenAct[hi] > 0 ? 1 : 0.25;
               return (
-                <circle
-                  key={`p3-${oi}-${hi}`}
-                  cx={px}
-                  cy={py}
-                  r={3.4}
-                  fill={edgeColor(w)}
-                  opacity={Math.min(1, (Math.abs(w) + 0.3) * liveScale)}
-                />
+                <g key={`p3-${oi}-${hi}`}>
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={6}
+                    fill={edgeColor(w)}
+                    opacity={Math.min(1, (Math.abs(w) + 0.3) * liveScale) * 0.5}
+                    filter="url(#nn-edgeglow)"
+                  />
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={3.4}
+                    fill={edgeColor(w)}
+                    opacity={Math.min(1, (Math.abs(w) + 0.3) * liveScale)}
+                  />
+                </g>
               );
             })
           )}
@@ -376,6 +430,16 @@ export default function NeuralNetViz() {
             const dead = reveal && act === 0;
             return (
               <g key={`hid-${i}`}>
+                {reveal && !dead && intensity > 0 && (
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={18}
+                    fill="var(--hue-sky, #5ecbff)"
+                    opacity={0.18 + intensity * 0.4}
+                    filter="url(#nn-nodeglow)"
+                  />
+                )}
                 <circle
                   cx={p.x}
                   cy={p.y}
@@ -428,6 +492,16 @@ export default function NeuralNetViz() {
             const color = i === 0 ? 'var(--hue-sky, #5ecbff)' : 'var(--hue-pink, #ff66cc)';
             return (
               <g key={`out-${i}`}>
+                {reveal && (
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={18}
+                    fill={color}
+                    opacity={0.15 + prob * 0.5}
+                    filter="url(#nn-nodeglow)"
+                  />
+                )}
                 <circle
                   cx={p.x}
                   cy={p.y}
@@ -516,7 +590,7 @@ export default function NeuralNetViz() {
                 <div style={{
                   width: `${outputProbs[0] * 100}%`,
                   height: '100%',
-                  background: 'var(--hue-sky, #5ecbff)',
+                  background: 'linear-gradient(90deg, color-mix(in srgb, var(--hue-sky) 55%, var(--accent)), var(--hue-sky))',
                   transition: 'width 240ms ease',
                 }} />
               </div>
@@ -535,7 +609,7 @@ export default function NeuralNetViz() {
                 <div style={{
                   width: `${outputProbs[1] * 100}%`,
                   height: '100%',
-                  background: 'var(--hue-pink, #ff66cc)',
+                  background: 'linear-gradient(90deg, color-mix(in srgb, var(--hue-pink) 55%, var(--hue-violet)), var(--hue-pink))',
                   transition: 'width 240ms ease',
                 }} />
               </div>

@@ -1,0 +1,341 @@
+.lrs {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.lrs-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lrs-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.lrs-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.lrs-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lrs-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lrs-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lrs-range {
+  width: 88px;
+  accent-color: var(--accent);
+}
+
+.lrs-slider-val {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.lrs-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lrs-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.lrs-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lrs-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.lrs-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.lrs-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.lrs-spacer {
+  flex: 1 1 auto;
+}
+
+.lrs-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lrs-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: var(--surface);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, opacity 0.15s;
+  opacity: 0.55;
+}
+.lrs-toggle:hover {
+  background: var(--hover-box);
+}
+.lrs-toggle.is-on {
+  opacity: 1;
+  color: var(--text-main);
+  border-color: var(--lrs-c);
+}
+.lrs-toggle.is-focus {
+  background: rgba(var(--accent-rgb), 0.1);
+  box-shadow: inset 0 0 0 1px var(--lrs-c);
+}
+
+.lrs-toggle-swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--lrs-c);
+  flex: none;
+}
+.lrs-toggle:not(.is-on) .lrs-toggle-swatch {
+  background: var(--border);
+}
+
+.lrs-focus-note {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-left: 0.3rem;
+}
+.lrs-focus-note strong {
+  font-weight: 700;
+}
+
+.lrs-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lrs-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.lrs-panel-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+.lrs-panel-icon {
+  fill: var(--text-main);
+}
+
+.lrs-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.5;
+}
+
+.lrs-axis {
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+
+.lrs-axis-y {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.lrs-axis-x {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.lrs-axis-x-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.lrs-curve {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+  transition: opacity 0.15s, stroke-width 0.15s;
+}
+.lrs-curve.is-focus {
+  opacity: 1;
+  stroke-width: 2.6;
+}
+
+.lrs-loss-curve {
+  fill: none;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.lrs-scrub {
+  stroke: var(--text-dim);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+  opacity: 0.7;
+}
+
+.lrs-dot {
+  stroke: var(--bg);
+  stroke-width: 1.2;
+  opacity: 0.6;
+  transition: r 0.12s, opacity 0.12s;
+}
+.lrs-dot.is-focus {
+  opacity: 1;
+}
+
+.lrs-loss-dot {
+  stroke: var(--bg);
+  stroke-width: 1.4;
+}
+
+.lrs-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.lrs-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  transition: box-shadow 0.15s;
+}
+.lrs-metric.is-focus {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.lrs-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lrs-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.lrs-metric-value.is-hi { color: var(--hue-violet); }
+
+.lrs-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.lrs-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lrs-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lrs-btn,
+  .lrs-toggle,
+  .lrs-curve,
+  .lrs-dot,
+  .lrs-metric {
+    transition: none;
+  }
+}

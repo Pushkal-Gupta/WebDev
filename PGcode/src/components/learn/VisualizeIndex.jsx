@@ -1,14 +1,43 @@
-import React, { Suspense, lazy, useEffect, useMemo, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowRight, Play, Search, X, Code2, Film, ArrowLeft, Zap, Sparkles } from 'lucide-react';
+import {
+  ArrowRight, Play, Search, X, Code2, Film, ArrowLeft, Zap, Sparkles,
+  BarChart3, Crosshair, Rows3, Layers, Link2, Network, Triangle, Hash,
+  Ruler, Share2, Route, GitBranch, Combine, Workflow, Grid3x3, Spline,
+  Type, Binary, Sigma, Server, Boxes,
+} from 'lucide-react';
 import AlgoVisualizer, { ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer, NumberGridRenderer, TreeRenderer } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
 import { INTERACTIVE_TEMPLATES } from './interactiveTemplates';
 import { INTERACTIVE_VIZ } from './interactiveViz';
 import { recordLocalVisit } from '../../lib/achievements';
+import { useConcept } from '../../lib/queries';
+import RunnableCodeBlock from '../ml/RunnableCodeBlock';
+import '../ml/MLLesson.css';
 import './Learn.css';
 
 const InteractiveVisualizer = lazy(() => import('./InteractiveVisualizer'));
+
+// Reference code lives on the matching concept (PGcode_concepts.code), keyed by
+// language. Python is the canonical reference; fall back to whatever exists so a
+// viz that ships only one language still surfaces a runnable panel.
+const REF_LANG_ORDER = [
+  { key: 'python', label: 'Python' },
+  { key: 'javascript', label: 'JavaScript' },
+  { key: 'java', label: 'Java' },
+  { key: 'cpp', label: 'C++' },
+];
+
+function pickReferenceCode(code) {
+  if (!code || typeof code !== 'object') return null;
+  for (const { key, label } of REF_LANG_ORDER) {
+    const body = code[key];
+    if (typeof body === 'string' && body.trim().length > 0) {
+      return { language: key, label, body: body.trim() };
+    }
+  }
+  return null;
+}
 
 // Static-viz slug ↔ interactive-template slug.
 // Walkthroughs were authored before the interactive mode; some names diverged.
@@ -39,6 +68,27 @@ const STATIC_TO_INTERACTIVE = {
   'bst-insertion':         'bst-insert',
   'bellman-ford':          'bellman-ford',
   'floyd-warshall':        'floyd-warshall',
+  // Batch viz slugs mapped to their matching editor template so each viz page
+  // surfaces the "Edit and run your own implementation" panel.
+  'dijkstra-on-grid':              'dijkstra',
+  'dijkstra-with-path':            'dijkstra',
+  'dijkstra-stops':                'dijkstra',
+  'kahn-topological-sort':         'topological-sort-kahn',
+  'topological-sort-dfs':          'topological-sort-kahn',
+  'mst-prim':                      'prim-mst',
+  'kruskals-algorithm':            'kruskal-mst',
+  'union-find-data-structure':     'union-find',
+  'heap-binary':                   'heap-insert',
+  'heap-sort-algorithm':           'heap-sort',
+  'floyd-cycle-detection':         'floyd-cycle-detection',
+  'kmp-failure-function':          'kmp-pattern-matching',
+  'fenwick-bit':                   'fenwick-prefix-sum',
+  'segment-tree-merge':            'segment-tree-build',
+  'binary-search-tree-operations': 'bst-insert',
+  'bst-iterator-inorder':          'bst-search',
+  'trie':                          'trie-insert',
+  'boyer-moore-voting-extended':   'boyer-moore-majority',
+  'graph-floyd-warshall':          'floyd-warshall',
 };
 
 // Walkthrough slug ↔ rich INTERACTIVE_VIZ React component key.
@@ -247,10 +297,24 @@ export default function VisualizeIndex() {
 // an optional "write your own" disclosure rather than an empty default tab.
 
 function VizDetail({ slug }) {
-  const [showEditor, setShowEditor] = useState(false);
+  const [showEditor, setShowEditor] = useState(true);
+  const codePanelRef = useRef(null);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setShowEditor(false); }, [slug]);
+  useEffect(() => { setShowEditor(true); }, [slug]);
+
+  // HashRouter treats href="#..." as a route change, so the chip programmatically
+  // scrolls to the panel (and expands the collapsed editor) instead of anchoring.
+  const scrollToCodePanel = () => {
+    setShowEditor(true);
+    const node = codePanelRef.current;
+    if (!node) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    node.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  };
+
+  const { data: concept } = useConcept(slug);
+  const refCode = useMemo(() => pickReferenceCode(concept?.code), [concept]);
 
   const viz = VISUALIZATIONS[slug];
   if (!viz) {
@@ -278,6 +342,10 @@ function VizDetail({ slug }) {
       : null);
   const hasEditor = Boolean(editorSlug);
   const hasWalkthrough = vizStepCount(viz) > 0;
+  // The "Editable code" badge must promise something real: it shows only when
+  // the page actually renders an editable surface — the in-browser template OR
+  // the runnable reference implementation pulled from the concept.
+  const hasCodePanel = hasEditor || Boolean(refCode);
 
   const walkthrough = hasWalkthrough ? (
     <AlgoVisualizer
@@ -312,7 +380,11 @@ function VizDetail({ slug }) {
         <div className="viz-detail-chips">
           {RichViz && <span className="viz-detail-chip primary"><Sparkles size={12} /> Interactive</span>}
           {hasWalkthrough && <span className="viz-detail-chip"><Film size={12} /> {vizStepCount(viz)}-step walkthrough</span>}
-          {hasEditor && <span className="viz-detail-chip"><Code2 size={12} /> Editable code</span>}
+          {hasCodePanel && (
+            <button type="button" onClick={scrollToCodePanel} className="viz-detail-chip viz-detail-chip-link">
+              <Code2 size={12} /> Editable code
+            </button>
+          )}
         </div>
       </header>
 
@@ -339,11 +411,26 @@ function VizDetail({ slug }) {
         </section>
       )}
 
+      {hasCodePanel && <div ref={codePanelRef} className="viz-detail-anchor" aria-hidden="true" />}
+
+      {refCode && (
+        <section className="viz-detail-section" aria-label="Reference implementation">
+          <div className="viz-detail-section-head">
+            <Code2 size={14} />
+            <span>Reference implementation — edit and run it</span>
+            <span className="viz-detail-section-meta">{refCode.label}</span>
+          </div>
+          <RunnableCodeBlock
+            section={{ body: refCode.body, language: refCode.language, heading: viz.title }}
+          />
+        </section>
+      )}
+
       {hasEditor && (
         <details className="viz-detail-advanced" open={showEditor} onToggle={(e) => setShowEditor(e.currentTarget.open)}>
           <summary className="viz-detail-advanced-summary">
             <Code2 size={14} />
-            <span>Advanced — edit and run your own implementation</span>
+            <span>Trace it frame by frame — edit the visualizer code</span>
             <span className="viz-detail-advanced-hint">JavaScript, runs in your browser</span>
           </summary>
           <div className="viz-detail-advanced-body">
@@ -373,27 +460,27 @@ function VizDetail({ slug }) {
 // Each category declares a `preview` kind that drives a tiny animated SVG.
 
 const CATEGORIES = [
-  { key: 'sorting',     label: 'Sorting',                 preview: 'bars',    blurb: 'Compare, swap, partition — watch order emerge from chaos.' },
-  { key: 'searching',   label: 'Searching',               preview: 'search',  blurb: 'Halve the space, probe the midpoint, converge on the target.' },
-  { key: 'arrays',      label: 'Arrays & Windows',        preview: 'window',  blurb: 'Two pointers, sliding windows, prefix sums over a flat sequence.' },
-  { key: 'stacks',      label: 'Stacks & Queues',         preview: 'stack',   blurb: 'LIFO pushes, FIFO drains, and the monotonic structures built on them.' },
-  { key: 'linked',      label: 'Linked Lists',            preview: 'list',    blurb: 'Pointer chasing, cycle detection, and in-place rewiring.' },
-  { key: 'trees',       label: 'Trees & BST',             preview: 'tree',    blurb: 'Ordered insertion, traversal orders, and self-balancing rotations.' },
-  { key: 'heaps',       label: 'Heaps',                   preview: 'heap',    blurb: 'The shape + heap property that make the min or max an O(1) peek.' },
-  { key: 'hashing',     label: 'Hashing',                 preview: 'ring',    blurb: 'Buckets, collisions, probing rings, and membership filters.' },
-  { key: 'range',       label: 'Range Structures',        preview: 'segbars', blurb: 'Segment trees, Fenwick trees, sparse tables for range queries.' },
-  { key: 'graphs',      label: 'Graph Traversal',         preview: 'graph',   blurb: 'BFS frontiers, DFS spanning trees, topological order, cycles.' },
-  { key: 'shortest',    label: 'Shortest Paths',          preview: 'paths',   blurb: 'Relax edges with Dijkstra, Bellman-Ford, Floyd-Warshall, A*.' },
-  { key: 'mst',         label: 'Minimum Spanning Tree',   preview: 'mst',     blurb: 'Grow or merge the cheapest cycle-free edge set with Prim / Kruskal.' },
-  { key: 'unionfind',   label: 'Union-Find (DSU)',        preview: 'dsu',     blurb: 'Disjoint sets with path compression and union by rank.' },
-  { key: 'graphsadv',   label: 'Advanced Graphs',         preview: 'graph',   blurb: 'Flow, matching, SCCs, articulation points, 2-SAT.' },
-  { key: 'dp',          label: 'Dynamic Programming',     preview: 'grid',    blurb: 'Fill a table cell by cell; each answer reuses the ones before it.' },
-  { key: 'recursion',   label: 'Recursion & Backtracking',preview: 'rectree', blurb: 'Branch the search space, prune dead ends, unwind the call tree.' },
-  { key: 'strings',     label: 'Strings & Matching',      preview: 'text',    blurb: 'Failure functions, rolling hashes, suffix structures for matching.' },
-  { key: 'bitwise',     label: 'Bit Manipulation',        preview: 'bits',    blurb: 'XOR cancellation, masks, and subset enumeration over bits.' },
-  { key: 'math',        label: 'Math & Geometry',         preview: 'numline', blurb: 'Number theory, sampling, sweep lines, and convex hulls.' },
-  { key: 'systems',     label: 'Systems & Encodings',     preview: 'nodes',   blurb: 'Caches, consensus, hashing rings, and the structures behind them.' },
-  { key: 'misc',        label: 'More',                    preview: 'cells',   blurb: 'Foundations, analysis, and everything else worth stepping through.' },
+  { key: 'sorting',     label: 'Sorting',                 preview: 'bars',    icon: BarChart3, blurb: 'Compare, swap, partition — watch order emerge from chaos.' },
+  { key: 'searching',   label: 'Searching',               preview: 'search',  icon: Crosshair, blurb: 'Halve the space, probe the midpoint, converge on the target.' },
+  { key: 'arrays',      label: 'Arrays & Windows',        preview: 'window',  icon: Rows3,     blurb: 'Two pointers, sliding windows, prefix sums over a flat sequence.' },
+  { key: 'stacks',      label: 'Stacks & Queues',         preview: 'stack',   icon: Layers,    blurb: 'LIFO pushes, FIFO drains, and the monotonic structures built on them.' },
+  { key: 'linked',      label: 'Linked Lists',            preview: 'list',    icon: Link2,     blurb: 'Pointer chasing, cycle detection, and in-place rewiring.' },
+  { key: 'trees',       label: 'Trees & BST',             preview: 'tree',    icon: Network,   blurb: 'Ordered insertion, traversal orders, and self-balancing rotations.' },
+  { key: 'heaps',       label: 'Heaps',                   preview: 'heap',    icon: Triangle,  blurb: 'The shape + heap property that make the min or max an O(1) peek.' },
+  { key: 'hashing',     label: 'Hashing',                 preview: 'ring',    icon: Hash,      blurb: 'Buckets, collisions, probing rings, and membership filters.' },
+  { key: 'range',       label: 'Range Structures',        preview: 'segbars', icon: Ruler,     blurb: 'Segment trees, Fenwick trees, sparse tables for range queries.' },
+  { key: 'graphs',      label: 'Graph Traversal',         preview: 'graph',   icon: Share2,    blurb: 'BFS frontiers, DFS spanning trees, topological order, cycles.' },
+  { key: 'shortest',    label: 'Shortest Paths',          preview: 'paths',   icon: Route,     blurb: 'Relax edges with Dijkstra, Bellman-Ford, Floyd-Warshall, A*.' },
+  { key: 'mst',         label: 'Minimum Spanning Tree',   preview: 'mst',     icon: GitBranch, blurb: 'Grow or merge the cheapest cycle-free edge set with Prim / Kruskal.' },
+  { key: 'unionfind',   label: 'Union-Find (DSU)',        preview: 'dsu',     icon: Combine,   blurb: 'Disjoint sets with path compression and union by rank.' },
+  { key: 'graphsadv',   label: 'Advanced Graphs',         preview: 'graph',   icon: Workflow,  blurb: 'Flow, matching, SCCs, articulation points, 2-SAT.' },
+  { key: 'dp',          label: 'Dynamic Programming',     preview: 'grid',    icon: Grid3x3,   blurb: 'Fill a table cell by cell; each answer reuses the ones before it.' },
+  { key: 'recursion',   label: 'Recursion & Backtracking',preview: 'rectree', icon: Spline,    blurb: 'Branch the search space, prune dead ends, unwind the call tree.' },
+  { key: 'strings',     label: 'Strings & Matching',      preview: 'text',    icon: Type,      blurb: 'Failure functions, rolling hashes, suffix structures for matching.' },
+  { key: 'bitwise',     label: 'Bit Manipulation',        preview: 'bits',    icon: Binary,    blurb: 'XOR cancellation, masks, and subset enumeration over bits.' },
+  { key: 'math',        label: 'Math & Geometry',         preview: 'numline', icon: Sigma,     blurb: 'Number theory, sampling, sweep lines, and convex hulls.' },
+  { key: 'systems',     label: 'Systems & Encodings',     preview: 'nodes',   icon: Server,    blurb: 'Caches, consensus, hashing rings, and the structures behind them.' },
+  { key: 'misc',        label: 'More',                    preview: 'cells',   icon: Boxes,     blurb: 'Foundations, analysis, and everything else worth stepping through.' },
 ];
 
 const CAT_ORDER = CATEGORIES.map(c => c.key);
@@ -450,6 +537,152 @@ const SLUG_TO_CAT = {
   'fibonacci-recursion': 'recursion',
   'hash-collision':      'hashing',
   'trie-insert':         'strings',
+  // Tree / balanced-tree viz batch
+  'avl-tree':                       'trees',
+  'avl-tree-rotations':             'trees',
+  'b-tree':                         'trees',
+  'b-tree-classic':                 'trees',
+  'b-plus-tree':                    'trees',
+  'bplus-tree-internals':           'trees',
+  'bst-iterator-inorder':           'trees',
+  'binary-search-tree-operations':  'trees',
+  'binary-lifting-lca':             'trees',
+  // Graph traversal / structure viz batch
+  'bfs-algorithm':                  'graphs',
+  'astar-search':                   'shortest',
+  'articulation-bridges':           'graphsadv',
+  'bipartite-matching-kuhn':        'graphsadv',
+  // Bitwise viz batch
+  'bit-counting-tricks':            'bitwise',
+  'bitwise-xor-properties':         'bitwise',
+  'bitwise-gray-code':              'bitwise',
+  'bitwise-power-set-bitmask':      'bitwise',
+  'bitwise-bit-manipulation-tricks':'bitwise',
+  'boyer-moore-voting-extended':    'arrays',
+  // String-matching viz batch
+  'aho-corasick-failure':           'strings',
+  'boyer-moore-bad-char':           'strings',
+  // VisuAlgo-gap viz batch
+  'tsp-bitmask-dp':                 'graphsadv',
+  'hash-table-probing':             'hashing',
+  'min-vertex-cover':               'graphsadv',
+  'suffix-tree-construction':       'strings',
+  // DP viz batch
+  'dp-bitmask':                     'dp',
+  'dp-interval-mcm':                'dp',
+  'dp-tree':                        'dp',
+  'dp-digit':                       'dp',
+  'dp-game-theory':                 'dp',
+  'dp-optimal-bst':                 'dp',
+  'dp-job-scheduling':              'dp',
+  'dp-longest-arithmetic-seq':      'dp',
+  // Advanced-graph viz batch
+  'graph-floyd-warshall':           'shortest',
+  'graph-tarjan-scc':               'graphsadv',
+  'graph-eulerian':                 'graphsadv',
+  'graph-coloring-greedy':          'graphsadv',
+  'graph-bipartite-coloring':       'graphs',
+  'graph-2sat':                     'graphsadv',
+  // Strings + NP viz batch
+  'string-manacher':                'strings',
+  'string-rolling-hash':            'strings',
+  'string-suffix-array':            'strings',
+  'string-suffix-automaton':        'strings',
+  'steiner-tree':                   'graphsadv',
+  'np-reductions':                  'graphsadv',
+  // Heaps / stacks / queues viz batch
+  'heap-binary':                    'heaps',
+  'heap-sort-algorithm':            'heaps',
+  'priority-queue-array':           'heaps',
+  'queue-using-stacks':             'stacks',
+  // Trees-advanced viz batch
+  'fenwick-bit':                    'range',
+  'segment-tree-merge':             'range',
+  'tree-morris-traversal':          'trees',
+  'tree-iterative-traversals':      'trees',
+  'euler-tour-flatten':             'trees',
+  'trie':                           'strings',
+  // Backtracking viz batch
+  'subsets-power-set':              'recursion',
+  'permutations-backtrack':         'recursion',
+  'combinations-backtrack':         'recursion',
+  'n-queens-backtrack':             'recursion',
+  'recursion-tail-call':            'recursion',
+  // Math / number-theory viz batch
+  'math-pow-fast-exponentiation':   'math',
+  'math-modular-inverse-fermat':    'math',
+  'strassen-matrix-mult':           'math',
+  'dp-matrix-exponentiation':       'dp',
+  'minimax-game-theory':            'dp',
+  // Shortest-path / topo viz batch
+  'dijkstra-on-grid':               'shortest',
+  'dijkstra-with-path':             'shortest',
+  'dijkstra-stops':                 'shortest',
+  'johnson-all-pairs':              'shortest',
+  'kahn-topological-sort':          'graphs',
+  'topological-sort-dfs':           'graphs',
+  // MST / SCC viz batch
+  'mst-prim':                       'mst',
+  'kruskals-algorithm':             'mst',
+  'mst-boruvka':                    'mst',
+  'kosaraju-2pass':                 'graphsadv',
+  'tarjan-scc-algorithm':           'graphsadv',
+  'tarjan-articulation':            'graphsadv',
+  // Advanced data structures viz batch
+  'red-black-tree':                 'trees',
+  'splay-tree':                     'trees',
+  'treap-randomized-bst':           'trees',
+  'skip-list':                      'linked',
+  'union-find-data-structure':      'unionfind',
+  'quickselect-deterministic':      'sorting',
+  'heaps-median-from-stream':       'heaps',
+  // Strings / streams viz batch
+  'kmp-failure-function':           'strings',
+  'lis-patience-sorting':           'dp',
+  'edit-distance-algorithm':        'dp',
+  'floyd-cycle-detection':          'linked',
+  'random-reservoir-stream':        'misc',
+  'palindrome-eertree':             'strings',
+  // Advanced data structures viz batch 2
+  'red-black-tree-properties':      'trees',
+  'heaps-skew-leftist':             'heaps',
+  'quadtree-spatial':               'trees',
+  'link-cut-tree':                  'trees',
+  'persistent-segment-tree':        'range',
+  'skiplist-concurrent':            'linked',
+  // Strings / greedy / graph viz batch
+  'string-z-function':              'strings',
+  'sliding-window-medians':         'arrays',
+  'interval-scheduling':            'misc',
+  'set-cover-greedy':               'misc',
+  'graph-eulerian-path-circuit':    'graphsadv',
+  'dp-state-compression':           'dp',
+  // Graph / DP / trie viz batch
+  'dijkstra-fibonacci-heap':        'shortest',
+  'graph-bridges-articulation':     'graphsadv',
+  'dp-recursion-vs-iteration':      'dp',
+  'dp-knuth-optimization':          'dp',
+  'string-trie-radix':              'strings',
+  'queue-priority-fair-sched':      'heaps',
+  // More algorithms batch A
+  'insertion-sort-algorithm':       'sorting',
+  'kmp-deep-dive':                  'strings',
+  'kahn-cycle-detect':             'graphs',
+  'lowest-common-ancestor-bst':     'trees',
+  'median-of-medians':              'sorting',
+  'meet-in-the-middle':             'arrays',
+  // More algorithms batch B
+  'misra-gries':                    'arrays',
+  'master-theorem':                 'recursion',
+  'network-bridge-finding':         'graphsadv',
+  'mst-rerooting':                  'mst',
+  'mo-on-trees':                    'graphsadv',
+  // More algorithms batch C
+  'selection-sort-algorithm':       'sorting',
+  'sparse-table-rmq':               'range',
+  'range-sum-2d':                   'range',
+  'range-update-range-query':       'range',
+  'topk-streaming':                 'heaps',
 };
 
 function categoryForSlug(slug) {
@@ -470,7 +703,30 @@ function categoryForSlug(slug) {
   return 'misc';
 }
 
-const HUE_TOKENS = ['var(--hue-violet)', 'var(--hue-sky)', 'var(--hue-pink)', 'var(--hue-mint)'];
+// Gallery of categories — color variety is wanted here (like the Learn-hub
+// cards). Each category gets a DISTINCT hue rotating through the palette tokens
+// so adjacent cards differ; the token drives stripe, icon-box tint, hover
+// border, CTA, and the mini-viz preview. Brand chrome elsewhere stays teal.
+const HUES = [
+  'var(--accent)',
+  'var(--hue-violet)',
+  'var(--hue-sky)',
+  'var(--hue-pink)',
+  'var(--hue-mint)',
+  'var(--medium)',
+  'var(--hard)',
+  'var(--warning)',
+  'var(--easy)',
+];
+
+// Stable hue per category — keyed off the locked CAT_ORDER index so a category
+// always renders the same color regardless of how many have members. The
+// step (+4) walks the palette so neighbouring cards never share a hue.
+function hueForCategory(key) {
+  const i = CAT_ORDER.indexOf(key);
+  if (i < 0) return 'var(--accent)';
+  return HUES[(i * 4) % HUES.length];
+}
 
 function hasLive(slug) {
   return Boolean(
@@ -901,9 +1157,8 @@ function VisualizeIndexList() {
         ) : (
           <div className="viz-result-grid">
             {searchHits.map(([cat, s, viz]) => {
-              const accent = HUE_TOKENS[CAT_ORDER.indexOf(cat) % HUE_TOKENS.length];
               return (
-                <Link key={s} to={`/visualize/${s}`} className="viz-result-card" style={{ '--card-accent': accent }}>
+                <Link key={s} to={`/visualize/${s}`} className="viz-result-card" style={{ '--card-accent': hueForCategory(cat) }}>
                   <Play size={15} />
                   <span className="viz-result-title">{viz.title}</span>
                   <span className="viz-result-cat">{CAT_BY_KEY[cat]?.label}</span>
@@ -919,28 +1174,29 @@ function VisualizeIndexList() {
           {orderedCats.map((cat) => {
             const def = CAT_BY_KEY[cat];
             const members = byCat[cat];
-            const accent = HUE_TOKENS[CAT_ORDER.indexOf(cat) % HUE_TOKENS.length];
             const liveCount = members.filter(([s]) => hasLive(s)).length;
+            const Icon = def.icon;
+            const hue = hueForCategory(cat);
             return (
               <Link
                 key={cat}
                 to={`/visualize/c/${cat}`}
                 className="viz-cat-card"
-                style={{ '--card-accent': accent }}
+                style={{ '--card-accent': hue }}
               >
+                <span className="viz-cat-stripe" aria-hidden="true" />
+                <span className="viz-cat-flourish" aria-hidden="true">
+                  <Preview kind={def.preview} accent={hue} />
+                </span>
                 <span className="viz-cat-head">
-                  <span className="viz-cat-preview">
-                    <Preview kind={def.preview} accent={accent} />
-                  </span>
-                  <span className="viz-cat-body">
-                    <span className="viz-cat-title">{def.label}</span>
-                    <span className="viz-cat-blurb">{def.blurb}</span>
-                    <span className="viz-cat-tags">
-                      <span className="viz-cat-tag">{members.length} viz</span>
-                      {liveCount > 0 && <span className="viz-cat-tag live"><Zap size={9} /> {liveCount} interactive</span>}
-                      <span className="viz-cat-cta"><ArrowRight size={13} /></span>
-                    </span>
-                  </span>
+                  <span className="viz-cat-iconbox">{Icon && <Icon size={18} />}</span>
+                  <span className="viz-cat-title">{def.label}</span>
+                </span>
+                <span className="viz-cat-blurb">{def.blurb}</span>
+                <span className="viz-cat-tags">
+                  <span className="viz-cat-tag">{members.length} viz</span>
+                  {liveCount > 0 && <span className="viz-cat-tag live"><Zap size={9} /> {liveCount} interactive</span>}
+                  <span className="viz-cat-cta"><ArrowRight size={14} /></span>
                 </span>
               </Link>
             );
@@ -959,8 +1215,7 @@ function VizCategory({ category }) {
   const def = CAT_BY_KEY[category];
   const byCat = useMemo(() => buildByCat(), []);
   const members = byCat[category] || [];
-  const catIndex = CAT_ORDER.indexOf(category);
-  const accent = HUE_TOKENS[(catIndex < 0 ? 0 : catIndex) % HUE_TOKENS.length];
+  const accent = hueForCategory(category);
 
   if (!def) {
     return (

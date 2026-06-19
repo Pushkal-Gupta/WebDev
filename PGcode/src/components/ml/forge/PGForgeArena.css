@@ -1,0 +1,355 @@
+.forge-arena {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 94%;
+  max-width: var(--container-w, 1200px);
+  margin: 0 auto;
+  padding: 1.2rem 0 3rem;
+  font-family: var(--mono);
+  display: flex;
+  flex-direction: column;
+}
+
+.forge-crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 1rem;
+}
+.forge-crumb-link { color: var(--text-dim); text-decoration: none; transition: color var(--t); }
+.forge-crumb-link:hover { color: var(--accent); }
+.forge-crumb-cur { color: var(--text-main); font-weight: 700; }
+
+.forge-arena-header {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+.forge-arena-h1 {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.01em;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+.forge-arena-intro {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 720px;
+}
+
+/* ---- two-column layout ---- */
+.forge-arena-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) 1fr;
+  gap: 1.2rem;
+  flex: 1 1 auto;
+  align-items: start;
+}
+
+@media (max-width: 820px) {
+  .forge-arena-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---- list ---- */
+.forge-arena-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  position: sticky;
+  top: 1rem;
+}
+
+@media (max-width: 820px) {
+  .forge-arena-list { position: static; }
+}
+
+.forge-arena-item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-align: left;
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color var(--t), background var(--t), transform var(--t);
+}
+
+.forge-arena-item:hover {
+  border-color: var(--accent);
+  background: var(--hover-box);
+  transform: translateX(2px);
+}
+
+.forge-arena-item.active {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.forge-arena-item-thumb {
+  flex-shrink: 0;
+  width: 58px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--accent) 7%, var(--bg)) 0%, var(--bg) 100%);
+  display: block;
+}
+.forge-arena-item-thumb .forge-thumb {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform var(--t);
+}
+.forge-arena-item:hover .forge-arena-item-thumb .forge-thumb,
+.forge-arena-item.active .forge-arena-item-thumb .forge-thumb {
+  transform: scale(1.05);
+}
+
+.forge-arena-item-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.forge-arena-item-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.forge-arena-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.forge-arena-item-title {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+}
+
+/* ---- difficulty pills ---- */
+.forge-arena-pill {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 700;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  align-self: flex-start;
+}
+
+.forge-arena-pill.easy {
+  color: var(--easy);
+  background: var(--easy-bg);
+}
+
+.forge-arena-pill.medium {
+  color: var(--medium);
+  background: var(--medium-bg);
+}
+
+.forge-arena-pill.hard {
+  color: var(--hard);
+  background: var(--hard-bg);
+}
+
+/* ---- detail panel ---- */
+.forge-arena-detail {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.3rem 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  min-width: 0;
+}
+
+.forge-detail-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.forge-detail-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.forge-detail-title {
+  font-family: var(--serif);
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  letter-spacing: -0.015em;
+  color: var(--text-main);
+  line-height: 1.15;
+}
+
+.forge-detail-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.forge-arena-tag {
+  font-size: 0.66rem;
+  letter-spacing: 0.03em;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.2rem 0.45rem;
+}
+
+.forge-detail-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.forge-detail-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.forge-detail-text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-main);
+}
+
+.forge-detail-io-key {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--text-dim);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.1rem 0.4rem;
+  margin-right: 0.4rem;
+}
+
+/* ---- hints ---- */
+.forge-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.forge-hint {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.forge-hint-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
+  color: var(--text-dim);
+  font-family: var(--mono);
+}
+
+.forge-hint-toggle:hover {
+  color: var(--accent);
+}
+
+.forge-hint-num {
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.forge-hint-text {
+  margin: 0;
+  padding: 0 0.7rem 0.6rem 1.6rem;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-main);
+}
+
+/* ---- starter code: wrap, never scroll ---- */
+.forge-detail-code {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ---- approach link ---- */
+.forge-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.forge-detail-link:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-arena-item,
+  .forge-arena-item-thumb .forge-thumb { transition: none; }
+  .forge-arena-item:hover { transform: none; }
+  .forge-arena-item:hover .forge-arena-item-thumb .forge-thumb,
+  .forge-arena-item.active .forge-arena-item-thumb .forge-thumb { transform: none; }
+}

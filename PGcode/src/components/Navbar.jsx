@@ -25,7 +25,7 @@ export default function Navbar({ session, theme, toggleTheme, applyTheme, setPre
           <div className="nav-left">
             <a href={brandHref} className="brand-link">
               <Logo size={28} />
-              <span className="brand-text">Pushkal Gupta <span className="brand-suffix">Code</span></span>
+              <span className="brand-text">Pushkal Gupta <span className="brand-suffix">Hub</span></span>
             </a>
           </div>
 
@@ -54,7 +54,12 @@ export default function Navbar({ session, theme, toggleTheme, applyTheme, setPre
         </div>
       </div>
 
-      {showLogin && <LoginModal onClose={() => setShowLogin(false)} />}
+      {showLogin && (
+        <LoginModal
+          onClose={() => setShowLogin(false)}
+          onGoToSettings={() => { setShowLogin(false); setShowAccount(true); }}
+        />
+      )}
       {showAccount && (
         <SettingsModal
           session={session}

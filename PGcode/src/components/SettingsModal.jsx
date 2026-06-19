@@ -450,7 +450,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
     try {
       const { error } = await supabase.auth.linkIdentity({
         provider: 'github',
-        options: { redirectTo: window.location.href.split('#')[0] },
+        options: { redirectTo: window.location.origin + window.location.pathname },
       });
       if (error) throw error;
     } catch (err) {
@@ -637,7 +637,14 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
                   </button>
                 </div>
               )}
-              {linkMsg && <p className="github-error">{linkMsg}</p>}
+              {linkMsg && (
+                <div className="link-error" role="alert">
+                  <span className="link-error-msg">{linkMsg}</span>
+                  <button type="button" className="link-error-dismiss" onClick={() => setLinkMsg(null)} aria-label="Dismiss">
+                    <X size={14} />
+                  </button>
+                </div>
+              )}
 
               <div className="github-connect">
                 <div className="github-connect-label">

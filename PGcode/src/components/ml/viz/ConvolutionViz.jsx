@@ -82,8 +82,9 @@ function snap(v) {
 function heatFill(v, maxAbs) {
   if (v === 0 || maxAbs === 0) return 'rgba(var(--accent-rgb, 0, 255, 245), 0.04)';
   const t = Math.min(1, Math.abs(v) / maxAbs);
+  const pct = Math.round((0.08 + t * 0.42) * 100);
   if (v > 0) return `rgba(var(--accent-rgb, 0, 255, 245), ${0.08 + t * 0.42})`;
-  return `rgba(255, 102, 204, ${0.08 + t * 0.42})`;
+  return `color-mix(in srgb, var(--hue-pink) ${pct}%, transparent)`;
 }
 
 function inputCellPos(r, c) {
@@ -290,6 +291,11 @@ export default function ConvolutionViz() {
     <div className="mlviz-wrap cv-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${STAGE_W} ${STAGE_H}`} className="mlviz-svg cv-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <filter id="cv-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
           {/* Section labels */}
           <text
             x={INPUT_X0}
@@ -340,8 +346,34 @@ export default function ConvolutionViz() {
             rx={6}
             fill="none"
             stroke="var(--accent)"
+            strokeWidth="3"
+            filter="url(#cv-glow)"
+            opacity="0.5"
+            style={{ transition: 'x 0.32s ease, y 0.32s ease' }}
+          />
+          <rect
+            x={winPos.x - 2}
+            y={winPos.y - 2}
+            width={winSize + 4}
+            height={winSize + 4}
+            rx={6}
+            fill="none"
+            stroke="var(--accent)"
             strokeWidth="2"
             strokeDasharray="5 3"
+            style={{ transition: 'x 0.32s ease, y 0.32s ease' }}
+          />
+
+          {/* Active output cell halo */}
+          <rect
+            x={outPos.x - 2}
+            y={outPos.y - 2}
+            width={CELL + 4}
+            height={CELL + 4}
+            rx={6}
+            fill="var(--hue-sky)"
+            filter="url(#cv-glow)"
+            opacity="0.4"
             style={{ transition: 'x 0.32s ease, y 0.32s ease' }}
           />
 

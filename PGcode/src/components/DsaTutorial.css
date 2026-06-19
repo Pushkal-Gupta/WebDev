@@ -1,13 +1,13 @@
 .tut-container {
-  width: 100%;
-  max-width: 1280px;
+  width: 94%;
+  max-width: var(--container-w);
   margin: 0 auto;
   flex: 1 1 auto;
   min-height: 0;
   max-height: calc(100dvh - 80px);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 1.5rem clamp(1.5rem, 4vw, 4rem) 3rem;
+  padding: 1.5rem 0 3rem;
   position: relative;
 }
 
@@ -1536,29 +1536,49 @@
 
 .tut-card-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1rem;
-}
-@media (max-width: 960px) {
-  .tut-card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-@media (max-width: 620px) {
-  .tut-card-grid { grid-template-columns: 1fr; }
+  align-content: start;
 }
 
 .tut-topic-card {
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 1.1rem 1.15rem 1.25rem;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
+  overflow: hidden;
   text-decoration: none;
   color: inherit;
   cursor: pointer;
   transition: transform var(--t), border-color var(--t), box-shadow var(--t), background var(--t);
+}
+.tut-topic-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.85;
+  z-index: 2;
+}
+
+.tut-card-thumb {
+  position: relative;
+  height: 84px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.tut-card-thumb .forge-thumb { width: 100%; height: 100%; display: block; }
+
+.tut-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 0.95rem 1.15rem 1.2rem;
+  flex: 1;
 }
 .tut-topic-card:hover {
   transform: translateY(-2px);
@@ -1686,10 +1706,10 @@
    ────────────────────────────────────────────────────────────────── */
 
 .tut-topic {
-  width: 100%;
-  max-width: 1280px;
+  width: 94%;
+  max-width: var(--container-w);
   margin: 0 auto;
-  padding: 0 clamp(1.5rem, 4vw, 4rem) 3rem;
+  padding: 0 0 3rem;
   flex: 1 1 auto;
   min-height: 0;
   max-height: calc(100dvh - 80px);

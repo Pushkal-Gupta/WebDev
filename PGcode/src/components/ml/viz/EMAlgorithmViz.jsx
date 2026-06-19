@@ -32,8 +32,6 @@ const COMPONENT_COLORS = [
   'var(--hue-pink, #ff66cc)',
 ];
 
-const RAW_COLORS = ['#00fff5', '#5ecbff', '#ff66cc'];
-
 function snap(v, p = 2) {
   const m = Math.pow(10, p);
   return Math.round(v * m) / m;
@@ -214,22 +212,20 @@ function argmax(row) {
   return best;
 }
 
-// Mix RGB colors by responsibility weights — gives a "soft" tint.
+// Blend the component theme tokens by responsibility weights via nested
+// color-mix — keeps the soft tint while staying token-only (no raw hex).
 function softColor(weights) {
-  let r = 0;
-  let g = 0;
-  let b = 0;
-  for (let k = 0; k < weights.length; k++) {
-    const hex = RAW_COLORS[k % RAW_COLORS.length];
-    const ri = parseInt(hex.slice(1, 3), 16);
-    const gi = parseInt(hex.slice(3, 5), 16);
-    const bi = parseInt(hex.slice(5, 7), 16);
-    r += weights[k] * ri;
-    g += weights[k] * gi;
-    b += weights[k] * bi;
+  let acc = COMPONENT_COLORS[0];
+  let accW = weights[0] || 0;
+  for (let k = 1; k < weights.length; k++) {
+    const wk = weights[k] || 0;
+    const total = accW + wk;
+    if (total <= 1e-9) continue;
+    const pct = ((wk / total) * 100).toFixed(2);
+    acc = `color-mix(in srgb, ${COMPONENT_COLORS[k % COMPONENT_COLORS.length]} ${pct}%, ${acc})`;
+    accW = total;
   }
-  const toHex = (v) => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0');
-  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  return acc;
 }
 
 // Eigen decomp of a symmetric 2x2 [[a,b],[b,c]] — returns half-axes (length, length)
@@ -637,7 +633,19 @@ export default function EMAlgorithmViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxWidth: 460 }}>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxWidth: 560 }}>
+          <defs>
+            <linearGradient id="em-spark-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="em-spark-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="1.6" />
+            </filter>
+            <filter id="em-pt-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+          </defs>
           <Grid />
 
           {/* Data points colored by responsibility blend. */}
@@ -645,19 +653,31 @@ export default function EMAlgorithmViz() {
             const w = resp[i];
             const hard = argmax(w);
             const fill = softColor(w);
-            const stroke = RAW_COLORS[hard % RAW_COLORS.length];
+            const stroke = COMPONENT_COLORS[hard % COMPONENT_COLORS.length];
+            const cx = xToPx(p.x);
+            const cy = yToPx(p.y);
             return (
-              <circle
-                key={`pt${i}`}
-                cx={xToPx(p.x)}
-                cy={yToPx(p.y)}
-                r={4.2}
-                fill={fill}
-                stroke={stroke}
-                strokeWidth={0.8}
-                opacity={0.95}
-                style={{ transition: 'fill 0.4s ease' }}
-              />
+              <g key={`pt${i}`}>
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={5.6}
+                  fill={stroke}
+                  opacity={0.32}
+                  filter="url(#em-pt-glow)"
+                  style={{ transition: 'fill 0.4s ease' }}
+                />
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={4.2}
+                  fill={fill}
+                  stroke={stroke}
+                  strokeWidth={0.8}
+                  opacity={0.95}
+                  style={{ transition: 'fill 0.4s ease' }}
+                />
+              </g>
             );
           })}
 
@@ -688,7 +708,17 @@ export default function EMAlgorithmViz() {
               <polyline
                 points={sparkline.pts}
                 fill="none"
-                stroke="var(--accent)"
+                stroke="url(#em-spark-grad)"
+                strokeWidth="2.6"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                filter="url(#em-spark-glow)"
+                opacity="0.55"
+              />
+              <polyline
+                points={sparkline.pts}
+                fill="none"
+                stroke="url(#em-spark-grad)"
                 strokeWidth="1.4"
                 strokeLinecap="round"
                 strokeLinejoin="round"

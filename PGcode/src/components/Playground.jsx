@@ -13,20 +13,20 @@ import './Playground.css';
 const loadInteractive = () => import('../lib/pythonInteractive.js');
 
 const STARTERS = {
-  python: `def main():\n    print("Hello, PGcode!")\n    # Uncomment to try Terminal mode: type a number, click Run.\n    # n = int(input())\n    # print(n * 2)\n\nmain()\n`,
-  javascript: `// Cmd/Ctrl+Enter to run.\nconsole.log("Hello, PGcode!");\n`,
-  typescript: `// TypeScript playground. (Compiles to JS, then runs on Node.)\nconst greet = (name: string) => \`Hello, \${name}!\`;\nconsole.log(greet("PGcode"));\n`,
-  java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, PGcode!");\n    }\n}\n`,
-  cpp: `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    cout << "Hello, PGcode!" << endl;\n    return 0;\n}\n`,
-  c: `#include <stdio.h>\n\nint main() {\n    printf("Hello, PGcode!\\n");\n    return 0;\n}\n`,
-  go: `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, PGcode!")\n}\n`,
-  rust: `fn main() {\n    println!("Hello, PGcode!");\n}\n`,
-  csharp: `using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, PGcode!");\n    }\n}\n`,
-  ruby: `puts "Hello, PGcode!"\n`,
-  kotlin: `fun main() {\n    println("Hello, PGcode!")\n}\n`,
-  swift: `print("Hello, PGcode!")\n`,
-  php: `<?php\necho "Hello, PGcode!\\n";\n`,
-  bash: `echo "Hello, PGcode!"\n`,
+  python: `def main():\n    print("Hello, PG Hub!")\n    # Uncomment to try Terminal mode: type a number, click Run.\n    # n = int(input())\n    # print(n * 2)\n\nmain()\n`,
+  javascript: `// Cmd/Ctrl+Enter to run.\nconsole.log("Hello, PG Hub!");\n`,
+  typescript: `// TypeScript playground. (Compiles to JS, then runs on Node.)\nconst greet = (name: string) => \`Hello, \${name}!\`;\nconsole.log(greet("PG Hub"));\n`,
+  java: `public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, PG Hub!");\n    }\n}\n`,
+  cpp: `#include <bits/stdc++.h>\nusing namespace std;\n\nint main() {\n    cout << "Hello, PG Hub!" << endl;\n    return 0;\n}\n`,
+  c: `#include <stdio.h>\n\nint main() {\n    printf("Hello, PG Hub!\\n");\n    return 0;\n}\n`,
+  go: `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, PG Hub!")\n}\n`,
+  rust: `fn main() {\n    println!("Hello, PG Hub!");\n}\n`,
+  csharp: `using System;\n\nclass Program {\n    static void Main() {\n        Console.WriteLine("Hello, PG Hub!");\n    }\n}\n`,
+  ruby: `puts "Hello, PG Hub!"\n`,
+  kotlin: `fun main() {\n    println("Hello, PG Hub!")\n}\n`,
+  swift: `print("Hello, PG Hub!")\n`,
+  php: `<?php\necho "Hello, PG Hub!\\n";\n`,
+  bash: `echo "Hello, PG Hub!"\n`,
 };
 
 const codeKey = (lang) => `pgcode_playground_${lang}`;

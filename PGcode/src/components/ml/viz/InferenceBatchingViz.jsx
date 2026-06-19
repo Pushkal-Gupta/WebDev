@@ -105,12 +105,6 @@ function buildTimeline(modeId, requests) {
     return busy / LANES;
   });
 
-  // throughput / latency
-  let tokensProduced = 0;
-  for (let lane = 0; lane < LANES; lane++) {
-    for (let t = 0; t < TICKS; t++) if (tracks[lane][t].kind === 'decode') tokensProduced++;
-  }
-
   // last finish tick per request
   const lastFinish = new Array(requests.length).fill(-1);
   for (let lane = 0; lane < LANES; lane++) {
@@ -127,7 +121,7 @@ function buildTimeline(modeId, requests) {
   const p50 = p(latencies, 0.5);
   const p99 = p(latencies, 0.99);
 
-  // throughput approximation: tokensProduced over (max finish + 1) ticks, scaled to GPU_PEAK_TPS by util
+  // throughput approximation: avg GPU utilisation scaled to GPU_PEAK_TPS
   const avgUtil = util.reduce((a, b) => a + b, 0) / TICKS;
   const throughput = Math.round(avgUtil * GPU_PEAK_TPS);
 

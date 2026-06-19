@@ -347,8 +347,17 @@ export default function BiasVarianceViz() {
         <svg
           viewBox={`0 0 ${SW} ${SH}`}
           className="mlviz-svg mlviz-svg-wide"
-          style={{ aspectRatio: `${SW} / ${SH}`, maxWidth: '620px' }}
+          style={{ aspectRatio: `${SW} / ${SH}`, maxWidth: '820px' }}
         >
+          <defs>
+            <linearGradient id="bv-fit-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="bv-fit-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
           {/* Header */}
           <text
             x={PAD_L}
@@ -470,9 +479,22 @@ export default function BiasVarianceViz() {
               <path
                 d={currentPath}
                 fill="none"
-                stroke="var(--accent)"
-                strokeWidth="2.2"
-                opacity="0.95"
+                stroke="url(#bv-fit-grad)"
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                filter="url(#bv-fit-glow)"
+                opacity="0.5"
+                style={{ transition: 'd 220ms ease' }}
+              />
+              <path
+                d={currentPath}
+                fill="none"
+                stroke="url(#bv-fit-grad)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                opacity="0.98"
                 style={{ transition: 'd 220ms ease' }}
               />
             </g>
@@ -592,43 +614,28 @@ export default function BiasVarianceViz() {
         </div>
 
         {/* Live error / bias / variance readout */}
-        <div
-          className="mlviz-row mlviz-row-hi"
-          style={{
-            gap: '1.1rem',
-            fontFamily: 'var(--mono)',
-            fontSize: '0.74rem',
-            alignItems: 'center',
-            flexWrap: 'wrap',
-          }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>train MSE</span>
-            <span style={{ color: 'var(--accent)', fontWeight: 700 }}>
-              {current ? snap(current.trainErr, 4) : '—'}
-            </span>
+        <div className="mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">train MSE</span>
+            <span className="mlviz-statcard-val">{current ? snap(current.trainErr, 4) : '—'}</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>val MSE</span>
-            <span style={{ color: 'var(--warning, var(--hue-pink))', fontWeight: 700 }}>
-              {current ? snap(current.valErr, 4) : '—'}
-            </span>
+          <div className="mlviz-statcard mlviz-statcard-pink">
+            <span className="mlviz-statcard-label">val MSE</span>
+            <span className="mlviz-statcard-val">{current ? snap(current.valErr, 4) : '—'}</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>bias²</span>
-            <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>
-              {Number.isFinite(biasSq) ? snap(biasSq, 4) : '—'}
-            </span>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">bias²</span>
+            <span className="mlviz-statcard-val">{Number.isFinite(biasSq) ? snap(biasSq, 4) : '—'}</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>variance</span>
-            <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">variance</span>
+            <span className="mlviz-statcard-val">
               {Number.isFinite(variance) ? snap(variance, 4) : 'resample to estimate'}
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>runs in average</span>
-            <span style={{ color: 'var(--text-main)', fontWeight: 700 }}>{runs.length}</span>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">runs in average</span>
+            <span className="mlviz-statcard-val">{runs.length}</span>
           </div>
         </div>
 

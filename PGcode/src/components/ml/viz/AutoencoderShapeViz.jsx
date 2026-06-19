@@ -222,7 +222,7 @@ export default function AutoencoderShapeViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '620px' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
           <defs>
             <linearGradient id="ae-shape-funnel" x1="0" x2="1" y1="0" y2="0">
               <stop offset="0%" stopColor="var(--hue-sky, #7cc6ff)" stopOpacity="0.18" />

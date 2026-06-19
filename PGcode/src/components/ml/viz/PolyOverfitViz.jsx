@@ -276,6 +276,12 @@ export default function PolyOverfitViz() {
 
   const currentPath = useMemo(() => curvePath(current.w), [current.w]);
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lineTransition = reducedMotion ? 'none' : 'd 220ms ease';
+
   const newNoise = useCallback(() => {
     setSeed((s) => ((s * 1103515245 + 12345) >>> 0) || 1);
   }, []);
@@ -342,6 +348,21 @@ export default function PolyOverfitViz() {
             <clipPath id="po-err-clip">
               <rect x={R_OFFSET_X + R_PAD_L} y={R_PAD_T} width={R_PLOT_W} height={R_PLOT_H} />
             </clipPath>
+            <linearGradient id="po-fit-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <linearGradient id="po-train-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-mint)" />
+            </linearGradient>
+            <linearGradient id="po-val-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--warning)" />
+              <stop offset="100%" stopColor="var(--hue-pink)" />
+            </linearGradient>
+            <filter id="po-line-glow" x="-10%" y="-40%" width="120%" height="180%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
           </defs>
 
           {/* ---------- LEFT PANEL — fit ---------- */}
@@ -440,10 +461,23 @@ export default function PolyOverfitViz() {
             <path
               d={currentPath}
               fill="none"
-              stroke="var(--accent)"
+              stroke="url(#po-fit-grad)"
+              strokeWidth="4.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="url(#po-line-glow)"
+              opacity="0.5"
+              style={{ transition: lineTransition }}
+            />
+            <path
+              d={currentPath}
+              fill="none"
+              stroke="url(#po-fit-grad)"
               strokeWidth="2.2"
-              opacity="0.95"
-              style={{ transition: 'd 220ms ease' }}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.98"
+              style={{ transition: lineTransition }}
             />
           </g>
 
@@ -604,20 +638,64 @@ export default function PolyOverfitViz() {
             <path
               d={trainPath}
               fill="none"
-              stroke="var(--accent)"
-              strokeWidth="1.8"
-              opacity="0.95"
+              stroke="url(#po-train-grad)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="url(#po-line-glow)"
+              opacity="0.4"
             />
             <path
               d={valPath}
               fill="none"
-              stroke="var(--warning, var(--hue-pink))"
+              stroke="url(#po-val-grad)"
+              strokeWidth="4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              filter="url(#po-line-glow)"
+              opacity="0.4"
+            />
+            <path
+              d={trainPath}
+              fill="none"
+              stroke="url(#po-train-grad)"
               strokeWidth="1.8"
-              opacity="0.95"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.98"
+            />
+            <path
+              d={valPath}
+              fill="none"
+              stroke="url(#po-val-grad)"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity="0.98"
             />
             {/* Points on each curve */}
             {errCurve.map((e) => (
               <g key={`pt-${e.d}`}>
+                {e.d === degree && (
+                  <>
+                    <circle
+                      cx={rxToPx(e.d)}
+                      cy={ryToPx(e.tr)}
+                      r="6.5"
+                      fill="var(--accent)"
+                      opacity="0.3"
+                      filter="url(#po-line-glow)"
+                    />
+                    <circle
+                      cx={rxToPx(e.d)}
+                      cy={ryToPx(e.va)}
+                      r="6.5"
+                      fill="var(--warning)"
+                      opacity="0.3"
+                      filter="url(#po-line-glow)"
+                    />
+                  </>
+                )}
                 <circle
                   cx={rxToPx(e.d)}
                   cy={ryToPx(e.tr)}

@@ -1,0 +1,323 @@
+.bpv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.bpv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.bpv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.bpv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.bpv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.bpv-parts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.bpv-part {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.bpv-part:hover:not(:disabled) {
+  background: var(--hover-box);
+  transform: translateY(-1px);
+}
+.bpv-part:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bpv-spacer {
+  flex: 1 1 auto;
+}
+
+.bpv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.bpv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.bpv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.bpv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.bpv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.bpv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.bpv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.bpv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.bpv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.bpv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.bpv-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+.bpv-row-label.is-anti {
+  fill: var(--warning);
+}
+
+.bpv-pill {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+.bpv-pill.is-root {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.bpv-pill.is-call {
+  fill: rgba(var(--accent-rgb), 0.06);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+.bpv-pill.is-build {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--easy);
+  stroke-width: 2;
+}
+
+.bpv-pill-text {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.bpv-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: stroke 0.2s;
+}
+.bpv-box.is-mutable {
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+.bpv-box.is-spent {
+  opacity: 0.6;
+}
+.bpv-box.is-pending {
+  stroke-dasharray: 5 4;
+}
+.bpv-box.is-frozen {
+  fill: rgba(var(--accent-rgb), 0.06);
+  stroke-width: 2.4;
+}
+
+.bpv-box-title {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: start;
+  letter-spacing: 0.03em;
+}
+.bpv-box-title.is-frozen {
+  fill: var(--easy);
+}
+
+.bpv-box-brace {
+  font-family: var(--mono);
+  font-size: 13px;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+.bpv-box-brace.is-frozen {
+  fill: var(--easy);
+}
+
+.bpv-box-field {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+.bpv-box-field.is-frozen {
+  fill: var(--text-main);
+}
+
+.bpv-box-empty {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  opacity: 0.7;
+}
+
+.bpv-lock-badge {
+  fill: rgba(var(--accent-rgb), 0.14);
+  stroke: var(--easy);
+  stroke-width: 1.6;
+}
+.bpv-lock-icon {
+  color: var(--easy);
+}
+
+.bpv-tele {
+  font-family: var(--mono);
+  font-size: 12.5px;
+  fill: var(--warning);
+  text-anchor: start;
+}
+
+.bpv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.bpv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.bpv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.bpv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.bpv-metric-value.is-frozen { color: var(--easy); }
+.bpv-metric-value.is-mint { color: var(--hue-mint); }
+.bpv-metric-value.is-anti { color: var(--warning); }
+.bpv-metric-value.is-chain { font-size: 0.74rem; }
+
+.bpv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.bpv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.bpv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bpv-part,
+  .bpv-btn,
+  .bpv-box {
+    transition: none;
+  }
+}

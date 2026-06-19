@@ -377,6 +377,20 @@ export default function MCMCViz() {
           </div>
 
           <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide">
+            <defs>
+              <linearGradient id="mcmc-trail-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="var(--hue-mint)" />
+                <stop offset="100%" stopColor="var(--easy, #2ecc71)" />
+              </linearGradient>
+              <filter id="mcmc-trail-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2.4" />
+              </filter>
+              <radialGradient id="mcmc-head-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="var(--easy, #2ecc71)" stopOpacity="0.5" />
+                <stop offset="100%" stopColor="var(--easy, #2ecc71)" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+
             {/* target heatmap */}
             <HeatGrid values={TARGET_GRID.grid} maxV={TARGET_GRID.maxD} cellPx={cellPx} opacityScale={0.9} colorVar="var(--accent-rgb, 102, 153, 255)" />
 
@@ -390,9 +404,12 @@ export default function MCMCViz() {
 
             <Axes yAxisBase={yAxisBase} xRight={xRight} label="x" />
 
-            {/* chain trail */}
+            {/* chain trail (glowing gradient) */}
             {trailPath && (
-              <path d={trailPath} fill="none" stroke="var(--easy, #2ecc71)" strokeWidth="1.2" strokeLinejoin="round" strokeLinecap="round" opacity="0.55" />
+              <>
+                <path d={trailPath} fill="none" stroke="url(#mcmc-trail-grad)" strokeWidth="2.6" strokeLinejoin="round" strokeLinecap="round" filter="url(#mcmc-trail-glow)" opacity="0.4" />
+                <path d={trailPath} fill="none" stroke="url(#mcmc-trail-grad)" strokeWidth="1.2" strokeLinejoin="round" strokeLinecap="round" opacity="0.7" />
+              </>
             )}
             {trail.length > 0 && trail.slice(-30).map((p, i, arr) => {
               const fade = 0.25 + 0.65 * (i / Math.max(1, arr.length - 1));
@@ -407,6 +424,11 @@ export default function MCMCViz() {
                 />
               );
             })}
+
+            {/* glow halo on the active chain head */}
+            {headPx && (
+              <circle cx={headPx.x} cy={headPx.y} r="12" fill="url(#mcmc-head-glow)" pointerEvents="none" />
+            )}
 
             {/* proposal blob at the current chain head */}
             {headPx && (
@@ -518,7 +540,7 @@ export default function MCMCViz() {
 
             {/* legend */}
             <g transform={`translate(${PAD_L + 6}, ${PAD_T + 4})`}>
-              <rect x={0} y={2} width={10} height={8} fill="rgba(46, 204, 113, 0.65)" />
+              <rect x={0} y={2} width={10} height={8} fill="color-mix(in srgb, var(--hue-mint) 65%, transparent)" />
               <text x={14} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">samples</text>
               <circle cx={68} cy={6} r={3} fill="none" stroke="var(--accent)" strokeWidth="1.2" />
               <text x={75} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">mode μ</text>
@@ -589,12 +611,22 @@ export default function MCMCViz() {
           </button>
         </div>
 
-        <div className="mlviz-row mlviz-row-hi" style={{ marginTop: 4 }}>
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>accept rate</span>
-          <span className="mlviz-val">{proposed > 0 ? snap(acceptRate, 3) : '—'}</span>
-          <span className="mlviz-sub">
-            {proposed > 0 ? `${accepted} / ${proposed} proposals accepted` : 'no proposals yet'}
-          </span>
+        <div className="mlviz-statrow" style={{ marginTop: 8 }}>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">accept rate</span>
+            <span className="mlviz-statcard-val">{proposed > 0 ? snap(acceptRate, 3) : '—'}</span>
+            <span className="mlviz-statcard-sub">
+              {proposed > 0 ? `${accepted} / ${proposed} accepted` : 'no proposals yet'}
+            </span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-mint">
+            <span className="mlviz-statcard-label">kept samples</span>
+            <span className="mlviz-statcard-val">{samples.length}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">steps</span>
+            <span className="mlviz-statcard-val">{proposed}</span>
+          </div>
         </div>
 
         <div className="mlviz-hint">
