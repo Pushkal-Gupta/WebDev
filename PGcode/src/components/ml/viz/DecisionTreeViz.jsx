@@ -329,11 +329,10 @@ const CLASS_COLORS = [
   'var(--hue-mint, #7be3b1)',
 ];
 
-// Translucent fill via rgba — fall back when var() can't be used inline.
 const CLASS_FILLS = [
-  'rgba(94, 203, 255, 0.18)',
-  'rgba(255, 102, 204, 0.16)',
-  'rgba(123, 227, 177, 0.18)',
+  'color-mix(in srgb, var(--hue-sky) 18%, transparent)',
+  'color-mix(in srgb, var(--hue-pink) 16%, transparent)',
+  'color-mix(in srgb, var(--hue-mint) 18%, transparent)',
 ];
 
 // --- Component ------------------------------------------------------------
@@ -425,6 +424,19 @@ export default function DecisionTreeViz() {
           className="mlviz-svg"
           style={{ maxWidth: 880, aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
         >
+          <defs>
+            <linearGradient id="dtv-split-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="dtv-split-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+            <filter id="dtv-node-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+          </defs>
+
           {/* === Plot area === */}
           <rect
             x={PLOT_X0} y={PLOT_Y0} width={PLOT_W} height={PLOT_H}
@@ -449,19 +461,32 @@ export default function DecisionTreeViz() {
 
           {plotGrid}
 
-          {/* Split lines: drawn within each split's box (not edge-to-edge) */}
+          {/* Split lines: drawn within each split's box (not edge-to-edge).
+              The root split (depth 0) is the dominant boundary — drawn with a
+              gradient stroke + soft glow; deeper splits stay dashed + faded. */}
           {splits.map((s, i) => {
             const opacity = Math.max(0.45, 1 - s.depth * 0.18);
+            const isRoot = s.depth === 0;
+            const stroke = isRoot ? 'url(#dtv-split-grad)' : 'var(--accent)';
             if (s.feature === 0) {
               const { sx } = toScreen(s.threshold, 0);
               const { sy: y1 } = toScreen(0, s.y1);
               const { sy: y2 } = toScreen(0, s.y0);
               return (
                 <g key={`sp${i}`}>
+                  {isRoot && (
+                    <line
+                      x1={sx} y1={y1} x2={sx} y2={y2}
+                      stroke="url(#dtv-split-grad)" strokeWidth="5"
+                      strokeLinecap="round" opacity="0.5"
+                      filter="url(#dtv-split-glow)"
+                    />
+                  )}
                   <line
                     x1={sx} y1={y1} x2={sx} y2={y2}
-                    stroke="var(--accent)" strokeWidth="1.6"
-                    strokeDasharray={s.depth === 0 ? 'none' : '5 4'}
+                    stroke={stroke} strokeWidth={isRoot ? 2.4 : 1.6}
+                    strokeLinecap="round"
+                    strokeDasharray={isRoot ? 'none' : '5 4'}
                     opacity={opacity}
                   />
                   <text
@@ -477,10 +502,19 @@ export default function DecisionTreeViz() {
             const { sx: x2 } = toScreen(s.x1, 0);
             return (
               <g key={`sp${i}`}>
+                {isRoot && (
+                  <line
+                    x1={x1} y1={sy} x2={x2} y2={sy}
+                    stroke="url(#dtv-split-grad)" strokeWidth="5"
+                    strokeLinecap="round" opacity="0.5"
+                    filter="url(#dtv-split-glow)"
+                  />
+                )}
                 <line
                   x1={x1} y1={sy} x2={x2} y2={sy}
-                  stroke="var(--accent)" strokeWidth="1.6"
-                  strokeDasharray={s.depth === 0 ? 'none' : '5 4'}
+                  stroke={stroke} strokeWidth={isRoot ? 2.4 : 1.6}
+                  strokeLinecap="round"
+                  strokeDasharray={isRoot ? 'none' : '5 4'}
                   opacity={opacity}
                 />
                 <text
@@ -579,14 +613,26 @@ export default function DecisionTreeViz() {
             fontFamily="var(--mono, monospace)"
           >tree</text>
 
-          {/* Tree edges */}
+          {/* Tree edges — root's two outgoing edges carry the gradient accent */}
           {layout.edges.map((e, i) => {
             const midY = (e.y1 + e.y2) / 2;
+            const fromRoot = e.y1 === layout.placed[0].y;
+            const path = `M${e.x1} ${e.y1 + 12} C ${e.x1} ${midY}, ${e.x2} ${midY}, ${e.x2} ${e.y2 - 14}`;
             return (
               <g key={`ed${i}`}>
+                {fromRoot && (
+                  <path
+                    d={path}
+                    stroke="url(#dtv-split-grad)" strokeWidth="3.5"
+                    fill="none" opacity="0.35" strokeLinecap="round"
+                    filter="url(#dtv-split-glow)"
+                  />
+                )}
                 <path
-                  d={`M${e.x1} ${e.y1 + 12} C ${e.x1} ${midY}, ${e.x2} ${midY}, ${e.x2} ${e.y2 - 14}`}
-                  stroke="var(--border)" strokeWidth="1" fill="none"
+                  d={path}
+                  stroke={fromRoot ? 'url(#dtv-split-grad)' : 'var(--border)'}
+                  strokeWidth={fromRoot ? 1.6 : 1}
+                  fill="none"
                 />
                 <text
                   x={(e.x1 + e.x2) / 2}
@@ -610,8 +656,17 @@ export default function DecisionTreeViz() {
             const stroke = isLeaf
               ? CLASS_COLORS[node.prediction]
               : 'var(--accent)';
+            const haloColor = isLeaf ? CLASS_COLORS[node.prediction] : 'var(--accent)';
             return (
               <g key={`nd${node.id}`}>
+                <rect
+                  x={x - w / 2 - 3} y={y - 3}
+                  width={w + 6} height={h + 6}
+                  rx="7"
+                  fill={haloColor}
+                  opacity={isLeaf ? 0.22 : 0.18}
+                  filter="url(#dtv-node-glow)"
+                />
                 <rect
                   x={x - w / 2} y={y}
                   width={w} height={h}
@@ -674,14 +729,37 @@ export default function DecisionTreeViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>CART</span>
-          <span className="mlviz-val">depth {stats.depth}/{maxDepth}</span>
-          <span className="mlviz-sub">leaves {stats.leafCount}</span>
-          <span className="mlviz-sub">nodes {stats.nodes}</span>
-          <span className="mlviz-sub">train acc {snap(acc * 100, 1)}%</span>
-          <span className="mlviz-sub">root gini {snap(tree.gini, 3)}</span>
-          <span className="mlviz-sub">seed {seed}</span>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(96px, 1fr))',
+            gap: '0.4rem',
+          }}
+        >
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">depth</span>
+            <span className="mlviz-statcard-val">{stats.depth}/{maxDepth}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">leaves</span>
+            <span className="mlviz-statcard-val">{stats.leafCount}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">nodes</span>
+            <span className="mlviz-statcard-val">{stats.nodes}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-mint">
+            <span className="mlviz-statcard-label">train acc</span>
+            <span className="mlviz-statcard-val">{snap(acc * 100, 1)}%</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-pink">
+            <span className="mlviz-statcard-label">root gini</span>
+            <span className="mlviz-statcard-val">{snap(tree.gini, 3)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">seed</span>
+            <span className="mlviz-statcard-val" style={{ fontSize: '0.85rem' }}>{seed}</span>
+          </div>
         </div>
 
         {splits.length > 0 && (

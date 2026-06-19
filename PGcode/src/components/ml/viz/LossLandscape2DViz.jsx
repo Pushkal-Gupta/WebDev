@@ -298,7 +298,7 @@ export default function LossLandscape2DViz() {
             );
           })}
 
-          {/* global minimum marker (1, 1) */}
+          {/* marker for the global minimum at (1, 1) */}
           <g>
             <circle cx={mapX(1)} cy={mapY(1)} r={5.5} fill="none" stroke="var(--accent)" strokeWidth="1.4" />
             <circle cx={mapX(1)} cy={mapY(1)} r={2.2} fill="var(--accent)" />

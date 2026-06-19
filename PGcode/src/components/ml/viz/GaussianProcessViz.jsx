@@ -340,6 +340,24 @@ export default function GaussianProcessViz() {
           onClick={handleSvgClick}
           style={{ cursor: 'crosshair' }}
         >
+          <defs>
+            <linearGradient id="gpv-mean-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <linearGradient id="gpv-band-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.05" />
+              <stop offset="50%" stopColor="var(--accent)" stopOpacity="0.22" />
+              <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.05" />
+            </linearGradient>
+            <filter id="gpv-mean-glow" x="-10%" y="-40%" width="120%" height="180%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
+            <filter id="gpv-point-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2" />
+            </filter>
+          </defs>
+
           {/* plot frame */}
           <rect
             x={PAD_L}
@@ -380,8 +398,7 @@ export default function GaussianProcessViz() {
           {bandPath && (
             <path
               d={bandPath}
-              fill="var(--accent)"
-              opacity="0.16"
+              fill="url(#gpv-band-grad)"
               stroke="none"
             />
           )}
@@ -393,19 +410,29 @@ export default function GaussianProcessViz() {
               d={buildLinePath(gridXs, ys)}
               fill="none"
               stroke={sampleColors[i % sampleColors.length]}
-              strokeWidth="1.2"
+              strokeWidth="1.4"
               strokeLinejoin="round"
               strokeLinecap="round"
-              opacity="0.75"
+              opacity="0.8"
               strokeDasharray="3 2"
             />
           ))}
 
-          {/* mean curve */}
+          {/* mean curve — soft glow under, gradient stroke over */}
           <path
             d={meanPath}
             fill="none"
-            stroke="var(--accent)"
+            stroke="url(#gpv-mean-grad)"
+            strokeWidth="4"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter="url(#gpv-mean-glow)"
+            opacity="0.55"
+          />
+          <path
+            d={meanPath}
+            fill="none"
+            stroke="url(#gpv-mean-grad)"
             strokeWidth="2"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -513,6 +540,14 @@ export default function GaussianProcessViz() {
               <circle
                 cx={xToPx(p.x)}
                 cy={yToPx(p.y)}
+                r="7"
+                fill="var(--accent)"
+                opacity="0.3"
+                filter="url(#gpv-point-glow)"
+              />
+              <circle
+                cx={xToPx(p.x)}
+                cy={yToPx(p.y)}
                 r="4.5"
                 fill="var(--bg)"
                 stroke="var(--accent)"
@@ -575,11 +610,19 @@ export default function GaussianProcessViz() {
           </label>
         </div>
 
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>GP</span>
-          <span className="mlviz-val">n = {points.length}</span>
-          <span className="mlviz-val">k = RBF</span>
-          <span className="mlviz-sub">k(x,x') = exp(−(x−x')² / 2ℓ²)</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">observations n</span>
+            <span className="mlviz-statcard-val">{points.length}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">kernel</span>
+            <span className="mlviz-statcard-val">RBF</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">k(x,x′)</span>
+            <span className="mlviz-statcard-val">exp(−Δ²/2ℓ²)</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

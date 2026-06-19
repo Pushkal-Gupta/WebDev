@@ -88,30 +88,6 @@ export default function VisionTransformerPatchViz() {
   const cropX = IMG_X + usedW * PIXEL;
   const cropW = (IMG_SIZE - usedW) * PIXEL;
 
-  // Compute average color per patch (averaging hue indices is illustrative)
-  const patches = useMemo(() => {
-    const out = [];
-    for (let py = 0; py < nPatchesPerSide; py++) {
-      for (let px = 0; px < nPatchesPerSide; px++) {
-        const cells = [];
-        let sumHue = 0;
-        let sumAlpha = 0;
-        for (let dy = 0; dy < P; dy++) {
-          for (let dx = 0; dx < P; dx++) {
-            const c = pixels[py * P + dy][px * P + dx];
-            cells.push(c);
-            sumHue += c.hue;
-            sumAlpha += c.alpha;
-          }
-        }
-        const meanHue = Math.round(sumHue / cells.length) % HUE_TOKENS.length;
-        const meanAlpha = sumAlpha / cells.length;
-        out.push({ py, px, cells, meanHue, meanAlpha });
-      }
-    }
-    return out;
-  }, [pixels, nPatchesPerSide, P]);
-
   // Token chip layout in sequence panel
   const tokenH = 30;
   const tokenGap = 6;

@@ -346,6 +346,16 @@ export default function BeamSearchViz() {
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.04" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </linearGradient>
+            <linearGradient id="bs-greedy-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--hue-mint)" />
+              <stop offset="100%" stopColor="var(--easy)" />
+            </linearGradient>
+            <filter id="bs-edge-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+            <filter id="bs-node-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
           </defs>
 
           {/* Background panel */}
@@ -416,7 +426,21 @@ export default function BeamSearchViz() {
             );
           })}
 
-          {/* Greedy edges */}
+          {/* Greedy edges — glow underlay + gradient stroke */}
+          {greedyEdges.map((e) => (
+            <line
+              key={`${e.id}-glow`}
+              x1={e.x1}
+              y1={e.y1}
+              x2={e.x2}
+              y2={e.y2}
+              stroke="var(--easy)"
+              strokeWidth="5"
+              opacity="0.4"
+              strokeLinecap="round"
+              filter="url(#bs-edge-glow)"
+            />
+          ))}
           {greedyEdges.map((e) => (
             <line
               key={e.id}
@@ -424,18 +448,36 @@ export default function BeamSearchViz() {
               y1={e.y1}
               x2={e.x2}
               y2={e.y2}
-              stroke="var(--easy, #2ecc71)"
-              strokeWidth="2.2"
-              opacity="0.85"
+              stroke="url(#bs-greedy-grad)"
+              strokeWidth="2.4"
+              opacity="0.95"
               strokeLinecap="round"
             />
           ))}
 
-          {/* Beam edges — pruned shown faded, kept shown in beam color */}
+          {/* Beam edges — kept beams get a soft glow underlay, pruned stay faint */}
+          {edges.map((e) => {
+            if (!(e.kept && e.parentKept)) return null;
+            const color = BEAM_COLORS[e.beamIdx % BEAM_COLORS.length];
+            return (
+              <line
+                key={`${e.id}-glow`}
+                x1={e.x1}
+                y1={e.y1}
+                x2={e.x2}
+                y2={e.y2}
+                stroke={color}
+                strokeWidth="4.5"
+                opacity="0.32"
+                strokeLinecap="round"
+                filter="url(#bs-edge-glow)"
+              />
+            );
+          })}
           {edges.map((e) => {
             const color = e.kept && e.parentKept ? BEAM_COLORS[e.beamIdx % BEAM_COLORS.length] : 'var(--border)';
             const w = e.kept && e.parentKept ? 1.8 : 0.7;
-            const op = e.kept && e.parentKept ? 0.9 : 0.32;
+            const op = e.kept && e.parentKept ? 0.95 : 0.32;
             return (
               <line
                 key={e.id}
@@ -459,6 +501,16 @@ export default function BeamSearchViz() {
             const isCurrent = i === currentDepth;
             return (
               <g key={`gn${i}`}>
+                {!isRoot && (
+                  <circle
+                    cx={p.x}
+                    cy={p.y}
+                    r={isCurrent ? 15 : 13}
+                    fill="var(--easy)"
+                    opacity={isCurrent ? 0.45 : 0.3}
+                    filter="url(#bs-node-glow)"
+                  />
+                )}
                 <circle
                   cx={p.x}
                   cy={p.y}
@@ -537,6 +589,16 @@ export default function BeamSearchViz() {
                     onMouseLeave={() => setHoverNode((h) => (h === n.id ? null : h))}
                     style={{ cursor: 'pointer' }}
                   >
+                    {n.kept && (
+                      <circle
+                        cx={p.x}
+                        cy={p.y}
+                        r={isBest ? r + 7 : r + 4}
+                        fill={color}
+                        opacity={isBest ? 0.5 : 0.32}
+                        filter="url(#bs-node-glow)"
+                      />
+                    )}
                     <circle
                       cx={p.x}
                       cy={p.y}
@@ -700,24 +762,30 @@ export default function BeamSearchViz() {
           </label>
         </div>
 
-        <div className="mlviz-row mlviz-row-hi" style={{ marginTop: 4 }}>
-          <span className="mlviz-tag" style={{ color: 'var(--easy, #2ecc71)' }}>greedy</span>
-          <span className="mlviz-val" style={{ fontFamily: 'var(--mono)' }}>
-            {greedyAtDepth.length > 1 ? decodeTokens(greedyAtCurrent.tokens) : '—'}
-          </span>
-          <span className="mlviz-sub">
-            log p = {greedyAtDepth.length > 1 ? fmtLogp(greedyAtCurrent.logp) : '—'}
-          </span>
-        </div>
-
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>beam best</span>
-          <span className="mlviz-val" style={{ fontFamily: 'var(--mono)' }}>
-            {bestBeam ? decodeTokens(bestBeam.tokens) : '—'}
-          </span>
-          <span className="mlviz-sub">
-            log p = {bestBeam ? fmtLogp(bestBeam.logp) : '—'}
-          </span>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+            gap: '0.5rem',
+            marginTop: 4,
+          }}
+        >
+          <div className="mlviz-statcard mlviz-statcard-mint">
+            <span className="mlviz-statcard-label">
+              greedy · log p = {greedyAtDepth.length > 1 ? fmtLogp(greedyAtCurrent.logp) : '—'}
+            </span>
+            <span className="mlviz-statcard-val" style={{ fontSize: '0.92rem' }}>
+              {greedyAtDepth.length > 1 ? decodeTokens(greedyAtCurrent.tokens) : '—'}
+            </span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">
+              beam best · log p = {bestBeam ? fmtLogp(bestBeam.logp) : '—'}
+            </span>
+            <span className="mlviz-statcard-val" style={{ fontSize: '0.92rem' }}>
+              {bestBeam ? decodeTokens(bestBeam.tokens) : '—'}
+            </span>
+          </div>
         </div>
 
         {/* All kept beams at current depth — laid out as colored chip rows. */}

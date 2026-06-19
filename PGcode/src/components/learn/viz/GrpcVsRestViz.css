@@ -1,0 +1,49 @@
+.gvr {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  font-family: var(--mono);
+}
+.gvr-head { display: flex; flex-direction: column; gap: 0.25rem; }
+.gvr-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.gvr-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.45; margin: 0; }
+
+.gvr-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.gvr-modes { display: flex; gap: 0.4rem; }
+.gvr-input-label { font-size: 0.72rem; color: var(--text-dim); }
+.gvr-slider { display: flex; align-items: center; gap: 0.5rem; }
+.gvr-range { accent-color: var(--accent); }
+.gvr-slider-val { font-size: 0.74rem; font-weight: 600; color: var(--accent); min-width: 2.5rem; }
+
+.gvr-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.6rem; }
+.gvr-svg { width: 100%; height: auto; display: block; }
+.gvr-head-grpc, .gvr-head-rest, .gvr-side-label { font-size: 0.72rem; font-weight: 700; }
+.gvr-head-grpc { fill: var(--hue-violet); }
+.gvr-head-rest { fill: var(--hue-sky); }
+.gvr-side-label { fill: var(--text-dim); }
+.gvr-node { fill: var(--bg); stroke: var(--border); }
+.gvr-node-label { fill: var(--text-main); font-size: 0.68rem; }
+.gvr-conn { stroke: var(--accent); }
+.gvr-conn-tag { fill: var(--text-dim); font-size: 0.62rem; }
+.gvr-flow { fill: var(--accent); }
+.gvr-frame { fill: rgba(var(--accent-rgb), 0.12); stroke: var(--accent); }
+.gvr-frame-idx { fill: var(--text-dim); font-size: 0.6rem; }
+.gvr-frame-tag { fill: var(--text-main); font-size: 0.62rem; }
+
+.gvr-payloads { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+.gvr-payload { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.gvr-payload-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.gvr-payload-body { font-size: 0.72rem; color: var(--text-main); line-height: 1.4; word-break: break-word; }
+.gvr-payload-note { font-size: 0.66rem; color: var(--text-dim); }
+.gvr-divider { height: 1px; background: var(--border); border: none; margin: 0.2rem 0; }
+
+.gvr-metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.6rem; }
+.gvr-metric { border: 1px solid var(--border); border-radius: 9px; background: var(--surface); padding: 0.6rem 0.7rem; display: flex; flex-direction: column; gap: 0.2rem; }
+.gvr-metric-label { font-size: 0.64rem; color: var(--text-dim); }
+.gvr-metric-value { font-size: 0.95rem; font-weight: 700; color: var(--text-main); }
+
+.gvr-narration { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px; background: var(--surface); padding: 0.7rem 0.85rem; }
+.gvr-narration-label { font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); display: block; margin-bottom: 0.25rem; }
+.gvr-narration-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .gvr-payloads { grid-template-columns: 1fr; } }

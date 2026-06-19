@@ -325,8 +325,14 @@ export default function ConfusionMatrixViz() {
           <svg
             viewBox={`0 0 ${MW} ${MH}`}
             className="mlviz-svg"
+            preserveAspectRatio="xMidYMid meet"
             style={{ maxWidth: '420px' }}
           >
+            <defs>
+              <filter id="cmatrix-cell-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="4" />
+              </filter>
+            </defs>
             {/* Outer title bars */}
             <text
               x={MPAD_L + CELL_W}
@@ -405,7 +411,19 @@ export default function ConfusionMatrixViz() {
               const dim = isDimmed(c.key);
               const hi = isHighlighted(c.key);
               return (
-                <g key={c.key} opacity={dim ? 0.35 : 1}>
+                <g key={c.key} opacity={dim ? 0.35 : 1} style={{ transition: 'opacity 0.25s ease' }}>
+                  {hi && (
+                    <rect
+                      x={x + 2}
+                      y={y + 2}
+                      width={CELL_W - 4}
+                      height={CELL_H - 4}
+                      fill={c.color}
+                      opacity={0.55}
+                      filter="url(#cmatrix-cell-glow)"
+                      rx="6"
+                    />
+                  )}
                   <rect
                     x={x + 2}
                     y={y + 2}
@@ -416,6 +434,7 @@ export default function ConfusionMatrixViz() {
                     stroke={hi ? 'var(--accent)' : 'var(--border)'}
                     strokeWidth={hi ? 2.2 : 1}
                     rx="6"
+                    style={{ transition: 'opacity 0.25s ease' }}
                   />
                   <text
                     x={x + CELL_W / 2}
@@ -502,8 +521,21 @@ export default function ConfusionMatrixViz() {
           <svg
             viewBox={`0 0 ${RW} ${RH}`}
             className="mlviz-svg"
+            preserveAspectRatio="xMidYMid meet"
             style={{ maxWidth: '360px' }}
           >
+            <defs>
+              <linearGradient id="cmatrix-roc-grad" x1="0" y1="1" x2="1" y2="0">
+                <stop offset="0%" stopColor="var(--accent)" />
+                <stop offset="100%" stopColor="var(--hue-violet)" />
+              </linearGradient>
+              <filter id="cmatrix-roc-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="3" />
+              </filter>
+              <filter id="cmatrix-roc-marker-glow" x="-120%" y="-120%" width="340%" height="340%">
+                <feGaussianBlur stdDeviation="3" />
+              </filter>
+            </defs>
             <rect
               x={RPAD}
               y={RPAD}
@@ -612,7 +644,17 @@ export default function ConfusionMatrixViz() {
             <path
               d={rocPath}
               fill="none"
-              stroke="var(--accent)"
+              stroke="url(#cmatrix-roc-grad)"
+              strokeWidth="4.5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              filter="url(#cmatrix-roc-glow)"
+              opacity="0.5"
+            />
+            <path
+              d={rocPath}
+              fill="none"
+              stroke="url(#cmatrix-roc-grad)"
               strokeWidth="2.2"
               strokeLinejoin="round"
               strokeLinecap="round"
@@ -643,9 +685,10 @@ export default function ConfusionMatrixViz() {
                 <circle
                   cx={rocToScreen(currentRoc.fpr, currentRoc.tpr).sx}
                   cy={rocToScreen(currentRoc.fpr, currentRoc.tpr).sy}
-                  r="9"
+                  r="10"
                   fill="var(--accent)"
-                  opacity="0.25"
+                  opacity="0.3"
+                  filter="url(#cmatrix-roc-marker-glow)"
                 />
                 <circle
                   cx={rocToScreen(currentRoc.fpr, currentRoc.tpr).sx}

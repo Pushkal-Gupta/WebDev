@@ -388,11 +388,58 @@ export default function GCNViz() {
 
   const done = layer >= K_LAYERS;
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const glowTransition = reducedMotion ? 'none' : 'opacity 0.25s ease';
+
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxWidth: 460 }}>
-          {/* Edges first so they sit behind nodes. */}
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxWidth: 560 }}>
+          <defs>
+            <linearGradient id="gcn-edge-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet, #c39bff)" />
+            </linearGradient>
+            <filter id="gcn-edge-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.4" />
+            </filter>
+            <filter id="gcn-node-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="5" />
+            </filter>
+            <filter id="gcn-ring-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+          </defs>
+
+          {/* Soft glow under incident/active edges (decoration, behind everything). */}
+          {graph.edges.map(({ a, b }, i) => {
+            const incident =
+              focusNode >= 0 && (a === focusNode || b === focusNode);
+            if (!incident) return null;
+            const na = graph.nodes[a];
+            const nb = graph.nodes[b];
+            return (
+              <line
+                key={`eg${i}`}
+                x1={na.x}
+                y1={na.y}
+                x2={nb.x}
+                y2={nb.y}
+                stroke="url(#gcn-edge-grad)"
+                strokeWidth={4.5}
+                strokeLinecap="round"
+                filter="url(#gcn-edge-glow)"
+                opacity={0.5}
+                pointerEvents="none"
+                style={{ transition: glowTransition }}
+              />
+            );
+          })}
+
+          {/* Edges so they sit behind nodes. */}
           {graph.edges.map(({ a, b }, i) => {
             const na = graph.nodes[a];
             const nb = graph.nodes[b];
@@ -405,7 +452,7 @@ export default function GCNViz() {
                 y1={na.y}
                 x2={nb.x}
                 y2={nb.y}
-                stroke={incident ? 'var(--accent)' : 'var(--border)'}
+                stroke={incident ? 'url(#gcn-edge-grad)' : 'var(--border)'}
                 strokeWidth={incident ? 1.8 : 0.9}
                 opacity={incident ? 0.95 : 0.55}
                 style={{ transition: 'stroke 0.25s ease, opacity 0.25s ease' }}
@@ -413,18 +460,52 @@ export default function GCNViz() {
             );
           })}
 
-          {/* Aggregation ring around focused node + neighbor highlight glow. */}
+          {/* Neighbor halos (violet) + focus halo (accent), behind node circles. */}
+          {focusNode >= 0 && graph.nodes.map((n, i) => {
+            const isFocus = i === focusNode;
+            const isNbr = focusNbrs.has(i) && !isFocus;
+            if (!isFocus && !isNbr) return null;
+            return (
+              <circle
+                key={`halo${i}`}
+                cx={n.x}
+                cy={n.y}
+                r={NODE_R + (isFocus ? 5 : 2)}
+                fill={isFocus ? 'var(--accent)' : 'var(--hue-violet, #c39bff)'}
+                filter="url(#gcn-node-glow)"
+                opacity={isFocus ? 0.45 : 0.28}
+                pointerEvents="none"
+                style={{ transition: glowTransition }}
+              />
+            );
+          })}
+
+          {/* Aggregation ring around focused node + gentle glow. */}
           {focusNode >= 0 && (
-            <circle
-              cx={graph.nodes[focusNode].x}
-              cy={graph.nodes[focusNode].y}
-              r={NODE_R + 9}
-              fill="none"
-              stroke="var(--accent)"
-              strokeWidth={1.2}
-              strokeDasharray="3 3"
-              opacity={0.8}
-            />
+            <g pointerEvents="none">
+              <circle
+                cx={graph.nodes[focusNode].x}
+                cy={graph.nodes[focusNode].y}
+                r={NODE_R + 9}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth={1.6}
+                strokeDasharray="3 3"
+                filter="url(#gcn-ring-glow)"
+                opacity={0.5}
+                style={{ transition: glowTransition }}
+              />
+              <circle
+                cx={graph.nodes[focusNode].x}
+                cy={graph.nodes[focusNode].y}
+                r={NODE_R + 9}
+                fill="none"
+                stroke="var(--accent)"
+                strokeWidth={1.2}
+                strokeDasharray="3 3"
+                opacity={0.8}
+              />
+            </g>
           )}
 
           {/* Nodes with feature bars. */}

@@ -66,17 +66,14 @@ function buildFrames() {
     let stackRefs = [];
     let cur = root;
     let parent = null;
-    let dir = null;
     while (cur) {
       path.push(cur.key);
       parent = cur;
       stackRefs.push({ ref: parent, dir: key < cur.key ? 'L' : 'R' });
       if (key < cur.key) {
         cur = cur.left;
-        dir = 'L';
       } else {
         cur = cur.right;
-        dir = 'R';
       }
     }
 

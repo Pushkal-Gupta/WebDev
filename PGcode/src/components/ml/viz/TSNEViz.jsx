@@ -469,6 +469,14 @@ export default function TSNEViz() {
 
   const sep = useMemo(() => separationScore(Y, labels), [Y, labels]);
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const pointTransition = reducedMotion
+    ? 'none'
+    : 'cx 0.08s linear, cy 0.08s linear, opacity 0.2s ease';
+
   const phaseLabel = (() => {
     if (running) return 'optimizing';
     if (iter === 0) return 'random init';
@@ -481,22 +489,37 @@ export default function TSNEViz() {
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+          <defs>
+            <filter id="tsne-point-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+          </defs>
           <Grid />
           {Y.map((p, i) => {
             const [sx, sy] = toPx(p);
             const col = CLUSTER_COLORS[labels[i] % CLUSTER_COLORS.length];
             return (
-              <circle
-                key={`p${i}`}
-                cx={sx}
-                cy={sy}
-                r={4}
-                fill={col}
-                opacity={0.85}
-                stroke="var(--bg)"
-                strokeWidth="0.6"
-                style={{ transition: 'cx 0.08s linear, cy 0.08s linear' }}
-              />
+              <g key={`p${i}`} style={{ transition: pointTransition }}>
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r={6.5}
+                  fill={col}
+                  opacity={running ? 0.4 : 0.28}
+                  filter="url(#tsne-point-glow)"
+                  style={{ transition: pointTransition }}
+                />
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r={4}
+                  fill={col}
+                  opacity={0.92}
+                  stroke="var(--bg)"
+                  strokeWidth="0.6"
+                  style={{ transition: pointTransition }}
+                />
+              </g>
             );
           })}
           <text

@@ -141,7 +141,7 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
           confused when "PGcode 200" used to actually return 263 problems. */}
       <div className="sp-dropdown-wrap">
         <button className="sp-dropdown-btn" onClick={() => setDropdownOpen(!dropdownOpen)}>
-          {roadmapMode === 'all' ? 'PGcode All' : `PGcode ${roadmapMode}`}
+          {roadmapMode === 'all' ? 'PG Path All' : `PG Path ${roadmapMode}`}
           <span style={{ marginLeft: '0.4rem', opacity: 0.6, fontSize: '0.7em' }}>
             {modeCounts[roadmapMode] || 0}
           </span>
@@ -155,7 +155,7 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
                 className={`sp-dropdown-item ${roadmapMode === mode ? 'active' : ''}`}
                 onClick={() => { setRoadmapMode(mode); setDropdownOpen(false); }}
               >
-                {mode === 'all' ? 'PGcode All' : `PGcode ${mode}`}
+                {mode === 'all' ? 'PG Path All' : `PG Path ${mode}`}
                 <span style={{ marginLeft: 'auto', opacity: 0.5, fontFamily: 'var(--mono)', fontSize: '0.72em' }}>
                   {modeCounts[mode] || 0}
                 </span>

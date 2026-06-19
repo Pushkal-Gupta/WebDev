@@ -328,13 +328,13 @@ const CLASS_COLORS = [
 ];
 
 const CLASS_FILLS_FAINT = [
-  'rgba(94, 203, 255, 0.10)',
-  'rgba(255, 102, 204, 0.10)',
+  'color-mix(in srgb, var(--hue-sky) 10%, transparent)',
+  'color-mix(in srgb, var(--hue-pink) 10%, transparent)',
 ];
 
 const CLASS_FILLS_STRONG = [
-  'rgba(94, 203, 255, 0.22)',
-  'rgba(255, 102, 204, 0.20)',
+  'color-mix(in srgb, var(--hue-sky) 22%, transparent)',
+  'color-mix(in srgb, var(--hue-pink) 20%, transparent)',
 ];
 
 // --- Component ------------------------------------------------------------
@@ -470,6 +470,15 @@ export default function RandomForestViz() {
           className="mlviz-svg"
           style={{ maxWidth: 960, aspectRatio: `${CANVAS_W} / ${CANVAS_H}` }}
         >
+          <defs>
+            <filter id="rf-cell-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="4" />
+            </filter>
+            <filter id="rf-point-glow" x="-120%" y="-120%" width="340%" height="340%">
+              <feGaussianBlur stdDeviation="1.6" />
+            </filter>
+          </defs>
+
           {/* === Main plot === */}
           <rect
             x={PLOT_X0} y={PLOT_Y0} width={PLOT_W} height={PLOT_H}
@@ -540,26 +549,37 @@ export default function RandomForestViz() {
               : `tree #${selectedTree + 1} only`}
           </text>
 
-          {/* Data points */}
+          {/* Data points — soft glow halo behind each marker */}
           {points.map((p, i) => {
             const { sx, sy } = toScreen(p.x, p.y);
             const color = CLASS_COLORS[p.label];
             if (p.label === 0) {
               return (
-                <circle
-                  key={`pt${i}`}
-                  cx={sx} cy={sy} r="3.6"
-                  fill={color} stroke="var(--bg)" strokeWidth="1"
-                />
+                <g key={`pt${i}`}>
+                  <circle
+                    cx={sx} cy={sy} r="4.6"
+                    fill={color} filter="url(#rf-point-glow)" opacity="0.55"
+                  />
+                  <circle
+                    cx={sx} cy={sy} r="3.6"
+                    fill={color} stroke="var(--bg)" strokeWidth="1"
+                  />
+                </g>
               );
             }
             return (
-              <rect
-                key={`pt${i}`}
-                x={sx - 3.2} y={sy - 3.2}
-                width="6.4" height="6.4"
-                fill={color} stroke="var(--bg)" strokeWidth="1"
-              />
+              <g key={`pt${i}`}>
+                <rect
+                  x={sx - 4.2} y={sy - 4.2}
+                  width="8.4" height="8.4" rx="1.5"
+                  fill={color} filter="url(#rf-point-glow)" opacity="0.55"
+                />
+                <rect
+                  x={sx - 3.2} y={sy - 3.2}
+                  width="6.4" height="6.4"
+                  fill={color} stroke="var(--bg)" strokeWidth="1"
+                />
+              </g>
             );
           })}
 
@@ -617,6 +637,18 @@ export default function RandomForestViz() {
                 style={{ cursor: hasTree ? 'pointer' : 'default' }}
                 onClick={hasTree ? () => handlePreviewClick(tIdx) : undefined}
               >
+                {isSelected && (
+                  <rect
+                    x={slot.x} y={slot.y}
+                    width={CELL_W} height={CELL_H}
+                    rx="4"
+                    fill="none"
+                    stroke="var(--accent)"
+                    strokeWidth="2.4"
+                    filter="url(#rf-cell-glow)"
+                    opacity="0.55"
+                  />
+                )}
                 <rect
                   x={slot.x} y={slot.y}
                   width={CELL_W} height={CELL_H}
@@ -708,16 +740,35 @@ export default function RandomForestViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>RANDOM FOREST</span>
-          <span className="mlviz-val">trees {forest.length}</span>
-          <span className="mlviz-sub">max depth {maxDepth}</span>
-          <span className="mlviz-sub">mtry {mtry}/2</span>
-          <span className="mlviz-sub">bag acc {snap(bagAcc * 100, 1)}%</span>
-          <span className="mlviz-sub">
-            oob err {oob == null ? '—' : `${snap(oob * 100, 1)}%`}
-          </span>
-          <span className="mlviz-sub">seed {seed}</span>
+        <div className="mlviz-statcol">
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">trees</span>
+              <span className="mlviz-statcard-val">{forest.length}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">bag acc</span>
+              <span className="mlviz-statcard-val">{snap(bagAcc * 100, 1)}%</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-pink">
+              <span className="mlviz-statcard-label">oob err</span>
+              <span className="mlviz-statcard-val">{oob == null ? '—' : `${snap(oob * 100, 1)}%`}</span>
+            </div>
+          </div>
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">max depth</span>
+              <span className="mlviz-statcard-val">{maxDepth}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">mtry</span>
+              <span className="mlviz-statcard-val">{mtry}/2</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">seed</span>
+              <span className="mlviz-statcard-val">{seed}</span>
+            </div>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-row-hi mlviz-controls">

@@ -1,19 +1,19 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CalendarPlus, ExternalLink, Radio } from 'lucide-react';
+import { CalendarPlus, CalendarRange } from 'lucide-react';
 import { useExternalContests } from '../../lib/queries';
+import ContestsGalleryGrid from './ContestsGalleryGrid';
 import './Contests.css';
 
 const PLATFORMS = [
   { key: 'leetcode',   label: 'LeetCode',   hue: 'var(--medium)' },
   { key: 'codeforces', label: 'Codeforces', hue: 'var(--hue-sky)' },
-  { key: 'atcoder',    label: 'AtCoder',    hue: 'var(--text-main)' },
+  { key: 'atcoder',    label: 'AtCoder',    hue: 'var(--warning)' },
   { key: 'codechef',   label: 'CodeChef',   hue: 'var(--hue-violet)' },
   { key: 'devpost',    label: 'DevPost',    hue: 'var(--hue-pink)' },
   { key: 'kaggle',     label: 'Kaggle',     hue: 'var(--hue-mint)' },
   { key: 'gsoc',       label: 'GSoC',       hue: 'var(--accent)' },
 ];
 const PLATFORM_HUE = Object.fromEntries(PLATFORMS.map(p => [p.key, p.hue]));
-const PLATFORM_LABEL = Object.fromEntries(PLATFORMS.map(p => [p.key, p.label]));
 const DAY_MS = 86_400_000;
 
 function phaseOf(c, now) {
@@ -37,68 +37,8 @@ function fmtCountdown(ms) {
   return `${sec}s`;
 }
 
-function fmtDate(iso) {
-  return new Date(iso).toLocaleString(undefined, {
-    weekday: 'short', month: 'short', day: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
-}
-
-function fmtDuration(min) {
-  if (min >= 1440) {
-    const d = Math.round(min / 1440);
-    return `${d}d`;
-  }
-  if (min >= 60) {
-    const h = Math.floor(min / 60);
-    const m = min % 60;
-    return m ? `${h}h ${m}m` : `${h}h`;
-  }
-  return `${min}m`;
-}
-
-function googleCalUrl(c) {
-  const start = new Date(c.start_time);
-  const end = new Date(start.getTime() + (c.duration_minutes || 60) * 60_000);
-  const z = (n) => String(n).padStart(2, '0');
-  const fmt = (dt) =>
-    `${dt.getUTCFullYear()}${z(dt.getUTCMonth() + 1)}${z(dt.getUTCDate())}T${z(dt.getUTCHours())}${z(dt.getUTCMinutes())}00Z`;
-  const params = new URLSearchParams({
-    action: 'TEMPLATE',
-    text: `${PLATFORM_LABEL[c.platform] || c.platform}: ${c.name}`,
-    dates: `${fmt(start)}/${fmt(end)}`,
-    details: c.url ? `Contest link: ${c.url}` : '',
-    location: c.url || '',
-  });
-  return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
-
-// Countdown ring: full when contest is >7d out, empties as it approaches.
-function CountdownRing({ msLeft, hue, live }) {
-  const R = 13, C = 2 * Math.PI * R;
-  const frac = live ? 1 : clamp(1 - msLeft / (7 * DAY_MS), 0, 1);
-  const dash = C * frac;
-  return (
-    <svg className="exc-ring" viewBox="0 0 34 34" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
-      <circle cx="17" cy="17" r={R} className="exc-ring-track" />
-      <circle
-        cx="17" cy="17" r={R}
-        className={`exc-ring-fill${live ? ' live' : ''}`}
-        style={{ stroke: hue, strokeDasharray: `${dash} ${C}` }}
-        transform="rotate(-90 17 17)"
-      />
-      {live
-        ? <circle cx="17" cy="17" r="3.5" className="exc-ring-pulse" style={{ fill: hue }} />
-        : <circle cx="17" cy="17" r="2.5" className="exc-ring-core" style={{ fill: hue }} />}
-    </svg>
-  );
-}
-
 export default function ExternalContestsCalendar() {
   const { data: contests = [], isLoading } = useExternalContests();
-  const [active, setActive] = useState(() => new Set());
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -111,44 +51,48 @@ export default function ExternalContestsCalendar() {
     return PLATFORMS.filter(p => seen.has(p.key));
   }, [contests]);
 
-  const filtered = useMemo(() => {
-    if (active.size === 0) return contests;
-    return contests.filter(c => active.has(c.platform));
-  }, [contests, active]);
-
-  const sorted = useMemo(() => {
-    const order = { ongoing: 0, upcoming: 1, finished: 2 };
-    return [...filtered].sort((a, b) => {
-      const pa = order[phaseOf(a, now)], pb = order[phaseOf(b, now)];
-      if (pa !== pb) return pa - pb;
-      const ta = new Date(a.start_time).getTime(), tb = new Date(b.start_time).getTime();
-      return pa === 2 ? tb - ta : ta - tb;
-    });
-  }, [filtered, now]);
-
-  // Week strip: next 7 days, count of upcoming/ongoing contests per day.
+  // Week strip: next 7 days, count of upcoming/ongoing contests per day,
+  // grouped into platform-hued segments for an at-a-glance stacked bar.
   const week = useMemo(() => {
     const base = new Date(now); base.setHours(0, 0, 0, 0);
     const days = Array.from({ length: 7 }, (_, i) => {
       const d = new Date(base.getTime() + i * DAY_MS);
       return { date: d, items: [] };
     });
-    for (const c of filtered) {
+    for (const c of contests) {
       const t = new Date(c.start_time).getTime();
       const idx = Math.floor((t - base.getTime()) / DAY_MS);
       if (idx >= 0 && idx < 7) days[idx].items.push(c);
     }
+    for (const d of days) {
+      const byPlat = new Map();
+      for (const c of d.items) byPlat.set(c.platform, (byPlat.get(c.platform) || 0) + 1);
+      d.segments = [...byPlat.entries()].map(([platform, n]) => ({
+        platform, n, hue: PLATFORM_HUE[platform] || 'var(--accent)',
+      }));
+    }
     const max = Math.max(1, ...days.map(d => d.items.length));
     return { days, max };
-  }, [filtered, now]);
+  }, [contests, now]);
 
-  const toggle = (key) => {
-    setActive(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key); else next.add(key);
-      return next;
-    });
-  };
+  const { liveNow, upcomingTotal, nextUp } = useMemo(() => {
+    let live = 0, up = 0, next = null;
+    for (const c of contests) {
+      const ph = phaseOf(c, now);
+      if (ph === 'ongoing') live++;
+      else if (ph === 'upcoming') {
+        up++;
+        const t = new Date(c.start_time).getTime();
+        if (!next || t < new Date(next.start_time).getTime()) next = c;
+      }
+    }
+    return { liveNow: live, upcomingTotal: up, nextUp: next };
+  }, [contests, now]);
+
+  const upcoming7d = useMemo(
+    () => week.days.reduce((acc, d) => acc + d.items.filter(c => phaseOf(c, now) !== 'finished').length, 0),
+    [week, now],
+  );
 
   if (isLoading) {
     return (
@@ -176,110 +120,68 @@ export default function ExternalContestsCalendar() {
   return (
     <div className="exc-wrap">
       <p className="ctx-sub exc-intro">
-        Every contest in one timeline — countdown rings tick live.
+        Live and upcoming contests across every platform — countdown rings tick down to the start.
       </p>
 
-      <div className="exc-chips" role="group" aria-label="Filter by platform">
-        <button
-          className={`exc-chip${active.size === 0 ? ' on' : ''}`}
-          onClick={() => setActive(new Set())}
-        >
-          All
-        </button>
-        {presentPlatforms.map(p => (
-          <button
-            key={p.key}
-            className={`exc-chip${active.has(p.key) ? ' on' : ''}`}
-            style={{ '--chip-hue': p.hue }}
-            onClick={() => toggle(p.key)}
-          >
-            <span className="exc-chip-dot" />
-            {p.label}
-          </button>
-        ))}
+      {/* Compact summary + slim 7-day strip — no tall empty bands */}
+      <div className="exc-summary">
+        <div className="exc-stat">
+          <span className="exc-stat-n" style={{ color: 'var(--easy)' }}>{liveNow}</span>
+          <span className="exc-stat-l">live now</span>
+        </div>
+        <div className="exc-stat">
+          <span className="exc-stat-n">{upcoming7d}</span>
+          <span className="exc-stat-l">next 7 days</span>
+        </div>
+        <div className="exc-stat">
+          <span className="exc-stat-n">{upcomingTotal}</span>
+          <span className="exc-stat-l">upcoming</span>
+        </div>
+        <div className="exc-stat">
+          <span className="exc-stat-n">{presentPlatforms.length}</span>
+          <span className="exc-stat-l">platforms</span>
+        </div>
+        {nextUp && (
+          <div className="exc-next">
+            <span className="exc-next-lbl">Next up</span>
+            <span className="exc-next-name" title={nextUp.name}>
+              <span className="exc-next-dot" style={{ background: PLATFORM_HUE[nextUp.platform] || 'var(--accent)' }} />
+              {nextUp.name}
+            </span>
+            <span className="exc-next-when">{fmtCountdown(new Date(nextUp.start_time).getTime() - now)}</span>
+          </div>
+        )}
       </div>
 
-      {/* Week strip */}
-      <div className="exc-week" aria-label="Next 7 days">
-        {week.days.map((d, i) => {
-          const isToday = i === 0;
-          const h = `${(d.items.length / week.max) * 100}%`;
-          return (
-            <div key={i} className={`exc-week-day${isToday ? ' today' : ''}`}>
-              <div className="exc-week-bar-track">
-                <div className="exc-week-bar" style={{ height: d.items.length ? h : '0%' }}>
-                  {d.items.slice(0, 3).map((c, j) => (
-                    <span
-                      key={j}
-                      className="exc-week-seg"
-                      style={{ background: PLATFORM_HUE[c.platform] || 'var(--accent)' }}
-                    />
-                  ))}
-                </div>
-              </div>
-              <span className="exc-week-n">{d.items.length || ''}</span>
-              <span className="exc-week-lbl">
-                {isToday ? 'Today' : d.date.toLocaleDateString(undefined, { weekday: 'short' })}
+      {/* This-week timeline — stacked platform-hued bars per upcoming day */}
+      <div className="exc-week" aria-label="This week">
+        <span className="exc-week-head">
+          <CalendarRange size={13} /> This week
+        </span>
+        <div className="exc-week-grid">
+          {week.days.map((d, i) => (
+            <div key={i} className={`exc-day${i === 0 ? ' today' : ''}${d.items.length ? ' has' : ''}`}>
+              <span className="exc-day-bar" aria-hidden="true">
+                {d.segments.map((s, j) => (
+                  <span
+                    key={j}
+                    className="exc-day-seg"
+                    title={`${PLATFORM_HUE[s.platform] ? s.platform : 'other'}: ${s.n}`}
+                    style={{ background: s.hue, flexGrow: s.n, '--seg-h': `${(d.items.length / week.max) * 100}%` }}
+                  />
+                ))}
+              </span>
+              <span className="exc-day-n">{d.items.length || '·'}</span>
+              <span className="exc-day-lbl">
+                {i === 0 ? 'Today' : d.date.toLocaleDateString(undefined, { weekday: 'short' })}
               </span>
             </div>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
-      {/* Timeline cards */}
-      <div className="exc-tl">
-        {sorted.map(c => {
-          const start = new Date(c.start_time).getTime();
-          const phase = phaseOf(c, now);
-          const hue = PLATFORM_HUE[c.platform] || 'var(--accent)';
-          const msLeft = start - now;
-          return (
-            <div
-              key={c.id}
-              className={`exc-card exc-card-${phase}`}
-              style={{ '--card-hue': hue }}
-            >
-              <CountdownRing msLeft={msLeft} hue={hue} live={phase === 'ongoing'} />
-              <div className="exc-card-body">
-                <div className="exc-card-top">
-                  <span className="exc-card-platform">{PLATFORM_LABEL[c.platform] || c.platform}</span>
-                  <span className={`exc-card-state exc-card-state-${phase}`}>
-                    {phase === 'ongoing' && (<><Radio size={10} /> live</>)}
-                    {phase === 'upcoming' && fmtCountdown(msLeft)}
-                    {phase === 'finished' && 'ended'}
-                  </span>
-                </div>
-                <span className="exc-card-name" title={c.name}>{c.name}</span>
-                <span className="exc-card-when">{fmtDate(c.start_time)} · {fmtDuration(c.duration_minutes)}</span>
-              </div>
-              <div className="exc-card-actions">
-                {phase !== 'finished' && (
-                  <a
-                    className="exc-card-link"
-                    href={googleCalUrl(c)}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Add to Google Calendar"
-                  >
-                    <CalendarPlus size={13} />
-                  </a>
-                )}
-                {c.url && (
-                  <a
-                    className="exc-card-link"
-                    href={c.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Open contest"
-                  >
-                    <ExternalLink size={13} />
-                  </a>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {/* Colorful card gallery — platform filter + live countdowns live inside */}
+      <ContestsGalleryGrid contests={contests} />
     </div>
   );
 }

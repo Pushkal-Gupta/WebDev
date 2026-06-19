@@ -228,6 +228,9 @@ export const qk = {
   submissionsForProblem: (userId, problemId) => ['submissionsForProblem', userId || 'anon', problemId || 'none'],
   externalContests: ['externalContests'],
   leetcodeUser: (handle) => ['leetcodeUser', (handle || '').toLowerCase()],
+  lcQuestions: ['lcQuestions'],
+  lcQuestion: (slug) => ['lcQuestion', slug],
+  lcContestRanking: (slug, page) => ['lcContestRanking', slug || '', page || 1],
 };
 
 // ---- Home dashboard RPCs (migrate-29) --------------------------------------
@@ -475,6 +478,52 @@ export function useExternalContests() {
   });
 }
 
+// All rated LeetCode contest questions (community difficulty ratings). Paginates
+// past PostgREST's 1000-row cap so the Problems browser can sort/filter/chart the
+// full set client-side. ~2.5k rows, cached long since ratings change rarely.
+export function useLcQuestions() {
+  return useQuery({
+    queryKey: qk.lcQuestions,
+    queryFn: async () => {
+      // Only the columns the browser/detail pages render — smaller payload.
+      const cols = 'title_slug,title,rating,contest_slug,contest_label,problem_index,difficulty';
+      const page = (from) => supabase
+        .from('PGcode_lc_questions')
+        .select(cols)
+        .order('rating', { ascending: false })
+        .range(from, from + 999);
+      // The set is ~2.5k rows and grows slowly; fetch the known pages in
+      // PARALLEL (one round-trip of latency) instead of sequentially.
+      const pages = await Promise.all([page(0), page(1000), page(2000), page(3000)]);
+      const all = [];
+      for (const { data, error } of pages) {
+        if (error) throw error;
+        all.push(...(data || []));
+      }
+      return all;
+    },
+    staleTime: 30 * 60 * 1000,
+  });
+}
+
+// A single rated question by title slug, for the problem-detail page.
+export function useLcQuestion(slug) {
+  return useQuery({
+    queryKey: qk.lcQuestion(slug),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('PGcode_lc_questions')
+        .select('*')
+        .eq('title_slug', slug)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!slug,
+    staleTime: 30 * 60 * 1000,
+  });
+}
+
 // Looks up a LeetCode user's contest ranking + history via the lc-user edge
 // function (proxies leetcode.com/graphql). Enabled only when a handle is set.
 // Throws on function error so the component can render its graceful fallback.
@@ -492,6 +541,26 @@ export function useLeetCodeUser(handle) {
     enabled: !!handle,
     retry: false,
     staleTime: 10 * 60 * 1000,
+  });
+}
+
+// Live per-contest rankings via the lc-contest-ranking edge function (proxies
+// LeetCode's public ranking REST API). The function returns { ok:false } with
+// HTTP 200 on any upstream failure, so this never throws — the component reads
+// data.ok and renders its sample fallback when live data is unavailable.
+export function useLcContestRanking(slug, page = 1, enabled = true) {
+  return useQuery({
+    queryKey: qk.lcContestRanking(slug, page),
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('lc-contest-ranking', {
+        body: { contest: slug, page },
+      });
+      if (error) return { ok: false, error: error.message };
+      return data;
+    },
+    enabled: !!slug && enabled,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -718,6 +787,39 @@ export function useListProblemIds(listSlug) {
         .order('position', { ascending: true });
       if (error) throw error;
       return new Set((data || []).map(r => r.problem_id));
+    },
+    enabled: !!listSlug && listSlug !== 'all',
+    staleTime: 30 * 60 * 1000,
+  });
+}
+
+// Full problem rows for a curated list, ordered by the list's own position.
+// The paginated `pgcode_problem_page` RPC can't surface a whole list — a list's
+// problems are scattered across every page of the 3000+ catalog, so an
+// in-page intersection would only show the handful that happen to share the
+// current page. Lists are small (≤ a few hundred), so fetch their rows directly.
+export function useListProblems(listSlug) {
+  return useQuery({
+    queryKey: ['listProblemRows', listSlug],
+    queryFn: async () => {
+      if (!listSlug || listSlug === 'all') return null;
+      const { data: lp, error: lpErr } = await supabase
+        .from('PGcode_list_problems')
+        .select('problem_id, position')
+        .eq('list_slug', listSlug)
+        .order('position', { ascending: true });
+      if (lpErr) throw lpErr;
+      const ids = (lp || []).map(r => r.problem_id);
+      if (ids.length === 0) return [];
+      const order = new Map(ids.map((id, i) => [id, i]));
+      const { data: rows, error } = await supabase
+        .from('PGcode_problems')
+        .select('id, name, topic_id, difficulty, leetcode_url, leetcode_number')
+        .in('id', ids);
+      if (error) throw error;
+      return (rows || []).sort(
+        (a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0),
+      );
     },
     enabled: !!listSlug && listSlug !== 'all',
     staleTime: 30 * 60 * 1000,

@@ -1,9 +1,10 @@
 /* Shareable stat card — 1200x630 (Open Graph), theme-token only. */
 
 .sc-shell {
+  width: 94%;
   max-width: var(--container-w, 1200px);
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: 32px 0 64px;
   color: var(--text-main);
 }
 

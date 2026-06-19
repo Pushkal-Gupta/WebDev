@@ -39,6 +39,11 @@ Q(s, a) \\leftarrow Q(s, a) + \\alpha \\, \\delta
 Two things make this beautiful. First, the target uses \\(\\max_{a'}\\) over the *next* state — it assumes you will act optimally going forward, even if the action you actually took to reach \\(s'\\) was exploratory and random. This is what makes Q-learning **off-policy**: it learns the value of the optimal policy while following a different, more exploratory one. Second, the update bootstraps — it improves the estimate of \\(Q(s, a)\\) using another (also imperfect) estimate \\(Q(s', a')\\). You are pulling yourself up by your own bootstraps, and remarkably, under mild conditions, it provably converges.`,
       },
       {
+        kind: 'viz',
+        component: 'BellmanUpdateViz',
+        heading: 'Step one Bellman backup — watch the TD target assemble and value seep upstream',
+      },
+      {
         kind: 'prose',
         heading: 'Worked example — a 1×4 gridworld, by hand',
         body: `Take the smallest world that shows the mechanics. Four cells in a row, indexed \\(0, 1, 2, 3\\). The agent starts at cell \\(0\\). Cell \\(3\\) is the goal, worth \\(+10\\), and ends the episode. Every other step gives reward \\(0\\). Two actions: **left** and **right**. Discount \\(\\gamma = 0.9\\), learning rate \\(\\alpha = 0.5\\). The Q-table starts at all zeros — eight entries, one per (cell, action) pair.
@@ -183,6 +188,11 @@ Apply it to the RL objective. The probability of a whole trajectory factorises i
 Read this as an instruction. For every action you took, compute the gradient of its log-probability — the direction in parameter space that would make that exact action more likely — and scale it by the return of the trajectory it appeared in. Good trajectories (high \\(R\\)) push their actions' probabilities up; bad trajectories push theirs down. Average over a batch of sampled trajectories and you have an unbiased estimate of \\(\\nabla_\\theta J\\). This is the **REINFORCE** estimator, and it needs nothing but the ability to sample episodes and differentiate the policy's log-probability.`,
       },
       {
+        kind: 'viz',
+        component: 'PolicyGradientTrajViz',
+        heading: 'Sample trajectories, reweight by return, watch the policy shift',
+      },
+      {
         kind: 'prose',
         heading: 'Worked example — one REINFORCE step on a two-action bandit',
         body: `Strip everything to the bone: one state, two actions, no transitions. The policy is a softmax over two logits \\(\\theta = (\\theta_L, \\theta_R)\\). Start at \\(\\theta = (0, 0)\\), so \\(\\pi(\\text{left}) = \\pi(\\text{right}) = 0.5\\). Action **right** pays reward \\(+1\\); action **left** pays \\(0\\). Learning rate \\(\\alpha = 0.2\\).
@@ -280,6 +290,11 @@ A(s, a) \\approx r + \\gamma V_\\phi(s') - V_\\phi(s).
 \\]
 
 That expression should look familiar — it is the **TD error** \\(\\delta\\) from Q-learning, now doing double duty. It is simultaneously the signal the critic uses to improve its own value estimate *and* the advantage the actor uses to update its policy. One number, two jobs. This sharing is the elegance of actor-critic.`,
+      },
+      {
+        kind: 'viz',
+        component: 'ActorCriticViz',
+        heading: 'One shared TD error trains the critic and steers the actor',
       },
       {
         kind: 'prose',
@@ -407,6 +422,11 @@ A strategy that always exploited the true best arm has zero regret — but you d
 The goal is **sublinear** regret: \\(\\text{Regret}(T)\\) growing slower than \\(T\\), so the *average* regret per round \\(\\text{Regret}(T)/T \\to 0\\). Sublinear regret means that, in the long run, you play the best arm essentially all the time — you have learned. A strategy with *linear* regret (regret \\(\\propto T\\)) keeps making the same fractional mistake forever; it never fully commits to the best arm. This single distinction sorts the good strategies from the bad: the classic results show the best achievable regret grows like \\(\\log T\\), and any strategy that explores a fixed fraction of the time forever is stuck at linear regret.`,
       },
       {
+        kind: 'viz',
+        component: 'ExplorationExploitationViz',
+        heading: 'Pull the arms: ε-greedy bleeds reward, UCB anneals toward the best',
+      },
+      {
         kind: 'prose',
         heading: 'Worked example — ε-greedy vs UCB on a 3-arm bandit',
         body: `Three arms with true means \\(\\mu = (0.3, 0.5, 0.9)\\) — arm 3 is best, but the agent does not know that. Reward is Bernoulli (0 or 1). Track each arm's empirical mean \\(\\hat\\mu_a\\) and pull count \\(n_a\\).
@@ -466,6 +486,319 @@ The unifying principle across all of them: *explore in proportion to your uncert
         body: `- [Lattimore & Szepesvári — Bandit Algorithms (free PDF)](https://tor-lattimore.com/downloads/book/book.pdf) — the definitive modern text on regret, UCB, and Thompson sampling.
 - [Sutton & Barto — RL: An Introduction, Ch. 2 (free PDF)](http://incompleteideas.net/book/RLbook2020.pdf) — the multi-armed bandit and \\(\\varepsilon\\)-greedy from first principles.
 - [Pathak et al. 2017 — Curiosity-driven Exploration by Self-Supervised Prediction](https://arxiv.org/abs/1705.05363) — prediction-error curiosity for sparse-reward deep RL.`,
+      },
+    ],
+  },
+  {
+    slug: 'ppo-clipped-objective',
+    title: 'PPO: the clipped surrogate',
+    oneLiner: 'Take the biggest policy step you can without walking off the cliff — one clip term does all the safety work.',
+    difficulty: 'core',
+    readMinutes: 13,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'Why a plain policy gradient is dangerous',
+        body: `Policy gradients tell you a *direction* to move the parameters, but not how far. Take too small a step and learning crawls; take too big a step and you can destroy a policy that took thousands of episodes to build. This is the central practical problem of policy optimisation: the gradient is computed on data sampled from the *current* policy, and the moment you move the parameters, that data becomes stale. A large update walks you into a region of parameter space where the trajectories you used to estimate the gradient no longer reflect how the policy actually behaves — and the estimate, confidently pointing "uphill," can send you off a cliff.
+
+The natural idea is to reuse a batch of collected experience for several gradient steps to be sample-efficient. But each reuse drifts the policy further from the one that generated the data, and the further it drifts, the more wrong the gradient estimate becomes. **Proximal Policy Optimization (PPO)** is the answer that won: keep the new policy *proximal* — close — to the old one, so the sampled data stays roughly valid, while still squeezing multiple update steps out of each batch. The whole method is one cleverly shaped objective that lets you step boldly when it is safe and refuses to reward steps that wander too far.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'The intuition — a leash on the policy, not a wall',
+        body: `Picture the old policy standing at a spot, and every gradient update tugging it toward actions that earned positive advantage. Left unchecked, a single batch of lucky trajectories could yank the policy a huge distance in one direction, overcommitting to a pattern that happened to pay off in those particular rollouts. PPO ties a leash to the policy. Inside a small radius it moves freely, following the gradient as hard as it likes. The instant it reaches the end of the leash, the *reward* for going further drops to zero — not the ability to move, but the *incentive*. The gradient simply stops pushing once the policy has moved "enough."
+
+The leash is measured by the **probability ratio**, \\(r_t(\\theta) = \\dfrac{\\pi_\\theta(a_t \\mid s_t)}{\\pi_{\\theta_{\\text{old}}}(a_t \\mid s_t)}\\). This is how much *more* (or less) likely the new policy is to take the action the old policy actually took. When \\(r = 1\\), nothing has changed. When \\(r = 1.3\\), the new policy is \\(30\\%\\) more likely to choose that action; when \\(r = 0.7\\), it is \\(30\\%\\) less likely. The ratio is the natural unit of "how far has the policy moved" — far cleaner than measuring distance in raw parameter space, because what matters is the change in *behaviour*, not the change in weights.
+
+Here is the key move. For an action with a *good* advantage (\\(A > 0\\)), we want to raise its probability — push \\(r\\) above \\(1\\). But PPO refuses to keep rewarding that push once \\(r\\) exceeds \\(1 + \\varepsilon\\). Past that boundary, the objective flattens: the gradient goes to zero, and there is no incentive to make the action *even more* likely on this batch. Symmetrically, for a *bad* action (\\(A < 0\\)) we want to lower its probability — push \\(r\\) below \\(1\\) — but the reward for doing so flattens once \\(r\\) drops below \\(1 - \\varepsilon\\). The clip is one-sided in exactly the way that prevents over-correction. You get the full gradient where the step is small and trustworthy, and a dead-flat objective where the step has gone far enough that the old data can no longer vouch for it. The leash never *stops* the policy by force; it just removes the carrot once you have walked far enough, and gradient descent quietly settles.`,
+      },
+      {
+        kind: 'viz',
+        component: 'PPOClipViz',
+        heading: 'Slide ε and flip the advantage sign — watch the objective flatten outside the band',
+      },
+      {
+        kind: 'prose',
+        heading: 'The clipped surrogate objective, written out',
+        body: `Here is the whole thing. With \\(r_t(\\theta)\\) the probability ratio and \\(\\hat A_t\\) the estimated advantage, PPO maximises
+
+\\[
+L^{\\text{CLIP}}(\\theta) = \\mathbb{E}_t \\Big[ \\min\\big( r_t(\\theta)\\, \\hat A_t,\\; \\operatorname{clip}(r_t(\\theta),\\, 1-\\varepsilon,\\, 1+\\varepsilon)\\, \\hat A_t \\big) \\Big].
+\\]
+
+Read it term by term. The first argument of the \\(\\min\\), \\(r_t \\hat A_t\\), is the ordinary unclipped surrogate — the importance-weighted advantage that vanilla policy gradients would maximise. The second argument clamps the ratio into \\([1-\\varepsilon,\\, 1+\\varepsilon]\\) before multiplying by the advantage. Taking the **minimum** of the two is what makes the objective a *pessimistic* (lower) bound on the unclipped improvement, and it is what produces the one-sided flattening described above.
+
+Work through the cases. For \\(\\hat A > 0\\): when \\(r < 1+\\varepsilon\\), the clip does nothing and the objective is \\(r\\hat A\\), rising with \\(r\\) — push the action up. When \\(r > 1+\\varepsilon\\), the clipped term \\((1+\\varepsilon)\\hat A\\) is smaller than \\(r\\hat A\\), so the \\(\\min\\) selects it; the objective is constant in \\(r\\) and its gradient is zero. For \\(\\hat A < 0\\): the logic mirrors. When \\(r > 1-\\varepsilon\\) the unclipped \\(r\\hat A\\) (a more negative number as \\(r\\) grows) is the smaller one and stays active, so reducing \\(r\\) keeps improving the objective. When \\(r < 1-\\varepsilon\\), the clipped term takes over and flattens it. In both signs, the objective rewards moving in the helpful direction only up to the band edge, and never penalises being already inside the band. \\(\\varepsilon\\) is typically \\(0.1\\)–\\(0.3\\); it directly sets the leash length.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Where the advantages come from — GAE in one breath',
+        body: `The objective needs an advantage estimate \\(\\hat A_t\\) for every timestep, and the quality of that estimate decides how well PPO learns. The standard choice is **Generalised Advantage Estimation (GAE)**, the same variance-bias dial introduced with actor-critic. A critic \\(V_\\phi(s)\\) is trained alongside the policy; from it you form the one-step TD residual \\(\\delta_t = r_t + \\gamma V_\\phi(s_{t+1}) - V_\\phi(s_t)\\). GAE then blends these residuals across the whole trajectory with an exponential weight \\(\\lambda\\):
+
+\\[
+\\hat A_t^{\\text{GAE}} = \\sum_{l=0}^{\\infty} (\\gamma \\lambda)^l\\, \\delta_{t+l}.
+\\]
+
+The single knob \\(\\lambda \\in [0,1]\\) slides between pure one-step bootstrapping (\\(\\lambda = 0\\): low variance, high bias, leans hard on the critic) and the full Monte-Carlo advantage (\\(\\lambda = 1\\): unbiased, high variance). A common default is \\(\\lambda \\approx 0.95\\), which keeps most of the variance reduction while only lightly trusting the critic's bias. In practice you normalise the batch of advantages to zero mean and unit variance before plugging them into \\(L^{\\text{CLIP}}\\) — this keeps the effective step size stable across batches regardless of the reward scale. PPO + GAE is the workhorse pairing behind most modern on-policy results, from locomotion to RLHF fine-tuning of language models.`,
+      },
+      {
+        kind: 'code',
+        language: 'python',
+        heading: 'The clipped surrogate loss (PyTorch sketch)',
+        body: `import torch
+
+def ppo_loss(logp_new, logp_old, advantages, eps=0.2):
+    # logp_*: log pi(a|s) under new and (detached) old policy, shape [N]
+    # advantages: GAE estimates, already normalized, shape [N]
+    ratio = torch.exp(logp_new - logp_old)          # r_t(theta)
+
+    unclipped = ratio * advantages
+    clipped   = torch.clamp(ratio, 1 - eps, 1 + eps) * advantages
+
+    # take the pessimistic (min) term, then NEGATE to minimize
+    policy_loss = -torch.min(unclipped, clipped).mean()
+    return policy_loss
+
+# advantages: A>0 -> objective rewards pushing ratio up to 1+eps, then flat.
+# advantages: A<0 -> objective rewards pushing ratio down to 1-eps, then flat.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: forgetting to detach the old log-probabilities.** The ratio is \\(r = \\exp(\\log\\pi_\\theta - \\log\\pi_{\\theta_{\\text{old}}})\\). The denominator \\(\\pi_{\\theta_{\\text{old}}}\\) is a *fixed snapshot* taken when the batch was collected — it must not carry gradients. If you compute \\(\\log\\pi_{\\theta_{\\text{old}}}\\) from the live network without \`.detach()\`, the ratio collapses toward \\(1\\) for the wrong reason and the clip never engages, silently turning PPO back into an unstable vanilla policy gradient. Store the old log-probs at rollout time and treat them as constants.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: too many epochs over one batch.** PPO reuses each batch for several gradient epochs — but every epoch drifts the policy further from \\(\\theta_{\\text{old}}\\), and once most ratios have hit the clip boundary, further epochs only overfit the critic and inflate the KL divergence. Symptoms: the approximate KL between old and new policy spikes, and return collapses. Fix: cap epochs (commonly \\(3\\)–\\(10\\)), and add an early-stop that breaks the epoch loop once the measured KL exceeds a target (e.g. \\(1.5\\times\\) a target KL).`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: not normalising advantages.** Raw GAE advantages can have wildly varying scale across batches and reward regimes. Feeding un-normalised advantages into \\(L^{\\text{CLIP}}\\) makes the effective step size lurch — huge on high-reward batches, negligible on others — and \\(\\varepsilon\\) loses its meaning as a consistent leash. Fix: standardise advantages per batch to zero mean, unit standard deviation before the loss. Be careful to do this *after* GAE, not on raw rewards.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: a single optimiser for tightly-coupled actor and critic with no value-loss clipping.** When actor and critic share a backbone, a large value loss can dominate the gradient and wreck the policy. Fix: scale the value-loss term (e.g. \\(c_1 \\approx 0.5\\)), add an entropy bonus (\\(c_2 \\approx 0.01\\)) to keep exploration alive, and optionally clip the value function's change the same way the policy is clipped so one stale critic update cannot lurch the shared features.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `Take \\(\\varepsilon = 0.2\\) and a single transition with advantage \\(\\hat A = +2\\).
+
+(a) Plot (or tabulate) \\(L^{\\text{CLIP}}\\) as a function of \\(r\\) for \\(r \\in \\{0.5, 0.9, 1.0, 1.2, 1.5, 2.0\\}\\). At which \\(r\\) does the objective stop increasing, and what is its value there? (b) Repeat for \\(\\hat A = -2\\): for which range of \\(r\\) is the gradient nonzero, and which direction does it push \\(r\\)? (c) Argue from the \\(\\min\\) why, for \\(\\hat A > 0\\), the objective is *never* clipped on the downside — i.e. if an update accidentally pushes \\(r\\) below \\(1-\\varepsilon\\), PPO still gives the full (unclipped) signal to pull it back. Why is this asymmetry desirable? (d) Implement \`ppo_loss\` above and confirm numerically that increasing \\(\\varepsilon\\) from \\(0.1\\) to \\(0.3\\) raises the magnitude of the gradient that is still "live" at \\(r = 1.25\\).`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Further reading',
+        body: `- [Schulman et al. 2017 — Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347) — the original PPO paper with the clipped objective.
+- [Schulman et al. 2015 — High-Dimensional Continuous Control Using GAE](https://arxiv.org/abs/1506.02438) — generalised advantage estimation, the \\(\\lambda\\) dial PPO relies on.
+- [OpenAI Spinning Up — Proximal Policy Optimization](https://spinningup.openai.com/en/latest/algorithms/ppo.html) — clean derivation plus runnable reference code.`,
+      },
+    ],
+  },
+  {
+    slug: 'dqn-experience-replay',
+    title: 'DQN: replay & target networks',
+    oneLiner: 'Two stabilising tricks turn unstable Q-learning-with-a-network into the algorithm that learned Atari from pixels.',
+    difficulty: 'core',
+    readMinutes: 13,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'Why naive deep Q-learning falls apart',
+        body: `Tabular Q-learning is provably stable: each \\(Q(s,a)\\) is its own table cell, and updating one cell does not touch any other. The moment you replace the table with a neural network \\(Q_\\theta(s,a)\\) — which you must, for image or continuous inputs — that isolation is gone. Now every parameter update changes \\(Q\\) for *many* states at once, including the very states that appear in your bootstrap target. Two pathologies follow immediately, and either one alone can make training diverge.
+
+First, **correlated samples**. An agent collects experience by acting, so consecutive transitions are almost identical: the same room in a game, the same stretch of road. Feeding these to gradient descent in the order they arrive is like training an image classifier by showing it a thousand pictures of cats, then a thousand of dogs — the network forgets the first class while overfitting the second. Online RL data is the most correlated data there is. Second, a **moving target**. The Q-learning update fits \\(Q_\\theta(s,a)\\) toward the target \\(r + \\gamma \\max_{a'} Q_\\theta(s',a')\\) — but that target *also* depends on \\(\\theta\\). Each gradient step that adjusts the prediction simultaneously shifts the target it was chasing. The network ends up chasing its own tail, and the feedback loop can amplify small errors into divergence. **DQN** is exactly two engineering fixes — one per pathology — bolted onto Q-learning, and together they were enough to learn dozens of Atari games from raw pixels with one architecture.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'The intuition — shuffle the past, and freeze the goalposts',
+        body: `Both fixes are best understood as restoring something the table had for free. Take correlation first. Instead of learning from each transition the instant it happens and then throwing it away, DQN drops every transition \\((s, a, r, s')\\) into a large **replay buffer** — a ring of the last million or so experiences. To learn, it samples a *random minibatch* from this buffer. Random sampling shatters the temporal correlation: a single batch now mixes a corridor from ten minutes ago with a boss fight from last episode with a death from thirty seconds back. The gradient sees a roughly independent, identically-distributed slice of the agent's whole history, which is exactly the assumption stochastic gradient descent was built on. As a bonus, every experience gets reused many times before it ages out of the ring, so the agent squeezes far more learning out of each costly interaction with the world — replay is both a stabiliser and a sample-efficiency win.
+
+Now the moving target. The instability came from the target \\(r + \\gamma \\max_{a'} Q_\\theta(s',a')\\) shifting every time \\(\\theta\\) changed. The fix is almost embarrassingly simple: keep a *second*, frozen copy of the network — the **target network** \\(Q_{\\theta^-}\\) — and compute the bootstrap term from it instead. The online network \\(Q_\\theta\\) is updated every step by gradient descent; the target network's weights \\(\\theta^-\\) are held fixed and only periodically overwritten with a snapshot of \\(\\theta\\) (every few thousand steps, or via a slow exponential blend \\(\\theta^- \\leftarrow \\tau\\theta + (1-\\tau)\\theta^-\\)). Picture aiming at a target on a wall: if the target slides every time you adjust your aim, you will never converge; bolt it down for a while and you can actually zero in. Freezing the goalposts turns a chaotic feedback loop into a sequence of stable, ordinary supervised-regression problems — fit toward a fixed target, then occasionally move the target and repeat. That is the entire conceptual content of DQN; everything else is the Q-learning you already know.`,
+      },
+      {
+        kind: 'viz',
+        component: 'ReplayBufferViz',
+        heading: 'Sample random vs sequential minibatches — and toggle the frozen target net',
+      },
+      {
+        kind: 'prose',
+        heading: 'The Bellman TD target, written precisely',
+        body: `The learning signal is the same temporal-difference target from tabular Q-learning, now with the target network supplying the bootstrap. For a sampled transition \\((s, a, r, s')\\) with terminal flag \\(d\\), the target is
+
+\\[
+y = r + \\gamma\\,(1 - d)\\,\\max_{a'} Q_{\\theta^-}(s', a'),
+\\]
+
+and the network minimises the squared TD error against it:
+
+\\[
+L(\\theta) = \\mathbb{E}_{(s,a,r,s') \\sim \\mathcal{D}} \\Big[ \\big( y - Q_\\theta(s, a) \\big)^2 \\Big].
+\\]
+
+Three details earn their keep. The \\((1-d)\\) factor zeroes the future term at terminal states — there is no "after" once the episode ends, so the target is just \\(r\\); forgetting this injects phantom value and the estimates blow past their ceiling. The \\(\\max_{a'}\\) is taken over the *target* network's values, not the online network's, which is the whole point of freezing. And the expectation is over \\(\\mathcal{D}\\), the replay buffer, not the live trajectory — the source of the decorrelation. Note this is **off-policy** by construction: the buffer holds transitions generated by *older* versions of the policy, yet the \\(\\max\\) target still teaches the *current* optimal values. That off-policy freedom is exactly why replay is even legal — an on-policy method like vanilla policy gradients could not reuse stale data this way.`,
+      },
+      {
+        kind: 'code',
+        language: 'python',
+        heading: 'One DQN gradient step (PyTorch sketch)',
+        body: `import torch
+
+def dqn_step(q_net, target_net, optimizer, batch, gamma=0.99):
+    s, a, r, s2, done = batch          # tensors, batch sampled from replay buffer
+
+    # current estimate Q_theta(s, a) for the actions actually taken
+    q_sa = q_net(s).gather(1, a.unsqueeze(1)).squeeze(1)
+
+    with torch.no_grad():              # target net is frozen — no gradients
+        max_next = target_net(s2).max(dim=1).values
+        y = r + gamma * (1.0 - done) * max_next   # zero the future at terminals
+
+    loss = torch.nn.functional.smooth_l1_loss(q_sa, y)   # Huber: robust to outliers
+    optimizer.zero_grad(); loss.backward(); optimizer.step()
+    return loss.item()
+
+# every C steps:  target_net.load_state_dict(q_net.state_dict())  # refreeze goalposts`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: computing the target from the online network.** If you write \\(y = r + \\gamma \\max_{a'} Q_\\theta(s',a')\\) using the *same* network you are training — instead of the frozen \\(Q_{\\theta^-}\\) — you reintroduce the moving-target feedback loop DQN exists to kill. Training looks fine for a few thousand steps, then Q-values explode toward \\(\\pm\\infty\\) and return collapses. Always evaluate the bootstrap term under \`target_net\` inside \`torch.no_grad()\`, and only sync \\(\\theta^- \\leftarrow \\theta\\) every \\(C\\) steps.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: a replay buffer that is too small or sampled too early.** A tiny buffer (say a few thousand) barely decorrelates — recent, similar transitions dominate, and the agent overfits the present. Worse, sampling before the buffer has filled with enough variety trains on a degenerate distribution. Fix: size the buffer large (often \\(10^5\\)–\\(10^6\\)), and add a *warm-up* phase that fills it with random-policy transitions before any gradient steps begin.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: syncing the target network too often (or never).** Sync every step and the target net is just the online net — no stabilisation, divergence returns. Sync once and never again and the target is hopelessly stale, so learning stalls. Fix: tune the sync interval \\(C\\) (commonly a few thousand steps) or use a soft Polyak update \\(\\theta^- \\leftarrow \\tau\\theta + (1-\\tau)\\theta^-\\) with small \\(\\tau \\approx 0.005\\), which gives a smooth, always-slightly-stale target.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: ignoring the \\(\\max\\)-operator's overestimation bias.** Using one network to both *select* and *evaluate* the best next action (\\(\\max_{a'} Q_{\\theta^-}\\)) systematically overestimates values, because the \\(\\max\\) latches onto noisy upward errors. This compounds and slows or destabilises learning. Fix: **Double DQN** — select the next action with the online net (\\(a^* = \\arg\\max_{a'} Q_\\theta(s',a')\\)) but evaluate it with the target net (\\(Q_{\\theta^-}(s', a^*)\\)), decoupling selection from evaluation.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `Set up a tiny gridworld and a small \\(Q_\\theta\\) network (two hidden layers is plenty).
+
+(a) Train *without* a replay buffer — learn from each transition as it arrives — and plot the loss. Then add a replay buffer of size \\(10{,}000\\) with random minibatches and overlay the loss curves. Which is smoother, and why? (b) Train *without* a target network (compute \\(y\\) from \\(Q_\\theta\\) directly) and watch the maximum Q-value over time; does it stay bounded? Add the target network with sync interval \\(C = 500\\) and compare. (c) Implement the terminal-state mask \\((1-d)\\); deliberately remove it and show that the Q-values at states adjacent to the goal climb past their true ceiling. (d) Swap in the Double-DQN target and measure whether the average estimated \\(Q\\) is closer to the true discounted return than vanilla DQN's.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Further reading',
+        body: `- [Mnih et al. 2015 — Human-level control through deep reinforcement learning (DQN)](https://www.nature.com/articles/nature14236) — the paper that introduced replay + target networks at scale.
+- [van Hasselt et al. 2016 — Deep Reinforcement Learning with Double Q-learning](https://arxiv.org/abs/1509.06461) — fixes the \\(\\max\\)-operator overestimation bias.
+- [Schaul et al. 2016 — Prioritized Experience Replay](https://arxiv.org/abs/1511.05952) — sample high-TD-error transitions more often than uniform.`,
+      },
+    ],
+  },
+  {
+    slug: 'trust-region-methods',
+    title: 'Trust regions & natural gradients',
+    oneLiner: 'Step as far as the surrogate can be trusted — no further. The principle PPO turned into one clip line.',
+    difficulty: 'advanced',
+    readMinutes: 14,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'The surrogate is a local lie',
+        body: `Every policy-optimisation method maximises a *surrogate* objective: a model of how much better the new policy would be, built from data the old policy collected. The surrogate is accurate near the old policy and increasingly wrong as you move away, because the data was sampled under the old policy and stops describing the new one's behaviour. The surrogate, however, does not know this — extrapolated naively, it keeps promising more improvement the further you step, like a linear forecast that confidently predicts the stock will reach a million if you just hold long enough. Optimise the surrogate without restraint and you take an enormous step into a region where its promise is hollow, and the *true* objective — actual return in the environment — gets worse, not better.
+
+This is the failure mode trust-region methods are built to prevent. The fix is a discipline: **only step as far as the surrogate can be trusted.** Define a region around the current policy within which the approximation is reliable, maximise the surrogate *inside* that region, and refuse to leave it. Get the region right and you can prove something remarkable — that every update *monotonically improves* the true objective, no backsliding, episode after episode. That guarantee, and the machinery to approximate it cheaply, is the subject of **Trust Region Policy Optimization (TRPO)**, the method PPO later distilled into a single clip.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'The intuition — measure distance in behaviour, not in weights',
+        body: `How big is "too far"? The naive answer is to bound the change in parameters: do not let \\(\\|\\theta_{\\text{new}} - \\theta_{\\text{old}}\\|\\) exceed some radius. This is exactly wrong, and seeing why is the heart of the subject. Neural-network parameters are a terrible ruler for behavioural change. In some directions, a tiny weight nudge flips the policy's action distribution completely; in others, a huge weight change barely moves it. A fixed ball in parameter space is a wildly distorted ball in the space of policies — a leash that is choking-tight in one direction and useless slack in another.
+
+The right ruler measures distance between the *policies themselves* — between probability distributions over actions — and the natural measure for that is the **KL divergence** \\(D_{\\text{KL}}(\\pi_{\\theta_{\\text{old}}} \\,\\|\\, \\pi_\\theta)\\). It asks: how differently does the new policy *act*, averaged over the states the old policy visits? Constrain the KL, and you have bounded the thing that actually matters — the change in behaviour — regardless of how the network's weights happen to be wired. A small KL guarantees the sampled data is still roughly valid, which is precisely the condition under which the surrogate is trustworthy. So the trust region is not a sphere in weight space; it is an ellipse in weight space whose shape is dictated by how sensitive behaviour is in each direction — fat where the policy is insensitive, thin where it is twitchy. TRPO's whole job is to maximise the surrogate subject to staying inside that behaviour-shaped ellipse: \\(\\max_\\theta L(\\theta)\\) subject to \\(D_{\\text{KL}} \\le \\delta\\). The constraint, not the objective, is what keeps you safe.`,
+      },
+      {
+        kind: 'viz',
+        component: 'TrustRegionViz',
+        heading: 'Constrained vs unconstrained: the KL ball keeps the step where the surrogate is valid',
+      },
+      {
+        kind: 'prose',
+        heading: 'Natural gradients — the constraint reshapes the step',
+        body: `Solving "maximise \\(L\\) subject to \\(D_{\\text{KL}} \\le \\delta\\)" exactly is hard, but a second-order approximation makes it tractable and reveals the **natural gradient**. Approximate the surrogate to first order, \\(L(\\theta) \\approx g^\\top (\\theta - \\theta_{\\text{old}})\\) with \\(g\\) the policy gradient, and the KL constraint to second order, \\(D_{\\text{KL}} \\approx \\tfrac12 (\\theta - \\theta_{\\text{old}})^\\top F (\\theta - \\theta_{\\text{old}})\\), where \\(F\\) is the **Fisher information matrix** — the local curvature of the KL, i.e. how sharply behaviour changes per unit of weight change in each direction. Maximising a linear objective inside a quadratic ball has a closed-form solution: the step points along
+
+\\[
+\\Delta\\theta \\;\\propto\\; F^{-1} g.
+\\]
+
+This is the natural gradient. The ordinary gradient \\(g\\) is the steepest-ascent direction *in raw weight coordinates*; the natural gradient \\(F^{-1}g\\) is the steepest-ascent direction *in behaviour space*, rescaled by the Fisher matrix so that a unit step means a unit of KL no matter the direction. Where behaviour is hypersensitive (large Fisher curvature), \\(F^{-1}\\) shrinks the step; where it is insensitive, \\(F^{-1}\\) lengthens it. The result is an update that moves the policy a constant *behavioural* distance in every direction — exactly the leash the KL constraint demanded. TRPO never forms \\(F^{-1}\\) explicitly (it is enormous); it solves \\(F\\,x = g\\) with conjugate gradients using fast Fisher-vector products, then runs a backtracking line search to ensure the actual KL stays under \\(\\delta\\) and the true surrogate actually improved.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Why monotonic improvement matters — and how PPO approximates it',
+        body: `The theoretical prize TRPO chases is a **monotonic improvement guarantee**: a bound proving that if you maximise the surrogate while keeping the KL penalty in check, the *true* expected return cannot decrease. Concretely, the true return of the new policy is at least the surrogate value minus a penalty proportional to the KL divergence. Keep the KL small and the penalty is small, so surrogate improvement transfers to real improvement. Why does this matter so much? Because RL training is long, expensive, and brittle — a single catastrophic update can erase hours of progress, and unlike supervised learning there is no held-out set to catch the regression before it poisons the next round of data collection. A method that *cannot* go backwards is worth a great deal of complexity.
+
+But TRPO's machinery — Fisher-vector products, conjugate gradient, line search — is heavy and finicky to implement, and it interacts awkwardly with architectures that share parameters between policy and value or use techniques like dropout. **PPO is the pragmatic descendant.** It keeps the central insight — bound the change in behaviour — but replaces the hard KL constraint and the natural-gradient solve with the cheap clipped surrogate from the PPO lesson, which heuristically achieves the same "do not move too far" effect using only first-order gradients and a \\(\\min\\). PPO trades TRPO's clean theoretical guarantee for an objective you can optimise with plain Adam and a few lines of code, and in practice it matches or beats TRPO on most benchmarks. The lineage is the lesson: trust regions gave the *principle* — step only as far as your surrogate is valid — and PPO gave the *practice*. Understanding the constrained version is what makes the clip make sense.`,
+      },
+      {
+        kind: 'code',
+        language: 'python',
+        heading: 'TRPO step in pseudocode (the constrained solve)',
+        body: `# TRPO: maximize surrogate L(theta) subject to KL(old || new) <= delta
+
+g = policy_gradient(surrogate_loss)            # ordinary gradient of L
+
+# solve F x = g for the natural-gradient direction, WITHOUT forming F:
+#   conjugate gradient only needs Fisher-vector products F @ v
+x = conjugate_gradient(fisher_vector_product, g, n_iters=10)
+
+# scale so the quadratic KL approx exactly equals the budget delta:
+step_size = sqrt(2 * delta / (x @ fisher_vector_product(x) + 1e-8))
+full_step = step_size * x
+
+# backtracking line search: shrink the step until BOTH hold ----
+for frac in [1.0, 0.5, 0.25, 0.125, ...]:
+    theta_new = theta_old + frac * full_step
+    if kl(theta_old, theta_new) <= delta and surrogate(theta_new) > surrogate(theta_old):
+        break                                  # accept the largest safe step
+# else: reject, keep theta_old (guarantees no backsliding)`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: constraining the parameter norm instead of the KL.** Bounding \\(\\|\\Delta\\theta\\|\\) treats every weight direction as equally important, which they emphatically are not — the same step length can be a trivial behaviour change in one direction and a policy-destroying one in another. The whole point of the trust region is to measure distance in *policy* space via KL (equivalently, via the Fisher metric). Fix: use the KL constraint / natural gradient, not a raw \\(L_2\\) ball on parameters.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: skipping the line search after the natural-gradient step.** The step size \\(\\sqrt{2\\delta / (x^\\top F x)}\\) is derived from a *quadratic approximation* of the KL — and that approximation underestimates the true KL for larger steps. Taking the full computed step blind can overshoot the real KL budget and violate the very constraint you solved for. Fix: always run TRPO's backtracking line search, shrinking the step until the *measured* KL is within \\(\\delta\\) and the surrogate genuinely improved.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: a single fixed \\(\\delta\\) that is too large.** A generous KL budget lets each update move far, where the surrogate's monotonic-improvement bound no longer holds and the penalty term swamps the gain. Symptoms: jerky returns, occasional collapses. Fix: keep \\(\\delta\\) modest (commonly \\(0.01\\)), and for the penalty-form variants (or adaptive-KL PPO), *adapt* the KL coefficient up when measured KL exceeds target and down when it falls below.`,
+      },
+      {
+        kind: 'callout',
+        tone: 'warning',
+        body: `**Common mistake: estimating the Fisher matrix from too few samples.** The Fisher / KL curvature is an expectation over states; estimated from a tiny batch it is noisy and often ill-conditioned, so the conjugate-gradient solve for \\(F^{-1}g\\) returns a garbage direction. Fix: estimate Fisher-vector products on a sufficiently large batch, add a small damping term \\(F + \\alpha I\\) to the solve for numerical stability, and cap conjugate-gradient iterations.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `Work in a 2-D toy policy-parameter space so you can draw everything.
+
+(a) Construct a surrogate that is linear in \\(\\theta\\) and a true objective that rises then falls (a concave bump) away from \\(\\theta_{\\text{old}}\\). Show that maximising the surrogate with no constraint sends \\(\\theta\\) past the bump's peak, *decreasing* the true objective. (b) Add an isotropic trust region (a circle) and find the constrained optimum; verify the true objective improved. (c) Now make the Fisher matrix anisotropic (stretch one axis) so the trust region is an ellipse, and show the natural-gradient step \\(F^{-1}g\\) points in a *different* direction than the raw gradient \\(g\\) — toward where behaviour changes least per unit improvement. (d) Relate this back to PPO: argue informally why clipping the probability ratio at \\(1 \\pm \\varepsilon\\) acts like a per-sample, first-order stand-in for the global KL constraint.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Further reading',
+        body: `- [Schulman et al. 2015 — Trust Region Policy Optimization (TRPO)](https://arxiv.org/abs/1502.05477) — the constrained objective and monotonic-improvement bound.
+- [Amari 1998 — Natural Gradient Works Efficiently in Learning](https://direct.mit.edu/neco/article/10/2/251/6143) — the Fisher-metric foundation of natural gradients.
+- [Kakade & Langford 2002 — Approximately Optimal Approximate Reinforcement Learning](https://people.eecs.berkeley.edu/~pabbeel/cs287-fa09/readings/KakadeLangford-icml2002.pdf) — the conservative-policy-iteration result TRPO's bound builds on.`,
       },
     ],
   },

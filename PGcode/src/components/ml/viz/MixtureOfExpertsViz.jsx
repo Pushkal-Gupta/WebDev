@@ -308,26 +308,28 @@ export default function MixtureOfExpertsViz() {
             const barW = EXPERT_W;
             const barY = H - 44;
             const barH = 16;
-            let cursor = barX;
+            const segments = routing.loads.map((l, e) => {
+              const w = (l / totalLoad) * barW;
+              const prior = routing.loads
+                .slice(0, e)
+                .reduce((a, b) => a + b, 0);
+              const x = barX + (prior / totalLoad) * barW;
+              return { key: `lb-${e}`, x, w, e };
+            });
             return (
               <g>
                 <rect x={barX} y={barY} width={barW} height={barH} fill="var(--surface)" stroke="var(--border)" strokeWidth="0.8" rx="3" />
-                {routing.loads.map((l, e) => {
-                  const w = (l / totalLoad) * barW;
-                  const seg = (
-                    <rect
-                      key={`lb-${e}`}
-                      x={cursor}
-                      y={barY}
-                      width={w}
-                      height={barH}
-                      fill={HUES[e % HUES.length]}
-                      fillOpacity="0.7"
-                    />
-                  );
-                  cursor += w;
-                  return seg;
-                })}
+                {segments.map((s) => (
+                  <rect
+                    key={s.key}
+                    x={s.x}
+                    y={barY}
+                    width={s.w}
+                    height={barH}
+                    fill={HUES[s.e % HUES.length]}
+                    fillOpacity="0.7"
+                  />
+                ))}
                 <text
                   x={barX + barW + 8}
                   y={barY + barH / 2 + 3.5}

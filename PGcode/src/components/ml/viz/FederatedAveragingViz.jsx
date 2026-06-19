@@ -126,7 +126,6 @@ export default function FederatedAveragingViz() {
   const timerRef = useRef(null);
 
   const seed = 13;
-  const rng = useMemo(() => mulberry32(seed), [seed]);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
@@ -138,9 +137,6 @@ export default function FederatedAveragingViz() {
   }, []);
 
   const plan = useMemo(() => buildPlan(K, T, seed + K * 7 + T), [K, T]);
-  // rng kept for parity; not used here but tied into plan via seed derivation
-  // eslint-disable-next-line no-unused-expressions
-  rng;
 
   const isRunning = isRunningRaw && round < N_ROUNDS;
 

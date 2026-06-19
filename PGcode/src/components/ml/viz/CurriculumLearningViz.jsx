@@ -23,10 +23,6 @@ function mulberry32(seed) {
   };
 }
 
-function snap(v, p = 3) {
-  const m = Math.pow(10, p);
-  return Math.round(v * m) / m;
-}
 
 // Simulate a learner whose success probability on bucket d ∈ [0..N-1] is
 // a logistic of (skill − difficulty).  Skill grows when the learner solves a
@@ -102,8 +98,6 @@ export default function CurriculumLearningViz() {
   const seed = 42;
 
   // independent RNGs per series so reordering doesn't change the inner roll
-  const orderRng = useMemo(() => mulberry32(seed), [seed]);
-  const simRng = useMemo(() => mulberry32(seed + 1), [seed]);
 
   const { curOrder, ranOrder } = useMemo(() => {
     const a = mulberry32(seed);
@@ -112,10 +106,10 @@ export default function CurriculumLearningViz() {
       curOrder: buildOrder('curriculum', a),
       ranOrder: buildOrder('random', b),
     };
-  }, [seed, orderRng]);
+  }, [seed]);
 
-  const curSim = useMemo(() => simulate(curOrder, mulberry32(seed + 3)), [curOrder, seed, simRng]);
-  const ranSim = useMemo(() => simulate(ranOrder, mulberry32(seed + 4)), [ranOrder, seed, simRng]);
+  const curSim = useMemo(() => simulate(curOrder, mulberry32(seed + 3)), [curOrder, seed]);
+  const ranSim = useMemo(() => simulate(ranOrder, mulberry32(seed + 4)), [ranOrder, seed]);
 
   const innerW = W - PAD_L - PAD_R;
   const plotH = 200;

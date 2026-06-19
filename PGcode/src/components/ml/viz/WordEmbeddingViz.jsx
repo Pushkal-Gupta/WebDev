@@ -227,7 +227,7 @@ export default function WordEmbeddingViz() {
           ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 620, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
           onMouseMove={handlePlotPointerMove}
           onMouseUp={handlePlotPointerUp}
           onMouseLeave={handlePlotPointerUp}

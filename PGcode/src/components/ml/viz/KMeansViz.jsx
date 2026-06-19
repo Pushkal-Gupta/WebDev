@@ -150,7 +150,7 @@ function Grid() {
   return <g>{lines}</g>;
 }
 
-function Centroid({ cx, cy, color, trail }) {
+function Centroid({ cx, cy, color, trail, glowId }) {
   return (
     <g>
       {trail && trail.length > 1 && (
@@ -162,8 +162,10 @@ function Centroid({ cx, cy, color, trail }) {
           strokeDasharray="3 3"
           opacity="0.55"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
       )}
+      <circle cx={cx} cy={cy} r={15} fill={color} opacity="0.18" filter={`url(#${glowId})`} />
       <circle cx={cx} cy={cy} r={13} fill={color} opacity="0.16" />
       <circle cx={cx} cy={cy} r={8} fill={color} stroke="var(--bg)" strokeWidth="2" />
       <line x1={cx - 4} y1={cy} x2={cx + 4} y2={cy} stroke="var(--bg)" strokeWidth="1.6" strokeLinecap="round" />
@@ -347,7 +349,16 @@ export default function KMeansViz() {
         <svg
           viewBox={`0 0 ${SIZE} ${SIZE}`}
           className="mlviz-svg"
+          preserveAspectRatio="xMidYMid meet"
         >
+          <defs>
+            <filter id="kmeans-centroid-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="4" />
+            </filter>
+            <filter id="kmeans-point-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+          </defs>
           <Grid />
 
           {/* assignment connectors (faint) */}
@@ -373,17 +384,32 @@ export default function KMeansViz() {
           {/* data points */}
           {points.map((p, i) => {
             const a = assignments[i];
-            const col = a >= 0 ? CLUSTER_COLORS[a % CLUSTER_COLORS.length] : 'var(--text-dim)';
+            const assigned = a >= 0;
+            const col = assigned ? CLUSTER_COLORS[a % CLUSTER_COLORS.length] : 'var(--text-dim)';
+            const px = xToPx(p.x);
+            const py = yToPx(p.y);
             return (
-              <circle
-                key={`p${i}`}
-                cx={xToPx(p.x)}
-                cy={yToPx(p.y)}
-                r={4}
-                fill={col}
-                opacity={a >= 0 ? 0.95 : 0.55}
-                style={{ transition: 'fill 0.35s ease' }}
-              />
+              <g key={`p${i}`}>
+                {assigned && (
+                  <circle
+                    cx={px}
+                    cy={py}
+                    r={6.5}
+                    fill={col}
+                    opacity={0.22}
+                    filter="url(#kmeans-point-glow)"
+                    style={{ transition: 'fill 0.35s ease' }}
+                  />
+                )}
+                <circle
+                  cx={px}
+                  cy={py}
+                  r={4}
+                  fill={col}
+                  opacity={assigned ? 0.95 : 0.55}
+                  style={{ transition: 'fill 0.35s ease' }}
+                />
+              </g>
             );
           })}
 
@@ -395,20 +421,30 @@ export default function KMeansViz() {
               cy={yToPx(c.y)}
               color={CLUSTER_COLORS[j % CLUSTER_COLORS.length]}
               trail={trails[j]}
+              glowId="kmeans-centroid-glow"
             />
           ))}
         </svg>
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>k-means</span>
-          <span className="mlviz-val">k = {k}</span>
-          <span className="mlviz-sub">iter {iter}</span>
-          <span className="mlviz-sub">inertia {inertia !== null ? snap(inertia, 2) : '—'}</span>
-          <span className="mlviz-sub" style={{ color: converged ? 'var(--hue-mint, #74e3a3)' : 'var(--text-dim)' }}>
-            {phaseLabel}
-          </span>
+        <div className="mlviz-statcol mlviz-statrow km-cards">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">clusters k</span>
+            <span className="mlviz-statcard-val">{k}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">iteration</span>
+            <span className="mlviz-statcard-val">{iter}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">inertia</span>
+            <span className="mlviz-statcard-val">{inertia !== null ? snap(inertia, 2) : '—'}</span>
+          </div>
+          <div className={`mlviz-statcard ${converged ? 'mlviz-statcard-mint' : 'mlviz-statcard-dim'}`}>
+            <span className="mlviz-statcard-label">phase</span>
+            <span className="mlviz-statcard-val" style={{ fontSize: '0.92rem' }}>{phaseLabel}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-row-hi mlviz-controls">

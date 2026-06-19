@@ -260,6 +260,18 @@ export default function BatchNormViz() {
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide">
+          <defs>
+            <linearGradient id="bn-bar-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="bn-bar-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+            <filter id="bn-line-glow" x="-10%" y="-200%" width="120%" height="500%">
+              <feGaussianBlur stdDeviation="1.8" />
+            </filter>
+          </defs>
           <Axes stage={stageBlurb} />
 
           {/* zero band post-normalization */}
@@ -309,6 +321,7 @@ export default function BatchNormViz() {
                 stroke="var(--hue-sky, #5ecbff)"
                 strokeWidth="1.6"
                 strokeDasharray="5 3"
+                filter="url(#bn-line-glow)"
               />
               <text
                 x={PAD_L + PLOT_W - 4}
@@ -335,6 +348,7 @@ export default function BatchNormViz() {
                 stroke="var(--hue-sky, #5ecbff)"
                 strokeWidth="1.4"
                 strokeDasharray="4 3"
+                filter="url(#bn-line-glow)"
               />
               {!showAffineMarkers && (
                 <text
@@ -363,6 +377,7 @@ export default function BatchNormViz() {
                 stroke="var(--hue-sky, #5ecbff)"
                 strokeWidth="1.6"
                 strokeDasharray="5 3"
+                filter="url(#bn-line-glow)"
               />
               <text
                 x={PAD_L + PLOT_W - 4}
@@ -393,8 +408,20 @@ export default function BatchNormViz() {
                   height={h}
                   rx={2}
                   ry={2}
-                  fill="var(--accent)"
-                  opacity={0.78}
+                  fill="url(#bn-bar-grad)"
+                  filter="url(#bn-bar-glow)"
+                  opacity={0.45}
+                  style={{ transition: 'all 0.45s ease' }}
+                />
+                <rect
+                  x={cx}
+                  y={top}
+                  width={barW}
+                  height={h}
+                  rx={2}
+                  ry={2}
+                  fill="url(#bn-bar-grad)"
+                  opacity={0.85}
                   style={{ transition: 'all 0.45s ease' }}
                 />
                 <text
@@ -560,23 +587,39 @@ export default function BatchNormViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>x</span>
-          <span className="mlviz-val">μ = {snap(mu)}</span>
-          <span className="mlviz-sub">σ² = {snap(sigmaSq)}</span>
-          <span className="mlviz-sub">σ = {snap(sigma)}</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-sky, #5ecbff)' }}>x̂</span>
-          <span className="mlviz-val">μ = {snap(postNormStats.mean)}</span>
-          <span className="mlviz-sub">σ = {snap(postNormStats.std)}</span>
-          <span className="mlviz-sub">(target: 0, 1)</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-sky, #5ecbff)' }}>y</span>
-          <span className="mlviz-val">μ = {snap(postAffineStats.mean)}</span>
-          <span className="mlviz-sub">σ = {snap(postAffineStats.std)}</span>
-          <span className="mlviz-sub">(target: β, |γ|)</span>
+        <div className="mlviz-statcol">
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">x · μ</span>
+              <span className="mlviz-statcard-val">{snap(mu)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">x · σ²</span>
+              <span className="mlviz-statcard-val">{snap(sigmaSq)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">x · σ</span>
+              <span className="mlviz-statcard-val">{snap(sigma)}</span>
+            </div>
+          </div>
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">x̂ μ (→ 0)</span>
+              <span className="mlviz-statcard-val">{snap(postNormStats.mean)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">x̂ σ (→ 1)</span>
+              <span className="mlviz-statcard-val">{snap(postNormStats.std)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">y μ (→ β)</span>
+              <span className="mlviz-statcard-val">{snap(postAffineStats.mean)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">y σ (→ |γ|)</span>
+              <span className="mlviz-statcard-val">{snap(postAffineStats.std)}</span>
+            </div>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-controls">

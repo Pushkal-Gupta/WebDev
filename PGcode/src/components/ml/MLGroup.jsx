@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Brain, Sigma, Workflow, Calculator, Layers, Zap, Network } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Brain, Sigma, Workflow, Calculator, Layers, Zap, Network, BarChart3 } from 'lucide-react';
 import { getGroup } from '../../content/mlGroups';
 import { PILLARS as REGISTRY } from '../../content/mlContent';
+import ForgeThumb from './forge/ForgeThumb';
 import './MLHub.css';
 
 const ICONS = { Sigma, Workflow, Brain };
@@ -58,19 +59,27 @@ export default function MLGroup() {
           const mod = REGISTRY[m.slug];
           if (!mod) return null;
           const lessonCount = mod.lessons?.length || 0;
-          const status = lessonCount > 0 ? `${lessonCount} lesson${lessonCount === 1 ? '' : 's'}` : 'planned';
           const ModuleIcon = MODULE_ICONS[m.slug] || Sigma;
           return (
-            <Link key={m.slug} to={`/ml/${m.slug}`} className="mlhub-pillar mlhub-pillar-group">
-              <div className="mlhub-pillar-head">
-                <ModuleIcon size={22} />
-                <span className="mlhub-pillar-status">{status}</span>
+            <Link key={m.slug} to={`/ml/${m.slug}`} className="mlhub-pillar mlhub-lesson-card">
+              <span className="mlhub-pillar-stripe" aria-hidden="true" />
+              <div className="mlhub-lesson-thumb" aria-hidden="true">
+                <ForgeThumb seed={m.label} kind={m.slug} label={m.label.split(/\s+/)[0]} />
               </div>
-              <h2 className="mlhub-pillar-title">{m.label}</h2>
-              <p className="mlhub-pillar-summary">{mod.oneLiner}</p>
-              <span className="mlhub-card-cta">
-                Open <ArrowRight size={14} />
-              </span>
+              <div className="mlhub-lesson-body">
+                <div className="mlhub-lesson-head">
+                  <span className="mlhub-pillar-iconbox"><ModuleIcon size={16} /></span>
+                  <ArrowRight size={16} className="mlhub-pillar-arrow" />
+                </div>
+                <h2 className="mlhub-lesson-title">{m.label}</h2>
+                {mod.oneLiner && <p className="mlhub-lesson-summary">{mod.oneLiner}</p>}
+                <div className="mlhub-pillar-chips">
+                  <span className="mlhub-chip">
+                    <BarChart3 size={12} />
+                    {lessonCount > 0 ? `${lessonCount} lesson${lessonCount === 1 ? '' : 's'}` : 'planned'}
+                  </span>
+                </div>
+              </div>
             </Link>
           );
         })}

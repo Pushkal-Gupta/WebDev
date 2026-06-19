@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import { Target, Sparkles, AlertTriangle, Flag } from 'lucide-react';
 import katex from 'katex';
 import './MLViz.css';

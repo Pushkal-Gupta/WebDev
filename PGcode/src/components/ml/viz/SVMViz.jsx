@@ -321,11 +321,27 @@ export default function SVMViz() {
   const colSV = 'var(--warning, #f5b342)';
   const supportSet = new Set(supportIdx);
 
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const lineTransition = reducedMotion ? 'none' : 'x1 0.25s ease, y1 0.25s ease, x2 0.25s ease, y2 0.25s ease';
+
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
           <defs>
+            <linearGradient id="svm-boundary-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="svm-boundary-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.4" />
+            </filter>
+            <filter id="svm-sv-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
             <marker
               id="svm-arrow-end"
               viewBox="0 0 10 10"
@@ -419,18 +435,33 @@ export default function SVMViz() {
             />
           )}
 
-          {/* decision boundary (solid) */}
+          {/* decision boundary (solid) — blurred glow duplicate under the crisp stroke */}
           {boundary && (
-            <line
-              x1={toScreen(boundary[0].x, boundary[0].y).sx}
-              y1={toScreen(boundary[0].x, boundary[0].y).sy}
-              x2={toScreen(boundary[1].x, boundary[1].y).sx}
-              y2={toScreen(boundary[1].x, boundary[1].y).sy}
-              stroke="var(--accent)"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              opacity="0.95"
-            />
+            <g>
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#svm-boundary-grad)"
+                strokeWidth="5"
+                strokeLinecap="round"
+                filter="url(#svm-boundary-glow)"
+                opacity="0.5"
+                style={{ transition: lineTransition }}
+              />
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#svm-boundary-grad)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                opacity="0.97"
+                style={{ transition: lineTransition }}
+              />
+            </g>
           )}
 
           {/* labeled margin arrow */}
@@ -476,22 +507,31 @@ export default function SVMViz() {
             );
           })()}
 
-          {/* support-vector highlight rings */}
+          {/* support-vector highlight rings — soft glow halo behind the dashed ring */}
           {classification.map((p, i) => {
             if (!supportSet.has(i)) return null;
             const { sx, sy } = toScreen(p.x, p.y);
             return (
-              <circle
-                key={`sv${i}`}
-                cx={sx}
-                cy={sy}
-                r="9"
-                fill="none"
-                stroke={colSV}
-                strokeWidth="1.6"
-                strokeDasharray="3 2"
-                opacity="0.95"
-              />
+              <g key={`sv${i}`}>
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r="9.5"
+                  fill={colSV}
+                  filter="url(#svm-sv-glow)"
+                  opacity="0.4"
+                />
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r="9"
+                  fill="none"
+                  stroke={colSV}
+                  strokeWidth="1.6"
+                  strokeDasharray="3 2"
+                  opacity="0.95"
+                />
+              </g>
             );
           })}
 
@@ -539,15 +579,39 @@ export default function SVMViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>SVM</span>
-          <span className="mlviz-val">{supportIdx.length} support vectors</span>
-          <span className="mlviz-sub">margin {snap(marginWidth, 3)}</span>
-          <span className="mlviz-sub">acc {snap(trainAcc * 100, 1)}%</span>
-          <span className="mlviz-sub">w1 {snap(w1, 3)}</span>
-          <span className="mlviz-sub">w2 {snap(w2, 3)}</span>
-          <span className="mlviz-sub">b {snap(b, 3)}</span>
-          <span className="mlviz-sub">seed {seed}</span>
+        <div className="mlviz-statcol">
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-accent">
+              <span className="mlviz-statcard-label">support vectors</span>
+              <span className="mlviz-statcard-val">{supportIdx.length}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-mint">
+              <span className="mlviz-statcard-label">margin 2/‖w‖</span>
+              <span className="mlviz-statcard-val">{snap(marginWidth, 3)}</span>
+            </div>
+            <div className="mlviz-statcard">
+              <span className="mlviz-statcard-label">train acc</span>
+              <span className="mlviz-statcard-val">{snap(trainAcc * 100, 1)}%</span>
+            </div>
+          </div>
+          <div className="mlviz-statrow">
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">w1</span>
+              <span className="mlviz-statcard-val">{snap(w1, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">w2</span>
+              <span className="mlviz-statcard-val">{snap(w2, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">b</span>
+              <span className="mlviz-statcard-val">{snap(b, 3)}</span>
+            </div>
+            <div className="mlviz-statcard mlviz-statcard-dim">
+              <span className="mlviz-statcard-label">seed</span>
+              <span className="mlviz-statcard-val">{seed}</span>
+            </div>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-row-hi mlviz-controls">

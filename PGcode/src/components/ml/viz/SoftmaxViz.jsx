@@ -28,6 +28,11 @@ const DEFAULT_T = 1.0;
 const BAR_COLOR_TOP = 'var(--hue-sky, #5ecbff)';
 const BAR_COLOR_BOT = 'var(--accent)';
 
+const REDUCE =
+  typeof window !== 'undefined' &&
+  window.matchMedia &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
 function snap(v, p = 2) {
   const m = Math.pow(10, p);
   return Math.round(v * m) / m;
@@ -54,6 +59,7 @@ export default function SoftmaxViz() {
 
   const probs = useMemo(() => softmax(zs, tau), [zs, tau]);
   const sumProbs = probs.reduce((a, b) => a + b, 0);
+  const maxProb = probs.reduce((a, b) => Math.max(a, b), 0);
 
   const updateZ = useCallback((i, v) => {
     setZs((prev) => {
@@ -114,8 +120,23 @@ export default function SoftmaxViz() {
           ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg mlviz-svg-wide"
+          preserveAspectRatio="xMidYMid meet"
           style={{ aspectRatio: `${W} / ${H}` }}
         >
+          <defs>
+            <linearGradient id="sm-grad-z" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--hue-sky)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </linearGradient>
+            <linearGradient id="sm-grad-p" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="sm-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="3.4" />
+            </filter>
+          </defs>
+
           {/* row separators / baselines */}
           <line
             x1={PAD_L}
@@ -169,14 +190,27 @@ export default function SoftmaxViz() {
             const labelY = isPos ? top - 6 : top + h + 12;
             return (
               <g key={`z${i}`}>
+                {dragIdx === i && (
+                  <rect
+                    x={x}
+                    y={top}
+                    width={BAR_W}
+                    height={Math.max(0.5, h)}
+                    fill="url(#sm-grad-z)"
+                    filter="url(#sm-glow)"
+                    opacity="0.7"
+                    rx="3"
+                  />
+                )}
                 <rect
                   x={x}
                   y={top}
                   width={BAR_W}
                   height={Math.max(0.5, h)}
-                  fill={BAR_COLOR_TOP}
-                  opacity={dragIdx === i ? 0.95 : 0.78}
-                  rx="2"
+                  fill="url(#sm-grad-z)"
+                  opacity={dragIdx === i ? 0.98 : 0.82}
+                  rx="3"
+                  style={{ transition: REDUCE ? 'none' : 'y 0.12s ease, height 0.12s ease' }}
                 />
                 {/* drag handle covers the whole row column for easier grabbing */}
                 <rect
@@ -232,16 +266,30 @@ export default function SoftmaxViz() {
             const x = barX(i);
             const h = p * ROW_H;
             const y = botBaseY - h;
+            const isMax = p >= maxProb - 1e-9;
             return (
               <g key={`p${i}`}>
+                {isMax && (
+                  <rect
+                    x={x}
+                    y={y}
+                    width={BAR_W}
+                    height={Math.max(0.5, h)}
+                    fill="url(#sm-grad-p)"
+                    filter="url(#sm-glow)"
+                    opacity="0.6"
+                    rx="3"
+                  />
+                )}
                 <rect
                   x={x}
                   y={y}
                   width={BAR_W}
                   height={Math.max(0.5, h)}
-                  fill={BAR_COLOR_BOT}
-                  opacity="0.85"
-                  rx="2"
+                  fill="url(#sm-grad-p)"
+                  opacity="0.9"
+                  rx="3"
+                  style={{ transition: REDUCE ? 'none' : 'y 0.12s ease, height 0.12s ease' }}
                 />
                 <text
                   x={x + BAR_W / 2}
@@ -321,10 +369,19 @@ export default function SoftmaxViz() {
           </div>
         ))}
 
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag">Σ p</span>
-          <span className="mlviz-val">{sumProbs.toFixed(2)}</span>
-          <span className="mlviz-sub">probabilities sum to 1</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">temperature τ</span>
+            <span className="mlviz-statcard-val">{snap(tau, 2).toFixed(2)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">max p</span>
+            <span className="mlviz-statcard-val">{maxProb.toFixed(2)}</span>
+          </div>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">Σ p</span>
+            <span className="mlviz-statcard-val">{sumProbs.toFixed(2)}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

@@ -127,7 +127,7 @@ function Grid() {
   return <g>{lines}</g>;
 }
 
-function VectorArrow({ x, y, color, label, strokeWidth = 2.6, opacity = 1 }) {
+function VectorArrow({ x, y, color, label, strokeWidth = 2.6, opacity = 1, glow }) {
   const { sx, sy } = toScreen(x, y);
   const dx = sx - ORIGIN;
   const dy = sy - ORIGIN;
@@ -141,6 +141,13 @@ function VectorArrow({ x, y, color, label, strokeWidth = 2.6, opacity = 1 }) {
   const hy2 = sy - headLen * Math.sin(angle + 0.42);
   return (
     <g opacity={opacity}>
+      {glow && (
+        <line
+          x1={ORIGIN} y1={ORIGIN} x2={sx} y2={sy}
+          stroke={color} strokeWidth={strokeWidth + 2.5} strokeLinecap="round"
+          filter="url(#pca-glow)" opacity="0.55"
+        />
+      )}
       <line
         x1={ORIGIN} y1={ORIGIN} x2={sx} y2={sy}
         stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
@@ -351,7 +358,16 @@ export default function PCAViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <radialGradient id="pca-pt" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </radialGradient>
+            <filter id="pca-glow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
+          </defs>
           <Grid />
 
           {/* PC lines extended */}
@@ -391,9 +407,9 @@ export default function PCAViz() {
                 key={`p${i}`}
                 cx={clampScreen(s.sx - ORIGIN) + ORIGIN}
                 cy={clampScreen(s.sy - ORIGIN) + ORIGIN}
-                r={show1D ? 2.6 : 2.4}
-                fill={COLOR_PT}
-                opacity={show1D ? 0.85 : 0.75}
+                r={show1D ? 2.8 : 2.6}
+                fill="url(#pca-pt)"
+                opacity={show1D ? 0.9 : 0.8}
               />
             );
           })}
@@ -432,6 +448,7 @@ export default function PCAViz() {
               label={(phase >= 3 && arrowOpacityPC1 > 0.4) ? 'PC₁' : null}
               opacity={arrowOpacityPC1}
               strokeWidth={2.8}
+              glow
             />
           )}
 
@@ -531,15 +548,15 @@ export default function PCAViz() {
             <span className="mlviz-sub">covariance after centering</span>
           </div>
         )}
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_PC1 }}>λ₁</span>
-          <span className="mlviz-val">{snap3(lam1)}</span>
-          <span className="mlviz-sub">EVR = {(evr1 * 100).toFixed(1)}%</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_PC2 }}>λ₂</span>
-          <span className="mlviz-val">{snap3(lam2)}</span>
-          <span className="mlviz-sub">EVR = {(evr2 * 100).toFixed(1)}%</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">λ₁ · EVR {(evr1 * 100).toFixed(1)}%</span>
+            <span className="mlviz-statcard-val">{snap3(lam1)}</span>
+          </div>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">λ₂ · EVR {(evr2 * 100).toFixed(1)}%</span>
+            <span className="mlviz-statcard-val">{snap3(lam2)}</span>
+          </div>
         </div>
         <div className="mlviz-row">
           <span className="mlviz-tag" style={{ color: COLOR_PC1 }}>v₁</span>

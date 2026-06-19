@@ -421,14 +421,32 @@ export default function GANViz() {
     setLastPhase(null);
   }, [stopRun]);
 
-  const cReal = 'var(--hue-mint, #6ee7b7)';
-  const cFake = 'var(--hue-pink, #ff66cc)';
-  const cBoundary = 'var(--accent)';
+  const cReal = 'var(--hue-mint)';
+  const cFake = 'var(--hue-pink)';
+
+  const reducedMotion =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ptTransition = reducedMotion ? 'none' : 'transform 0.18s ease, opacity 0.18s ease';
 
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+          <defs>
+            <linearGradient id="gan-boundary-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="gan-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.4" />
+            </filter>
+            <filter id="gan-soft" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="3.4" />
+            </filter>
+          </defs>
+
           {/* D's "fake" half-plane tint */}
           {fakePath && (
             <path d={fakePath} fill={cFake} opacity="0.09" />
@@ -462,18 +480,31 @@ export default function GANViz() {
             );
           })}
 
-          {/* Decision boundary line */}
+          {/* Decision boundary line — gradient stroke + soft glow */}
           {boundary && (
-            <line
-              x1={toScreen(boundary[0].x, boundary[0].y).sx}
-              y1={toScreen(boundary[0].x, boundary[0].y).sy}
-              x2={toScreen(boundary[1].x, boundary[1].y).sx}
-              y2={toScreen(boundary[1].x, boundary[1].y).sy}
-              stroke={cBoundary}
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeDasharray="6 4"
-            />
+            <g>
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#gan-boundary-grad)"
+                strokeWidth="4.5"
+                strokeLinecap="round"
+                filter="url(#gan-soft)"
+                opacity="0.5"
+              />
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#gan-boundary-grad)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeDasharray="6 4"
+              />
+            </g>
           )}
 
           {/* Real-distribution centroid marker */}
@@ -481,13 +512,20 @@ export default function GANViz() {
             const { sx, sy } = toScreen(REAL_MU.x, REAL_MU.y);
             return (
               <g>
+                <circle cx={sx} cy={sy} r="6" fill={cReal} opacity="0.28" filter="url(#gan-glow)" />
                 <circle cx={sx} cy={sy} r="14" fill="none" stroke={cReal} strokeWidth="1" opacity="0.4" />
                 <circle cx={sx} cy={sy} r="2.4" fill={cReal} opacity="0.75" />
               </g>
             );
           })()}
 
-          {/* Real points */}
+          {/* Real points — soft mint glow under crisp marker */}
+          <g filter="url(#gan-glow)" opacity="0.5">
+            {REAL_POINTS.map((p, i) => {
+              const { sx, sy } = toScreen(p.x, p.y);
+              return <circle key={`rg${i}`} cx={sx} cy={sy} r="3.8" fill={cReal} />;
+            })}
+          </g>
           {REAL_POINTS.map((p, i) => {
             const { sx, sy } = toScreen(p.x, p.y);
             return (
@@ -500,11 +538,29 @@ export default function GANViz() {
                 stroke="var(--bg)"
                 strokeWidth="0.9"
                 opacity="0.92"
+                style={{ transition: ptTransition }}
               />
             );
           })}
 
-          {/* Fake points */}
+          {/* Fake points — soft pink glow under crisp marker */}
+          <g filter="url(#gan-glow)" opacity="0.5">
+            {fakePoints.map((p, i) => {
+              const { sx, sy } = toScreen(clamp(p.x, -4, 4), clamp(p.y, -4, 4));
+              return (
+                <rect
+                  key={`fg${i}`}
+                  x={sx - 3}
+                  y={sy - 3}
+                  width="6"
+                  height="6"
+                  rx="1.4"
+                  fill={cFake}
+                  transform={`rotate(45 ${sx} ${sy})`}
+                />
+              );
+            })}
+          </g>
           {fakePoints.map((p, i) => {
             const { sx, sy } = toScreen(clamp(p.x, -4, 4), clamp(p.y, -4, 4));
             return (
@@ -514,11 +570,13 @@ export default function GANViz() {
                 y={sy - 2.6}
                 width="5.2"
                 height="5.2"
+                rx="1.2"
                 fill={cFake}
                 stroke="var(--bg)"
                 strokeWidth="0.9"
                 opacity="0.9"
                 transform={`rotate(45 ${sx} ${sy})`}
+                style={{ transition: ptTransition }}
               />
             );
           })}
@@ -547,26 +605,27 @@ export default function GANViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>round</span>
-          <span className="mlviz-val">{rounds}</span>
-          <span className="mlviz-sub">
-            phase {lastPhase ? lastPhase : '-'}
-          </span>
-          <span className="mlviz-sub" style={{ color: cReal }}>real (mint)</span>
-          <span className="mlviz-sub" style={{ color: cFake }}>fake (pink)</span>
-        </div>
-
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: cBoundary }}>D_loss</span>
-          <span className="mlviz-val">{snap(metrics.lossD, 4)}</span>
-          <span className="mlviz-sub">G_loss {snap(metrics.lossG, 4)}</span>
-        </div>
-
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--text-dim)' }}>acc</span>
-          <span className="mlviz-val">real {snap(metrics.accReal * 100, 1)}%</span>
-          <span className="mlviz-val">fake {snap(metrics.accFake * 100, 1)}%</span>
+        <div className="mlviz-statcol mlviz-statrow gan-cards">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">round</span>
+            <span className="mlviz-statcard-val">{rounds}</span>
+            <span className="gv-card-sub">phase {lastPhase ? lastPhase : '-'}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">D loss</span>
+            <span className="mlviz-statcard-val">{snap(metrics.lossD, 4)}</span>
+            <span className="gv-card-sub">G loss {snap(metrics.lossG, 4)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-mint">
+            <span className="mlviz-statcard-label">acc real</span>
+            <span className="mlviz-statcard-val">{snap(metrics.accReal * 100, 1)}%</span>
+            <span className="gv-card-sub">mint cloud</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-pink">
+            <span className="mlviz-statcard-label">acc fake</span>
+            <span className="mlviz-statcard-val">{snap(metrics.accFake * 100, 1)}%</span>
+            <span className="gv-card-sub">pink cloud</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

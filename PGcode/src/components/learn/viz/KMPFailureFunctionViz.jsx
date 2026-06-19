@@ -290,7 +290,6 @@ export default function KMPFailureFunctionViz() {
             {[...pattern].map((ch, idx) => {
               const x = padX + idx * cellW;
               const isI = idx === current.i;
-              const isLen = idx === current.len && current.phase !== 'init';
               const isCmpA = idx === current.cmpA;
               const isCmpB = idx === current.cmpB;
               const isMismatch = current.phase === 'fallback' || current.phase === 'zero';

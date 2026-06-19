@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { getCompanyGroup, membersOf } from '../../content/companyGroups';
+import { CompanyLogo } from './CompaniesIndex';
 import './Companies.css';
 
 const ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin };
@@ -63,11 +64,11 @@ export default function CompanyGroup() {
           <p className="comp-empty-sub">No companies in this group yet.</p>
         </div>
       ) : (
-        <div className="comp-grid">
+        <div className="comp-grid comp-sections">
           {members.map((c) => (
             <Link key={c.slug} to={`/company/${c.slug}`} className="comp-card">
               <div className="comp-card-head">
-                <Building2 size={14} className="comp-card-icon" />
+                <CompanyLogo c={c} />
                 <h3 className="comp-card-title">{c.name}</h3>
                 {c.is_featured && <Star size={11} className="comp-card-star" />}
               </div>

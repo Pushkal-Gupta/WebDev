@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, Building2, Flame, MapPin, BookOpen, Layers, GraduationCap, ArrowRight } from 'lucide-react';
+import { ChevronRight, ArrowLeft, Flame, MapPin, BookOpen, Layers, GraduationCap, ArrowRight } from 'lucide-react';
 import { useCompany, useCompanyProblems, useUserProgress, useAllConceptsCompact } from '../../lib/queries';
 import StatusPill from '../StatusPill';
 import { legacyToStatus } from '../../lib/status';
 import { topTopics, pickConcepts, pickTutorials, pickCourses, readableTopic } from './companyContent';
+import BrandLogo from '../common/BrandLogo';
 import './Companies.css';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -85,7 +86,7 @@ export default function CompanyDetail({ session }) {
           <ArrowLeft size={13} /> All companies
         </Link>
         <div className="comp-detail-title-row">
-          <Building2 size={22} className="comp-detail-icon" />
+          <BrandLogo kind="company" name={company.name} slug={company.slug} size={40} className="comp-detail-logo" />
           <h1 className="comp-detail-title">{company.name}</h1>
         </div>
         {company.tagline && <p className="comp-detail-tagline">{company.tagline}</p>}
@@ -220,8 +221,13 @@ export default function CompanyDetail({ session }) {
               </header>
               <div className="comp-study-grid">
                 {relatedCourses.map((c) => (
-                  <Link key={c.id} to={`/courses/${c.id}`} className="comp-study-card">
-                    <span className="comp-study-card-title">{c.title}</span>
+                  <Link key={c.id} to={`/courses/${c.id}`} className="comp-study-card comp-study-card-course">
+                    <span className="comp-study-card-titlerow">
+                      {c.language && (
+                        <BrandLogo kind="language" name={c.language} size={22} className="comp-study-card-lang" />
+                      )}
+                      <span className="comp-study-card-title">{c.title}</span>
+                    </span>
                     {c.blurb && <span className="comp-study-card-desc">{c.blurb}</span>}
                     <span className="comp-study-card-foot">
                       <span className="comp-study-card-chip">

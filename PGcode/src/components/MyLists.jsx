@@ -12,12 +12,21 @@ import {
 } from '../lib/queries';
 import StatusPill from './StatusPill';
 import { legacyToStatus } from '../lib/status';
+import ProgressRing from './vault/ProgressRing';
+import './vault/vault.css';
 import './MyLists.css';
+
+const isSolved = (p) => {
+  const s = legacyToStatus(p);
+  return s === 'solved' || s === 'mastered';
+};
 
 export default function MyLists({ session }) {
   const userId = session?.user?.id;
   const queryClient = useQueryClient();
   const { data: lists = [], isLoading } = useMyLists(userId);
+  const { data: progressBundle } = useUserProgress(userId);
+  const progressById = progressBundle?.byId || {};
 
   const [activeList, setActiveList] = useState(null);
   const [newListName, setNewListName] = useState('');
@@ -109,6 +118,13 @@ export default function MyLists({ session }) {
 
   return (
     <div className="ml-container">
+      <nav className="vault-crumbs" aria-label="Breadcrumb">
+        <Link to="/vault" className="vault-crumbs-back">
+          <ArrowLeft size={12} /> Vault
+        </Link>
+        <span className="vault-crumbs-sep">/</span>
+        <span className="vault-crumbs-current">Lists</span>
+      </nav>
       <header className="ml-header">
         <h1 className="ml-title">My Lists</h1>
         <p className="ml-sub">Your private problem collections — group anything however you want.</p>
@@ -141,37 +157,91 @@ export default function MyLists({ session }) {
       ) : (
         <ul className="ml-list-grid">
           {lists.map(l => (
-            <li key={l.id} className="ml-list-card">
-              <button className="ml-list-open" onClick={() => setActiveList(l)}>
-                <span className="ml-list-name">{l.name}</span>
-                {l.description && <span className="ml-list-desc">{l.description}</span>}
-                <span className="ml-list-meta">Updated {new Date(l.updated_at).toLocaleDateString()}</span>
-              </button>
-              <div className="ml-list-actions">
-                <button
-                  className="ml-icon-btn"
-                  onClick={() => {
-                    const n = prompt('Rename list to:', l.name);
-                    if (n) renameList(l.id, n);
-                  }}
-                  title="Rename"
-                >
-                  <Pencil size={12} />
-                </button>
-                <button
-                  className="ml-icon-btn ml-icon-danger"
-                  onClick={() => deleteList(l.id)}
-                  disabled={pendingId === l.id}
-                  title="Delete"
-                >
-                  <Trash2 size={12} />
-                </button>
-              </div>
-            </li>
+            <ListCard
+              key={l.id}
+              list={l}
+              progressById={progressById}
+              pending={pendingId === l.id}
+              onOpen={() => setActiveList(l)}
+              onRename={() => { const n = prompt('Rename list to:', l.name); if (n) renameList(l.id, n); }}
+              onDelete={() => deleteList(l.id)}
+            />
           ))}
         </ul>
       )}
     </div>
+  );
+}
+
+function ListCard({ list, progressById, pending, onOpen, onRename, onDelete }) {
+  const { data: problems = [] } = useMyListProblems(list.id);
+
+  const stats = useMemo(() => {
+    let solved = 0, e = 0, m = 0, h = 0;
+    for (const p of problems) {
+      if (isSolved(progressById[p.id])) solved++;
+      const d = (p.difficulty || '').toLowerCase();
+      if (d === 'easy') e++;
+      else if (d === 'medium') m++;
+      else if (d === 'hard') h++;
+    }
+    return { total: problems.length, solved, e, m, h };
+  }, [problems, progressById]);
+
+  const total = stats.total || 1;
+
+  return (
+    <li
+      className="ml-list-card"
+      role="button"
+      tabIndex={0}
+      onClick={onOpen}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(); } }}
+    >
+      <div className="ml-list-open">
+        <div className="ml-list-toprow">
+          <ProgressRing solved={stats.solved} total={stats.total} color="var(--accent)" size={48} />
+          <div className="ml-list-headtext">
+            <span className="ml-list-name">{list.name}</span>
+            <span className="ml-list-meta">
+              {stats.solved} / {stats.total} solved · {new Date(list.updated_at).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+        {list.description && <span className="ml-list-desc">{list.description}</span>}
+        {stats.total > 0 ? (
+          <div className="ml-diffbar" title={`${stats.e} easy · ${stats.m} medium · ${stats.h} hard`}>
+            {stats.e > 0 && <span className="ml-diffbar-seg ml-diffbar-easy" style={{ flex: stats.e / total }} />}
+            {stats.m > 0 && <span className="ml-diffbar-seg ml-diffbar-med" style={{ flex: stats.m / total }} />}
+            {stats.h > 0 && <span className="ml-diffbar-seg ml-diffbar-hard" style={{ flex: stats.h / total }} />}
+          </div>
+        ) : (
+          <div className="ml-diffbar ml-diffbar-empty" />
+        )}
+        <div className="ml-diffbar-legend">
+          <span className="ml-leg ml-leg-easy">{stats.e}E</span>
+          <span className="ml-leg ml-leg-med">{stats.m}M</span>
+          <span className="ml-leg ml-leg-hard">{stats.h}H</span>
+        </div>
+      </div>
+      <div className="ml-list-actions">
+        <button
+          className="ml-icon-btn"
+          onClick={(e) => { e.stopPropagation(); onRename(); }}
+          title="Rename"
+        >
+          <Pencil size={12} />
+        </button>
+        <button
+          className="ml-icon-btn ml-icon-danger"
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
+          disabled={pending}
+          title="Delete"
+        >
+          <Trash2 size={12} />
+        </button>
+      </div>
+    </li>
   );
 }
 

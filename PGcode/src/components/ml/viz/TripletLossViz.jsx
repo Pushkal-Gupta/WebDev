@@ -122,7 +122,7 @@ export default function TripletLossViz() {
           ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 620, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
           onMouseMove={onMove}
           onMouseUp={endDrag}
           onMouseLeave={endDrag}

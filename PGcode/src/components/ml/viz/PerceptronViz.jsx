@@ -346,6 +346,13 @@ export default function PerceptronViz() {
             >
               <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)" />
             </marker>
+            <linearGradient id="perceptron-boundary-grad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="perceptron-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2.8" />
+            </filter>
           </defs>
 
           <Grid />
@@ -395,16 +402,29 @@ export default function PerceptronViz() {
 
           {/* decision boundary */}
           {boundary && (
-            <line
-              x1={toScreen(boundary[0].x, boundary[0].y).sx}
-              y1={toScreen(boundary[0].x, boundary[0].y).sy}
-              x2={toScreen(boundary[1].x, boundary[1].y).sx}
-              y2={toScreen(boundary[1].x, boundary[1].y).sy}
-              stroke="var(--accent)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              opacity="0.95"
-            />
+            <>
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#perceptron-boundary-grad)"
+                strokeWidth="4.5"
+                strokeLinecap="round"
+                filter="url(#perceptron-glow)"
+                opacity="0.5"
+              />
+              <line
+                x1={toScreen(boundary[0].x, boundary[0].y).sx}
+                y1={toScreen(boundary[0].x, boundary[0].y).sy}
+                x2={toScreen(boundary[1].x, boundary[1].y).sx}
+                y2={toScreen(boundary[1].x, boundary[1].y).sy}
+                stroke="url(#perceptron-boundary-grad)"
+                strokeWidth="2.4"
+                strokeLinecap="round"
+                opacity="0.98"
+              />
+            </>
           )}
 
           {/* weight vector arrow from origin */}
@@ -412,16 +432,30 @@ export default function PerceptronViz() {
             const a = toScreen(0, 0);
             const e = toScreen(wxEnd, wyEnd);
             return (
-              <line
-                x1={a.sx}
-                y1={a.sy}
-                x2={e.sx}
-                y2={e.sy}
-                stroke="var(--accent)"
-                strokeWidth="2.4"
-                markerEnd="url(#perceptron-arrow)"
-                opacity="0.9"
-              />
+              <g>
+                <line
+                  x1={a.sx}
+                  y1={a.sy}
+                  x2={e.sx}
+                  y2={e.sy}
+                  stroke="var(--accent)"
+                  strokeWidth="4.5"
+                  strokeLinecap="round"
+                  filter="url(#perceptron-glow)"
+                  opacity="0.45"
+                />
+                <line
+                  x1={a.sx}
+                  y1={a.sy}
+                  x2={e.sx}
+                  y2={e.sy}
+                  stroke="var(--accent)"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  markerEnd="url(#perceptron-arrow)"
+                  opacity="0.95"
+                />
+              </g>
             );
           })()}
 
@@ -429,16 +463,28 @@ export default function PerceptronViz() {
           {lastPt && (() => {
             const { sx, sy } = toScreen(lastPt.x, lastPt.y);
             return (
-              <circle
-                cx={sx}
-                cy={sy}
-                r="9"
-                fill="none"
-                stroke={colMis}
-                strokeWidth="1.6"
-                strokeDasharray="3 2"
-                opacity="0.9"
-              />
+              <g>
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r="9"
+                  fill="none"
+                  stroke={colMis}
+                  strokeWidth="3.2"
+                  filter="url(#perceptron-glow)"
+                  opacity="0.45"
+                />
+                <circle
+                  cx={sx}
+                  cy={sy}
+                  r="9"
+                  fill="none"
+                  stroke={colMis}
+                  strokeWidth="1.6"
+                  strokeDasharray="3 2"
+                  opacity="0.9"
+                />
+              </g>
             );
           })()}
 

@@ -586,6 +586,15 @@
 .viz-tile-tree    { border-color: var(--hue-violet); }
 .viz-tile-compared { border-color: var(--hue-sky); background: rgba(var(--accent-rgb), 0.06); }
 .viz-tile-pivot   { border-color: var(--hue-pink); background: var(--hover-box); transform: translateY(-3px); box-shadow: 0 4px 14px var(--hover-box); }
+.viz-tile-new     { border-color: var(--hue-sky); background: rgba(var(--accent-rgb), 0.06); transform: translateY(-2px); box-shadow: 0 4px 12px var(--hover-box); }
+.viz-tile-found   { border-color: var(--easy); background: var(--easy-bg); transform: translateY(-2px); box-shadow: 0 4px 12px var(--hover-box); }
+.viz-tile-key     { border-color: var(--hue-pink); background: rgba(var(--accent-rgb), 0.06); }
+/* Dependency cells a recurrence reads (e.g. dp[i-1], dp[i-2]). */
+.viz-tile-left    { border-color: var(--hue-sky); background: rgba(var(--accent-rgb), 0.05); }
+.viz-tile-right   { border-color: var(--hue-violet); background: rgba(var(--accent-rgb), 0.05); }
+/* Active window/range highlight (suffix-automaton, sliding ranges). */
+.viz-tile-window  { border-color: var(--accent); background: rgba(var(--accent-rgb), 0.12); box-shadow: 0 2px 8px var(--hover-box); }
+.viz-tile-unbalanced { border-color: var(--warning); background: rgba(var(--accent-rgb), 0.05); }
 .viz-tile-value {
   font-family: var(--mono);
   font-size: 0.92rem;
@@ -802,6 +811,22 @@
 .viz-node-visited text   { fill: var(--text-main); }
 .viz-node-frontier circle{ fill: var(--surface); stroke: var(--hue-sky); stroke-width: 2; }
 .viz-node-done circle    { fill: rgba(var(--accent-rgb), 0.12); stroke: var(--hue-mint); }
+
+/* Extended node states used by the balanced-tree / structure viz (RB recolor,
+   newly-inserted, imbalance, found, pivot, match). Additive — unstyled before.
+   color-mix keeps fills theme-token-only (no hardcoded rgb). */
+.viz-node-key circle        { fill: color-mix(in srgb, var(--hue-pink) 22%, var(--surface)); stroke: var(--hue-pink); stroke-width: 2; }
+.viz-node-key text          { fill: var(--text-main); }
+.viz-node-new circle        { fill: color-mix(in srgb, var(--hue-sky) 20%, var(--surface)); stroke: var(--hue-sky); stroke-width: 2; }
+.viz-node-new text          { fill: var(--text-main); }
+.viz-node-unbalanced circle { fill: color-mix(in srgb, var(--warning) 20%, var(--surface)); stroke: var(--warning); stroke-width: 2; }
+.viz-node-unbalanced text   { fill: var(--text-main); }
+.viz-node-found circle      { fill: var(--easy); stroke: var(--easy); }
+.viz-node-found text        { fill: var(--bg); }
+.viz-node-pivot circle      { fill: color-mix(in srgb, var(--hue-pink) 22%, var(--surface)); stroke: var(--hue-pink); stroke-width: 2.5; }
+.viz-node-pivot text        { fill: var(--text-main); }
+.viz-node-match circle      { fill: var(--easy); stroke: var(--easy); }
+.viz-node-match text        { fill: var(--bg); }
 
 /* ── Tree traversal chips ── */
 .viz-traversal-row {

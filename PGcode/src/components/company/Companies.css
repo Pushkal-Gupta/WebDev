@@ -1,10 +1,23 @@
+/* The route shell isn't a flex column, so anchor the fill to the viewport
+   (mirrors the prior viewport-height behaviour) while keeping the flex pattern. */
 .comp-container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   width: 94%;
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
   overflow-y: auto;
-  height: calc(100vh - 100px);
+  overflow-x: hidden;
+  min-height: calc(100vh - 104px);
+}
+
+/* Sections region grows to fill remaining height so the page never bottoms out
+   into an empty band on tall viewports. */
+.comp-sections {
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .comp-header {
@@ -22,10 +35,22 @@
   margin-bottom: 0.4rem;
 }
 
+.comp-title-pre {
+  color: var(--text-dim);
+  font-size: 0.6em;
+  opacity: 0.55;
+  font-weight: 600;
+}
+
 .comp-sub {
   font-size: 0.85rem;
   color: var(--text-dim);
   max-width: 720px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .comp-card:hover { transform: none; }
+  .comp-card:hover .comp-card-flourish { transform: none; }
 }
 
 .comp-section {
@@ -44,8 +69,9 @@
 
 .comp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 0.7rem;
+  align-content: start;
 }
 
 .comp-group-grid {
@@ -93,18 +119,30 @@
 .comp-card > * { position: relative; z-index: 1; }
 
 .comp-card:hover {
-  border-color: var(--card-accent, var(--accent));
+  border-color: var(--accent);
   transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
 .comp-card:hover::after { opacity: 1; }
 
-.comp-grid .comp-card:nth-child(5n+1) { --card-accent: var(--accent); }
-.comp-grid .comp-card:nth-child(5n+2) { --card-accent: var(--hue-violet); }
-.comp-grid .comp-card:nth-child(5n+3) { --card-accent: var(--hue-sky); }
-.comp-grid .comp-card:nth-child(5n+4) { --card-accent: var(--hue-pink); }
-.comp-grid .comp-card:nth-child(5n+5) { --card-accent: var(--hue-mint); }
+/* ForgeThumb banner — teal-tinted radial wash behind each card's distinct motif. */
+.comp-card-flourish {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 104px;
+  height: 70px;
+  opacity: 0.22;
+  pointer-events: none;
+  z-index: 0;
+  transition: opacity var(--t), transform var(--t);
+}
+.comp-card-flourish > svg { width: 100%; height: 100%; }
+.comp-card:hover .comp-card-flourish {
+  opacity: 0.42;
+  transform: scale(1.05);
+}
 
 .comp-card-head {
   display: flex;
@@ -112,7 +150,40 @@
   gap: 0.45rem;
 }
 
-.comp-card-icon { color: var(--card-accent, var(--accent)); flex-shrink: 0; }
+.comp-card-icon { color: var(--accent); flex-shrink: 0; }
+
+.comp-card-iconbox,
+.comp-card-monogram {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  color: var(--accent);
+  background:
+    radial-gradient(120% 120% at 30% 10%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 70%),
+    var(--hover-box);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.comp-card-monogram {
+  font-family: var(--serif);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.comp-card-logo {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  object-fit: contain;
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+  padding: 3px;
+}
 
 .comp-card-title {
   font-family: var(--serif);
@@ -535,6 +606,17 @@
   line-height: 1.3;
 }
 .comp-study-card:hover .comp-study-card-title { color: var(--accent); }
+
+.comp-study-card-titlerow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.comp-study-card-lang { flex-shrink: 0; }
+
+.comp-detail-logo {
+  border-radius: 9px;
+}
 
 .comp-study-card-desc {
   font-size: 0.76rem;

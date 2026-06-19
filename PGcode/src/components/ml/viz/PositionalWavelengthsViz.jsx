@@ -32,14 +32,14 @@ const D_MODEL_OPTIONS = [32, 64, 128, 256, 512];
 
 // Cycle of site hue tokens (with safe fallbacks) for the 8 waves.
 const HUE_CYCLE = [
-  { var: 'var(--hue-pink, #ff66cc)', fallback: '#ff66cc' },
-  { var: 'var(--hue-violet, #b07bff)', fallback: '#b07bff' },
-  { var: 'var(--accent)', fallback: '#00fff5' },
-  { var: 'var(--hue-sky, #5ecbff)', fallback: '#5ecbff' },
-  { var: 'var(--hue-mint, #6ee0a8)', fallback: '#6ee0a8' },
-  { var: 'var(--hue-pink, #ff66cc)', fallback: '#ff66cc' },
-  { var: 'var(--hue-violet, #b07bff)', fallback: '#b07bff' },
-  { var: 'var(--hue-sky, #5ecbff)', fallback: '#5ecbff' },
+  { var: 'var(--hue-pink, #ff66cc)' },
+  { var: 'var(--hue-violet, #b07bff)' },
+  { var: 'var(--accent)' },
+  { var: 'var(--hue-sky, #5ecbff)' },
+  { var: 'var(--hue-mint, #6ee0a8)' },
+  { var: 'var(--hue-pink, #ff66cc)' },
+  { var: 'var(--hue-violet, #b07bff)' },
+  { var: 'var(--hue-sky, #5ecbff)' },
 ];
 
 function omegaFor(i, dModel) {
@@ -429,7 +429,7 @@ export default function PositionalWavelengthsViz() {
 
         {hoverRow !== null && (
           <div className="mlviz-row" style={{ marginTop: '0.55rem' }}>
-            <span className="mlviz-tag" style={{ color: HUE_CYCLE[hoverRow].fallback }}>
+            <span className="mlviz-tag" style={{ color: HUE_CYCLE[hoverRow].var }}>
               dim {2 * hoverRow}
             </span>
             <span className="mlviz-val">

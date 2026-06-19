@@ -160,9 +160,9 @@ function heatColor(sim) {
   const a = Math.max(0, sim);
   const n = Math.max(0, -sim);
   if (a > n) {
-    return `rgba(var(--accent-rgb, 0, 255, 245), ${(0.10 + a * 0.85).toFixed(3)})`;
+    return `color-mix(in srgb, var(--accent) ${((0.10 + a * 0.85) * 100).toFixed(1)}%, transparent)`;
   }
-  return `rgba(255, 179, 71, ${(0.10 + n * 0.85).toFixed(3)})`;
+  return `color-mix(in srgb, var(--warning, #ffb347) ${((0.10 + n * 0.85) * 100).toFixed(1)}%, transparent)`;
 }
 
 export default function Word2VecViz() {
@@ -352,12 +352,19 @@ export default function Word2VecViz() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 720, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '860px', aspectRatio: `${W} / ${H}` }}
         >
           <defs>
             <radialGradient id="w2v-center-glow" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.55" />
               <stop offset="60%" stopColor="var(--accent)" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+            </radialGradient>
+            <filter id="w2v-line-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" />
+            </filter>
+            <radialGradient id="w2v-dot-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.5" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </radialGradient>
             <marker id="w2v-pull" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
@@ -457,6 +464,17 @@ export default function Word2VecViz() {
                 x2={centerPx.cx}
                 y2={centerPx.cy}
                 stroke="var(--accent)"
+                strokeWidth={3}
+                opacity={0.4}
+                strokeLinecap="round"
+                filter="url(#w2v-line-glow)"
+              />
+              <line
+                x1={p.dst.cx}
+                y1={p.dst.cy}
+                x2={centerPx.cx}
+                y2={centerPx.cy}
+                stroke="var(--accent)"
                 strokeWidth={1.6}
                 opacity={0.85}
                 strokeLinecap="round"
@@ -501,12 +519,23 @@ export default function Word2VecViz() {
               : isPos
                 ? 'rgba(var(--accent-rgb, 0, 255, 245), 0.18)'
                 : isNeg
-                  ? 'rgba(255, 179, 71, 0.16)'
+                  ? 'color-mix(in srgb, var(--warning, #ffb347) 16%, transparent)'
                   : 'rgba(var(--accent-rgb, 0, 255, 245), 0.06)';
             const r = isCenter ? 13 : (isPos || isNeg) ? 10 : 7;
             const sw = isCenter ? 2.4 : (isPos || isNeg) ? 1.7 : 1.1;
+            const isActive = isCenter || isPos || isNeg;
             return (
               <g key={`w-${i}`} pointerEvents="none">
+                {isActive && (
+                  <circle
+                    cx={p.cx}
+                    cy={p.cy}
+                    r={r + 4}
+                    fill={color}
+                    opacity={isCenter ? 0.4 : 0.26}
+                    filter="url(#w2v-line-glow)"
+                  />
+                )}
                 <circle
                   cx={p.cx}
                   cy={p.cy}

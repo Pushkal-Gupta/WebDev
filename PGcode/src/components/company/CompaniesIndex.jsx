@@ -6,9 +6,15 @@ import {
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { COMPANY_GROUPS, membersOf } from '../../content/companyGroups';
+import BrandLogo from '../common/BrandLogo';
+import ForgeThumb from '../ml/forge/ForgeThumb';
 import './Companies.css';
 
 const GROUP_ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin };
+
+export function CompanyLogo({ c }) {
+  return <BrandLogo kind="company" name={c.name} slug={c.slug} />;
+}
 
 export default function CompaniesIndex() {
   const { data: companies = [], isLoading } = useCompanies();
@@ -61,13 +67,13 @@ export default function CompaniesIndex() {
   return (
     <div className="comp-container">
       <header className="comp-header">
-        <h1 className="comp-title">Companies</h1>
+        <h1 className="comp-title"><span className="comp-title-pre">PG</span>Career</h1>
         <p className="comp-sub">
-          {companies.length} companies, each with their most-frequently-asked interview problems
-          ranked by frequency score.
+          {companies.length} companies with their most-asked interview problems, ranked by frequency.
         </p>
       </header>
 
+      <div className="comp-sections">
       <section className="comp-section">
         <h2 className="comp-section-title">Browse by group</h2>
         <div className="comp-group-grid">
@@ -76,8 +82,11 @@ export default function CompaniesIndex() {
             const n = groupCounts[slug] || 0;
             return (
               <Link key={slug} to={`/company/g/${slug}`} className="comp-card comp-group-card">
+                <div className="comp-card-flourish" aria-hidden="true">
+                  <ForgeThumb seed={g.title} kind="cards" label={g.title} />
+                </div>
                 <div className="comp-card-head">
-                  <Icon size={15} className="comp-card-icon" />
+                  <span className="comp-card-iconbox"><Icon size={16} /></span>
                   <h3 className="comp-card-title">{g.title}</h3>
                   <Layers size={11} className="comp-group-card-badge" />
                 </div>
@@ -109,6 +118,7 @@ export default function CompaniesIndex() {
           </div>
         </section>
       ))}
+      </div>
     </div>
   );
 }
@@ -117,7 +127,7 @@ function CompanyCard({ c }) {
   return (
     <Link to={`/company/${c.slug}`} className="comp-card">
       <div className="comp-card-head">
-        <Building2 size={14} className="comp-card-icon" />
+        <CompanyLogo c={c} />
         <h3 className="comp-card-title">{c.name}</h3>
         {c.is_featured && <Star size={11} className="comp-card-star" />}
       </div>

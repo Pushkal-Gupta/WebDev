@@ -162,7 +162,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   const [codeContent, setCodeContent] = useState('');
   const [leftTab, setLeftTab] = useState('description');
   const [notes, setNotes] = useState('');
-  const [confidence, setConfidence] = useState(0);
+  const [, setConfidence] = useState(0);
   const [consoleOutput, setConsoleOutput] = useState('');
   const [running, setRunning] = useState(false);
   const [editorStatus, setEditorStatus] = useState('');
@@ -210,7 +210,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   const [showSuccess, setShowSuccess] = useState(false);
   // Local "similar" list for the post-solve modal (kept separate from the
   // concept-derived `similarProblems` hook used in the Description tab).
-  const [postSolveSimilar, setPostSolveSimilar] = useState([]);
+  const [, setPostSolveSimilar] = useState([]);
   // Solve timer
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [timerPaused, setTimerPaused] = useState(false);
@@ -967,7 +967,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     return () => window.removeEventListener('keydown', onKey);
   }, [running]);
 
-  const setAndSaveConfidence = (val) => {
+  // Retained for the confidence control + manual notes-save button (auto-save
+  // covers persistence today); underscore-prefixed to mark intentionally unused.
+  const _setAndSaveConfidence = (val) => {
     setConfidence(val);
     saveProgress({
       confidence: val,
@@ -975,7 +977,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     });
   };
 
-  const saveNotes = () => { saveProgress({ notes }); setEditorStatus('Notes saved'); setTimeout(() => setEditorStatus(''), 2000); };
+  const _saveNotes = () => { saveProgress({ notes }); setEditorStatus('Notes saved'); setTimeout(() => setEditorStatus(''), 2000); };
 
   // Debounced auto-save of notes — manual Save button stays as a confidence
   // signal, but users won't lose unsaved edits on tab close / nav-away.
@@ -1001,13 +1003,13 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
     // an editor action so the shortcut works even when the user is typing code.
     editor.addAction({
       id: 'pgcode.run',
-      label: 'PGcode: Run',
+      label: 'PG Hub: Run',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
       run: () => { runRef.current?.(); },
     });
     editor.addAction({
       id: 'pgcode.submit',
-      label: 'PGcode: Submit',
+      label: 'PG Hub: Submit',
       keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.Enter],
       run: () => { submitRef.current?.(); },
     });

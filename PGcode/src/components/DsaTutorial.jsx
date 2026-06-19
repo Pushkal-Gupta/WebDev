@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, X, ArrowRight, ArrowLeft, BookOpen, Hash, CheckCircle2 } from 'lucide-react';
+import ForgeThumb from './ml/forge/ForgeThumb';
 import { DSA_TUTORIAL, countTutorialItems, countAll } from '../content/dsaTutorial';
 import {
   useProblemsCompact,
@@ -107,33 +108,11 @@ export default function DsaTutorial({ session }) {
         <div className="tut-hero">
           <div className="tut-hero-left">
             <h1 className="tut-title">DSA Tutorial</h1>
-            <p className="tut-sub">
-              Every data structure and algorithm, top to bottom — theory plus the problems that drill it.
-            </p>
-          </div>
-          <div className="tut-hero-right">
-            <div className="tut-stat">
-              <span className="tut-stat-num">{totals.totalAll}</span>
-              <span className="tut-stat-label">items</span>
-            </div>
-            <div className="tut-stat-divider" aria-hidden="true" />
-            <div className="tut-stat">
-              <span className="tut-stat-num">{DSA_TUTORIAL.length}</span>
-              <span className="tut-stat-label">topics</span>
-            </div>
-            {userId && (
-              <>
-                <div className="tut-stat-divider" aria-hidden="true" />
-                <div className="tut-stat tut-stat-progress">
-                  <span className="tut-stat-num tut-stat-num-accent">{overallPct}%</span>
-                  <span className="tut-stat-label">{totals.solved}/{totals.totalProblems} solved</span>
-                </div>
-              </>
-            )}
+            <p className="tut-sub">Every data structure and algorithm, top to bottom — theory plus the problems that drill it.</p>
           </div>
         </div>
-        {userId && (
-          <div className="tut-progress-bar" aria-label={`${overallPct}% complete`}>
+        {userId && totals.totalProblems > 0 && (
+          <div className="tut-progress-bar" aria-label={`${overallPct}% complete — ${totals.solved} of ${totals.totalProblems} solved`}>
             <div className="tut-progress-fill" style={{ width: `${overallPct}%` }} />
           </div>
         )}
@@ -185,6 +164,10 @@ export default function DsaTutorial({ session }) {
               className="tut-topic-card"
               aria-label={`Open ${info.title}`}
             >
+              <div className="tut-card-thumb" aria-hidden="true">
+                <ForgeThumb seed={info.title} />
+              </div>
+              <div className="tut-card-body">
               <div className="tut-card-top">
                 <span className="tut-card-num">{String(idx + 1).padStart(2, '0')}</span>
                 <ArrowRight className="tut-card-arrow" size={14} aria-hidden="true" />
@@ -221,6 +204,7 @@ export default function DsaTutorial({ session }) {
                   />
                 </div>
               )}
+              </div>
             </Link>
           ))}
         </div>

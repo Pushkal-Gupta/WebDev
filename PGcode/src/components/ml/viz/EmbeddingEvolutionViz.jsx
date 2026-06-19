@@ -180,7 +180,7 @@ export default function EmbeddingEvolutionViz({ tokens: tokensProp }) {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 580, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
         >
           <defs>
             <marker id="ee-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">

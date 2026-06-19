@@ -32,7 +32,7 @@ export default function PositionalEncodingViz() {
   const [pinA, setPinA] = useState(0);
   const [pinB, setPinB] = useState(8);
 
-  const { grid, vecA, vecB, sim } = useMemo(() => {
+  const { grid, vecA, sim } = useMemo(() => {
     const g = [];
     for (let p = 0; p < maxPos; p++) {
       const row = new Array(dModel);
@@ -41,7 +41,7 @@ export default function PositionalEncodingViz() {
     }
     const a = fullVector(Math.min(pinA, maxPos - 1), dModel);
     const b = fullVector(Math.min(pinB, maxPos - 1), dModel);
-    return { grid: g, vecA: a, vecB: b, sim: dot(a, b) / dModel };
+    return { grid: g, vecA: a, sim: dot(a, b) / dModel };
   }, [maxPos, dModel, pinA, pinB]);
 
   const W = 720;

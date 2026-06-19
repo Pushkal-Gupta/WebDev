@@ -1,13 +1,15 @@
 .mlhub {
   flex: 1 1 auto;
-  max-width: var(--container-w, 1200px);
-  width: 100%;
-  margin: 0 auto;
-  padding: 1.4rem 1.5rem 2rem;
-  font-family: var(--mono);
-  overflow-y: auto;
-  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
   min-height: 0;
+  overflow-y: auto;
+  max-width: var(--container-w, 1200px);
+  width: 94%;
+  margin: 0 auto;
+  padding: 1.4rem 0 2rem;
+  font-family: var(--mono);
+  overflow-x: hidden;
 }
 
 .ml-lesson {
@@ -20,6 +22,13 @@
 .mlhub-hero {
   margin-bottom: 1.2rem;
 }
+
+.mlhub-sub-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.mlhub-sub-link:hover { text-decoration: underline; }
 
 .mlhub-eyebrow {
   display: inline-block;
@@ -81,20 +90,27 @@
 
 .mlhub-pillars {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.1rem;
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
+}
+
+.mlhub-pillars-auto {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: start;
 }
 
 .mlhub-pillars-3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .mlhub-pillars-2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 
-@media (max-width: 980px) {
+@media (max-width: 560px) {
+  .mlhub-pillars,
   .mlhub-pillars-3,
   .mlhub-pillars-2 {
     grid-template-columns: 1fr;
@@ -135,17 +151,75 @@ a.mlhub-pillar-group {
   text-decoration: none;
   color: var(--text-main);
   display: flex;
+  cursor: pointer;
 }
 
 .mlhub-pillar-group {
-  padding: 1.05rem 1.1rem 0.95rem;
+  position: relative;
+  overflow: hidden;
+  padding: 1.1rem 1.15rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
+.mlhub-pillar-group:hover {
+  border-color: var(--accent);
+}
+
+/* Left accent stripe in the brand accent. */
+.mlhub-pillar-stripe {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+/* Radial-gradient flourish that brightens on hover (ForgeThumb motif). */
+.mlhub-pillar-flourish {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 96px;
+  height: 64px;
+  opacity: 0.22;
+  pointer-events: none;
+  transition: opacity var(--t), transform var(--t);
+}
+
+.mlhub-pillar-group:hover .mlhub-pillar-flourish {
+  opacity: 0.4;
+  transform: scale(1.05);
+}
+
+.mlhub-pillar-iconbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  color: var(--accent);
+  background:
+    radial-gradient(120% 120% at 30% 10%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 70%),
+    var(--hover-box);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.mlhub-pillar-arrow {
+  color: var(--text-dim);
+  transition: color var(--t), transform var(--t);
+}
+
+.mlhub-pillar-group:hover .mlhub-pillar-arrow {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
 .mlhub-pillar-group .mlhub-pillar-head {
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.55rem;
+  align-items: center;
 }
 
 .mlhub-pillar-group .mlhub-pillar-title {
@@ -156,7 +230,133 @@ a.mlhub-pillar-group {
 .mlhub-pillar-group .mlhub-pillar-summary {
   font-size: 0.74rem;
   line-height: 1.5;
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.7rem;
+}
+
+.mlhub-pillar-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+}
+
+.mlhub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  font-family: var(--mono);
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--hover-box);
+  color: var(--text-dim);
+}
+
+.mlhub-chip svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Lesson card — colorful thumbnail banner on top, body cleanly below. */
+a.mlhub-lesson-card {
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.mlhub-pillar.mlhub-lesson-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  min-height: 212px;
+}
+
+.mlhub-lesson-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+/* Accent stripe stays scoped to the body so it never paints over the thumb. */
+.mlhub-lesson-card .mlhub-pillar-stripe {
+  inset: 110px auto 0 0;
+}
+
+.mlhub-lesson-thumb {
+  position: relative;
+  flex: 0 0 110px;
+  height: 110px;
+  min-height: 110px;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.mlhub-lesson-thumb > * {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform var(--t);
+}
+
+.mlhub-lesson-card:hover .mlhub-lesson-thumb > * {
+  transform: scale(1.04);
+}
+
+.mlhub-lesson-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem 0.95rem;
+  flex: 1 1 auto;
+}
+
+.mlhub-lesson-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.15rem;
+}
+
+/* Smaller iconbox seated inside the body — never straddles the thumb seam. */
+.mlhub-lesson-card .mlhub-pillar-iconbox {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.mlhub-lesson-card .mlhub-pillar-iconbox svg {
+  width: 15px;
+  height: 15px;
+}
+
+.mlhub-lesson-title {
+  font-family: var(--serif);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.mlhub-lesson-summary {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.mlhub-lesson-card .mlhub-pillar-chips {
+  margin-top: auto;
+  padding-top: 0.5rem;
 }
 
 .mlhub-pillar-group .mlhub-pillar-items {
@@ -215,8 +415,16 @@ a.mlhub-pillar-group {
 
 .mlhub-pillar:hover {
   border-color: var(--accent);
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.mlhub-pillar-group .mlhub-pillar-head,
+.mlhub-pillar-group .mlhub-pillar-title,
+.mlhub-pillar-group .mlhub-pillar-summary,
+.mlhub-pillar-group .mlhub-pillar-chips {
+  position: relative;
+  z-index: 1;
 }
 
 .mlhub-pillar-head {

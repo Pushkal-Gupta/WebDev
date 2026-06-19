@@ -566,27 +566,41 @@ export function GraphRenderer({ frame }) {
     return { ...n, x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
   });
   const posById = Object.fromEntries(positioned.map(n => [n.id, n]));
+  // Tolerate the legacy frame shape some producers still emit: edges keyed
+  // {from,to,weight} instead of {a,b,w}, node highlighting via a
+  // frame.highlightedNodes map instead of per-node state, and active edges via
+  // a frame.highlightedEdges list. Without this normalization those vizzes
+  // (e.g. bellman-ford) render nodes with no edges and no highlights.
+  const edgeA = (e) => e.a ?? e.from;
+  const edgeB = (e) => e.b ?? e.to;
+  const edgeW = (e) => (e.w ?? e.weight);
+  const ekey = (x, y) => `${x}->${y}`;
+  const hlEdges = new Set((frame.highlightedEdges || []).map(h => ekey(h.a ?? h.from, h.b ?? h.to)));
+  const edgeState = (e) => e.state ?? (hlEdges.has(ekey(edgeA(e), edgeB(e))) ? 'current' : null);
+  const nodeState = (n) => n.state ?? frame.highlightedNodes?.[n.id] ?? null;
   return (
     <div className="viz-graph-block">
       <StatChip chip={frame.chip} />
       <svg className="viz-graph" viewBox="0 0 480 340" role="img" aria-label="graph">
         {/* Edges first (under nodes). */}
         {edges.map((e, i) => {
-          const a = posById[e.a]; const b = posById[e.b];
+          const a = posById[edgeA(e)]; const b = posById[edgeB(e)];
           if (!a || !b) return null;
+          const st = edgeState(e);
           return (
             <line key={i} x1={a.x} y1={a.y} x2={b.x} y2={b.y}
-              className={`viz-edge ${e.state ? 'viz-edge-' + e.state : ''}`} />
+              className={`viz-edge ${st ? 'viz-edge-' + st : ''}`} />
           );
         })}
         {edges.map((e, i) => {
-          const a = posById[e.a]; const b = posById[e.b];
-          if (!a || !b || e.w == null) return null;
+          const a = posById[edgeA(e)]; const b = posById[edgeB(e)];
+          const wv = edgeW(e);
+          if (!a || !b || wv == null) return null;
           const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
-          const text = String(e.w);
+          const text = String(wv);
           const w = Math.max(16, 8 + text.length * 6);
           return (
-            <g key={`w-${i}`} className={`viz-edge-weight-group ${e.state ? 'viz-edge-weight-' + e.state : ''}`}>
+            <g key={`w-${i}`} className={`viz-edge-weight-group ${edgeState(e) ? 'viz-edge-weight-' + edgeState(e) : ''}`}>
               <rect x={mx - w / 2} y={my - 8} width={w} height={14} rx={7} className="viz-edge-weight-bg" />
               <text x={mx} y={my} dy=".34em" textAnchor="middle" className="viz-edge-weight">{text}</text>
             </g>
@@ -596,10 +610,11 @@ export function GraphRenderer({ frame }) {
         {positioned.map(n => {
           const lines = String(n.label ?? n.id).split('\n');
           const r = lines.length > 1 ? 22 : 18;
-          const isCurrent = n.state === 'current';
-          const isFrontier = n.state === 'frontier';
+          const st = nodeState(n);
+          const isCurrent = st === 'current';
+          const isFrontier = st === 'frontier';
           return (
-            <g key={n.id} className={`viz-node ${n.state ? 'viz-node-' + n.state : ''}`}>
+            <g key={n.id} className={`viz-node ${st ? 'viz-node-' + st : ''}`}>
               {isCurrent && <circle cx={n.x} cy={n.y} r={r + 6} className="viz-node-ring" />}
               {isFrontier && <circle cx={n.x} cy={n.y} r={r + 4} className="viz-node-pulse" />}
               <circle cx={n.x} cy={n.y} r={r} />

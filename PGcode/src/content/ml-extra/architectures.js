@@ -37,6 +37,11 @@ D^*(x) = \\frac{p_{\\text{data}}(x)}{p_{\\text{data}}(x) + p_g(x)}
 Substitute that back in and the generator's objective becomes minimising the **Jensen-Shannon divergence** between the real distribution \\(p_{\\text{data}}\\) and the generated distribution \\(p_g\\). The global optimum is \\(p_g = p_{\\text{data}}\\), where \\(D^* = \\tfrac{1}{2}\\) everywhere — the detective is reduced to a coin flip.`,
       },
       {
+        kind: 'viz',
+        component: 'GANMinimaxViz',
+        heading: 'Play the game: watch the generator chase the real distribution',
+      },
+      {
         kind: 'prose',
         heading: 'Worked example: the saturating-gradient fix',
         body: `Suppose early in training the generator is terrible, so the discriminator confidently calls every fake a fake: \\(D(G(z)) \\approx 0.05\\). Look at the generator's gradient under the original loss \\(\\log(1 - D(G(z)))\\). The function \\(\\log(1 - d)\\) has derivative \\(-1/(1 - d)\\); at \\(d = 0.05\\) that is \\(-1/0.95 \\approx -1.05\\). The gradient is small precisely when the generator is doing worst — exactly when you most need a strong learning signal. This is the **saturation** problem: the generator gets almost no gradient early on and can stall.
@@ -128,6 +133,11 @@ The \\(\\log p_z(z)\\) term is trivial — it is just the standard Gaussian log-
 \\]
 
 so the problem reduces to designing a single layer whose Jacobian determinant is cheap, then stacking it.`,
+      },
+      {
+        kind: 'viz',
+        component: 'NormalizingFlowViz',
+        heading: 'See the change of variables: a grid warps, the log-det follows',
       },
       {
         kind: 'prose',
@@ -240,6 +250,11 @@ Training maximises the log-likelihood of the data, which by the chain rule decom
 Because every \\(x_t\\) in the training data is observed, all \\(T\\) terms can be computed in a single parallel forward pass — this is **teacher forcing**: the model conditions on the true prefix, not its own predictions, while training. The loss is the average next-token cross-entropy, and its exponential is the **perplexity**, the standard report metric. A perplexity of \\(20\\) means the model is, on average, as uncertain as if it were choosing uniformly among 20 equally likely next tokens.`,
       },
       {
+        kind: 'viz',
+        component: 'AutoregressiveViz',
+        heading: 'Generate one token at a time, conditioned only on the past',
+      },
+      {
         kind: 'prose',
         heading: 'Worked example: a tiny next-token distribution',
         body: `Suppose a language model has read the prefix "the cat sat on the" and produces logits over a four-word vocabulary \\(\\{\\text{mat}, \\text{hat}, \\text{floor}, \\text{cat}\\}\\) of \\((2.0, 1.0, 0.5, -1.0)\\). Convert to probabilities with the softmax. First exponentiate: \\(e^{2.0} = 7.389\\), \\(e^{1.0} = 2.718\\), \\(e^{0.5} = 1.649\\), \\(e^{-1.0} = 0.368\\). Sum \\(= 12.124\\). Divide:
@@ -330,6 +345,11 @@ y = \\sum_{i \\in \\mathcal{T}} \\frac{g_i(x)}{\\sum_{j \\in \\mathcal{T}} g_j(x
 where \\(E_i\\) is the \\(i\\)-th expert network and the gate weights are renormalised over the chosen experts so they sum to one. Only \\(k\\) of the \\(N\\) experts are evaluated, so the compute is \\(k/N\\) of a dense layer over all experts, while the parameter count is the full \\(N\\) experts. With \\(N = 64\\) experts and \\(k = 2\\), each token touches \\(2/64 \\approx 3\\%\\) of the expert parameters yet the model can store knowledge across all 64.`,
       },
       {
+        kind: 'viz',
+        component: 'MoERoutingViz',
+        heading: 'Route a token stream and watch the load balance (or collapse)',
+      },
+      {
         kind: 'prose',
         heading: 'Worked example: routing one token through four experts',
         body: `Take a layer with \\(N = 4\\) experts and top-\\(k = 2\\) routing. A token \\(x\\) produces router logits \\((3.0, 1.0, 2.0, -1.0)\\) for experts \\((E_1, E_2, E_3, E_4)\\). The top-2 by logit are \\(E_1\\) (3.0) and \\(E_3\\) (2.0); \\(E_2\\) and \\(E_4\\) are dropped and never run.
@@ -378,6 +398,324 @@ The trade-off summary: MoE buys you more knowledge per FLOP and faster inference
         kind: 'prose',
         heading: 'Further reading',
         body: `Shazeer et al., "Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer" (2017), the modern foundation — https://arxiv.org/abs/1701.06538. Fedus et al., "Switch Transformers" (2021) for top-1 routing at scale — https://arxiv.org/abs/2101.03961. Jiang et al., "Mixtral of Experts" (2024) for a widely-deployed open MoE — https://arxiv.org/abs/2401.04088.`,
+      },
+    ],
+  },
+  {
+    slug: 'vision-transformer',
+    title: 'Vision transformer (ViT)',
+    oneLiner: 'Chop an image into patches, treat them as tokens, and run a plain transformer — no convolutions required.',
+    difficulty: 'intermediate',
+    readMinutes: 12,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'An image is just a sequence of patches',
+        body: `For most of deep learning's history, "vision" meant convolutions. A convolutional network slides small learnable filters across an image, builds up local features, pools them, and stacks the result into a hierarchy. The vision transformer throws that assumption out and asks a blunt question: what if we treat an image exactly like a sentence, and feed it to the same transformer encoder that works on text?
+
+The trick is in how you turn pixels into tokens. A sentence is already a sequence of discrete units; an image is a dense \\(H \\times W \\times 3\\) grid. So the vision transformer first **cuts the image into a grid of fixed-size square patches** — say \\(16 \\times 16\\) pixels each. A \\(224 \\times 224\\) image at patch size \\(16\\) becomes a \\(14 \\times 14\\) grid, which is \\(196\\) patches. Each patch is flattened into a vector of \\(16 \\times 16 \\times 3 = 768\\) numbers and passed through a single learnable linear layer that maps it to the model's embedding dimension. That linear map is the "patch embedding"; the \\(196\\) resulting vectors are your tokens.
+
+From there the model is just a standard transformer. The patch embeddings get a learnable **position embedding** added so the model knows where each patch sat in the original grid — without it, the self-attention would treat the patches as an unordered bag. A special learnable **[CLS] token** is prepended to the sequence, and after the encoder runs, the representation sitting in that [CLS] slot is fed to a small classification head. The genuinely surprising result is that this works at all: with enough data, a model that has no built-in notion of locality, no convolutions, and no pooling can match or beat the best convolutional networks on image classification. The structure that a CNN bakes in by design, the transformer learns from data — given enough of it.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'The intuition: why patches and why [CLS]',
+        body: `Start with why patches instead of pixels. Self-attention compares every token with every other token, so its cost grows as the square of the sequence length. If you fed individual pixels of a \\(224 \\times 224\\) image as tokens you would have over fifty thousand of them, and the attention matrix would have billions of entries — completely intractable. Patches are a coarsening: a \\(16 \\times 16\\) patch collapses \\(256\\) pixels into one token, cutting the sequence to a couple hundred entries. The patch size is the single most important knob. Smaller patches mean more tokens, finer spatial detail, and quadratically more attention compute; larger patches mean a shorter sequence, cheaper attention, and coarser vision. Halving the patch side roughly quadruples the token count and so multiplies attention work by about sixteen. That is the trade-off the viz lets you feel directly.
+
+Now the linear patch embedding. Each flattened patch is a long pixel vector, and the single linear layer that projects it is learning a kind of "visual vocabulary" — directions in pixel space that correspond to useful primitives like edges, color blobs, and textures. It is the transformer's analogue of the first convolutional layer, except it is applied once per patch with no overlap. Because patches do not overlap, the model has no built-in translation equivariance the way a CNN does; it must learn spatial relationships through attention and position embeddings instead.
+
+The position embedding matters because attention is permutation-invariant: scramble the patch order and raw self-attention gives the same answer. A picture is not a bag of patches — the sky belongs on top, the road on the bottom — so we add a learned vector per position that breaks the symmetry and tells the model where each patch came from.
+
+Finally the [CLS] token. It is an extra learnable embedding with no pixels behind it, prepended to the patch sequence. Through every attention layer it can attend to all the patch tokens and pull information from wherever it is useful, acting as a learnable global pooling slot. After the last layer, the vector in the [CLS] position summarizes the whole image, and only that one vector feeds the classifier. The patches do the seeing; the [CLS] token does the summarizing.`,
+      },
+      {
+        kind: 'viz',
+        component: 'ViTPatchEmbeddingViz',
+        heading: 'Split the image, embed each patch, prepend the [CLS] token',
+      },
+      {
+        kind: 'math',
+        heading: 'Patch embedding and the token sequence',
+        body: `Let the input be an image \\(x \\in \\mathbb{R}^{H \\times W \\times C}\\) and pick a patch size \\(P\\). Reshape into a sequence of \\(N = HW / P^2\\) flattened patches \\(x_p \\in \\mathbb{R}^{N \\times (P^2 C)}\\). A single linear projection \\(E \\in \\mathbb{R}^{(P^2 C) \\times D}\\) maps each patch to the model dimension \\(D\\). Prepend a learnable class token \\(x_{\\text{cls}}\\) and add position embeddings \\(E_{\\text{pos}}\\):
+
+\\[
+z_0 = [\\, x_{\\text{cls}} ;\\ x_p^1 E ;\\ x_p^2 E ;\\ \\dots ;\\ x_p^N E \\,] + E_{\\text{pos}}
+\\]
+
+The sequence \\(z_0\\) has length \\(N + 1\\) and width \\(D\\). It is then passed through \\(L\\) standard transformer encoder blocks — each one alternating multi-head self-attention and an MLP, both wrapped in layer norm and residual connections:
+
+\\[
+z_\\ell' = \\mathrm{MSA}(\\mathrm{LN}(z_{\\ell-1})) + z_{\\ell-1}, \\qquad z_\\ell = \\mathrm{MLP}(\\mathrm{LN}(z_\\ell')) + z_\\ell'
+\\]
+
+The classification prediction reads only the [CLS] slot of the final layer, \\(y = \\mathrm{LN}(z_L^0)\\) followed by a linear head. For a \\(224 \\times 224\\) image with \\(P = 16\\), \\(C = 3\\), the sequence length is \\(N + 1 = 197\\) and the attention matrix per head is \\(197 \\times 197\\).`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Worked example: counting the sequence length and attention cost',
+        body: `Take a \\(224 \\times 224\\) RGB image and patch size \\(P = 16\\). The grid is \\(224 / 16 = 14\\) patches per side, so \\(N = 14 \\times 14 = 196\\) patches. Each patch flattens to \\(16 \\times 16 \\times 3 = 768\\) values; the patch-embedding matrix \\(E\\) is \\(768 \\times D\\) where \\(D\\) is the model width (ViT-Base uses \\(D = 768\\)). Add the [CLS] token and the encoder sees a sequence of \\(197\\) tokens, each \\(768\\)-dimensional.
+
+Now drop the patch size to \\(P = 8\\) on the same image. The grid becomes \\(28 \\times 28 = 784\\) patches, sequence length \\(785\\). Self-attention forms a score matrix of size (seq length)\\(^2\\): at \\(P = 16\\) that is \\(197^2 \\approx 3.9 \\times 10^4\\) entries per head; at \\(P = 8\\) it is \\(785^2 \\approx 6.2 \\times 10^5\\) — roughly a **16x increase** in attention compute for halving the patch side. That is the concrete cost of finer spatial resolution. It is also why most practical vision transformers stay at \\(P = 16\\) and reach for hierarchical designs (like shifted-window attention) when they need finer detail without paying the full quadratic bill.
+
+The flip side: a larger patch like \\(P = 32\\) gives \\(7 \\times 7 = 49\\) patches, sequence length \\(50\\), and attention cost \\(50^2 = 2500\\) — cheap, but each token now blurs together a \\(32 \\times 32\\) region, so the model sees the image coarsely. Picking \\(P\\) is choosing where to sit on this resolution-versus-compute curve, exactly what the slider in the visualization above demonstrates.`,
+      },
+      {
+        kind: 'ascii',
+        heading: 'Pseudo-code: ViT forward pass',
+        body: `# x: image tensor (B, C, H, W); P: patch size; D: model dim
+def vit_forward(x, E, cls_token, pos_emb, encoder, head):
+    B, C, H, W = x.shape
+    # 1) cut into non-overlapping P x P patches -> (B, N, P*P*C)
+    patches = unfold(x, P)              # N = (H/P) * (W/P)
+    # 2) linear patch embedding -> (B, N, D)
+    tokens = patches @ E               # E: (P*P*C, D)
+    # 3) prepend learnable [CLS] token -> (B, N+1, D)
+    cls = cls_token.expand(B, 1, D)
+    tokens = concat([cls, tokens], dim=1)
+    # 4) add position embeddings (one per slot, incl. CLS)
+    tokens = tokens + pos_emb          # pos_emb: (1, N+1, D)
+    # 5) standard transformer encoder
+    z = encoder(tokens)                # (B, N+1, D)
+    # 6) classify from the CLS slot only
+    return head(layer_norm(z[:, 0]))   # (B, num_classes)`,
+      },
+      {
+        kind: 'callout',
+        tone: 'note',
+        body: `**Common mistake: expecting ViT to win on small datasets.** A vision transformer has almost no built-in inductive bias for images — no locality, no translation equivariance, no pooling hierarchy. A CNN gets those for free from its architecture. That means on small datasets (think ImageNet-1k alone, ~1.3M images) a plain ViT trained from scratch often **underperforms** a comparable ResNet, because it has to learn from data what the CNN assumes by design. ViT's advantage only kicks in at scale: pretrain on a much larger corpus (JFT-300M, or strong self-supervised objectives) and the transformer overtakes convolutions. The fix when you are data-limited is to (a) pretrain or fine-tune from a large checkpoint rather than train from scratch, (b) lean on heavy augmentation and regularization (RandAugment, mixup, stochastic depth), or (c) use a hybrid that keeps a convolutional stem.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Pitfalls and how to avoid them',
+        body: `**Pitfall 1 — forgetting position embeddings.** Self-attention is permutation-invariant, so without position embeddings the model literally cannot tell a vertically-flipped image from the original; the patch order carries no signal. *Fix:* always add position embeddings to the patch tokens (and the [CLS] slot). If you change the input resolution at inference, interpolate the position embeddings to the new grid size rather than dropping them.
+
+**Pitfall 2 — picking the patch size without budgeting attention.** Because attention cost scales with the square of the sequence length, halving the patch size roughly multiplies compute by sixteen. Teams sometimes shrink patches to chase accuracy and then run out of memory. *Fix:* treat patch size as a compute budget decision; if you need fine detail, prefer a hierarchical/windowed attention design over a globally tiny patch.
+
+**Pitfall 3 — reading the wrong output token.** The classifier must read the [CLS] slot (or use mean-pooling over patch tokens if you trained that way), not an arbitrary patch. Mixing the two — training with [CLS] but pooling at inference, or vice versa — silently degrades accuracy. *Fix:* keep the pooling choice consistent between training and inference, and document which one the head expects.
+
+**Pitfall 4 — under-regularizing on limited data.** ViTs overfit hard without strong augmentation because they lack the regularizing inductive bias of convolutions. *Fix:* use mixup/CutMix, RandAugment, stochastic depth, and weight decay; or start from a large pretrained checkpoint instead of training from scratch.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `You have a \\(384 \\times 384\\) RGB image and want to fine-tune a ViT that was pretrained at \\(224 \\times 224\\) with patch size \\(16\\). (a) How many patches does the \\(384\\) image produce at \\(P = 16\\), and what is the new sequence length including [CLS]? (b) The pretrained position embeddings were learned for the \\(224\\) grid — what must you do to them before fine-tuning, and why? (c) Compared to the \\(224\\) input, by roughly what factor does the per-head attention score matrix grow? Use sequence-length-squared. (d) In one sentence, explain why the patch-embedding matrix \\(E\\) does *not* need to change when you switch resolutions but the position embeddings do.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Further reading',
+        body: `Dosovitskiy et al., "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale" (2020), the original ViT paper — https://arxiv.org/abs/2010.11929. Touvron et al., "Training data-efficient image transformers & distillation through attention" (DeiT, 2020) for making ViT work without web-scale data — https://arxiv.org/abs/2012.12877. Liu et al., "Swin Transformer" (2021) for the hierarchical, windowed-attention design — https://arxiv.org/abs/2103.14030.`,
+      },
+    ],
+  },
+  {
+    slug: 'efficientnet-scaling',
+    title: 'EfficientNet and compound scaling',
+    oneLiner: 'Scale depth, width, and resolution together with one coefficient instead of cranking a single axis.',
+    difficulty: 'intermediate',
+    readMinutes: 11,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'Three ways to make a network bigger',
+        body: `When you want a more accurate convolutional network, you make it bigger — but "bigger" has three independent meanings, and for years people picked just one. You can scale **depth**: stack more layers, so the network composes more nonlinear transformations and captures richer, more abstract features. You can scale **width**: put more channels in each layer, so every layer carries more fine-grained information per spatial position. Or you can scale **resolution**: feed the network larger input images, so each feature map sees more pixels and finer spatial detail.
+
+Each of these helps accuracy, but each one alone hits diminishing returns surprisingly fast. A very deep but thin network struggles to train and its accuracy plateaus. A very wide but shallow network captures lots of low-level detail but cannot build deep abstractions. A very high-resolution input fed into a shallow, narrow network produces feature maps the network has no capacity to digest. Cranking one knob to the maximum wastes the gains because the other two become bottlenecks.
+
+The insight behind EfficientNet is that these three axes are **coupled**: higher resolution images contain finer patterns that you need more depth to capture and more width to represent, so the axes should grow *together*. EfficientNet formalizes this with **compound scaling** — a single coefficient \\(\\phi\\) that increases depth, width, and resolution simultaneously in a fixed, balanced ratio. Instead of asking "should I add layers or channels or pixels," you ask "how much total compute do I have," set \\(\\phi\\), and the three axes scale up proportionally. The result was a family of models that beat the prior state of the art using an order of magnitude fewer parameters and FLOPs, just by scaling sensibly.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'The intuition: why balanced beats lopsided',
+        body: `Picture the network as a pipeline that has to do three jobs in concert: see enough pixels (resolution), carry enough information at each step (width), and transform it enough times (depth). The throughput of a pipeline is set by its narrowest stage. If you pour a high-resolution image into a narrow, shallow network, all that extra spatial detail arrives at a layer that does not have the channels to represent it or the depth to abstract it — the detail is thrown away, and you paid the compute for nothing. Conversely, a deep network fed tiny low-resolution images runs out of meaningful spatial information to process; the later layers are starved. The accuracy gain from any single axis flattens once it outruns the others.
+
+Now think about why scaling them together is special. Higher resolution means larger feature maps with more spatial positions and finer patterns. To recognize those finer patterns you need a larger **receptive field**, which comes from more layers (depth). And to hold the richer set of patterns present at high resolution without collapsing them, you need more channels (width). The three demands rise in lockstep with the difficulty of the input. So the right move is not "spend my budget on the single most cost-effective axis" but "keep the three balanced so no stage becomes the bottleneck." This is exactly what the visualization shows: in compound mode one slider moves all three axes along a balanced frontier and accuracy climbs steadily; in manual mode you can push a single axis far ahead of the others and watch accuracy saturate while FLOPs keep climbing — the lopsided regime where compute is wasted.
+
+There is also a simple compute argument. Depth scales FLOPs linearly. Width scales FLOPs quadratically (more input channels times more output channels). Resolution scales FLOPs quadratically too (the feature maps are bigger in both spatial dimensions). If you want total FLOPs to grow by a clean factor for each unit of \\(\\phi\\), you must split that growth across the three axes in the right proportion — which is precisely the constraint compound scaling enforces.`,
+      },
+      {
+        kind: 'viz',
+        component: 'EfficientNetScalingViz',
+        heading: 'Move one knob, scale all three axes — or push one axis and watch returns vanish',
+      },
+      {
+        kind: 'math',
+        heading: 'The compound scaling rule',
+        body: `Compound scaling parameterizes all three axes by a single user-chosen coefficient \\(\\phi\\):
+
+\\[
+\\text{depth: } d = \\alpha^{\\phi}, \\qquad \\text{width: } w = \\beta^{\\phi}, \\qquad \\text{resolution: } r = \\gamma^{\\phi}
+\\]
+
+where \\(\\alpha, \\beta, \\gamma\\) are constants found by a small grid search on the baseline network, subject to a constraint that fixes how fast total compute grows. Because depth scales FLOPs linearly while width and resolution each scale FLOPs quadratically, the FLOPs of the scaled network are proportional to \\(d \\cdot w^2 \\cdot r^2\\). The constraint chosen is:
+
+\\[
+\\alpha \\cdot \\beta^2 \\cdot \\gamma^2 \\approx 2, \\qquad \\alpha \\ge 1,\\ \\beta \\ge 1,\\ \\gamma \\ge 1
+\\]
+
+With that constraint, total FLOPs scale as approximately \\((\\alpha \\cdot \\beta^2 \\cdot \\gamma^2)^{\\phi} \\approx 2^{\\phi}\\) — every increment of \\(\\phi\\) roughly **doubles** the compute, split across the three axes in the fixed ratio. The original EfficientNet found \\(\\alpha = 1.2\\), \\(\\beta = 1.1\\), \\(\\gamma = 1.15\\) for its baseline. So EfficientNet-B0 is \\(\\phi = 0\\) (all factors \\(1\\)), and B1 through B7 increase \\(\\phi\\) in steps, each model a balanced scale-up of the last. The key property: you search for \\(\\alpha, \\beta, \\gamma\\) **once** on the small baseline, then reuse them at any \\(\\phi\\) — you never re-search the scaling ratios for the big models.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Worked example: scaling B0 to a 2x-compute model',
+        body: `Suppose you have the baseline (\\(\\phi = 0\\)) and want to roughly double the compute, so you set \\(\\phi = 1\\). Plug into the rule with \\(\\alpha = 1.2\\), \\(\\beta = 1.1\\), \\(\\gamma = 1.15\\):
+
+depth \\(d = 1.2^{1} = 1.20\\) (20% more layers), width \\(w = 1.1^{1} = 1.10\\) (10% more channels), resolution \\(r = 1.15^{1} = 1.15\\) (15% larger images). Check the FLOPs factor: \\(d \\cdot w^2 \\cdot r^2 = 1.20 \\times 1.21 \\times 1.3225 \\approx 1.92\\) — close to the target \\(2\\times\\). Notice none of the three jumps dramatically; the win comes from moving all three a little.
+
+Now contrast a **lopsided** alternative with the same compute budget. Suppose instead you spent the whole \\(2\\times\\) on depth alone: you would need \\(d = 2\\) (double the layers) with \\(w = r = 1\\). The FLOPs match (\\(2 \\times 1 \\times 1 = 2\\)), but now the network is twice as deep on the same tiny images with the same narrow channels — the later layers are starved of spatial detail and the extra depth buys little. The toy accuracy readout in the viz captures this: the balanced \\((1.20, 1.10, 1.15)\\) configuration lands higher on the accuracy axis than the lopsided \\((2.0, 1.0, 1.0)\\) configuration even though both cost the same FLOPs. The lesson EfficientNet proved empirically is that for a fixed budget, balanced scaling reliably beats dumping it all on one axis — often by several accuracy points, which at the top of the ImageNet leaderboard is enormous.`,
+      },
+      {
+        kind: 'ascii',
+        heading: 'Pseudo-code: derive a scaled model from phi',
+        body: `# constants found ONCE by grid search on the baseline (B0)
+ALPHA, BETA, GAMMA = 1.2, 1.1, 1.15   # depth, width, resolution
+# sanity: alpha * beta**2 * gamma**2 ~= 2  -> FLOPs ~ 2**phi
+
+def scale_model(baseline, phi):
+    d = ALPHA ** phi          # depth multiplier
+    w = BETA  ** phi          # width  multiplier
+    r = GAMMA ** phi          # resolution multiplier
+
+    new_depth      = round(baseline.num_layers   * d)
+    new_width      = round(baseline.num_channels * w)   # often rounded to /8
+    new_resolution = round(baseline.input_size   * r)
+
+    flops_factor = d * (w ** 2) * (r ** 2)   # ~ 2**phi
+    return build(new_depth, new_width, new_resolution), flops_factor
+
+# B0..B7 are simply scale_model(B0, phi) for phi = 0, 0.5, 1, 2, ...`,
+      },
+      {
+        kind: 'callout',
+        tone: 'tip',
+        body: `**Tip: search the scaling ratios on a small model, scale on a big one.** The expensive part of compound scaling — finding \\(\\alpha, \\beta, \\gamma\\) — is done with a tiny grid search on the cheap baseline network, where each candidate trains fast. Once you have the ratios, you apply them at any \\(\\phi\\) with zero additional search. This is what makes the method practical: you do *not* run an architecture search at every scale. If you instead searched the depth/width/resolution split directly at the large scale, each evaluation would cost a full large-model training run, which is exactly the cost the method is designed to avoid.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Pitfalls and how to avoid them',
+        body: `**Pitfall 1 — scaling one axis because it is "the cheapest."** Depth scales FLOPs only linearly, so it looks like the best deal per FLOP. But pushing depth alone while width and resolution stay fixed saturates fast and wastes the added layers. *Fix:* always scale the three axes together via \\(\\phi\\); resist the urge to spend the whole budget on the single linear-cost axis.
+
+**Pitfall 2 — forgetting that resolution drives memory, not just FLOPs.** Larger input resolution inflates every intermediate feature map, so activation memory grows quadratically with \\(r\\). Teams set \\(\\phi\\) for a target FLOP count and then run out of GPU memory. *Fix:* budget activation memory separately from FLOPs; if memory-bound, you may need a smaller \\(\\phi\\) or gradient checkpointing.
+
+**Pitfall 3 — re-searching \\(\\alpha, \\beta, \\gamma\\) at every scale.** The whole point is to search the ratios once on the baseline and reuse them. Re-running the grid search at large \\(\\phi\\) is wildly expensive and defeats the method. *Fix:* fix the ratios from the baseline search and only vary \\(\\phi\\).
+
+**Pitfall 4 — assuming a strong baseline is optional.** Compound scaling amplifies whatever baseline you start from; scaling a mediocre architecture just gives you a bigger mediocre model. EfficientNet's baseline (B0) was itself found by neural architecture search for good reason. *Fix:* invest in a good, well-regularized baseline before scaling, and validate that accuracy actually improves with \\(\\phi\\) on your data, not just on ImageNet.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `Using \\(\\alpha = 1.2\\), \\(\\beta = 1.1\\), \\(\\gamma = 1.15\\): (a) Compute the depth, width, and resolution multipliers at \\(\\phi = 2\\). (b) Compute the FLOPs factor \\(d \\cdot w^2 \\cdot r^2\\) at \\(\\phi = 2\\) and confirm it is close to \\(2^{2} = 4\\). (c) You have a fixed budget of a \\(4\\times\\) FLOPs increase. Compare the balanced \\(\\phi = 2\\) configuration against a lopsided one that spends the entire budget on resolution alone (so \\(w = d = 1\\)) — what resolution multiplier \\(r\\) gives a \\(4\\times\\) FLOPs factor when \\(d = w = 1\\)? (d) In one sentence, explain why the lopsided high-resolution model is likely to underperform the balanced one despite identical FLOPs.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Further reading',
+        body: `Tan and Le, "EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks" (2019), the paper that introduced compound scaling — https://arxiv.org/abs/1905.11946. Tan and Le, "EfficientNetV2: Smaller Models and Faster Training" (2021) for the training-aware refinement of the idea — https://arxiv.org/abs/2104.00298. For the broader context on width/depth trade-offs, Zagoruyko and Komodakis, "Wide Residual Networks" (2016) — https://arxiv.org/abs/1605.07146.`,
+      },
+    ],
+  },
+  {
+    slug: 'object-detection',
+    title: 'Object detection: two-stage vs one-stage',
+    oneLiner: 'Find every object and box it — anchors, IoU, dual heads, and the speed-accuracy split between R-CNN and YOLO.',
+    difficulty: 'intermediate',
+    readMinutes: 13,
+    sections: [
+      {
+        kind: 'prose',
+        heading: 'Detection is classification plus localization, everywhere at once',
+        body: `Image classification answers one question: what is in this picture? Object detection answers a harder one: what objects are in this picture, and *where* is each one? The output is no longer a single label but a list of **boxes**, each with a class and a tight rectangle around the object. A street scene might return "car at (x, y, w, h), confidence 0.94; pedestrian at (...), 0.88; traffic light at (...), 0.71." That means every detector has two jobs welded together: **classification** (what is this) and **localization** (where exactly is it), and it must do both for an unknown number of objects at unknown positions and scales.
+
+That "unknown number at unknown positions" is what makes detection structurally different from classification. You cannot just run a classifier once on the whole image. The classic answer is to consider many candidate regions and, for each, predict a class and refine a box. Two broad paradigms emerged for how to generate and process those candidates. **Two-stage detectors** (the R-CNN family, culminating in Faster R-CNN) first propose a manageable set of regions likely to contain objects, then classify and refine each proposal — accurate but with two sequential networks. **One-stage detectors** (YOLO, SSD, RetinaNet) skip the proposal step and predict boxes and classes directly from a grid over the image in a single forward pass — faster, historically a bit less accurate, and the basis of most real-time detection.
+
+Underneath both paradigms sit the same handful of ideas: **anchor boxes** as the reference shapes the network refines, **Intersection over Union (IoU)** as the yardstick for how good a box is, and **non-maximum suppression (NMS)** as the cleanup that collapses many overlapping predictions into one box per object. Get those three concepts and the rest is engineering.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'The intuition: anchors, IoU, and why we need NMS',
+        body: `Start with the core difficulty: an object can appear anywhere, at any size, with any aspect ratio. Predicting a box "from scratch" — outputting four raw coordinates from a blank slate — is a hard, unstable regression. **Anchor boxes** make it tractable by giving the network reference templates to adjust. At each location on a feature-map grid the model places a few predefined boxes of different sizes and aspect ratios (a tall one for people, a wide one for cars, a square one). The network then does not predict absolute coordinates; it predicts small *offsets* from the nearest anchor — "shift this anchor a little right and stretch it 20% taller." Refining a good guess is far easier than inventing a box, which is why anchors stabilized detection training.
+
+Now you need a way to score a predicted box against the truth. That is **Intersection over Union**: the area where the predicted box and the ground-truth box overlap, divided by the area they jointly cover. IoU is \\(1\\) for a perfect match and \\(0\\) for no overlap, and it is the universal currency of detection — used to decide which anchors are "responsible" for an object during training, and used at evaluation to decide whether a detection counts as correct (typically IoU \\(\\ge 0.5\\)). The visualization lets you nudge boxes and watch the IoU update live so the metric stops being abstract.
+
+Finally, why **non-maximum suppression**? Because the detector fires at many nearby anchors for the same object — a car triggers a dozen overlapping high-confidence boxes. You want one box per object, not a dozen. NMS is the greedy cleanup: take the highest-scoring box, remove every other box that overlaps it too much (IoU above a threshold), then repeat on what remains. It is the step that turns a noisy spray of predictions into a clean list. The viz lets you step through NMS one pick at a time and watch overlapping boxes get pruned while the threshold controls how aggressive the pruning is.
+
+Tie it together with the **dual head**. After features are extracted for a candidate region or grid cell, the network splits into two small output branches: a *classification head* predicting the class scores, and a *regression head* predicting the box offsets. Two heads, two losses, trained jointly — that shared-features, split-output structure is the skeleton every detector hangs on.`,
+      },
+      {
+        kind: 'viz',
+        component: 'DetectionGridViz',
+        heading: 'Toggle anchors, read IoU live, then step NMS to prune overlapping boxes',
+      },
+      {
+        kind: 'math',
+        heading: 'IoU, box regression, and the detection loss',
+        body: `**Intersection over Union** between a predicted box \\(B_p\\) and ground-truth box \\(B_g\\):
+
+\\[
+\\mathrm{IoU}(B_p, B_g) = \\frac{|B_p \\cap B_g|}{|B_p \\cup B_g|} = \\frac{\\text{area of overlap}}{\\text{area of union}}
+\\]
+
+The network does not regress raw coordinates; it predicts **offsets** relative to an anchor \\((x_a, y_a, w_a, h_a)\\). The standard parameterization (from Faster R-CNN) encodes the target box \\((x, y, w, h)\\) as:
+
+\\[
+t_x = \\frac{x - x_a}{w_a}, \\quad t_y = \\frac{y - y_a}{h_a}, \\quad t_w = \\log\\frac{w}{w_a}, \\quad t_h = \\log\\frac{h}{h_a}
+\\]
+
+Center offsets are normalized by anchor size; width and height are predicted in log-space so the regression is scale-invariant and stays positive after exponentiation. The training loss is the **dual-head sum** — a classification term plus a localization term, the latter applied only to positive (object) anchors:
+
+\\[
+L = \\frac{1}{N_{\\text{cls}}} \\sum_i L_{\\text{cls}}(p_i, p_i^*) + \\lambda \\frac{1}{N_{\\text{reg}}} \\sum_i p_i^* \\, L_{\\text{reg}}(t_i, t_i^*)
+\\]
+
+Here \\(p_i\\) is the predicted class probability, \\(p_i^*\\) the label (\\(1\\) for object anchors, \\(0\\) for background), and the indicator \\(p_i^*\\) zeroes the box loss for background anchors — you only penalize localization where there is an object to localize. An anchor is assigned as positive when its IoU with a ground-truth box exceeds a high threshold (e.g. \\(0.7\\)) and negative below a low one (e.g. \\(0.3\\)).`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Worked example: computing one IoU by hand',
+        body: `Take a ground-truth box at pixel corners \\((100, 100)\\) to \\((200, 200)\\) — so \\(100 \\times 100 = 10{,}000\\) square pixels — and a predicted box at \\((120, 120)\\) to \\((220, 220)\\), also \\(10{,}000\\) square pixels. The intersection rectangle spans \\(x \\in [120, 200]\\) and \\(y \\in [120, 200]\\): width \\(80\\), height \\(80\\), area \\(6{,}400\\). The union is \\(10{,}000 + 10{,}000 - 6{,}400 = 13{,}600\\). So \\(\\mathrm{IoU} = 6{,}400 / 13{,}600 \\approx 0.47\\) — just below the usual \\(0.5\\) acceptance threshold, so this prediction would be scored as a *miss* despite being visibly close. That sensitivity is exactly why localization quality matters so much in detection.
+
+Now apply NMS to a cluster. Suppose four predictions for the same car score \\(0.95, 0.90, 0.88, 0.60\\), and pairwise IoUs with the top box are \\(0.82, 0.75, 0.40\\) respectively. Run NMS at threshold \\(0.5\\): pick the \\(0.95\\) box (highest). Compare the rest to it — the \\(0.90\\) box overlaps at \\(0.82 \\ge 0.5\\) so it is suppressed; the \\(0.88\\) box overlaps at \\(0.75 \\ge 0.5\\) so it is suppressed; the \\(0.60\\) box overlaps at only \\(0.40 < 0.5\\) so it survives. After one pass you keep two boxes: the \\(0.95\\) car and the \\(0.60\\) box (likely a second, distinct object or a false positive). Lower the threshold to \\(0.3\\) and the \\(0.60\\) box would also be suppressed — more aggressive pruning, but you risk merging two genuinely separate nearby objects. This is the exact tug-of-war the viz's IoU-threshold slider exposes: too high and you keep duplicate boxes, too low and you delete real neighbors.`,
+      },
+      {
+        kind: 'ascii',
+        heading: 'Pseudo-code: greedy non-maximum suppression',
+        body: `# boxes: list of (box, score); iou_thresh: overlap cutoff
+def nms(boxes, iou_thresh):
+    boxes = sorted(boxes, key=lambda b: b.score, reverse=True)
+    kept = []
+    while boxes:
+        best = boxes.pop(0)        # highest score remaining
+        kept.append(best)
+        # drop every box overlapping 'best' too much
+        boxes = [b for b in boxes
+                 if iou(best.box, b.box) < iou_thresh]
+    return kept
+
+# two-stage:  proposals -> RoI features -> [cls head, reg head]
+# one-stage:  grid cell -> anchors -> [cls head, reg head] directly
+# both ends:  nms(predictions, 0.5) to collapse duplicates`,
+      },
+      {
+        kind: 'callout',
+        tone: 'note',
+        body: `**Common mistake: confusing the two IoU thresholds.** Detection uses IoU in two completely different places, and mixing them up causes silent bugs. (1) The **NMS threshold** decides how much overlap between two *predicted* boxes triggers suppression — too low merges distinct nearby objects, too high leaves duplicates. (2) The **assignment / evaluation threshold** decides whether a *prediction matches a ground-truth* box — it labels anchors as positive during training and counts a detection as correct (true positive) during evaluation. They are unrelated knobs serving opposite purposes. A typical setup uses NMS at \\(0.5\\)–\\(0.7\\) and reports mAP at evaluation IoU \\(0.5\\) (and averaged over \\(0.5\\) to \\(0.95\\) for COCO). *Fix:* keep the two thresholds named distinctly in code and never share a constant between the NMS step and the matching/evaluation step.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Two-stage vs one-stage: the trade-off, and pitfalls',
+        body: `**Two-stage** (Faster R-CNN): a Region Proposal Network first scans the feature map and emits a few hundred class-agnostic "objectness" proposals; RoI pooling then crops fixed-size features for each proposal, which the dual head classifies and refines. Two networks run in sequence, so it is slower, but the second stage sees only promising regions and refines twice, giving high accuracy — especially on small or crowded objects. **One-stage** (YOLO, SSD, RetinaNet): a single network divides the image into a grid and predicts, for every cell and anchor, the class scores and box offsets in one pass. No proposal stage means real-time speed, but the detector must classify a huge number of mostly-background locations at once.
+
+That last point creates the signature one-stage pitfall: **extreme foreground-background imbalance**. The overwhelming majority of grid cells contain only background, so a naive classification loss is dominated by easy negatives and the rare objects get drowned out. *Fix:* RetinaNet's **focal loss** down-weights easy, well-classified examples so the gradient focuses on the hard, object-bearing ones — this single change let a one-stage detector match two-stage accuracy.
+
+Three more pitfalls cut across both paradigms. **Pitfall — anchor mismatch:** if your anchor sizes and aspect ratios do not cover the objects in your data (e.g. only square anchors but you must detect long thin poles), recall collapses. *Fix:* set anchor scales/ratios from the size distribution of your training boxes, or use an anchor-free detector. **Pitfall — NMS threshold for crowded scenes:** a single global NMS threshold deletes legitimate boxes when objects genuinely overlap (a crowd of people). *Fix:* use Soft-NMS, which decays scores by overlap instead of hard-deleting, or tune the threshold per scene density. **Pitfall — ignoring scale:** a plain feature map detects one scale well and others poorly. *Fix:* use a Feature Pyramid Network so the detector reads features at multiple resolutions, catching both tiny and large objects.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Exercise',
+        body: `(a) A ground-truth box spans corners \\((50, 60)\\) to \\((150, 160)\\) and a prediction spans \\((70, 80)\\) to \\((170, 180)\\). Compute the intersection area, the union area, and the IoU. (b) Would this prediction count as a true positive at the standard evaluation threshold of \\(0.5\\)? (c) You run NMS at threshold \\(0.4\\) on three boxes scoring \\(0.9, 0.85, 0.7\\) whose IoUs with the \\(0.9\\) box are \\(0.5\\) and \\(0.35\\) — which boxes survive? (d) In one sentence each, state why a one-stage detector is faster than a two-stage detector, and why it historically struggled with foreground-background imbalance.`,
+      },
+      {
+        kind: 'prose',
+        heading: 'Further reading',
+        body: `Ren et al., "Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks" (2015), the canonical two-stage detector — https://arxiv.org/abs/1506.01497. Redmon et al., "You Only Look Once: Unified, Real-Time Object Detection" (2015), the original one-stage grid detector — https://arxiv.org/abs/1506.02640. Lin et al., "Focal Loss for Dense Object Detection" (RetinaNet, 2017) for the imbalance fix, and "Feature Pyramid Networks for Object Detection" (2017) for multi-scale features — https://arxiv.org/abs/1708.02002 and https://arxiv.org/abs/1612.03144.`,
       },
     ],
   },

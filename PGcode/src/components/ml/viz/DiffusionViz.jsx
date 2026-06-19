@@ -212,8 +212,29 @@ function ImageGrid({ image }) {
 
   return (
     <svg viewBox={`0 0 ${SVG} ${SVG}`} className="mlviz-svg">
-      <rect x={PAD} y={PAD} width={SVG - PAD * 2} height={SVG - PAD * 2}
+      <defs>
+        <clipPath id="dv-clip">
+          <rect x={PAD} y={PAD} width={SVG - PAD * 2} height={SVG - PAD * 2} rx={10} />
+        </clipPath>
+        <filter id="dv-rim" x="-15%" y="-15%" width="130%" height="130%">
+          <feGaussianBlur stdDeviation="5" />
+        </filter>
+      </defs>
+      <rect
+        x={PAD - 2}
+        y={PAD - 2}
+        width={SVG - PAD * 2 + 4}
+        height={SVG - PAD * 2 + 4}
+        rx={12}
+        fill="none"
+        stroke="var(--accent)"
+        strokeWidth="3"
+        opacity="0.28"
+        filter="url(#dv-rim)"
+      />
+      <rect x={PAD} y={PAD} width={SVG - PAD * 2} height={SVG - PAD * 2} rx={10}
         fill="var(--surface)" stroke="var(--border)" strokeWidth="0.8" />
+      <g clipPath="url(#dv-clip)">
       {dataUrl ? (
         <image
           href={dataUrl}
@@ -242,6 +263,9 @@ function ImageGrid({ image }) {
         })
       )}
       {lines}
+      </g>
+      <rect x={PAD} y={PAD} width={SVG - PAD * 2} height={SVG - PAD * 2} rx={10}
+        fill="none" stroke="var(--border)" strokeWidth="0.8" />
     </svg>
   );
 }
@@ -327,9 +351,6 @@ export default function DiffusionViz() {
   const beta = t === 0 ? 0 : SCHEDULE.betas[t];
   const alpha = t === 0 ? 1 : SCHEDULE.alphas[t];
   const alphaBar = SCHEDULE.alphaBars[t];
-  const cAccent = 'var(--accent)';
-  const cDim = 'var(--text-dim)';
-  const cWarn = 'var(--warning, var(--hue-pink))';
 
   return (
     <div className="mlviz-wrap">
@@ -375,28 +396,23 @@ export default function DiffusionViz() {
           </div>
         </div>
 
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: cWarn }}>&beta;<sub>t</sub></span>
-          <span className="mlviz-val">{fmt(beta, 4)}</span>
-          <span className="mlviz-sub">variance added this step</span>
-        </div>
-
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: cAccent }}>&alpha;<sub>t</sub></span>
-          <span className="mlviz-val">{fmt(alpha, 4)}</span>
-          <span className="mlviz-sub">signal retained this step (1 - &beta;<sub>t</sub>)</span>
-        </div>
-
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: cAccent }}>&#257;<sub>t</sub></span>
-          <span className="mlviz-val">{fmt(alphaBar, 4)}</span>
-          <span className="mlviz-sub">cumulative signal &prod;(1 - &beta;)</span>
-        </div>
-
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: cDim }}>SNR</span>
-          <span className="mlviz-val">{fmt(alphaBar / Math.max(1e-6, 1 - alphaBar), 3)}</span>
-          <span className="mlviz-sub">&#257;<sub>t</sub> / (1 - &#257;<sub>t</sub>)</span>
+        <div className="mlviz-statcol mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-pink">
+            <span className="mlviz-statcard-label">&beta;<sub>t</sub> · variance</span>
+            <span className="mlviz-statcard-val">{fmt(beta, 4)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">&alpha;<sub>t</sub> · 1 - &beta;<sub>t</sub></span>
+            <span className="mlviz-statcard-val">{fmt(alpha, 4)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">&#257;<sub>t</sub> · cumulative</span>
+            <span className="mlviz-statcard-val">{fmt(alphaBar, 4)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">SNR · &#257;/(1-&#257;)</span>
+            <span className="mlviz-statcard-val">{fmt(alphaBar / Math.max(1e-6, 1 - alphaBar), 3)}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

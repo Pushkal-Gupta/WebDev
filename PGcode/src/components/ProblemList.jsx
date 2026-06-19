@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle, Star, Code2, ExternalLink, Lightbulb, Search, X, ChevronDown, SlidersHorizontal, FilterX, Shuffle, Clock, ArrowLeft, Play } from 'lucide-react';
 import { supabase } from '../lib/supabase';
-import { useProblemPage, useTopics, useUserProgress, useLists, useListProblemIds, qk } from '../lib/queries';
+import { useProblemPage, useTopics, useUserProgress, useLists, useListProblems, qk } from '../lib/queries';
 import { legacyToStatus } from '../lib/status';
 import { primaryTopicLabel, fullTopicLabel } from '../lib/topicLabel';
 import './ProblemList.css';
@@ -103,7 +103,8 @@ export default function ProblemList({ session }) {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 100;
 
-  const { data: listProblemIds } = useListProblemIds(listFilter);
+  const listActive = listFilter !== 'all';
+  const { data: listRows } = useListProblems(listFilter);
 
   // Server-side pagination: Postgres filters/sorts/slices, we render only the
   // visible page. Filter changes reset to page 0 via a render-time signature.
@@ -111,7 +112,7 @@ export default function ProblemList({ session }) {
     () => (diffFilter.size === 3 ? null : [...diffFilter]),
     [diffFilter],
   );
-  const filterSig = `${debouncedSearch}|${topicFilter}|${[...diffFilter].sort().join(',')}|${sortBy}`;
+  const filterSig = `${debouncedSearch}|${topicFilter}|${[...diffFilter].sort().join(',')}|${sortBy}|${listFilter}|${statusFilter}`;
   const [lastSig, setLastSig] = useState(filterSig);
   if (lastSig !== filterSig) {
     setLastSig(filterSig);
@@ -128,6 +129,11 @@ export default function ProblemList({ session }) {
   });
   const rawProblems = useMemo(() => pageData?.rows || [], [pageData]);
   const totalServer = pageData?.total || 0;
+  // When sorting by Number the server pages by NUMBER buckets (page N = problems
+  // #(N-1)·100+1 .. #N·100), so the pager is sized by the highest number, not the
+  // row count. maxNumber is 0 from older RPC versions → fall back to row count.
+  const maxNumber = pageData?.maxNumber || 0;
+  const numberMode = sortBy === 'number' && maxNumber > 0;
 
   const topics = useMemo(() => (rawTopics || []).filter(t => t.id !== 'first-order'), [rawTopics]);
   const userProgress = useMemo(() => progressBundle?.byId || {}, [progressBundle]);
@@ -216,8 +222,8 @@ export default function ProblemList({ session }) {
     // Source pool is the currently-rendered page when filters are active, or
     // the current page's rows otherwise. Since pages are server-paginated, we
     // pick from what's loaded; the user can re-roll on different pages to vary.
-    const sourcePool = rawProblems.filter(p => {
-      if (listProblemIds && !listProblemIds.has(p.id)) return false;
+    const basePool = listActive ? (listRows || []) : rawProblems;
+    const sourcePool = basePool.filter(p => {
       if (statusFilter !== 'all') {
         const status = legacyToStatus(userProgress[p.id]);
         if (status !== statusFilter) return false;
@@ -329,36 +335,84 @@ export default function ProblemList({ session }) {
   };
 
 
-  // Server already filtered by topic / difficulty / search / sort. Only the
-  // status filter and list-membership filter remain client-side because both
-  // depend on per-user data that lives outside `PGcode_problems`.
+  // No list: the server already filtered by topic / difficulty / search / sort,
+  // so only the status filter remains client-side. With a list selected we hold
+  // the list's full rows (fetched directly, not paged), so topic / difficulty /
+  // search / sort / status are all applied client-side here and paginated below.
   const filteredProblems = useMemo(() => {
-    return rawProblems.filter(p => {
-      if (listProblemIds && !listProblemIds.has(p.id)) return false;
+    if (!listActive) {
+      return rawProblems.filter(p => {
+        if (statusFilter !== 'all') {
+          const status = legacyToStatus(userProgress[p.id]);
+          if (status !== statusFilter) return false;
+        }
+        return true;
+      });
+    }
+    const term = debouncedSearch.trim().toLowerCase();
+    const rows = (listRows || []).filter(p => {
+      if (topicFilter !== 'all' && p.topic_id !== topicFilter) return false;
+      if (diffArray && !diffArray.includes(p.difficulty)) return false;
+      if (term) {
+        const num = p.leetcode_number ? String(p.leetcode_number) : '';
+        if (!p.name.toLowerCase().includes(term) && !num.includes(term)) return false;
+      }
       if (statusFilter !== 'all') {
-        const prog = userProgress[p.id];
-        const status = legacyToStatus(prog);
+        const status = legacyToStatus(userProgress[p.id]);
         if (status !== statusFilter) return false;
       }
       return true;
     });
-  }, [rawProblems, statusFilter, userProgress, listProblemIds]);
+    const sorted = [...rows];
+    if (sortBy === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name));
+    else if (sortBy === 'difficulty') {
+      const rank = { Easy: 0, Medium: 1, Hard: 2 };
+      sorted.sort((a, b) => (rank[a.difficulty] - rank[b.difficulty]) || (a.leetcode_number || 0) - (b.leetcode_number || 0));
+    } else if (sortBy === 'topic') {
+      sorted.sort((a, b) => String(a.topic_id).localeCompare(String(b.topic_id)) || (a.leetcode_number || 0) - (b.leetcode_number || 0));
+    } else if (sortBy === 'number') {
+      sorted.sort((a, b) => (a.leetcode_number || 0) - (b.leetcode_number || 0));
+    }
+    // sortBy unset / list-order: keep the list's curated order from the hook.
+    return sorted;
+  }, [listActive, rawProblems, listRows, statusFilter, userProgress, debouncedSearch, topicFilter, diffArray, sortBy]);
 
   const stats = useMemo(() => {
     const solved = Object.values(userProgress).filter(p => p?.is_completed).length;
-    return { total: totalServer, solved };
-  }, [totalServer, userProgress]);
+    // Catalog spans problem numbers up to maxNumber (4543) with gaps; show that as
+    // the headline total when available, else the row count.
+    return { total: maxNumber || totalServer, solved };
+  }, [maxNumber, totalServer, userProgress]);
 
-  const visibleProblems = filteredProblems;
-  // Client-side filters (status, list) further narrow the page; reflect that
-  // in the count so we never show "1-100 of 3,788" when only 2 rows render.
-  const clientFiltered = statusFilter !== 'all' || listFilter !== 'all';
-  const effectiveTotal = clientFiltered ? visibleProblems.length : totalServer;
-  const totalPages = Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
+  // With a list selected we hold the whole filtered list client-side, so slice
+  // it into the current page here. Without a list the server already returned
+  // just this page's rows.
+  const visibleProblems = useMemo(() => {
+    if (listActive) {
+      return filteredProblems.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    }
+    return filteredProblems;
+  }, [listActive, filteredProblems, page]);
+
+  // List mode and the status filter both narrow client-side; reflect that in the
+  // count so we never show "1-100 of 3,788" when only a few rows render.
+  const clientFiltered = statusFilter !== 'all' || listActive;
+  const effectiveTotal = listActive
+    ? filteredProblems.length
+    : clientFiltered ? filteredProblems.length : totalServer;
+  // In number-bucket mode (no list) the page count follows the highest problem
+  // number. List mode and other sorts page by position in the result set.
+  const totalPages = (numberMode && !listActive)
+    ? Math.max(1, Math.ceil(maxNumber / PAGE_SIZE))
+    : Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
   const showingFrom = effectiveTotal === 0 ? 0 : page * PAGE_SIZE + 1;
-  const showingTo = clientFiltered
-    ? visibleProblems.length
-    : Math.min(totalServer, (page + 1) * PAGE_SIZE);
+  const showingTo = (numberMode && !listActive)
+    ? Math.min(maxNumber, (page + 1) * PAGE_SIZE)
+    : listActive
+      ? Math.min(effectiveTotal, (page + 1) * PAGE_SIZE)
+      : clientFiltered
+        ? visibleProblems.length
+        : Math.min(totalServer, (page + 1) * PAGE_SIZE);
 
   if (loading) {
     return (
@@ -608,7 +662,7 @@ export default function ProblemList({ session }) {
                   </span>
                 </div>
                 <div className="pl-col-actions">
-                  <Link to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`} className="pl-action-icon" title="Solve on PGcode" aria-label="Solve on PGcode">
+                  <Link to={`/category/${encodeURIComponent(p.topic_id)}/${encodeURIComponent(p.id)}`} className="pl-action-icon" title="Solve on PG Hub" aria-label="Solve on PG Hub">
                     <Code2 size={16} />
                   </Link>
                   {p.leetcode_url && (
@@ -646,8 +700,19 @@ export default function ProblemList({ session }) {
 
         <div className="pl-table-footer">
           <span className="pl-count">
-            <strong>{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
-            <span className="pl-count-label">of {effectiveTotal.toLocaleString()} {effectiveTotal === 1 ? 'problem' : 'problems'}</span>
+            {numberMode && !listActive ? (
+              <>
+                <span className="pl-count-label">Problems</span>
+                <strong>#{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
+                <span className="pl-count-label">· {maxNumber.toLocaleString()} {maxNumber === 1 ? 'problem' : 'problems'} total</span>
+              </>
+            ) : (
+              <>
+                <span className="pl-count-label">Showing</span>
+                <strong>{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
+                <span className="pl-count-label">of {effectiveTotal.toLocaleString()} {effectiveTotal === 1 ? 'problem' : 'problems'}</span>
+              </>
+            )}
             {isFetching && (
               <span className="pl-count-extra"><span className="pl-count-sep">·</span>loading…</span>
             )}

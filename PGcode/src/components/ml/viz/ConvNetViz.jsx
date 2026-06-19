@@ -250,8 +250,8 @@ function FeatureMap({
         if (t < 0.04) continue;
         const op = (0.15 + t * 0.78) * baseOpacity;
         const fill = v >= 0
-          ? `rgba(var(--accent-rgb, 0, 255, 245), ${op})`
-          : `rgba(255, 102, 204, ${op})`;
+          ? `rgba(var(--accent-rgb), ${op})`
+          : `color-mix(in srgb, var(--hue-pink) ${(op * 100).toFixed(1)}%, transparent)`;
         rects.push(
           <rect
             key={`${r}-${c}`}
@@ -272,6 +272,20 @@ function FeatureMap({
       style={{ cursor: onClick ? 'pointer' : 'default' }}
       opacity={faded ? 0.45 : 1}
     >
+      {highlighted && (
+        <rect
+          x={x - 2}
+          y={y - 2}
+          width={w + 4}
+          height={h + 4}
+          rx={5}
+          fill="none"
+          stroke="var(--accent)"
+          strokeWidth={3}
+          opacity={0.55}
+          filter="url(#cn-glow)"
+        />
+      )}
       <rect
         x={x}
         y={y}
@@ -544,12 +558,24 @@ export default function ConvNetViz({ seed = 7 }) {
             onMouseLeave={() => setHoverOut(null)}
             style={{ cursor: 'pointer' }}
           >
+            {(isHover || isPred) && (
+              <rect
+                x={px0 - 1.5} y={y - 0.5}
+                width={def.mapW + 3} height={cellH - 1}
+                rx={4}
+                fill="none"
+                stroke={isHover ? 'var(--accent)' : 'var(--hue-sky)'}
+                strokeWidth={2.4}
+                opacity={0.5}
+                filter="url(#cn-glow)"
+              />
+            )}
             <rect
               x={px0} y={y + 1}
               width={def.mapW} height={cellH - 2}
               rx={3}
-              fill={isHover ? 'rgba(var(--accent-rgb, 0, 255, 245), 0.12)' : 'var(--bg)'}
-              stroke={isHover ? 'var(--accent)' : isPred ? 'var(--hue-sky, #5ecbff)' : 'var(--border)'}
+              fill={isHover ? 'rgba(var(--accent-rgb), 0.12)' : 'var(--bg)'}
+              stroke={isHover ? 'var(--accent)' : isPred ? 'var(--hue-sky)' : 'var(--border)'}
               strokeWidth={isHover || isPred ? 1.4 : 1}
             />
             <text
@@ -565,7 +591,7 @@ export default function ConvNetViz({ seed = 7 }) {
                 x={px0 + 18} y={y + cellH / 2 - 3}
                 width={Math.max(2, barW)} height={6}
                 rx={1}
-                fill={isPred ? 'var(--accent)' : 'var(--hue-sky, #5ecbff)'}
+                fill={isPred ? 'var(--accent)' : 'var(--hue-sky)'}
                 opacity={0.45 + p * 0.55}
               />
             )}
@@ -626,13 +652,27 @@ export default function ConvNetViz({ seed = 7 }) {
       const bx = b.cx - b.mapW / 2 - ((b.count - 1) * b.offset) / 2;
       const cy = layerCenterY();
       const active = phase >= i + 1;
+      if (active) {
+        lines.push(
+          <line
+            key={`conn-glow-${i}`}
+            x1={ax} y1={cy} x2={bx} y2={cy}
+            stroke="url(#cn-conn-grad)"
+            strokeWidth={3.5}
+            strokeLinecap="round"
+            opacity={0.4}
+            filter="url(#cn-glow)"
+          />
+        );
+      }
       lines.push(
         <line
           key={`conn-${i}`}
           x1={ax} y1={cy} x2={bx} y2={cy}
-          stroke={active ? 'var(--accent)' : 'var(--border)'}
-          strokeWidth={active ? 1.4 : 1}
-          opacity={active ? 0.7 : 0.4}
+          stroke={active ? 'url(#cn-conn-grad)' : 'var(--border)'}
+          strokeWidth={active ? 1.6 : 1}
+          strokeLinecap="round"
+          opacity={active ? 0.85 : 0.4}
           strokeDasharray={active ? '0' : '3 3'}
         />
       );
@@ -656,7 +696,7 @@ export default function ConvNetViz({ seed = 7 }) {
         x={x - 1.5} y={y - 1.5} width={w + 3} height={h + 3}
         rx={2}
         fill="none"
-        stroke="var(--hue-sky, #5ecbff)"
+        stroke="var(--hue-sky)"
         strokeWidth="1.6"
         strokeDasharray="3 2"
       />
@@ -684,6 +724,16 @@ export default function ConvNetViz({ seed = 7 }) {
           className="mlviz-svg cn-svg"
           preserveAspectRatio="xMidYMid meet"
         >
+          <defs>
+            <linearGradient id="cn-conn-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-sky)" />
+            </linearGradient>
+            <filter id="cn-glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="3.2" />
+            </filter>
+          </defs>
+
           {/* Layer labels */}
           {LAYER_DEFS.map((d, i) => (
             <text
@@ -739,9 +789,11 @@ export default function ConvNetViz({ seed = 7 }) {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>state</span>
-          <span className="mlviz-val">{statusLine}</span>
+        <div className="mlviz-statcol">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">state</span>
+            <span className="cn-state-val">{statusLine}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

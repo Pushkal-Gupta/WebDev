@@ -6,9 +6,9 @@ import PlaygroundSwitcher from './PlaygroundSwitcher';
 import './WebSandbox.css';
 
 const STARTERS = {
-  html: `<!doctype html>\n<html>\n  <head><title>PGcode Sandbox</title></head>\n  <body>\n    <h1 id="hello">Hello, PGcode!</h1>\n    <button id="go">Click me</button>\n  </body>\n</html>\n`,
+  html: `<!doctype html>\n<html>\n  <head><title>PG Hub Sandbox</title></head>\n  <body>\n    <h1 id="hello">Hello, PG Hub!</h1>\n    <button id="go">Click me</button>\n  </body>\n</html>\n`,
   css: `body {\n  font-family: system-ui, -apple-system, sans-serif;\n  display: grid;\n  place-items: center;\n  min-height: 100vh;\n  margin: 0;\n  background: #0b1024;\n  color: #f5f4ff;\n}\nh1 { font-weight: 700; }\nbutton {\n  background: #a78bfa;\n  border: none;\n  color: #0b1024;\n  padding: 0.6rem 1.2rem;\n  border-radius: 6px;\n  cursor: pointer;\n  font-weight: 600;\n}\n`,
-  js: `document.getElementById('go').addEventListener('click', () => {\n  const h = document.getElementById('hello');\n  h.textContent = h.textContent === 'Hello, PGcode!' ? 'PGcode works!' : 'Hello, PGcode!';\n});\n`,
+  js: `document.getElementById('go').addEventListener('click', () => {\n  const h = document.getElementById('hello');\n  h.textContent = h.textContent === 'Hello, PG Hub!' ? 'PG Hub works!' : 'Hello, PG Hub!';\n});\n`,
 };
 
 const STORAGE_KEY = 'pgcode_websandbox_v1';

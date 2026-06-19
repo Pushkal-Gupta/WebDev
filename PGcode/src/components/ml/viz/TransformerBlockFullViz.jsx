@@ -182,7 +182,7 @@ function valToAlpha(v, r) {
 function cellFill(v, range) {
   const a = valToAlpha(v, range).toFixed(2);
   if (v >= 0) return `rgba(var(--accent-rgb, 0, 255, 245), ${a})`;
-  return `rgba(255, 102, 204, ${a})`;
+  return `color-mix(in srgb, var(--hue-pink) ${a * 100}%, transparent)`;
 }
 
 // Heat fill for non-negative attention weights (0..1).

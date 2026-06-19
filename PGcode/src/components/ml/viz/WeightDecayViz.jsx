@@ -236,7 +236,7 @@ export default function WeightDecayViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: 620 }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
           {/* Plot frame */}
           <rect
             x={PAD_L}

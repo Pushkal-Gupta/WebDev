@@ -352,9 +352,11 @@ All tables prefixed `PGcode_` (capital P; SQL must quote). RPCs are lowercase `p
 ## SubNav order (locked by user)
 
 ```
-Roadmap · Practice · Playground · Tutorial · Concepts · Courses · Visualize · Review ·
-Companies · Contests · Lists · Notes · Progress
+Roadmap · Practice · Playground · Learning · Compete · Companies ·
+Contests · Vault · ML-DL-AI
 ```
+
+`Learning` is the hub that groups Tutorial + Concepts + Courses + Visualize (frees top-level slots). `Compete` (`/compete`) and `ML-DL-AI` (`/ml`, PGForge) are top-level areas. **ML-DL-AI sits last by user request (2026-06-16)** — it's the newest/deepest area, not a daily-driver tab. `Vault` consolidates Review/Lists/Notes/Progress.
 
 `/assessments`, `/history`, `/achievements` are intentionally absent from SubNav — they were folded into `/practice` (Generate practice set) and `/progress` (tabbed view: Stats / History / Achievements / Topic Mastery). Routes remain registered in `App.jsx` so existing bookmarks resolve.
 

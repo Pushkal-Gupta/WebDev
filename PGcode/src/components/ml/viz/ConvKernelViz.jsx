@@ -102,7 +102,7 @@ function heatFill(v, maxAbs) {
   if (v === 0 || maxAbs === 0) return 'rgba(var(--accent-rgb, 0, 255, 245), 0.04)';
   const t = Math.min(1, Math.abs(v) / maxAbs);
   if (v > 0) return `rgba(var(--accent-rgb, 0, 255, 245), ${0.08 + t * 0.5})`;
-  return `rgba(255, 102, 204, ${0.08 + t * 0.5})`;
+  return `color-mix(in srgb, var(--hue-pink) ${(0.08 + t * 0.5) * 100}%, transparent)`;
 }
 
 function inputCellPos(r, c) {

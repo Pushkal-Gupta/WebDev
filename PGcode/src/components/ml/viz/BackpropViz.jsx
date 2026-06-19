@@ -221,6 +221,11 @@ export default function BackpropViz() {
   const bwdNodeActive = (id) => bwdLitNodes.has(id);
   const bwdEdgeActive = (id) => bwdLitEdges.has(id);
 
+  const rm =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
@@ -246,8 +251,15 @@ export default function BackpropViz() {
               markerHeight="6"
               orient="auto-start-reverse"
             >
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--hue-mint, #7be0c0)" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--hue-mint)" />
             </marker>
+            <linearGradient id="bp-edge-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--hue-mint)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </linearGradient>
+            <filter id="bp-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
           </defs>
 
           {/* Edges — drawn first, behind nodes */}
@@ -256,15 +268,30 @@ export default function BackpropViz() {
             const isBwd = bwdEdgeActive(e.id);
             return (
               <g key={e.id}>
+                {isBwd && (
+                  <line
+                    x1={ep.x1}
+                    y1={ep.y1}
+                    x2={ep.x2}
+                    y2={ep.y2}
+                    stroke="url(#bp-edge-grad)"
+                    strokeWidth={4.5}
+                    strokeLinecap="round"
+                    filter="url(#bp-glow)"
+                    opacity={0.55}
+                  />
+                )}
                 <line
                   x1={ep.x1}
                   y1={ep.y1}
                   x2={ep.x2}
                   y2={ep.y2}
-                  stroke={isBwd ? 'var(--hue-mint, #7be0c0)' : 'var(--border)'}
-                  strokeWidth={isBwd ? 2.2 : 1.4}
+                  stroke={isBwd ? 'url(#bp-edge-grad)' : 'var(--border)'}
+                  strokeWidth={isBwd ? 2.5 : 1.4}
+                  strokeLinecap="round"
                   markerEnd={isBwd ? 'url(#bp-arrow-grad)' : 'url(#bp-arrow)'}
                   opacity={isBwd ? 1 : 0.85}
+                  style={{ transition: rm ? 'none' : 'stroke-width 0.25s ease, opacity 0.25s ease' }}
                 />
                 {/* gradient label on the edge */}
                 <g
@@ -305,15 +332,25 @@ export default function BackpropViz() {
             const bwd = bwdNodeActive(id);
             return (
               <g key={id}>
-                {/* forward halo */}
+                {/* forward halo + soft glow */}
                 {lit && (
-                  <circle
-                    cx={n.x}
-                    cy={n.y}
-                    r={n.r + 6}
-                    fill={color}
-                    opacity={0.14}
-                  />
+                  <>
+                    <circle
+                      cx={n.x}
+                      cy={n.y}
+                      r={n.r + 4}
+                      fill={color}
+                      opacity={0.5}
+                      filter="url(#bp-glow)"
+                    />
+                    <circle
+                      cx={n.x}
+                      cy={n.y}
+                      r={n.r + 6}
+                      fill={color}
+                      opacity={0.14}
+                    />
+                  </>
                 )}
                 {/* backward halo */}
                 {bwd && (
@@ -412,11 +449,15 @@ export default function BackpropViz() {
       </div>
 
       <div className="mlviz-readout">
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>y</span>
-          <span className="mlviz-val">{snap(y)}</span>
-          <span className="mlviz-sub">a + b = {snap(s)}</span>
-          <span className="mlviz-sub">(a+b) · c = {snap(y)}</span>
+        <div className="mlviz-statcol bp-cards">
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">a + b</span>
+            <span className="mlviz-statcard-val">{snap(s)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">y = (a+b)·c</span>
+            <span className="mlviz-statcard-val">{snap(y)}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-controls">

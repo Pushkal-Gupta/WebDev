@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, Eye, EyeOff } from 'lucide-react';
+import { X, Eye, EyeOff, Settings } from 'lucide-react';
 import Logo from './Logo';
 import './LoginModal.css';
 
-export default function LoginModal({ onClose }) {
+export default function LoginModal({ onClose, onGoToSettings }) {
   const [mode, setMode] = useState('login'); // login | signup | reset | otp | newPassword
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,11 +16,19 @@ export default function LoginModal({ onClose }) {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
+  useEffect(() => {
+    const oauthErr = sessionStorage.getItem('pgcode-oauth-error');
+    if (oauthErr) {
+      setError(oauthErr);
+      sessionStorage.removeItem('pgcode-oauth-error');
+    }
+  }, []);
+
   const handleGoogleLogin = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.href.split('#')[0] }
+        options: { redirectTo: window.location.origin + window.location.pathname }
       });
       if (error) throw error;
     } catch (err) {
@@ -32,7 +40,7 @@ export default function LoginModal({ onClose }) {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
-        options: { redirectTo: window.location.href.split('#')[0] }
+        options: { redirectTo: window.location.origin + window.location.pathname }
       });
       if (error) throw error;
     } catch (err) {
@@ -159,7 +167,21 @@ export default function LoginModal({ onClose }) {
             <p className="modalSubtitle">{subtitle}</p>
           </div>
 
-          {error && <p className="errorText">{error}</p>}
+          {error && (
+            <div className="authError" role="alert">
+              <span className="authError-msg">{error}</span>
+              <div className="authError-actions">
+                {/already linked|Settings|different sign-in/i.test(error) && onGoToSettings && (
+                  <button type="button" className="authError-action" onClick={onGoToSettings}>
+                    <Settings size={13} /> Go to Settings
+                  </button>
+                )}
+                <button type="button" className="authError-dismiss" onClick={() => setError(null)} aria-label="Dismiss">
+                  <X size={15} />
+                </button>
+              </div>
+            </div>
+          )}
 
           {(mode === 'login' || mode === 'signup') && (
             <form onSubmit={handleSubmit} className="authForm">

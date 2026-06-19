@@ -12,7 +12,7 @@ export default function Logo({ size = 28, withWordmark = false, wordmarkSize = '
       height={size}
       viewBox="0 0 36 32"
       xmlns="http://www.w3.org/2000/svg"
-      aria-label="PG · Pushkal Gupta Code"
+      aria-label="PG Hub · Pushkal Gupta"
       role="img"
       style={{ flexShrink: 0, display: 'block' }}
     >
@@ -59,7 +59,7 @@ export default function Logo({ size = 28, withWordmark = false, wordmarkSize = '
             whiteSpace: 'nowrap',
           }}
         >
-          Pushkal Gupta <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Code</span>
+          Pushkal Gupta <span style={{ color: 'var(--accent)', fontWeight: 800 }}>Hub</span>
         </span>
         {subtitle && (
           <span

@@ -1,7 +1,9 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Notebook as NotebookIcon, Search, X } from 'lucide-react';
+import { Notebook as NotebookIcon, Search, X, ArrowLeft } from 'lucide-react';
 import { useUserProgress, useProblemsCompact } from '../lib/queries';
+import ConfidenceMeter from './vault/ConfidenceMeter';
+import './vault/vault.css';
 import './Notebook.css';
 
 export default function Notebook({ session }) {
@@ -66,12 +68,18 @@ export default function Notebook({ session }) {
 
   return (
     <div className="nb-container">
+      <nav className="vault-crumbs" aria-label="Breadcrumb">
+        <Link to="/vault" className="vault-crumbs-back">
+          <ArrowLeft size={12} /> Vault
+        </Link>
+        <span className="vault-crumbs-sep">/</span>
+        <span className="vault-crumbs-current">Notes</span>
+      </nav>
       <header className="nb-header">
         <span className="nb-eyebrow"><NotebookIcon size={11} /> Notebook</span>
         <h1 className="nb-title">Notes you've written</h1>
         <p className="nb-sub">
-          <strong>{noteRows.length}</strong> problem{noteRows.length === 1 ? '' : 's'} with notes,
-          newest first. Search by problem or note text.
+          <strong>{noteRows.length}</strong> problem{noteRows.length === 1 ? '' : 's'} with notes, newest first.
         </p>
       </header>
 
@@ -104,23 +112,34 @@ export default function Notebook({ session }) {
         </div>
       )}
 
-      <ul className="nb-list">
+      <ul className="nb-grid">
         {filtered.map(r => (
-          <li key={r.problem_id} className="nb-card">
+          <li
+            key={r.problem_id}
+            className={`nb-tile nb-tile-${r.problem.difficulty?.toLowerCase()}`}
+          >
             <Link
               to={`/category/${encodeURIComponent(r.problem.topic_id)}/${encodeURIComponent(r.problem_id)}`}
-              className="nb-card-head"
+              className="nb-tile-link"
             >
-              <span className={`nb-diff nb-diff-${r.problem.difficulty?.toLowerCase()}`}>
-                {r.problem.difficulty}
-              </span>
-              <span className="nb-card-title">{r.problem.name}</span>
-              <span className="nb-card-meta">
-                {r.confidence ? `confidence ${r.confidence}/5 · ` : ''}
-                {r.updated_at ? new Date(r.updated_at).toLocaleDateString() : ''}
-              </span>
+              <div className="nb-tile-head">
+                <span className={`nb-diff nb-diff-${r.problem.difficulty?.toLowerCase()}`}>
+                  {r.problem.difficulty}
+                </span>
+                <span className="nb-tile-title">{r.problem.name}</span>
+              </div>
+              <div className="nb-tile-note">
+                <span className="nb-tile-note-text">{r.notes}</span>
+              </div>
+              <div className="nb-tile-foot">
+                {r.confidence
+                  ? <ConfidenceMeter value={r.confidence} max={5} color="var(--hue-violet)" />
+                  : <span className="nb-tile-date">No rating</span>}
+                <span className="nb-tile-date">
+                  {r.updated_at ? new Date(r.updated_at).toLocaleDateString() : ''}
+                </span>
+              </div>
             </Link>
-            <pre className="nb-card-note">{r.notes}</pre>
           </li>
         ))}
       </ul>

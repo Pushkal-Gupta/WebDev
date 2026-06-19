@@ -74,7 +74,7 @@ function eigenAnalyze(M) {
   return out;
 }
 
-function VectorArrow({ x, y, color, label, opacity = 1, dashed = false, strokeWidth = 2.5 }) {
+function VectorArrow({ x, y, color, label, opacity = 1, dashed = false, strokeWidth = 2.5, glow = false }) {
   const { sx, sy } = toScreen(x, y);
   const dx = sx - ORIGIN;
   const dy = sy - ORIGIN;
@@ -88,6 +88,13 @@ function VectorArrow({ x, y, color, label, opacity = 1, dashed = false, strokeWi
   const hy2 = sy - headLen * Math.sin(angle + 0.42);
   return (
     <g opacity={opacity}>
+      {glow && !dashed && (
+        <line
+          x1={ORIGIN} y1={ORIGIN} x2={sx} y2={sy}
+          stroke={color} strokeWidth={strokeWidth + 2.5} strokeLinecap="round"
+          filter="url(#eig-glow)" opacity={0.5}
+        />
+      )}
       <line
         x1={ORIGIN} y1={ORIGIN} x2={sx} y2={sy}
         stroke={color} strokeWidth={strokeWidth} strokeLinecap="round"
@@ -265,6 +272,11 @@ export default function EigenvectorViz() {
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
         <svg ref={svgRef} viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+          <defs>
+            <filter id="eig-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
+          </defs>
           <Grid />
 
           {/* eigen direction lines (extended through origin) */}
@@ -299,6 +311,7 @@ export default function EigenvectorViz() {
               x={e1Anim.x} y={e1Anim.y}
               color={COLOR_E1}
               opacity={0.95}
+              glow
               label={t > 0.6 ? `λ₁v₁` : null}
             />
           )}
@@ -307,6 +320,7 @@ export default function EigenvectorViz() {
               x={e2Anim.x} y={e2Anim.y}
               color={COLOR_E2}
               opacity={0.95}
+              glow
               label={t > 0.6 ? `λ₂v₂` : null}
             />
           )}
@@ -317,6 +331,7 @@ export default function EigenvectorViz() {
             color={COLOR_V}
             opacity={t > 0 ? 0.35 : 1}
             dashed={t > 0}
+            glow={t === 0}
             label={t === 0 ? 'v' : null}
             strokeWidth={2.5}
           />
@@ -327,6 +342,7 @@ export default function EigenvectorViz() {
               x={vAnim.x} y={vAnim.y}
               color={COLOR_MV}
               opacity={0.95}
+              glow
               label={t > 0.6 ? 'Mv' : null}
             />
           )}
@@ -410,38 +426,35 @@ export default function EigenvectorViz() {
             <span className="mlviz-sub">only one independent eigenvector</span>
           </div>
         )}
-        {eig.real && eig1 && (
-          <div className="mlviz-row">
-            <span className="mlviz-tag" style={{ color: COLOR_E1 }}>λ₁</span>
-            <span className="mlviz-val">{snap(eig1.lambda)}</span>
-            <span className="mlviz-sub">
-              v₁ = [{snap(eig1.vec.x)}, {snap(eig1.vec.y)}]
-            </span>
+        <div className="mlviz-statcol eig-cards">
+          {eig.real && eig1 && (
+            <div className="mlviz-statcard mlviz-statcard-sky">
+              <span className="mlviz-statcard-label">λ₁ {snap(eig1.lambda)}</span>
+              <span className="eig-card-sub">
+                v₁ = [{snap(eig1.vec.x)}, {snap(eig1.vec.y)}]
+              </span>
+            </div>
+          )}
+          {eig.real && eig2 && !eig.defective && (
+            <div className="mlviz-statcard mlviz-statcard-pink">
+              <span className="mlviz-statcard-label">λ₂ {snap(eig2.lambda)}</span>
+              <span className="eig-card-sub">
+                v₂ = [{snap(eig2.vec.x)}, {snap(eig2.vec.y)}]
+              </span>
+            </div>
+          )}
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">v arbitrary</span>
+            <span className="eig-card-sub">[{snap(v.x)}, {snap(v.y)}]</span>
           </div>
-        )}
-        {eig.real && eig2 && !eig.defective && (
-          <div className="mlviz-row">
-            <span className="mlviz-tag" style={{ color: COLOR_E2 }}>λ₂</span>
-            <span className="mlviz-val">{snap(eig2.lambda)}</span>
-            <span className="mlviz-sub">
-              v₂ = [{snap(eig2.vec.x)}, {snap(eig2.vec.y)}]
-            </span>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">Mv off its line</span>
+            <span className="eig-card-sub">[{snap(Mv.x)}, {snap(Mv.y)}]</span>
           </div>
-        )}
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: COLOR_V }}>v</span>
-          <span className="mlviz-val">[{snap(v.x)}, {snap(v.y)}]</span>
-          <span className="mlviz-sub">arbitrary</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_MV }}>Mv</span>
-          <span className="mlviz-val">[{snap(Mv.x)}, {snap(Mv.y)}]</span>
-          <span className="mlviz-sub">rotates off its line</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag">det</span>
-          <span className="mlviz-val">{snap(eig.det)}</span>
-          <span className="mlviz-sub">tr = {snap(eig.trace)} = λ₁ + λ₂</span>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">det {snap(eig.det)}</span>
+            <span className="eig-card-sub">tr {snap(eig.trace)} = λ₁ + λ₂</span>
+          </div>
         </div>
         <div className="mlviz-hint">
           eigenvectors stay on their dashed lines — only their length scales by λ

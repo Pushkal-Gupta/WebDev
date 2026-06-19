@@ -92,7 +92,7 @@ function VecChips({ vec, x, y, dim = false }) {
         const positive = v >= 0;
         const bg = positive
           ? `rgba(var(--accent-rgb, 0,255,245), ${0.12 + t * 0.55})`
-          : `rgba(255, 102, 204, ${0.12 + t * 0.55})`;
+          : `color-mix(in srgb, var(--hue-pink) ${(0.12 + t * 0.55) * 100}%, transparent)`;
         return (
           <g key={i} transform={`translate(${i * CELL}, 0)`}>
             <rect
@@ -201,6 +201,9 @@ export default function KVCacheViz() {
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.05" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </linearGradient>
+            <filter id="kvcache-slot-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3.2" />
+            </filter>
             <marker
               id="kvc-arrow"
               viewBox="0 0 8 8"
@@ -350,6 +353,19 @@ export default function KVCacheViz() {
             const tokStroke = isCurrent ? 'var(--accent)' : 'var(--border)';
             return (
               <g key={`row-${i}`}>
+                {/* Glow halo behind the current (NEW) token chip */}
+                {isCurrent && (
+                  <rect
+                    x={tokX}
+                    y={y}
+                    width={TOKEN_W}
+                    height={TOKEN_H}
+                    rx="8"
+                    fill="var(--accent)"
+                    opacity="0.35"
+                    filter="url(#kvcache-slot-glow)"
+                  />
+                )}
                 {/* Token chip */}
                 <rect
                   x={tokX}
@@ -475,7 +491,7 @@ export default function KVCacheViz() {
                   const positive = v >= 0;
                   const bg = positive
                     ? `rgba(var(--accent-rgb, 0,255,245), ${0.16 + t * 0.55})`
-                    : `rgba(255, 102, 204, ${0.16 + t * 0.55})`;
+                    : `color-mix(in srgb, var(--hue-pink) ${(0.16 + t * 0.55) * 100}%, transparent)`;
                   return (
                     <g key={i} transform={`translate(${i * 22}, 0)`}>
                       <rect
@@ -518,6 +534,7 @@ export default function KVCacheViz() {
                 const baseY = aY + TOKEN_H + 36 + i * 22;
                 const w = attnW[i];
                 const barW = Math.max(2, w * (ATTN_W - 80));
+                const hot = w > 0.35;
                 return (
                   <g key={`a-${i}`}>
                     <text
@@ -534,17 +551,29 @@ export default function KVCacheViz() {
                       y={baseY}
                       width={ATTN_W - 80}
                       height="14"
-                      rx="3"
-                      fill="rgba(120,120,120,0.06)"
+                      rx="4"
+                      fill="rgba(0,0,0,0.06)"
                       stroke="var(--border)"
                       strokeWidth="0.4"
                     />
+                    {hot && (
+                      <rect
+                        x={aX + 26}
+                        y={baseY}
+                        width={barW}
+                        height="14"
+                        rx="4"
+                        fill="var(--accent)"
+                        opacity={0.25 + w * 0.4}
+                        filter="url(#kvcache-slot-glow)"
+                      />
+                    )}
                     <rect
                       x={aX + 26}
                       y={baseY}
                       width={barW}
                       height="14"
-                      rx="3"
+                      rx="4"
                       fill={wColor(w)}
                     />
                     <text

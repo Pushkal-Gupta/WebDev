@@ -4,32 +4,48 @@ import { ArrowRight } from 'lucide-react';
 import './LearningHub.css';
 
 function TutorialThumb() {
+  /* a tree / flow diagram that draws itself in, node by node */
+  const edges = [
+    'M100 26 L56 60', 'M100 26 L144 60',
+    'M56 72 L34 100', 'M56 72 L78 100',
+    'M144 72 L122 100', 'M144 72 L166 100',
+  ];
+  const nodes = [
+    [100, 26, 0], [56, 66, 1], [144, 66, 1],
+    [34, 100, 2], [78, 100, 2], [122, 100, 2], [166, 100, 2],
+  ];
   return (
-    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Stacked essay lines">
-      <rect x="18" y="20" width="120" height="11" rx="3" className="t-fill-strong" />
-      <rect x="18" y="40" width="164" height="7" rx="3" className="t-fill" />
-      <rect x="18" y="54" width="150" height="7" rx="3" className="t-fill" />
-      <rect x="18" y="68" width="164" height="7" rx="3" className="t-fill" />
-      <rect x="18" y="82" width="92" height="7" rx="3" className="t-fill" />
-      <rect x="18" y="96" width="44" height="9" rx="4" className="t-fill-strong" />
-      <rect x="18" y="40" width="3" height="65" rx="1.5" className="t-accent" />
+    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A tree diagram building itself out">
+      <g className="tt-edges">
+        {edges.map((d, i) => (
+          <path key={i} d={d} className={`tt-edge tt-edge-${i}`} />
+        ))}
+      </g>
+      {nodes.map(([cx, cy, lvl], i) => (
+        <g key={i} className={`tt-node tt-node-${i}`} style={{ transformOrigin: `${cx}px ${cy}px` }}>
+          <circle cx={cx} cy={cy} r={lvl === 0 ? 11 : 8} className={lvl === 0 ? 't-node-done' : 't-node-soft'} />
+          {lvl === 0 && <circle cx={cx} cy={cy} r="11" className="tt-pulse" />}
+        </g>
+      ))}
     </svg>
   );
 }
 
 function ConceptsThumb() {
   const cells = [
-    [22, 22], [80, 22], [138, 22],
-    [22, 62], [80, 62], [138, 62],
+    [20, 18], [80, 18], [140, 18],
+    [20, 56], [80, 56], [140, 56],
   ];
   return (
-    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Grid of concept cards">
+    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A grid of concept cards drifting">
       {cells.map(([x, y], i) => (
-        <g key={i} className={`c-card c-card-${i}`}>
-          <rect x={x} y={y} width="40" height="36" rx="5" className="t-fill" />
-          <rect x={x + 6} y={y + 7} width="20" height="4" rx="2" className="t-accent" />
-          <rect x={x + 6} y={y + 16} width="28" height="3" rx="1.5" className="t-fill-strong" />
-          <rect x={x + 6} y={y + 23} width="22" height="3" rx="1.5" className="t-fill-strong" />
+        <g key={i} className={`cc-card cc-card-${i}`} style={{ transformOrigin: `${x + 21}px ${y + 22}px` }}>
+          <rect x={x} y={y} width="42" height="44" rx="6" className="t-fill" />
+          <rect x={x} y={y} width="42" height="44" rx="6" className="cc-edge" />
+          <rect x={x + 7} y={y + 8} width="18" height="5" rx="2.5" className="t-accent" />
+          <rect x={x + 7} y={y + 19} width="29" height="3.5" rx="1.75" className="t-fill-strong" />
+          <rect x={x + 7} y={y + 27} width="24" height="3.5" rx="1.75" className="t-fill-strong" />
+          <rect x={x + 7} y={y + 35} width="20" height="3.5" rx="1.75" className="t-fill-strong" />
         </g>
       ))}
     </svg>
@@ -37,102 +53,81 @@ function ConceptsThumb() {
 }
 
 function CoursesThumb() {
+  /* a stepped lesson path; a marker travels the track, nodes light as it passes */
+  const nodes = [[30, 92], [70, 64], [110, 88], [150, 52], [180, 30]];
+  const linkPath = 'M30 92 L70 64 L110 88 L150 52 L180 30';
   return (
-    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Lesson track with progress">
-      <path d="M28 28 L172 28" className="t-track" />
-      <path d="M28 60 L172 60" className="t-track" />
-      <path d="M28 92 L172 92" className="t-track" />
-      {[28, 72, 116, 160].map((x, i) => (
-        <circle key={`a${i}`} cx={x} cy="28" r="6" className={i < 3 ? 't-node-done' : 't-node'} />
+    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="A lesson path with a moving progress marker">
+      <path d={linkPath} className="cr-track" />
+      <path d={linkPath} className="cr-track-fill" pathLength="100" />
+      {nodes.map(([cx, cy], i) => (
+        <g key={i} className={`cr-node cr-node-${i}`} style={{ transformOrigin: `${cx}px ${cy}px` }}>
+          <circle cx={cx} cy={cy} r="7" className="t-node-soft" />
+          <circle cx={cx} cy={cy} r="3" className="cr-dot" />
+        </g>
       ))}
-      {[28, 72, 116, 160].map((x, i) => (
-        <circle key={`b${i}`} cx={x} cy="60" r="6" className={i < 1 ? 't-node-done' : 't-node'} />
-      ))}
-      {[28, 72, 116, 160].map((x, i) => (
-        <circle key={`c${i}`} cx={x} cy="92" r="6" className="t-node" />
-      ))}
-      <path d="M28 28 L116 28" className="t-track-done" />
-      <path d="M28 60 L28 60" className="t-track-done" />
+      <circle r="5.5" className="cr-marker">
+        <animateMotion dur="4.4s" repeatCount="indefinite" rotate="auto" keyPoints="0;0.22;0.5;0.72;1;1" keyTimes="0;0.22;0.5;0.72;0.92;1" calcMode="spline" keySplines="0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0.4 0 0.2 1;0 0 1 1" path={linkPath} />
+      </circle>
     </svg>
   );
 }
 
 function VisualizeThumb() {
-  return (
-    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Animated bars with play control">
-      {[
-        [24, 64], [48, 42], [72, 78], [96, 30], [120, 54], [144, 70], [168, 46],
-      ].map(([x, h], i) => (
-        <rect key={i} x={x} y={100 - h} width="14" height={h} rx="3" className={`v-bar v-bar-${i}`} />
-      ))}
-      <circle cx="100" cy="60" r="20" className="v-play-ring" />
-      <path d="M94 50 L94 70 L112 60 Z" className="t-accent" />
-    </svg>
-  );
-}
-
-function MLThumb() {
-  const L0 = [30, 60, 90];
-  const L1 = [38, 60, 82];
-  const L2 = [50, 70];
-  const nx = [44, 100, 156];
-  const nodes = [
-    ...L0.map(y => ({ x: nx[0], y })),
-    ...L1.map(y => ({ x: nx[1], y })),
-    ...L2.map(y => ({ x: nx[2], y })),
+  /* sorting bars that continuously rise/settle, with a sweeping scan line */
+  const bars = [
+    [22, 58], [44, 36], [66, 74], [88, 28], [110, 50], [132, 66], [154, 42], [176, 60],
   ];
-  const edges = [];
-  L0.forEach(y0 => L1.forEach(y1 => edges.push([nx[0], y0, nx[1], y1])));
-  L1.forEach(y1 => L2.forEach(y2 => edges.push([nx[1], y1, nx[2], y2])));
   return (
-    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Neural network sketch">
-      {edges.map(([x1, y1, x2, y2], i) => (
-        <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} className="m-edge" />
+    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Sorting bars rising and settling with a scanning highlight">
+      {bars.map(([x, h], i) => (
+        <rect key={i} x={x} y={100 - h} width="14" height={h} rx="3" className={`vz-bar vz-bar-${i}`} style={{ transformOrigin: `${x + 7}px 100px` }} />
       ))}
-      {nodes.map((n, i) => (
-        <circle key={i} cx={n.x} cy={n.y} r="8" className={`m-node m-node-${i % 3}`} />
-      ))}
+      <rect className="vz-scan" x="0" y="20" width="16" height="84" rx="4" />
     </svg>
   );
 }
 
 function QuizThumb() {
+  /* multiple-choice options; selection cycles and a check stamps in */
+  const opts = [22, 50, 78];
   return (
-    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Quiz with answer options">
-      <rect x="30" y="16" width="140" height="14" rx="4" className="t-fill-strong" />
-      {[40, 62, 84].map((y, i) => (
-        <g key={i} className={`q-opt q-opt-${i}`}>
-          <circle cx="42" cy={y + 7} r="6" className={i === 1 ? 't-node-done' : 't-node'} />
-          <rect x="56" y={y + 2} width={i === 1 ? 104 : 84} height="9" rx="4" className={i === 1 ? 't-accent' : 't-fill'} />
+    <svg className="lhub-thumb" viewBox="0 0 200 120" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Quiz options being answered and checked">
+      <rect x="26" y="14" width="120" height="9" rx="4" className="t-fill-strong" />
+      <rect x="26" y="27" width="78" height="6" rx="3" className="t-fill" />
+      {opts.map((y, i) => (
+        <g key={i} className={`qz-opt qz-opt-${i}`}>
+          <rect x="26" y={y} width="148" height="20" rx="6" className="qz-box" />
+          <circle cx="40" cy={y + 10} r="6" className="qz-mark" />
+          <path d={`M36.5 ${y + 10} L39 ${y + 12.5} L43.5 ${y + 7.5}`} className="qz-check" />
+          <rect x="54" y={y + 6.5} width={[70, 92, 56][i]} height="7" rx="3.5" className="t-fill" />
         </g>
       ))}
-      <path d="M39 47 L41.5 50 L46 44" className="q-check" />
     </svg>
   );
 }
 
 const VERTICALS = [
-  { to: '/tutorial', tag: 'Tutorial', title: 'DSA Tutorial', line: 'Deep topic essays with diagrams, complexity, and code.', hue: 'hue-violet', Thumb: TutorialThumb },
-  { to: '/learn', tag: 'Concepts', title: 'Concept Reference', line: 'Problem-shaped intuition cards in four languages.', hue: 'hue-sky', Thumb: ConceptsThumb },
-  { to: '/courses', tag: 'Courses', title: 'Structured Courses', line: 'Guided lesson tracks with exercises and worked examples.', hue: 'hue-mint', Thumb: CoursesThumb },
-  { to: '/visualize', tag: 'Visualize', title: 'Visualizations', line: 'Step through every algorithm and data structure, frame by frame.', hue: 'hue-pink', Thumb: VisualizeThumb },
-  { to: '/ml', tag: 'ML / DL / AI', title: 'Machine Learning', line: 'Linear algebra to transformers, built on interactive visuals.', hue: 'hue-violet', Thumb: MLThumb },
-  { to: '/quiz', tag: 'Quizzes', title: 'Quizzes', line: 'Auto-graded checks to test recall on every topic.', hue: 'hue-sky', Thumb: QuizThumb },
+  { to: '/visualize', tag: 'Visualize', title: 'Visualizations', line: 'Step through every algorithm and data structure, frame by frame.', Thumb: VisualizeThumb, hue: 'var(--hue-sky)' },
+  { to: '/courses', tag: 'Courses', title: 'Structured Courses', line: 'Guided lesson tracks with exercises and worked examples.', Thumb: CoursesThumb, hue: 'var(--hue-mint)' },
+  { to: '/learn', tag: 'Concepts', title: 'Concept Reference', line: 'Problem-shaped intuition cards in four languages.', Thumb: ConceptsThumb, hue: 'var(--hue-violet)' },
+  { to: '/tutorial', tag: 'Tutorial', title: 'DSA Tutorial', line: 'Deep topic essays with diagrams, complexity, and code.', Thumb: TutorialThumb, hue: 'var(--hue-pink)' },
+  { to: '/quiz', tag: 'Quizzes', title: 'Quizzes', line: 'Auto-graded checks to test recall on every topic.', Thumb: QuizThumb, hue: 'var(--warning)' },
 ];
 
 export default function LearningHub() {
   return (
     <div className="lhub">
       <header className="lhub-hero">
-        <h1 className="lhub-title">Learning</h1>
-        <p className="lhub-sub">Essays, concept cards, courses, live visualizations, and machine learning.</p>
+        <h1 className="lhub-title"><span style={{ color: 'var(--text-dim)', fontSize: '0.6em', opacity: 0.55, fontWeight: 600 }}>PG</span>Learn</h1>
+        <p className="lhub-sub">Visualizations, courses, concept cards, essays, and quizzes for every topic.</p>
       </header>
 
       <section className="lhub-grid">
         {VERTICALS.map(v => {
           const { Thumb } = v;
           return (
-            <Link key={v.to} to={v.to} className={`lhub-card ${v.hue}`}>
+            <Link key={v.to} to={v.to} className="lhub-card" style={{ '--card-hue': v.hue }}>
               <div className="lhub-thumb-wrap">
                 <Thumb />
               </div>

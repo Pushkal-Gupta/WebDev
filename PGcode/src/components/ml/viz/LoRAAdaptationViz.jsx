@@ -76,8 +76,6 @@ export default function LoRAAdaptationViz() {
 
   const isRunning = isRunningRaw && step < MAX_STEPS;
 
-  const rng = useMemo(() => mulberry32(seed), [seed]);
-
   const stats = useMemo(() => {
     const full = d * d;
     const lora = 2 * d * r;

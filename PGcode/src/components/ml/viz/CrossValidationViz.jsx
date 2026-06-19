@@ -249,8 +249,21 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
         <svg
           viewBox={`0 0 ${SW} ${SH}`}
           className="mlviz-svg mlviz-svg-wide"
-          style={{ aspectRatio: `${SW} / ${SH}`, maxWidth: '620px' }}
+          style={{ aspectRatio: `${SW} / ${SH}`, maxWidth: '820px' }}
         >
+          <defs>
+            <linearGradient id="cv-bar-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <linearGradient id="cv-cell-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="cv-bar-glow" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
+          </defs>
           {/* Header line */}
           <text
             x={STRIP_PAD_X}
@@ -319,16 +332,28 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
             const isTest = testSetMembership.has(i);
             return (
               <g key={`cell-${i}`}>
+                {isTest && (
+                  <rect
+                    x={x}
+                    y={STRIP_PAD_TOP}
+                    width={cellInner}
+                    height={STRIP_HEIGHT}
+                    fill="url(#cv-cell-grad)"
+                    rx="3"
+                    filter="url(#cv-bar-glow)"
+                    opacity="0.5"
+                  />
+                )}
                 <rect
                   x={x}
                   y={STRIP_PAD_TOP}
                   width={cellInner}
                   height={STRIP_HEIGHT}
-                  fill={cellFill(i)}
-                  fillOpacity={isTest ? 0.85 : 0}
+                  fill={isTest ? 'url(#cv-cell-grad)' : cellFill(i)}
+                  fillOpacity={isTest ? 0.9 : 0}
                   stroke={cellStroke(i)}
                   strokeWidth={isTest ? 1.5 : 1}
-                  rx="2"
+                  rx="3"
                   style={{ transition: 'fill 200ms ease, stroke 200ms ease' }}
                 />
                 {n <= 24 && (
@@ -394,6 +419,7 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
                 stroke="var(--accent)"
                 strokeWidth="1.2"
                 strokeDasharray="3 3"
+                strokeLinecap="round"
                 opacity="0.6"
               />
             )}
@@ -409,12 +435,25 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
               const isCurrent = i === displayFold;
               return (
                 <g key={`bar-${i}`}>
+                  {filled && isCurrent && (
+                    <rect
+                      x={x}
+                      y={y}
+                      width={w}
+                      height={Math.max(2, h)}
+                      rx="2.5"
+                      fill="url(#cv-bar-grad)"
+                      filter="url(#cv-bar-glow)"
+                      opacity="0.55"
+                    />
+                  )}
                   <rect
                     x={x}
                     y={y}
                     width={w}
                     height={Math.max(2, h)}
-                    fill={filled ? (isCurrent ? 'var(--accent)' : COLOR_DONE_TEST) : 'var(--border)'}
+                    rx="2.5"
+                    fill={filled ? (isCurrent ? 'url(#cv-bar-grad)' : COLOR_DONE_TEST) : 'var(--border)'}
                     opacity={filled ? 0.95 : 0.45}
                     stroke={isCurrent ? 'var(--accent)' : 'none'}
                     strokeWidth={isCurrent ? 1.4 : 0}
@@ -560,30 +599,20 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
         </div>
 
         {/* Final readout */}
-        <div className="mlviz-row mlviz-row-hi" style={{
-          gap: '1rem',
-          fontFamily: 'var(--mono)',
-          fontSize: '0.74rem',
-          alignItems: 'center',
-        }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>folds done</span>
-            <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
-              {completedCount} / {k}
-            </span>
+        <div className="mlviz-statrow" style={{ alignItems: 'center' }}>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">folds done</span>
+            <span className="mlviz-statcard-val">{completedCount} / {k}</span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>mean acc</span>
-            <span style={{
-              color: allDone ? 'var(--accent)' : 'var(--text-main)',
-              fontWeight: allDone ? 700 : 600,
-            }}>
+          <div className={`mlviz-statcard${allDone ? ' mlviz-statcard-accent' : ''}`}>
+            <span className="mlviz-statcard-label">mean acc</span>
+            <span className="mlviz-statcard-val">
               {completedCount > 0 ? `${snap(meanAcc * 100, 2)}%` : '—'}
             </span>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-            <span style={{ color: 'var(--text-dim)', letterSpacing: '0.08em' }}>± std</span>
-            <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>
+          <div className="mlviz-statcard">
+            <span className="mlviz-statcard-label">± std</span>
+            <span className="mlviz-statcard-val">
               {completedCount > 1 ? `${snap(stdAcc * 100, 2)}%` : '—'}
             </span>
           </div>
@@ -597,6 +626,8 @@ export default function CrossValidationViz({ initialN = DEFAULT_N, initialK = DE
               color: 'var(--accent)',
               fontWeight: 700,
               letterSpacing: '0.04em',
+              fontFamily: 'var(--mono)',
+              fontSize: '0.74rem',
             }}>
               {snap(meanAcc * 100, 2)}% ± {snap(stdAcc * 100, 2)}%
             </div>

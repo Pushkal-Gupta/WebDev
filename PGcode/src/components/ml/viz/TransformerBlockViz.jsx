@@ -21,7 +21,7 @@ const COMPONENTS = {
   pe: {
     label: 'Positional encoding (+PE)',
     desc: 'Sinusoidal position vectors are added to embeddings so the block can tell token order apart.',
-    color: 'var(--hue-mint, #7be0c0)',
+    color: 'var(--hue-mint)',
   },
   attn: {
     label: 'Multi-head self-attention',
@@ -31,17 +31,17 @@ const COMPONENTS = {
   addnorm1: {
     label: 'Add and LayerNorm',
     desc: 'Residual skip from the input plus per-token normalization. Keeps gradients flowing and activations centred.',
-    color: 'var(--hue-pink, #ff66cc)',
+    color: 'var(--hue-pink)',
   },
   ffn: {
     label: 'Position-wise feed-forward',
     desc: 'Linear (d_model -> 4*d_model) -> ReLU -> Linear (4*d_model -> d_model). Applied to every token independently.',
-    color: 'var(--hue-sky, #5ecbff)',
+    color: 'var(--hue-sky)',
   },
   addnorm2: {
     label: 'Add and LayerNorm',
     desc: 'Second residual + LayerNorm. The output has the same shape as the input — blocks stack cleanly.',
-    color: 'var(--hue-pink, #ff66cc)',
+    color: 'var(--hue-pink)',
   },
   out: {
     label: 'Block output',
@@ -69,14 +69,14 @@ function cellColor(token, j, mixWithPE = false) {
   const w = mixWithPE ? (v + pe) / 2 : v;
   // map [0,1] -> mix between two theme tones
   const a = 0.18 + w * 0.55;
-  return `rgba(var(--accent-rgb, 0, 255, 245), ${a.toFixed(2)})`;
+  return `rgba(var(--accent-rgb), ${a.toFixed(2)})`;
 }
 
 function cellColorPE(token, j) {
   const pe = (Math.sin(j * 0.6 + token.length * 0.4) + 1) / 2;
   const a = 0.18 + pe * 0.55;
   // mint for PE
-  return `rgba(123, 224, 192, ${a.toFixed(2)})`;
+  return `color-mix(in srgb, var(--hue-mint) ${(a * 100).toFixed(1)}%, transparent)`;
 }
 
 // One row of embedding cells.
@@ -91,7 +91,7 @@ function EmbedRow({ token, y, mixPE, highlight }) {
         y={y + cellH / 2 + 4}
         textAnchor="end"
         fontSize="11"
-        fontFamily="var(--serif, serif)"
+        fontFamily="var(--serif)"
         fontStyle="italic"
         fontWeight="700"
         fill="var(--text-main)"
@@ -118,18 +118,34 @@ function EmbedRow({ token, y, mixPE, highlight }) {
 
 // Decorative arrow with optional active glow.
 function Arrow({ x1, y1, x2, y2, active, color = 'var(--text-dim)' }) {
-  const c = active ? 'var(--accent)' : color;
+  const c = active ? 'url(#tb-active-grad)' : color;
   return (
-    <line
-      x1={x1}
-      y1={y1}
-      x2={x2}
-      y2={y2}
-      stroke={c}
-      strokeWidth={active ? 2 : 1.2}
-      markerEnd={active ? 'url(#tb-arrow-active)' : 'url(#tb-arrow)'}
-      opacity={active ? 1 : 0.7}
-    />
+    <g>
+      {active && (
+        <line
+          x1={x1}
+          y1={y1}
+          x2={x2}
+          y2={y2}
+          stroke="var(--accent)"
+          strokeWidth={4.5}
+          strokeLinecap="round"
+          filter="url(#tb-glow)"
+          opacity={0.45}
+        />
+      )}
+      <line
+        x1={x1}
+        y1={y1}
+        x2={x2}
+        y2={y2}
+        stroke={c}
+        strokeWidth={active ? 2 : 1.2}
+        strokeLinecap="round"
+        markerEnd={active ? 'url(#tb-arrow-active)' : 'url(#tb-arrow)'}
+        opacity={active ? 1 : 0.7}
+      />
+    </g>
   );
 }
 
@@ -139,7 +155,7 @@ function AttentionInternals({ x, y, w, lit }) {
   const gap = 14;
   const rowH = 16;
   const heads = 3; // visual heads
-  const headColors = ['var(--accent)', 'var(--hue-pink, #ff66cc)', 'var(--hue-sky, #5ecbff)'];
+  const headColors = ['var(--accent)', 'var(--hue-pink)', 'var(--hue-sky)'];
 
   const cx0 = x + 16;
   const cy = y + 30;
@@ -164,7 +180,7 @@ function AttentionInternals({ x, y, w, lit }) {
         x={x + 10}
         y={y + 14}
         fontSize="10"
-        fontFamily="var(--mono, monospace)"
+        fontFamily="var(--mono)"
         fill="var(--accent)"
         letterSpacing="0.14em"
       >
@@ -181,7 +197,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy - 4}
               textAnchor="middle"
               fontSize="11"
-              fontFamily="var(--serif, serif)"
+              fontFamily="var(--serif)"
               fontStyle="italic"
               fontWeight="700"
               fill={headColors[i]}
@@ -208,7 +224,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy + 4 * (rowH + 2) + 12}
               textAnchor="middle"
               fontSize="9"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--text-dim)"
             >
               x·W{label}
@@ -228,7 +244,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy - 4}
               textAnchor="middle"
               fontSize="10"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--text-dim)"
             >
               QKᵀ/√d
@@ -244,7 +260,7 @@ function AttentionInternals({ x, y, w, lit }) {
                     width={cellS}
                     height={cellS}
                     rx={1.5}
-                    fill={`rgba(var(--accent-rgb, 0, 255, 245), ${(0.1 + s * 0.55).toFixed(2)})`}
+                    fill={`rgba(var(--accent-rgb), ${(0.1 + s * 0.55).toFixed(2)})`}
                     stroke="var(--border)"
                     strokeWidth={0.5}
                   />
@@ -256,7 +272,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy + 4 * (cellS + 1) + 12}
               textAnchor="middle"
               fontSize="9"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--text-dim)"
             >
               scores
@@ -275,7 +291,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy + 30}
               textAnchor="middle"
               fontSize="9"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--accent)"
               letterSpacing="0.12em"
             >
@@ -295,7 +311,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy + 52}
               textAnchor="middle"
               fontSize="9"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--text-dim)"
             >
               · V
@@ -315,7 +331,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy - 4}
               textAnchor="middle"
               fontSize="10"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--accent)"
             >
               out
@@ -328,7 +344,7 @@ function AttentionInternals({ x, y, w, lit }) {
                 width={cellS * 2 + 1}
                 height={cellS}
                 rx={1.5}
-                fill={`rgba(var(--accent-rgb, 0, 255, 245), ${(0.2 + r * 0.12).toFixed(2)})`}
+                fill={`rgba(var(--accent-rgb), ${(0.2 + r * 0.12).toFixed(2)})`}
                 stroke="var(--accent)"
                 strokeWidth={0.7}
               />
@@ -338,7 +354,7 @@ function AttentionInternals({ x, y, w, lit }) {
               y={cy + 4 * (cellS + 1) + 12}
               textAnchor="middle"
               fontSize="9"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--text-dim)"
             >
               Σ α·V
@@ -366,7 +382,7 @@ function AttentionInternals({ x, y, w, lit }) {
           y={y + 14}
           textAnchor="end"
           fontSize="9"
-          fontFamily="var(--mono, monospace)"
+          fontFamily="var(--mono)"
           fill="var(--text-dim)"
         >
           heads
@@ -401,7 +417,7 @@ function FFNDetail({ x, y, w, lit }) {
         rx={10}
         ry={10}
         fill="var(--surface)"
-        stroke="var(--hue-sky, #5ecbff)"
+        stroke="var(--hue-sky)"
         strokeWidth={1.2}
         opacity={0.95}
         strokeDasharray="3 3"
@@ -410,8 +426,8 @@ function FFNDetail({ x, y, w, lit }) {
         x={x + 10}
         y={y + 14}
         fontSize="10"
-        fontFamily="var(--mono, monospace)"
-        fill="var(--hue-sky, #5ecbff)"
+        fontFamily="var(--mono)"
+        fill="var(--hue-sky)"
         letterSpacing="0.14em"
       >
         FEED-FORWARD — Linear → ReLU → Linear
@@ -426,18 +442,18 @@ function FFNDetail({ x, y, w, lit }) {
           width={cell}
           height={cell * 2}
           rx={2}
-          fill="rgba(94, 203, 255, 0.25)"
+          fill="color-mix(in srgb, var(--hue-sky) 25%, transparent)"
           stroke="var(--border)"
           strokeWidth={0.6}
         />
       ))}
-      <text x={inX + inW / 2} y={rowY + cell * 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--text-dim)">
+      <text x={inX + inW / 2} y={rowY + cell * 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--text-dim)">
         d
       </text>
 
       {/* arrow + Linear label */}
-      <line x1={inX + inW + 4} y1={rowY + cell} x2={midX - 4} y2={rowY + cell} stroke="var(--hue-sky, #5ecbff)" strokeWidth={1.4} markerEnd="url(#tb-arrow-sky)" />
-      <text x={(inX + inW + midX) / 2} y={rowY - 2} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--hue-sky, #5ecbff)">
+      <line x1={inX + inW + 4} y1={rowY + cell} x2={midX - 4} y2={rowY + cell} stroke="var(--hue-sky)" strokeWidth={1.4} markerEnd="url(#tb-arrow-sky)" />
+      <text x={(inX + inW + midX) / 2} y={rowY - 2} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--hue-sky)">
         W₁ · x
       </text>
 
@@ -450,18 +466,18 @@ function FFNDetail({ x, y, w, lit }) {
           width={cell}
           height={cell * 2 + 8}
           rx={2}
-          fill="rgba(94, 203, 255, 0.45)"
-          stroke="var(--hue-sky, #5ecbff)"
+          fill="color-mix(in srgb, var(--hue-sky) 45%, transparent)"
+          stroke="var(--hue-sky)"
           strokeWidth={0.6}
         />
       ))}
-      <text x={midX + midW / 2} y={rowY + cell * 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--text-dim)">
+      <text x={midX + midW / 2} y={rowY + cell * 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--text-dim)">
         4d (ReLU)
       </text>
 
       {/* arrow + Linear label */}
-      <line x1={midX + midW + 4} y1={rowY + cell} x2={outX - 4} y2={rowY + cell} stroke="var(--hue-sky, #5ecbff)" strokeWidth={1.4} markerEnd="url(#tb-arrow-sky)" />
-      <text x={(midX + midW + outX) / 2} y={rowY - 2} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--hue-sky, #5ecbff)">
+      <line x1={midX + midW + 4} y1={rowY + cell} x2={outX - 4} y2={rowY + cell} stroke="var(--hue-sky)" strokeWidth={1.4} markerEnd="url(#tb-arrow-sky)" />
+      <text x={(midX + midW + outX) / 2} y={rowY - 2} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--hue-sky)">
         W₂ · h
       </text>
 
@@ -474,12 +490,12 @@ function FFNDetail({ x, y, w, lit }) {
           width={cell}
           height={cell * 2}
           rx={2}
-          fill="rgba(94, 203, 255, 0.25)"
+          fill="color-mix(in srgb, var(--hue-sky) 25%, transparent)"
           stroke="var(--border)"
           strokeWidth={0.6}
         />
       ))}
-      <text x={outX + outW / 2} y={rowY + cell * 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--text-dim)">
+      <text x={outX + outW / 2} y={rowY + cell * 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--text-dim)">
         d
       </text>
     </g>
@@ -559,7 +575,7 @@ export default function TransformerBlockViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage" style={{ minHeight: 0 }}>
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg" style={{ maxWidth: 560, aspectRatio: `${W} / ${H}` }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg" style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}>
           <defs>
             <marker id="tb-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--text-dim)" />
@@ -568,15 +584,22 @@ export default function TransformerBlockViz() {
               <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent)" />
             </marker>
             <marker id="tb-arrow-sky" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--hue-sky, #5ecbff)" />
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--hue-sky)" />
             </marker>
+            <linearGradient id="tb-active-grad" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="tb-glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="2.6" />
+            </filter>
           </defs>
 
           {/* Side rail labels */}
-          <text x={12} y={24} fontSize="10" fontFamily="var(--mono, monospace)" fill="var(--text-dim)" letterSpacing="0.14em">
+          <text x={12} y={24} fontSize="10" fontFamily="var(--mono)" fill="var(--text-dim)" letterSpacing="0.14em">
             ENCODER BLOCK
           </text>
-          <text x={W - 12} y={24} fontSize="10" fontFamily="var(--mono, monospace)" fill="var(--text-dim)" textAnchor="end" letterSpacing="0.14em">
+          <text x={W - 12} y={24} fontSize="10" fontFamily="var(--mono)" fill="var(--text-dim)" textAnchor="end" letterSpacing="0.14em">
             d_model = {D_MODEL}
           </text>
 
@@ -586,17 +609,24 @@ export default function TransformerBlockViz() {
             onClick={() => setSelected(selected === 'out' ? null : 'out')}
             opacity={showActive('out') ? 1 : 0.9}
           >
+            {showActive('out') && (
+              <rect
+                x={stripX} y={outY} width={stripW} height={32} rx={6}
+                fill="none" stroke="var(--accent)" strokeWidth={3}
+                opacity={0.5} filter="url(#tb-glow)"
+              />
+            )}
             <rect
               x={stripX}
               y={outY}
               width={stripW}
               height={32}
               rx={6}
-              fill={showActive('out') ? 'rgba(var(--accent-rgb, 0, 255, 245), 0.12)' : 'var(--surface)'}
+              fill={showActive('out') ? 'rgba(var(--accent-rgb), 0.12)' : 'var(--surface)'}
               stroke={showActive('out') ? 'var(--accent)' : 'var(--border)'}
               strokeWidth={isSel('out') ? 2 : 1}
             />
-            <text x={centerX} y={outY + 20} textAnchor="middle" fontSize="11" fontFamily="var(--mono, monospace)" fill="var(--text-main)" letterSpacing="0.1em">
+            <text x={centerX} y={outY + 20} textAnchor="middle" fontSize="11" fontFamily="var(--mono)" fill="var(--text-main)" letterSpacing="0.1em">
               OUTPUT  ·  same shape as input
             </text>
           </g>
@@ -614,22 +644,22 @@ export default function TransformerBlockViz() {
               width={stripW}
               height={30}
               rx={6}
-              fill={showActive('addnorm2') ? 'rgba(255, 102, 204, 0.14)' : 'var(--surface)'}
-              stroke={showActive('addnorm2') ? 'var(--hue-pink, #ff66cc)' : 'var(--border)'}
+              fill={showActive('addnorm2') ? 'color-mix(in srgb, var(--hue-pink) 14%, transparent)' : 'var(--surface)'}
+              stroke={showActive('addnorm2') ? 'var(--hue-pink)' : 'var(--border)'}
               strokeWidth={isSel('addnorm2') ? 2 : 1}
             />
-            <text x={centerX} y={addNorm2Y - 11} textAnchor="middle" fontSize="11" fontFamily="var(--mono, monospace)" fill="var(--text-main)">
+            <text x={centerX} y={addNorm2Y - 11} textAnchor="middle" fontSize="11" fontFamily="var(--mono)" fill="var(--text-main)">
               Add &amp; LayerNorm
             </text>
-            <circle cx={stripX + 18} cy={addNorm2Y - 15} r={6} fill="none" stroke="var(--hue-pink, #ff66cc)" strokeWidth={1.2} />
-            <text x={stripX + 18} y={addNorm2Y - 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--hue-pink, #ff66cc)">+</text>
+            <circle cx={stripX + 18} cy={addNorm2Y - 15} r={6} fill="none" stroke="var(--hue-pink)" strokeWidth={1.2} />
+            <text x={stripX + 18} y={addNorm2Y - 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--hue-pink)">+</text>
           </g>
 
           {/* residual arc: from addnorm1 around ffn into addnorm2 */}
           <path
             d={`M ${stripX + 8} ${addNorm1Y - 6} C ${stripX - 22} ${addNorm1Y - 6}, ${stripX - 22} ${addNorm2Y - 24}, ${stripX + 8} ${addNorm2Y - 24}`}
             fill="none"
-            stroke={showActive('addnorm2') ? 'var(--hue-pink, #ff66cc)' : 'var(--border)'}
+            stroke={showActive('addnorm2') ? 'var(--hue-pink)' : 'var(--border)'}
             strokeWidth={showActive('addnorm2') ? 1.6 : 1}
             strokeDasharray="4 3"
             opacity={0.85}
@@ -639,8 +669,8 @@ export default function TransformerBlockViz() {
             y={(addNorm1Y + addNorm2Y) / 2}
             textAnchor="middle"
             fontSize="9"
-            fontFamily="var(--mono, monospace)"
-            fill="var(--hue-pink, #ff66cc)"
+            fontFamily="var(--mono)"
+            fill="var(--hue-pink)"
             opacity={0.85}
           >
             residual
@@ -657,20 +687,27 @@ export default function TransformerBlockViz() {
               <FFNDetail x={stripX} y={ffnY - ffnH} w={stripW} lit={showActive('ffn')} />
             ) : (
               <>
+                {showActive('ffn') && (
+                  <rect
+                    x={stripX} y={ffnY - ffnH} width={stripW} height={ffnH} rx={10}
+                    fill="none" stroke="var(--hue-sky)" strokeWidth={3}
+                    opacity={0.5} filter="url(#tb-glow)"
+                  />
+                )}
                 <rect
                   x={stripX}
                   y={ffnY - ffnH}
                   width={stripW}
                   height={ffnH}
                   rx={10}
-                  fill={showActive('ffn') ? 'rgba(94, 203, 255, 0.14)' : 'var(--surface)'}
-                  stroke={showActive('ffn') ? 'var(--hue-sky, #5ecbff)' : 'var(--border)'}
+                  fill={showActive('ffn') ? 'color-mix(in srgb, var(--hue-sky) 14%, transparent)' : 'var(--surface)'}
+                  stroke={showActive('ffn') ? 'var(--hue-sky)' : 'var(--border)'}
                   strokeWidth={isSel('ffn') ? 2 : 1.2}
                 />
-                <text x={centerX} y={ffnY - ffnH / 2 - 3} textAnchor="middle" fontSize="12" fontFamily="var(--serif, serif)" fontStyle="italic" fontWeight={700} fill="var(--text-main)">
+                <text x={centerX} y={ffnY - ffnH / 2 - 3} textAnchor="middle" fontSize="12" fontFamily="var(--serif)" fontStyle="italic" fontWeight={700} fill="var(--text-main)">
                   Feed-forward
                 </text>
-                <text x={centerX} y={ffnY - ffnH / 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--hue-sky, #5ecbff)" letterSpacing="0.1em">
+                <text x={centerX} y={ffnY - ffnH / 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--hue-sky)" letterSpacing="0.1em">
                   Linear → ReLU → Linear
                 </text>
               </>
@@ -691,22 +728,22 @@ export default function TransformerBlockViz() {
               width={stripW}
               height={30}
               rx={6}
-              fill={showActive('addnorm1') ? 'rgba(255, 102, 204, 0.14)' : 'var(--surface)'}
-              stroke={showActive('addnorm1') ? 'var(--hue-pink, #ff66cc)' : 'var(--border)'}
+              fill={showActive('addnorm1') ? 'color-mix(in srgb, var(--hue-pink) 14%, transparent)' : 'var(--surface)'}
+              stroke={showActive('addnorm1') ? 'var(--hue-pink)' : 'var(--border)'}
               strokeWidth={isSel('addnorm1') ? 2 : 1}
             />
-            <text x={centerX} y={addNorm1Y - 11} textAnchor="middle" fontSize="11" fontFamily="var(--mono, monospace)" fill="var(--text-main)">
+            <text x={centerX} y={addNorm1Y - 11} textAnchor="middle" fontSize="11" fontFamily="var(--mono)" fill="var(--text-main)">
               Add &amp; LayerNorm
             </text>
-            <circle cx={stripX + 18} cy={addNorm1Y - 15} r={6} fill="none" stroke="var(--hue-pink, #ff66cc)" strokeWidth={1.2} />
-            <text x={stripX + 18} y={addNorm1Y - 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--hue-pink, #ff66cc)">+</text>
+            <circle cx={stripX + 18} cy={addNorm1Y - 15} r={6} fill="none" stroke="var(--hue-pink)" strokeWidth={1.2} />
+            <text x={stripX + 18} y={addNorm1Y - 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--hue-pink)">+</text>
           </g>
 
           {/* residual arc: from after-PE around attention into addnorm1 */}
           <path
             d={`M ${stripX + 8} ${peY + 20} C ${stripX - 22} ${peY + 20}, ${stripX - 22} ${addNorm1Y - 24}, ${stripX + 8} ${addNorm1Y - 24}`}
             fill="none"
-            stroke={showActive('addnorm1') ? 'var(--hue-pink, #ff66cc)' : 'var(--border)'}
+            stroke={showActive('addnorm1') ? 'var(--hue-pink)' : 'var(--border)'}
             strokeWidth={showActive('addnorm1') ? 1.6 : 1}
             strokeDasharray="4 3"
             opacity={0.85}
@@ -716,8 +753,8 @@ export default function TransformerBlockViz() {
             y={(peY + addNorm1Y) / 2}
             textAnchor="middle"
             fontSize="9"
-            fontFamily="var(--mono, monospace)"
-            fill="var(--hue-pink, #ff66cc)"
+            fontFamily="var(--mono)"
+            fill="var(--hue-pink)"
             opacity={0.85}
           >
             residual
@@ -734,20 +771,27 @@ export default function TransformerBlockViz() {
               <AttentionInternals x={stripX} y={attnY - attnH} w={stripW} lit={showActive('attn')} />
             ) : (
               <>
+                {showActive('attn') && (
+                  <rect
+                    x={stripX} y={attnY - attnH} width={stripW} height={attnH} rx={10}
+                    fill="none" stroke="var(--accent)" strokeWidth={3}
+                    opacity={0.5} filter="url(#tb-glow)"
+                  />
+                )}
                 <rect
                   x={stripX}
                   y={attnY - attnH}
                   width={stripW}
                   height={attnH}
                   rx={10}
-                  fill={showActive('attn') ? 'rgba(var(--accent-rgb, 0, 255, 245), 0.14)' : 'var(--surface)'}
+                  fill={showActive('attn') ? 'rgba(var(--accent-rgb), 0.14)' : 'var(--surface)'}
                   stroke={showActive('attn') ? 'var(--accent)' : 'var(--border)'}
                   strokeWidth={isSel('attn') ? 2 : 1.2}
                 />
-                <text x={centerX} y={attnY - attnH / 2 - 3} textAnchor="middle" fontSize="12" fontFamily="var(--serif, serif)" fontStyle="italic" fontWeight={700} fill="var(--text-main)">
+                <text x={centerX} y={attnY - attnH / 2 - 3} textAnchor="middle" fontSize="12" fontFamily="var(--serif)" fontStyle="italic" fontWeight={700} fill="var(--text-main)">
                   Multi-head self-attention
                 </text>
-                <text x={centerX} y={attnY - attnH / 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--accent)" letterSpacing="0.1em">
+                <text x={centerX} y={attnY - attnH / 2 + 12} textAnchor="middle" fontSize="9" fontFamily="var(--mono)" fill="var(--accent)" letterSpacing="0.1em">
                   Q · Kᵀ → softmax → · V
                 </text>
               </>
@@ -768,16 +812,16 @@ export default function TransformerBlockViz() {
               width={140}
               height={22}
               rx={11}
-              fill={showActive('pe') ? 'rgba(123, 224, 192, 0.18)' : 'var(--surface)'}
-              stroke={showActive('pe') ? 'var(--hue-mint, #7be0c0)' : 'var(--border)'}
+              fill={showActive('pe') ? 'color-mix(in srgb, var(--hue-mint) 18%, transparent)' : 'var(--surface)'}
+              stroke={showActive('pe') ? 'var(--hue-mint)' : 'var(--border)'}
               strokeWidth={isSel('pe') ? 2 : 1}
             />
-            <text x={centerX} y={peY + 15} textAnchor="middle" fontSize="10" fontFamily="var(--mono, monospace)" fill="var(--hue-mint, #7be0c0)" letterSpacing="0.1em">
+            <text x={centerX} y={peY + 15} textAnchor="middle" fontSize="10" fontFamily="var(--mono)" fill="var(--hue-mint)" letterSpacing="0.1em">
               + positional encoding
             </text>
             {/* side hint arrow */}
-            <line x1={stripX + stripW / 2 + 76} y1={peY + 11} x2={stripX + stripW / 2 + 100} y2={peY + 11} stroke="var(--hue-mint, #7be0c0)" strokeWidth={1.2} markerEnd="url(#tb-arrow)" opacity={0.7} />
-            <text x={stripX + stripW / 2 + 104} y={peY + 14} fontSize="9" fontFamily="var(--mono, monospace)" fill="var(--text-dim)">
+            <line x1={stripX + stripW / 2 + 76} y1={peY + 11} x2={stripX + stripW / 2 + 100} y2={peY + 11} stroke="var(--hue-mint)" strokeWidth={1.2} markerEnd="url(#tb-arrow)" opacity={0.7} />
+            <text x={stripX + stripW / 2 + 104} y={peY + 14} fontSize="9" fontFamily="var(--mono)" fill="var(--text-dim)">
               sin/cos by pos
             </text>
           </g>
@@ -795,7 +839,7 @@ export default function TransformerBlockViz() {
               width={stripW}
               height={56}
               rx={8}
-              fill={showActive('embed') ? 'rgba(var(--accent-rgb, 0, 255, 245), 0.08)' : 'transparent'}
+              fill={showActive('embed') ? 'rgba(var(--accent-rgb), 0.08)' : 'transparent'}
               stroke={isSel('embed') ? 'var(--accent)' : 'transparent'}
               strokeWidth={isSel('embed') ? 1.5 : 0}
               strokeDasharray="3 3"
@@ -813,7 +857,7 @@ export default function TransformerBlockViz() {
               x={W - stripX + 6}
               y={embedY + 6}
               fontSize="9"
-              fontFamily="var(--mono, monospace)"
+              fontFamily="var(--mono)"
               fill="var(--text-dim)"
               textAnchor="end"
             >

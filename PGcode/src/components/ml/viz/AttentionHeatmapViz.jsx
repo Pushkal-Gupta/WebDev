@@ -127,6 +127,15 @@ export default function AttentionHeatmapViz() {
           style={{ maxWidth: '100%', width: '100%', aspectRatio: `${W} / ${H}`, height: 'auto' }}
           preserveAspectRatio="xMidYMid meet"
         >
+          <defs>
+            <filter id="ah-cellglow" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="2.2" />
+            </filter>
+            <linearGradient id="ah-entbar" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--hue-violet)" />
+              <stop offset="100%" stopColor="var(--accent)" />
+            </linearGradient>
+          </defs>
           {/* token row */}
           <text x={50} y={tokenY - 8} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.14em">
             TOKENS
@@ -205,20 +214,35 @@ export default function AttentionHeatmapViz() {
               const isHover = hoverI === i && hoverJ === j;
               const c = rawCell(v);
               return (
-                <rect
-                  key={`s-${i}-${j}`}
-                  x={x}
-                  y={y}
-                  width={cell - 0.5}
-                  height={cell - 0.5}
-                  fill={c.fill}
-                  fillOpacity={c.opacity}
-                  stroke={isHover ? 'var(--accent)' : 'transparent'}
-                  strokeWidth={isHover ? 1.5 : 0}
-                  onMouseEnter={() => setHover({ i, j })}
-                  onMouseLeave={() => setHover(null)}
-                  style={{ cursor: 'pointer' }}
-                />
+                <g key={`s-${i}-${j}`}>
+                  {isHover && (
+                    <rect
+                      x={x}
+                      y={y}
+                      width={cell - 0.5}
+                      height={cell - 0.5}
+                      rx={Math.min(3, cell * 0.18)}
+                      fill={c.fill}
+                      fillOpacity={Math.min(1, c.opacity + 0.2)}
+                      filter="url(#ah-cellglow)"
+                      pointerEvents="none"
+                    />
+                  )}
+                  <rect
+                    x={x}
+                    y={y}
+                    width={cell - 0.5}
+                    height={cell - 0.5}
+                    rx={Math.min(3, cell * 0.18)}
+                    fill={c.fill}
+                    fillOpacity={c.opacity}
+                    stroke={isHover ? 'var(--accent)' : 'transparent'}
+                    strokeWidth={isHover ? 1.5 : 0}
+                    onMouseEnter={() => setHover({ i, j })}
+                    onMouseLeave={() => setHover(null)}
+                    style={{ cursor: 'pointer', transition: 'fill-opacity 0.12s ease' }}
+                  />
+                </g>
               );
             })
           )}
@@ -266,20 +290,35 @@ export default function AttentionHeatmapViz() {
               const isHover = hoverI === i && hoverJ === j;
               const c = probCell(p);
               return (
-                <rect
-                  key={`w-${i}-${j}`}
-                  x={x}
-                  y={y}
-                  width={cell - 0.5}
-                  height={cell - 0.5}
-                  fill={c.fill}
-                  fillOpacity={c.opacity}
-                  stroke={isHover ? 'var(--accent)' : 'transparent'}
-                  strokeWidth={isHover ? 1.5 : 0}
-                  onMouseEnter={() => setHover({ i, j })}
-                  onMouseLeave={() => setHover(null)}
-                  style={{ cursor: 'pointer' }}
-                />
+                <g key={`w-${i}-${j}`}>
+                  {isHover && (
+                    <rect
+                      x={x}
+                      y={y}
+                      width={cell - 0.5}
+                      height={cell - 0.5}
+                      rx={Math.min(3, cell * 0.18)}
+                      fill={c.fill}
+                      fillOpacity={Math.min(1, c.opacity + 0.2)}
+                      filter="url(#ah-cellglow)"
+                      pointerEvents="none"
+                    />
+                  )}
+                  <rect
+                    x={x}
+                    y={y}
+                    width={cell - 0.5}
+                    height={cell - 0.5}
+                    rx={Math.min(3, cell * 0.18)}
+                    fill={c.fill}
+                    fillOpacity={c.opacity}
+                    stroke={isHover ? 'var(--accent)' : 'transparent'}
+                    strokeWidth={isHover ? 1.5 : 0}
+                    onMouseEnter={() => setHover({ i, j })}
+                    onMouseLeave={() => setHover(null)}
+                    style={{ cursor: 'pointer', transition: 'fill-opacity 0.12s ease' }}
+                  />
+                </g>
               );
             })
           )}
@@ -333,8 +372,9 @@ export default function AttentionHeatmapViz() {
                   width={48 * norm}
                   height={cell - 8}
                   rx="2"
-                  fill="var(--hue-violet)"
-                  opacity={0.55 + 0.35 * norm}
+                  fill="url(#ah-entbar)"
+                  opacity={0.6 + 0.35 * norm}
+                  style={{ transition: 'width 0.18s ease' }}
                 />
                 <text
                   x={W / 2}
@@ -388,16 +428,27 @@ export default function AttentionHeatmapViz() {
             <span className="mlviz-slider-val">{T.toFixed(2)}</span>
           </label>
         </div>
-        <div className="mlviz-row" style={{ gap: '1.1rem', flexWrap: 'wrap', paddingTop: '0.3rem' }}>
-          <span className="mlviz-tag">
-            <Eye size={11} style={{ verticalAlign: '-1px', marginRight: 4 }} />
-            mean H
-          </span>
-          <span className="mlviz-val" style={{ color: 'var(--hue-violet)' }}>
-            {(entropies.reduce((a, b) => a + b, 0) / n).toFixed(3)}
-          </span>
-          <span className="mlviz-sub">max possible = ln({n}) = {Math.log(n).toFixed(3)}</span>
-          <span className="mlviz-sub">low H = focused · high H = diffuse</span>
+        <div className="mlviz-statcol mlviz-statrow" style={{ paddingTop: '0.3rem' }}>
+          <div className="mlviz-statcard mlviz-statcard-violet">
+            <span className="mlviz-statcard-label">
+              <Eye size={10} style={{ verticalAlign: '-1px', marginRight: 4 }} />
+              mean H
+            </span>
+            <span className="mlviz-statcard-val">
+              {(entropies.reduce((a, b) => a + b, 0) / n).toFixed(3)}
+            </span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">max possible</span>
+            <span className="mlviz-statcard-val">{Math.log(n).toFixed(3)}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">temperature T</span>
+            <span className="mlviz-statcard-val">{T.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="mlviz-row" style={{ paddingTop: '0.1rem' }}>
+          <span className="mlviz-sub">low H = focused · high H = diffuse · max = ln({n})</span>
         </div>
         <div className="mlviz-hint">
           hover any cell to highlight its query (row) and key (column) token above

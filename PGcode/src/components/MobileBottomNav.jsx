@@ -1,14 +1,14 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { Map, List, Terminal, BookOpen, Library } from 'lucide-react';
+import { Map, List, Terminal, Brain, Vault } from 'lucide-react';
 import './MobileBottomNav.css';
 
 const ITEMS = [
-  { to: '/',           end: true, icon: Map,      label: 'Roadmap' },
+  { to: '/',           end: true, icon: Map,      label: 'Path' },
   { to: '/practice',              icon: List,     label: 'Practice' },
-  { to: '/playground',            icon: Terminal, label: 'Playground' },
-  { to: '/tutorial',              icon: BookOpen, label: 'Tutorial' },
-  { to: '/learn',                 icon: Library,  label: 'Concepts' },
+  { to: '/playground',            icon: Terminal, label: 'Lab' },
+  { to: '/ml',                    icon: Brain,    label: 'Forge' },
+  { to: '/vault',                 icon: Vault,    label: 'Vault' },
 ];
 
 export default function MobileBottomNav() {

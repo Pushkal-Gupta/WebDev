@@ -252,7 +252,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                             </div>
                             <div className="col-solve">
                               <div className="solveIcons">
-                                <Link to={`/category/${topic.id}/${prob.id}`} className="solve-icon solve-platform" title="Solve on PGcode">
+                                <Link to={`/category/${topic.id}/${prob.id}`} className="solve-icon solve-platform" title="Solve on PG Hub">
                                   <Code2 size={15} />
                                 </Link>
                                 {prob.leetcode_url && (

@@ -119,9 +119,8 @@ function randIntArr(len, lo, hi) {
 
 // ── per-type input generator ─────────────────────────────────────────────────
 // Returns a JSON-stringified value suitable for the driver's `json.loads(line)`.
-function genForType(type, name) {
+function genForType(type, _name) {
   const t = String(type || '').trim();
-  const nameHint = String(name || '').toLowerCase();
 
   // Scalar int — bias to small + edges, but expand to 10^4 range occasionally.
   if (t === 'int' || t === 'integer' || t === 'long') {
@@ -139,15 +138,27 @@ function genForType(type, name) {
     return Math.random() < 0.5 ? 'true' : 'false';
   }
 
-  // String — bias toward lowercase letters; occasionally short words.
+  // String — rotate the CHARSET across attempts so domain-specific problems
+  // (binary strings, digit strings, parentheses, uppercase, etc.) get inputs
+  // their canonical solution actually accepts. A random a-z string makes a
+  // binary-addition or digit-parsing solution error and the case gets dropped;
+  // by sometimes drawing from "01", "0-9", "()[]{}", "A-Z" we let SOME attempts
+  // satisfy each problem's alphabet, and the retry budget collects enough.
   if (t === 'str' || t === 'string') {
-    // tweak length distribution by name hint
-    let maxLen = 15;
-    if (nameHint.includes('word') || nameHint.includes('s') || nameHint === 's' || nameHint === 't') maxLen = 15;
-    const len = rand(0, maxLen);
-    const alpha = 'abcdefghijklmnopqrstuvwxyz';
-    const wide = alpha + '0123456789 ';
-    const pool = Math.random() < 0.85 ? alpha : wide;
+    const CHARSETS = [
+      'abcdefghijklmnopqrstuvwxyz',  // lowercase English (most common)
+      'abcdefghijklmnopqrstuvwxyz',  // weight lowercase ~2x
+      '01',                          // binary strings
+      '0123456789',                  // digit strings
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ',  // uppercase
+      'abcABC123',                   // mixed alphanumeric
+      '()[]{}',                      // bracket/parenthesis problems
+      'ab',                          // tiny alphabet (high collision / pattern)
+    ];
+    const pool = choice(CHARSETS);
+    // Length distribution: bias short with edges (empty + single char) but reach 18.
+    const lenRoll = Math.random();
+    const len = lenRoll < 0.12 ? 0 : lenRoll < 0.22 ? 1 : rand(2, 18);
     let s = '';
     for (let i = 0; i < len; i++) s += pool[rand(0, pool.length - 1)];
     return JSON.stringify(s);
@@ -178,22 +189,36 @@ function genForType(type, name) {
   }
   if (t === 'List[str]' || t === 'string[]') {
     const len = (Math.random() < 0.1) ? 0 : rand(1, 8);
-    const alpha = 'abcdefghijklmnopqrstuvwxyz';
+    // One charset per array so the whole list shares an alphabet (words, binary
+    // codes, digit tokens) the way real problems present them.
+    const pool = choice([
+      'abcdefghijklmnopqrstuvwxyz',
+      'abcdefghijklmnopqrstuvwxyz',
+      '01',
+      '0123456789',
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    ]);
     const strs = Array.from({ length: len }, () => {
       const L = rand(1, 6);
       let s = '';
-      for (let i = 0; i < L; i++) s += alpha[rand(0, 25)];
+      for (let i = 0; i < L; i++) s += pool[rand(0, pool.length - 1)];
       return s;
     });
     return JSON.stringify(strs);
   }
 
   // List[List[int]] — matrices / edge lists / interval lists. 2..5 rows, 2..4 cols.
-  if (t === 'List[List[int]]' || t === 'int[][]' || t === 'matrix') {
+  // Also covers bare List[List] (untyped inner) — default the inner to ints.
+  if (t === 'List[List[int]]' || t === 'int[][]' || t === 'matrix' || t === 'List[List]') {
     const rows = rand(1, 5);
     const cols = rand(1, 4);
     const grid = Array.from({ length: rows }, () => randIntArr(cols, -10, 20));
     return JSON.stringify(grid);
+  }
+  // List[Any] — untyped list; default to a small int list (the common case).
+  if (t === 'List[Any]' || t === 'List' || t === 'Array' || t === 'list') {
+    const len = (Math.random() < 0.1) ? 0 : rand(1, 12);
+    return JSON.stringify(randIntArr(len, -30, 30));
   }
   if (t === 'List[List[str]]') {
     const rows = rand(1, 4);
@@ -243,7 +268,29 @@ function genForType(type, name) {
     return JSON.stringify(out);
   }
 
-  // Any / Dict / unknown — give up cleanly.
+  // Dict[str, int] / map-like — small string-keyed integer maps.
+  if (t === 'Dict[str, int]' || t === 'Dict[str,int]' || t === 'dict' || t === 'Dict' ||
+      t === 'Map<str, int>' || t === 'HashMap') {
+    const keys = 'abcdefghijklmnopqrstuvwxyz';
+    const n = rand(0, 5);
+    const obj = {};
+    const used = new Set();
+    for (let i = 0; i < n; i++) {
+      let k = keys[rand(0, 25)];
+      while (used.has(k)) k = keys[rand(0, 25)];
+      used.add(k);
+      obj[k] = rand(-20, 50);
+    }
+    return JSON.stringify(obj);
+  }
+  if (t === 'Dict[int, int]' || t === 'Dict[int,int]') {
+    const n = rand(0, 5);
+    const obj = {};
+    for (let i = 0; i < n; i++) obj[String(rand(0, 30))] = rand(-20, 50);
+    return JSON.stringify(obj);
+  }
+
+  // Any / Table / truly unknown — give up cleanly.
   return null;
 }
 

@@ -107,7 +107,7 @@ export default function LRWarmupCosineDecayViz() {
   const [peakLr, setPeakLr] = useState(0.001);
   const [minLr, setMinLr] = useState(0.00005);
   const [decay, setDecay] = useState('cosine');
-  const [step, setStep] = useState(0);
+  const [stepRaw, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const rafRef = useRef(null);
@@ -162,10 +162,8 @@ export default function LRWarmupCosineDecayViz() {
     };
   }, [playing, reducedMotion, totalSteps]);
 
-  // clamp step when totalSteps changes
-  useEffect(() => {
-    setStep((s) => clamp(s, 0, totalSteps));
-  }, [totalSteps]);
+  // derive clamped step during render so a shrinking totalSteps (slider) stays in range
+  const step = clamp(stepRaw, 0, totalSteps);
 
   const togglePlay = () => {
     if (step >= totalSteps) setStep(0);

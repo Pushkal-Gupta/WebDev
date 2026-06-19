@@ -1,0 +1,318 @@
+.vpv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.vpv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.vpv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.vpv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.vpv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.vpv-toggle-group {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vpv-input-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.vpv-seg {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.vpv-seg-btn {
+  padding: 0.35rem 0.65rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.vpv-seg-btn:hover {
+  color: var(--text-main);
+}
+.vpv-seg-btn.is-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.vpv-slider {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.vpv-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+
+.vpv-slider-val {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.vpv-spacer {
+  flex: 1 1 auto;
+}
+
+.vpv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.vpv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.vpv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.vpv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.vpv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.vpv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.vpv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.vpv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.vpv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.vpv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.vpv-section-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.vpv-node {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+  transition: stroke 0.2s ease;
+}
+.vpv-node.is-active {
+  stroke-width: 2.6;
+  fill: rgba(var(--accent-rgb), 0.06);
+}
+
+.vpv-node-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.vpv-node-params {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.vpv-glyph {
+  fill: none;
+  stroke-width: 2;
+}
+
+.vpv-visitor-card {
+  fill: rgba(var(--accent-rgb), 0.05);
+  stroke: var(--accent);
+  stroke-width: 1.6;
+}
+
+.vpv-method {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: start;
+  transition: fill 0.2s ease;
+}
+.vpv-method.is-on {
+  fill: var(--accent);
+  font-weight: 700;
+}
+
+.vpv-acc {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+
+.vpv-acc-pernode {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.vpv-acc-value {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--easy);
+  text-anchor: start;
+}
+
+.vpv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+
+.vpv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.vpv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.vpv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  word-break: break-word;
+}
+.vpv-metric-value.is-accent { color: var(--accent); }
+.vpv-metric-value.is-good { color: var(--easy); }
+
+.vpv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.vpv-narration-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.vpv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vpv-btn,
+  .vpv-seg-btn,
+  .vpv-node,
+  .vpv-method {
+    transition: none;
+  }
+}

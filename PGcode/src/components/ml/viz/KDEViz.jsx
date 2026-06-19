@@ -213,6 +213,13 @@ export default function KDEViz() {
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.18" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
             </linearGradient>
+            <linearGradient id="kde-curve-grad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-violet)" />
+            </linearGradient>
+            <filter id="kde-curve-glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" />
+            </filter>
           </defs>
 
           {/* axes */}
@@ -337,12 +344,22 @@ export default function KDEViz() {
             strokeLinecap="round"
           />
 
-          {/* KDE estimate (bold) */}
+          {/* KDE estimate (bold, glowing gradient) */}
           <path d={kdePath} fill="url(#kde-fill)" />
           <path
             d={kdePath}
             fill="none"
-            stroke="var(--accent)"
+            stroke="url(#kde-curve-grad)"
+            strokeWidth="4"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter="url(#kde-curve-glow)"
+            opacity="0.55"
+          />
+          <path
+            d={kdePath}
+            fill="none"
+            stroke="url(#kde-curve-grad)"
             strokeWidth="2.4"
             strokeLinejoin="round"
             strokeLinecap="round"
@@ -360,6 +377,7 @@ export default function KDEViz() {
                 y2={yAxisBase + 10}
                 stroke="var(--text-main)"
                 strokeWidth="1.4"
+                strokeLinecap="round"
                 opacity="0.85"
               />
             );
@@ -383,7 +401,7 @@ export default function KDEViz() {
               y1="6"
               x2="22"
               y2="6"
-              stroke="var(--accent)"
+              stroke="url(#kde-curve-grad)"
               strokeWidth="2.4"
               strokeLinecap="round"
             />
@@ -453,17 +471,21 @@ export default function KDEViz() {
           </label>
         </div>
 
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>kde</span>
-          <span className="mlviz-val">h = {snap(h, 2)}</span>
-          <span className="mlviz-val">n = {N_SAMPLES}</span>
-          <span className="mlviz-sub" style={{ color: regime.color }}>{regime.label}</span>
-        </div>
-
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-pink, #ff66cc)' }}>fit</span>
-          <span className="mlviz-val">L2 = {snap(l2, 4)}</span>
-          <span className="mlviz-sub" style={{ color: quality.color }}>{quality.label}</span>
+        <div className="mlviz-statrow">
+          <div className="mlviz-statcard mlviz-statcard-accent">
+            <span className="mlviz-statcard-label">bandwidth h</span>
+            <span className="mlviz-statcard-val">{snap(h, 2)}</span>
+            <span className="mlviz-statcard-sub" style={{ color: regime.color }}>{regime.label}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-dim">
+            <span className="mlviz-statcard-label">samples n</span>
+            <span className="mlviz-statcard-val">{N_SAMPLES}</span>
+          </div>
+          <div className="mlviz-statcard mlviz-statcard-mint">
+            <span className="mlviz-statcard-label">L2 fit</span>
+            <span className="mlviz-statcard-val">{snap(l2, 4)}</span>
+            <span className="mlviz-statcard-sub" style={{ color: quality.color }}>{quality.label}</span>
+          </div>
         </div>
 
         <div className="mlviz-row mlviz-btn-row">

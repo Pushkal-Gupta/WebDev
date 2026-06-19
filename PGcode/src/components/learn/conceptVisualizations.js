@@ -1,6 +1,7 @@
 // Pre-baked visualization frame sets, keyed by concept slug.
 // Used by ConceptPage to embed an interactive walkthrough next to the concept's
 // "Intuition" section.
+import batchedVisualizations from './vizBatches';
 
 // Binary search for target in a sorted array, with explicit mid-pointer
 // eviction animation and a per-step "active window" narration.
@@ -10057,6 +10058,7 @@ function tarjanSccFrames() {
 }
 
 export const VISUALIZATIONS = {
+  ...batchedVisualizations,
   'binary-search': {
     title: 'Binary search walkthrough', renderer: 'array',
     cases: [

@@ -1,6 +1,6 @@
-import React, { useMemo, useState, lazy, Suspense } from 'react';
+import React, { useMemo, useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Sparkles, ArrowRight, ListChecks, Lock, ArrowLeft } from 'lucide-react';
+import { Brain, Sparkles, ArrowRight, ListChecks, Lock, ArrowLeft, X, ChevronDown, Check } from 'lucide-react';
 import { QUIZZES, QUIZZES_BY_TOPIC, TOPIC_LABELS } from '../content/quizzes';
 import { isAiEnabled } from '../lib/ai';
 import './QuizIndex.css';
@@ -97,6 +97,63 @@ export default function QuizIndex() {
   );
 }
 
+const DIFFICULTY_OPTIONS = ['Beginner', 'Intermediate', 'Advanced'];
+
+function QuizDropdown({ label, value, options, onChange }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onDoc = (e) => {
+      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDoc);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const active = options.find(o => o.value === value);
+
+  return (
+    <div className="quiz-dd" ref={ref}>
+      <button
+        type="button"
+        className={`quiz-dd-btn ${open ? 'open' : ''}`}
+        onClick={() => setOpen(o => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={label}
+      >
+        <span className="quiz-dd-value">{active ? active.label : value}</span>
+        <ChevronDown size={15} className={`quiz-dd-chev ${open ? 'open' : ''}`} />
+      </button>
+      {open && (
+        <ul className="quiz-dd-menu" role="listbox">
+          {options.map(opt => (
+            <li key={opt.value} role="option" aria-selected={opt.value === value}>
+              <button
+                type="button"
+                className={`quiz-dd-opt ${opt.value === value ? 'active' : ''}`}
+                onClick={() => { onChange(opt.value); setOpen(false); }}
+              >
+                <span>{opt.label}</span>
+                {opt.value === value && <Check size={14} className="quiz-dd-check" />}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function CustomQuizPanel({ onClose }) {
   const [topic, setTopic] = useState('arrays');
   const [difficulty, setDifficulty] = useState('Intermediate');
@@ -105,6 +162,23 @@ function CustomQuizPanel({ onClose }) {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState(null);
   const [generated, setGenerated] = useState(null);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const topicOptions = useMemo(
+    () => Object.entries(TOPIC_LABELS).map(([value, label]) => ({ value, label })),
+    []
+  );
+  const difficultyOptions = useMemo(
+    () => DIFFICULTY_OPTIONS.map(d => ({ value: d, label: d })),
+    []
+  );
 
   const generate = async () => {
     setGenerating(true);
@@ -127,62 +201,68 @@ function CustomQuizPanel({ onClose }) {
   };
 
   return (
-    <div className="quiz-custom-panel">
-      <div className="quiz-custom-panel-head">
-        <h3>
-          <Sparkles size={14} /> Custom quiz builder
-        </h3>
-        <button type="button" className="quiz-link" onClick={onClose}>Close</button>
+    <div
+      className="quiz-modal-overlay"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="quiz-modal" role="dialog" aria-modal="true" aria-label="Custom quiz builder">
+        <button type="button" className="quiz-modal-close" onClick={onClose} aria-label="Close">
+          <X size={18} />
+        </button>
+
+        <div className="quiz-modal-head">
+          <h3 className="quiz-modal-title">
+            <Sparkles size={16} /> Custom quiz builder
+          </h3>
+          <p className="quiz-modal-sub">Pick a topic and difficulty, name a weak spot, set how many questions.</p>
+        </div>
+
+        <div className="quiz-modal-body">
+          <div className="quiz-modal-form">
+            <div className="quiz-field">
+              <span className="quiz-field-label">Topic</span>
+              <QuizDropdown label="Topic" value={topic} options={topicOptions} onChange={setTopic} />
+            </div>
+            <div className="quiz-field">
+              <span className="quiz-field-label">Difficulty</span>
+              <QuizDropdown label="Difficulty" value={difficulty} options={difficultyOptions} onChange={setDifficulty} />
+            </div>
+            <div className="quiz-field">
+              <span className="quiz-field-label">Questions</span>
+              <input
+                className="quiz-field-input"
+                type="number"
+                min={4}
+                max={15}
+                value={questions}
+                onChange={(e) => setQuestions(Math.min(15, Math.max(4, Number(e.target.value) || 8)))}
+              />
+            </div>
+            <div className="quiz-field quiz-field-wide">
+              <span className="quiz-field-label">Focus (optional)</span>
+              <input
+                className="quiz-field-input"
+                type="text"
+                value={focus}
+                placeholder="e.g. monotonic stacks, time complexity edge cases…"
+                onChange={(e) => setFocus(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="quiz-modal-generate"
+            onClick={generate}
+            disabled={generating}
+          >
+            <Sparkles size={14} /> {generating ? 'Generating…' : 'Generate quiz'}
+          </button>
+
+          {error && <p className="quiz-error">{error}</p>}
+          {generated && <CustomQuizPreview quiz={generated} />}
+        </div>
       </div>
-      <div className="quiz-custom-form">
-        <label>
-          <span>Topic</span>
-          <select value={topic} onChange={(e) => setTopic(e.target.value)}>
-            {Object.entries(TOPIC_LABELS).map(([k, label]) => (
-              <option key={k} value={k}>{label}</option>
-            ))}
-          </select>
-        </label>
-        <label>
-          <span>Difficulty</span>
-          <select value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-            <option>Beginner</option>
-            <option>Intermediate</option>
-            <option>Advanced</option>
-          </select>
-        </label>
-        <label>
-          <span>Questions</span>
-          <input
-            type="number"
-            min={4}
-            max={15}
-            value={questions}
-            onChange={(e) => setQuestions(Math.min(15, Math.max(4, Number(e.target.value) || 8)))}
-          />
-        </label>
-        <label className="quiz-custom-focus">
-          <span>Focus (optional)</span>
-          <input
-            type="text"
-            value={focus}
-            placeholder="e.g. monotonic stacks, time complexity edge cases…"
-            onChange={(e) => setFocus(e.target.value)}
-          />
-        </label>
-      </div>
-      <button
-        type="button"
-        className="quiz-custom-generate"
-        onClick={generate}
-        disabled={generating}
-      >
-        <Sparkles size={13} /> {generating ? 'Generating…' : 'Generate quiz'}
-      </button>
-      {error && <p className="quiz-error">{error}</p>}
-      {generated && (
-        <CustomQuizPreview quiz={generated} />
-      )}
     </div>
   );
 }

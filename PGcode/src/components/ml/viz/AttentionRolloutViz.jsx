@@ -63,10 +63,6 @@ function addResidualHalf(A) {
   return out;
 }
 
-function rowMax(M) {
-  return M.map((row) => row.reduce((m, v) => (v > m ? v : m), 0));
-}
-
 export default function AttentionRolloutViz() {
   const [target, setTarget] = useState(N_TOKENS - 1);
   const [useResidual, setUseResidual] = useState(true);

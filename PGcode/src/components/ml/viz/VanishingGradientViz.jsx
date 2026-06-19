@@ -252,25 +252,28 @@ export default function VanishingGradientViz() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg mlviz-svg-wide"
-          style={{ maxWidth: 620, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
         >
           <defs>
-            <linearGradient id="vg-fwd" x1="1" y1="0" x2="0" y2="0">
+            <linearGradient id="vgrad-fwd" x1="1" y1="0" x2="0" y2="0">
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.95" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.35" />
             </linearGradient>
-            <linearGradient id="vg-bwd" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="vgrad-bwd" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="var(--hue-mint, #7be0c0)" stopOpacity="0.95" />
               <stop offset="100%" stopColor="var(--hue-mint, #7be0c0)" stopOpacity="0.35" />
             </linearGradient>
-            <linearGradient id="vg-vanish" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="vgrad-vanish" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="var(--warning, #ffb547)" stopOpacity="0.95" />
               <stop offset="100%" stopColor="var(--warning, #ffb547)" stopOpacity="0.35" />
             </linearGradient>
-            <linearGradient id="vg-explode" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="vgrad-explode" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="var(--hard, #ff5a5f)" stopOpacity="0.95" />
               <stop offset="100%" stopColor="var(--hard, #ff5a5f)" stopOpacity="0.35" />
             </linearGradient>
+            <filter id="vgrad-glow" x="-40%" y="-60%" width="180%" height="220%">
+              <feGaussianBlur stdDeviation="2.4" />
+            </filter>
           </defs>
 
           {/* Column headings */}
@@ -352,13 +355,15 @@ export default function VanishingGradientViz() {
             const fwdStat = gradStatus(fwdMag);
 
             const fwdFill =
-              fwdStat === 'vanish' ? 'url(#vg-vanish)' :
-              fwdStat === 'explode' ? 'url(#vg-explode)' :
-              'url(#vg-fwd)';
+              fwdStat === 'vanish' ? 'url(#vgrad-vanish)' :
+              fwdStat === 'explode' ? 'url(#vgrad-explode)' :
+              'url(#vgrad-fwd)';
             const bwdFill =
-              bwdStat === 'vanish' ? 'url(#vg-vanish)' :
-              bwdStat === 'explode' ? 'url(#vg-explode)' :
-              'url(#vg-bwd)';
+              bwdStat === 'vanish' ? 'url(#vgrad-vanish)' :
+              bwdStat === 'explode' ? 'url(#vgrad-explode)' :
+              'url(#vgrad-bwd)';
+            const fwdAlert = fwdStat === 'vanish' || fwdStat === 'explode';
+            const bwdAlert = bwdStat === 'vanish' || bwdStat === 'explode';
 
             return (
               <g key={`row-${layerIdx}`}>
@@ -387,12 +392,24 @@ export default function VanishingGradientViz() {
                 </text>
 
                 {/* forward bar (grows leftward) */}
+                {fwdShown && fwdAlert && (
+                  <rect
+                    x={FWD_X_RIGHT - fwdLen}
+                    y={yCenter - barH / 2}
+                    width={fwdLen}
+                    height={barH}
+                    rx="2.5"
+                    fill={fwdFill}
+                    opacity="0.7"
+                    filter="url(#vgrad-glow)"
+                  />
+                )}
                 <rect
                   x={FWD_X_RIGHT - fwdLen}
                   y={yCenter - barH / 2}
                   width={fwdLen}
                   height={barH}
-                  rx="1.5"
+                  rx="2.5"
                   fill={fwdFill}
                   opacity={fwdShown ? 1 : 0.12}
                 />
@@ -411,12 +428,24 @@ export default function VanishingGradientViz() {
                 )}
 
                 {/* backward bar (grows rightward) */}
+                {bwdShown && bwdAlert && (
+                  <rect
+                    x={BWD_X_LEFT}
+                    y={yCenter - barH / 2}
+                    width={bwdLen}
+                    height={barH}
+                    rx="2.5"
+                    fill={bwdFill}
+                    opacity="0.7"
+                    filter="url(#vgrad-glow)"
+                  />
+                )}
                 <rect
                   x={BWD_X_LEFT}
                   y={yCenter - barH / 2}
                   width={bwdLen}
                   height={barH}
-                  rx="1.5"
+                  rx="2.5"
                   fill={bwdFill}
                   opacity={bwdShown ? 1 : 0.12}
                 />
@@ -435,20 +464,40 @@ export default function VanishingGradientViz() {
 
                 {/* vanish / explode flag marker */}
                 {bwdShown && bwdStat === 'vanish' && (
-                  <circle
-                    cx={CENTER_X + COL_GAP + BAR_MAX + 32}
-                    cy={yCenter}
-                    r="2.2"
-                    fill="var(--warning, #ffb547)"
-                  />
+                  <g>
+                    <circle
+                      cx={CENTER_X + COL_GAP + BAR_MAX + 32}
+                      cy={yCenter}
+                      r="3.6"
+                      fill="var(--warning, #ffb547)"
+                      opacity="0.6"
+                      filter="url(#vgrad-glow)"
+                    />
+                    <circle
+                      cx={CENTER_X + COL_GAP + BAR_MAX + 32}
+                      cy={yCenter}
+                      r="2.2"
+                      fill="var(--warning, #ffb547)"
+                    />
+                  </g>
                 )}
                 {bwdShown && bwdStat === 'explode' && (
-                  <circle
-                    cx={CENTER_X + COL_GAP + BAR_MAX + 32}
-                    cy={yCenter}
-                    r="2.2"
-                    fill="var(--hard, #ff5a5f)"
-                  />
+                  <g>
+                    <circle
+                      cx={CENTER_X + COL_GAP + BAR_MAX + 32}
+                      cy={yCenter}
+                      r="3.6"
+                      fill="var(--hard, #ff5a5f)"
+                      opacity="0.6"
+                      filter="url(#vgrad-glow)"
+                    />
+                    <circle
+                      cx={CENTER_X + COL_GAP + BAR_MAX + 32}
+                      cy={yCenter}
+                      r="2.2"
+                      fill="var(--hard, #ff5a5f)"
+                    />
+                  </g>
                 )}
               </g>
             );

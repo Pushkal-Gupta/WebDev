@@ -3,8 +3,10 @@
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
+  flex: 1 1 auto;
+  min-height: 0;
   overflow-y: auto;
-  height: calc(100vh - 100px);
+  overflow-x: hidden;
 }
 
 .learn-header {
@@ -72,9 +74,26 @@
 
 .learn-module-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 0.85rem;
+  align-content: start;
 }
+
+/* Leaf module cards carry a ForgeThumb banner; reset inner padding so the
+   thumbnail bleeds to the card edges. */
+.learn-module-card-thumbed { padding: 0; gap: 0; }
+.learn-module-card-thumbed .learn-module-card-head { padding: 1rem 1.2rem 0; }
+.learn-module-card-thumbed .learn-module-card-desc { padding: 0.5rem 1.2rem 0; }
+.learn-module-card-thumbed .learn-module-card-foot { padding: 0.4rem 1.2rem 1rem; margin-top: 0.6rem; }
+.learn-module-card-thumb {
+  position: relative;
+  height: 84px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.learn-module-card-thumb .forge-thumb { width: 100%; height: 100%; display: block; }
+.learn-module-card-thumbed .learn-module-card-desc { flex: 0 1 auto; }
 
 .learn-module-card {
   position: relative;
@@ -114,11 +133,7 @@
 
 .learn-module-card > * { position: relative; z-index: 1; }
 
-.learn-module-grid .learn-module-card:nth-child(5n+1) { --card-accent: var(--accent); }
-.learn-module-grid .learn-module-card:nth-child(5n+2) { --card-accent: var(--hue-violet); }
-.learn-module-grid .learn-module-card:nth-child(5n+3) { --card-accent: var(--hue-sky); }
-.learn-module-grid .learn-module-card:nth-child(5n+4) { --card-accent: var(--hue-pink); }
-.learn-module-grid .learn-module-card:nth-child(5n+5) { --card-accent: var(--hue-mint); }
+.learn-module-card { --card-accent: var(--accent); }
 
 .learn-module-card:hover {
   transform: translateY(-3px);
@@ -1066,10 +1081,7 @@
 
 /* ── ConceptPage v2 polish ── */
 .cp-page {
-  width: 100%;
-  max-width: 1280px;
-  padding-left: clamp(1.5rem, 4vw, 4rem);
-  padding-right: clamp(1.5rem, 4vw, 4rem);
+  max-width: var(--container-w);
 }
 
 .cp-header {
@@ -1766,8 +1778,8 @@
 
 /* /visualize/:slug detail — hero the interactive viz, walkthrough underneath */
 .viz-detail {
-  width: 96%;
-  max-width: 1280px;
+  width: 94%;
+  max-width: var(--container-w);
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
@@ -1827,6 +1839,36 @@
   color: var(--accent);
 }
 .viz-detail-chip.primary svg { color: var(--accent); }
+.viz-detail-chip-link {
+  text-decoration: none;
+  cursor: pointer;
+  font: inherit;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  appearance: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+.viz-detail-chip-link:hover {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  color: var(--accent);
+}
+.viz-detail-chip-link:hover svg { color: var(--accent); }
+
+.viz-detail-anchor {
+  scroll-margin-top: 100px;
+}
+
+.viz-detail-section-meta {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--accent);
+}
 
 .viz-detail-stage {
   background:
@@ -1934,10 +1976,28 @@
   .viz-detail-concept-link { padding: 0.85rem 1rem; }
 }
 
-/* /visualize gallery: full-width category cards with animated SVG previews */
+/* /visualize gallery: full-width category cards with animated SVG previews.
+   The app locks html/body/#root overflow; this route owns its own scroll and
+   fills the viewport height (no empty band below the grid). */
 .viz-gallery-container {
-  width: 96%;
-  max-width: 1640px;
+  width: 94%;
+  max-width: var(--container-w);
+  height: calc(100vh - 100px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 2rem;
+}
+.viz-gallery-container > .learn-header {
+  flex: 0 0 auto;
+}
+.viz-gallery-container > .viz-cat-grid,
+.viz-gallery-container > .viz-result-grid,
+.viz-gallery-container > .viz-member-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: start;
 }
 
 .viz-search {
@@ -1995,67 +2055,93 @@
 /* Category card grid — fills the viewport width, auto-fit columns */
 .viz-cat-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
   align-items: start;
 }
 
+/* Premium hue card: left stripe, corner flourish, tinted icon-box, hover lift */
 .viz-cat-card {
-  display: block;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
   overflow: hidden;
+  padding: 1.05rem 1.1rem 0.95rem;
   text-decoration: none;
   transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 }
 .viz-cat-card:hover {
   border-color: var(--card-accent, var(--accent));
-  box-shadow: 0 6px 22px rgba(var(--accent-rgb), 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.22);
+}
+
+/* Left accent stripe in the card's hue. */
+.viz-cat-stripe {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--card-accent, var(--accent));
+  opacity: 0.85;
+}
+
+/* Animated SVG preview, repurposed as a top-corner flourish. */
+.viz-cat-flourish {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  width: 110px;
+  height: 58px;
+  opacity: 0.2;
+  pointer-events: none;
+  transition: opacity var(--t), transform var(--t);
+}
+.viz-cat-card:hover .viz-cat-flourish {
+  opacity: 0.4;
+  transform: scale(1.05);
 }
 
 .viz-cat-head {
-  display: flex;
-  gap: 0.95rem;
-  width: 100%;
-  text-align: left;
-  padding: 1rem;
-  align-items: stretch;
-}
-
-.viz-cat-preview {
-  flex-shrink: 0;
-  width: 120px;
-  height: 64px;
-  border-radius: 9px;
-  border: 1px solid var(--border);
-  background:
-    linear-gradient(180deg, rgba(var(--accent-rgb), 0.04), transparent),
-    var(--bg);
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 4px;
-  overflow: hidden;
+  gap: 0.6rem;
 }
 
-.viz-cat-body {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  min-width: 0;
-  flex: 1;
+.viz-cat-iconbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  color: var(--card-accent, var(--accent));
+  background:
+    radial-gradient(120% 120% at 30% 10%, color-mix(in srgb, var(--card-accent, var(--accent)) 22%, transparent) 0%, transparent 70%),
+    var(--hover-box);
+  border: 1px solid color-mix(in srgb, var(--card-accent, var(--accent)) 35%, var(--border));
 }
 
 .viz-cat-title {
+  position: relative;
+  z-index: 1;
   font-family: var(--serif);
   font-size: 1.02rem;
   font-weight: 700;
   color: var(--text-main);
   line-height: 1.15;
+  min-width: 0;
 }
 
 .viz-cat-blurb {
+  position: relative;
+  z-index: 1;
   font-family: var(--sans);
   font-size: 0.76rem;
   color: var(--text-dim);
@@ -2063,11 +2149,14 @@
 }
 
 .viz-cat-tags {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 0.4rem;
   margin-top: auto;
-  padding-top: 0.3rem;
+  padding-top: 0.5rem;
 }
 
 .viz-cat-tag {
@@ -2086,9 +2175,9 @@
   border: 1px solid var(--border);
 }
 .viz-cat-tag.live {
-  background: rgba(var(--accent-rgb), 0.12);
-  color: var(--accent);
-  border-color: rgba(var(--accent-rgb), 0.35);
+  background: color-mix(in srgb, var(--card-accent, var(--accent)) 14%, transparent);
+  color: var(--card-accent, var(--accent));
+  border-color: color-mix(in srgb, var(--card-accent, var(--accent)) 38%, var(--border));
 }
 .viz-cat-cta {
   display: inline-flex;
@@ -2268,11 +2357,16 @@
 }
 
 @media (max-width: 560px) {
-  .viz-cat-head { flex-direction: column; }
-  .viz-cat-preview { width: 100%; height: 72px; }
+  .viz-cat-grid { grid-template-columns: 1fr; }
   .viz-member-card { flex-direction: column; }
   .viz-member-preview { width: 100%; height: 72px; }
   .viz-member-arrow { align-self: flex-end; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viz-cat-card:hover { transform: none; }
+  .viz-cat-card:hover .viz-cat-flourish { transform: none; }
+  .viz-detail-chip-link { transition: none; }
 }
 
 .cp-interactive-viz {

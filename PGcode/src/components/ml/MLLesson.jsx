@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Info, Lightbulb } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Info, Lightbulb, Clock, Gauge, ListTree } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { getLesson, getPillar } from '../../content/mlContent';
@@ -159,10 +159,67 @@ import TokenizerFairnessViz from './viz/TokenizerFairnessViz';
 import RotaryEmbeddingViz from './viz/RotaryEmbeddingViz';
 import GradientAccumulationViz from './viz/GradientAccumulationViz';
 import FlashAttentionTilingViz from './viz/FlashAttentionTilingViz';
+import GANMinimaxViz from './viz/GANMinimaxViz';
+import ViTPatchEmbeddingViz from './viz/ViTPatchEmbeddingViz';
+import EfficientNetScalingViz from './viz/EfficientNetScalingViz';
+import DetectionGridViz from './viz/DetectionGridViz';
+import NormalizingFlowViz from './viz/NormalizingFlowViz';
+import AutoregressiveViz from './viz/AutoregressiveViz';
+import MoERoutingViz from './viz/MoERoutingViz';
+import LRScheduleShapesViz from './viz/LRScheduleShapesViz';
+import MomentumBowlViz from './viz/MomentumBowlViz';
+import SecondOrderViz from './viz/SecondOrderViz';
+import GradientClipNormViz from './viz/GradientClipNormViz';
+import WeightDecayContourViz from './viz/WeightDecayContourViz';
+import EarlyStoppingViz from './viz/EarlyStoppingViz';
+import DataAugmentationViz from './viz/DataAugmentationViz';
+import PolicyGradientTrajViz from './viz/PolicyGradientTrajViz';
+import ActorCriticViz from './viz/ActorCriticViz';
+import ExplorationExploitationViz from './viz/ExplorationExploitationViz';
+import ConditionNumberViz from './viz/ConditionNumberViz';
+import IterativeSolversViz from './viz/IterativeSolversViz';
+import AutodiffGraphViz from './viz/AutodiffGraphViz';
+import MonteCarloIntegrationViz from './viz/MonteCarloIntegrationViz';
+import PPOClipViz from './viz/PPOClipViz';
+import ReplayBufferViz from './viz/ReplayBufferViz';
+import TrustRegionViz from './viz/TrustRegionViz';
+import MixupBlendViz from './viz/MixupBlendViz';
+import StochasticDepthViz from './viz/StochasticDepthViz';
+import AdversarialPerturbationViz from './viz/AdversarialPerturbationViz';
+import AdamWVsL2Viz from './viz/AdamWVsL2Viz';
+import RMSPropAdaptiveViz from './viz/RMSPropAdaptiveViz';
+import NaturalGradientViz from './viz/NaturalGradientViz';
+import KahanSummationViz from './viz/KahanSummationViz';
+import QRvsNormalEqViz from './viz/QRvsNormalEqViz';
+import QueryKeyValueViz from './viz/QueryKeyValueViz';
+import DropoutEnsembleViz from './viz/DropoutEnsembleViz';
+import SoftmaxTempViz from './viz/SoftmaxTempViz';
+import BackpropFlowViz from './viz/BackpropFlowViz';
+import BellmanUpdateViz from './viz/BellmanUpdateViz';
+import AdamMomentsViz from './viz/AdamMomentsViz';
+import ActivationExplorerViz from './viz/ActivationExplorerViz';
+import LossDescentExplorerViz from './viz/LossDescentExplorerViz';
+import GaussianExplorerViz from './viz/GaussianExplorerViz';
+import RunnableCodeBlock from './RunnableCodeBlock';
+import ConvKernelExplorerViz from './viz/ConvKernelExplorerViz';
+import MultiHeadAttentionExplorerViz from './viz/MultiHeadAttentionExplorerViz';
+import CrossEntropyExplorerViz from './viz/CrossEntropyExplorerViz';
+import EigenvectorExplorerViz from './viz/EigenvectorExplorerViz';
+import PCAExplorerViz from './viz/PCAExplorerViz';
+import DropoutExplorerViz from './viz/DropoutExplorerViz';
+import DerivativeExplorerViz from './viz/DerivativeExplorerViz';
+import KLDivergenceExplorerViz from './viz/KLDivergenceExplorerViz';
+import BayesExplorerViz from './viz/BayesExplorerViz';
+import LSTMGateExplorerViz from './viz/LSTMGateExplorerViz';
+import BatchNormExplorerViz from './viz/BatchNormExplorerViz';
+import EntropyExplorerViz from './viz/EntropyExplorerViz';
+import SVMMarginExplorerViz from './viz/SVMMarginExplorerViz';
+import KNNExplorerViz from './viz/KNNExplorerViz';
+import PositionalEncodingExplorerViz from './viz/PositionalEncodingExplorerViz';
 import './MLHub.css';
 import './MLLesson.css';
 
-const VIZ_REGISTRY = { VectorPlayground, VectorAdditionViz, VectorGeometryViz, MatrixTransform, GradientDescent, AttentionHeatmap, NormBall, SoftmaxViz, NeuralNetViz, ConvolutionViz, EigenvectorViz, BackpropViz, KMeansViz, KMeansFullViz, LogisticRegressionViz, NaiveBayesViz, GaussianViz, ActivationsViz, AutoencoderViz, KLDivergenceViz, ROCCurveViz, ConfusionMatrixViz, TransformerBlockViz, TransformerBlockFullViz, BatchNormViz, BatchNormScatterViz, PCAViz, GANViz, GANLoopViz, GANDynamicsViz, TSNEViz, FFTViz, PolicyGradientViz, DiffusionViz, DiffusionChainViz, VAEViz, VAELatentViz, BezierViz, GaussianProcessViz, ConvNetViz, ProjectionViz, CrossValidationViz, BiasVarianceViz, SVDViz, ChainRuleViz, AutogradTraceViz, BayesUpdateViz, LinearRegressionViz, EmbeddingEvolutionViz, WordEmbeddingViz, ResidualGradientViz, ResidualBlockViz, SGDComparisonViz, NormalizationCompareViz, PerceptronViz, SVMViz, DecisionTreeViz, RandomForestViz, LSTMGatesViz, BPETokenizerViz, SamplingViz, KernelTrickViz, ImageAugmentationViz, BeamSearchViz, LRScheduleViz, VanishingGradientViz, DropoutTrainingViz, KVCacheViz, ConvKernelViz, WeightDecayViz, ReceptiveFieldViz, MultiHeadAttentionViz, Word2VecViz, AdamOptimizerViz, ScalingLawsViz, PolyOverfitViz, GradientCheckViz, MCMCViz, EMAlgorithmViz, L1L2RegularizationViz, GCNViz, QLearningViz, KDEViz, DotProductSignViz, MatrixColumnsViz, LogLossCurveViz, PCAProjectionViz, ForwardBackwardGraphViz, ParabolaDescentViz, AttentionStepViz, LoRAStructureViz, DropoutMasksViz, AutoencoderShapeViz, RNNUnrollViz, MomentumZigzagViz, MDPGridworldViz, RLHFPipelineViz, FloatSpacingViz, PositionalWavelengthsViz, ContrastiveEmbeddingViz, KnowledgeDistillationViz, SHAPValuesViz, QuantizationViz, AttentionRolloutViz, InitVarianceViz, OptimizerZooViz, FloatFormatGridViz, DeadReLUViz, MixupViz, LabelSmoothingViz, CurriculumLearningViz, MixedPrecisionViz, SpeculativeDecodingViz, BeamWidthEffectsViz, OptimizerTrajectoriesViz, LRWarmupCosineDecayViz, GradientNoiseViz, TripletLossViz, ContrastiveTrainingDynamicsViz, EmbeddingProjectionUmapViz, AttentionHeatmapViz, PositionalEncodingViz, SoftmaxTemperatureViz, DiffusionForwardReverseViz, LossLandscape2DViz, GradientClippingViz, TransformerLayerFlowViz, RewardShapingViz, VarianceReductionViz, BPETrainingTraceViz, LRSchedulerLandingViz, FederatedAveragingViz, ModelCalibrationViz, MixtureOfExpertsViz, ChainOfThoughtViz, InferenceBatchingViz, RAGRetrievalPipelineViz, KLDivergenceVsTemperatureViz, TokenGenerationStreamViz, CurriculumTemperatureViz, VisionTransformerPatchViz, SparseAttentionPatternViz, PerplexityVsCalibrationViz, TokenizerNormalizationViz, DecodingStrategiesViz, DropoutMaskAblationViz, SaliencyMapViz, TokenizerFairnessViz, RotaryEmbeddingViz, GradientAccumulationViz, FlashAttentionTilingViz };
+const VIZ_REGISTRY = { VectorPlayground, VectorAdditionViz, VectorGeometryViz, MatrixTransform, GradientDescent, AttentionHeatmap, NormBall, SoftmaxViz, NeuralNetViz, ConvolutionViz, EigenvectorViz, BackpropViz, KMeansViz, KMeansFullViz, LogisticRegressionViz, NaiveBayesViz, GaussianViz, ActivationsViz, AutoencoderViz, KLDivergenceViz, ROCCurveViz, ConfusionMatrixViz, TransformerBlockViz, TransformerBlockFullViz, BatchNormViz, BatchNormScatterViz, PCAViz, GANViz, GANLoopViz, GANDynamicsViz, TSNEViz, FFTViz, PolicyGradientViz, DiffusionViz, DiffusionChainViz, VAEViz, VAELatentViz, BezierViz, GaussianProcessViz, ConvNetViz, ProjectionViz, CrossValidationViz, BiasVarianceViz, SVDViz, ChainRuleViz, AutogradTraceViz, BayesUpdateViz, LinearRegressionViz, EmbeddingEvolutionViz, WordEmbeddingViz, ResidualGradientViz, ResidualBlockViz, SGDComparisonViz, NormalizationCompareViz, PerceptronViz, SVMViz, DecisionTreeViz, RandomForestViz, LSTMGatesViz, BPETokenizerViz, SamplingViz, KernelTrickViz, ImageAugmentationViz, BeamSearchViz, LRScheduleViz, VanishingGradientViz, DropoutTrainingViz, KVCacheViz, ConvKernelViz, WeightDecayViz, ReceptiveFieldViz, MultiHeadAttentionViz, Word2VecViz, AdamOptimizerViz, ScalingLawsViz, PolyOverfitViz, GradientCheckViz, MCMCViz, EMAlgorithmViz, L1L2RegularizationViz, GCNViz, QLearningViz, KDEViz, DotProductSignViz, MatrixColumnsViz, LogLossCurveViz, PCAProjectionViz, ForwardBackwardGraphViz, ParabolaDescentViz, AttentionStepViz, LoRAStructureViz, DropoutMasksViz, AutoencoderShapeViz, RNNUnrollViz, MomentumZigzagViz, MDPGridworldViz, RLHFPipelineViz, FloatSpacingViz, PositionalWavelengthsViz, ContrastiveEmbeddingViz, KnowledgeDistillationViz, SHAPValuesViz, QuantizationViz, AttentionRolloutViz, InitVarianceViz, OptimizerZooViz, FloatFormatGridViz, DeadReLUViz, MixupViz, LabelSmoothingViz, CurriculumLearningViz, MixedPrecisionViz, SpeculativeDecodingViz, BeamWidthEffectsViz, OptimizerTrajectoriesViz, LRWarmupCosineDecayViz, GradientNoiseViz, TripletLossViz, ContrastiveTrainingDynamicsViz, EmbeddingProjectionUmapViz, AttentionHeatmapViz, PositionalEncodingViz, SoftmaxTemperatureViz, DiffusionForwardReverseViz, LossLandscape2DViz, GradientClippingViz, TransformerLayerFlowViz, RewardShapingViz, VarianceReductionViz, BPETrainingTraceViz, LRSchedulerLandingViz, FederatedAveragingViz, ModelCalibrationViz, MixtureOfExpertsViz, ChainOfThoughtViz, InferenceBatchingViz, RAGRetrievalPipelineViz, KLDivergenceVsTemperatureViz, TokenGenerationStreamViz, CurriculumTemperatureViz, VisionTransformerPatchViz, SparseAttentionPatternViz, PerplexityVsCalibrationViz, TokenizerNormalizationViz, DecodingStrategiesViz, DropoutMaskAblationViz, SaliencyMapViz, TokenizerFairnessViz, RotaryEmbeddingViz, GradientAccumulationViz, FlashAttentionTilingViz, GANMinimaxViz, NormalizingFlowViz, AutoregressiveViz, MoERoutingViz, LRScheduleShapesViz, MomentumBowlViz, SecondOrderViz, GradientClipNormViz, WeightDecayContourViz, EarlyStoppingViz, DataAugmentationViz, PolicyGradientTrajViz, ActorCriticViz, ExplorationExploitationViz, ConditionNumberViz, IterativeSolversViz, AutodiffGraphViz, MonteCarloIntegrationViz, ViTPatchEmbeddingViz, EfficientNetScalingViz, DetectionGridViz, PPOClipViz, ReplayBufferViz, TrustRegionViz, MixupBlendViz, StochasticDepthViz, AdversarialPerturbationViz, AdamWVsL2Viz, RMSPropAdaptiveViz, NaturalGradientViz, KahanSummationViz, QRvsNormalEqViz, QueryKeyValueViz, DropoutEnsembleViz, SoftmaxTempViz, BackpropFlowViz, BellmanUpdateViz, AdamMomentsViz, ActivationExplorerViz, LossDescentExplorerViz, GaussianExplorerViz, ConvKernelExplorerViz, MultiHeadAttentionExplorerViz, CrossEntropyExplorerViz, EigenvectorExplorerViz, PCAExplorerViz, DropoutExplorerViz, DerivativeExplorerViz, KLDivergenceExplorerViz, BayesExplorerViz, LSTMGateExplorerViz, BatchNormExplorerViz, EntropyExplorerViz, SVMMarginExplorerViz, KNNExplorerViz, PositionalEncodingExplorerViz };
 
 /* Inline parser: handles `code`, **bold**, *italic*, [text](url), \(math\).
    Token order matters — backticks beat asterisks (so `*p` stays literal inside code). */
@@ -369,20 +426,6 @@ function MathBlock({ section }) {
   );
 }
 
-function CodeBlock({ section }) {
-  return (
-    <div className="ml-code-wrap">
-      <div className="ml-code-head">
-        <span className="ml-ascii-head-dot"><span className="ml-code-lang">{section.language || 'code'}</span></span>
-        {section.heading && <span>{section.heading}</span>}
-      </div>
-      <pre className="ml-code">
-        <code>{section.body}</code>
-      </pre>
-    </div>
-  );
-}
-
 function Callout({ section }) {
   const Icon = section.tone === 'tip' ? Lightbulb : Info;
   return (
@@ -422,17 +465,40 @@ function groupRows(sections) {
 
 function VizBlock({ section }) {
   const Comp = VIZ_REGISTRY[section.component];
+  const stageRef = useRef(null);
+  const [visible, setVisible] = useState(() => typeof IntersectionObserver === 'undefined');
+
+  useEffect(() => {
+    if (visible) return undefined;
+    const node = stageRef.current;
+    if (!node) return undefined;
+    const obs = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        setVisible(true);
+        obs.disconnect();
+      }
+    }, { rootMargin: '300px' });
+    obs.observe(node);
+    return () => obs.disconnect();
+  }, [visible]);
+
   if (!Comp) return null;
   return (
-    <div className="ml-viz-wrap">
-      {section.heading && (
-        <div className="ml-viz-head">
-          <span className="ml-ascii-head-dot">Interactive</span>
-          <span>{section.heading}</span>
-        </div>
-      )}
-      <Comp {...(section.props || {})} />
-    </div>
+    <figure className="ml-viz-wrap">
+      <div className="ml-viz-head">
+        <span className="ml-ascii-head-dot">Interactive</span>
+        {section.heading && <span>{section.heading}</span>}
+      </div>
+      <div className="ml-viz-stage" ref={stageRef}>
+        {visible
+          ? <Comp {...(section.props || {})} />
+          : (
+            <div className="ml-viz-placeholder" aria-hidden="true">
+              <span className="ml-viz-placeholder-label">Loading visualization…</span>
+            </div>
+          )}
+      </div>
+    </figure>
   );
 }
 
@@ -441,7 +507,7 @@ function renderFigure(section) {
     case 'viz': return <VizBlock section={section} />;
     case 'ascii': return <AsciiBlock section={section} />;
     case 'math': return <MathBlock section={section} />;
-    case 'code': return <CodeBlock section={section} />;
+    case 'code': return <RunnableCodeBlock section={section} />;
     case 'callout': return <Callout section={section} />;
     default: return null;
   }
@@ -460,6 +526,13 @@ export default function MLLesson() {
       .filter(s => s.kind === 'prose' && s.heading)
       .map(s => s.heading);
   }, [lesson]);
+
+  const { prev, next } = useMemo(() => {
+    const list = pillar?.lessons || [];
+    const at = list.findIndex(l => l.slug === lessonSlug);
+    if (at < 0) return { prev: null, next: null };
+    return { prev: at > 0 ? list[at - 1] : null, next: at < list.length - 1 ? list[at + 1] : null };
+  }, [pillar, lessonSlug]);
 
   if (!lesson) {
     return (
@@ -486,14 +559,31 @@ export default function MLLesson() {
       </Link>
 
       <header className="ml-lesson-hero">
+        <span className="ml-lesson-stripe" aria-hidden="true" />
         <div className="ml-lesson-hero-text">
-          <div className="ml-lesson-meta">
-            <span>{lesson.difficulty}</span>
-            <span>·</span>
-            <span>{lesson.readMinutes} min read</span>
-          </div>
+          <span className="ml-lesson-pillar">{pillar.title}</span>
           <h1 className="ml-lesson-title">{lesson.title}</h1>
           <p className="ml-lesson-sub">{lesson.oneLiner}</p>
+          <div className="ml-lesson-chips">
+            {lesson.difficulty && (
+              <span className="ml-lesson-chip">
+                <Gauge size={13} />
+                {lesson.difficulty}
+              </span>
+            )}
+            {lesson.readMinutes != null && (
+              <span className="ml-lesson-chip">
+                <Clock size={13} />
+                {lesson.readMinutes} min read
+              </span>
+            )}
+            {toc.length > 0 && (
+              <span className="ml-lesson-chip">
+                <ListTree size={13} />
+                {toc.length} sections
+              </span>
+            )}
+          </div>
         </div>
 
         {toc.length > 0 && (
@@ -536,6 +626,29 @@ export default function MLLesson() {
           );
         })}
       </article>
+
+      {(prev || next) && (
+        <nav className="ml-lesson-nav" aria-label="Lesson navigation">
+          {prev ? (
+            <Link to={`/ml/${pillarSlug}/${prev.slug}`} className="ml-lesson-navcard ml-lesson-navcard-prev">
+              <ArrowLeft size={15} className="ml-lesson-navicon" />
+              <span className="ml-lesson-navtext">
+                <span className="ml-lesson-navdir">Previous</span>
+                <span className="ml-lesson-navtitle">{prev.title}</span>
+              </span>
+            </Link>
+          ) : <span className="ml-lesson-navspacer" aria-hidden="true" />}
+          {next ? (
+            <Link to={`/ml/${pillarSlug}/${next.slug}`} className="ml-lesson-navcard ml-lesson-navcard-next">
+              <span className="ml-lesson-navtext">
+                <span className="ml-lesson-navdir">Next</span>
+                <span className="ml-lesson-navtitle">{next.title}</span>
+              </span>
+              <ArrowRight size={15} className="ml-lesson-navicon" />
+            </Link>
+          ) : <span className="ml-lesson-navspacer" aria-hidden="true" />}
+        </nav>
+      )}
     </div>
   );
 }

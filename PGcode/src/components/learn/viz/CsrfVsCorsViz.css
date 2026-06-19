@@ -1,0 +1,429 @@
+.ccv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.ccv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.ccv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.ccv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.ccv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.ccv-toggle-group {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ccv-input-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ccv-seg {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.ccv-seg-btn {
+  padding: 0.35rem 0.65rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.ccv-seg-btn:hover {
+  color: var(--text-main);
+}
+.ccv-seg-btn.is-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+.ccv-seg-btn.is-danger.is-on {
+  background: var(--warning);
+}
+.ccv-seg-btn.is-safe.is-on {
+  background: var(--easy);
+}
+
+.ccv-slider {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ccv-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+
+.ccv-slider-val {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.ccv-spacer {
+  flex: 1 1 auto;
+}
+
+.ccv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.ccv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ccv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.ccv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.ccv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.ccv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.ccv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.ccv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.ccv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.ccv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ccv-browser {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 4;
+}
+
+.ccv-browser-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.ccv-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+  transition: stroke 0.2s ease;
+}
+.ccv-box.is-active {
+  stroke-width: 2.6;
+  stroke: var(--accent);
+}
+.ccv-evil {
+  fill: rgba(var(--accent-rgb), 0.04);
+}
+.ccv-evil.is-active {
+  stroke: var(--warning);
+}
+
+.ccv-box-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.ccv-box-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.ccv-state {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+.ccv-state.is-good { fill: var(--easy); }
+.ccv-state.is-bad { fill: var(--warning); }
+
+.ccv-flow-req {
+  stroke: var(--warning);
+  stroke-width: 2.2;
+  stroke-dasharray: 7 4;
+}
+
+.ccv-flow-res {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+}
+.ccv-flow-res.is-blocked {
+  stroke: var(--text-dim);
+}
+
+.ccv-flow-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+.ccv-flow-label.is-res {
+  fill: var(--text-dim);
+  font-weight: 600;
+}
+
+.ccv-cookie {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-anchor: start;
+}
+.ccv-cookie.is-on { fill: var(--hue-pink); font-weight: 700; }
+.ccv-cookie.is-off { fill: var(--text-dim); }
+
+.ccv-gate {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.ccv-gate.is-good { fill: var(--easy); }
+
+.ccv-read {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-anchor: start;
+}
+.ccv-read.is-good { fill: var(--easy); font-weight: 700; }
+.ccv-read.is-bad { fill: var(--warning); font-weight: 700; }
+
+.ccv-axis-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-anchor: middle;
+}
+.ccv-axis-label.is-csrf { fill: var(--hue-pink); }
+.ccv-axis-label.is-cors { fill: var(--hue-sky); }
+
+.ccv-compare {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.6rem;
+}
+
+.ccv-cmp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+  border-radius: 6px;
+}
+.ccv-cmp.is-good { border-left-color: var(--easy); }
+.ccv-cmp.is-bad { border-left-color: var(--warning); }
+
+.ccv-cmp-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ccv-cmp-val {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.ccv-cmp.is-good .ccv-cmp-val { color: var(--easy); }
+.ccv-cmp.is-bad .ccv-cmp-val { color: var(--warning); }
+
+.ccv-cmp-note {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+}
+
+.ccv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.ccv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.ccv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ccv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.ccv-metric-value.is-good { color: var(--easy); }
+.ccv-metric-value.is-bad { color: var(--warning); }
+
+.ccv-why {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.ccv-why-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ccv-why-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.ccv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.ccv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.ccv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ccv-btn,
+  .ccv-seg-btn,
+  .ccv-box {
+    transition: none;
+  }
+}

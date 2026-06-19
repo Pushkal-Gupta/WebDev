@@ -597,7 +597,7 @@ export default function KMeansFullViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxWidth: 460 }}>
+        <svg viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxWidth: 560 }}>
           {/* Decision boundary background (faint voronoi). */}
           {decisionTiles && (
             <g opacity="0.08">

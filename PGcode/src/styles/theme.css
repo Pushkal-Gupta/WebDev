@@ -63,8 +63,19 @@
   --accent-rgb: 0, 255, 245;
 
   /* Canonical content max-width. Pages that aren't intentionally full-bleed
-     (workspace, roadmap, playground canvases) should clamp to this. */
-  --container-w: 1200px;
+     (workspace, roadmap, playground canvases) should clamp to this. Widened so
+     content fills more of the viewport and the side gutters roughly halve on a
+     1080p/1440p display (the "no empty space" rule). */
+  --container-w: 1560px;
+
+  /* Adaptive "lifted card" tokens. On the default dark theme --surface (#061010)
+     sits ~1 shade off --bg (#030a0a) and --border (#0f2b29) is barely visible,
+     so cards/frames vanish. Mixing a few percent of --text-main into the surface
+     lifts the card in dark mode and tints it faintly in light mode — works in
+     every palette without per-theme overrides. --viz-line is a stronger border. */
+  --viz-card: color-mix(in srgb, var(--surface) 90%, var(--text-main) 10%);
+  --viz-card-hi: color-mix(in srgb, var(--surface) 84%, var(--text-main) 16%);
+  --viz-line: color-mix(in srgb, var(--border) 65%, var(--text-dim) 35%);
 }
 
 [data-theme="light"] {

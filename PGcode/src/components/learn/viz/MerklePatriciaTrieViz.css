@@ -1,0 +1,248 @@
+.mptv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.mptv-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.mptv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.mptv-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.mptv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mptv-rootbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.mptv-roothash {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.mptv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mptv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mptv-btn:hover:not(:disabled) { background: var(--hover-box); border-color: var(--accent); }
+.mptv-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.mptv-btn-primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.mptv-btn-primary:hover:not(:disabled) { opacity: 0.9; background: var(--accent); }
+.mptv-buttons { display: inline-flex; gap: 0.4rem; flex-wrap: wrap; }
+
+.mptv-speed { display: inline-flex; align-items: center; gap: 0.4rem; }
+.mptv-speed-range { width: 100px; accent-color: var(--accent); }
+.mptv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+.mptv-spacer { flex: 1 1 auto; }
+.mptv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+
+.mptv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.mptv-svg { width: 100%; height: auto; display: block; }
+
+/* icons */
+.mptv-ic { color: var(--text-main); }
+.mptv-ic.is-root { color: var(--accent); }
+.mptv-ic.is-branch { color: var(--hue-violet); }
+.mptv-ic.is-leaf { color: var(--hue-sky); }
+.mptv-ic.is-ripple { color: var(--warning); }
+.mptv-ic.is-proof { color: var(--easy); }
+
+/* columns */
+.mptv-col {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+/* edges */
+.mptv-edge {
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: stroke 0.2s, stroke-width 0.2s;
+}
+.mptv-edge.is-ripple { stroke: var(--warning); stroke-width: 2.6; }
+.mptv-edge.is-proof { stroke: var(--easy); stroke-width: 2.8; }
+.mptv-edge-nib {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-dim);
+}
+
+/* nodes */
+.mptv-node {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.8;
+  transition: stroke 0.2s, fill 0.2s, stroke-width 0.2s;
+}
+.mptv-node.is-branch { stroke: var(--hue-violet); }
+.mptv-node.is-leaf { stroke: var(--hue-sky); }
+.mptv-node.is-hi { stroke-width: 2.8; fill: rgba(var(--accent-rgb), 0.08); }
+.mptv-node.is-ripple { stroke: var(--warning); stroke-width: 2.8; fill: rgba(var(--accent-rgb), 0.07); }
+.mptv-node.is-proof { stroke: var(--easy); stroke-width: 3; fill: rgba(var(--accent-rgb), 0.08); }
+.mptv-node-ic.is-branch { color: var(--hue-violet); }
+.mptv-node-ic.is-leaf { color: var(--hue-sky); }
+.mptv-node-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.mptv-node-hash {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--text-dim);
+}
+.mptv-node-hash.is-ripple { fill: var(--warning); }
+.mptv-node-hash.is-proof { fill: var(--easy); }
+.mptv-node-val {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--text-dim);
+}
+
+/* metrics */
+.mptv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+.mptv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.mptv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.mptv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.mptv-metric-value.is-ok { color: var(--easy); }
+.mptv-metric-value.is-root { color: var(--accent); }
+.mptv-metric-dim { background: var(--bg); }
+
+/* narration */
+.mptv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+.mptv-narration.is-ok { border-left-color: var(--easy); }
+.mptv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.mptv-narration-label.is-ok { color: var(--easy); }
+.mptv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+/* legend */
+.mptv-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.5rem 0.2rem 0;
+}
+.mptv-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mptv-btn,
+  .mptv-edge,
+  .mptv-node {
+    transition: none;
+  }
+}

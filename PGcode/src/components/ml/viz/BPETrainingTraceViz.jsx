@@ -124,7 +124,7 @@ function tokenFill(tok) {
 export default function BPETrainingTraceViz() {
   const [maxMerges, setMaxMerges] = useState(12);
   const [seed] = useState(7);
-  const [stepIdx, setStepIdx] = useState(0);
+  const [stepIdxRaw, setStepIdx] = useState(0);
   const [isRunningRaw, setIsRunningRaw] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const timerRef = useRef(null);
@@ -142,9 +142,8 @@ export default function BPETrainingTraceViz() {
   const frames = useMemo(() => buildTrace(maxMerges, rng), [maxMerges, rng]);
   const totalSteps = frames.length;
 
-  useEffect(() => {
-    if (stepIdx >= totalSteps) setStepIdx(totalSteps - 1);
-  }, [totalSteps, stepIdx]);
+  // derive clamped step during render so a shrinking totalSteps (seed/maxMerges change) stays in range
+  const stepIdx = Math.min(stepIdxRaw, totalSteps - 1);
 
   const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
 
@@ -183,7 +182,7 @@ export default function BPETrainingTraceViz() {
 
   // Render corpus as words → tokens with merges highlighted
   function renderWord(word, baseX, baseY, maxW) {
-    const padX = 6, gap = 4;
+    const gap = 4;
     let x = baseX;
     const tokens = [];
     for (let i = 0; i < word.length; i++) {

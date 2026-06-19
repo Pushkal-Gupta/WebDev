@@ -1,9 +1,9 @@
 /* ── Problem List Page ── */
 .pl-container {
   width: 94%;
-  max-width: 1400px;
+  max-width: var(--container-w);
   margin: 0 auto;
-  padding: 1.25rem 0 0;
+  padding: 1.25rem 0 1rem;
   flex: 1 1 auto;
   height: 100%;
   min-height: 0;
@@ -543,9 +543,9 @@
   box-shadow: inset 0 0 0 1px var(--border);
 }
 
-.pl-diff-btn.pl-diff-easy.active   { color: var(--easy); }
-.pl-diff-btn.pl-diff-medium.active { color: var(--medium); }
-.pl-diff-btn.pl-diff-hard.active   { color: var(--hard); }
+.pl-diff-btn.pl-diff-easy.active   { color: var(--easy);   background: var(--easy-bg);   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--easy) 30%, transparent); }
+.pl-diff-btn.pl-diff-medium.active { color: var(--medium); background: var(--medium-bg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--medium) 30%, transparent); }
+.pl-diff-btn.pl-diff-hard.active   { color: var(--hard);   background: var(--hard-bg);   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hard) 30%, transparent); }
 
 /* Row-tag pill (read-only) */
 .pl-diff-tag {
@@ -563,9 +563,13 @@
   transition: transform var(--t), box-shadow var(--t);
 }
 
-.pl-diff-tag.pl-diff-easy   { color: var(--easy);   background: var(--easy-bg);   border-color: rgba(76, 175, 80, 0.22); }
-.pl-diff-tag.pl-diff-medium { color: var(--medium); background: var(--medium-bg); border-color: rgba(240, 165, 0, 0.22); }
-.pl-diff-tag.pl-diff-hard   { color: var(--hard);   background: var(--hard-bg);   border-color: rgba(239, 68, 68, 0.22); }
+.pl-diff-tag.pl-diff-easy   { color: var(--easy);   background: var(--easy-bg);   border-color: color-mix(in srgb, var(--easy) 28%, transparent); }
+.pl-diff-tag.pl-diff-medium { color: var(--medium); background: var(--medium-bg); border-color: color-mix(in srgb, var(--medium) 28%, transparent); }
+.pl-diff-tag.pl-diff-hard   { color: var(--hard);   background: var(--hard-bg);   border-color: color-mix(in srgb, var(--hard) 28%, transparent); }
+
+.pl-row:hover .pl-diff-tag {
+  box-shadow: 0 0 0 1px color-mix(in srgb, currentColor 30%, transparent);
+}
 
 .pl-diff-dot {
   width: 6px;
@@ -648,8 +652,7 @@
 .pl-row:hover {
   background: var(--hover-box);
   border-left-color: var(--accent);
-  transform: translateX(1px);
-  box-shadow: 0 1px 0 rgba(var(--accent-rgb), 0.08), 0 6px 18px rgba(0, 0, 0, 0.18);
+  box-shadow: inset 3px 0 0 -1px var(--accent), 0 6px 18px rgba(0, 0, 0, 0.16);
   z-index: 1;
 }
 
@@ -790,21 +793,21 @@
   overflow: hidden;
   text-overflow: ellipsis;
   border: 1px solid transparent;
-  transition: filter var(--t);
+  transition: border-color var(--t), background var(--t);
 }
 
 .pl-row:hover .pl-topic-pill {
-  filter: brightness(1.1);
+  border-color: currentColor;
 }
 
 /* 6 hue variants using theme hue tokens. Background uses a low-alpha tint so
    it sits subtly behind the text without screaming. */
-.pl-topic-hue-0 { color: var(--hue-violet); background: rgba(167, 139, 250, 0.10); border-color: rgba(167, 139, 250, 0.20); }
-.pl-topic-hue-1 { color: var(--hue-sky);    background: rgba(56,  189, 248, 0.10); border-color: rgba(56,  189, 248, 0.20); }
-.pl-topic-hue-2 { color: var(--hue-pink);   background: rgba(244, 114, 182, 0.10); border-color: rgba(244, 114, 182, 0.20); }
-.pl-topic-hue-3 { color: var(--hue-mint);   background: rgba(52,  211, 153, 0.10); border-color: rgba(52,  211, 153, 0.20); }
-.pl-topic-hue-4 { color: var(--medium);     background: var(--medium-bg);          border-color: rgba(240, 165, 0, 0.20); }
-.pl-topic-hue-5 { color: var(--accent);     background: rgba(var(--accent-rgb), 0.10); border-color: rgba(var(--accent-rgb), 0.22); }
+.pl-topic-hue-0 { color: var(--hue-violet); background: color-mix(in srgb, var(--hue-violet) 11%, transparent); border-color: color-mix(in srgb, var(--hue-violet) 22%, transparent); }
+.pl-topic-hue-1 { color: var(--hue-sky);    background: color-mix(in srgb, var(--hue-sky) 11%, transparent);    border-color: color-mix(in srgb, var(--hue-sky) 22%, transparent); }
+.pl-topic-hue-2 { color: var(--hue-pink);   background: color-mix(in srgb, var(--hue-pink) 11%, transparent);   border-color: color-mix(in srgb, var(--hue-pink) 22%, transparent); }
+.pl-topic-hue-3 { color: var(--hue-mint);   background: color-mix(in srgb, var(--hue-mint) 11%, transparent);   border-color: color-mix(in srgb, var(--hue-mint) 22%, transparent); }
+.pl-topic-hue-4 { color: var(--medium);     background: var(--medium-bg);                                       border-color: color-mix(in srgb, var(--medium) 22%, transparent); }
+.pl-topic-hue-5 { color: var(--accent);     background: rgba(var(--accent-rgb), 0.10);                          border-color: rgba(var(--accent-rgb), 0.22); }
 
 /* ── Difficulty cell ── */
 .pl-col-diff {
@@ -832,17 +835,22 @@
 }
 
 .pl-action-icon:hover {
-  background: var(--hover-box);
+  background: rgba(var(--accent-rgb), 0.10);
   color: var(--accent);
+  box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.30);
   transform: translateY(-1px);
 }
 
 .pl-action-icon.pl-lc:hover {
   color: var(--medium);
+  background: var(--medium-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--medium) 30%, transparent);
 }
 
 .pl-action-icon.pl-sol:hover {
   color: var(--easy);
+  background: var(--easy-bg);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--easy) 30%, transparent);
 }
 
 /* ── Empty State ── */

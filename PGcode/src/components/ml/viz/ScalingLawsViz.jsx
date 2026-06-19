@@ -210,6 +210,20 @@ function ScalingLawsViz() {
               <stop offset="50%" stopColor="var(--accent)" stopOpacity="0.16" />
               <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.0" />
             </linearGradient>
+            <linearGradient id="scal-frontier-stroke" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stopColor="var(--accent)" />
+              <stop offset="100%" stopColor="var(--hue-mint)" />
+            </linearGradient>
+            <linearGradient id="scal-iso-stroke" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stopColor="var(--hue-violet)" />
+              <stop offset="100%" stopColor="var(--hue-pink)" />
+            </linearGradient>
+            <filter id="scal-frontier-blur" x="-10%" y="-30%" width="120%" height="160%">
+              <feGaussianBlur stdDeviation="4" />
+            </filter>
+            <filter id="scal-pt-glow" x="-80%" y="-80%" width="260%" height="260%">
+              <feGaussianBlur stdDeviation="2.4" />
+            </filter>
             <clipPath id="scal-plot-clip">
               <rect x={PAD_L} y={PAD_T} width={PLOT_W} height={PLOT_H} />
             </clipPath>
@@ -323,7 +337,16 @@ function ScalingLawsViz() {
             <path
               d={frontier}
               fill="none"
-              stroke="var(--accent)"
+              stroke="url(#scal-frontier-stroke)"
+              strokeWidth="5"
+              strokeLinecap="round"
+              filter="url(#scal-frontier-blur)"
+              opacity="0.5"
+            />
+            <path
+              d={frontier}
+              fill="none"
+              stroke="url(#scal-frontier-stroke)"
               strokeWidth="2.4"
               strokeLinecap="round"
             />
@@ -334,8 +357,9 @@ function ScalingLawsViz() {
             <path
               d={activeIso}
               fill="none"
-              stroke="var(--hue-violet, #b388ff)"
+              stroke="url(#scal-iso-stroke)"
               strokeWidth="2.0"
+              strokeLinecap="round"
               strokeDasharray="6 4"
               opacity="0.95"
             />
@@ -347,9 +371,10 @@ function ScalingLawsViz() {
               <circle
                 cx={nToPx(opt.N)}
                 cy={dToPy(opt.D)}
-                r="9"
+                r="11"
                 fill="var(--hue-violet, #b388ff)"
-                opacity="0.22"
+                opacity="0.32"
+                filter="url(#scal-pt-glow)"
               />
               <circle
                 cx={nToPx(opt.N)}
@@ -510,9 +535,10 @@ function ScalingLawsViz() {
                 <circle
                   cx={px}
                   cy={py}
-                  r={isHover ? 12 : 9}
+                  r={isHover ? 14 : 10}
                   fill={m.hue}
-                  opacity="0.22"
+                  opacity={isHover ? 0.42 : 0.24}
+                  filter="url(#scal-pt-glow)"
                 />
                 <circle
                   cx={px}

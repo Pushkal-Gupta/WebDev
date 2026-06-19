@@ -163,7 +163,7 @@ export default function ContrastiveEmbeddingViz() {
         <svg
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg"
-          style={{ maxWidth: 580, aspectRatio: `${W} / ${H}` }}
+          style={{ maxWidth: '820px', aspectRatio: `${W} / ${H}` }}
         >
           <defs>
             <marker
@@ -282,7 +282,7 @@ export default function ContrastiveEmbeddingViz() {
                   cx={nxy.x}
                   cy={nxy.y}
                   r={9 + rel * 4}
-                  fill="rgba(255, 102, 204, 0.16)"
+                  fill="color-mix(in srgb, var(--hue-pink) 16%, transparent)"
                   stroke={NEG_COLOR}
                   strokeWidth={1.4 + rel * 1.2}
                 />
@@ -332,7 +332,7 @@ export default function ContrastiveEmbeddingViz() {
               cx={anchorXY.x}
               cy={anchorXY.y}
               r={13}
-              fill="rgba(94, 203, 255, 0.22)"
+              fill="color-mix(in srgb, var(--hue-sky) 22%, transparent)"
               stroke={ANCHOR_COLOR}
               strokeWidth={2}
             />
