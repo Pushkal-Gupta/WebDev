@@ -132,6 +132,10 @@ export default function EraSiegeGame({ mode }) {
   const [statsOpen, setStatsOpen] = useState(false);
   const [powerUpsOpen, setPowerUpsOpen] = useState(false);
   const [turretBuildSlot, setTurretBuildSlot] = useState(null);
+  // Screen-space anchor {x,y} for the build modal, computed from the 3D
+  // renderer's screenPosForSlot when the modal opens. null → modal falls
+  // back to its CSS-pinned position (2D renderer, or slot off-screen).
+  const [turretBuildAnchor, setTurretBuildAnchor] = useState(null);
   const [turretManageSlot, setTurretManageSlot] = useState(null);
   const [eraBannerVer, setEraBannerVer] = useState(null);
   const [settingsRev, setSettingsRev] = useState(0);   // re-render trigger when settings change
@@ -421,7 +425,13 @@ export default function EraSiegeGame({ mode }) {
         // sim rejected it for missing data.
         const t = matchRef.current?.player.turretSlots[i];
         if (t && !t.spotOnly) setTurretManageSlot(t);
-        else                  setTurretBuildSlot(i);
+        else {
+          // Mirror onSlotClick's anchor computation. rendererRef and the
+          // setters are stable, so this closure stays correct across renders.
+          const sp = rendererRef.current?.screenPosForSlot?.(i) ?? null;
+          setTurretBuildAnchor(sp && Number.isFinite(sp.x) && Number.isFinite(sp.y) ? sp : null);
+          setTurretBuildSlot(i);
+        }
       },
       requestSell:    (i)   => { intentsRef.current.sellTurret = i; },
       requestSpecial:  ()    => { intentsRef.current.special  = true; },
@@ -710,10 +720,20 @@ export default function EraSiegeGame({ mode }) {
     writeSettings({ speed: next });
   };
   const onBuyPowerup = (treeId) => { intentsRef.current.buyPowerup = treeId; };
+  // Open the build modal for an empty/spot-only slot. Computes the
+  // on-screen anchor from the 3D renderer so the modal floats near the
+  // clicked pylon; screenPosForSlot only exists on the 3D renderer and
+  // returns null when the pylon isn't present, so a null result simply
+  // means "no anchor" → the modal uses its CSS fallback position.
+  const openBuildModal = (i) => {
+    const sp = rendererRef.current?.screenPosForSlot?.(i) ?? null;
+    setTurretBuildAnchor(sp && Number.isFinite(sp.x) && Number.isFinite(sp.y) ? sp : null);
+    setTurretBuildSlot(i);   // modal handles spot-vs-turret state
+  };
   const onSlotClick = (i) => {
     const t = matchRef.current?.player.turretSlots[i];
     if (t) setTurretManageSlot(t);
-    else   setTurretBuildSlot(i);   // modal handles spot-vs-turret state
+    else   openBuildModal(i);
   };
   // Stable ref so the canvas click handler (bound once per renderer
   // mount) always reaches the live handler.
@@ -919,6 +939,7 @@ export default function EraSiegeGame({ mode }) {
         <TurretBuildModal
           open={turretBuildSlot != null}
           slotIndex={turretBuildSlot ?? 0}
+          anchor={turretBuildAnchor}
           eraIndex={hud.eraIndex}
           gold={hud.gold}
           /* Live spot state — modal re-renders into the "tier picker

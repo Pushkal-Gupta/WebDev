@@ -189,12 +189,16 @@ export default function CutRopeGame() {
     if (finishedRef.current) {
       // Keep the scene rendering smoothly during the win/fail UI but stop
       // physics so the candy holds its final pose.
+      lv.ambient?.update(dt);
       lv.target.update(dt, lv.candy.point);
       lv.stars.forEach((s) => s.update(dt));
       lv.candy.sync(dt);
       lv.ropes.forEach((r) => r.rebuild());
       return;
     }
+
+    // Ambient atmosphere — purely decorative; drifts every frame.
+    lv.ambient?.update(dt);
 
     // Anchor track motion runs FIRST so this frame's physics step sees
     // the up-to-date pin positions; the chain feels the move on the

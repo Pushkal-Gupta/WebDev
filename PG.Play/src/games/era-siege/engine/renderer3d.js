@@ -58,7 +58,7 @@ const _UP_Y = new THREE.Vector3(0, 1, 0);
 const ERA_LOOKS = [
   { // Ember Tribe — warm dusk
     skyTop: '#26314f', skyMid: '#a85838', skyBot: '#e8945a',
-    sunColor: '#ffc98a', sunIntensity: 1.2, sunDir: [-0.55, 0.42, 0.38],
+    sunColor: '#ffc98a', sunIntensity: 1.5, sunDir: [-0.55, 0.42, 0.38],
     hemiSky: '#8a7490', hemiGround: '#3a2418', fillColor: '#7488b8',
     fog: '#41304a', fogDensity: 0.0052,
     groundTint: '#d8b890', hillNear: '#5a4458', hillFar: '#454060',
@@ -127,7 +127,7 @@ export function makeRenderer3D({ canvas }) {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.32;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -139,6 +139,10 @@ export function makeRenderer3D({ canvas }) {
   // helpers land on it after they're defined below.
   const devHandle = import.meta.env.DEV ? { scene, camera, renderer } : null;
   if (devHandle) window.__es3d = devHandle;
+
+  // Units are articulated procedural character rigs (see buildRig) — a
+  // pelvis/torso/head spine with hinged legs and arms, per-era headgear,
+  // a role/era weapon, and a team-coloured tabard. No baked sprite art.
 
   // Camera rig — direction is fixed (south of the lane, elevated);
   // distance is recomputed from aspect + lane width so the battlefield
@@ -210,7 +214,7 @@ export function makeRenderer3D({ canvas }) {
   scene.add(sun);
   scene.add(sun.target);
 
-  const hemi = new THREE.HemisphereLight(0xddccaa, 0x2a1a10, 0.7);
+  const hemi = new THREE.HemisphereLight(0xddccaa, 0x2a1a10, 0.9);
   scene.add(hemi);
 
   const fill = new THREE.DirectionalLight(0xa8bcd8, 0.7);
@@ -380,66 +384,149 @@ export function makeRenderer3D({ canvas }) {
     s.set(k, k, k);
   });
 
+  // ── Geometry helpers — smoother forms with IDENTICAL bounding boxes ──
+  // capH(total, radius): a vertical capsule whose overall height equals
+  // `total` (length = total - 2*radius), centred on the origin — a drop-in
+  // for a Box of the same height so baked joint pivots stay aligned.
+  function capH(total, radius) {
+    const r = Math.min(radius, total / 2 - 1e-3);
+    return new THREE.CapsuleGeometry(r, total - 2 * r, 4, 12);
+  }
+  // roundedBox(w, h, d, r): a beveled box that keeps the exact (w,h,d)
+  // bounding extents and stays centred at the origin, so it can replace a
+  // BoxGeometry of the same dims without shifting any anchor. Built core-only
+  // (no addons) by extruding a rounded rectangle and clamping depth to d.
+  function roundedBox(w, h, d, r) {
+    // bevel grows the outline OUTWARD by bevelSize and the depth by
+    // 2*bevelThickness, so build the base profile inset by `bevel` on every
+    // axis; the bevel then expands it back to exactly (w,h,d).
+    const bevel = Math.min(r, w / 2 - 1e-3, h / 2 - 1e-3, d / 2 - 1e-3);
+    const iw = w - 2 * bevel, ih = h - 2 * bevel;   // inner profile extents
+    const cr = Math.min(bevel, iw / 2 - 1e-3, ih / 2 - 1e-3);
+    const hw = iw / 2, hh = ih / 2;
+    const shape = new THREE.Shape();
+    shape.moveTo(-hw + cr, -hh);
+    shape.lineTo(hw - cr, -hh);
+    shape.quadraticCurveTo(hw, -hh, hw, -hh + cr);
+    shape.lineTo(hw, hh - cr);
+    shape.quadraticCurveTo(hw, hh, hw - cr, hh);
+    shape.lineTo(-hw + cr, hh);
+    shape.quadraticCurveTo(-hw, hh, -hw, hh - cr);
+    shape.lineTo(-hw, -hh + cr);
+    shape.quadraticCurveTo(-hw, -hh, -hw + cr, -hh);
+    const geo = new THREE.ExtrudeGeometry(shape, {
+      depth: d - 2 * bevel, bevelEnabled: true,
+      bevelThickness: bevel, bevelSize: bevel, bevelSegments: 2, steps: 1,
+    });
+    geo.translate(0, 0, -(d / 2) + bevel);     // extrude grows +Z from 0; re-centre
+    geo.computeVertexNormals();
+    return geo;
+  }
+
   // ── Shared geometries (units / turrets / fx) ──────────────────────
   const GEO = {
     // Character skeleton — pivots are baked into the translates: thigh and
     // upper-arm geometries hang from their joint origin so a single
     // rotation.x at the group reads as a hip/shoulder swing, and the
     // knee/elbow segments hang from their own sub-pivots.
-    pelvis:     new THREE.BoxGeometry(0.36, 0.22, 0.26),
-    chest:      new THREE.BoxGeometry(0.46, 0.44, 0.3),
-    chestHeavy: new THREE.BoxGeometry(0.66, 0.52, 0.42),
-    pelvisHeavy: new THREE.BoxGeometry(0.5, 0.26, 0.34),
-    tabard:     new THREE.BoxGeometry(0.3, 0.5, 0.045),
-    shoulderCap: new THREE.BoxGeometry(0.18, 0.09, 0.2),
-    hood:       new THREE.ConeGeometry(0.2, 0.34, 6),
-    club:       new THREE.CylinderGeometry(0.04, 0.07, 0.55, 6).translate(0, 0.32, 0),
-    clubHead:   new THREE.SphereGeometry(0.12, 6, 5),
-    spear:      new THREE.CylinderGeometry(0.025, 0.025, 1.3, 5).translate(0, 0.35, 0),
-    spearTip:   new THREE.ConeGeometry(0.05, 0.18, 5).translate(0, 1.06, 0),
-    towerShield: new THREE.BoxGeometry(0.5, 0.92, 0.07),
-    rifleStock: new THREE.BoxGeometry(0.09, 0.13, 0.5),
-    rifleBarrel: new THREE.CylinderGeometry(0.03, 0.035, 0.5, 5).rotateX(HALF_PI),
-    wisp:       new THREE.ConeGeometry(0.22, 0.55, 6).rotateX(Math.PI),
-    coreDisc:   new THREE.CylinderGeometry(0.12, 0.12, 0.05, 8).rotateX(HALF_PI),
-    belt:       new THREE.BoxGeometry(0.4, 0.08, 0.3),
-    head:       new THREE.BoxGeometry(0.26, 0.24, 0.26),
-    helm:       new THREE.BoxGeometry(0.3, 0.14, 0.3),
+    // Torso/pelvis use rounded (beveled) boxes so the body reads sculpted
+    // rather than slab-sided. roundedBox() preserves the exact bounding box
+    // and (for un-translated parts) stays centred at the origin, so every
+    // anchor placement below is unchanged.
+    // Hips narrower than the shoulders (heroic taper). Pelvis is a small
+    // wedge, NOT a slab — the lower body is mostly leg. The chest is a tall
+    // ribcage that rises from the waist up to the shoulder line so the torso
+    // reads as one solid mass (no gap below the arms).
+    pelvis:     roundedBox(0.32, 0.2, 0.24, 0.06),
+    chest:      roundedBox(0.5, 0.62, 0.3, 0.1),
+    // Defined waist segment that tapers the torso between chest and hips.
+    waist:      roundedBox(0.36, 0.2, 0.26, 0.07),
+    waistHeavy: roundedBox(0.48, 0.22, 0.34, 0.08),
+    chestHeavy: roundedBox(0.68, 0.68, 0.42, 0.11),
+    pelvisHeavy: roundedBox(0.44, 0.22, 0.32, 0.07),
+    // Small hip cloth — a narrow loincloth that hangs from the waist over
+    // the front of the hips only. Replaces the old chest-to-thigh slab.
+    loincloth:  roundedBox(0.26, 0.3, 0.06, 0.02).translate(0, -0.13, 0),
+    loinclothHeavy: roundedBox(0.36, 0.34, 0.07, 0.025).translate(0, -0.15, 0),
+    tabard:     new THREE.BoxGeometry(0.26, 0.34, 0.045),
+    shoulderCap: roundedBox(0.2, 0.1, 0.22, 0.04),
+    hood:       new THREE.ConeGeometry(0.2, 0.34, 12),
+    club:       new THREE.CylinderGeometry(0.04, 0.07, 0.55, 12).translate(0, 0.32, 0),
+    clubHead:   new THREE.SphereGeometry(0.12, 16, 12),
+    spear:      new THREE.CylinderGeometry(0.025, 0.025, 1.3, 12).translate(0, 0.35, 0),
+    spearTip:   new THREE.ConeGeometry(0.05, 0.18, 12).translate(0, 1.06, 0),
+    towerShield: roundedBox(0.5, 0.92, 0.07, 0.04),
+    rifleStock: roundedBox(0.09, 0.13, 0.5, 0.035),
+    rifleBarrel: new THREE.CylinderGeometry(0.03, 0.035, 0.5, 12).rotateX(HALF_PI),
+    wisp:       new THREE.ConeGeometry(0.22, 0.55, 12).rotateX(Math.PI),
+    coreDisc:   new THREE.CylinderGeometry(0.12, 0.12, 0.05, 16).rotateX(HALF_PI),
+    belt:       roundedBox(0.38, 0.09, 0.28, 0.03),
+    // Head/helm keep a characterful beveled-box read (rounded, not faceted).
+    head:       roundedBox(0.3, 0.3, 0.3, 0.07),
+    helm:       roundedBox(0.34, 0.16, 0.34, 0.06),
+    helmRidge:  roundedBox(0.05, 0.16, 0.3, 0.02),
     visor:      new THREE.BoxGeometry(0.22, 0.05, 0.02),
-    thigh:      new THREE.BoxGeometry(0.17, 0.36, 0.19).translate(0, -0.18, 0),
-    calf:       new THREE.BoxGeometry(0.13, 0.34, 0.15).translate(0, -0.17, 0),
-    boot:       new THREE.BoxGeometry(0.15, 0.1, 0.27).translate(0, -0.38, 0.05),
-    upperArm:   new THREE.BoxGeometry(0.13, 0.3, 0.14).translate(0, -0.15, 0),
-    forearm:    new THREE.BoxGeometry(0.11, 0.28, 0.12).translate(0, -0.14, 0),
+    // Limbs — capsules of the SAME bounding height as the boxes they
+    // replace, then translated by the SAME pivot offset so the joint
+    // animation stays aligned. capH(total, radius) gives a capsule whose
+    // overall height equals `total`.
+    thigh:      capH(0.4, 0.1).translate(0, -0.2, 0),
+    calf:       capH(0.38, 0.078).translate(0, -0.19, 0),
+    boot:       roundedBox(0.16, 0.11, 0.28, 0.04).translate(0, -0.4, 0.05),
+    // Arms read as muscled and clearly visible alongside the torso.
+    upperArm:   capH(0.34, 0.082).translate(0, -0.17, 0),
+    forearm:    capH(0.32, 0.07).translate(0, -0.16, 0),
     // Weapons — sized to READ at full-lane framing, not to scale.
-    swordBlade: new THREE.BoxGeometry(0.055, 0.78, 0.16).translate(0, 0.5, 0),
-    swordGuard: new THREE.BoxGeometry(0.2, 0.05, 0.07).translate(0, 0.1, 0),
-    swordGrip:  new THREE.CylinderGeometry(0.03, 0.03, 0.18, 5),
-    shield:     new THREE.BoxGeometry(0.5, 0.64, 0.07),
-    shieldBoss: new THREE.CylinderGeometry(0.1, 0.12, 0.06, 8).rotateX(HALF_PI),
-    bowArc:     new THREE.TorusGeometry(0.42, 0.028, 4, 10, Math.PI),
+    swordBlade: roundedBox(0.055, 0.78, 0.16, 0.025).translate(0, 0.5, 0),
+    swordGuard: roundedBox(0.2, 0.05, 0.07, 0.022).translate(0, 0.1, 0),
+    swordGrip:  new THREE.CylinderGeometry(0.03, 0.03, 0.18, 12),
+    swordPommel: new THREE.SphereGeometry(0.038, 12, 8).translate(0, -0.09, 0),
+    shield:     roundedBox(0.5, 0.64, 0.07, 0.05),
+    shieldBoss: new THREE.CylinderGeometry(0.1, 0.12, 0.06, 16).rotateX(HALF_PI),
+    bowArc:     new THREE.TorusGeometry(0.42, 0.028, 8, 24, Math.PI),
     bowString:  new THREE.BoxGeometry(0.012, 0.82, 0.012),
-    arrowNock:  new THREE.CylinderGeometry(0.018, 0.018, 0.5, 4).rotateZ(HALF_PI),
-    hammerHaft: new THREE.CylinderGeometry(0.04, 0.045, 1.0, 5).translate(0, 0.3, 0),
-    hammerHead: new THREE.BoxGeometry(0.38, 0.24, 0.24).translate(0, 0.82, 0),
+    arrowNock:  new THREE.CylinderGeometry(0.018, 0.018, 0.5, 8).rotateZ(HALF_PI),
+    hammerHaft: new THREE.CylinderGeometry(0.04, 0.045, 1.0, 12).translate(0, 0.3, 0),
+    hammerHead: roundedBox(0.38, 0.24, 0.24, 0.05).translate(0, 0.82, 0),
     cape:       new THREE.PlaneGeometry(0.56, 0.78),
-    pole:       new THREE.CylinderGeometry(0.025, 0.025, 1.5, 5),
+    pole:       new THREE.CylinderGeometry(0.025, 0.025, 1.5, 12),
     flag:       new THREE.PlaneGeometry(0.5, 0.32),
-    horn:       new THREE.ConeGeometry(0.05, 0.18, 5),
-    pauldron:   new THREE.BoxGeometry(0.2, 0.1, 0.34),
-    gear:       new THREE.CylinderGeometry(0.13, 0.13, 0.06, 8).rotateX(HALF_PI),
-    antenna:    new THREE.CylinderGeometry(0.014, 0.014, 0.34, 4).translate(0, 0.17, 0),
-    antennaTip: new THREE.SphereGeometry(0.045, 6, 5),
+    horn:       new THREE.ConeGeometry(0.05, 0.18, 12),
+    pauldron:   roundedBox(0.2, 0.1, 0.34, 0.04),
+    gear:       new THREE.CylinderGeometry(0.13, 0.13, 0.06, 16).rotateX(HALF_PI),
+    antenna:    new THREE.CylinderGeometry(0.014, 0.014, 0.34, 8).translate(0, 0.17, 0),
+    antennaTip: new THREE.SphereGeometry(0.045, 16, 12),
     shard:      new THREE.OctahedronGeometry(0.12, 0),
     auraRing:   new THREE.RingGeometry(0.45, 0.62, 24).rotateX(-HALF_PI),
+    // Soft round blob shadow planted under each rig (cheaper + softer than
+    // a real cast shadow at the lane's on-screen scale).
+    unitShadow: new THREE.CircleGeometry(0.5, 24).rotateX(-HALF_PI),
+    // Extra rig parts for the new articulated characters.
+    neck:        new THREE.CylinderGeometry(0.07, 0.08, 0.1, 10),
+    hair:        new THREE.SphereGeometry(0.16, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.62),
+    feather:     new THREE.ConeGeometry(0.035, 0.34, 6).translate(0, 0.17, 0),
+    tricorn:     new THREE.ConeGeometry(0.26, 0.12, 3),
+    tricornCrown: roundedBox(0.24, 0.18, 0.24, 0.05),
+    voidShard:   new THREE.OctahedronGeometry(0.09, 0),
+    pistol:      roundedBox(0.07, 0.1, 0.26, 0.025).translate(0, 0, 0.08),
+    saberBlade:  roundedBox(0.05, 0.62, 0.08, 0.02).translate(0, 0.4, 0),
+    gunBody:     roundedBox(0.11, 0.16, 0.62, 0.04).translate(0, 0, 0.16),
+    gunBarrel:   new THREE.CylinderGeometry(0.05, 0.055, 0.5, 12).rotateX(HALF_PI).translate(0, 0, 0.5),
+    gunMag:      roundedBox(0.08, 0.2, 0.1, 0.02).translate(0, -0.13, 0.04),
+    musketStock: roundedBox(0.07, 0.12, 0.9, 0.03).translate(0, 0, 0.2),
+    musketBarrel: new THREE.CylinderGeometry(0.03, 0.035, 0.7, 12).rotateX(HALF_PI).translate(0, 0, 0.62),
+    voidStaff:   new THREE.CylinderGeometry(0.03, 0.035, 1.1, 10).translate(0, 0.3, 0),
+    voidBlade:   roundedBox(0.04, 0.7, 0.12, 0.02).translate(0, 0.45, 0),
+    robeSkirt:   new THREE.ConeGeometry(0.32, 0.7, 12, 1, true).rotateX(Math.PI),
+    coatSkirt:   new THREE.CylinderGeometry(0.26, 0.34, 0.56, 12, 1, true),
     // Turret parts.
-    tBase:      new THREE.CylinderGeometry(0.3, 0.36, 0.16, 8),
-    tHousing:   new THREE.BoxGeometry(0.42, 0.3, 0.46),
-    tHousingHvy: new THREE.BoxGeometry(0.56, 0.4, 0.6),
-    tBarrel:    new THREE.CylinderGeometry(0.06, 0.07, 0.7, 6).rotateX(HALF_PI).translate(0, 0, 0.3),
-    tBarrelHvy: new THREE.CylinderGeometry(0.1, 0.12, 0.56, 6).rotateX(HALF_PI).translate(0, 0, 0.24),
+    tBase:      new THREE.CylinderGeometry(0.3, 0.36, 0.16, 16),
+    tHousing:   roundedBox(0.42, 0.3, 0.46, 0.06),
+    tHousingHvy: roundedBox(0.56, 0.4, 0.6, 0.08),
+    tBarrel:    new THREE.CylinderGeometry(0.06, 0.07, 0.7, 12).rotateX(HALF_PI).translate(0, 0, 0.3),
+    tBarrelHvy: new THREE.CylinderGeometry(0.1, 0.12, 0.56, 12).rotateX(HALF_PI).translate(0, 0, 0.24),
     slab:       new THREE.BoxGeometry(1.3, 0.16, 1.1),
-    bracket:    new THREE.BoxGeometry(0.18, 0.5, 0.18),
+    bracket:    roundedBox(0.18, 0.5, 0.18, 0.04),
     // FX.
     projHead:   new THREE.SphereGeometry(0.09, 6, 5),
     projTrail:  new THREE.PlaneGeometry(0.085, 1).translate(0, -0.5, 0),
@@ -625,8 +712,9 @@ export function makeRenderer3D({ canvas }) {
     const heavy = t.tier === 'heavy';
     const light = t.tier === 'light';
     const kind = t.visual?.kind || 'cannon';
-    const baseMat = new THREE.MeshStandardMaterial({ color: t.visual?.baseColor || '#444a52', roughness: 0.9, flatShading: true });
-    const barrelMat = new THREE.MeshStandardMaterial({ color: t.visual?.barrelColor || '#8a929c', roughness: 0.7, flatShading: true, metalness: 0.25 });
+    // Turret base reads as forged/cast metal; barrel as polished steel.
+    const baseMat = new THREE.MeshStandardMaterial({ color: t.visual?.baseColor || '#444a52', roughness: 0.6, metalness: 0.55 });
+    const barrelMat = new THREE.MeshStandardMaterial({ color: t.visual?.barrelColor || '#8a929c', roughness: 0.4, metalness: 0.82 });
     const mats = [baseMat, barrelMat];
     const M = (geo, mat, x = 0, y = 0, z = 0) => {
       const m = new THREE.Mesh(geo, mat);
@@ -643,45 +731,51 @@ export function makeRenderer3D({ canvas }) {
     if (kind === 'crossbow') {
       // Wooden ballista — post, bow arc, bolt rail.
       g.add(M(new THREE.BoxGeometry(0.5, 0.12, 0.5), baseMat, 0, 0.06, 0));
-      g.add(M(new THREE.CylinderGeometry(0.06, 0.08, 0.5, 6), baseMat, 0, 0.3, 0));
+      g.add(M(new THREE.CylinderGeometry(0.06, 0.08, 0.5, 12), baseMat, 0, 0.3, 0));
       barrelG.position.y = 0.58;
       const rail = M(new THREE.BoxGeometry(0.09, 0.07, 1.0), baseMat, 0, 0, 0.1);
       barrelG.add(rail);
-      const arc = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 4, 10, Math.PI), barrelMat);
+      const arc = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 8, 20, Math.PI), barrelMat);
       arc.rotation.x = HALF_PI;          // bow opens back along the rail
       arc.rotation.z = Math.PI;
       arc.position.z = 0.38;
       arc.castShadow = true;
       barrelG.add(arc);
       barrelG.add(M(new THREE.BoxGeometry(0.014, 0.014, 0.7), darkSteelMat, 0, 0, 0.05));
-      const bolt = M(new THREE.CylinderGeometry(0.025, 0.025, 0.7, 4).rotateX(HALF_PI), barrelMat, 0, 0.06, 0.2);
+      const bolt = M(new THREE.CylinderGeometry(0.025, 0.025, 0.7, 8).rotateX(HALF_PI), barrelMat, 0, 0.06, 0.2);
       barrelG.add(bolt);
       muzzleZ = 0.65;
     } else if (kind === 'cannon') {
       // Wheeled field cannon — spoked wheels, carriage, raised barrel.
       for (const sx of [-0.3, 0.3]) {
-        const wheel = M(new THREE.CylinderGeometry(0.26, 0.26, 0.07, 10).rotateZ(HALF_PI), baseMat, sx, 0.26, 0);
+        const wheel = M(new THREE.CylinderGeometry(0.26, 0.26, 0.07, 18).rotateZ(HALF_PI), baseMat, sx, 0.26, 0);
         g.add(wheel);
-        const hub = M(new THREE.CylinderGeometry(0.07, 0.07, 0.1, 6).rotateZ(HALF_PI), barrelMat, sx, 0.26, 0);
+        const hub = M(new THREE.CylinderGeometry(0.07, 0.07, 0.1, 12).rotateZ(HALF_PI), barrelMat, sx, 0.26, 0);
         g.add(hub);
       }
       g.add(M(new THREE.BoxGeometry(0.4, 0.14, 0.7), baseMat, 0, 0.32, -0.12));
+      // Riveted reinforcing band across the carriage.
+      for (const rz of [-0.36, -0.12, 0.12]) {
+        for (const rx of [-0.16, 0.16]) {
+          g.add(M(new THREE.SphereGeometry(0.022, 8, 6), barrelMat, rx, 0.4, rz));
+        }
+      }
       barrelG.position.y = 0.46;
       barrelG.rotation.x = -0.12;        // slight upward elevation
-      const barrel = M(new THREE.CylinderGeometry(0.085, 0.11, 0.95, 7).rotateX(HALF_PI), barrelMat, 0, 0, 0.25);
+      const barrel = M(new THREE.CylinderGeometry(0.085, 0.11, 0.95, 14).rotateX(HALF_PI), barrelMat, 0, 0, 0.25);
       barrelG.add(barrel);
-      barrelG.add(M(new THREE.CylinderGeometry(0.12, 0.12, 0.1, 7).rotateX(HALF_PI), baseMat, 0, 0, -0.18));
+      barrelG.add(M(new THREE.CylinderGeometry(0.12, 0.12, 0.1, 14).rotateX(HALF_PI), baseMat, 0, 0, -0.18));
       muzzleZ = 0.78;
     } else if (kind === 'bell') {
       // Bronze mortar — fat short barrel angled high on a ring base.
-      g.add(M(new THREE.CylinderGeometry(0.34, 0.4, 0.16, 9), baseMat, 0, 0.08, 0));
+      g.add(M(new THREE.CylinderGeometry(0.34, 0.4, 0.16, 18), baseMat, 0, 0.08, 0));
       g.add(M(new THREE.BoxGeometry(0.1, 0.3, 0.46), baseMat, -0.24, 0.3, 0));
       g.add(M(new THREE.BoxGeometry(0.1, 0.3, 0.46), baseMat, 0.24, 0.3, 0));
       barrelG.position.y = 0.42;
       barrelG.rotation.x = -0.7;         // mortars throw high
-      const tube = M(new THREE.CylinderGeometry(0.2, 0.26, 0.55, 9).rotateX(HALF_PI), barrelMat, 0, 0, 0.16);
+      const tube = M(new THREE.CylinderGeometry(0.2, 0.26, 0.55, 18).rotateX(HALF_PI), barrelMat, 0, 0, 0.16);
       barrelG.add(tube);
-      const lip = M(new THREE.CylinderGeometry(0.24, 0.22, 0.08, 9).rotateX(HALF_PI), baseMat, 0, 0, 0.42);
+      const lip = M(new THREE.CylinderGeometry(0.24, 0.22, 0.08, 18).rotateX(HALF_PI), baseMat, 0, 0, 0.42);
       barrelG.add(lip);
       muzzleZ = 0.5;
     } else if (kind === 'tesla') {
@@ -691,14 +785,14 @@ export function makeRenderer3D({ canvas }) {
         emissiveIntensity: 1.8, roughness: 0.4,
       });
       mats.push(orbMat);
-      g.add(M(new THREE.CylinderGeometry(0.36, 0.42, 0.14, 9), baseMat, 0, 0.07, 0));
+      g.add(M(new THREE.CylinderGeometry(0.36, 0.42, 0.14, 18), baseMat, 0, 0.07, 0));
       for (let i = 0; i < 3; i++) {
-        g.add(M(new THREE.CylinderGeometry(0.26 - i * 0.06, 0.3 - i * 0.06, 0.1, 9), i % 2 ? barrelMat : baseMat, 0, 0.24 + i * 0.14, 0));
+        g.add(M(new THREE.CylinderGeometry(0.26 - i * 0.06, 0.3 - i * 0.06, 0.1, 18), i % 2 ? barrelMat : baseMat, 0, 0.24 + i * 0.14, 0));
       }
       barrelG.position.y = 0.78;
-      const orb = M(new THREE.SphereGeometry(0.16, 8, 6), orbMat, 0, 0, 0);
+      const orb = M(new THREE.SphereGeometry(0.16, 18, 12), orbMat, 0, 0, 0);
       barrelG.add(orb);
-      barrelG.add(M(new THREE.TorusGeometry(0.22, 0.02, 4, 12), orbMat, 0, 0, 0));
+      barrelG.add(M(new THREE.TorusGeometry(0.22, 0.02, 8, 24), orbMat, 0, 0, 0));
       muzzleZ = 0.25;
     } else if (kind === 'lance') {
       // Void lance — horizontal finned spike with an emissive core seam.
@@ -708,11 +802,11 @@ export function makeRenderer3D({ canvas }) {
       });
       mats.push(coreMat);
       g.add(M(new THREE.OctahedronGeometry(0.26, 0), baseMat, 0, 0.3, 0));
-      g.add(M(new THREE.CylinderGeometry(0.1, 0.16, 0.2, 6), baseMat, 0, 0.1, 0));
+      g.add(M(new THREE.CylinderGeometry(0.1, 0.16, 0.2, 12), baseMat, 0, 0.1, 0));
       barrelG.position.y = 0.52;
-      const shaft = M(new THREE.CylinderGeometry(0.07, 0.05, 0.9, 6).rotateX(HALF_PI), barrelMat, 0, 0, 0.15);
+      const shaft = M(new THREE.CylinderGeometry(0.07, 0.05, 0.9, 12).rotateX(HALF_PI), barrelMat, 0, 0, 0.15);
       barrelG.add(shaft);
-      const tip = M(new THREE.ConeGeometry(0.09, 0.34, 6).rotateX(HALF_PI), coreMat, 0, 0, 0.75);
+      const tip = M(new THREE.ConeGeometry(0.09, 0.34, 12).rotateX(HALF_PI), coreMat, 0, 0, 0.75);
       barrelG.add(tip);
       for (const a of [0.8, -0.8]) {
         const fin = M(new THREE.BoxGeometry(0.04, 0.22, 0.3), coreMat, 0, 0, -0.2);
@@ -752,407 +846,420 @@ export function makeRenderer3D({ canvas }) {
   const rigsById = new Map();    // unit id → rig
   const hpBgMat = new THREE.SpriteMaterial({ color: '#0a0d12', depthTest: false });
 
+  // A blob-shadow material is shared across all rigs (cloned per rig only
+  // so the death fade can drop its opacity independently).
+  const blobShadowMat = new THREE.MeshBasicMaterial({
+    color: '#000', transparent: true, opacity: 0.34, depthWrite: false,
+  });
+
+  // ── Per-era / per-role design table ───────────────────────────────
+  // Colours + material recipe matched to the 2D unit art (read off the
+  // PNGs in public/games/era-siege/unit). Each era contributes a skin /
+  // primary armour / secondary trim / metal accent palette; the rig
+  // builder mixes these with the team banner colour for the tabard.
+  //   era0 Ember Tribe   — bare dark skin, tan loincloth, red warpaint
+  //   era1 Iron Dominion — steel plate knight, dark undersuit, red cape
+  //   era2 Sun Foundry   — bronze/brass mech-armour, gold sheen
+  //   era3 Storm Republic— navy tactical armour, teal glass visor
+  //   era4 Void Ascended — purple crystal wraith, magenta glow, no skin
+  const ERA_DESIGN = [
+    { skin: '#9a5a36', cloth: '#7c5a36', trim: '#caa070', metal: '#8a7a55',
+      paint: '#b53024', skinMetal: 0.0, skinRough: 0.85,
+      clothMetal: 0.0, clothRough: 0.95, metalMetal: 0.1, metalRough: 0.7 },
+    { skin: '#c8a888', cloth: '#3a3e46', trim: '#9aa4b0', metal: '#c2ccd6',
+      paint: '#9a2630', skinMetal: 0.0, skinRough: 0.7,
+      clothMetal: 0.1, clothRough: 0.8, metalMetal: 0.78, metalRough: 0.32 },
+    { skin: '#b58a52', cloth: '#7a5a28', trim: '#caa24a', metal: '#d8a850',
+      paint: '#7a4a18', skinMetal: 0.2, skinRough: 0.6,
+      clothMetal: 0.45, clothRough: 0.55, metalMetal: 0.85, metalRough: 0.3 },
+    { skin: '#cdbfae', cloth: '#1e2c42', trim: '#3a5670', metal: '#aeb8c4',
+      paint: '#5be3ff', skinMetal: 0.1, skinRough: 0.6,
+      clothMetal: 0.2, clothRough: 0.7, metalMetal: 0.7, metalRough: 0.4 },
+    { skin: '#7a3aa0', cloth: '#3a1060', trim: '#7a2eb0', metal: '#9a4ad0',
+      paint: '#d070ff', skinMetal: 0.3, skinRough: 0.5,
+      clothMetal: 0.4, clothRough: 0.5, metalMetal: 0.6, metalRough: 0.4 },
+  ];
+
+  // Standing rig height (origin at feet). Tuned to the old sprite size so
+  // lane framing / spacing read the same as before.
+  const RIG_H = UNIT_SCALE * 1.05;
+
+  // Skin material doubles as the void wraith's emissive crystal shell.
+  function makeStd(color, metalness, roughness, emissive, emInt) {
+    return new THREE.MeshStandardMaterial({
+      color, metalness, roughness, flatShading: false,
+      emissive: emissive || '#000', emissiveIntensity: emInt || 0,
+    });
+  }
+
+  // Add a mesh to a parent at a local position, casting shadow.
+  function part(parent, geo, mat, x = 0, y = 0, z = 0) {
+    const m = new THREE.Mesh(geo, mat);
+    m.position.set(x, y, z);
+    m.castShadow = true;
+    parent.add(m);
+    return m;
+  }
+
   function buildRig(u, key) {
-    const isGeneral = u.role === 'general';
-    const isHeavy = u.role === 'heavy';
-    const isRanged = u.role === 'ranged';
-    const pal = paletteFor(getEraByIndex(u.eraIndex || 0)?.id);
-    const isPlayer = u.team === 'player';
+    const role = u.role;
+    const isGeneral = role === 'general';
+    const isHeavy = role === 'heavy';
+    const isRanged = role === 'ranged';
+    const eraIdx = Math.max(0, Math.min(4, u.eraIndex || 0));
+    const D = ERA_DESIGN[eraIdx];
+    const pal = paletteFor(getEraByIndex(eraIdx)?.id);
+    const floats = eraIdx === 4;
 
-    // Colour blocking for distance legibility: body colour on chest +
-    // thighs, dark calves/boots/forearms anchor the figure, bright trim
-    // on helmet + weapon, and a TEAM-coloured tabard so sides read at a
-    // glance even when units face each other in a scrum.
-    const bodyMat = new THREE.MeshStandardMaterial({ color: u.color || '#888', roughness: 0.9, flatShading: true });
-    const headMat = new THREE.MeshStandardMaterial({
-      color: _colA.set(u.color || '#888').multiplyScalar(1.35), roughness: 0.9, flatShading: true,
+    // ── Cloned materials (so hurt-flash / death-fade never leak in the
+    //    pool). All rig materials live in `mats` for fade + dispose. ──
+    const emInt = floats ? 0.9 : 0;
+    const skinMat  = makeStd(D.skin,  D.skinMetal,  D.skinRough,  floats ? D.skin : null, emInt);
+    const clothMat = makeStd(D.cloth, D.clothMetal, D.clothRough);
+    const trimMat  = makeStd(D.trim,  D.metalMetal * 0.6, D.metalRough);
+    const metalMat = makeStd(D.metal, D.metalMetal, D.metalRough, floats ? D.metal : null, floats ? 0.5 : 0);
+    // Team tabard — banner colour for the side, matte cloth.
+    const bannerHex = u.team === 'player' ? (pal.banner || '#cf5a3a') : (pal.bannerEnemy || '#3a6acf');
+    const tabardMat = makeStd(bannerHex, 0, 0.9);
+    // Weapon accent (glow on energy weapons, dark steel otherwise).
+    const accentHex = pal.hudAccent || D.paint;
+    const woodMat   = makeStd('#5a3c22', 0, 0.85);
+    const steelMat  = makeStd('#cdd4dc', 0.85, 0.3);
+    const glowMat   = new THREE.MeshStandardMaterial({
+      color: '#1a0c30', emissive: accentHex, emissiveIntensity: 1.8, roughness: 0.4,
     });
-    const trimMat = new THREE.MeshStandardMaterial({
-      color: u.visual?.colorTrim || '#fff1d2',
-      roughness: 0.6, flatShading: true, metalness: 0.35,
-    });
-    const teamMat = new THREE.MeshStandardMaterial({
-      color: isPlayer ? pal.banner : pal.bannerEnemy,
-      roughness: 0.9, flatShading: true,
-    });
-    const darkMat = new THREE.MeshStandardMaterial({ color: '#23252c', roughness: 0.95, flatShading: true });
-    const mats = [bodyMat, headMat, trimMat, teamMat, darkMat];
+    const mats = [skinMat, clothMat, trimMat, metalMat, tabardMat, woodMat, steelMat, glowMat];
+    // Snapshot pristine colours for the hurt-flash restore.
+    const baseColors = mats.map((m) => m.color.clone());
 
-    // Rig faces local +Z; the per-frame facing turn maps that to +X
-    // (player) or -X (enemy).
     const g = new THREE.Group();
+
+    // Sizing. champion scales the whole rig; heavy/general read bigger.
+    const roleK = isGeneral ? 1.18 : isHeavy ? 1.14 : 1.0;
+    const champK = u.isChampion ? 1.3 : 1;
+    const root = new THREE.Group();          // the articulated figure
+    root.scale.setScalar(RIG_H * roleK * champK * 0.5);
+    g.add(root);
+
+    // Heights are in "rig units". HIP_Y is ROOT-local (the torso group sits
+    // there ~0.96). SHO_Y and the chest/waist/head offsets below are
+    // TORSO-local — they add to the torso origin. The shoulders are pulled
+    // DOWN to sit on top of the chest mesh: the old rig floated them ~0.5
+    // above the chest (root ~2.38), leaving a hollow gap under the arms and a
+    // tiny head riding high. Now shoulders land at the chest top (root ~1.78)
+    // so the torso reads as one solid tapered mass with a proportional head.
+    const HIP_Y = 0.92, beefy = isHeavy || isGeneral;
+    const SHO_Y = 0.8;            // torso-local → root ~1.76
+
+    // ── Pelvis + tapered torso spine ──
+    // pelvis (small) → waist (taper) → chest (broad). Era1 skin shows the
+    // bare torso; armoured eras plate the chest.
+    const pelvisGeo = beefy ? GEO.pelvisHeavy : GEO.pelvis;
+    const chestGeo  = beefy ? GEO.chestHeavy : GEO.chest;
+    const waistGeo  = beefy ? GEO.waistHeavy : GEO.waist;
+    // Bare-chested eras (tribal) show skin on torso; armoured eras use metal.
+    const torsoMat = eraIdx === 0 ? skinMat : metalMat;
+    const pelvis = part(root, pelvisGeo, eraIdx === 0 ? skinMat : clothMat, 0, HIP_Y, 0);
+    // Torso group bobs/leans as one.
     const torso = new THREE.Group();
-    const hipY = isHeavy || isGeneral ? 0.92 : 0.86;
-    torso.position.y = hipY;
-    g.add(torso);
+    torso.position.set(0, HIP_Y + 0.04, 0);
+    root.add(torso);
+    // Waist sits just above the hips and tapers in; the tall chest rises
+    // from the waist up to the shoulder line so the torso is one solid mass.
+    part(torso, waistGeo, eraIdx === 0 ? skinMat : clothMat, 0, 0.1, 0);
+    const chest = part(torso, chestGeo, torsoMat, 0, 0.54, 0);
+    part(torso, GEO.belt, trimMat, 0, -0.02, 0);
 
-    // Pelvis + chest + belt + team tabard. Chest sits forward-shouldered
-    // so the silhouette leans into the march.
-    const pelvis = new THREE.Mesh(isHeavy || isGeneral ? GEO.pelvisHeavy : GEO.pelvis, bodyMat);
-    pelvis.position.y = 0.05;
-    pelvis.castShadow = true;
-    torso.add(pelvis);
-    const chest = new THREE.Mesh(isHeavy || isGeneral ? GEO.chestHeavy : GEO.chest, bodyMat);
-    const chestY = isHeavy || isGeneral ? 0.44 : 0.4;
-    chest.position.set(0, chestY, 0.02);
-    chest.castShadow = true;
-    torso.add(chest);
-    const belt = new THREE.Mesh(GEO.belt, darkMat);
-    belt.position.y = 0.18;
-    torso.add(belt);
-    const tabard = new THREE.Mesh(GEO.tabard, teamMat);
-    tabard.position.set(0, 0.18, (isHeavy || isGeneral ? 0.23 : 0.17));
-    torso.add(tabard);
-    // Team shoulder caps — the tabard is edge-on from the camera's side
-    // view, so the team colour also rides both shoulders where it reads
-    // in profile. Era pauldrons (iron) sit slightly above these.
-    const capHalf = (isHeavy || isGeneral ? 0.4 : 0.3);
-    for (const sx of [-capHalf, capHalf]) {
-      const capM = new THREE.Mesh(GEO.shoulderCap, teamMat);
-      capM.position.set(sx, (isHeavy || isGeneral ? 0.6 : 0.56), 0.02);
-      torso.add(capM);
+    // Small hip cloth hanging from the waist (front of the hips only) — the
+    // loincloth, deliberately narrow so it never dominates the silhouette.
+    if (!floats) {
+      const loinGeo = beefy ? GEO.loinclothHeavy : GEO.loincloth;
+      const loin = part(torso, loinGeo, clothMat, 0, 0.0, beefy ? 0.16 : 0.12);
+      void loin;
     }
 
-    // Head group — skull plus era-specific headgear (matched to
-    // assets/era-siege/unit_sprite_sheet.png). Era motifs attach here so
-    // they ride head height automatically.
-    const eraIdx = u.eraIndex || 0;
+    // Tabard / cape hanging from the chest (banner colour). Void uses a
+    // tattered robe skirt instead of a cape. Tabard is a slim banner strip
+    // down the chest, not a body-covering slab.
+    if (floats) {
+      const robe = part(torso, GEO.robeSkirt, clothMat, 0, -0.16, 0);
+      robe.material = clothMat;
+    } else if (eraIdx !== 0) {
+      // Tribal warriors are bare-chested (no tabard); armoured eras wear it.
+      const tab = part(torso, GEO.tabard, tabardMat, 0, 0.34, beefy ? 0.22 : 0.16);
+      void tab;
+      if (beefy || isGeneral) {
+        // Cape down the back (knights / generals / foundry).
+        const cape = part(torso, GEO.cape, tabardMat, 0, 0.05, -0.2);
+        cape.material = isGeneral || eraIdx === 1 ? makeStd(D.paint, 0, 0.9) : tabardMat;
+        if (cape.material !== tabardMat) mats.push(cape.material), baseColors.push(cape.material.color.clone());
+        cape.rotation.x = 0.18;
+        g.userData.cape = cape;
+      }
+    }
+
+    // Era4 long coat skirt (captain/trooper longcoat read).
+    if (eraIdx === 3) part(torso, GEO.coatSkirt, clothMat, 0, -0.18, 0);
+
+    // ── Neck + head + headgear ──
     const headG = new THREE.Group();
-    const headBaseY = isHeavy || isGeneral ? 0.78 : 0.72;
-    headG.position.set(0, headBaseY, 0.02);
+    headG.position.set(0, SHO_Y + 0.18, 0);
     torso.add(headG);
-    const head = new THREE.Mesh(GEO.head, headMat);
-    head.position.y = 0.12;
-    head.castShadow = true;
-    headG.add(head);
-    if (eraIdx === 0 || eraIdx === 4) {
-      // Ember tribals and Void wraiths wear hoods, not helmets.
-      const hood = new THREE.Mesh(GEO.hood, eraIdx === 4 ? teamMat : bodyMat);
-      hood.position.y = 0.22;
-      headG.add(hood);
-      if (eraIdx === 4) {
-        // Wraith face — a single emissive glow inside the hood.
-        const glowMat = new THREE.MeshStandardMaterial({
-          color: '#1a0c30', emissive: '#c89bff', emissiveIntensity: 2.4,
-        });
-        mats.push(glowMat);
-        const eye = new THREE.Mesh(GEO.antennaTip, glowMat);
-        eye.position.set(0, 0.12, 0.12);
-        headG.add(eye);
-      } else {
-        const visor = new THREE.Mesh(GEO.visor, darkMat);
-        visor.position.set(0, 0.1, 0.14);
-        headG.add(visor);
-      }
-    } else {
-      const helm = new THREE.Mesh(GEO.helm, trimMat);
-      helm.position.y = 0.25;
-      headG.add(helm);
-      if (eraIdx >= 2) {
-        // Foundry goggles / Storm visor — an emissive eye strip.
-        const stripMat = new THREE.MeshStandardMaterial({
-          color: '#101418',
-          emissive: eraIdx === 3 ? '#7be3ff' : '#ffb84a',
-          emissiveIntensity: 1.6,
-        });
-        mats.push(stripMat);
-        const strip = new THREE.Mesh(GEO.visor, stripMat);
-        strip.position.set(0, 0.13, 0.14);
-        headG.add(strip);
-      } else {
-        const visor = new THREE.Mesh(GEO.visor, darkMat);
-        visor.position.set(0, 0.12, 0.14);
-        headG.add(visor);
-      }
-    }
+    part(headG, GEO.neck, skinMat, 0, -0.1, 0);
+    const head = part(headG, GEO.head, skinMat, 0, 0.06, 0);
+    void head;
+    addHeadgear(headG, eraIdx, role, { skinMat, clothMat, trimMat, metalMat, glowMat, steelMat, paint: D.paint }, mats, baseColors);
 
-    // Legs — hip pivot groups with knee sub-pivots so the walk reads as
-    // a stride, not a pendulum.
-    const hipHalf = isHeavy || isGeneral ? 0.17 : 0.13;
-    function buildLeg(sx) {
+    // ── Legs — hip group (swings) → calf sub-group (knee) → boot ──
+    function makeLeg(side) {
       const hip = new THREE.Group();
-      hip.position.set(sx, hipY, 0);
-      g.add(hip);
-      const thigh = new THREE.Mesh(GEO.thigh, bodyMat);
-      thigh.castShadow = true;
-      hip.add(thigh);
+      hip.position.set(side * 0.13, HIP_Y - 0.02, 0);
+      root.add(hip);
+      part(hip, GEO.thigh, floats ? clothMat : skinMatLeg());
       const knee = new THREE.Group();
-      knee.position.y = -0.36;
+      knee.position.set(0, -0.36, 0);
       hip.add(knee);
-      const calf = new THREE.Mesh(GEO.calf, darkMat);
-      knee.add(calf);
-      const boot = new THREE.Mesh(GEO.boot, darkMat);
-      boot.position.y = 0.04;
-      knee.add(boot);
+      part(knee, GEO.calf, floats ? clothMat : skinMatLeg());
+      if (!floats) part(knee, GEO.boot, eraIdx >= 1 ? metalMat : skinMat);
       return { hip, knee };
     }
-    const L = buildLeg(-hipHalf);
-    const R = buildLeg(hipHalf);
+    // Era1 bare legs use skin; armoured eras wrap the calf in cloth/metal.
+    function skinMatLeg() { return eraIdx === 0 ? skinMat : (eraIdx === 3 ? clothMat : metalMat); }
+    const legL = makeLeg(-1);
+    const legR = makeLeg(1);
 
-    // Void wraiths float — no legs, a tapering energy wisp under the
-    // pelvis instead, and the whole figure hovers (see animateRig).
-    const floats = eraIdx === 4;
-    if (floats) {
-      L.hip.visible = false;
-      R.hip.visible = false;
-      const wispMat = new THREE.MeshStandardMaterial({
-        color: '#1a0c30', emissive: '#7a4ec0', emissiveIntensity: 1.2,
-        transparent: true, opacity: 0.85, flatShading: true,
-      });
-      mats.push(wispMat);
-      const wisp = new THREE.Mesh(GEO.wisp, wispMat);
-      wisp.position.y = hipY - 0.36;
-      g.add(wisp);
-      g.userData.wisp = wisp;
-    }
-
-    // Arms — shoulder pivot + elbow sub-pivot. The weapon hand is the
-    // forearm tip; props parent to the elbow group so swings carry them.
-    const shoulderY = chestY + 0.16;
-    const shoulderX = (isHeavy || isGeneral ? 0.4 : 0.3);
-    function buildArm(sx) {
-      const shoulder = new THREE.Group();
-      shoulder.position.set(sx, shoulderY, 0.02);
-      torso.add(shoulder);
-      const upper = new THREE.Mesh(GEO.upperArm, bodyMat);
-      upper.castShadow = true;
-      shoulder.add(upper);
+    // ── Arms — shoulder group (swings) → forearm sub-group (elbow) ──
+    // Shoulder X sits just outside the chest half-width so the arms hang
+    // clearly alongside the torso (wider for the broad beefy chest).
+    const shoX = beefy ? 0.4 : 0.32;
+    function makeArm(side) {
+      const sho = new THREE.Group();
+      sho.position.set(side * shoX, SHO_Y, 0);
+      torso.add(sho);
+      // Pauldron / shoulder cap on armoured eras.
+      if (eraIdx >= 1) part(sho, GEO.shoulderCap, metalMat, side * 0.04, 0.02, 0);
+      part(sho, GEO.upperArm, eraIdx === 0 ? skinMat : (eraIdx === 3 ? clothMat : metalMat));
       const elbow = new THREE.Group();
-      elbow.position.y = -0.3;
-      shoulder.add(elbow);
-      const fore = new THREE.Mesh(GEO.forearm, darkMat);
-      elbow.add(fore);
-      return { shoulder, elbow };
+      elbow.position.set(0, -0.3, 0);
+      sho.add(elbow);
+      part(elbow, GEO.forearm, eraIdx === 0 ? skinMat : (eraIdx === 3 ? clothMat : metalMat));
+      // A hand anchor at the wrist for the weapon.
+      const hand = new THREE.Group();
+      hand.position.set(0, -0.28, 0);
+      elbow.add(hand);
+      return { sho, elbow, hand };
     }
-    const armW = buildArm(shoulderX);        // weapon arm
-    const armO = buildArm(-shoulderX);       // off-hand arm
+    const armL = makeArm(-1);
+    const armR = makeArm(1);
 
-    // Role archetype weapons — parented to the weapon elbow so windup +
-    // strike carry the whole tool. Era picks the kit (reference sheet):
-    // Ember swings clubs, Iron carries spear + tower shield, Foundry and
-    // Storm shoulder rifles, Void channels bare energy.
-    if (u.role === 'frontline') {
-      const grip = new THREE.Group();
-      grip.position.y = -0.3;
-      armW.elbow.add(grip);
-      if (eraIdx === 0) {
-        // Bone club.
-        const club = new THREE.Mesh(GEO.club, darkMat);
-        club.castShadow = true;
-        grip.add(club);
-        const knob = new THREE.Mesh(GEO.clubHead, trimMat);
-        knob.position.y = 0.62;
-        grip.add(knob);
-      } else if (eraIdx === 1) {
-        // Iron spear.
-        grip.add(new THREE.Mesh(GEO.spear, darkMat));
-        const tip = new THREE.Mesh(GEO.spearTip, trimMat);
-        tip.castShadow = true;
-        grip.add(tip);
-      } else {
-        grip.add(new THREE.Mesh(GEO.swordGrip, darkMat));
-        grip.add(new THREE.Mesh(GEO.swordGuard, trimMat));
-        const sBlade = new THREE.Mesh(GEO.swordBlade, trimMat);
-        sBlade.castShadow = true;
-        grip.add(sBlade);
-      }
-      // Shield on the off-hand forearm; Iron carries the full tower
-      // shield from the reference, Void carries none (energy beings).
-      if (eraIdx !== 4) {
-        const shield = new THREE.Mesh(eraIdx === 1 ? GEO.towerShield : GEO.shield, teamMat);
-        shield.position.set(-0.1, -0.18, 0.06);
-        shield.rotation.y = -0.25;
-        shield.castShadow = true;
-        armO.elbow.add(shield);
-        const boss = new THREE.Mesh(GEO.shieldBoss, trimMat);
-        boss.position.set(-0.1, -0.18, 0.12);
-        boss.rotation.y = -0.25;
-        armO.elbow.add(boss);
-      }
-    } else if (isRanged && eraIdx >= 2) {
-      // Foundry / Storm / Void riflemen — two-hand rifle held forward.
-      // Storm and Void muzzles glow (energy weapons).
-      const rifle = new THREE.Group();
-      rifle.position.set(0, -0.28, 0.08);
-      armW.elbow.add(rifle);
-      rifle.add(new THREE.Mesh(GEO.rifleStock, darkMat));
-      const barrel = new THREE.Mesh(GEO.rifleBarrel, trimMat);
-      barrel.position.z = 0.4;
-      rifle.add(barrel);
-      if (eraIdx >= 3) {
-        const tipMat = new THREE.MeshStandardMaterial({
-          color: '#0a1420', emissive: eraIdx === 3 ? '#7be3ff' : '#c89bff',
-          emissiveIntensity: 2.0,
-        });
-        mats.push(tipMat);
-        const tip = new THREE.Mesh(GEO.antennaTip, tipMat);
-        tip.position.set(0, -0.28, 0.74);
-        armW.elbow.add(tip);
-      }
-      g.userData.rifle = rifle;
-    } else if (isRanged) {
-      // Bow held by the OFF hand out front; weapon hand draws the nock.
-      const bow = new THREE.Group();
-      bow.position.y = -0.32;
-      armO.elbow.add(bow);
-      const arc = new THREE.Mesh(GEO.bowArc, trimMat);
-      arc.rotation.y = HALF_PI;            // arc opens toward the draw hand
-      bow.add(arc);
-      const str = new THREE.Mesh(GEO.bowString, darkMat);
-      str.position.z = -0.02;
-      bow.add(str);
-      const arrow = new THREE.Mesh(GEO.arrowNock, darkMat);
-      arrow.rotation.y = HALF_PI;
-      arrow.position.z = 0.12;
-      bow.add(arrow);
-      g.userData.arrow = arrow;
-      const quiver = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.42, 0.13), teamMat);
-      quiver.position.set(-0.16, chestY + 0.1, -0.2);
-      quiver.rotation.z = 0.3;
-      torso.add(quiver);
-    } else if (isHeavy) {
-      if (eraIdx === 2) {
-        // Foundry mech golem — glowing chest core, slab shoulders, no
-        // hand weapon (the fists ARE the weapon, reference sheet).
-        const coreMat = new THREE.MeshStandardMaterial({
-          color: '#1a0c06', emissive: '#ff7a30', emissiveIntensity: 2.2,
-        });
-        mats.push(coreMat);
-        const core = new THREE.Mesh(GEO.coreDisc, coreMat);
-        core.position.set(0, chestY, 0.23);
-        torso.add(core);
-        for (const sx of [-0.42, 0.42]) {
-          const slab = new THREE.Mesh(GEO.pauldron, darkMat);
-          slab.scale.set(1.5, 2.2, 1.3);
-          slab.position.set(sx, shoulderY + 0.12, 0);
-          torso.add(slab);
-        }
-      } else if (eraIdx === 3) {
-        // Storm walker — shoulder cannon instead of a hand weapon.
-        const cannon = new THREE.Mesh(GEO.rifleBarrel, trimMat);
-        cannon.scale.setScalar(1.6);
-        cannon.position.set(0.2, shoulderY + 0.24, 0.1);
-        torso.add(cannon);
-        const cMat = new THREE.MeshStandardMaterial({
-          color: '#0a1420', emissive: '#7be3ff', emissiveIntensity: 2.0,
-        });
-        mats.push(cMat);
-        const cTip = new THREE.Mesh(GEO.antennaTip, cMat);
-        cTip.position.set(0.2, shoulderY + 0.24, 0.5);
-        torso.add(cTip);
-      } else {
-        const haft = new THREE.Mesh(GEO.hammerHaft, darkMat);
-        haft.position.y = -0.34;
-        armW.elbow.add(haft);
-        const headW = new THREE.Mesh(GEO.hammerHead, trimMat);
-        headW.position.y = -0.34;
-        headW.castShadow = true;
-        armW.elbow.add(headW);
-      }
-    } else if (isGeneral) {
-      const cape = new THREE.Mesh(GEO.cape, teamMat);
-      cape.position.set(0, 0.3, -0.24);
-      torso.add(cape);
-      g.userData.cape = cape;
-      // Standard in the off hand, raised blade in the weapon hand.
-      const pole = new THREE.Mesh(GEO.pole, darkMat);
-      pole.position.y = -0.1;
-      armO.elbow.add(pole);
-      const flag = new THREE.Mesh(GEO.flag, teamMat);
-      flag.position.set(0, 0.52, 0.26);
-      armO.elbow.add(flag);
-      const grip = new THREE.Group();
-      grip.position.y = -0.3;
-      armW.elbow.add(grip);
-      grip.add(new THREE.Mesh(GEO.swordGrip, darkMat));
-      grip.add(new THREE.Mesh(GEO.swordGuard, trimMat));
-      const gBlade = new THREE.Mesh(GEO.swordBlade, trimMat);
-      gBlade.castShadow = true;
-      grip.add(gBlade);
-    }
+    // ── Weapon + shield, built into the hands per role/era ──
+    const weaponMats = { skinMat, clothMat, trimMat, metalMat, woodMat, steelMat, glowMat, tabardMat, paint: D.paint };
+    const wpn = addWeapon(armR.hand, armL.hand, eraIdx, role, weaponMats, mats, baseColors);
 
-    // Era motif — one simple add-on that brands the era at a glance.
-    // Head-mounted motifs parent to headG so they ride the skull.
-    if (eraIdx === 0) {              // Ember — bone horns
-      for (const sx of [-0.1, 0.1]) {
-        const horn = new THREE.Mesh(GEO.horn, headMat);
-        horn.position.set(sx, 0.34, 0);
-        horn.rotation.z = -sx * 4;
-        headG.add(horn);
-      }
-    } else if (eraIdx === 1) {       // Iron — shoulder plates
-      for (const sx of [-shoulderX, shoulderX]) {
-        const p = new THREE.Mesh(GEO.pauldron, trimMat);
-        p.position.set(sx, shoulderY + 0.08, 0);
-        torso.add(p);
-      }
-    } else if (eraIdx === 2) {       // Foundry — chest gear
-      const gear = new THREE.Mesh(GEO.gear, trimMat);
-      gear.position.set(0, chestY, (isHeavy || isGeneral ? 0.24 : 0.18));
-      torso.add(gear);
-    } else if (eraIdx === 3) {       // Storm — antenna with charged tip
-      const ant = new THREE.Mesh(GEO.antenna, darkMat);
-      ant.position.set(0, 0.3, 0);
-      headG.add(ant);
-      const tipMat = new THREE.MeshStandardMaterial({
-        color: '#103040', emissive: '#7be3ff', emissiveIntensity: 2.2,
-      });
-      mats.push(tipMat);
-      const tip = new THREE.Mesh(GEO.antennaTip, tipMat);
-      tip.position.set(0, 0.66, 0);
-      headG.add(tip);
-    } else if (eraIdx === 4) {       // Void — floating shard
-      const shardMat = new THREE.MeshStandardMaterial({
-        color: '#2a1448', emissive: '#c89bff', emissiveIntensity: 1.8, flatShading: true,
-      });
-      mats.push(shardMat);
-      const shard = new THREE.Mesh(GEO.shard, shardMat);
-      shard.position.set(0, 0.7, 0);
-      headG.add(shard);
-      g.userData.shard = shard;
-    }
+    // ── Ground blob shadow + aura ring + HP bar (unchanged contract) ──
+    const shadowMat = blobShadowMat.clone();
+    const shadow = new THREE.Mesh(GEO.unitShadow, shadowMat);
+    shadow.scale.setScalar(0.5 * roleK * champK + 0.35);
+    shadow.position.y = 0.03;
+    g.add(shadow);
 
-    // Aura ring under the feet — visible while the side's Sun Forge
-    // (or equivalent) buff is up.
     const auraMat = new THREE.MeshBasicMaterial({
       color: pal.hudAccent || '#5dd6ff', transparent: true, opacity: 0.5,
       blending: THREE.AdditiveBlending, depthWrite: false,
     });
-    mats.push(auraMat);
     const aura = new THREE.Mesh(GEO.auraRing, auraMat);
     aura.position.y = 0.04;
+    aura.scale.setScalar(champK);
     aura.visible = false;
     g.add(aura);
 
-    // HP bar — two screen-facing sprites above the head. The fill
-    // sprite's center.x trick keeps its left edge pinned as it shrinks.
+    const topY = RIG_H * roleK * champK + 0.25;
     const hpBg = new THREE.Sprite(hpBgMat);
     hpBg.scale.set(0.96, 0.1, 1);
-    hpBg.position.y = (isHeavy || isGeneral ? 2.15 : 2.0);
+    hpBg.position.y = topY;
     hpBg.visible = false;
     g.add(hpBg);
     const hpFillMat = new THREE.SpriteMaterial({ color: '#35f0c9', depthTest: false });
     const hpFill = new THREE.Sprite(hpFillMat);
     hpFill.scale.set(0.9, 0.07, 1);
-    hpFill.position.y = hpBg.position.y;
+    hpFill.position.y = topY;
     hpFill.visible = false;
     g.add(hpFill);
 
-    // Scale identity: general > heavy > rest; champions +25%.
-    const base = isGeneral ? 1.28 : isHeavy ? 1.12 : 1.0;
-    const k = UNIT_SCALE * base * (u.isChampion ? 1.25 : 1);
-    g.scale.setScalar(k);
+    // Opacity-faded on death: every rig material + shadow + aura.
+    const fadeMats = mats.concat([shadowMat, auraMat]);
 
     scene.add(g);
     return {
-      key, group: g, torso, hipY,
-      legL: L.hip, legR: R.hip, kneeL: L.knee, kneeR: R.knee,
-      arm: armW.shoulder, elbowW: armW.elbow,
-      armO: armO.shoulder, elbowO: armO.elbow,
-      headG, isRanged, floats,
-      aura, hpBg, hpFill, hpFillMat,
-      mats, fading: false, baseScale: k,
+      key, group: g, root, torso,
+      legL, legR, armL, armR, wpn,
+      mats, baseColors, fadeMats,
+      skinMat, shadow, shadowMat, aura, hpBg, hpFill, hpFillMat,
+      isRanged, isHeavy, isGeneral, floats, champK,
+      fading: false, hurtUntil: 0, lastHp: null,
     };
+  }
+
+  // ── Headgear builder ──────────────────────────────────────────────
+  // era0 tribal hair + warpaint (none/hair), era1 knight helm + visor,
+  // era2 heavy foundry helm + horns, era3 tactical helmet + glass visor,
+  // era4 void hood + crystal crown. General eras get a crest/plume.
+  function addHeadgear(headG, eraIdx, role, M, mats, baseColors) {
+    const isGeneral = role === 'general';
+    if (eraIdx === 0) {
+      // Tribal: matted hair cap + leather brow headband + (general) feathers.
+      part(headG, GEO.hair, makeStd('#2a1c12', 0, 0.95), 0, 0.14, 0);
+      const hairM = headG.children[headG.children.length - 1].material;
+      mats.push(hairM); baseColors.push(hairM.color.clone());
+      // Leather headband across the brow (matches the sprite's tied band).
+      const band = part(headG, GEO.helmRidge, makeStd('#6a4326', 0, 0.9), 0, 0.05, 0.0);
+      band.scale.set(6.4, 0.55, 1.06);          // thin wide band wrapping the head
+      mats.push(band.material); baseColors.push(band.material.color.clone());
+      if (isGeneral) {
+        for (let i = 0; i < 5; i++) {
+          const f = part(headG, GEO.feather, M.clothMat, (i - 2) * 0.07, 0.18, -0.14);
+          f.rotation.x = -0.5; f.rotation.z = (i - 2) * 0.12;
+        }
+      }
+    } else if (eraIdx === 1) {
+      // Knight helm + brow ridge + dark eye visor.
+      part(headG, GEO.helm, M.metalMat, 0, 0.16, 0);
+      part(headG, GEO.helmRidge, M.metalMat, 0, 0.2, 0);
+      part(headG, GEO.visor, makeStd('#15171c', 0.3, 0.5), 0, 0.05, 0.14);
+      const vM = headG.children[headG.children.length - 1].material;
+      mats.push(vM); baseColors.push(vM.color.clone());
+      if (isGeneral) { const c = part(headG, GEO.feather, makeStd(M.paint, 0, 0.9), 0, 0.26, -0.04); c.rotation.x = -0.2; mats.push(c.material); baseColors.push(c.material.color.clone()); }
+    } else if (eraIdx === 2) {
+      // Foundry: heavy domed bronze helm with side horns/pipes.
+      part(headG, GEO.helm, M.metalMat, 0, 0.17, 0);
+      part(headG, GEO.head, M.metalMat, 0, 0.06, 0);   // full face mask
+      for (const s of [-1, 1]) { const h = part(headG, GEO.horn, M.trimMat, s * 0.13, 0.24, 0); h.rotation.z = s * 0.5; }
+      part(headG, GEO.visor, M.glowMat, 0, 0.05, 0.14);
+    } else if (eraIdx === 3) {
+      // Storm trooper: rounded tactical helmet + wide glowing glass visor.
+      part(headG, GEO.helm, makeStd('#1a2740', 0.4, 0.5), 0, 0.16, 0);
+      const hM = headG.children[headG.children.length - 1].material;
+      mats.push(hM); baseColors.push(hM.color.clone());
+      part(headG, GEO.head, makeStd('#1a2740', 0.4, 0.5), 0, 0.06, 0);
+      const h2 = headG.children[headG.children.length - 1].material; mats.push(h2); baseColors.push(h2.color.clone());
+      part(headG, GEO.visor, M.glowMat, 0, 0.06, 0.14);
+      if (isGeneral) addTricorn(headG, M, mats, baseColors);
+    } else {
+      // Void: pointed hood, glowing crystal shards crowning the head.
+      const hood = part(headG, GEO.hood, M.clothMat, 0, 0.18, -0.02);
+      hood.rotation.x = -0.1;
+      for (let i = 0; i < 4; i++) {
+        const s = part(headG, GEO.voidShard, M.glowMat, (i - 1.5) * 0.07, 0.22, 0);
+        s.rotation.set(0.4, i, 0.3);
+      }
+      // Glowing eye slit.
+      part(headG, GEO.visor, M.glowMat, 0, 0.04, 0.12);
+    }
+  }
+  function addTricorn(headG, M, mats, baseColors) {
+    const crownMat = makeStd('#15203a', 0.3, 0.6);
+    part(headG, GEO.tricornCrown, crownMat, 0, 0.18, 0);
+    const brim = part(headG, GEO.tricorn, crownMat, 0, 0.14, 0);
+    brim.rotation.y = Math.PI / 2;
+    const f = part(headG, GEO.feather, makeStd(M.glowMat.emissive.getHexString(), 0, 0.8), -0.1, 0.24, -0.06);
+    f.rotation.z = 0.5;
+    mats.push(crownMat, f.material); baseColors.push(crownMat.color.clone(), f.material.color.clone());
+  }
+
+  // ── Weapon builder ────────────────────────────────────────────────
+  // Returns { rightSwing, mainHand, isMelee } so animateRig knows whether
+  // to play a melee swing (club/spear/sword/saber) or a ranged draw
+  // (bow / gun aim). The weapon lives in the right hand; shields / off-hand
+  // gear go in the left.
+  function addWeapon(rHand, lHand, eraIdx, role, M, mats, baseColors) {
+    const isHeavy = role === 'heavy';
+    const isRanged = role === 'ranged';
+    const isGeneral = role === 'general';
+    let isMelee = true;
+    if (eraIdx === 0) {
+      // Ember Tribe — wooden club + torch (frontline/heavy), bow (ranged).
+      if (isRanged) {
+        const bow = part(lHand, GEO.bowArc, M.woodMat, 0, 0, 0);
+        bow.rotation.z = HALF_PI;
+        part(lHand, GEO.bowString, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.arrowNock, M.woodMat, 0, 0, 0);
+        isMelee = false;
+      } else if (isHeavy) {
+        part(rHand, GEO.hammerHaft, M.woodMat, 0, 0, 0);
+        part(rHand, GEO.clubHead, makeFireMat(M), 0, 1.0, 0);
+        const fm = rHand.children[rHand.children.length - 1].material; mats.push(fm); baseColors.push(fm.color.clone());
+      } else {
+        part(rHand, GEO.club, M.woodMat, 0, 0, 0);
+        part(rHand, GEO.clubHead, makeFireMat(M), 0, 0.6, 0);
+        const fm = rHand.children[rHand.children.length - 1].material; mats.push(fm); baseColors.push(fm.color.clone());
+      }
+    } else if (eraIdx === 1) {
+      // Iron Dominion — spear + tower shield (frontline), war-hammer
+      // (heavy), bow (ranged), great-sword (general).
+      if (isRanged) {
+        const bow = part(lHand, GEO.bowArc, M.steelMat, 0, 0, 0);
+        bow.rotation.z = HALF_PI;
+        part(lHand, GEO.bowString, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.arrowNock, M.steelMat, 0, 0, 0);
+        isMelee = false;
+      } else if (isHeavy) {
+        part(rHand, GEO.hammerHaft, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.hammerHead, M.metalMat, 0, 0, 0);
+      } else if (isGeneral) {
+        part(rHand, GEO.swordGrip, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.swordGuard, M.metalMat, 0, 0, 0);
+        part(rHand, GEO.swordBlade, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.swordPommel, M.metalMat, 0, 0, 0);
+      } else {
+        part(rHand, GEO.spear, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.spearTip, M.metalMat, 0, 0, 0);
+        const sh = part(lHand, GEO.towerShield, M.metalMat, 0, -0.1, 0.08);
+        sh.rotation.y = HALF_PI;
+        part(lHand, GEO.shieldBoss, M.trimMat, 0, -0.1, 0.12);
+      }
+    } else if (eraIdx === 2) {
+      // Sun Foundry — heavy gun / cannon arm for all; general adds pistol.
+      const gunBody = M.metalMat;
+      part(rHand, GEO.gunBody, gunBody, 0, 0, 0);
+      part(rHand, GEO.gunBarrel, M.steelMat, 0, 0, 0);
+      part(rHand, GEO.gunMag, M.trimMat, 0, 0, 0);
+      part(lHand, GEO.swordGrip, gunBody, 0, 0, 0);       // fore-grip
+      isMelee = false;
+    } else if (eraIdx === 3) {
+      // Storm Republic — tactical rifle for trooper/heavy/ranged; the
+      // captain (general) carries a pistol + a glowing energy saber.
+      if (isGeneral) {
+        part(rHand, GEO.swordGrip, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.saberBlade, M.glowMat, 0, 0, 0);
+        const sm = rHand.children[rHand.children.length - 1].material; mats.push(sm); baseColors.push(sm.color.clone());
+        part(lHand, GEO.pistol, M.metalMat, 0, 0, 0);
+        isMelee = false;
+      } else {
+        part(rHand, GEO.gunBody, makeStd('#2a3550', 0.5, 0.4), 0, 0, 0);
+        const gm = rHand.children[rHand.children.length - 1].material; mats.push(gm); baseColors.push(gm.color.clone());
+        part(rHand, GEO.gunBarrel, M.steelMat, 0, 0, 0);
+        part(rHand, GEO.gunMag, M.glowMat, 0, 0, 0);
+        part(lHand, GEO.swordGrip, M.steelMat, 0, 0, 0);  // fore-grip
+        isMelee = false;
+      }
+    } else {
+      // Void Ascendancy — staff/scythe of pure energy. Ranged channels an
+      // orb; general wields a long void-blade.
+      if (isGeneral || isRanged) {
+        part(rHand, GEO.voidStaff, M.clothMat, 0, 0, 0);
+        part(rHand, GEO.voidBlade, M.glowMat, 0, 0.4, 0);
+        isMelee = isGeneral;
+      } else {
+        part(rHand, GEO.voidStaff, M.clothMat, 0, 0, 0);
+        part(rHand, GEO.shard, M.glowMat, 0, 0.7, 0);
+      }
+    }
+    return { isMelee };
+  }
+  function makeFireMat(M) {
+    return new THREE.MeshStandardMaterial({
+      color: '#ff7a26', emissive: '#ff5a14', emissiveIntensity: 1.6, roughness: 0.6,
+    });
   }
 
   function acquireRig(u) {
@@ -1166,13 +1273,23 @@ export function makeRenderer3D({ canvas }) {
 
   function releaseRig(rig) {
     rig.group.visible = false;
-    // Reset death fade so the next occupant spawns solid.
+    // Reset death fade so the next occupant spawns solid. Rig materials
+    // are opaque by default — only restore the alpha-blended shadow/aura
+    // opacity and clear the transparent flag the fade set on the rest.
     if (rig.fading) {
-      for (const m of rig.mats) { m.transparent = false; m.opacity = 1; m.needsUpdate = true; }
+      for (const m of rig.fadeMats) { m.opacity = 1; m.transparent = false; }
+      rig.shadowMat.opacity = 0.34; rig.shadowMat.transparent = true;
+      rig.aura.material.opacity = 0.5; rig.aura.material.transparent = true;
       rig.fading = false;
     }
+    // Restore pristine colours (hurt-flash tint) + neutral pose.
+    for (let i = 0; i < rig.mats.length; i++) rig.mats[i].color.copy(rig.baseColors[i]);
+    rig.hurtUntil = 0;
+    rig.lastHp = null;
     rig.group.rotation.set(0, 0, 0);
     rig.group.position.y = 0;
+    rig.root.position.y = 0;
+    rig.root.rotation.y = 0;
     rigPools.get(rig.key).push(rig);
   }
 
@@ -1182,127 +1299,117 @@ export function makeRenderer3D({ canvas }) {
     const g = rig.group;
     g.position.x = wx;
     g.position.z = wz;
-    g.rotation.y = u.facing > 0 ? HALF_PI : -HALF_PI;
 
-    const phase = (u.walkPhaseMs || 0) / 130;
-    const attacking = u.attackTickPhase !== 'idle';
+    // Face the advance direction. The figure models facing +X; turn the
+    // root 180° on facing < 0 so the two armies march into each other.
+    rig.root.rotation.y = u.facing < 0 ? Math.PI : 0;
 
-    // Void wraiths hover instead of walking — bob the whole figure and
-    // sway the wisp; no leg work.
-    if (rig.floats && !u.dead) {
-      g.position.y = 0.18 + Math.sin(tSec * 2.6 + wx * 0.7) * 0.07;
-      rig.torso.rotation.z = Math.sin(tSec * 1.8 + wx) * 0.05;
-      const wisp = g.userData.wisp;
-      if (wisp) wisp.rotation.y = tSec * 2.0;
-      if (!attacking) {
-        rig.arm.rotation.x = -0.35;
-        rig.armO.rotation.x = -0.35;
-      }
-    } else if (!u.dead) {
-      g.position.y = 0;
-    }
+    const torso = rig.torso;
+    const { legL, legR, armL, armR } = rig;
 
-    // Walk cycle — hip swing with knee bend on the back-swing, arms
-    // counter-swing with elbow flex, torso bobs and rolls into the
-    // stride. Legs hang off the root (not the torso) so the bob reads
-    // as the body riding the stride.
-    if (!attacking && !u.dead && !rig.floats) {
-      const s = Math.sin(phase);
-      rig.legL.rotation.x = s * 0.75;
-      rig.legR.rotation.x = -s * 0.75;
-      // Knee bends as its leg swings back, straightens to plant.
-      rig.kneeL.rotation.x = Math.max(0, -s) * 0.9;
-      rig.kneeR.rotation.x = Math.max(0, s) * 0.9;
-      rig.torso.position.y = rig.hipY + Math.abs(s) * 0.05;
-      rig.torso.rotation.x = 0.07;
-      rig.torso.rotation.z = s * 0.035;
-      rig.arm.rotation.x = -s * 0.5;
-      rig.elbowW.rotation.x = -0.3 - Math.max(0, s) * 0.3;
-      rig.armO.rotation.x = s * 0.5;
-      rig.elbowO.rotation.x = -0.3 - Math.max(0, -s) * 0.3;
-      rig.headG.rotation.x = -0.05;       // chin up, eyes down-lane
-    } else {
-      // Combat idle — braced stance, weapon ready, shield/bow forward.
-      rig.legL.rotation.x = 0.16;
-      rig.legR.rotation.x = -0.16;
-      rig.kneeL.rotation.x = 0.18;
-      rig.kneeR.rotation.x = 0.18;
-      rig.torso.position.y = rig.hipY;
-      rig.torso.rotation.z = 0;
-      rig.armO.rotation.x = rig.isRanged ? -1.35 : -0.5;   // bow arm level / shield up
-      rig.elbowO.rotation.x = rig.isRanged ? -0.1 : -0.45;
-      rig.headG.rotation.x = 0;
-    }
+    // ── WALK CYCLE ──
+    // Driven by the sim's walkPhaseMs, which advances only while the unit
+    // is actually moving (sim/unit.js increments it in the move branch).
+    // phase → radians; legs swing in opposition, arms counter-swing, with
+    // a torso bob + a slight forward lean into the facing direction.
+    const moving = !u.dead && u.attackTickPhase === 'idle';
+    const phase = (u.walkPhaseMs || 0) * 0.012;   // ms → rad
+    const swing = moving ? 1 : 0.12;              // near-still idle sway
+    const s = Math.sin(phase) * swing;
+    const c = Math.cos(phase) * swing;
 
-    // Attack — role-specific poses driven by the sim's windup/recover
-    // timers. Melee: overhead chop with torso coil + lunge. Ranged: draw
-    // the string back at shoulder height, loose on the snap.
+    // Hips swing fore/aft; knees bend on the back-swing so the calf lifts.
+    legL.hip.rotation.x = s * 0.85;
+    legR.hip.rotation.x = -s * 0.85;
+    legL.knee.rotation.x = Math.max(0, -s) * 1.1;
+    legR.knee.rotation.x = Math.max(0, s) * 1.1;
+    // Arms counter-swing (right arm with left leg). Ranged/gun poses hold
+    // the weapon arm forward instead of swinging it.
+    const armSwing = rig.isRanged ? 0.25 : 0.7;
+    armL.sho.rotation.x = -s * armSwing;
+    armR.sho.rotation.x = (rig.wpn.isMelee ? s : -0.9) * armSwing - (rig.wpn.isMelee ? 0 : 0.5);
+    armL.elbow.rotation.x = -0.2 + Math.max(0, c) * 0.3;
+    armR.elbow.rotation.x = rig.wpn.isMelee ? -0.2 - Math.max(0, -c) * 0.3 : -0.9;
+
+    // Torso bob + forward lean while advancing.
+    const bob = Math.abs(Math.sin(phase)) * (moving ? 0.05 : 0.01);
+    torso.position.y = (0.92 + 0.06) + bob;
+    torso.rotation.x = moving ? 0.12 : 0.04;
+    torso.rotation.z = c * 0.05;
+
+    // Vertical: a half-stride bob lifts the whole figure slightly; void
+    // wraiths hover with a slow float instead (no marching feet).
+    let rootY = moving ? bob * 0.5 : 0;
+    if (rig.floats) rootY = 0.28 + Math.sin(tSec * 2.4 + wx * 0.6) * 0.08;
+    rig.root.position.y = rootY;
+
+    // ── ATTACK ── melee swing (arm overhead → strike) or ranged draw,
+    // driven by the sim's windup/recover timers, with a body lunge.
+    let lunge = 0;
     if (u.attackTickPhase === 'windup') {
       const t = u.attackWindupMs ? 1 - Math.max(0, u.attackTimerMs / u.attackWindupMs) : 0;
-      if (rig.isRanged) {
-        rig.arm.rotation.x = -1.35;                 // draw hand level...
-        rig.elbowW.rotation.x = -0.15 - t * 0.55;   // ...pulling back
-        rig.torso.rotation.y = -u.facing * 0.3 * t; // archer side-stance
+      lunge = -u.facing * 0.18 * t;              // coil back
+      if (rig.wpn.isMelee) {
+        armR.sho.rotation.x = -1.6 * t;          // raise weapon up + back
+        armR.elbow.rotation.x = -0.4 * t;
+        torso.rotation.x = 0.12 - 0.25 * t;      // lean back
       } else {
-        rig.arm.rotation.x = -0.4 - t * 1.7;        // wind the weapon up high
-        rig.elbowW.rotation.x = -0.2 - t * 0.5;
-        rig.torso.rotation.x = 0.05 + 0.12 * t;
-        rig.torso.rotation.y = u.facing * 0.18 * t; // coil the shoulders
+        armR.sho.rotation.x = -1.3 - 0.1 * t;    // steady the aim
+        torso.rotation.x = 0.1;
       }
     } else if (u.attackTickPhase === 'recover') {
       const t = u.attackRecoverMs ? 1 - Math.max(0, u.attackTimerMs / u.attackRecoverMs) : 0;
-      const snap = Math.min(1, t * 2.4);
-      if (rig.isRanged) {
-        rig.arm.rotation.x = -1.35 + snap * 0.4;    // string slips forward
-        rig.elbowW.rotation.x = THREE.MathUtils.lerp(-0.7, -0.15, snap);
-        rig.torso.rotation.y = -u.facing * 0.3 * (1 - t);
+      lunge = u.facing * 0.34 * (1 - t);         // lunge into the hit
+      if (rig.wpn.isMelee) {
+        const strike = Math.min(1, t * 2.4);     // fast down-swing, slow settle
+        armR.sho.rotation.x = THREE.MathUtils.lerp(-1.6, 1.0, strike);
+        armR.elbow.rotation.x = -0.2 - 0.4 * (1 - strike);
+        torso.rotation.x = THREE.MathUtils.lerp(-0.13, 0.22, strike);
       } else {
-        rig.arm.rotation.x = THREE.MathUtils.lerp(-2.1, 0.6, snap);
-        rig.elbowW.rotation.x = THREE.MathUtils.lerp(-0.7, -0.1, snap);
-        rig.torso.rotation.x = 0.18 * (1 - t);
-        rig.torso.rotation.y = u.facing * 0.18 * (1 - t);
-        g.position.x += u.facing * 0.14 * (1 - t);  // lunge into the hit
+        const k = 1 - Math.min(1, t * 3);        // recoil kick on the gun arm
+        armR.sho.rotation.x = -1.3 + k * 0.4;
+        torso.rotation.x = 0.1 + k * 0.08;
       }
-    } else {
-      rig.torso.rotation.y = 0;
+    }
+    g.position.x = wx + lunge;
+
+    // ── HURT FLASH ── derive a hit from an HP drop between frames; flash
+    // every rig material toward white briefly.
+    if (rig.lastHp == null) rig.lastHp = u.hp;
+    if (!u.dead && u.hp < rig.lastHp - 0.001) rig.hurtUntil = tSec + 0.12;
+    rig.lastHp = u.hp;
+    if (!u.dead && tSec < rig.hurtUntil) {
+      const f = (rig.hurtUntil - tSec) / 0.12;   // 1 → 0
+      for (let i = 0; i < rig.mats.length; i++) {
+        rig.mats[i].color.copy(rig.baseColors[i]).lerp(_colA.set('#ffffff'), 0.75 * f);
+      }
+    } else if (rig.hurtUntil) {
+      for (let i = 0; i < rig.mats.length; i++) rig.mats[i].color.copy(rig.baseColors[i]);
+      rig.hurtUntil = 0;
     }
 
-    // Nocked arrow only shows while drawing.
-    const arrow = g.userData.arrow;
-    if (arrow) arrow.visible = u.attackTickPhase === 'windup';
-
-    // Void shard idle float (local to the head group).
-    const shard = g.userData.shard;
-    if (shard) {
-      shard.position.y = 0.7 + Math.sin(tSec * 2.2 + wx) * 0.06;
-      shard.rotation.y = tSec * 1.4;
-    }
-
-    // General's cape sways with the march.
-    const cape = g.userData.cape;
-    if (cape) cape.rotation.x = 0.18 + Math.sin(phase * 0.5 + 1) * 0.08;
-
-    // Death — fall forward, sink, fade.
+    // ── DEATH ── topple toward the push direction, sink, fade out.
     if (u.dead) {
       const t = Math.min(1, (u.deathAgeMs || 0) / DEATH_ANIM_MS);
-      g.rotation.x = (u.facing > 0 ? 1 : -1) * 0;   // fall direction handled below
-      g.rotation.z = -u.facing * t * 1.35;          // topple toward the push direction
-      g.position.y = -t * 0.45;
+      g.rotation.z = -u.facing * t * 1.4;
+      g.position.y = -t * 0.5;
       if (!rig.fading) {
         rig.fading = true;
-        for (const m of rig.mats) { m.transparent = true; m.needsUpdate = true; }
+        for (const m of rig.fadeMats) m.transparent = true;
       }
       const op = 1 - t;
-      for (const m of rig.mats) m.opacity = op;
+      for (const m of rig.fadeMats) m.opacity = op * (m === rig.shadowMat ? 0.34 : 1);
       rig.hpBg.visible = false;
       rig.hpFill.visible = false;
       rig.aura.visible = false;
       return;
     }
+    g.rotation.z = 0;
 
-    // Aura ring pulse.
-    rig.aura.visible = !!sideAura;
-    if (sideAura) rig.aura.material.opacity = 0.3 + 0.25 * (Math.sin(tSec * 5) * 0.5 + 0.5);
+    // Aura ring pulse (champion glow or active side buff).
+    const wantAura = !!sideAura || u.isChampion;
+    rig.aura.visible = wantAura;
+    if (wantAura) rig.aura.material.opacity = 0.3 + 0.25 * (Math.sin(tSec * 5) * 0.5 + 0.5);
 
     // HP bar — only when damaged.
     const hpR = u.hp / u.maxHp;
@@ -1693,24 +1800,30 @@ export function makeRenderer3D({ canvas }) {
     // backdrop, wrong in 3D where it has real width) — the whole row is
     // nudged lane-ward so pylons stand clear of the keep.
     const slotPulse = (Math.sin(tSec * 4) + 1) / 2;
-    const PYLON_NUDGE = 4.4;
+    const N_SLOTS = BALANCE.TURRET_SLOT_COUNT;
+    // Keep roof terrace: keep is 4.6 tall, fortress group scaled 1.55 → ~7.1.
+    const TERRACE_Y = 7.15;
     for (let s = 0; s < 2; s++) {
       const side = s === 0 ? match.player : match.enemy;
       const isPlayer = s === 0;
-      const nudge = isPlayer ? PYLON_NUDGE : -PYLON_NUDGE;
-      const spotX = wx(isPlayer ? v.laneLeft - 22 : v.laneRight + 22) + nudge;
-      for (let i = 0; i < BALANCE.TURRET_SLOT_COUNT; i++) {
+      // Fortress world x (matches updateBase) + the lane-facing roof LEDGE,
+      // clear of the central upper storey, so turrets stand ON the terrace.
+      const fortX = wx(isPlayer ? v.laneLeft - 50 : v.laneRight + 50);
+      const edgeX = fortX + (isPlayer ? 1 : -1) * 2.2;
+      for (let i = 0; i < N_SLOTS; i++) {
         const py = pylons[s][i];
         const hasSpot = !!(side.turretSpots && side.turretSpots[i]);
-        const slabY = (BALANCE.TURRET_ROW_Y_PX + i * 22) * SY;
+        // Spread the slots across the roof along z (lane-perpendicular).
+        const zHalf = 1.25;
+        const slotZ = N_SLOTS > 1 ? (-zHalf + i * ((2 * zHalf) / (N_SLOTS - 1))) : 0;
         const t = side.turretSlots[i];
 
         // Pylon state machine. Enemy pylons only exist once a spot is
         // laid; player pylons always show (ghost = "you could build
         // here"), with the ring + holo marker fading out once a turret
         // occupies the cap.
-        const h = Math.max(0.6, slabY - 0.1);
-        py.group.position.set(spotX, 0, 0);
+        const h = 0.5;  // short plinth standing on the roof terrace
+        py.group.position.set(edgeX, TERRACE_Y, slotZ);
         py.column.scale.y = h;
         py.column.position.y = h / 2;
         py.cap.position.y = h + 0.08;
@@ -1769,8 +1882,8 @@ export function makeRenderer3D({ canvas }) {
           turretRecs[s][i] = rec;
         }
         rec.group.visible = true;
-        // Turret stands on its pylon cap (same lane-ward nudge).
-        rec.group.position.set(wx(t.x) + nudge, wy(t.y), 0);
+        // Turret stands on its pylon cap, up on the fortress roof terrace.
+        rec.group.position.set(edgeX, TERRACE_Y + h + 0.1, slotZ);
         rec.group.rotation.y = t.facing > 0 ? HALF_PI : -HALF_PI;
         // Recoil + muzzle flash off the cooldown reset (same trigger
         // window the 2D renderer uses: cdR > 0.85 just fired).
@@ -1970,6 +2083,11 @@ export function makeRenderer3D({ canvas }) {
       }
     });
     for (const g of Object.values(GEO)) g.dispose?.();
+    // Shared blob-shadow template (never added to the scene, so the
+    // traverse above never reaches it). All per-rig materials ARE in the
+    // graph (added via part()/the rig group) and are freed by the
+    // traverse, including the cloned skin/cloth/metal/weapon materials.
+    blobShadowMat.dispose();
     renderer.dispose();
   }
 

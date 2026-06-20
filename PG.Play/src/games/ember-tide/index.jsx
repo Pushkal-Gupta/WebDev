@@ -1,7 +1,7 @@
-// EMBER & TIDE — original same-keyboard co-op platformer.
+// EMBER & TIDE — same-keyboard co-op platformer, now in real 3D.
 //
 // Two characters on one keyboard, asymmetric liquids:
-//  • Ember (orange) dies in WATER.  Tide (blue) dies in FIRE.
+//  • Ember (fire) dies in WATER.  Tide (water) dies in FIRE.
 //  • ACID kills both. Treat it like "fake-safe" zones.
 //  • Gems come in three flavours: red (Ember only), blue (Tide only), gold
 //    (either). All gems must be collected before the doors accept a touch.
@@ -15,23 +15,33 @@
 // If either character dies the whole level resets. Level progress + deaths
 // carry across attempts; on final win the combined score is submitted.
 //
-// Physics: shared AABB + gravity + coyote + jump-buffer pattern from the
-// platformer family (Grudgewood / Nightcap / Trace). Each player is a
-// separate instance stepped every frame.
+// 3D rewrite. The simulation — tile/collision grid, both players' physics,
+// element hazards and who they kill, gem rules, the two-door win, death/
+// restart, score, and every sfx call — is byte-for-byte identical to the 2D
+// version. Only the *presentation* moved to Three.js.
+//
+// 2.5D mapping: the sim still runs on its original (x, y) plane in logical
+// W × H pixels @ 32px tiles. The renderer maps it onto the z = 0 plane of a
+// real perspective scene with
+//    worldX → +X,  worldY → −Y   (sim y grows downward; three's +Y is up)
+// and a perspective side camera looking down the −Z axis. Because the physics
+// never touches z, every number — gravity, AABB collision, hazard boxes, the
+// door/gem overlaps — keeps its exact 2D meaning. Depth, lighting, shadows,
+// fog and the parallax cave are pure decoration. The camera frames BOTH
+// characters (co-op): it centres on their midpoint and zooms to keep both on
+// screen.
 
 import { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
 import { submitScore } from '../../scoreBus.js';
-import { sizeCanvasFluid } from '../../util/canvasDpr.js';
 import { consumeAdminStartLevel } from '../../utils/admin.js';
+import { sfx } from '../../sound.js';
 
 const T = 32;                       // tile size
 const COLS = 26;
 const ROWS = 15;
 const W = COLS * T;                 // 832 — native level width
 const H = ROWS * T;                 // 480 — native level height
-// The level always renders at W × H. The fluid sizer fills the canvas to
-// its parent; the level is centered (offX, offY) and the surrounding area
-// is filled with the dusk gradient so wide / tall viewports look intentional.
 const P_W = 22, P_H = 28;
 const GRAVITY = 1700;
 const MOVE_MAX = 220;
@@ -154,11 +164,644 @@ function parseLevel(idx) {
 
 const overlap = (a, b) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 
+/* ── 2.5D plane mapping. Sim (x, y) → three world (x, -y, z). Sim y grows
+ * downward (screen coords); three +Y is up, so we negate. The physics never
+ * sees z; only the renderer applies this. ───────────────────────────────── */
+const SY = -1;
+const w2x = (x) => x;
+const w2y = (y) => y * SY;
+
+function hash2(x, y) {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+/* ── element palette (shared by renderer) ──────────────────────────────── */
+const POOL = {
+  fire:  { base: '#5a160b', emissive: '#ff4d2a', glow: '#ff7a32', light: 0xff5a2a },
+  water: { base: '#072a52', emissive: '#1f86ff', glow: '#5ab8ff', light: 0x3aa0ff },
+  acid:  { base: '#26340c', emissive: '#9bdc1f', glow: '#c8ff4a', light: 0x9bdc1f },
+};
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Three.js renderer. Built once on mount. rebuildLevel() builds the static
+ * geometry per level from the SAME grid the collision uses; render() reads
+ * live sim state each frame; dispose() tears everything down.
+ * ────────────────────────────────────────────────────────────────────── */
+function makeRenderer3D(canvas) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas, antialias: true, powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.45;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog('#160a22', 600, 1700);
+
+  // Perspective side camera looking down −Z at the z=0 play plane.
+  const camera = new THREE.PerspectiveCamera(40, W / H, 1, 6000);
+  camera.position.set(W / 2, -H / 2, 900);
+  scene.add(camera);
+
+  // ── Sky dome — dusk/cave vertical gradient (fog:false so it stays put).
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide, depthWrite: false, fog: false,
+    uniforms: {
+      uTop: { value: new THREE.Color('#2a1538') },
+      uMid: { value: new THREE.Color('#1b0e2a') },
+      uBot: { value: new THREE.Color('#070310') },
+    },
+    vertexShader: /* glsl */`
+      varying vec3 vWorld;
+      void main() {
+        vWorld = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */`
+      varying vec3 vWorld;
+      uniform vec3 uTop, uMid, uBot;
+      void main() {
+        float h = clamp((normalize(vWorld).y + 0.35) * 0.85, 0.0, 1.0);
+        vec3 col = mix(uBot, uMid, smoothstep(0.0, 0.5, h));
+        col = mix(col, uTop, smoothstep(0.5, 1.0, h));
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(4000, 24, 16), skyMat);
+  sky.frustumCulled = false;
+  scene.add(sky);
+
+  // ── Lights — bright, readable. Key on the CAMERA side (+Z) so the faces
+  // we see are lit, not silhouetted.
+  const key = new THREE.DirectionalLight(0xffe9cf, 1.5);
+  key.position.set(W / 2 - 220, 360, 520);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 1800;
+  key.shadow.camera.left = -700;
+  key.shadow.camera.right = 700;
+  key.shadow.camera.top = 520;
+  key.shadow.camera.bottom = -520;
+  key.shadow.bias = -0.0006;
+  scene.add(key);
+  scene.add(key.target);
+
+  const hemi = new THREE.HemisphereLight(0xbfd2ff, 0x402a4a, 1.0);
+  scene.add(hemi);
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambient);
+  const fill = new THREE.DirectionalLight(0xb09cff, 0.4);
+  fill.position.set(W / 2 + 240, 180, 460);
+  scene.add(fill);
+
+  // Two pool lights repositioned each level to the nearest fire/water pools
+  // for extra coloured bounce. Persistent objects (cheaper than per-pool).
+  const poolLightA = new THREE.PointLight(POOL.fire.light, 0, 240, 2);
+  const poolLightB = new THREE.PointLight(POOL.water.light, 0, 240, 2);
+  scene.add(poolLightA, poolLightB);
+
+  // ── Parallax background — pillars + far cave wall, rebuilt per level. Lives
+  // in its own group at large −z.
+  let bgGroup = new THREE.Group();
+  scene.add(bgGroup);
+
+  // ── Level container — tile blocks, pools, doors, gems. Rebuilt per level
+  // from the unchanged grid. Player rigs live in persistent objects below.
+  let levelGroup = new THREE.Group();
+  scene.add(levelGroup);
+
+  // Per-level tracked materials/geometries for disposal.
+  let levelMats = [];
+  let levelGeos = [];
+
+  // Records the render loop animates.
+  const gemRecs = [];     // { group, mat, gem }
+  const poolRecs = [];    // { mat, haz, t0 }
+  const doorRecs = [];    // { group, ringMat, who }
+
+  // ── Character rig builder. A clear element-elemental silhouette: rounded
+  // body, head, two arms, two legs, big eyes, a colour-tipped crest. Returns
+  // an object of refs the render loop animates.
+  function buildChar(coreCol, glowCol, accentCol) {
+    const group = new THREE.Group();
+    const bodyMat = new THREE.MeshStandardMaterial({
+      color: coreCol, emissive: new THREE.Color(glowCol),
+      emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.1,
+    });
+    const accentMat = new THREE.MeshStandardMaterial({
+      color: accentCol, emissive: new THREE.Color(accentCol),
+      emissiveIntensity: 0.85, roughness: 0.35, metalness: 0.1,
+    });
+    const limbMat = new THREE.MeshStandardMaterial({
+      color: coreCol, emissive: new THREE.Color(glowCol),
+      emissiveIntensity: 0.3, roughness: 0.5,
+    });
+    const eyeWhite = new THREE.MeshStandardMaterial({ color: '#f4f8ff', roughness: 0.3 });
+    const pupil = new THREE.MeshBasicMaterial({ color: '#0a0d16' });
+
+    // Sim AABB is P_W × P_H (22×28). Build the rig in that footprint, centred
+    // on the AABB centre so the group sits at the player's centre.
+    const halfH = P_H / 2;
+    // torso — rounded capsule-ish box
+    const bodyGeo = new THREE.CapsuleGeometry(P_W / 2 - 1.5, P_H - 18, 4, 10);
+    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    body.position.set(0, -2, 0);
+    body.castShadow = true;
+    group.add(body);
+    // head
+    const headGeo = new THREE.SphereGeometry(7.5, 18, 14);
+    const head = new THREE.Mesh(headGeo, bodyMat);
+    head.position.set(0, halfH - 6, 1);
+    head.castShadow = true;
+    group.add(head);
+    // crest / flame-tip or water-fin on top of the head
+    const crestGeo = new THREE.ConeGeometry(4, 11, 8);
+    const crest = new THREE.Mesh(crestGeo, accentMat);
+    crest.position.set(0, halfH + 4, 1);
+    group.add(crest);
+    const crestGeo2 = new THREE.ConeGeometry(2.4, 7, 8);
+    const crestL = new THREE.Mesh(crestGeo2, accentMat);
+    crestL.position.set(-4.5, halfH + 1, 1); crestL.rotation.z = 0.4;
+    const crestR = new THREE.Mesh(crestGeo2, accentMat);
+    crestR.position.set(4.5, halfH + 1, 1); crestR.rotation.z = -0.4;
+    group.add(crestL, crestR);
+    // eyes (forward, +z)
+    const eyeGeo = new THREE.SphereGeometry(2.4, 12, 10);
+    const eyeL = new THREE.Mesh(eyeGeo, eyeWhite);
+    const eyeR = new THREE.Mesh(eyeGeo, eyeWhite);
+    eyeL.position.set(-2.8, halfH - 6, 6.2);
+    eyeR.position.set(2.8, halfH - 6, 6.2);
+    group.add(eyeL, eyeR);
+    const pupGeo = new THREE.SphereGeometry(1.1, 8, 8);
+    const pupL = new THREE.Mesh(pupGeo, pupil);
+    const pupR = new THREE.Mesh(pupGeo, pupil);
+    pupL.position.set(-2.8, halfH - 6, 8.2);
+    pupR.position.set(2.8, halfH - 6, 8.2);
+    group.add(pupL, pupR);
+    // arms
+    const armGeo = new THREE.CapsuleGeometry(2.2, 7, 3, 6);
+    const armL = new THREE.Mesh(armGeo, limbMat); armL.castShadow = true;
+    const armR = new THREE.Mesh(armGeo, limbMat); armR.castShadow = true;
+    armL.position.set(-(P_W / 2 + 0.5), 0, 0);
+    armR.position.set(P_W / 2 + 0.5, 0, 0);
+    group.add(armL, armR);
+    // legs
+    const legGeo = new THREE.CapsuleGeometry(2.6, 6, 3, 6);
+    const legL = new THREE.Mesh(legGeo, limbMat); legL.castShadow = true;
+    const legR = new THREE.Mesh(legGeo, limbMat); legR.castShadow = true;
+    legL.position.set(-4.5, -halfH + 4, 0);
+    legR.position.set(4.5, -halfH + 4, 0);
+    group.add(legL, legR);
+    // soft aura disc behind for the elemental glow
+    const auraMat = new THREE.MeshBasicMaterial({
+      color: glowCol, transparent: true, opacity: 0.18, depthWrite: false,
+    });
+    const aura = new THREE.Mesh(new THREE.SphereGeometry(P_H * 0.7, 14, 10), auraMat);
+    aura.position.set(0, -1, -4);
+    aura.scale.set(0.75, 1, 0.4);
+    group.add(aura);
+
+    scene.add(group);
+    return {
+      group, body, head, eyeL, eyeR, pupL, pupR, armL, armR, legL, legR, crest, crestL, crestR,
+      mats: [bodyMat, accentMat, limbMat, eyeWhite, pupil, auraMat],
+      geos: [bodyGeo, headGeo, crestGeo, crestGeo2, eyeGeo, pupGeo, armGeo, legGeo, aura.geometry],
+      bodyMat, auraMat,
+    };
+  }
+
+  const emberRig = buildChar('#ff6a2a', '#ff9a3a', '#ffd45a');
+  const tideRig  = buildChar('#35c7ff', '#79e0ff', '#cdfaff');
+
+  // ── Particle pool — instanced cubes. No per-frame allocation. Driven by a
+  // render-local list fed by the loop's juice() events.
+  const PART_N = 260;
+  const partMat = new THREE.MeshBasicMaterial({
+    transparent: true, depthWrite: false, vertexColors: true,
+  });
+  const partGeo = new THREE.BoxGeometry(2.2, 2.2, 2.2);
+  const partMesh = new THREE.InstancedMesh(partGeo, partMat, PART_N);
+  partMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  partMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PART_N * 3), 3);
+  partMesh.frustumCulled = false;
+  scene.add(partMesh);
+  const particles = [];     // { x, y, vx, vy, life, max, col:[r,g,b] }
+
+  // Reusable temps — no allocation in render().
+  const _m = new THREE.Matrix4();
+  const _q = new THREE.Quaternion();
+  const _s = new THREE.Vector3();
+  const _p = new THREE.Vector3();
+  const _c = new THREE.Color();
+
+  function disposeGroup(group) {
+    group.traverse((o) => {
+      if (o.geometry) o.geometry.dispose?.();
+      if (o.material && o.material !== partMat) {
+        if (Array.isArray(o.material)) o.material.forEach((mm) => mm.dispose?.());
+        else o.material.dispose?.();
+      }
+    });
+  }
+
+  function clearLevel() {
+    scene.remove(levelGroup); disposeGroup(levelGroup);
+    scene.remove(bgGroup);    disposeGroup(bgGroup);
+    levelMats.forEach((m) => m.dispose?.());
+    levelGeos.forEach((g) => g.dispose?.());
+    levelMats = []; levelGeos = [];
+    gemRecs.length = 0; poolRecs.length = 0; doorRecs.length = 0;
+    levelGroup = new THREE.Group();
+    bgGroup = new THREE.Group();
+    scene.add(bgGroup); scene.add(levelGroup);
+  }
+
+  // Beveled-top extruded tile block at sim cell (col,row).
+  function addBlock(group, col, row, topMat, sideMat) {
+    const geo = new THREE.BoxGeometry(T, T, 30);
+    levelGeos.push(geo);
+    // box face order: +x,-x,+y,-y,+z,-z. top is +y.
+    const mats = [sideMat, sideMat, topMat, sideMat, sideMat, sideMat];
+    const m = new THREE.Mesh(geo, mats);
+    m.position.set(col * T + T / 2, w2y(row * T + T / 2), 0);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    group.add(m);
+    return m;
+  }
+
+  function rebuildLevel(level) {
+    clearLevel();
+    camPrimed = false;
+
+    // ── Parallax cave backdrop. Far wall + stalagmite pillar bands.
+    const bands = [
+      { z: -1100, col: '#1c0f2c', base: 200, amp: 120, step: 150, op: 1 },
+      { z: -720,  col: '#28163c', base: 150, amp: 90,  step: 120, op: 0.96 },
+      { z: -420,  col: '#341c4e', base: 120, amp: 70,  step: 96,  op: 0.92 },
+    ];
+    const floorY = w2y(H);
+    for (const b of bands) {
+      const count = Math.ceil((W + 1000) / b.step) + 3;
+      const geo = new THREE.ConeGeometry(b.step * 0.75, 1, 6);
+      levelGeos.push(geo);
+      const mat = new THREE.MeshStandardMaterial({
+        color: b.col, roughness: 1, metalness: 0,
+        transparent: b.op < 1, opacity: b.op, fog: true,
+      });
+      levelMats.push(mat);
+      const inst = new THREE.InstancedMesh(geo, mat, count);
+      inst.frustumCulled = false;
+      for (let i = 0; i < count; i++) {
+        const hx = -500 + i * b.step;
+        const hh = b.base + hash2(i * 2.3, b.z) * b.amp;
+        _p.set(hx, floorY + hh / 2 - 30, b.z);
+        _q.identity(); _s.set(1, hh, 1);
+        _m.compose(_p, _q, _s);
+        inst.setMatrixAt(i, _m);
+      }
+      inst.instanceMatrix.needsUpdate = true;
+      bgGroup.add(inst);
+    }
+    // Far backing wall so the gradient never shows a hard seam behind pillars.
+    {
+      const geo = new THREE.PlaneGeometry(W * 3, H * 3);
+      levelGeos.push(geo);
+      const mat = new THREE.MeshBasicMaterial({ color: '#130a1f', fog: true });
+      levelMats.push(mat);
+      const wall = new THREE.Mesh(geo, mat);
+      wall.position.set(W / 2, -H / 2, -1300);
+      bgGroup.add(wall);
+    }
+
+    // ── Solid tiles, straight from the collision grid. Stone block: warm-lit
+    // top, darker sides.
+    const topMat = new THREE.MeshStandardMaterial({ color: '#4a2f5f', roughness: 0.9, metalness: 0.05 });
+    const sideMat = new THREE.MeshStandardMaterial({ color: '#2b1a3a', roughness: 0.95, metalness: 0.04 });
+    levelMats.push(topMat, sideMat);
+    for (const t of level.solids) {
+      const col = t.x / T, row = t.y / T;
+      // Grass-style "exposed top" if the cell above is not solid.
+      const aboveSolid = level.solids.some((o) => o.x === t.x && o.y === t.y - T);
+      addBlock(levelGroup, col, row, aboveSolid ? sideMat : topMat, sideMat);
+    }
+
+    // ── Element pools — emissive 3D slabs sitting in the bottom of their tile,
+    // exactly over the sim hazard box (x, y, w, h).
+    for (const h of level.hazards) {
+      const pal = POOL[h.kind];
+      const geo = new THREE.BoxGeometry(h.w, h.h + 8, 26);
+      levelGeos.push(geo);
+      const mat = new THREE.MeshStandardMaterial({
+        color: pal.base, emissive: new THREE.Color(pal.emissive),
+        emissiveIntensity: 0.9, roughness: 0.35, metalness: 0.15,
+      });
+      levelMats.push(mat);
+      const m = new THREE.Mesh(geo, mat);
+      // slab sits flush with the tile floor; centre over the hazard box.
+      m.position.set(h.x + h.w / 2, w2y(h.y + h.h / 2) - 2, 0);
+      m.receiveShadow = true;
+      levelGroup.add(m);
+      poolRecs.push({ mat, haz: h, phase: hash2(h.x, h.y) * 6.28 });
+    }
+
+    // ── Doors — lit 3D portals. Frame + glowing inner panel + arch ring.
+    const buildDoor = (d, who, frameCol, glowCol) => {
+      if (!d) return;
+      const group = new THREE.Group();
+      const frameMat = new THREE.MeshStandardMaterial({ color: '#1a0f24', roughness: 0.7, metalness: 0.2 });
+      levelMats.push(frameMat);
+      const frameGeo = new THREE.BoxGeometry(d.w + 6, d.h + 6, 12);
+      levelGeos.push(frameGeo);
+      const frame = new THREE.Mesh(frameGeo, frameMat);
+      frame.position.set(d.x + d.w / 2, w2y(d.y + d.h / 2), -6);
+      frame.castShadow = true; frame.receiveShadow = true;
+      group.add(frame);
+      // glowing inner portal
+      const panelMat = new THREE.MeshStandardMaterial({
+        color: frameCol, emissive: new THREE.Color(glowCol),
+        emissiveIntensity: 0.7, roughness: 0.3, metalness: 0.1,
+        transparent: true, opacity: 0.92,
+      });
+      levelMats.push(panelMat);
+      const panelGeo = new THREE.PlaneGeometry(d.w - 4, d.h - 6);
+      levelGeos.push(panelGeo);
+      const panel = new THREE.Mesh(panelGeo, panelMat);
+      panel.position.set(d.x + d.w / 2, w2y(d.y + d.h / 2), 1);
+      group.add(panel);
+      // arch keystone gem
+      const ringMat = new THREE.MeshStandardMaterial({
+        color: glowCol, emissive: new THREE.Color(glowCol),
+        emissiveIntensity: 1.0, roughness: 0.3, metalness: 0.3,
+      });
+      levelMats.push(ringMat);
+      const ringGeo = new THREE.OctahedronGeometry(5, 0);
+      levelGeos.push(ringGeo);
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.position.set(d.x + d.w / 2, w2y(d.y) + 4, 4);
+      group.add(ring);
+      levelGroup.add(group);
+      doorRecs.push({ group, panelMat, ringMat, ring, who });
+    };
+    buildDoor(level.doors.ember, 'ember', '#3a1808', '#ff8a3a');
+    buildDoor(level.doors.tide,  'tide',  '#062338', '#35c7ff');
+
+    // ── Gems — spinning 3D crystals, colour-coded.
+    const gemGeo = new THREE.OctahedronGeometry(8, 0);
+    levelGeos.push(gemGeo);
+    for (const g of level.gems) {
+      const col = g.kind === 'red' ? '#ff4d6d' : g.kind === 'blue' ? '#35c7ff' : '#ffe14f';
+      const mat = new THREE.MeshStandardMaterial({
+        color: col, emissive: new THREE.Color(col), emissiveIntensity: 0.7,
+        roughness: 0.2, metalness: 0.5, flatShading: true,
+      });
+      levelMats.push(mat);
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(gemGeo, mat);
+      body.castShadow = true;
+      group.add(body);
+      const glowMat = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.25, depthWrite: false });
+      levelMats.push(glowMat);
+      const glow = new THREE.Mesh(new THREE.SphereGeometry(13, 12, 10), glowMat);
+      group.add(glow);
+      group.position.set(g.x, w2y(g.y), 0);
+      levelGroup.add(group);
+      gemRecs.push({ group, body, mat, glowMat, gem: g, phase: hash2(g.x, g.y) * 6.28 });
+    }
+
+    // Position the two coloured pool lights at the first fire / water pool.
+    const firstFire = level.hazards.find((h) => h.kind === 'fire');
+    const firstWater = level.hazards.find((h) => h.kind === 'water');
+    if (firstFire) { poolLightA.position.set(firstFire.x + firstFire.w / 2, w2y(firstFire.y) + 20, 60); poolLightA.intensity = 0.9; }
+    else poolLightA.intensity = 0;
+    if (firstWater) { poolLightB.position.set(firstWater.x + firstWater.w / 2, w2y(firstWater.y) + 20, 60); poolLightB.intensity = 0.9; }
+    else poolLightB.intensity = 0;
+  }
+
+  // ── Juice — visual-only effects requested by the loop on sim events.
+  function spawnParticles(x, y, n, spread, col, speed, life) {
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * Math.PI * 2;
+      particles.push({
+        x, y,
+        vx: Math.cos(a) * speed * (0.4 + Math.random()),
+        vy: -Math.abs(Math.sin(a)) * speed * (0.5 + Math.random()) - 30,
+        life, max: life, col, grav: spread,
+      });
+      if (particles.length > PART_N) particles.shift();
+    }
+  }
+  function juice(kind, info) {
+    if (kind === 'gem') {
+      const col = info.kind === 'red' ? [1, 0.3, 0.43] : info.kind === 'blue' ? [0.21, 0.78, 1] : [1, 0.88, 0.31];
+      spawnParticles(info.x, info.y, 16, 1, col, 130, 0.6);
+    } else if (kind === 'death') {
+      // fire-in-water → steam (white-blue); water-in-fire → fizzle/spark.
+      const col = info.who === 'ember' ? [0.55, 0.78, 1] : [1, 0.55, 0.25];
+      spawnParticles(info.x, info.y, 24, 1, col, 150, 0.7);
+    } else if (kind === 'land') {
+      spawnParticles(info.x, info.y, 6, 1, [0.7, 0.65, 0.78], 70, 0.35);
+    } else if (kind === 'win') {
+      spawnParticles(info.x, info.y, 40, 1, [1, 0.85, 0.4], 200, 1.0);
+    }
+  }
+
+  // ── Resize — manual (never via sizeCanvasFluid; that grabs a 2D ctx).
+  let camPrimed = false;
+  function resize(cssW, cssH) {
+    const w = Math.max(1, cssW), h = Math.max(1, cssH);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+
+  // Camera distance so a given sim-px horizontal span fits across.
+  function camDistanceForSpan(spanX) {
+    const vHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+    const hHalf = Math.atan(Math.tan(vHalf) * Math.max(0.4, camera.aspect));
+    return (spanX / 2) / Math.tan(hHalf);
+  }
+
+  // Animate one character rig from sim state.
+  function animChar(rig, p, t) {
+    if (p.dead) { rig.group.visible = false; return; }
+    rig.group.visible = true;
+    rig.group.position.set(w2x(p.x + P_W / 2), w2y(p.y + P_H / 2), 0);
+    rig.group.rotation.y = p.facing > 0 ? 0 : Math.PI;
+    const running = p.onGround && Math.abs(p.vx) > 30;
+    const stride = running ? Math.sin(t * 14) : 0;
+    if (!p.onGround) {
+      rig.legL.rotation.x = -0.5; rig.legR.rotation.x = 0.5;
+      rig.armL.rotation.x = -0.7; rig.armR.rotation.x = -0.7;
+    } else {
+      rig.legL.rotation.x = stride * 0.8;
+      rig.legR.rotation.x = -stride * 0.8;
+      rig.armL.rotation.x = -stride * 0.7;
+      rig.armR.rotation.x = stride * 0.7;
+    }
+    // crest flicker + glow breathe
+    const flick = 0.4 + 0.2 * Math.sin(t * 9 + p.x);
+    rig.crest.scale.y = 1 + flick * 0.3;
+    rig.bodyMat.emissiveIntensity = 0.4 + flick * 0.2;
+    rig.auraMat.opacity = 0.14 + 0.08 * (0.5 + 0.5 * Math.sin(t * 4));
+  }
+
+  function render(state, rawDt) {
+    if (!state) return;
+    const { ember, tide, level } = state;
+    const t = performance.now() / 1000;
+
+    // ── Camera frames BOTH characters (co-op). Centre on their midpoint and
+    // pick a span that keeps both on screen with margin, clamped to the level.
+    const ax = ember.x + P_W / 2, ay = ember.y + P_H / 2;
+    const bx = tide.x + P_W / 2,  by = tide.y + P_H / 2;
+    let cx = (ax + bx) / 2;
+    let cy = (ay + by) / 2;
+    // Required horizontal span: distance between players + padding, with a
+    // floor (don't over-zoom) and a ceiling (don't show beyond the level).
+    const spreadX = Math.abs(ax - bx);
+    const spreadY = Math.abs(ay - by);
+    let span = Math.max(spreadX + 320, (spreadY + 240) * camera.aspect, W * 0.62);
+    span = Math.min(span, W + 140);
+    // Clamp the centre so the framed window stays inside the playfield.
+    const halfSpan = span / 2;
+    const halfSpanY = halfSpan / camera.aspect;
+    cx = Math.max(halfSpan - 70, Math.min(W - halfSpan + 70, cx));
+    cy = Math.max(halfSpanY - 50, Math.min(H - halfSpanY + 50, cy));
+
+    const camZ = camDistanceForSpan(span);
+    const tx = w2x(cx), ty = w2y(cy);
+    if (!camPrimed) {
+      camera.position.set(tx, ty, camZ);
+      camPrimed = true;
+    } else {
+      const k = Math.min(1, rawDt * 6);
+      camera.position.x += (tx - camera.position.x) * k;
+      camera.position.y += (ty - camera.position.y) * k;
+      camera.position.z += (camZ - camera.position.z) * Math.min(1, rawDt * 4);
+    }
+    camera.lookAt(camera.position.x, camera.position.y, 0);
+    sky.position.set(camera.position.x, camera.position.y, 0);
+
+    // Key light tracks the midpoint so shadows stay crisp on screen.
+    key.position.set(cx - 220, 360, 520);
+    key.target.position.set(cx, w2y(cy), 0);
+    key.target.updateMatrixWorld();
+
+    // ── Pools — emissive shimmer.
+    for (const rec of poolRecs) {
+      rec.mat.emissiveIntensity = 0.75 + 0.3 * Math.sin(t * 3 + rec.phase);
+    }
+    // occasional pool ember/bubble particles
+    if (poolRecs.length && Math.random() < 0.5) {
+      const rec = poolRecs[(Math.random() * poolRecs.length) | 0];
+      const h = rec.haz;
+      const pal = POOL[h.kind];
+      _c.set(pal.glow);
+      particles.push({
+        x: h.x + Math.random() * h.w, y: h.y,
+        vx: (Math.random() - 0.5) * 12, vy: -20 - Math.random() * 30,
+        life: 0.7, max: 0.7, col: [_c.r, _c.g, _c.b], grav: 0.3,
+      });
+      if (particles.length > PART_N) particles.shift();
+    }
+
+    // ── Gems — spin, bob, hide taken.
+    for (const rec of gemRecs) {
+      if (rec.gem.taken) { rec.group.visible = false; continue; }
+      rec.group.visible = true;
+      rec.body.rotation.y = t * 2 + rec.phase;
+      rec.body.rotation.x = 0.3;
+      rec.group.position.y = w2y(rec.gem.y) + Math.sin(t * 2 + rec.phase) * 3;
+      rec.glowMat.opacity = 0.2 + 0.12 * (0.5 + 0.5 * Math.sin(t * 4 + rec.phase));
+    }
+
+    // ── Doors — keystone spin + glow breathe; brighten when all gems gone.
+    const allGems = !level.gems.some((g) => !g.taken);
+    for (const rec of doorRecs) {
+      rec.ring.rotation.y = t * 1.5;
+      const base = allGems ? 1.1 : 0.5;
+      rec.ringMat.emissiveIntensity = base + 0.3 * Math.sin(t * 4);
+      rec.panelMat.emissiveIntensity = (allGems ? 1.0 : 0.55) + 0.2 * Math.sin(t * 3);
+    }
+
+    // ── Characters.
+    animChar(emberRig, ember, t);
+    animChar(tideRig,  tide, t);
+
+    // ── Particles.
+    let pi = 0;
+    for (let i = particles.length - 1; i >= 0; i--) {
+      const part = particles[i];
+      part.life -= rawDt;
+      if (part.life <= 0) { particles.splice(i, 1); continue; }
+      part.x += part.vx * rawDt;
+      part.y += part.vy * rawDt;
+      part.vy += 220 * (part.grav ?? 1) * rawDt;
+    }
+    for (let i = 0; i < particles.length && pi < PART_N; i++) {
+      const part = particles[i];
+      const a = Math.max(0, part.life / part.max);
+      _p.set(w2x(part.x), w2y(part.y), 4);
+      _q.identity();
+      const sz = 0.5 + a * 1.2;
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      _c.setRGB(part.col[0], part.col[1], part.col[2]);
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    for (let k = pi; k < PART_N; k++) {
+      _m.makeScale(0, 0, 0);
+      partMesh.setMatrixAt(k, _m);
+    }
+    partMesh.count = PART_N;
+    partMesh.instanceMatrix.needsUpdate = true;
+    if (partMesh.instanceColor) partMesh.instanceColor.needsUpdate = true;
+
+    // Shake → tiny exposure punch (visual only; shake also nudges the camera).
+    if (state.shake > 0) {
+      camera.position.x += (Math.random() - 0.5) * state.shake * 0.6;
+      camera.position.y += (Math.random() - 0.5) * state.shake * 0.6;
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  function dispose() {
+    clearLevel();
+    scene.remove(levelGroup); scene.remove(bgGroup);
+    [emberRig, tideRig].forEach((rig) => {
+      scene.remove(rig.group);
+      rig.mats.forEach((m) => m.dispose?.());
+      rig.geos.forEach((g) => g.dispose?.());
+    });
+    sky.geometry.dispose();
+    skyMat.dispose();
+    partGeo.dispose();
+    partMat.dispose();
+    renderer.dispose();
+  }
+
+  return { scene, camera, renderer, rebuildLevel, render, resize, dispose, juice };
+}
+
+/* ──────────────────────────────────────────────────────────────────────
+ * Component
+ * ────────────────────────────────────────────────────────────────────── */
 export default function EmberTideGame() {
   const canvasRef = useRef(null);
   const wrapRef   = useRef(null);
-  const viewRef   = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0, dispW: W, dispH: H });
   const stateRef  = useRef(null);
+  const rendererRef = useRef(null);
   const submittedRef = useRef(false);
   const [levelIdx, setLevelIdx] = useState(() => {
     const adminStart = consumeAdminStartLevel('fbwg');
@@ -175,11 +818,13 @@ export default function EmberTideGame() {
     const parsed = parseLevel(idx);
     stateRef.current = {
       level: parsed,
+      levelIdx: idx,
       ember: buildPlayer(parsed.spawns.ember, 'ember'),
       tide:  buildPlayer(parsed.spawns.tide,  'tide'),
       elapsed: 0,
       shake: 0,
     };
+    rendererRef.current?.rebuildLevel(parsed);
     setGemsGot(0);
     setGemsTotal(parsed.gems.length);
     if (!keepDeaths) setDeaths(0);
@@ -195,27 +840,29 @@ export default function EmberTideGame() {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
-    const ctx = canvas.getContext('2d');
 
-    // Fluid sizer: canvas buffer follows the parent box. We uniform-scale
-    // the W × H level to fit, so it never clips off-screen on short
-    // widescreen viewports.
-    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      const scaleW = cssW / W;
-      const scaleH = cssH / H;
-      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
-      const dispW = W * scale;
-      const dispH = H * scale;
-      viewRef.current = {
-        cssW,
-        cssH,
-        scale,
-        dispW,
-        dispH,
-        offX: Math.floor((cssW - dispW) / 2),
-        offY: Math.floor((cssH - dispH) / 2),
-      };
-    });
+    // ── WebGL renderer (manual fluid sizing — NOT sizeCanvasFluid).
+    let renderer = null;
+    try { renderer = makeRenderer3D(canvas); }
+    catch (err) { renderer = null; if (import.meta.env.DEV) console.error('[ember-tide] WebGL init failed', err); }
+    rendererRef.current = renderer;
+    if (renderer && stateRef.current) renderer.rebuildLevel(stateRef.current.level);
+
+    if (import.meta.env.DEV && renderer) {
+      window.__fbwg3d = { scene: renderer.scene, camera: renderer.camera, renderer: renderer.renderer };
+    }
+
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const sizeCanvas = () => {
+      const cssW = Math.max(320, Math.floor(wrap.clientWidth));
+      const cssH = Math.max(180, Math.floor(wrap.clientHeight));
+      renderer?.resize(cssW, cssH);
+    };
+    sizeCanvas();
+    const ro = new ResizeObserver(sizeCanvas);
+    ro.observe(wrap);
+    window.addEventListener('orientationchange', sizeCanvas);
 
     const keys = {};
     const kd = (e) => {
@@ -243,7 +890,11 @@ export default function EmberTideGame() {
       const now = performance.now();
       const dt = Math.min(0.033, (now - clock.last) / 1000);
       clock.last = now;
-      const s = stateRef.current; if (!s || status !== 'playing') return;
+      const s = stateRef.current; if (!s) return;
+      if (status !== 'playing') {
+        rendererRef.current?.render(s, dt);
+        return;
+      }
 
       s.elapsed += dt;
       if ((s.elapsed * 2 | 0) !== (s._hud | 0)) {
@@ -262,14 +913,29 @@ export default function EmberTideGame() {
         jump: keys['arrowup'],
       };
 
+      const emberWasGround = s.ember.onGround;
+      const tideWasGround = s.tide.onGround;
       stepPlayer(s, dt, s.ember, emberCtl);
       stepPlayer(s, dt, s.tide,  tideCtl);
+      // landing dust (visual only)
+      if (!emberWasGround && s.ember.onGround && !s.ember.dead) {
+        rendererRef.current?.juice('land', { x: s.ember.x + P_W / 2, y: s.ember.y + P_H });
+      }
+      if (!tideWasGround && s.tide.onGround && !s.tide.dead) {
+        rendererRef.current?.juice('land', { x: s.tide.x + P_W / 2, y: s.tide.y + P_H });
+      }
 
       // Hazard checks
       const emberHit = hazardKilling(s.level.hazards, s.ember, 'ember');
       const tideHit  = hazardKilling(s.level.hazards, s.tide,  'tide');
-      if (emberHit) kill(s, 'ember');
-      if (tideHit)  kill(s, 'tide');
+      if (emberHit) {
+        kill(s, 'ember');
+        rendererRef.current?.juice('death', { x: s.ember.x + P_W / 2, y: s.ember.y + P_H / 2, who: 'ember' });
+      }
+      if (tideHit) {
+        kill(s, 'tide');
+        rendererRef.current?.juice('death', { x: s.tide.x + P_W / 2, y: s.tide.y + P_H / 2, who: 'tide' });
+      }
 
       // Gem pickup
       let gained = 0;
@@ -277,9 +943,9 @@ export default function EmberTideGame() {
         if (g.taken) continue;
         const boxG = { x: g.x - 10, y: g.y - 10, w: 20, h: 20 };
         if (overlap({ x: s.ember.x, y: s.ember.y, w: P_W, h: P_H }, boxG)) {
-          if (g.kind === 'red' || g.kind === 'gold') { g.taken = true; gained++; }
+          if (g.kind === 'red' || g.kind === 'gold') { g.taken = true; gained++; rendererRef.current?.juice('gem', g); }
         } else if (overlap({ x: s.tide.x, y: s.tide.y, w: P_W, h: P_H }, boxG)) {
-          if (g.kind === 'blue' || g.kind === 'gold') { g.taken = true; gained++; }
+          if (g.kind === 'blue' || g.kind === 'gold') { g.taken = true; gained++; rendererRef.current?.juice('gem', g); }
         }
       }
       if (gained) {
@@ -294,7 +960,10 @@ export default function EmberTideGame() {
         if (overlap(eb, s.level.doors.ember) && overlap(tb, s.level.doors.tide)) {
           // Clear level
           setPop({ text: `${s.level.name} — cleared`, at: performance.now() });
+          rendererRef.current?.juice('win', { x: s.ember.x + P_W / 2, y: s.ember.y + P_H / 2 });
+          rendererRef.current?.juice('win', { x: s.tide.x + P_W / 2, y: s.tide.y + P_H / 2 });
           if (levelIdx + 1 >= LEVELS.length) {
+            sfx.win();
             setStatus('won');
             if (!submittedRef.current) {
               submittedRef.current = true;
@@ -302,21 +971,27 @@ export default function EmberTideGame() {
               submitScore('fbwg', score, { deaths, time: Math.round(s.elapsed), levels: LEVELS.length });
             }
           } else {
+            sfx.confirm();
             setLevelIdx((i) => i + 1);
             return;
           }
         }
       }
 
-      draw(ctx, s, gemsGot, gemsTotal, viewRef.current);
+      s.shake = Math.max(0, s.shake - 0.4);
+      rendererRef.current?.render(s, dt);
     };
     raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
-      dispose();
+      ro.disconnect();
+      window.removeEventListener('orientationchange', sizeCanvas);
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
+      try { rendererRef.current?.dispose(); } catch { /* ignore */ }
+      rendererRef.current = null;
+      if (import.meta.env.DEV && window.__fbwg3d) { try { delete window.__fbwg3d; } catch { /* ignore */ } }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levelIdx, status, deaths, gemsGot, gemsTotal]);
@@ -343,7 +1018,7 @@ export default function EmberTideGame() {
           {status === 'won' && <button className="btn btn-primary btn-sm" onClick={restart}>Play again</button>}
         </span>
       </div>
-      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+      <div ref={wrapRef} className="ember-stage">
         <canvas ref={canvasRef} className="ember-canvas"/>
       </div>
       {status === 'won'
@@ -470,175 +1145,4 @@ function kill(s, who) {
   p.dead = true;
   p.respawnIn = RESPAWN_DELAY;
   s.shake = 10;
-}
-
-/* ── render ─────────────────────────────────────────────────── */
-
-function draw(ctx, s, gemsGot, gemsTotal, view) {
-  const { level } = s;
-  const { cssW, cssH, offX, offY, scale, dispW, dispH } = view;
-
-  // Full-canvas dusk gradient — runs the whole height so the side / top
-  // margins on a fluid viewport blend with the level instead of leaving
-  // a hard backdrop seam.
-  const grad = ctx.createLinearGradient(0, 0, 0, cssH);
-  grad.addColorStop(0, '#20112a');
-  grad.addColorStop(1, '#0a0614');
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, cssW, cssH);
-
-  // Translate + clip so all level-coord drawing happens inside the centered
-  // W × H playfield. The HUD pickup indicator is drawn after restore so it
-  // tracks the level's right edge regardless of viewport size.
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(offX, offY, dispW, dispH);
-  ctx.clip();
-  ctx.translate(offX, offY);
-  ctx.scale(scale, scale);
-
-  // Level-local backdrop (slightly darker so the playfield reads as its
-  // own panel inside the dusk wash).
-  const inner = ctx.createLinearGradient(0, 0, 0, H);
-  inner.addColorStop(0, '#1c0d24');
-  inner.addColorStop(1, '#070310');
-  ctx.fillStyle = inner;
-  ctx.fillRect(0, 0, W, H);
-
-  // background gridlines
-  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-  ctx.lineWidth = 1;
-  for (let c = 0; c <= COLS; c++) {
-    ctx.beginPath(); ctx.moveTo(c * T, 0); ctx.lineTo(c * T, H); ctx.stroke();
-  }
-  for (let r = 0; r <= ROWS; r++) {
-    ctx.beginPath(); ctx.moveTo(0, r * T); ctx.lineTo(W, r * T); ctx.stroke();
-  }
-
-  // shake offset for feedback
-  const sx = (Math.random() - 0.5) * s.shake;
-  const sy = (Math.random() - 0.5) * s.shake;
-  s.shake = Math.max(0, s.shake - 0.4);
-  ctx.save();
-  ctx.translate(sx, sy);
-
-  // solids
-  ctx.fillStyle = '#2b1a3a';
-  level.solids.forEach((t) => ctx.fillRect(t.x, t.y, t.w, t.h));
-  ctx.strokeStyle = '#452b5a';
-  level.solids.forEach((t) => ctx.strokeRect(t.x + 0.5, t.y + 0.5, t.w - 1, t.h - 1));
-
-  // hazards
-  level.hazards.forEach((h) => {
-    const time = performance.now() / 350;
-    if (h.kind === 'fire') {
-      ctx.fillStyle = '#912416';
-      ctx.fillRect(h.x, h.y, h.w, h.h);
-      ctx.fillStyle = '#ff4d2a';
-      for (let i = 0; i < h.w; i += 6) {
-        const y = h.y + (Math.sin(time + (h.x + i) * 0.08) * 2) + 2;
-        ctx.fillRect(h.x + i, y, 3, 5);
-      }
-    } else if (h.kind === 'water') {
-      ctx.fillStyle = '#0a3a70';
-      ctx.fillRect(h.x, h.y, h.w, h.h);
-      ctx.fillStyle = '#35a8ff';
-      for (let i = 0; i < h.w; i += 8) {
-        const y = h.y + (Math.sin(time * 0.8 + (h.x + i) * 0.12) * 2) + 2;
-        ctx.fillRect(h.x + i, y, 4, 2);
-      }
-    } else if (h.kind === 'acid') {
-      ctx.fillStyle = '#3a4d12';
-      ctx.fillRect(h.x, h.y, h.w, h.h);
-      ctx.fillStyle = '#b8ff3a';
-      for (let i = 0; i < h.w; i += 8) {
-        const y = h.y + (Math.cos(time * 1.2 + (h.x + i) * 0.14) * 1.5) + 2;
-        ctx.fillRect(h.x + i, y, 3, 2);
-      }
-    }
-  });
-
-  // doors
-  const drawDoor = (d, color) => {
-    if (!d) return;
-    ctx.fillStyle = '#0a0614';
-    ctx.fillRect(d.x, d.y, d.w, d.h);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 3;
-    ctx.strokeRect(d.x + 2, d.y + 2, d.w - 4, d.h - 4);
-    // ring
-    ctx.beginPath();
-    ctx.arc(d.x + d.w / 2, d.y + 8, 3, 0, Math.PI * 2);
-    ctx.fillStyle = color;
-    ctx.fill();
-  };
-  drawDoor(level.doors.ember, '#ff8a3a');
-  drawDoor(level.doors.tide,  '#35c7ff');
-
-  // gems
-  level.gems.forEach((g) => {
-    if (g.taken) return;
-    const t = performance.now() / 500;
-    const bob = Math.sin(t + g.x * 0.12) * 2;
-    const color = g.kind === 'red' ? '#ff4d6d' : g.kind === 'blue' ? '#35c7ff' : '#ffe14f';
-    ctx.save();
-    ctx.translate(g.x, g.y + bob);
-    ctx.rotate(Math.PI / 4);
-    ctx.fillStyle = color;
-    ctx.fillRect(-6, -6, 12, 12);
-    ctx.fillStyle = 'rgba(255,255,255,0.6)';
-    ctx.fillRect(-4, -6, 2, 4);
-    ctx.restore();
-  });
-
-  // players
-  drawPlayer(ctx, s.ember, '#ff6a2a', '#ffb36a');
-  drawPlayer(ctx, s.tide,  '#35c7ff', '#9be3ff');
-
-  ctx.restore();
-
-  // HUD pickup indicator — rendered inside the level translation so it
-  // tracks the playfield's top-right corner regardless of viewport size.
-  ctx.fillStyle = 'rgba(0,0,0,0.5)';
-  ctx.fillRect(W - 130, 10, 118, 24);
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-  ctx.strokeRect(W - 130.5, 10.5, 117, 23);
-  ctx.fillStyle = '#ffe14f';
-  ctx.font = 'bold 13px "Space Mono", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText(`GEMS  ${gemsGot}/${gemsTotal}`, W - 71, 27);
-
-  // Close the centered-level translation/clip.
-  ctx.restore();
-}
-
-function drawPlayer(ctx, p, main, glow) {
-  if (p.dead) {
-    // ember = red cross, tide = blue cross — quick cue
-    ctx.strokeStyle = main;
-    ctx.lineWidth = 3;
-    const cx = p.x + P_W / 2, cy = p.y + P_H / 2;
-    ctx.beginPath();
-    ctx.moveTo(cx - 6, cy - 6); ctx.lineTo(cx + 6, cy + 6);
-    ctx.moveTo(cx + 6, cy - 6); ctx.lineTo(cx - 6, cy + 6);
-    ctx.stroke();
-    return;
-  }
-  // body
-  ctx.fillStyle = glow;
-  ctx.globalAlpha = 0.28;
-  ctx.fillRect(p.x - 3, p.y - 3, P_W + 6, P_H + 6);
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = main;
-  ctx.fillRect(p.x, p.y, P_W, P_H);
-  // eyes (track facing)
-  ctx.fillStyle = '#0a0d0e';
-  const ex = p.x + (p.facing > 0 ? P_W - 8 : 4);
-  ctx.fillRect(ex, p.y + 8, 3, 4);
-  ctx.fillRect(ex - (p.facing > 0 ? 7 : -7), p.y + 8, 3, 4);
-  // feet puffs when moving fast
-  if (Math.abs(p.vx) > 40 && p.onGround) {
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(p.x - 2, p.y + P_H - 2, P_W + 4, 2);
-  }
 }

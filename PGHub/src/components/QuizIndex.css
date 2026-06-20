@@ -399,6 +399,23 @@
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
 }
 
+.quiz-card-thumb {
+  width: 100%;
+  height: 84px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.quiz-card-thumb .forge-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.quiz-card:hover .quiz-card-thumb { border-color: var(--card-accent, var(--accent)); }
+
 .quiz-card-topic {
   font-size: 0.62rem;
   letter-spacing: 0.08em;

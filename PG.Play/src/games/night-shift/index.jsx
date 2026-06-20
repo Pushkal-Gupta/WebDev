@@ -1,4 +1,4 @@
-// NIGHT SHIFT — original side-view stealth.
+// NIGHT SHIFT — stealth, now in real 3D (Three.js).
 //
 //  • You have three nights, three floors, each ending with a glowing exit door.
 //  • Guards patrol a fixed path. Each sweeps a flashlight cone — enter it
@@ -11,21 +11,33 @@
 //  • Controls: A/D or arrows to move. Shift to tiptoe. R to restart the
 //    current night. Space (or the on-screen pad) also tiptoes for touch.
 //
-// Visual language: shadow is SAFE (cool blue), light is DANGEROUS (warm).
-// Ceiling lamps pour warm pools onto the floor with dust motes in the
-// beams; guard flashlights are the same warm family until alert, when
-// they snap red.
+//  3D rewrite. The ENTIRE simulation is byte-for-byte the original: level
+//  layout, thief movement, guard patrol AI, the cone detection math, loot
+//  pickups, exit/win, lives/score, the submitScore call, and every sfx. Only
+//  the presentation moved from a flat 2D canvas to a real Three.js scene.
+//
+//  Plane mapping (2.5D — the sim is a side-view museum corridor): the sim
+//  runs on the same (x, y) plane it always did, in logical 840x460 px with a
+//  floor line at FLOOR_Y. The renderer maps it onto the z = 0 play plane:
+//      simX → +X,   simY → −Y   (sim y grows downward; three's +Y is up)
+//  so entities stand UP in +Y above the floor. The physics never touches z,
+//  so gravity-free horizontal movement, the cone-contains-player test, loot
+//  proximity and the exit clamp keep their exact 2D meaning. Depth, walls,
+//  display cases, shadows, the 3/4 angled camera and the real SpotLight
+//  vision cones are pure decoration over the unchanged sim.
+//
+//  Visual language preserved: shadow is SAFE, light is DANGEROUS. Warm room
+//  light pools fall on the floor; guard flashlights are real warm SpotLights
+//  that snap red on alert. The scene is intentionally moody/dark — tuned so
+//  the thief, loot and guards still read clearly.
 
 import { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
 import { submitScore } from '../../scoreBus.js';
 import { sfx } from '../../sound.js';
-import { sizeCanvasFluid } from '../../util/canvasDpr.js';
 import { consumeAdminStartLevel } from '../../utils/admin.js';
 
-// Scene dimensions are fixed — levels are hand-tuned to this rect. The
-// fluid sizer fits the canvas to the viewport but the scene is drawn
-// centered inside, with a flat backdrop padding the margins. A wider
-// canvas just gives more room around the same playfield.
+// ── Sim constants — IDENTICAL to the original 2D game. Do not change. ──
 const W = 840;
 const H = 460;
 const FLOOR_Y = 360;
@@ -101,18 +113,774 @@ const LEVELS = [
   },
 ];
 
-// Deterministic per-index jitter for decor / motes — keeps every frame
-// stable without storing particle state.
+// Deterministic per-index jitter — keeps placements stable without state.
 const hash01 = (n) => {
   const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
   return s - Math.floor(s);
 };
 
+// ── 2.5D plane mapping. Sim (x, y) → three world (x, -y). Sim y grows
+// downward (screen coords); three +Y is up, so we negate. The depth of the
+// room is the +Z/−Z axis (decoration only — the sim never sees z). ──
+const w2x = (x) => x;
+const w2y = (y) => -y;
+const ROOM_DEPTH = 220;   // how deep the corridor extends along +Z toward camera
+
+// ----------------------------------------------------------------------
+// Procedural textures (no external assets). Built once, shared.
+// ----------------------------------------------------------------------
+function makeFloorTexture() {
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#11192a';
+  g.fillRect(0, 0, 128, 128);
+  // parquet planks
+  for (let y = 0; y < 128; y += 16) {
+    const shift = ((y / 16) % 2) * 32;
+    for (let x = -32; x < 160; x += 64) {
+      g.fillStyle = ((x + y) / 16) % 2 < 1 ? '#16213a' : '#131c30';
+      g.fillRect(x + shift, y, 62, 14);
+    }
+  }
+  g.strokeStyle = 'rgba(160,190,255,0.05)';
+  g.lineWidth = 1;
+  for (let y = 0; y <= 128; y += 16) { g.beginPath(); g.moveTo(0, y); g.lineTo(128, y); g.stroke(); }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeWallTexture() {
+  const c = document.createElement('canvas');
+  c.width = 128; c.height = 128;
+  const g = c.getContext('2d');
+  g.fillStyle = '#0d1320';
+  g.fillRect(0, 0, 128, 128);
+  // wainscot panels
+  g.strokeStyle = 'rgba(140,170,230,0.10)';
+  g.lineWidth = 2;
+  for (let x = 8; x < 128; x += 40) g.strokeRect(x, 30, 30, 80);
+  g.fillStyle = 'rgba(140,170,230,0.07)';
+  g.fillRect(0, 24, 128, 3);
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeArtTexture(hollow) {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 64;
+  const g = c.getContext('2d');
+  if (hollow) {
+    g.fillStyle = '#1a2336';
+    g.fillRect(0, 0, 64, 64);
+    g.strokeStyle = 'rgba(190,205,235,0.25)';
+    g.setLineDash([5, 5]);
+    g.lineWidth = 2;
+    g.strokeRect(6, 6, 52, 52);
+  } else {
+    const grd = g.createLinearGradient(0, 0, 64, 64);
+    grd.addColorStop(0, '#1c2a45');
+    grd.addColorStop(0.55, '#2c3050');
+    grd.addColorStop(1, '#15203a');
+    g.fillStyle = grd;
+    g.fillRect(0, 0, 64, 64);
+    g.fillStyle = 'rgba(200,215,255,0.16)';
+    g.beginPath();
+    g.moveTo(0, 64); g.lineTo(38, 30); g.lineTo(64, 64); g.closePath(); g.fill();
+    g.beginPath();
+    g.arc(50, 20, 5, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(230,238,255,0.5)'; g.fill();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// Soft radial sprite for room-light floor pools & particles.
+function makeGlowTexture() {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 64;
+  const g = c.getContext('2d');
+  const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  grd.addColorStop(0, 'rgba(255,255,255,1)');
+  grd.addColorStop(0.4, 'rgba(255,255,255,0.5)');
+  grd.addColorStop(1, 'rgba(255,255,255,0)');
+  g.fillStyle = grd;
+  g.fillRect(0, 0, 64, 64);
+  const tex = new THREE.CanvasTexture(c);
+  return tex;
+}
+
+// ----------------------------------------------------------------------
+// Three.js renderer. Built once; rebuildLevel() builds static geometry from
+// the SAME layout the sim uses. render() reads live sim state each frame.
+// dispose() tears everything down.
+// ----------------------------------------------------------------------
+function makeRenderer3D(canvas) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas, antialias: true, powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.3;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color('#060a12');
+  scene.fog = new THREE.Fog('#060a12', 600, 1400);
+
+  // Angled 3/4 top-down camera framing the corridor. Looks down −Z and −Y
+  // at the play plane; high enough to read the whole layout.
+  const camera = new THREE.PerspectiveCamera(42, W / H, 1, 4000);
+  scene.add(camera);
+
+  // ── Lighting. Dark base ambient so stealth reads; warm room pools and the
+  // guard SpotLight cones do the lifting. A soft cool key keeps figures
+  // legible without washing out the dark.
+  const ambient = new THREE.AmbientLight(0x223047, 0.55);
+  scene.add(ambient);
+  const hemi = new THREE.HemisphereLight(0x2a3a5a, 0x05080f, 0.5);
+  scene.add(hemi);
+  // Cool fill from the camera side so the thief/loot/guards are visible.
+  const key = new THREE.DirectionalLight(0x9fc0ff, 0.45);
+  key.position.set(-200, 500, 600);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 2000;
+  key.shadow.camera.left = -560;
+  key.shadow.camera.right = 560;
+  key.shadow.camera.top = 200;
+  key.shadow.camera.bottom = -520;
+  key.shadow.bias = -0.0006;
+  scene.add(key);
+  scene.add(key.target);
+  key.target.position.set(W / 2, w2y(FLOOR_Y), 0);
+  key.target.updateMatrixWorld();
+
+  // Shared textures.
+  const floorTex = makeFloorTexture();
+  floorTex.repeat.set(W / 128, ROOM_DEPTH / 128);
+  const wallTex = makeWallTexture();
+  wallTex.repeat.set(W / 256, 1);
+  const glowTex = makeGlowTexture();
+
+  // Persistent ground + back wall (level-independent geometry).
+  const floorMat = new THREE.MeshStandardMaterial({ map: floorTex, color: '#ffffff', roughness: 0.85, metalness: 0.08 });
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W + 200, ROOM_DEPTH + 80), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.set(W / 2, w2y(FLOOR_Y), ROOM_DEPTH / 2 - 40);
+  floor.receiveShadow = true;
+  scene.add(floor);
+
+  const wallMat = new THREE.MeshStandardMaterial({ map: wallTex, color: '#ffffff', roughness: 0.95, metalness: 0.02 });
+  const backWall = new THREE.Mesh(new THREE.PlaneGeometry(W + 200, 420), wallMat);
+  backWall.position.set(W / 2, w2y(FLOOR_Y) + 210, -40);
+  backWall.receiveShadow = true;
+  scene.add(backWall);
+  // ceiling band (dark cap, anchors the moody ceiling)
+  const ceilMat = new THREE.MeshStandardMaterial({ color: '#070b14', roughness: 1 });
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(W + 200, ROOM_DEPTH + 80), ceilMat);
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.set(W / 2, w2y(FLOOR_Y) + 420, ROOM_DEPTH / 2 - 40);
+  scene.add(ceiling);
+
+  // ── Per-level container + tracked resources for disposal.
+  let levelGroup = new THREE.Group();
+  scene.add(levelGroup);
+  let levelMats = [];
+  let levelGeos = [];
+
+  // Records the render loop animates.
+  let goalRec = null;             // { glowMat, light }
+  const lampRecs = [];            // { light, poolMat, beamMat }
+  const lootRecs = [];            // { group, kind, twinkleMat?, gemMesh? } parallel to s.loot
+  const guardRecs = [];           // { group, spot, coneMat, capMat, exclaim, exclaimMat, torchMat }
+
+  // ── Persistent thief rig — a sleek crouching figure.
+  const thiefGroup = new THREE.Group();
+  const thiefCloth = new THREE.MeshStandardMaterial({ color: '#222c4a', roughness: 0.7, metalness: 0.05 });
+  const thiefSkin = new THREE.MeshStandardMaterial({ color: '#e8c49a', roughness: 0.6 });
+  const beanieMat = new THREE.MeshStandardMaterial({ color: '#39415c', roughness: 0.8 });
+  const limbMat = new THREE.MeshStandardMaterial({ color: '#151b2e', roughness: 0.8 });
+  const sackMat = new THREE.MeshStandardMaterial({ color: '#4a3a22', roughness: 0.85 });
+  // torso
+  const tBody = new THREE.Mesh(new THREE.BoxGeometry(P_W, P_H - 13, 11), thiefCloth);
+  tBody.position.set(0, (P_H - 13) / 2 + 6, 0);
+  tBody.castShadow = true;
+  thiefGroup.add(tBody);
+  // head
+  const tHead = new THREE.Mesh(new THREE.SphereGeometry(6.5, 16, 12), thiefSkin);
+  tHead.position.set(0, P_H - 4, 1);
+  tHead.castShadow = true;
+  thiefGroup.add(tHead);
+  // beanie cap (half sphere over the crown)
+  const tBeanie = new THREE.Mesh(new THREE.SphereGeometry(7, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), beanieMat);
+  tBeanie.position.set(0, P_H - 2, 1);
+  tBeanie.castShadow = true;
+  thiefGroup.add(tBeanie);
+  // loot sack on the back (scales with haul)
+  const tSack = new THREE.Mesh(new THREE.SphereGeometry(5.5, 12, 10), sackMat);
+  tSack.position.set(-8, P_H - 12, -5);
+  tSack.castShadow = true;
+  thiefGroup.add(tSack);
+  // legs (animated)
+  const tLegGeo = new THREE.BoxGeometry(4, 12, 5);
+  const tLegL = new THREE.Mesh(tLegGeo, limbMat); tLegL.castShadow = true;
+  const tLegR = new THREE.Mesh(tLegGeo, limbMat); tLegR.castShadow = true;
+  tLegL.position.set(-3.5, 6, 0);
+  tLegR.position.set(3.5, 6, 0);
+  thiefGroup.add(tLegL); thiefGroup.add(tLegR);
+  thiefGroup.position.z = 0;
+  scene.add(thiefGroup);
+
+  // ── Particle pool — instanced quads (sparkle / dust / alarm). No per-frame
+  // allocation.
+  const PART_N = 200;
+  const partMat = new THREE.MeshBasicMaterial({
+    map: glowTex, transparent: true, depthWrite: false,
+    blending: THREE.AdditiveBlending, vertexColors: true,
+  });
+  const partGeo = new THREE.PlaneGeometry(5, 5);
+  const partMesh = new THREE.InstancedMesh(partGeo, partMat, PART_N);
+  partMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  partMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PART_N * 3), 3);
+  partMesh.frustumCulled = false;
+  scene.add(partMesh);
+
+  // Reusable temps.
+  const _m = new THREE.Matrix4();
+  const _q = new THREE.Quaternion();
+  const _s = new THREE.Vector3();
+  const _p = new THREE.Vector3();
+  const _c = new THREE.Color();
+
+  function disposeGroup(group) {
+    group.traverse((o) => {
+      if (o.geometry) o.geometry.dispose?.();
+    });
+  }
+
+  function clearLevel() {
+    scene.remove(levelGroup);
+    disposeGroup(levelGroup);
+    levelMats.forEach((m) => {
+      // material.dispose() does NOT free attached CanvasTextures (the
+      // per-painting art maps) — free them explicitly to avoid a GPU leak
+      // across level rebuilds.
+      m.map?.dispose?.();
+      m.dispose?.();
+    });
+    levelGeos.forEach((g) => g.dispose?.());
+    levelMats = [];
+    levelGeos = [];
+    goalRec = null;
+    lampRecs.length = 0;
+    lootRecs.length = 0;
+    guardRecs.length = 0;
+    levelGroup = new THREE.Group();
+    scene.add(levelGroup);
+  }
+
+  // ── Build the whole level scene from the SAME layout the sim uses. We only
+  // read coords here; we never change them.
+  function rebuildLevel(state) {
+    clearLevel();
+    camPrimed = false;
+    const lv = state.lv;
+    const fy = w2y(FLOOR_Y);
+
+    // ── Ceiling lamp fixtures + warm room-light pools (PointLights + a
+    // floor glow sprite + a translucent beam cone). "light pool" preserved.
+    lv.lamps.forEach((lx) => {
+      // warm point light hanging from the ceiling
+      const light = new THREE.PointLight(0xffce8c, 0.9, 360, 1.6);
+      light.position.set(lx, fy + 300, 20);
+      light.castShadow = false;
+      levelGroup.add(light);
+      // lamp fixture (small cone shade + bulb)
+      const shadeGeo = new THREE.ConeGeometry(12, 14, 8, 1, true);
+      levelGeos.push(shadeGeo);
+      const shadeMat = new THREE.MeshStandardMaterial({ color: '#222a3d', roughness: 0.8, side: THREE.DoubleSide });
+      levelMats.push(shadeMat);
+      const shade = new THREE.Mesh(shadeGeo, shadeMat);
+      shade.position.set(lx, fy + 308, 20);
+      levelGroup.add(shade);
+      const bulbMat = new THREE.MeshBasicMaterial({ color: '#ffe2ae' });
+      levelMats.push(bulbMat);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(3, 8, 6), bulbMat);
+      levelGeos.push(bulb.geometry);
+      bulb.position.set(lx, fy + 300, 20);
+      levelGroup.add(bulb);
+      // floor light pool — additive glow sprite lying on the floor
+      const poolMat = new THREE.MeshBasicMaterial({
+        map: glowTex, transparent: true, depthWrite: false,
+        blending: THREE.AdditiveBlending, color: '#ffce8c', opacity: 0.55,
+      });
+      levelMats.push(poolMat);
+      const pool = new THREE.Mesh(new THREE.PlaneGeometry(200, 130), poolMat);
+      pool.rotation.x = -Math.PI / 2;
+      pool.position.set(lx, fy + 1.5, 30);
+      levelGroup.add(pool);
+      // soft volumetric beam cone (translucent, additive)
+      const beamMat = new THREE.MeshBasicMaterial({
+        color: '#ffba6e', transparent: true, opacity: 0.06,
+        depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+      });
+      levelMats.push(beamMat);
+      const beamGeo = new THREE.ConeGeometry(95, 300, 16, 1, true);
+      levelGeos.push(beamGeo);
+      const beam = new THREE.Mesh(beamGeo, beamMat);
+      beam.position.set(lx, fy + 150, 24);
+      levelGroup.add(beam);
+      lampRecs.push({ light, poolMat, beamMat });
+    });
+
+    // ── Wall art frames (decor only).
+    (lv.frames || []).forEach((f) => {
+      const frameGeo = new THREE.BoxGeometry(f.w + 8, f.h + 8, 6);
+      levelGeos.push(frameGeo);
+      const goldMat = new THREE.MeshStandardMaterial({ color: '#6b5a32', roughness: 0.5, metalness: 0.5, emissive: '#1a1408', emissiveIntensity: 0.3 });
+      levelMats.push(goldMat);
+      const frame = new THREE.Mesh(frameGeo, goldMat);
+      // wall y: sim f.y is from the top; place mid-frame on the back wall.
+      frame.position.set(f.x + f.w / 2, w2y(f.y + f.h / 2), -34);
+      frame.receiveShadow = true;
+      levelGroup.add(frame);
+      const artMat = new THREE.MeshStandardMaterial({ map: makeArtTexture(false), roughness: 0.7, emissive: '#0a1020', emissiveIntensity: 0.25 });
+      levelMats.push(artMat);
+      const artGeo = new THREE.PlaneGeometry(f.w, f.h);
+      levelGeos.push(artGeo);
+      const art = new THREE.Mesh(artGeo, artMat);
+      art.position.set(f.x + f.w / 2, w2y(f.y + f.h / 2), -30.5);
+      levelGroup.add(art);
+    });
+
+    // ── Shelf with little busts (decor).
+    if (lv.shelf) {
+      const s = lv.shelf;
+      const sy = 132;
+      const shelfGeo = new THREE.BoxGeometry(s.w, 5, 18);
+      levelGeos.push(shelfGeo);
+      const shelfMat = new THREE.MeshStandardMaterial({ color: '#2a3145', roughness: 0.8 });
+      levelMats.push(shelfMat);
+      const shelf = new THREE.Mesh(shelfGeo, shelfMat);
+      shelf.position.set(s.x + s.w / 2, w2y(sy), -24);
+      shelf.castShadow = true; shelf.receiveShadow = true;
+      levelGroup.add(shelf);
+      const bustMat = new THREE.MeshStandardMaterial({ color: '#3d4a68', roughness: 0.6 });
+      levelMats.push(bustMat);
+      for (let i = 0; i < 3; i++) {
+        const vx = s.x + 12 + i * (s.w - 24) / 2;
+        const h = 12 + hash01(s.x + i) * 10;
+        const bg = new THREE.CylinderGeometry(4, 5.5, h, 8);
+        levelGeos.push(bg);
+        const bust = new THREE.Mesh(bg, bustMat);
+        bust.position.set(vx, w2y(sy) + 2.5 + h / 2, -24);
+        bust.castShadow = true;
+        levelGroup.add(bust);
+      }
+    }
+
+    // ── Crates / props (real boxes, from the SAME coords).
+    lv.props.forEach((pr) => {
+      const depth = Math.max(20, pr.h);
+      const geo = new THREE.BoxGeometry(pr.w, pr.h, depth);
+      levelGeos.push(geo);
+      const mat = new THREE.MeshStandardMaterial({ color: '#3a2c18', roughness: 0.85, metalness: 0.05 });
+      levelMats.push(mat);
+      const m = new THREE.Mesh(geo, mat);
+      // sim prop top-left at (pr.x, pr.y); center it, stand it on the floor plane.
+      m.position.set(pr.x + pr.w / 2, w2y(pr.y + pr.h / 2), depth / 2 - 4);
+      m.castShadow = true; m.receiveShadow = true;
+      levelGroup.add(m);
+    });
+
+    // ── Exit doorway — lit cool doorway (cool = safe).
+    {
+      const dx = lv.exit;
+      const frameMat = new THREE.MeshStandardMaterial({
+        color: '#0a3a36', emissive: '#00fff5', emissiveIntensity: 0.5,
+        roughness: 0.4, metalness: 0.3,
+      });
+      levelMats.push(frameMat);
+      const jambGeo = new THREE.BoxGeometry(8, 72, 14);
+      levelGeos.push(jambGeo);
+      const left = new THREE.Mesh(jambGeo, frameMat);
+      left.position.set(dx - 2, w2y(FLOOR_Y - 36), -10);
+      const right = new THREE.Mesh(jambGeo, frameMat);
+      right.position.set(dx + 34, w2y(FLOOR_Y - 36), -10);
+      const lintelGeo = new THREE.BoxGeometry(44, 8, 14);
+      levelGeos.push(lintelGeo);
+      const lintel = new THREE.Mesh(lintelGeo, frameMat);
+      lintel.position.set(dx + 16, w2y(FLOOR_Y - 72), -10);
+      levelGroup.add(left); levelGroup.add(right); levelGroup.add(lintel);
+      // glowing inner panel
+      const panelMat = new THREE.MeshBasicMaterial({ color: '#00fff5', transparent: true, opacity: 0.5 });
+      levelMats.push(panelMat);
+      const panelGeo = new THREE.PlaneGeometry(30, 64);
+      levelGeos.push(panelGeo);
+      const panel = new THREE.Mesh(panelGeo, panelMat);
+      panel.position.set(dx + 16, w2y(FLOOR_Y - 32), -16);
+      levelGroup.add(panel);
+      // cool door light
+      const dLight = new THREE.PointLight(0x00fff5, 0.7, 220, 2);
+      dLight.position.set(dx + 16, w2y(FLOOR_Y - 36), 20);
+      levelGroup.add(dLight);
+      goalRec = { glowMat: panelMat, light: dLight };
+    }
+
+    // ── Loot — glinting 3D gems on pedestals / paintings on the wall.
+    state.loot.forEach((o, i) => {
+      const group = new THREE.Group();
+      if (o.kind === 'painting') {
+        // gilded frame on the wall, with art that vanishes when taken.
+        const frameGeo = new THREE.BoxGeometry(54, 44, 6);
+        levelGeos.push(frameGeo);
+        const goldMat = new THREE.MeshStandardMaterial({ color: '#caa84a', roughness: 0.4, metalness: 0.6, emissive: '#2a2008', emissiveIntensity: 0.4 });
+        levelMats.push(goldMat);
+        const frame = new THREE.Mesh(frameGeo, goldMat);
+        frame.position.set(o.x, w2y(o.y + 18), -34);
+        group.add(frame);
+        const artMat = new THREE.MeshStandardMaterial({ map: makeArtTexture(false), roughness: 0.6, emissive: '#101830', emissiveIntensity: 0.3 });
+        levelMats.push(artMat);
+        const artGeo = new THREE.PlaneGeometry(44, 36);
+        levelGeos.push(artGeo);
+        const art = new THREE.Mesh(artGeo, artMat);
+        art.position.set(o.x, w2y(o.y + 18), -30.5);
+        group.add(art);
+        levelGroup.add(group);
+        lootRecs[i] = { group, kind: 'painting', art, artMat };
+      } else {
+        // pedestal + floating gem
+        const pedGeo = new THREE.CylinderGeometry(11, 13, 24, 12);
+        levelGeos.push(pedGeo);
+        const pedMat = new THREE.MeshStandardMaterial({ color: '#2c3650', roughness: 0.7, metalness: 0.1 });
+        levelMats.push(pedMat);
+        const ped = new THREE.Mesh(pedGeo, pedMat);
+        ped.position.set(o.x, w2y(FLOOR_Y - 12), 30);
+        ped.castShadow = true; ped.receiveShadow = true;
+        group.add(ped);
+        const gemGeo = new THREE.OctahedronGeometry(8, 0);
+        levelGeos.push(gemGeo);
+        const gemMat = new THREE.MeshStandardMaterial({
+          color: '#37e0c0', emissive: '#1fa890', emissiveIntensity: 0.6,
+          roughness: 0.15, metalness: 0.4, flatShading: true,
+        });
+        levelMats.push(gemMat);
+        const gem = new THREE.Mesh(gemGeo, gemMat);
+        gem.position.set(o.x, w2y(FLOOR_Y - 36), 30);
+        gem.castShadow = true;
+        group.add(gem);
+        // gem glow light
+        const gLight = new THREE.PointLight(0x37e0c0, 0.35, 90, 2);
+        gLight.position.set(o.x, w2y(FLOOR_Y - 36), 36);
+        group.add(gLight);
+        levelGroup.add(group);
+        lootRecs[i] = { group, kind: 'gem', gemMesh: gem, gemMat, gLight, baseY: w2y(FLOOR_Y - 36) };
+      }
+    });
+
+    // ── Guards — real 3D figures with a head + flashlight + a real cone of
+    // light (SpotLight) plus a translucent cone mesh for the visible beam.
+    state.guards.forEach((g, i) => {
+      const group = new THREE.Group();
+      // torso (navy uniform)
+      const torsoMat = new THREE.MeshStandardMaterial({ color: '#2d3c5e', roughness: 0.7 });
+      levelMats.push(torsoMat);
+      const torso = new THREE.Mesh(new THREE.BoxGeometry(P_W, P_H - 13, 12), torsoMat);
+      levelGeos.push(torso.geometry);
+      torso.position.set(0, (P_H - 13) / 2 + 6, 0);
+      torso.castShadow = true;
+      group.add(torso);
+      // belt
+      const beltMat = new THREE.MeshStandardMaterial({ color: '#161e2e', roughness: 0.6 });
+      levelMats.push(beltMat);
+      const belt = new THREE.Mesh(new THREE.BoxGeometry(P_W + 1, 4, 13), beltMat);
+      levelGeos.push(belt.geometry);
+      belt.position.set(0, 9, 0);
+      group.add(belt);
+      // head
+      const head = new THREE.Mesh(new THREE.SphereGeometry(6.5, 16, 12), new THREE.MeshStandardMaterial({ color: '#ffd1a6', roughness: 0.6 }));
+      levelMats.push(head.material); levelGeos.push(head.geometry);
+      head.position.set(0, P_H - 4, 1);
+      head.castShadow = true;
+      group.add(head);
+      // cap (color flips red on alert)
+      const capMat = new THREE.MeshStandardMaterial({ color: '#1b2534', roughness: 0.7 });
+      levelMats.push(capMat);
+      const cap = new THREE.Mesh(new THREE.CylinderGeometry(7, 7, 5, 10), capMat);
+      levelGeos.push(cap.geometry);
+      cap.position.set(0, P_H + 1, 1);
+      group.add(cap);
+      // legs
+      const gLegGeo = new THREE.BoxGeometry(4, 12, 5);
+      levelGeos.push(gLegGeo);
+      const gLegMat = new THREE.MeshStandardMaterial({ color: '#1c2638', roughness: 0.8 });
+      levelMats.push(gLegMat);
+      const gLegL = new THREE.Mesh(gLegGeo, gLegMat); gLegL.castShadow = true;
+      const gLegR = new THREE.Mesh(gLegGeo, gLegMat); gLegR.castShadow = true;
+      gLegL.position.set(-3.5, 6, 0);
+      gLegR.position.set(3.5, 6, 0);
+      group.add(gLegL); group.add(gLegR);
+      // torch (flashlight) — emissive cylinder held forward
+      const torchMat = new THREE.MeshStandardMaterial({ color: '#11151f', emissive: '#ffe4a4', emissiveIntensity: 0.8, roughness: 0.4 });
+      levelMats.push(torchMat);
+      const torch = new THREE.Mesh(new THREE.CylinderGeometry(2, 2.5, 8, 8), torchMat);
+      levelGeos.push(torch.geometry);
+      torch.rotation.z = Math.PI / 2;
+      torch.position.set(10, P_H - 8, 8);
+      group.add(torch);
+
+      // Real vision SpotLight — the danger cone. Angle/range matched to the
+      // sim's CONE_HALF_ANGLE / CONE_RANGE so the light reads as the hitbox.
+      const spot = new THREE.SpotLight(0xffe4a4, 6.0, CONE_RANGE * 1.05, CONE_HALF_ANGLE, 0.45, 1.4);
+      spot.position.set(10, P_H - 8, 8);
+      spot.castShadow = false;
+      group.add(spot);
+      group.add(spot.target);
+
+      // Translucent visible beam cone mesh (additive) for the volumetric look.
+      const coneMat = new THREE.MeshBasicMaterial({
+        color: '#ffe4a4', transparent: true, opacity: 0.18,
+        depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
+      });
+      levelMats.push(coneMat);
+      // cone of radius = range*tan(halfAngle), height = range; built along +X
+      const coneR = CONE_RANGE * Math.tan(CONE_HALF_ANGLE);
+      const coneGeo = new THREE.ConeGeometry(coneR, CONE_RANGE, 18, 1, true);
+      levelGeos.push(coneGeo);
+      const coneMesh = new THREE.Mesh(coneGeo, coneMat);
+      // ConeGeometry points +Y by default; rotate so it opens along +X, apex
+      // at the torch. Pivot the cone group so apex sits at torch.
+      const coneGroup = new THREE.Group();
+      coneMesh.rotation.z = -Math.PI / 2;   // tip toward +X
+      coneMesh.position.x = CONE_RANGE / 2;  // shift so apex at origin
+      coneGroup.add(coneMesh);
+      coneGroup.position.set(10, P_H - 8, 8);
+      group.add(coneGroup);
+
+      // "!" exclaim sprite above head (alert pop).
+      const exclaimMat = new THREE.MeshBasicMaterial({ color: '#ff4d6d', transparent: true, opacity: 0, depthTest: false });
+      levelMats.push(exclaimMat);
+      const exclaim = new THREE.Mesh(new THREE.PlaneGeometry(8, 16), exclaimMat);
+      levelGeos.push(exclaim.geometry);
+      exclaim.position.set(0, P_H + 16, 4);
+      group.add(exclaim);
+
+      levelGroup.add(group);
+      guardRecs[i] = { group, spot, coneGroup, coneMesh, coneMat, capMat, head, exclaim, exclaimMat, torch };
+      void g;
+    });
+  }
+
+  // ── Manual sizing (NOT sizeCanvasFluid).
+  let camPrimed = false;
+  function resize(cssW, cssH) {
+    const w = Math.max(1, cssW), h = Math.max(1, cssH);
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+
+  // Camera distance to fit W sim-px across, matching the original framing.
+  function camDistanceForSpan(spanX) {
+    const vHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+    const hHalf = Math.atan(Math.tan(vHalf) * Math.max(0.4, camera.aspect));
+    return (spanX / 2) / Math.tan(hHalf);
+  }
+
+  // ── Per-frame render. Reads sim state; never mutates it.
+  function render(state, rawDt) {
+    if (!state) return;
+    const t = performance.now() / 1000;
+    const p = state.player;
+    const alert = !!state.alert;
+
+    // Camera: angled 3/4 framing of the whole corridor, gently following the
+    // thief horizontally so it reads the layout. Sit back and above.
+    const dist = camDistanceForSpan(W * 1.02);
+    const centerX = THREE.MathUtils.clamp(p.x + P_W / 2, W * 0.34, W * 0.66);
+    const targetX = w2x(centerX);
+    const targetY = w2y(FLOOR_Y) + 70;
+    const camTX = targetX;
+    const camTY = targetY + dist * 0.42;       // raise for the top-down tilt
+    const camTZ = dist * 0.92;
+    if (!camPrimed) {
+      camera.position.set(camTX, camTY, camTZ);
+      camPrimed = true;
+    } else {
+      const k = Math.min(1, rawDt * 6);
+      camera.position.x += (camTX - camera.position.x) * k;
+      camera.position.y += (camTY - camera.position.y) * k;
+      camera.position.z += (camTZ - camera.position.z) * k;
+    }
+    camera.lookAt(targetX, w2y(FLOOR_Y) + 60, 0);
+
+    // ── Room lamp pools flicker (matches the 2D flicker).
+    lampRecs.forEach((rec, li) => {
+      const flick = 1 + 0.04 * Math.sin(t * 7.3 + li * 9.1) * Math.sin(t * 1.7 + li);
+      rec.light.intensity = 0.9 * flick;
+      rec.poolMat.opacity = 0.55 * flick;
+      rec.beamMat.opacity = 0.06 * flick;
+    });
+
+    // ── Exit door glow pulse.
+    if (goalRec) {
+      const dg = 0.55 + 0.25 * Math.sin(t * 3.6);
+      goalRec.glowMat.opacity = dg;
+      goalRec.light.intensity = 0.5 + 0.4 * dg;
+    }
+
+    // ── Loot — float/spin gems, hide taken, paintings vanish when taken.
+    for (let i = 0; i < lootRecs.length; i++) {
+      const o = state.loot[i];
+      const rec = lootRecs[i];
+      if (!rec || !o) continue;
+      if (rec.kind === 'gem') {
+        rec.gemMesh.visible = !o.taken;
+        rec.gLight.visible = !o.taken;
+        if (!o.taken) {
+          rec.gemMesh.position.y = rec.baseY + Math.sin(t * 2.2 + i * 2.1) * 2;
+          rec.gemMesh.rotation.y = t * 1.5 + i;
+          rec.gemMat.emissiveIntensity = 0.5 + 0.25 * Math.abs(Math.sin(t * 1.8 + i));
+        }
+      } else {
+        // painting taken → leave the empty hollow frame look (art hidden).
+        rec.art.visible = !o.taken;
+      }
+    }
+
+    // ── Guards — position + facing + cone aim + alert state.
+    for (let i = 0; i < guardRecs.length; i++) {
+      const g = state.guards[i];
+      const rec = guardRecs[i];
+      if (!g || !rec) continue;
+      const bob = Math.sin(g.phase) * 1.2;
+      // stand the figure on the floor: sim guard top-left (g.x, g.y), feet at FLOOR_Y.
+      rec.group.position.set(g.x + P_W / 2, w2y(FLOOR_Y), 0);
+      rec.group.position.y += bob * 0.5;
+      // facing — flip the whole rig by g.dir.
+      rec.group.scale.x = g.dir >= 0 ? 1 : -1;
+      // cone aim — the SAME aim wobble the 2D version used (visual only).
+      const aimWobble = Math.sin(g.phase * 0.8) * 0.05;
+      rec.coneGroup.rotation.z = aimWobble;
+      rec.spot.position.set(10, P_H - 8, 8);
+      rec.spot.target.position.set(10 + CONE_RANGE * Math.cos(aimWobble), P_H - 8 + CONE_RANGE * Math.sin(aimWobble), 8);
+      rec.spot.target.updateMatrixWorld();
+      // alert colors: warm → red.
+      const coneCol = alert ? '#ff5060' : '#ffe4a4';
+      rec.coneMat.color.set(coneCol);
+      rec.coneMat.opacity = alert ? 0.30 : 0.18;
+      rec.spot.color.set(coneCol);
+      rec.spot.intensity = alert ? 8 : 6;
+      rec.capMat.color.set(alert ? '#5e1b28' : '#1b2534');
+      rec.torch.material.emissive.set(coneCol);
+      // "!" pop above head when fully spotted.
+      if (alert && g.alertPop > 0) {
+        const kk = Math.min(1, g.alertPop / 0.22);
+        const e = 1 - Math.pow(1 - kk, 3);
+        rec.exclaimMat.opacity = e;
+        rec.exclaim.scale.setScalar(0.6 + e * (0.6 + 0.4 * Math.sin(kk * Math.PI)));
+      } else {
+        rec.exclaimMat.opacity = 0;
+      }
+    }
+
+    // ── Thief rig — position, facing, crouch, leg stride, sack swell.
+    thiefGroup.position.set(w2x(p.x + P_W / 2), w2y(FLOOR_Y), 0);
+    thiefGroup.scale.x = p.facing >= 0 ? 1 : -1;
+    // crouch when sneaking: scale the body down a touch + lower head.
+    const crouch = p.sneak ? 0.82 : 1;
+    tBody.scale.y = crouch;
+    tBody.position.y = ((P_H - 13) / 2 + 6) * crouch;
+    tHead.position.y = (P_H - 4) * crouch;
+    tBeanie.position.y = (P_H - 2) * crouch;
+    tSack.position.y = (P_H - 12) * crouch;
+    // sack swells with the haul.
+    const sackScale = 1 + Math.min(0.9, (state.lootCount || 0) * 0.28);
+    tSack.scale.setScalar(sackScale);
+    // leg stride.
+    const stride = p.moving ? Math.sin(p.stride * Math.PI * 2) * (p.sneak ? 0.5 : 0.9) : 0;
+    tLegL.rotation.x = stride;
+    tLegR.rotation.x = -stride;
+
+    // ── Particles (sparkle on grab, dust on step, red alarm flash on spot).
+    let pi = 0;
+    for (const q of state.parts) {
+      if (pi >= PART_N) break;
+      const a = Math.max(0, 1 - q.t / 0.6);
+      _p.set(w2x(q.x), w2y(q.y), 18);
+      _q.identity();
+      const sz = 0.4 + a * 1.1;
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      _c.set(q.hue || '#ffd86e');
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    for (let k = pi; k < PART_N; k++) {
+      _m.makeScale(0, 0, 0);
+      partMesh.setMatrixAt(k, _m);
+    }
+    partMesh.count = PART_N;
+    partMesh.instanceMatrix.needsUpdate = true;
+    if (partMesh.instanceColor) partMesh.instanceColor.needsUpdate = true;
+
+    // ── Detection / alarm tint via exposure + ambient (visual only). Red
+    // pressure when seen, hard red flash when caught.
+    const hb = state.heartPulse * Math.min(1, state.detect + (alert ? 1 : 0));
+    const caughtFlash = Math.max(0, state.caughtFlash);
+    const exitFlash = Math.max(0, state.exitFlash);
+    if (caughtFlash > 0) {
+      ambient.color.set('#ff2d3d');
+      ambient.intensity = 0.55 + caughtFlash * 1.4;
+    } else if (exitFlash > 0) {
+      ambient.color.set('#00fff5');
+      ambient.intensity = 0.55 + exitFlash * 0.8;
+    } else {
+      ambient.color.set('#223047');
+      ambient.intensity = 0.55 + hb * 0.25;
+    }
+    renderer.toneMappingExposure = 1.3 + hb * 0.12;
+
+    renderer.render(scene, camera);
+  }
+
+  function dispose() {
+    clearLevel();
+    scene.remove(levelGroup);
+    // persistent meshes
+    thiefGroup.traverse((o) => { o.geometry?.dispose?.(); });
+    [thiefCloth, thiefSkin, beanieMat, limbMat, sackMat].forEach((m) => m.dispose?.());
+    floor.geometry.dispose(); floorMat.dispose();
+    backWall.geometry.dispose(); wallMat.dispose();
+    ceiling.geometry.dispose(); ceilMat.dispose();
+    floorTex.dispose(); wallTex.dispose(); glowTex.dispose();
+    partGeo.dispose(); partMat.dispose();
+    renderer.dispose();
+  }
+
+  return { scene, camera, renderer, rebuildLevel, render, resize, dispose };
+}
+
+// ----------------------------------------------------------------------
+// Component
+// ----------------------------------------------------------------------
 export default function NightShiftGame() {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
   const stateRef  = useRef(null);
-  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 }); // fluid render dimensions
+  const rendererRef = useRef(null);
   const submittedRef = useRef(false);
   const lootBankRef = useRef(0);      // value from completed nights
   const lootLogRef = useRef([]);      // ["2/2", ...] per finished night
@@ -133,6 +901,7 @@ export default function NightShiftGame() {
       guards: lv.guards.map((g) => ({ ...g, phase: Math.random() * Math.PI * 2, alertPop: 0 })),
       loot: lv.loot.map((o) => ({ ...o, taken: false })),
       lootVal: 0,
+      lootCount: 0,
       detect: 0,
       sightPop: 0,        // "?" pop timer — restarts each time sight is regained
       sighted: false,
@@ -146,6 +915,8 @@ export default function NightShiftGame() {
       exitFlash: 0,
     };
     setLootHud(lootBankRef.current);
+    // Rebuild the 3D scene for this level (if the renderer is up).
+    if (rendererRef.current) rendererRef.current.rebuildLevel(stateRef.current);
   };
 
   useEffect(() => {
@@ -157,20 +928,34 @@ export default function NightShiftGame() {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
-    const ctx = canvas.getContext('2d');
 
-    // Fluid sizer — uniform scale-to-fit so the 840×460 corridor never
-    // clips off-screen on short widescreen viewports.
-    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      const scaleW = cssW / W;
-      const scaleH = cssH / H;
-      const scale = Math.max(0.5, Math.min(scaleW, scaleH, 1.6));
-      const dispW = W * scale;
-      const dispH = H * scale;
-      const offX = (cssW - dispW) / 2;
-      const offY = (cssH - dispH) / 2;
-      viewRef.current = { cssW, cssH, scale, offX, offY };
-    });
+    // ── Build the WebGL renderer. WebGL can be unavailable (old GPU, blocked
+    // context); fail loud in DEV but don't crash the host page.
+    let renderer = null;
+    try { renderer = makeRenderer3D(canvas); }
+    catch (err) { renderer = null; if (import.meta.env.DEV) console.error('[night-shift] WebGL init failed', err); }
+    rendererRef.current = renderer;
+    // The level was loaded before the renderer existed — build its scene now.
+    if (renderer && stateRef.current) renderer.rebuildLevel(stateRef.current);
+
+    if (import.meta.env.DEV && renderer) {
+      window.__bob3d = { scene: renderer.scene, camera: renderer.camera, renderer: renderer.renderer };
+    }
+
+    // ── Manual fluid sizing (NOT sizeCanvasFluid — it grabs a 2D context,
+    // locking the canvas out of WebGL). ResizeObserver + orientationchange.
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const sizeCanvas = () => {
+      const cssW = Math.max(320, Math.floor(wrap.clientWidth));
+      const cssH = Math.max(180, Math.floor(wrap.clientHeight));
+      renderer?.resize(cssW, cssH);
+    };
+    sizeCanvas();
+    const ro = new ResizeObserver(sizeCanvas);
+    ro.observe(wrap);
+    const onOrient = () => sizeCanvas();
+    window.addEventListener('orientationchange', onOrient);
 
     const keys = {};
     const kd = (e) => {
@@ -189,9 +974,7 @@ export default function NightShiftGame() {
     window.addEventListener('keydown', kd);
     window.addEventListener('keyup', ku);
 
-    // Touch overlay flags — flipped by the pill buttons rendered in JSX
-    // below. The wrap element exposes a setter so the React-side handlers
-    // can talk to the loop's local state without re-binding refs.
+    // Touch overlay flags — flipped by the pill buttons rendered in JSX below.
     const touchKeys = { left: false, right: false, tiptoe: false };
     wrap._setTouch = (id, v) => {
       if (id === 'left')   touchKeys.left   = v;
@@ -199,6 +982,7 @@ export default function NightShiftGame() {
       if (id === 'tiptoe') touchKeys.tiptoe = v;
     };
 
+    // ── Sim: cone-contains-player — IDENTICAL math to the 2D original.
     const coneContainsPlayer = (g, px, py) => {
       const dx = px - g.x;
       const dy = py - g.y;
@@ -216,600 +1000,6 @@ export default function NightShiftGame() {
       setCaught((c) => c + 1);
       setStatus('playing');
       loadLevel(level);
-    };
-
-    // ── draw helpers ────────────────────────────────────────────
-
-    const drawBackdrop = (t) => {
-      // Cool, dark museum interior — the resting state of the scene.
-      const grad = ctx.createLinearGradient(0, 0, 0, H);
-      grad.addColorStop(0, '#0d1320');
-      grad.addColorStop(0.78, '#101725');
-      grad.addColorStop(1, '#080c14');
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, W, H);
-
-      // Ceiling band + cornice line
-      ctx.fillStyle = '#0a0f1a';
-      ctx.fillRect(0, 0, W, 38);
-      ctx.fillStyle = 'rgba(120,150,210,0.10)';
-      ctx.fillRect(0, 38, W, 2);
-
-      // Wainscot panel grid on the wall
-      ctx.strokeStyle = 'rgba(140,170,230,0.06)';
-      ctx.lineWidth = 1;
-      const panelW = W / 7;
-      for (let i = 0; i < 7; i++) {
-        const px0 = i * panelW + 10;
-        ctx.strokeRect(px0, 178, panelW - 20, 96);
-        ctx.strokeRect(px0 + 6, 184, panelW - 32, 84);
-      }
-      // Chair rail
-      ctx.fillStyle = 'rgba(140,170,230,0.08)';
-      ctx.fillRect(0, 170, W, 3);
-
-      // baseboard
-      ctx.fillStyle = '#222d44';
-      ctx.fillRect(0, FLOOR_Y - 5, W, 5);
-      // floor
-      const floorGrad = ctx.createLinearGradient(0, FLOOR_Y, 0, H);
-      floorGrad.addColorStop(0, '#161e30');
-      floorGrad.addColorStop(1, '#0a0e17');
-      ctx.fillStyle = floorGrad;
-      ctx.fillRect(0, FLOOR_Y, W, H - FLOOR_Y);
-      // floor boards
-      ctx.strokeStyle = 'rgba(160,190,255,0.045)';
-      ctx.lineWidth = 1;
-      for (let x = 0; x < W; x += 42) {
-        ctx.beginPath();
-        ctx.moveTo(x, FLOOR_Y);
-        ctx.lineTo(x + 26, H);
-        ctx.stroke();
-      }
-      ctx.strokeStyle = 'rgba(160,190,255,0.03)';
-      for (let y = FLOOR_Y + 18; y < H; y += 24) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(W, y);
-        ctx.stroke();
-      }
-      void t;
-    };
-
-    const drawFrame = (f, hollow) => {
-      // Gilded frame; `hollow` leaves a pale dust-shadow where art used to hang.
-      ctx.fillStyle = '#3a3424';
-      ctx.fillRect(f.x - 3, f.y - 3, f.w + 6, f.h + 6);
-      ctx.strokeStyle = '#6b5a32';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(f.x - 3, f.y - 3, f.w + 6, f.h + 6);
-      if (hollow) {
-        ctx.fillStyle = 'rgba(190,205,235,0.07)';
-        ctx.fillRect(f.x, f.y, f.w, f.h);
-        ctx.strokeStyle = 'rgba(190,205,235,0.14)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([4, 4]);
-        ctx.strokeRect(f.x + 3, f.y + 3, f.w - 6, f.h - 6);
-        ctx.setLineDash([]);
-      } else {
-        const art = ctx.createLinearGradient(f.x, f.y, f.x + f.w, f.y + f.h);
-        art.addColorStop(0, '#1c2a45');
-        art.addColorStop(0.55, '#2c3050');
-        art.addColorStop(1, '#15203a');
-        ctx.fillStyle = art;
-        ctx.fillRect(f.x, f.y, f.w, f.h);
-        // A hint of a subject — diagonal hill + moon dot, museum-vague
-        ctx.fillStyle = 'rgba(200,215,255,0.10)';
-        ctx.beginPath();
-        ctx.moveTo(f.x, f.y + f.h);
-        ctx.lineTo(f.x + f.w * 0.6, f.y + f.h * 0.45);
-        ctx.lineTo(f.x + f.w, f.y + f.h);
-        ctx.closePath();
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(f.x + f.w * 0.78, f.y + f.h * 0.3, 3, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(230,238,255,0.18)';
-        ctx.fill();
-      }
-    };
-
-    const drawDecor = (lv) => {
-      (lv.frames || []).forEach((f) => drawFrame(f, false));
-      if (lv.shelf) {
-        const s = lv.shelf;
-        const sy = 132;
-        ctx.fillStyle = '#2a3145';
-        ctx.fillRect(s.x, sy, s.w, 5);
-        ctx.fillStyle = '#1c2333';
-        ctx.fillRect(s.x + 4, sy + 5, 4, 10);
-        ctx.fillRect(s.x + s.w - 8, sy + 5, 4, 10);
-        // little vases / busts on the shelf
-        for (let i = 0; i < 3; i++) {
-          const vx = s.x + 12 + i * (s.w - 24) / 2;
-          const h = 10 + hash01(s.x + i) * 8;
-          ctx.fillStyle = i === 1 ? '#3d4a68' : '#33405c';
-          ctx.beginPath();
-          ctx.ellipse(vx, sy - h / 2, 4.5, h / 2, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    };
-
-    const drawLamps = (lv, t) => {
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      lv.lamps.forEach((lx, li) => {
-        const flick = 1 + 0.04 * Math.sin(t * 7.3 + li * 9.1) * Math.sin(t * 1.7 + li);
-        // beam — widening trapezoid, warm, brighter near the lamp
-        const beam = ctx.createLinearGradient(0, 44, 0, FLOOR_Y);
-        beam.addColorStop(0, `rgba(255,198,120,${0.17 * flick})`);
-        beam.addColorStop(0.6, `rgba(255,186,110,${0.07 * flick})`);
-        beam.addColorStop(1, 'rgba(255,180,100,0.025)');
-        ctx.fillStyle = beam;
-        ctx.beginPath();
-        ctx.moveTo(lx - 13, 44);
-        ctx.lineTo(lx + 13, 44);
-        ctx.lineTo(lx + 92, FLOOR_Y);
-        ctx.lineTo(lx - 92, FLOOR_Y);
-        ctx.closePath();
-        ctx.fill();
-        // pool on the floor
-        ctx.save();
-        ctx.translate(lx, FLOOR_Y + 2);
-        ctx.scale(1, 0.17);
-        const pool = ctx.createRadialGradient(0, 0, 8, 0, 0, 96);
-        pool.addColorStop(0, `rgba(255,206,140,${0.30 * flick})`);
-        pool.addColorStop(1, 'rgba(255,190,110,0)');
-        ctx.fillStyle = pool;
-        ctx.beginPath();
-        ctx.arc(0, 0, 96, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-        // floor reflection — soft vertical mirror of the beam fading down
-        const refl = ctx.createLinearGradient(0, FLOOR_Y, 0, FLOOR_Y + 72);
-        refl.addColorStop(0, `rgba(255,196,124,${0.10 * flick})`);
-        refl.addColorStop(1, 'rgba(255,190,110,0)');
-        ctx.fillStyle = refl;
-        ctx.beginPath();
-        ctx.moveTo(lx - 88, FLOOR_Y);
-        ctx.lineTo(lx + 88, FLOOR_Y);
-        ctx.lineTo(lx + 26, FLOOR_Y + 72);
-        ctx.lineTo(lx - 26, FLOOR_Y + 72);
-        ctx.closePath();
-        ctx.fill();
-        // dust motes drifting in the beam
-        for (let i = 0; i < 9; i++) {
-          const seed = li * 97 + i * 31;
-          const span = FLOOR_Y - 92;
-          const yy = 64 + ((t * (6 + hash01(seed) * 7) + hash01(seed + 1) * span) % span);
-          const frac = (yy - 44) / (FLOOR_Y - 44);
-          const halfW = 13 + frac * 76;
-          const xx = lx + Math.sin(t * 0.55 + seed) * halfW * 0.8;
-          const a = 0.05 + 0.18 * (0.5 + 0.5 * Math.sin(t * 2.1 + seed * 1.7));
-          ctx.fillStyle = `rgba(255,224,170,${a * frac})`;
-          ctx.fillRect(xx, yy, 1.6, 1.6);
-        }
-      });
-      ctx.restore();
-      // lamp fixtures drawn over the light
-      lv.lamps.forEach((lx) => {
-        ctx.strokeStyle = '#1a2030';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(lx, 38);
-        ctx.lineTo(lx, 30);
-        ctx.stroke();
-        ctx.fillStyle = '#222a3d';
-        ctx.beginPath();
-        ctx.moveTo(lx - 14, 44);
-        ctx.lineTo(lx - 7, 36);
-        ctx.lineTo(lx + 7, 36);
-        ctx.lineTo(lx + 14, 44);
-        ctx.closePath();
-        ctx.fill();
-        ctx.fillStyle = '#ffe2ae';
-        ctx.beginPath();
-        ctx.arc(lx, 44, 3, 0, Math.PI * 2);
-        ctx.fill();
-      });
-    };
-
-    const drawCone = (g, alert) => {
-      const bob = Math.sin(g.phase) * 1.2;
-      const cx = g.x + P_W / 2 + g.dir * 9;
-      const cy = g.y + 12 + bob;
-      // Subtle sweep — the beam wanders with the guard's gait (visual only;
-      // detection math stays on the fixed axis).
-      const aim = (g.dir >= 0 ? 0 : Math.PI) + Math.sin(g.phase * 0.8) * 0.05 * (g.dir >= 0 ? 1 : -1);
-      const core = alert ? 'rgba(255,96,104,' : 'rgba(255,228,164,';
-      const wash = alert ? 'rgba(255,52,72,'  : 'rgba(255,184,96,';
-      ctx.save();
-      ctx.globalCompositeOperation = 'screen';
-      // outer wash — full cone, soft falloff
-      const g1 = ctx.createRadialGradient(cx, cy, 8, cx, cy, CONE_RANGE);
-      g1.addColorStop(0, wash + (alert ? 0.40 : 0.26) + ')');
-      g1.addColorStop(0.7, wash + (alert ? 0.16 : 0.09) + ')');
-      g1.addColorStop(1, wash + '0)');
-      ctx.fillStyle = g1;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, CONE_RANGE, aim - CONE_HALF_ANGLE, aim + CONE_HALF_ANGLE);
-      ctx.closePath();
-      ctx.fill();
-      // bright core — narrower wedge, hotter
-      const g2 = ctx.createRadialGradient(cx, cy, 6, cx, cy, CONE_RANGE * 0.92);
-      g2.addColorStop(0, core + (alert ? 0.5 : 0.34) + ')');
-      g2.addColorStop(1, core + '0)');
-      ctx.fillStyle = g2;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.arc(cx, cy, CONE_RANGE * 0.92, aim - CONE_HALF_ANGLE * 0.45, aim + CONE_HALF_ANGLE * 0.45);
-      ctx.closePath();
-      ctx.fill();
-      // torch flare
-      const g3 = ctx.createRadialGradient(cx, cy, 0, cx, cy, 12);
-      g3.addColorStop(0, core + '0.8)');
-      g3.addColorStop(1, core + '0)');
-      ctx.fillStyle = g3;
-      ctx.beginPath();
-      ctx.arc(cx, cy, 12, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    };
-
-    const drawGuard = (g, alert) => {
-      const bob = Math.sin(g.phase) * 1.2;
-      const x = g.x, y = g.y + bob * 0.5;
-      const cxm = x + P_W / 2;
-      const swing = alert ? 0 : Math.sin(g.phase) * 4;
-      // legs — uniform slacks
-      ctx.strokeStyle = '#1c2638';
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(cxm - 3, y + P_H - 11);
-      ctx.lineTo(cxm - 3 + swing, FLOOR_Y);
-      ctx.moveTo(cxm + 3, y + P_H - 11);
-      ctx.lineTo(cxm + 3 - swing, FLOOR_Y);
-      ctx.stroke();
-      // torso — navy uniform with belt + badge
-      ctx.fillStyle = '#2d3c5e';
-      ctx.fillRect(x + 1, y + 9, P_W - 2, P_H - 19);
-      ctx.fillStyle = '#161e2e';
-      ctx.fillRect(x + 1, y + P_H - 13, P_W - 2, 3);
-      ctx.fillStyle = '#d9b04a';
-      ctx.fillRect(cxm + g.dir * 4 - 1, y + 12, 2, 2);
-      // torch arm reaching forward
-      ctx.strokeStyle = '#2d3c5e';
-      ctx.lineWidth = 3.5;
-      ctx.beginPath();
-      ctx.moveTo(cxm, y + 12);
-      ctx.lineTo(cxm + g.dir * 9, y + 12 + bob * 0.5);
-      ctx.stroke();
-      ctx.fillStyle = '#11151f';
-      ctx.fillRect(cxm + g.dir * 8 - 2, y + 10 + bob * 0.5, 4, 5);
-      // head + cap with brim
-      ctx.beginPath();
-      ctx.arc(cxm, y + 5, 6.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#ffd1a6';
-      ctx.fill();
-      ctx.fillStyle = alert ? '#5e1b28' : '#1b2534';
-      ctx.fillRect(x + 1, y - 2, P_W - 2, 6);
-      ctx.fillRect(cxm + (g.dir >= 0 ? 0 : -P_W / 2 - 4), y + 2, P_W / 2 + 4, 2.5);
-      // alert "!" — scale-pop above the head
-      if (alert && g.alertPop > 0) {
-        const k = Math.min(1, g.alertPop / 0.22);
-        const e = 1 - Math.pow(1 - k, 3);
-        const sc = e * (1 + 0.4 * Math.sin(k * Math.PI));
-        ctx.save();
-        ctx.translate(cxm, y - 16);
-        ctx.scale(sc, sc);
-        ctx.font = '800 17px JetBrains Mono, ui-monospace, monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.shadowColor = 'rgba(255,60,80,0.9)';
-        ctx.shadowBlur = 10;
-        ctx.fillStyle = '#ff4d6d';
-        ctx.fillText('!', 0, 0);
-        ctx.shadowBlur = 0;
-        ctx.restore();
-      }
-    };
-
-    const drawPlayer = (s) => {
-      const p = s.player;
-      const sneak = p.sneak;
-      const crouch = sneak ? 6 : 0;
-      const bob = p.moving ? Math.sin(p.stride * Math.PI * 2) * (sneak ? 0.7 : 1.3) : 0;
-      const x = p.x, yTop = p.y + crouch + bob * 0.4;
-      const cxm = x + P_W / 2;
-      const hipY = p.y + P_H - 11 + crouch * 0.4;
-      const swing = p.moving ? Math.sin(p.stride * Math.PI * 2) * (sneak ? 3 : 5) : 0;
-      // legs — bent when sneaking (knee offset against the facing)
-      ctx.strokeStyle = '#151b2e';
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-      if (sneak) {
-        ctx.beginPath();
-        ctx.moveTo(cxm - 3, hipY);
-        ctx.quadraticCurveTo(cxm - 3 - p.facing * 4, hipY + 6, cxm - 3 + swing, FLOOR_Y);
-        ctx.moveTo(cxm + 3, hipY);
-        ctx.quadraticCurveTo(cxm + 3 - p.facing * 4, hipY + 6, cxm + 3 - swing, FLOOR_Y);
-        ctx.stroke();
-      } else {
-        ctx.beginPath();
-        ctx.moveTo(cxm - 3, hipY);
-        ctx.lineTo(cxm - 3 + swing, FLOOR_Y);
-        ctx.moveTo(cxm + 3, hipY);
-        ctx.lineTo(cxm + 3 - swing, FLOOR_Y);
-        ctx.stroke();
-      }
-      // loot sack on the back — swells with the haul
-      const sackR = 5.5 + Math.min(4, s.lootCount * 1.4);
-      ctx.beginPath();
-      ctx.ellipse(cxm - p.facing * 8, yTop + 15, sackR, sackR * 0.85, -p.facing * 0.3, 0, Math.PI * 2);
-      ctx.fillStyle = '#4a3a22';
-      ctx.fill();
-      ctx.strokeStyle = '#2c2213';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      // torso — dark jacket, leaning forward when sneaking
-      ctx.save();
-      if (sneak) {
-        ctx.translate(cxm, hipY);
-        ctx.rotate(p.facing * 0.18);
-        ctx.translate(-cxm, -hipY);
-      }
-      ctx.fillStyle = '#222c4a';
-      ctx.fillRect(x + 1, yTop + 9, P_W - 2, P_H - 19 - crouch * 0.6);
-      // head
-      ctx.beginPath();
-      ctx.arc(cxm, yTop + 5, 6.5, 0, Math.PI * 2);
-      ctx.fillStyle = '#e8c49a';
-      ctx.fill();
-      // beanie — covers the crown with a fold band
-      ctx.fillStyle = '#39415c';
-      ctx.beginPath();
-      ctx.arc(cxm, yTop + 4, 6.8, Math.PI, 0);
-      ctx.fill();
-      ctx.fillStyle = '#2c3349';
-      ctx.fillRect(x + 1.5, yTop + 2.5, P_W - 3, 3);
-      // eye toward facing
-      ctx.fillStyle = '#0a0d0e';
-      ctx.fillRect(cxm + p.facing * 2.5, yTop + 5.5, 2, 2);
-      ctx.restore();
-      // eye-icon detection meter above the head
-      drawEyeMeter(s, cxm, yTop - 16);
-    };
-
-    const drawEyeMeter = (s, ex, ey) => {
-      const d = Math.min(1, s.detect);
-      if (d < 0.02 && !s.alert) return;
-      const w = 26, h = 13;
-      const glow = d > 0.5 ? (d - 0.5) * 2 : 0;
-      // eye fill from the left, color shifts cool → warm → red
-      const col = d > 0.75 ? '#ff4d6d' : d > 0.4 ? '#ffb84f' : '#7fe7d8';
-      ctx.save();
-      if (glow > 0) {
-        ctx.shadowColor = col;
-        ctx.shadowBlur = 8 * glow;
-      }
-      // almond outline
-      ctx.beginPath();
-      ctx.moveTo(ex - w / 2, ey);
-      ctx.quadraticCurveTo(ex, ey - h, ex + w / 2, ey);
-      ctx.quadraticCurveTo(ex, ey + h, ex - w / 2, ey);
-      ctx.closePath();
-      ctx.strokeStyle = 'rgba(220,232,255,0.7)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-      // fill clip
-      ctx.clip();
-      ctx.fillStyle = col;
-      ctx.globalAlpha = 0.85;
-      ctx.fillRect(ex - w / 2, ey - h, w * d, h * 2);
-      ctx.globalAlpha = 1;
-      // pupil
-      ctx.beginPath();
-      ctx.arc(ex, ey, 3.4, 0, Math.PI * 2);
-      ctx.fillStyle = d > 0.4 ? '#1a0d12' : '#0d1726';
-      ctx.fill();
-      ctx.restore();
-      // "?" — partial-detection tell, pops in when sight is regained
-      if (s.sighted && d < 1 && !s.alert) {
-        const k = Math.min(1, s.sightPop / 0.25);
-        const e = 1 - Math.pow(1 - k, 3);
-        const sc = e * (1 + 0.35 * Math.sin(k * Math.PI));
-        ctx.save();
-        ctx.translate(ex, ey - 16);
-        ctx.scale(sc, sc);
-        ctx.font = '800 13px JetBrains Mono, ui-monospace, monospace';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillStyle = '#ffd86e';
-        ctx.shadowColor = 'rgba(255,200,90,0.7)';
-        ctx.shadowBlur = 6;
-        ctx.fillText('?', 0, 0);
-        ctx.shadowBlur = 0;
-        ctx.restore();
-      }
-    };
-
-    const drawLoot = (s, t) => {
-      s.loot.forEach((o, i) => {
-        if (o.kind === 'painting') {
-          const f = { x: o.x - 23, y: o.y, w: 46, h: 36 };
-          drawFrame(f, o.taken);
-          if (!o.taken) drawTwinkle(o.x + 14, o.y + 8, t + i * 1.7);
-          return;
-        }
-        // gem on a plinth
-        const px = o.x, base = FLOOR_Y;
-        ctx.fillStyle = '#2c3650';
-        ctx.fillRect(px - 9, base - 24, 18, 24);
-        ctx.fillStyle = '#3a4666';
-        ctx.fillRect(px - 11, base - 26, 22, 4);
-        if (o.taken) return;
-        const hover = Math.sin(t * 2.2 + i * 2.1) * 2;
-        const gy = base - 36 + hover;
-        // diamond with a lighter top facet
-        ctx.beginPath();
-        ctx.moveTo(px, gy - 8);
-        ctx.lineTo(px + 7, gy);
-        ctx.lineTo(px, gy + 9);
-        ctx.lineTo(px - 7, gy);
-        ctx.closePath();
-        ctx.fillStyle = '#37e0c0';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.moveTo(px, gy - 8);
-        ctx.lineTo(px + 7, gy);
-        ctx.lineTo(px - 7, gy);
-        ctx.closePath();
-        ctx.fillStyle = '#8ff5e2';
-        ctx.fill();
-        ctx.strokeStyle = 'rgba(20,60,55,0.6)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(px, gy - 8);
-        ctx.lineTo(px + 7, gy);
-        ctx.lineTo(px, gy + 9);
-        ctx.lineTo(px - 7, gy);
-        ctx.closePath();
-        ctx.stroke();
-        drawTwinkle(px + 4, gy - 5, t + i * 2.3);
-      });
-    };
-
-    const drawTwinkle = (x, y, t) => {
-      // 4-point star flare that breathes; quiet most of the cycle.
-      const c = Math.max(0, Math.sin(t * 1.8));
-      const a = Math.pow(c, 6);
-      if (a < 0.03) return;
-      const r = 5 * a;
-      ctx.save();
-      ctx.globalAlpha = a * 0.9;
-      ctx.strokeStyle = '#fff6da';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ctx.moveTo(x - r, y); ctx.lineTo(x + r, y);
-      ctx.moveTo(x, y - r); ctx.lineTo(x, y + r);
-      ctx.stroke();
-      ctx.restore();
-    };
-
-    const drawFx = (s) => {
-      s.parts.forEach((q) => {
-        const a = Math.max(0, 1 - q.t / 0.6);
-        ctx.globalAlpha = a;
-        ctx.fillStyle = q.hue;
-        ctx.fillRect(q.x - 1.2, q.y - 1.2, 2.4, 2.4);
-      });
-      ctx.globalAlpha = 1;
-      s.floats.forEach((f) => {
-        const a = Math.max(0, 1 - f.t / 1.1);
-        ctx.save();
-        ctx.globalAlpha = a;
-        ctx.font = '700 13px JetBrains Mono, ui-monospace, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#ffd86e';
-        ctx.shadowColor = 'rgba(0,0,0,0.7)';
-        ctx.shadowBlur = 4;
-        ctx.fillText(f.txt, f.x, f.y - f.t * 26);
-        ctx.restore();
-      });
-    };
-
-    const draw = () => {
-      const s = stateRef.current; if (!s) return;
-      const { lv, player, guards, exitFlash, caughtFlash } = s;
-      const { cssW, cssH } = viewRef.current;
-      const t = performance.now() / 1000;
-
-      // Outer backdrop — same color as the scene's bottom band so the
-      // padding around the playfield blends rather than framing it.
-      ctx.fillStyle = '#080c14';
-      ctx.fillRect(0, 0, cssW, cssH);
-
-      // Centered + uniform-scaled scene.
-      const { scale, offX, offY } = viewRef.current;
-      ctx.save();
-      ctx.translate(offX, offY);
-      ctx.scale(scale, scale);
-
-      drawBackdrop(t);
-      drawDecor(lv);
-      drawLamps(lv, t);
-
-      // Cool ambience — corners fall off into safe blue shadow.
-      const vig = ctx.createRadialGradient(W / 2, H * 0.45, H * 0.3, W / 2, H * 0.5, W * 0.62);
-      vig.addColorStop(0, 'rgba(8,12,22,0)');
-      vig.addColorStop(1, 'rgba(6,10,22,0.5)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, W, H);
-
-      // Exit door — the one cool-glow object; cool = safe.
-      const doorX = lv.exit;
-      const doorGlow = 0.55 + 0.25 * Math.sin(t * 3.6);
-      ctx.fillStyle = `rgba(0, 255, 245, ${doorGlow})`;
-      ctx.fillRect(doorX - 4, FLOOR_Y - 72, 8, 72);
-      ctx.fillStyle = '#0a3a36';
-      ctx.fillRect(doorX, FLOOR_Y - 64, 32, 64);
-      ctx.strokeStyle = '#00fff5';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(doorX, FLOOR_Y - 64, 32, 64);
-      // door light reflected on the floor
-      const dref = ctx.createLinearGradient(0, FLOOR_Y, 0, FLOOR_Y + 46);
-      dref.addColorStop(0, `rgba(0,255,245,${0.10 * doorGlow})`);
-      dref.addColorStop(1, 'rgba(0,255,245,0)');
-      ctx.fillStyle = dref;
-      ctx.fillRect(doorX - 14, FLOOR_Y, 56, 46);
-
-      // Vision cones (drawn BEHIND props/guards)
-      guards.forEach((g) => drawCone(g, !!s.alert));
-
-      // Props (crates)
-      lv.props.forEach((p) => {
-        ctx.fillStyle = '#2a2014';
-        ctx.fillRect(p.x, p.y, p.w, p.h);
-        ctx.strokeStyle = '#5a4224';
-        ctx.lineWidth = 2;
-        ctx.strokeRect(p.x, p.y, p.w, p.h);
-        ctx.strokeStyle = '#3a2c18';
-        ctx.beginPath();
-        ctx.moveTo(p.x, p.y + p.h / 2);
-        ctx.lineTo(p.x + p.w, p.y + p.h / 2);
-        ctx.stroke();
-      });
-
-      drawLoot(s, t);
-      guards.forEach((g) => drawGuard(g, !!s.alert));
-      drawPlayer(s);
-      drawFx(s);
-
-      ctx.restore();
-
-      // Heartbeat vignette — red pressure at the screen edge, synced to
-      // the heartbeat sfx, scaling with how seen you are.
-      const hb = s.heartPulse * Math.min(1, s.detect + (s.alert ? 1 : 0));
-      if (hb > 0.02) {
-        const a = Math.min(0.4, hb * 0.42);
-        const rg = ctx.createRadialGradient(cssW / 2, cssH / 2, Math.min(cssW, cssH) * 0.32, cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.62);
-        rg.addColorStop(0, 'rgba(255,30,50,0)');
-        rg.addColorStop(1, `rgba(255,24,48,${a})`);
-        ctx.fillStyle = rg;
-        ctx.fillRect(0, 0, cssW, cssH);
-      }
-
-      // Caught flash overlay (covers the full canvas, not just the scene)
-      if (caughtFlash > 0) {
-        ctx.fillStyle = `rgba(255, 77, 109, ${Math.min(0.6, caughtFlash)})`;
-        ctx.fillRect(0, 0, cssW, cssH);
-      }
-      if (exitFlash > 0) {
-        ctx.fillStyle = `rgba(0, 255, 245, ${Math.min(0.3, exitFlash)})`;
-        ctx.fillRect(0, 0, cssW, cssH);
-      }
     };
 
     const clock = { last: performance.now() };
@@ -831,8 +1021,6 @@ export default function NightShiftGame() {
       s.lootCount = s.loot.filter((o) => o.taken).length;
 
       // ── alert phase: the moment of being caught is a beat, not a cut.
-      // Player freezes, guards stop, the spotter turns, "!" pops, then
-      // the red flash and the night restarts.
       if (s.alert) {
         s.alert.t += dt;
         s.guards.forEach((g) => { g.alertPop += dt; });
@@ -860,6 +1048,15 @@ export default function NightShiftGame() {
           p.stride += speed * dt * (sneak ? 0.011 : 0.009);
           if (Math.floor(p.stride * 2) !== Math.floor(prev * 2)) {
             sfx.nightStep(sneak);
+            // footstep dust puff (visual only).
+            for (let i = 0; i < 3; i++) {
+              s.parts.push({
+                x: p.x + P_W / 2 + (hash01(p.stride + i) - 0.5) * 10,
+                y: FLOOR_Y - 2,
+                vx: (hash01(i + p.x) - 0.5) * 30, vy: -10 - hash01(i) * 20,
+                t: 0, hue: '#5a6478',
+              });
+            }
           }
         }
 
@@ -902,6 +1099,12 @@ export default function NightShiftGame() {
             g.alertPop = 0;
           });
           sfx.nightAlert();
+          // alarm burst — red sparks from the player (visual only).
+          for (let i = 0; i < 16; i++) {
+            const a = (i / 16) * Math.PI * 2;
+            const v = 60 + hash01(i) * 70;
+            s.parts.push({ x: px, y: py, vx: Math.cos(a) * v, vy: Math.sin(a) * v, t: 0, hue: '#ff3a52' });
+          }
         }
       }
 
@@ -984,15 +1187,19 @@ export default function NightShiftGame() {
         setTime(Math.round(s.elapsed));
       }
 
-      draw();
+      renderer?.render(s, dt);
     };
     raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
-      dispose();
+      try { ro.disconnect(); } catch { /* ignore */ }
+      window.removeEventListener('orientationchange', onOrient);
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
+      try { renderer?.dispose(); } catch { /* ignore */ }
+      if (rendererRef.current === renderer) rendererRef.current = null;
+      if (import.meta.env.DEV && renderer) { try { delete window.__bob3d; } catch { /* ignore */ } }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [level, status]);
@@ -1026,7 +1233,7 @@ export default function NightShiftGame() {
           {status === 'won' && <button className="btn btn-primary btn-sm" onClick={restart}>Play again</button>}
         </span>
       </div>
-      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', maxWidth: 'none', position: 'relative' }}>
         <canvas ref={canvasRef} className="nightshift-canvas"/>
         {isTouch && (
           <>

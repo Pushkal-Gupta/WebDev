@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { submitScore } from '../../scoreBus.js';
+import { sfx } from '../../sound.js';
 import Celebration from '../../components/Celebration.jsx';
 
 const ROWS = 6, COLS = 7;
@@ -168,6 +170,7 @@ export default function Connect4Game({ mode } = {}) {
     catch { return 'medium'; }
   });
   const botTimerRef = useRef(null);
+  const submittedRef = useRef(false);
   const gameOver = !!winner || draw;
   const winSet = useMemo(() => {
     if (!winLine) return null;
@@ -184,6 +187,7 @@ export default function Connect4Game({ mode } = {}) {
     setShowCelebration(false);
     setLastDrop(null);
     setThinking(false);
+    submittedRef.current = false;
   }, []);
 
   // Switching difficulty mid-game starts a fresh board — keeps the bot's
@@ -255,6 +259,17 @@ export default function Connect4Game({ mode } = {}) {
     const t = setTimeout(() => setShowCelebration(true), draw ? 300 : 600);
     return () => clearTimeout(t);
   }, [gameOver, draw]);
+
+  // Persist the result and play the matching cue, exactly once per game.
+  useEffect(() => {
+    if (!gameOver || submittedRef.current) return;
+    submittedRef.current = true;
+    const humanWon = winner === HUMAN;
+    const points = draw ? 50 : humanWon ? 100 : 0;
+    submitScore('connect4', points, { winner, difficulty });
+    if (humanWon) sfx.win();
+    else if (winner) sfx.lose();
+  }, [gameOver, winner, draw, difficulty]);
 
   const sideName = (s) => (s === HUMAN ? (vsBot ? 'You' : 'Red') : (vsBot ? 'Bot' : 'Yellow'));
   const turnLabel = sideName(turn);

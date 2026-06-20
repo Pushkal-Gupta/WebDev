@@ -1,20 +1,34 @@
+// 8-BALL POOL — real 3D rewrite.
+//
+//  The simulation is unchanged from the 2D version: every ball position,
+//  velocity, collision, friction value, pocket test, the cue aim +
+//  power/shoot mechanic, and the 8-ball win/lose rules are byte-for-byte
+//  the same. Only the *presentation* moved from a flat 2D canvas to a
+//  real Three.js scene.
+//
+//  Ground-plane mapping. The physics still runs in the authored
+//  620x360 table coord space. The renderer maps a table point (x, y) to
+//  world space as
+//      worldX = x - W/2,   worldZ = y - H/2,   worldY = surface
+//  i.e. table-y becomes world-z on the felt plane, and balls stand at
+//  y = BALL_R above the cloth. Because nothing in the simulation ever
+//  touches a third axis, gravity-free 2D billiard physics keeps its
+//  exact meaning — the 3D table, rails, pockets, ball spheres, cue stick
+//  and lighting are pure decoration over the same numbers.
+//
+//  Score: balls potted (with shot count for accuracy). Submitted on
+//  unmount as 'eightball', identical to the 2D version.
+
 import { useEffect, useRef, useState } from 'react';
-import { sizeCanvasFluid } from '../../util/canvasDpr.js';
+import * as THREE from 'three';
 import { submitScore } from '../../scoreBus.js';
 import { sfx } from '../../sound.js';
 
-// The pool table is authored at 620×360 — every pocket position, ball
-// radius, and physics constant is tuned to that coord space. To stay
-// fluid we keep entities/physics in those coords and uniformly scale
-// the rendered table up to a comfortable max so 4K screens get a
-// generously-sized rack but never a gigantic one.
+// The pool table is authored at 620x360 — every pocket position, ball
+// radius, and physics constant is tuned to that coord space.
 const W = 620;
 const H = 360;
-// Wood rail band drawn OUTSIDE the play rect. The fluid fit reserves
-// FRAME px on every side so the frame never clips at small sizes.
-const FRAME = 26;
-const MAX_W = 900;
-const MAX_H = 520;
+const BALL_R = 14;
 
 // Standard ball palette by number; stripes (9-15) reuse the solid hue
 // of (num - 8) on a white body, exactly like a real set.
@@ -27,17 +41,57 @@ const BALL_COLORS = {
 const RACK_NUMS = [1, 9, 4, 2, 8, 10, 11, 3, 14, 6, 7, 13, 5, 15, 12];
 
 const colorOf = (num) => (num === 0 ? '#f4f1e8' : BALL_COLORS[num > 8 ? num - 8 : num]);
-const tint = (hex, a) => {
-  const n = parseInt(hex.slice(1), 16);
-  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
-};
+
+// Table → world mapping. Felt surface sits at y = 0; balls ride at
+// y = BALL_R. Centre the table on the origin so the camera frames it.
+const wx = (x) => x - W / 2;
+const wz = (y) => y - H / 2;
+
+// ── Procedural ball texture ──────────────────────────────────────────
+// Each ball's surface is baked once into a CanvasTexture wrapped around
+// the sphere: a coloured body (or white body + coloured stripe band for
+// 9-15), with the number printed in a white circle on two opposite
+// faces so it reads from most angles. The cue ball is plain white.
+function makeBallTexture(num) {
+  const cv = document.createElement('canvas');
+  cv.width = 256; cv.height = 128;
+  const c = cv.getContext('2d');
+  const color = colorOf(num);
+  const stripe = num > 8;
+
+  // Base body. Stripe balls are white with a horizontal coloured band
+  // mapped to the equator (texture v ~ 0.32..0.68).
+  c.fillStyle = stripe || num === 0 ? '#f4f1e8' : color;
+  c.fillRect(0, 0, cv.width, cv.height);
+  if (stripe) {
+    c.fillStyle = color;
+    c.fillRect(0, cv.height * 0.30, cv.width, cv.height * 0.40);
+  }
+
+  // Number badges — white discs on the two faces (u = 0.25 and 0.75)
+  // that sit on the equator, with the number centred in each.
+  if (num > 0) {
+    [0.25, 0.75].forEach((u) => {
+      const cx = cv.width * u, cy = cv.height * 0.5;
+      const r = 26;
+      c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2);
+      c.fillStyle = '#f6f3ea'; c.fill();
+      c.fillStyle = '#15171c';
+      c.font = `bold ${num > 9 ? 26 : 32}px sans-serif`;
+      c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillText(String(num), cx, cy + 1);
+    });
+  }
+
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
 
 export default function EightBallGame() {
-  const canvasRef = useRef(null);
   const wrapRef = useRef(null);
-  // viewRef holds the most recent fluid fit. scale stays at 1 until the
-  // sizer measures the canvas and gives us room to grow.
-  const viewRef = useRef({ cssW: W, cssH: H, scale: 1, offX: 0, offY: 0 });
+  const canvasRef = useRef(null);
   const [scored, setScored] = useState(0);
   const [shots, setShots] = useState(0);
   // 'win' | 'lose' | null — drives the end-of-rack card. Win = the 8
@@ -50,28 +104,275 @@ export default function EightBallGame() {
   submitRef.current.shots = shots;
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    if (typeof window === 'undefined') return;
     const wrap = wrapRef.current;
-    if (!canvas || !wrap) return;
-    const ctx = canvas.getContext('2d');
-    const BALL_R = 14;
+    const canvas = canvasRef.current;
+    if (!wrap || !canvas) return;
+
     const pockets = [[30,30],[W/2,20],[W-30,30],[30,H-30],[W/2,H-20],[W-30,H-30]];
 
-    // Recompute scale + center offset on every fluid fit. We pick the
-    // largest uniform scale that fits both axes (including the wood
-    // frame), then cap so the table never exceeds MAX_W × MAX_H.
-    const dispose = sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      const scaleW = cssW / (W + FRAME * 2);
-      const scaleH = cssH / (H + FRAME * 2);
-      const maxScale = Math.min(MAX_W / W, MAX_H / H);
-      const scale = Math.max(0.5, Math.min(scaleW, scaleH, maxScale));
-      const tableW = W * scale;
-      const tableH = H * scale;
-      const offX = (cssW - tableW) / 2;
-      const offY = (cssH - tableH) / 2;
-      viewRef.current = { cssW, cssH, scale, offX, offY };
+    // ── Renderer ────────────────────────────────────────────────────
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+    } catch {
+      return;
+    }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.45;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#0a1f18');
+
+    // Angled 3/4 over the table (tilted top-down), framing the whole
+    // table centred. Looks down the felt from the cue end.
+    const camera = new THREE.PerspectiveCamera(40, 1, 1, 4000);
+    camera.position.set(0, 560, 440);
+    camera.lookAt(0, 0, 10);
+    scene.add(camera);
+
+    // ── Lights — bright, warm, "billiard light over the table" ──────
+    const hemi = new THREE.HemisphereLight(0xdfeaff, 0x20342a, 1.0);
+    scene.add(hemi);
+    const amb = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(amb);
+
+    // Key light on the CAMERA side (+Z) so the faces we see are lit.
+    const key = new THREE.DirectionalLight(0xfff0d6, 1.5);
+    key.position.set(-160, 520, 420);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.camera.near = 1;
+    key.shadow.camera.far = 1600;
+    key.shadow.camera.left = -460;
+    key.shadow.camera.right = 460;
+    key.shadow.camera.top = 340;
+    key.shadow.camera.bottom = -340;
+    key.shadow.bias = -0.0006;
+    scene.add(key);
+    scene.add(key.target);
+
+    // Warm overhead pool of light dead centre over the felt.
+    const overhead = new THREE.PointLight(0xffe9c0, 0.6, 1600, 2);
+    overhead.position.set(0, 420, 0);
+    scene.add(overhead);
+
+    // ── Disposal bookkeeping ────────────────────────────────────────
+    const disposables = [];
+    const track = (obj) => {
+      if (obj.geometry) disposables.push(obj.geometry);
+      if (obj.material) {
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+        mats.forEach((m) => {
+          if (m.map) disposables.push(m.map);
+          disposables.push(m);
+        });
+      }
+      return obj;
+    };
+
+    // ── Felt surface ────────────────────────────────────────────────
+    const felt = track(new THREE.Mesh(
+      new THREE.PlaneGeometry(W, H),
+      new THREE.MeshStandardMaterial({ color: '#15694e', roughness: 0.95, metalness: 0.0 }),
+    ));
+    felt.rotation.x = -Math.PI / 2;
+    felt.position.set(0, 0, 0);
+    felt.receiveShadow = true;
+    scene.add(felt);
+
+    // Subtle light pool on the felt centre (a softly lit disc).
+    const sheen = track(new THREE.Mesh(
+      new THREE.CircleGeometry(W * 0.42, 48),
+      new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.05 }),
+    ));
+    sheen.rotation.x = -Math.PI / 2;
+    sheen.position.set(0, 0.4, 0);
+    scene.add(sheen);
+
+    // ── Wooden rails + pockets ──────────────────────────────────────
+    // Rails are four box cushions sitting just outside the play rect,
+    // raised above the felt. Pockets are dark cylinders punched into the
+    // felt at the six standard positions.
+    const FRAME = 34;       // wood width
+    const RAIL_H = 26;      // cushion height above felt
+    const woodMat = new THREE.MeshStandardMaterial({ color: '#5a3a20', roughness: 0.6, metalness: 0.05 });
+    disposables.push(woodMat);
+    const railTop = wz(0) - FRAME / 2;
+    const railBot = wz(H) + FRAME / 2;
+    const railLeft = wx(0) - FRAME / 2;
+    const railRight = wx(W) + FRAME / 2;
+
+    const addRail = (w, d, x, z) => {
+      const m = track(new THREE.Mesh(new THREE.BoxGeometry(w, RAIL_H, d), woodMat));
+      m.position.set(x, RAIL_H / 2, z);
+      m.castShadow = true; m.receiveShadow = true;
+      scene.add(m);
+    };
+    const fullW = W + FRAME * 2;
+    addRail(fullW, FRAME, 0, railTop);                          // top
+    addRail(fullW, FRAME, 0, railBot);                          // bottom
+    addRail(FRAME, H, railLeft, 0);                             // left
+    addRail(FRAME, H, railRight, 0);                            // right
+
+    // Apron / table body sitting below the felt for solidity.
+    const apron = track(new THREE.Mesh(
+      new THREE.BoxGeometry(fullW + 8, 40, H + FRAME * 2 + 8),
+      new THREE.MeshStandardMaterial({ color: '#34200f', roughness: 0.8 }),
+    ));
+    apron.position.set(0, -22, 0);
+    apron.castShadow = true; apron.receiveShadow = true;
+    scene.add(apron);
+
+    // Four table legs.
+    const legMat = new THREE.MeshStandardMaterial({ color: '#2a1a0c', roughness: 0.8 });
+    disposables.push(legMat);
+    const legGeo = new THREE.BoxGeometry(40, 220, 40);
+    disposables.push(legGeo);
+    [[railLeft + 30, railTop + 30], [railRight - 30, railTop + 30],
+     [railLeft + 30, railBot - 30], [railRight - 30, railBot - 30]].forEach(([x, z]) => {
+      const leg = new THREE.Mesh(legGeo, legMat);
+      leg.position.set(x, -150, z);
+      leg.castShadow = true;
+      scene.add(leg);
     });
 
+    // Pocket holes — dark cylinders dropping below the felt.
+    const pocketMat = new THREE.MeshStandardMaterial({ color: '#08110c', roughness: 1.0 });
+    disposables.push(pocketMat);
+    const pocketGeo = new THREE.CylinderGeometry(20, 20, 30, 24);
+    disposables.push(pocketGeo);
+    const jawGeo = new THREE.TorusGeometry(20, 4, 12, 24);
+    disposables.push(jawGeo);
+    const jawMat = new THREE.MeshStandardMaterial({ color: '#1c1107', roughness: 0.7 });
+    disposables.push(jawMat);
+    const pocketMeshes = [];
+    pockets.forEach(([px, py]) => {
+      const hole = new THREE.Mesh(pocketGeo, pocketMat);
+      hole.position.set(wx(px), -14, wz(py));
+      scene.add(hole);
+      const jaw = new THREE.Mesh(jawGeo, jawMat);
+      jaw.rotation.x = Math.PI / 2;
+      jaw.position.set(wx(px), 1, wz(py));
+      scene.add(jaw);
+      pocketMeshes.push({ x: px, y: py, jaw });
+    });
+
+    // ── Balls — spheres with procedural textures ────────────────────
+    const sphereGeo = new THREE.SphereGeometry(BALL_R, 32, 24);
+    disposables.push(sphereGeo);
+    // Each ball mesh persists for the session; textures are cached by
+    // number so re-racking reuses them. Stripe balls spin their texture
+    // band to roughly face the camera at rack time (fixed orientation).
+    const texCache = new Map();
+    const ballTex = (num) => {
+      if (!texCache.has(num)) {
+        const t = makeBallTexture(num);
+        disposables.push(t);
+        texCache.set(num, t);
+      }
+      return texCache.get(num);
+    };
+    const ballMeshes = new Map();   // num -> mesh
+    const getBallMesh = (num) => {
+      if (!ballMeshes.has(num)) {
+        const mat = new THREE.MeshStandardMaterial({
+          map: ballTex(num), roughness: 0.18, metalness: 0.0,
+          envMapIntensity: 0.6,
+        });
+        disposables.push(mat);
+        const mesh = new THREE.Mesh(sphereGeo, mat);
+        mesh.castShadow = true;
+        scene.add(mesh);
+        ballMeshes.set(num, mesh);
+      }
+      return ballMeshes.get(num);
+    };
+
+    // ── Cue stick — tapered cylinder, butt thick, tip thin ──────────
+    const cueGroup = new THREE.Group();
+    const shaftGeo = new THREE.CylinderGeometry(2.0, 4.2, 200, 16);
+    disposables.push(shaftGeo);
+    const shaftMat = new THREE.MeshStandardMaterial({ color: '#b5803f', roughness: 0.4 });
+    disposables.push(shaftMat);
+    const shaft = new THREE.Mesh(shaftGeo, shaftMat);
+    shaft.rotation.z = Math.PI / 2;          // lay along local +X (tip at -X)
+    shaft.position.x = -108;                  // butt extends in -X, tip near origin
+    shaft.castShadow = true;
+    cueGroup.add(shaft);
+    const tipGeo = new THREE.CylinderGeometry(2.0, 2.0, 6, 12);
+    disposables.push(tipGeo);
+    const tipMat = new THREE.MeshStandardMaterial({ color: '#4d8fd1', roughness: 0.5 });
+    disposables.push(tipMat);
+    const tip = new THREE.Mesh(tipGeo, tipMat);
+    tip.rotation.z = Math.PI / 2;
+    tip.position.x = -5;
+    cueGroup.add(tip);
+    cueGroup.visible = false;
+    scene.add(cueGroup);
+
+    // ── Aim line + ghost ball ───────────────────────────────────────
+    const aimMat = new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 8, gapSize: 6, transparent: true, opacity: 0.55 });
+    disposables.push(aimMat);
+    const aimGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    disposables.push(aimGeo);
+    const aimLine = new THREE.Line(aimGeo, aimMat);
+    aimLine.visible = false;
+    scene.add(aimLine);
+
+    const ghostMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.22, wireframe: true });
+    disposables.push(ghostMat);
+    const ghost = new THREE.Mesh(sphereGeo, ghostMat);
+    ghost.visible = false;
+    scene.add(ghost);
+
+    // ── Particle / effect pool ──────────────────────────────────────
+    // Sparks + flashes are short-lived sprites. We keep a small pool of
+    // points clouds; effects are recorded in `fx` and rendered each frame
+    // by transforming a reusable instanced set. To stay simple + leak
+    // free we use one Points cloud whose positions/opacity update live.
+    const FX_MAX = 80;
+    const fxPositions = new Float32Array(FX_MAX * 3);
+    const fxGeo = new THREE.BufferGeometry();
+    fxGeo.setAttribute('position', new THREE.BufferAttribute(fxPositions, 3));
+    disposables.push(fxGeo);
+    const fxMat = new THREE.PointsMaterial({ color: 0xffe9aa, size: 6, transparent: true, opacity: 0.9, depthWrite: false });
+    disposables.push(fxMat);
+    const fxPoints = new THREE.Points(fxGeo, fxMat);
+    fxPoints.frustumCulled = false;
+    scene.add(fxPoints);
+
+    // Ring flashes (ball-ball impact, cue strike, pocket) — expanding rings.
+    const ringGeo = new THREE.RingGeometry(BALL_R, BALL_R + 3, 28);
+    disposables.push(ringGeo);
+    const ringPool = [];
+    for (let i = 0; i < 6; i++) {
+      const m = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false }));
+      m.rotation.x = -Math.PI / 2;
+      m.visible = false;
+      disposables.push(m.material);
+      scene.add(m);
+      ringPool.push(m);
+    }
+    let ringIdx = 0;
+    const flashRing = (x, y, color) => {
+      const m = ringPool[ringIdx];
+      ringIdx = (ringIdx + 1) % ringPool.length;
+      m.position.set(wx(x), 1.5, wz(y));
+      m.scale.setScalar(1);
+      m.material.color.set(color);
+      m.material.opacity = 0.85;
+      m.visible = true;
+      m.userData.t = 0;
+    };
+
+    // ─────────────────────────────────────────────────────────────────
+    // SIMULATION (unchanged from the 2D version) — runs in 620x360 space
+    // ─────────────────────────────────────────────────────────────────
     const initBalls = () => {
       const balls = [{x:140,y:H/2,vx:0,vy:0,num:0,cue:true,in:false}];
       const rx = 432, ry = H/2;
@@ -88,12 +389,17 @@ export default function EightBallGame() {
     };
 
     let balls = initBalls();
-    let fx = [];        // transient effects: sparks, dust, pocket drops
-    let potted = [];    // ball numbers in pot order, drawn on the rail tray
+    let fx = [];        // transient spark effects: {x,y,life,max,dirs}
+    let potted = [];    // ball numbers in pot order
     let over = false;   // 8-ball resolved — input locked until re-rack
+
+    // Pocket-sink animations: meshes shrinking/dropping into a pocket.
+    let sinking = [];   // {mesh, px, py, t}
+
     stateRef.current = {
       reset: () => {
-        balls = initBalls(); fx = []; potted = []; over = false;
+        balls = initBalls(); fx = []; potted = []; over = false; sinking = [];
+        ballMeshes.forEach((m) => { m.visible = true; m.scale.setScalar(1); });
         setScored(0); setShots(0); setResult(null); setRolling(false);
       },
     };
@@ -107,39 +413,6 @@ export default function EightBallGame() {
     // few frames; without a floor the clacks smear into white noise.
     let lastClack = 0;
     let lastRail = 0;
-
-    // Single ball painter shared by table balls, pocket-drop shrink
-    // animation, and the rail tray miniatures.
-    const drawBall = (x, y, r, num) => {
-      const color = colorOf(num);
-      const stripe = num > 8;
-      ctx.save();
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI*2); ctx.clip();
-      ctx.fillStyle = stripe || num === 0 ? '#f4f1e8' : color;
-      ctx.fillRect(x-r, y-r, r*2, r*2);
-      if (stripe) {
-        ctx.fillStyle = color;
-        ctx.fillRect(x-r, y-r*0.55, r*2, r*1.1);
-      }
-      // Radial shading: bright key-light highlight up-left, body color
-      // through the middle, occluded rim at the bottom-right.
-      const g = ctx.createRadialGradient(x-r*0.4, y-r*0.45, r*0.1, x, y, r);
-      g.addColorStop(0, 'rgba(255,255,255,0.85)');
-      g.addColorStop(0.28, 'rgba(255,255,255,0.16)');
-      g.addColorStop(0.72, 'rgba(0,0,0,0.05)');
-      g.addColorStop(1, 'rgba(0,0,0,0.40)');
-      ctx.fillStyle = g;
-      ctx.fillRect(x-r, y-r, r*2, r*2);
-      if (num > 0 && r > 4) {
-        ctx.beginPath(); ctx.arc(x, y, r*0.46, 0, Math.PI*2);
-        ctx.fillStyle = '#f6f3ea'; ctx.fill();
-        ctx.fillStyle = '#15171c';
-        ctx.font = `bold ${Math.max(5, r*0.58)}px sans-serif`;
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(String(num), x, y + r*0.05);
-      }
-      ctx.restore();
-    };
 
     // Ghost-ball solve: sweep the cue ball along (ux,uy) and find the
     // first object ball whose center comes within 2R of the line.
@@ -159,8 +432,7 @@ export default function EightBallGame() {
       return best;
     };
 
-    // Distance from the cue ball to the first cushion along (ux,uy) —
-    // the aim line's fallback reach when no object ball is in the way.
+    // Distance from the cue ball to the first cushion along (ux,uy).
     const railDist = (cue, ux, uy) => {
       let t = 700;
       if (ux >  1e-6) t = Math.min(t, (W-BALL_R-6 - cue.x) / ux);
@@ -170,256 +442,18 @@ export default function EightBallGame() {
       return Math.max(0, t);
     };
 
-    const draw = () => {
-      const { cssW, cssH, scale, offX, offY } = viewRef.current;
-
-      // Room vignette — slightly lighter near the table center, deeper
-      // green at the canvas edges. Reads as "table under a hanging
-      // billiard light" instead of a flat field.
-      const bgGrad = ctx.createRadialGradient(cssW / 2, cssH / 2, 0, cssW / 2, cssH / 2, Math.max(cssW, cssH) * 0.7);
-      bgGrad.addColorStop(0, '#11463a');
-      bgGrad.addColorStop(1, '#06251c');
-      ctx.fillStyle = bgGrad;
-      ctx.fillRect(0, 0, cssW, cssH);
-
-      // Center + uniformly scale the table; everything inside this save
-      // block draws in the original 620×360 coord space.
-      ctx.save();
-      ctx.translate(offX, offY);
-      ctx.scale(scale, scale);
-
-      // ── Table: drop shadow + wood rail frame ───────────────────
-      ctx.save();
-      ctx.shadowColor = 'rgba(0,0,0,0.55)';
-      ctx.shadowBlur = 28;
-      ctx.shadowOffsetY = 12;
-      ctx.fillStyle = '#34200f';
-      ctx.beginPath(); ctx.roundRect(-FRAME, -FRAME, W+FRAME*2, H+FRAME*2, 16); ctx.fill();
-      ctx.restore();
-      const wood = ctx.createLinearGradient(0, -FRAME, 0, H+FRAME);
-      wood.addColorStop(0, '#7c5329');
-      wood.addColorStop(0.5, '#5a3a20');
-      wood.addColorStop(1, '#3a2412');
-      ctx.fillStyle = wood;
-      ctx.beginPath(); ctx.roundRect(-FRAME, -FRAME, W+FRAME*2, H+FRAME*2, 16); ctx.fill();
-      // Inner bevel where the wood meets the cushion.
-      ctx.strokeStyle = 'rgba(255,215,160,0.22)';
-      ctx.lineWidth = 1.5;
-      ctx.strokeRect(-2, -2, W+4, H+4);
-
-      // Diamond sight markers — mother-of-pearl inlays on the rail
-      // centerline, three per half-rail like a real table.
-      ctx.fillStyle = '#e9e0c8';
-      const diamond = (x, y) => {
-        ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI/4);
-        ctx.fillRect(-2.4, -2.4, 4.8, 4.8);
-        ctx.restore();
-      };
-      [1,2,3,5,6,7].forEach(i => { diamond(W*i/8, -FRAME/2); diamond(W*i/8, H+FRAME/2); });
-      [1,2,3].forEach(i => { diamond(-FRAME/2, H*i/4); diamond(W+FRAME/2, H*i/4); });
-
-      // ── Felt: directional sheen + light pool ────────────────────
-      const felt = ctx.createLinearGradient(0, 0, W, H);
-      felt.addColorStop(0, '#1b6049');
-      felt.addColorStop(1, '#0f4534');
-      ctx.fillStyle = felt; ctx.fillRect(0, 0, W, H);
-      const pool = ctx.createRadialGradient(W/2, H/2, 40, W/2, H/2, W*0.62);
-      pool.addColorStop(0, 'rgba(255,255,240,0.07)');
-      pool.addColorStop(1, 'rgba(0,0,0,0.18)');
-      ctx.fillStyle = pool; ctx.fillRect(0, 0, W, H);
-
-      // Cushion strips along the play boundary, with a thin lit lip.
-      ctx.fillStyle = '#0d3b2c';
-      ctx.fillRect(0, 0, W, 6); ctx.fillRect(0, H-6, W, 6);
-      ctx.fillRect(0, 0, 6, H); ctx.fillRect(W-6, 0, 6, H);
-      ctx.strokeStyle = 'rgba(255,255,255,0.10)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(6.5, 6.5, W-13, H-13);
-
-      // ── Pockets: felt shadow, leather jaw, depth hole ───────────
-      pockets.forEach(([x,y]) => {
-        const sh = ctx.createRadialGradient(x, y, 6, x, y, 34);
-        sh.addColorStop(0, 'rgba(0,0,0,0.55)');
-        sh.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = sh; ctx.fillRect(x-34, y-34, 68, 68);
-        ctx.fillStyle = '#1c1107';
-        ctx.beginPath(); ctx.arc(x, y, 21, 0, Math.PI*2); ctx.fill();
-        const hole = ctx.createRadialGradient(x-3, y-3, 2, x, y, 18);
-        hole.addColorStop(0, '#181009');
-        hole.addColorStop(1, '#000');
-        ctx.fillStyle = hole;
-        ctx.beginPath(); ctx.arc(x, y, 18, 0, Math.PI*2); ctx.fill();
-        ctx.strokeStyle = 'rgba(160,110,60,0.45)';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(x, y, 21, 0, Math.PI*2); ctx.stroke();
-      });
-
-      // ── Pocketed-ball tray on the bottom rail ───────────────────
-      if (potted.length) {
-        ctx.fillStyle = 'rgba(0,0,0,0.30)';
-        ctx.beginPath();
-        ctx.roundRect(34, H + FRAME/2 - 9, potted.length*17 + 22, 18, 9);
-        ctx.fill();
-        potted.forEach((num, i) => drawBall(46 + i*17, H + FRAME/2, 7, num));
-      }
-
-      // ── Balls: motion streak, contact shadow, shaded sphere ─────
-      balls.forEach(b => {
-        if (b.in) return;
-        const sp = Math.hypot(b.vx, b.vy);
-        if (sp > 2.2) {
-          const k = Math.min(1, (sp - 2.2) / 8);
-          ctx.strokeStyle = tint(colorOf(b.num), 0.14 + 0.18*k);
-          ctx.lineWidth = BALL_R * 1.5;
-          ctx.lineCap = 'round';
-          ctx.beginPath();
-          ctx.moveTo(b.x - b.vx*(2 + k*3), b.y - b.vy*(2 + k*3));
-          ctx.lineTo(b.x, b.y);
-          ctx.stroke();
-        }
-        ctx.fillStyle = 'rgba(0,0,0,0.32)';
-        ctx.beginPath();
-        ctx.ellipse(b.x + 3, b.y + 5, BALL_R*0.95, BALL_R*0.6, 0, 0, Math.PI*2);
-        ctx.fill();
-        drawBall(b.x, b.y, BALL_R, b.num);
-      });
-
-      // ── Transient effects ───────────────────────────────────────
-      fx.forEach(f => {
-        const k = f.t / f.max;
-        if (f.type === 'drop') {
-          const r = BALL_R * (1 - k);
-          if (r > 0.5) drawBall(f.x, f.y, r, f.num);
-        } else if (f.type === 'rim') {
-          ctx.strokeStyle = `rgba(255,238,200,${0.65*(1-k)})`;
-          ctx.lineWidth = 2.5;
-          ctx.beginPath(); ctx.arc(f.x, f.y, 18 + k*9, 0, Math.PI*2); ctx.stroke();
-        } else if (f.type === 'spark') {
-          ctx.strokeStyle = `rgba(255,235,170,${0.75*(1-k)})`;
-          ctx.lineWidth = 1.2;
-          f.dirs.forEach(d => {
-            ctx.beginPath();
-            ctx.moveTo(f.x + d.dx*k*5, f.y + d.dy*k*5);
-            ctx.lineTo(f.x + d.dx*(k*11 + 3), f.y + d.dy*(k*11 + 3));
-            ctx.stroke();
-          });
-        } else if (f.type === 'dust') {
-          f.puffs.forEach(p => {
-            ctx.fillStyle = `rgba(205,225,205,${0.32*(1-k)})`;
-            ctx.beginPath();
-            ctx.arc(f.x + p.dx*k*11, f.y + p.dy*k*11, 1.4 + k*2.2, 0, Math.PI*2);
-            ctx.fill();
-          });
-        } else if (f.type === 'flash') {
-          ctx.strokeStyle = `rgba(255,255,255,${0.8*(1-k)})`;
-          ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(f.x, f.y, BALL_R + k*14, 0, Math.PI*2); ctx.stroke();
-        }
-      });
-
-      // ── Aim preview + cue stick + power meter ───────────────────
-      const cue = balls[0];
-      if (!cue.in && !moving && !over) {
-        const dxA = aim.x - cue.x, dyA = aim.y - cue.y;
-        const d = Math.hypot(dxA, dyA) || 1;
-        const ux = dxA/d, uy = dyA/d;
-
-        const hit = findGhost(cue, ux, uy);
-        const reach = hit ? hit.t : railDist(cue, ux, uy);
-        ctx.strokeStyle = 'rgba(255,255,255,0.55)';
-        ctx.setLineDash([5,5]); ctx.lineWidth = 1.2;
-        ctx.beginPath();
-        ctx.moveTo(cue.x + ux*BALL_R, cue.y + uy*BALL_R);
-        ctx.lineTo(cue.x + ux*reach, cue.y + uy*reach);
-        ctx.stroke();
-        ctx.setLineDash([]);
-
-        if (hit) {
-          // Ghost ball at the contact point, plus the object ball's
-          // projected departure line (impact normal) and a faint cue
-          // deflection tangent.
-          const gx = cue.x + ux*hit.t, gy = cue.y + uy*hit.t;
-          ctx.strokeStyle = 'rgba(255,255,255,0.7)';
-          ctx.lineWidth = 1.2;
-          ctx.beginPath(); ctx.arc(gx, gy, BALL_R, 0, Math.PI*2); ctx.stroke();
-          const nx = (hit.b.x - gx) / (BALL_R*2), ny = (hit.b.y - gy) / (BALL_R*2);
-          ctx.strokeStyle = tint(colorOf(hit.b.num), 0.85);
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(hit.b.x + nx*BALL_R, hit.b.y + ny*BALL_R);
-          ctx.lineTo(hit.b.x + nx*(BALL_R + 46), hit.b.y + ny*(BALL_R + 46));
-          ctx.stroke();
-          const dot = ux*nx + uy*ny;
-          const tx = ux - nx*dot, ty = uy - ny*dot;
-          const tl = Math.hypot(tx, ty);
-          if (tl > 0.08) {
-            ctx.strokeStyle = 'rgba(255,255,255,0.30)';
-            ctx.lineWidth = 1.2;
-            ctx.beginPath();
-            ctx.moveTo(gx, gy);
-            ctx.lineTo(gx + (tx/tl)*30, gy + (ty/tl)*30);
-            ctx.stroke();
-          }
-        }
-
-        // Wooden cue stick behind the ball, pulling back with power.
-        const pull = charging ? 10 + power*0.55 : 6;
-        const gap = BALL_R + 4 + pull;
-        const len = 210;
-        ctx.save();
-        ctx.translate(cue.x, cue.y);
-        ctx.rotate(Math.atan2(uy, ux));
-        ctx.fillStyle = 'rgba(0,0,0,0.18)';
-        ctx.beginPath();
-        ctx.moveTo(-gap, 4); ctx.lineTo(-gap-len, 7);
-        ctx.lineTo(-gap-len, 10); ctx.lineTo(-gap, 6);
-        ctx.closePath(); ctx.fill();
-        const shaft = ctx.createLinearGradient(-gap-9, 0, -gap-len, 0);
-        shaft.addColorStop(0, '#e8d3ae');
-        shaft.addColorStop(0.55, '#a9743c');
-        shaft.addColorStop(1, '#4a2a14');
-        ctx.fillStyle = shaft;
-        ctx.beginPath();
-        ctx.moveTo(-gap-9, -2.2); ctx.lineTo(-gap-len, -4.6);
-        ctx.lineTo(-gap-len, 4.6); ctx.lineTo(-gap-9, 2.2);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = '#efe9da';
-        ctx.fillRect(-gap-9, -2.2, 5.5, 4.4);   // ferrule
-        ctx.fillStyle = '#4d8fd1';
-        ctx.fillRect(-gap-3.5, -2.0, 3.5, 4.0); // chalked tip
-        ctx.restore();
-
-        if (charging) {
-          const bx = 14, by = H - 24, bw = 130, bh = 9;
-          ctx.fillStyle = 'rgba(0,0,0,0.45)';
-          ctx.beginPath(); ctx.roundRect(bx-2, by-2, bw+4, bh+4, 5); ctx.fill();
-          const pg = ctx.createLinearGradient(bx, 0, bx+bw, 0);
-          pg.addColorStop(0, '#35f0c9');
-          pg.addColorStop(0.55, '#ffe14f');
-          pg.addColorStop(1, '#ff4d6d');
-          ctx.fillStyle = pg;
-          ctx.beginPath(); ctx.roundRect(bx, by, bw * Math.min(power,100)/100, bh, 4); ctx.fill();
-          ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-          ctx.lineWidth = 1;
-          ctx.beginPath(); ctx.roundRect(bx-2, by-2, bw+4, bh+4, 5); ctx.stroke();
-        }
-      }
-
-      ctx.restore();
-    };
-
-    // Rail contact: thunk + a puff of chalk dust kicked off the cushion.
+    // Rail contact: thunk + a puff of spark dust kicked off the cushion.
     const railHit = (s, x, y) => {
       if (s < 0.6) return;
       const now = performance.now();
       if (now - lastRail > 70) { lastRail = now; sfx.poolRail(Math.min(1, s/8)); }
       if (s > 1.6) {
-        const puffs = [];
+        const dirs = [];
         for (let i = 0; i < 3; i++) {
           const a = Math.random() * Math.PI * 2;
-          puffs.push({ dx: Math.cos(a), dy: Math.sin(a) });
+          dirs.push({ dx: Math.cos(a), dy: Math.sin(a) });
         }
-        fx.push({ type:'dust', x, y, puffs, t:0, max:16 });
+        fx.push({ x, y, life: 0, max: 16, dirs, color: '#cde1cd' });
       }
     };
 
@@ -439,13 +473,16 @@ export default function EightBallGame() {
         pockets.forEach(([px,py]) => {
           if (b.in || Math.hypot(b.x-px,b.y-py) >= 18) return;
           b.in = true;
-          fx.push({ type:'drop', x:px, y:py, num:b.num, t:0, max:22 });
-          fx.push({ type:'rim', x:px, y:py, t:0, max:18 });
           sfx.poolPocket();
+          flashRing(px, py, '#ffeec8');
           if (b.cue) {
-            setTimeout(() => { b.in = false; b.x = 140; b.y = H/2; b.vx = b.vy = 0; }, 450);
+            // Sink the cue mesh, respawn after 450ms (unchanged timing).
+            sinking.push({ mesh: getBallMesh(0), px, py, t: 0 });
+            setTimeout(() => { b.in = false; b.x = 140; b.y = H/2; b.vx = b.vy = 0;
+              const m = getBallMesh(0); m.visible = true; m.scale.setScalar(1); }, 450);
           } else {
             potted.push(b.num);
+            sinking.push({ mesh: getBallMesh(b.num), px, py, t: 0 });
             setScored(s => s+1);
             if (b.num === 8) {
               // The rack resolves the moment the 8 drops: clean win if
@@ -487,29 +524,19 @@ export default function EightBallGame() {
                   const ang = Math.random() * Math.PI * 2;
                   dirs.push({ dx: Math.cos(ang), dy: Math.sin(ang) });
                 }
-                fx.push({ type:'spark', x:(a.x+b.x)/2, y:(a.y+b.y)/2, dirs, t:0, max:14 });
+                fx.push({ x:(a.x+b.x)/2, y:(a.y+b.y)/2, dirs, life:0, max:14, color:'#ffebaa' });
+                flashRing((a.x+b.x)/2, (a.y+b.y)/2, '#ffffff');
               }
             }
           }
         }
       }
-      fx = fx.filter(f => { f.t++; return f.t < f.max; });
+      fx = fx.filter(f => { f.life++; return f.life < f.max; });
       // Only ping React on actual transitions — `moving` flips every frame.
       if (moving !== wasRolling) { wasRolling = moving; setRolling(moving); }
-      draw();
-      raf = requestAnimationFrame(step);
     };
-    let raf = requestAnimationFrame(step);
 
-    const rectOf = () => canvas.getBoundingClientRect();
-    const updateAim = (clientX, clientY) => {
-      // Canvas style is 100%/100%; the table is centered + scaled inside.
-      // Reverse the scale + offset so aim lands in original 620×360 coords.
-      const r = rectOf();
-      const { scale, offX, offY } = viewRef.current;
-      aim.x = ((clientX - r.left) - offX) / scale;
-      aim.y = ((clientY - r.top)  - offY) / scale;
-    };
+    // ── Aim/charge/shoot (unchanged mechanic) ───────────────────────
     let powerTimer = null;
     const startCharge = () => {
       if (moving || balls[0].in || over) return;
@@ -524,16 +551,30 @@ export default function EightBallGame() {
       const d = Math.hypot(dx,dy) || 1;
       cue.vx = (dx/d) * power * 0.14;
       cue.vy = (dy/d) * power * 0.14;
-      fx.push({ type:'flash', x:cue.x, y:cue.y, t:0, max:12 });
+      flashRing(cue.x, cue.y, '#ffffff');
       sfx.poolStrike(power / 100);
       setShots(s => s+1);
       charging = false; power = 0;
     };
 
-    // Pointer events unify mouse + touch + pen. Aim follows the pointer
-    // on hover AND during drag; charge begins on pointerdown; shot fires
-    // on pointerup. `setPointerCapture` keeps events flowing if the
-    // finger wanders off the canvas edge mid-charge.
+    // ── Pointer → table-coord raycast ───────────────────────────────
+    // Project the pointer onto the felt plane (y = BALL_R) and convert
+    // back to table coords so aim lands in the same 620x360 space.
+    const raycaster = new THREE.Raycaster();
+    const ndc = new THREE.Vector2();
+    const planeY = new THREE.Plane(new THREE.Vector3(0, 1, 0), -BALL_R);
+    const hitPt = new THREE.Vector3();
+    const updateAim = (clientX, clientY) => {
+      const r = canvas.getBoundingClientRect();
+      ndc.x = ((clientX - r.left) / r.width) * 2 - 1;
+      ndc.y = -((clientY - r.top) / r.height) * 2 + 1;
+      raycaster.setFromCamera(ndc, camera);
+      if (raycaster.ray.intersectPlane(planeY, hitPt)) {
+        aim.x = hitPt.x + W / 2;
+        aim.y = hitPt.z + H / 2;
+      }
+    };
+
     const onPointerMove = (e) => updateAim(e.clientX, e.clientY);
     const onPointerDown = (e) => {
       e.preventDefault();
@@ -545,22 +586,162 @@ export default function EightBallGame() {
       releaseShot();
       try { canvas.releasePointerCapture(e.pointerId); } catch {}
     };
-
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointerup', onPointerUp);
     canvas.addEventListener('pointercancel', onPointerUp);
 
+    // ── Render: sync meshes to sim, draw aim/cue, update effects ─────
+    const syncScene = () => {
+      // Balls.
+      balls.forEach((b) => {
+        const m = getBallMesh(b.num);
+        if (b.in) {
+          // Visibility handled by the sink animation; if not sinking,
+          // keep hidden.
+          return;
+        }
+        m.visible = true;
+        m.position.set(wx(b.x), BALL_R, wz(b.y));
+        // Roll the ball so motion reads — rotate about the axis
+        // perpendicular to travel, proportional to distance moved.
+        const sp = Math.hypot(b.vx, b.vy);
+        if (sp > 0.01) {
+          const axis = new THREE.Vector3(b.vy, 0, -b.vx).normalize();
+          m.rotateOnWorldAxis(axis, sp / BALL_R);
+        }
+      });
+
+      // Pocket-sink animations.
+      sinking = sinking.filter((s) => {
+        s.t += 1;
+        const k = Math.min(1, s.t / 18);
+        s.mesh.scale.setScalar(1 - k);
+        s.mesh.position.set(wx(s.px), BALL_R - k * (BALL_R + 14), wz(s.py));
+        if (k >= 1) { s.mesh.visible = false; s.mesh.scale.setScalar(1); return false; }
+        return true;
+      });
+
+      // Spark particles → fxPoints positions/opacity.
+      let p = 0;
+      let any = false;
+      fx.forEach((f) => {
+        const k = f.life / f.max;
+        f.dirs.forEach((d) => {
+          if (p >= FX_MAX) return;
+          const dist = k * 14 + 3;
+          fxPositions[p*3]   = wx(f.x + d.dx * dist);
+          fxPositions[p*3+1] = BALL_R * 0.5 + Math.sin(k * Math.PI) * 8;
+          fxPositions[p*3+2] = wz(f.y + d.dy * dist);
+          p++; any = true;
+        });
+      });
+      for (let i = p; i < FX_MAX; i++) { fxPositions[i*3+1] = -9999; }
+      fxGeo.attributes.position.needsUpdate = true;
+      fxPoints.visible = any;
+      if (any) fxMat.opacity = 0.9;
+
+      // Expanding ring flashes.
+      ringPool.forEach((m) => {
+        if (!m.visible) return;
+        m.userData.t += 1;
+        const k = m.userData.t / 16;
+        m.scale.setScalar(1 + k * 2.2);
+        m.material.opacity = 0.85 * (1 - k);
+        if (k >= 1) m.visible = false;
+      });
+
+      // Aim line + ghost + cue stick.
+      const cue = balls[0];
+      if (!cue.in && !moving && !over) {
+        const dxA = aim.x - cue.x, dyA = aim.y - cue.y;
+        const d = Math.hypot(dxA, dyA) || 1;
+        const ux = dxA/d, uy = dyA/d;
+        const hit = findGhost(cue, ux, uy);
+        const reach = hit ? hit.t : railDist(cue, ux, uy);
+
+        const positions = aimGeo.attributes.position.array;
+        positions[0] = wx(cue.x + ux*BALL_R); positions[1] = BALL_R; positions[2] = wz(cue.y + uy*BALL_R);
+        positions[3] = wx(cue.x + ux*reach);  positions[4] = BALL_R; positions[5] = wz(cue.y + uy*reach);
+        aimGeo.attributes.position.needsUpdate = true;
+        aimLine.computeLineDistances();
+        aimLine.visible = true;
+
+        if (hit) {
+          const gx = cue.x + ux*hit.t, gy = cue.y + uy*hit.t;
+          ghost.position.set(wx(gx), BALL_R, wz(gy));
+          ghost.visible = true;
+        } else {
+          ghost.visible = false;
+        }
+
+        // Cue stick behind the ball, opposite the aim, pulling back with
+        // power. Local +X of the group points toward the ball (tip at -X
+        // in group space after we orient it). We place the group at the
+        // cue ball and rotate it to face the aim direction; the geometry
+        // sits in -X (butt) so it appears behind the ball.
+        const pull = charging ? 10 + power*0.55 : 6;
+        cueGroup.position.set(wx(cue.x), BALL_R, wz(cue.y));
+        // Direction from ball outward (away from aim) is (-ux,-uy).
+        const ang = Math.atan2(-uy, -ux);   // world-space heading of butt
+        cueGroup.rotation.set(0, -ang, 0);
+        // Offset the whole stick back along the butt direction by the gap.
+        const gap = BALL_R + 4 + pull;
+        cueGroup.position.x += -ux * gap;
+        cueGroup.position.z += -uy * gap;
+        cueGroup.visible = true;
+      } else {
+        aimLine.visible = false;
+        ghost.visible = false;
+        cueGroup.visible = false;
+      }
+    };
+
+    let raf = 0;
+    const loop = () => {
+      step();
+      syncScene();
+      renderer.render(scene, camera);
+      raf = requestAnimationFrame(loop);
+    };
+
+    // ── Fluid sizing (manual RO — NOT sizeCanvasFluid; that grabs a 2D
+    // context and would lock the canvas out of WebGL) ───────────────
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const sizeCanvas = () => {
+      const cssW = Math.max(320, Math.floor(wrap.clientWidth));
+      const cssH = Math.max(180, Math.floor(wrap.clientHeight));
+      camera.aspect = cssW / cssH;
+      camera.updateProjectionMatrix();
+      renderer.setSize(cssW, cssH, false);
+    };
+    sizeCanvas();
+    const ro = new ResizeObserver(sizeCanvas);
+    ro.observe(wrap);
+    const onOrient = () => sizeCanvas();
+    window.addEventListener('orientationchange', onOrient);
+
+    if (import.meta.env.DEV) {
+      window.__eightball3d = { scene, camera, renderer };
+    }
+
     submitRef.current.started = performance.now();
+    raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
       clearInterval(powerTimer);
-      dispose();
+      try { ro.disconnect(); } catch { /* ignore */ }
+      window.removeEventListener('orientationchange', onOrient);
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointerup', onPointerUp);
       canvas.removeEventListener('pointercancel', onPointerUp);
+      // Dispose all Three resources.
+      disposables.forEach((d) => { try { d.dispose?.(); } catch { /* ignore */ } });
+      try { renderer.dispose(); } catch { /* ignore */ }
+      if (import.meta.env.DEV) delete window.__eightball3d;
       // Submit the session's running score on unmount — the tally of
       // balls potted, with shot count for the accuracy breakdown.
       const final = submitRef.current.scored;
@@ -574,8 +755,8 @@ export default function EightBallGame() {
   const accuracy = shots > 0 ? Math.round((scored / shots) * 100) : 0;
 
   return (
-    <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:14,width:'100%',height:'100%'}}>
-      <div style={{display:'flex',alignItems:'center',gap:18,fontFamily:'var(--font-mono)',fontSize:11,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--text-dim)'}}>
+    <div style={{display:'flex',flexDirection:'column',width:'100%',height:'100%'}}>
+      <div style={{display:'flex',alignItems:'center',gap:18,fontFamily:'var(--font-mono)',fontSize:11,letterSpacing:'0.1em',textTransform:'uppercase',color:'var(--text-dim)',padding:'10px 14px'}}>
         <span style={{display:'flex',alignItems:'center',gap:7}}>
           <span style={{width:7,height:7,borderRadius:'50%',background:rolling?'#ffe14f':'#35f0c9',boxShadow:rolling?'0 0 6px #ffe14f':'0 0 6px #35f0c9'}}/>
           <b style={{color:'var(--text)'}}>{rolling ? 'Rolling' : 'Your shot'}</b>
@@ -584,10 +765,10 @@ export default function EightBallGame() {
         <span>Potted <b style={{color:'var(--accent)',marginLeft:6}}>{scored}</b></span>
         <button onClick={() => stateRef.current?.reset()} style={{background:'var(--surface)',border:'1px solid var(--line)',color:'var(--text)',padding:'4px 12px',borderRadius:8,fontFamily:'var(--font-mono)',fontSize:10,letterSpacing:'0.08em',textTransform:'uppercase',cursor:'pointer'}}>Rack</button>
       </div>
-      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', position: 'relative' }}>
+      <div ref={wrapRef} style={{ flex: '1 1 0', minHeight: 0, width: '100%', maxWidth: 'none', position: 'relative' }}>
         <canvas
           ref={canvasRef}
-          style={{cursor:'crosshair',touchAction:'none'}}/>
+          style={{cursor:'crosshair',touchAction:'none',width:'100%',height:'100%',display:'block'}}/>
         {result && (
           <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(4,14,11,0.55)'}}>
             <div style={{background:'var(--surface)',border:'1px solid var(--line)',borderRadius:14,padding:'24px 34px',textAlign:'center',fontFamily:'var(--font-mono)',minWidth:230,boxShadow:'0 18px 50px rgba(0,0,0,0.5)'}}>
@@ -604,7 +785,7 @@ export default function EightBallGame() {
           </div>
         )}
       </div>
-      <div style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--text-mute)',letterSpacing:'0.1em',textTransform:'uppercase'}}>
+      <div style={{fontFamily:'var(--font-mono)',fontSize:10,color:'var(--text-mute)',letterSpacing:'0.1em',textTransform:'uppercase',padding:'8px 14px',textAlign:'center'}}>
         Aim · hold to charge · release to shoot · sink the 8 last
       </div>
     </div>

@@ -703,7 +703,7 @@ export default function ProblemList({ session }) {
             {numberMode && !listActive ? (
               <>
                 <span className="pl-count-label">Problems</span>
-                <strong>#{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
+                <strong>{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
                 <span className="pl-count-label">· {maxNumber.toLocaleString()} {maxNumber === 1 ? 'problem' : 'problems'} total</span>
               </>
             ) : (

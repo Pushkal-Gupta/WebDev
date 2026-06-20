@@ -15,6 +15,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { submitScore } from '../../scoreBus.js';
+import { sfx } from '../../sound.js';
 
 const SHIFT_SECONDS = 90;
 
@@ -146,7 +147,7 @@ export default function ShortOrderGame() {
           // Each missed order deducts a life.
           setLives((lv) => {
             const nl = lv - lost;
-            if (nl <= 0) setStatus('lost');
+            if (nl <= 0) { setStatus('lost'); sfx.lose(); }
             return Math.max(0, nl);
           });
         }
@@ -217,6 +218,7 @@ export default function ShortOrderGame() {
           const reward = 10 + Math.max(0, Math.floor(active.timer));
           setScore((s) => s + reward);
           setTip({ at: performance.now(), amount: reward });
+          sfx.confirm();
           return rest;
         }
         return [{ ...active, progress: nextProgress }, ...rest];
