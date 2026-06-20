@@ -1,19 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
 import { submitScore } from '../../scoreBus.js';
 import { sfx } from '../../sound.js';
 
-// Stickman Hook — one-button rope swinger on Verlet physics.
+// Stickman Hook — one-button rope swinger.
 //
-// Juice pass goals (kept inside this single file, same component API):
-//   · dusk-gradient sky + two parallax silhouette layers (hills, skyline)
-//   · articulated stickman: arms reach for the anchor, legs trail the
-//     swing, tuck at high speed, flail when falling
-//   · rope with sag (quadratic through a control point), elastic give on
-//     attach, snap-back flick on release, in-range anchor glow
-//   · camera lead + speed zoom-out, motion trail, speed lines, landing dust
-//   · six levels, per-level timer, perfect-release bonus text
-//   · bottomless pit death: quick fade, respawn at the start pad, falls HUD
+// 3D rewrite. The gameplay is byte-for-byte the same as the original 2D
+// canvas version: Verlet pendulum physics, the six hand-tuned anchor
+// courses, the grab ranges, the rope reel + pump, platform landings,
+// the goal/finish, bottomless-pit death + respawn, the per-level timer,
+// the perfect-release bonus and the exact submitScore() call. ONLY the
+// presentation moved to Three.js.
+//
+// 2.5D mapping — identical strategy to swingwire/index.jsx: the entire
+// simulation runs in its original (x, y) space. We render it on the z = 0
+// plane of a real perspective scene with
+//   simX → +X,  simY → −Y   (sim y grows downward; three's +Y is up)
+// and a perspective follow camera looking down −Z. Because the physics
+// never touches z, every number — GRAVITY, rope length, platform AABBs,
+// camera lead — keeps its exact 2D meaning. The depth, lighting, shadows,
+// fog and parallax towers are pure decoration behind the play plane.
 
+// ──────────────────────────────────────────────────────────────────────────
+// Constants — IDENTICAL to the 2D version. Do not retune; the physics and
+// scoring contract depend on these exact numbers.
+// ──────────────────────────────────────────────────────────────────────────
 const W = 700;
 const H = 440;
 const GRAVITY = 0.38;
@@ -73,10 +84,756 @@ const hash = (n) => {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453;
   return x - Math.floor(x);
 };
+const hash2 = (x, y) => {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+};
 
+// ──────────────────────────────────────────────────────────────────────────
+// Palette — dusk city, neon-warm accents. The fog colour is a light dusk so
+// the scene reads bright, never near-black (wiki convention).
+// ──────────────────────────────────────────────────────────────────────────
+const PAL = {
+  skyTop:    '#3a1a6e',
+  skyMid:    '#8a44d8',
+  skyBottom: '#ff8ec6',
+  farTowers:  '#3a2168',
+  midTowers:  '#2a1850',
+  nearTowers: '#1a1030',
+  platform:   '#241140',
+  platformLip:'#ffd1ec',
+  anchorIdle: '#5a3aa0',
+  anchorReady:'#ffffff',
+  anchorHook: '#ffe14f',
+  rope:       '#ffe14f',
+  ropeSpark:  '#fff6cc',
+  body:       '#16181d',
+  goal:       '#35f0c9',
+  sun:        '#ffde96',
+  fog:        '#5a3a86',          // light-ish dusk, not near-black
+};
+
+// ──────────────────────────────────────────────────────────────────────────
+// 2.5D plane mapping. Sim (x, y) → three world (x, -y, z). Sim y grows
+// downward (screen coords); three +Y is up, so we negate. Everything the
+// physics computes stays in sim space; only the renderer applies this.
+// ──────────────────────────────────────────────────────────────────────────
+const w2x = (x) => x;
+const w2y = (y) => -y;
+
+// ──────────────────────────────────────────────────────────────────────────
+// Three.js renderer. Builds the scene once per level (rebuildLevel), then
+// render() each frame reads the live sim state. No allocation in the hot
+// path beyond the pooled particles. dispose() tears everything down.
+// ──────────────────────────────────────────────────────────────────────────
+function makeRenderer3D(canvas) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.45;          // bright, per the brief
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(PAL.fog, 1200, 3200);   // light dusk, pushed out
+
+  // Perspective camera looking down −Z at the z=0 play plane. A modest FOV
+  // keeps the side-scroller read while giving real depth to the towers.
+  const camera = new THREE.PerspectiveCamera(42, W / H, 1, 9000);
+  camera.position.set(0, 0, 900);
+  scene.add(camera);
+
+  // ── Sky dome — vertical gradient via shader, fog:false so it stays put.
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    fog: false,
+    uniforms: {
+      uTop: { value: new THREE.Color(PAL.skyTop) },
+      uMid: { value: new THREE.Color(PAL.skyMid) },
+      uBot: { value: new THREE.Color(PAL.skyBottom) },
+    },
+    vertexShader: /* glsl */`
+      varying vec3 vWorld;
+      void main() {
+        vWorld = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */`
+      varying vec3 vWorld;
+      uniform vec3 uTop, uMid, uBot;
+      void main() {
+        float h = clamp((normalize(vWorld).y + 0.35) * 0.85, 0.0, 1.0);
+        vec3 col = mix(uBot, uMid, smoothstep(0.0, 0.55, h));
+        col = mix(col, uTop, smoothstep(0.55, 1.0, h));
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(5500, 24, 16), skyMat);
+  sky.frustumCulled = false;
+  scene.add(sky);
+
+  // ── Sun disc — low on the horizon, warm. Sits far behind, follows camera x.
+  const sunMat = new THREE.MeshBasicMaterial({ color: PAL.sun, fog: false });
+  const sunMesh = new THREE.Mesh(new THREE.CircleGeometry(120, 40), sunMat);
+  sunMesh.position.set(0, -180, -3200);
+  scene.add(sunMesh);
+  const sunGlowMat = new THREE.MeshBasicMaterial({
+    color: PAL.sun, transparent: true, opacity: 0.22, fog: false, depthWrite: false,
+  });
+  const sunGlow = new THREE.Mesh(new THREE.CircleGeometry(230, 40), sunGlowMat);
+  sunGlow.position.set(0, -180, -3210);
+  scene.add(sunGlow);
+
+  // ── Lights. Key light on the CAMERA side (+Z) per wiki gotcha #1, so the
+  // stickman and tower faces we see are lit, not silhouetted.
+  const key = new THREE.DirectionalLight(0xfff0d8, 1.75);
+  key.position.set(-280, 460, 820);     // camera-side, upper-left
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 2600;
+  key.shadow.camera.left = -700;
+  key.shadow.camera.right = 700;
+  key.shadow.camera.top = 600;
+  key.shadow.camera.bottom = -600;
+  key.shadow.bias = -0.0006;
+  scene.add(key);
+  scene.add(key.target);
+
+  const hemi = new THREE.HemisphereLight(0xc9a8ff, 0x2a1840, 1.0);
+  scene.add(hemi);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambient);
+
+  const fill = new THREE.DirectionalLight(0xff9ed0, 0.45);
+  fill.position.set(360, 180, 640);     // warm rim from the other camera-side
+  scene.add(fill);
+
+  // ── Level container — rebuilt per level. Holds towers, ground, platforms,
+  // anchors, goal. The player rig, rope and particle pool live in persistent
+  // objects so they survive level swaps.
+  let levelGroup = new THREE.Group();
+  scene.add(levelGroup);
+
+  const anchorRecs = [];     // { core, coreMat, halo, haloMat, sx, sy }
+  let goalRec = null;
+
+  // ── Procedural window texture for towers — one shared CanvasTexture.
+  function makeWindowTexture() {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 128;
+    const g = c.getContext('2d');
+    g.fillStyle = '#1a0e34';
+    g.fillRect(0, 0, 64, 128);
+    for (let y = 6; y < 128; y += 12) {
+      for (let x = 6; x < 64; x += 12) {
+        const r = (x * 31 + y * 17) % 7;
+        if (r < 3) {
+          g.fillStyle = r < 1 ? '#ffd182' : '#ff9ed0';
+          g.globalAlpha = 0.45 + r * 0.14;
+          g.fillRect(x, y, 5, 7);
+        }
+      }
+    }
+    g.globalAlpha = 1;
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
+  }
+  const windowTex = makeWindowTexture();
+
+  // ── Player rig — an articulated humanoid. Bones are simple boxes/spheres
+  // parented to pivots; render() poses them from sim velocity + attach state,
+  // mirroring the 2D stickman's lean/reach/tuck/trail behaviour. Casts shadow.
+  const playerGroup = new THREE.Group();
+  const bodyMat = new THREE.MeshStandardMaterial({
+    color: PAL.body, roughness: 0.55, metalness: 0.1,
+    emissive: new THREE.Color('#241830'), emissiveIntensity: 0.4,
+  });
+  const skinMat = new THREE.MeshStandardMaterial({
+    color: '#22242c', roughness: 0.5, metalness: 0.1,
+    emissive: new THREE.Color('#2a1c3a'), emissiveIntensity: 0.4,
+  });
+  // Torso — leans via torsoPivot about the pelvis (origin).
+  const torsoPivot = new THREE.Group();
+  playerGroup.add(torsoPivot);
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(4.2, 13, 6, 10), bodyMat);
+  torso.position.set(0, -8.5, 0);   // capsule centre below shoulder, above pelvis
+  torso.castShadow = true;
+  torsoPivot.add(torso);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(8.2, 18, 14), skinMat);
+  head.position.set(0, -22, 0);
+  head.castShadow = true;
+  torsoPivot.add(head);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: '#ffffff' });
+  const eye = new THREE.Mesh(new THREE.SphereGeometry(1.7, 8, 6), eyeMat);
+  eye.position.set(3.4, -23.2, 6.5);
+  torsoPivot.add(eye);
+
+  // Limbs — a pivot at the joint, a box extending downward (−Y) so a Z
+  // rotation swings the limb. Two arms (from shoulder) + two legs (from pelvis).
+  function makeLimb(parent, jointX, jointY, len, thick) {
+    const pivot = new THREE.Group();
+    pivot.position.set(jointX, jointY, 0);
+    parent.add(pivot);
+    const geo = new THREE.CapsuleGeometry(thick, len, 4, 8);
+    const m = new THREE.Mesh(geo, bodyMat);
+    m.position.set(0, -len / 2 - thick, 0);
+    m.castShadow = true;
+    pivot.add(m);
+    return pivot;
+  }
+  const SHOULDER_Y = -16;
+  const armL = makeLimb(torsoPivot, -3.5, SHOULDER_Y, 15, 1.9);
+  const armR = makeLimb(torsoPivot,  3.5, SHOULDER_Y, 15, 1.9);
+  const legL = makeLimb(playerGroup, -3, 0, 18, 2.1);
+  const legR = makeLimb(playerGroup,  3, 0, 18, 2.1);
+  playerGroup.scale.set(1, 1, 1);
+  scene.add(playerGroup);
+
+  // ── Rope — a tube rebuilt each frame between player hand and the live
+  // anchor, following a sagging quadratic so it reads like the 2D rope.
+  const ropeMat = new THREE.MeshBasicMaterial({ color: PAL.rope });
+  const ROPE_SEG = 14;
+  let ropeCurve = new THREE.QuadraticBezierCurve3(
+    new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()
+  );
+  let ropeGeo = new THREE.TubeGeometry(ropeCurve, ROPE_SEG, 1.5, 6, false);
+  const ropeMesh = new THREE.Mesh(ropeGeo, ropeMat);
+  ropeMesh.frustumCulled = false;
+  ropeMesh.visible = false;
+  scene.add(ropeMesh);
+
+  // ── Motion trail — pool of fading spheres behind the player.
+  const TRAIL_N = 16;
+  const trailMat = new THREE.MeshBasicMaterial({
+    color: PAL.ropeSpark, transparent: true, opacity: 0.35, depthWrite: false,
+  });
+  const trailGeo = new THREE.SphereGeometry(1, 8, 6);
+  const trailMesh = new THREE.InstancedMesh(trailGeo, trailMat, TRAIL_N);
+  trailMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  trailMesh.frustumCulled = false;
+  scene.add(trailMesh);
+
+  // ── Particle pool — instanced cubes for attach/release/land/finish bursts.
+  const PART_N = 220;
+  const partMat = new THREE.MeshBasicMaterial({
+    transparent: true, depthWrite: false, vertexColors: true,
+  });
+  const partGeo = new THREE.BoxGeometry(1, 1, 1);
+  const partMesh = new THREE.InstancedMesh(partGeo, partMat, PART_N);
+  partMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  partMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PART_N * 3), 3);
+  partMesh.frustumCulled = false;
+  scene.add(partMesh);
+
+  // Render-local fx pool (visual only, fed from gameplay events).
+  const fx = [];
+
+  // Reusable temps — no allocation in render().
+  const _m = new THREE.Matrix4();
+  const _q = new THREE.Quaternion();
+  const _s = new THREE.Vector3();
+  const _p = new THREE.Vector3();
+  const _c = new THREE.Color();
+
+  // Materials/geometries created in rebuildLevel are tracked for disposal.
+  let levelMats = [];
+  let levelGeos = [];
+  const track = (obj) => {
+    if (obj.geometry) levelGeos.push(obj.geometry);
+    if (obj.material) levelMats.push(obj.material);
+    return obj;
+  };
+
+  function clearLevel() {
+    scene.remove(levelGroup);
+    levelGroup.traverse((o) => {
+      if (o.geometry) o.geometry.dispose?.();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach((m) => m.dispose?.());
+        else o.material.dispose?.();
+      }
+    });
+    levelMats = [];
+    levelGeos = [];
+    anchorRecs.length = 0;
+    goalRec = null;
+    fx.length = 0;
+    levelGroup = new THREE.Group();
+    scene.add(levelGroup);
+  }
+
+  // Build all static + lit-state geometry for a level.
+  function rebuildLevel(L) {
+    clearLevel();
+    camPrimed = false;       // snap the camera onto the new level next frame
+    const worldW = L.length;
+
+    // ── Ground / void slab — long box below the play plane at the platform
+    // floor, so a fall reads as plunging past the rooftops into shadow.
+    {
+      const geo = new THREE.BoxGeometry(worldW + 1400, 320, 620);
+      const mat = new THREE.MeshStandardMaterial({
+        color: PAL.nearTowers, roughness: 0.95, metalness: 0.0,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      // Top of the slab sits well below the play plane so platforms float.
+      m.position.set(worldW / 2, w2y(H + 200), -60);
+      m.receiveShadow = true;
+      levelGroup.add(m);
+      track(m);
+    }
+
+    // ── Background tower rows — three parallax depths, procedural. Pure
+    // decoration behind the play plane (negative z); never touch the physics.
+    const towerDefs = [
+      { z: -1500, step: 360, wMin: 160, wMax: 250, hMin: 520, hMax: 1200, tint: PAL.farTowers, lit: false },
+      { z: -820,  step: 300, wMin: 140, wMax: 210, hMin: 440, hMax: 1000, tint: PAL.midTowers, lit: true },
+      { z: -360,  step: 240, wMin: 110, wMax: 170, hMin: 360, hMax: 820,  tint: PAL.nearTowers, lit: true },
+    ];
+    const baseY = w2y(PLAT_TOP + 40);   // towers rise from just below the lane
+    for (const row of towerDefs) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: row.tint, roughness: 0.9, metalness: 0.05,
+        map: row.lit ? windowTex : null,
+        emissive: row.lit ? new THREE.Color('#3a2160') : new THREE.Color('#000000'),
+        emissiveMap: row.lit ? windowTex : null,
+        emissiveIntensity: row.lit ? 0.85 : 0,
+      });
+      levelMats.push(mat);
+      const count = Math.ceil((worldW + 1600) / row.step) + 2;
+      const geo = new THREE.BoxGeometry(1, 1, 1);
+      levelGeos.push(geo);
+      const inst = new THREE.InstancedMesh(geo, mat, count);
+      inst.castShadow = false;
+      inst.receiveShadow = false;
+      for (let i = 0; i < count; i++) {
+        const bx = -600 + i * row.step;
+        const seed = hash2(i * 1.3 + row.z * 0.01, row.z);
+        const bw = row.wMin + seed * (row.wMax - row.wMin);
+        const bh = row.hMin + hash2(row.z, i * 2.1) * (row.hMax - row.hMin);
+        _p.set(bx, baseY - bh / 2, row.z);    // baseY is the rooftop line; grow down
+        _q.identity();
+        _s.set(bw, bh, bw * 0.8);
+        _m.compose(_p, _q, _s);
+        inst.setMatrixAt(i, _m);
+      }
+      inst.instanceMatrix.needsUpdate = true;
+      levelGroup.add(inst);
+    }
+
+    // ── Platforms — start pad + goal pad. Solid slabs on the play plane.
+    const plats = [
+      { x: L.start[0] - 70, w: 150, y: PLAT_TOP },
+      { x: L.goal - 90, w: 190, y: PLAT_TOP },
+    ];
+    for (const pl of plats) {
+      const geo = new THREE.BoxGeometry(pl.w, 70, 90);
+      const mat = new THREE.MeshStandardMaterial({
+        color: PAL.platform, roughness: 0.85, metalness: 0.08,
+        emissive: new THREE.Color('#1a0e30'), emissiveIntensity: 0.4,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(pl.x + pl.w / 2, w2y(pl.y + 35), 0);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      levelGroup.add(m);
+      track(m);
+      // Bright lip on the top front edge.
+      const lipGeo = new THREE.BoxGeometry(pl.w, 4, 92);
+      const lipMat = new THREE.MeshBasicMaterial({ color: PAL.platformLip });
+      const lip = new THREE.Mesh(lipGeo, lipMat);
+      lip.position.set(pl.x + pl.w / 2, w2y(pl.y), 1);
+      levelGroup.add(lip);
+      track(lip);
+    }
+
+    // ── Anchors — visible 3D nodes (sphere stud + halo ring).
+    for (const [ax, ay] of L.anchors) {
+      const coreGeo = new THREE.SphereGeometry(7, 16, 12);
+      const coreMat = new THREE.MeshStandardMaterial({
+        color: '#ffffff', emissive: new THREE.Color(PAL.anchorIdle),
+        emissiveIntensity: 0.7, roughness: 0.35, metalness: 0.2,
+      });
+      const core = new THREE.Mesh(coreGeo, coreMat);
+      core.position.set(ax, w2y(ay), 0);
+      core.castShadow = true;
+      levelGroup.add(core);
+      track(core);
+
+      const haloGeo = new THREE.RingGeometry(11, 15, 24);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: PAL.anchorIdle, transparent: true, opacity: 0.35,
+        side: THREE.DoubleSide, depthWrite: false,
+      });
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      halo.position.set(ax, w2y(ay), 0.5);
+      levelGroup.add(halo);
+      track(halo);
+
+      anchorRecs.push({ core, coreMat, halo, haloMat, sx: ax, sy: ay });
+    }
+
+    // ── Goal — glowing flag pole + pennant on the far platform.
+    {
+      const poleGeo = new THREE.CylinderGeometry(2, 2, 84, 8);
+      const poleMat = new THREE.MeshStandardMaterial({
+        color: '#ffffff', emissive: new THREE.Color('#ffffff'), emissiveIntensity: 0.5,
+        roughness: 0.4,
+      });
+      const pole = new THREE.Mesh(poleGeo, poleMat);
+      pole.position.set(L.goal, w2y(PLAT_TOP - 42), 2);
+      pole.castShadow = true;
+      levelGroup.add(pole);
+      track(pole);
+
+      const flagGeo = new THREE.PlaneGeometry(34, 22);
+      const flagMat = new THREE.MeshStandardMaterial({
+        color: PAL.goal, emissive: new THREE.Color(PAL.goal), emissiveIntensity: 0.9,
+        side: THREE.DoubleSide, roughness: 0.4,
+      });
+      const flag = new THREE.Mesh(flagGeo, flagMat);
+      flag.position.set(L.goal + 17, w2y(PLAT_TOP - 69), 2);
+      levelGroup.add(flag);
+      track(flag);
+
+      // Goal beacon glow.
+      const glowGeo = new THREE.SphereGeometry(46, 16, 12);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: PAL.goal, transparent: true, opacity: 0.12, depthWrite: false,
+      });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.position.set(L.goal, w2y(PLAT_TOP - 50), 0);
+      levelGroup.add(glow);
+      track(glow);
+
+      goalRec = { flag, flagMat, glow, glowMat };
+    }
+  }
+
+  // ── Resize — manual, never via sizeCanvasFluid (that grabs a 2D ctx).
+  let camPrimed = false;
+  let viewW = W, viewH = H;
+  function resize(cssW, cssH) {
+    viewW = Math.max(1, cssW);
+    viewH = Math.max(1, cssH);
+    renderer.setSize(viewW, viewH, false);
+    camera.aspect = viewW / viewH;
+    camera.updateProjectionMatrix();
+  }
+
+  // Camera distance so a span of `spanX` sim-px is visible across the frame —
+  // matches the 2D camera's horizontal field.
+  function camDistanceForSpan(spanX) {
+    const vHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+    const hHalf = Math.atan(Math.tan(vHalf) * Math.max(0.3, camera.aspect));
+    return (spanX / 2) / Math.tan(hHalf);
+  }
+
+  // Push a render-local burst (visual only) into the fx pool.
+  function burst(simX, simY, color, n, spread) {
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = spread * (0.4 + Math.random() * 0.6);
+      fx.push({
+        x: w2x(simX), y: w2y(simY), z: (Math.random() - 0.5) * 24,
+        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + 50,
+        vz: (Math.random() - 0.5) * sp * 0.6,
+        life: 0.4 + Math.random() * 0.4, max: 0.8,
+        size: 3 + Math.random() * 3, color,
+      });
+      if (fx.length > 160) fx.shift();
+    }
+  }
+
+  // Pose one limb pivot to a target rotation (radians, about Z). 0 = straight
+  // down. The 2D figure thinks in screen space (y down); a positive sim angle
+  // rotates clockwise on screen, which is a negative Z rotation in world.
+  function poseLimb(pivot, angle, bend) {
+    pivot.rotation.z = -angle;
+    // (single-segment limbs; `bend` reserved for future knee/elbow split)
+    void bend;
+  }
+
+  // ── Per-frame render. Reads sim state; advances only render-local fx.
+  function render(s, rawDt) {
+    if (!s) return;
+    const L = s.L;
+    // Match the 2D camera span: it always showed W sim-px wide, with a speed
+    // zoom-out (s.zoom < 1 widens the view). Reproduce via the frustum span.
+    const baseSpan = W / s.zoom;
+
+    // Camera target: centre on the player using the SAME lead/clamp math the
+    // sim's camera already produced. In 2D, s.camX is the viewport left edge.
+    const centreSimX = s.camX + W / 2;
+    const centreSimY = H / 2;          // the 2D camera never panned vertically
+    const camZ = camDistanceForSpan(baseSpan);
+
+    const tx = w2x(centreSimX);
+    const ty = w2y(centreSimY);
+    if (!camPrimed) {
+      camera.position.set(tx, ty, camZ);
+      camPrimed = true;
+    } else {
+      camera.position.x += (tx - camera.position.x) * Math.min(1, rawDt * 14);
+      camera.position.y += (ty - camera.position.y) * Math.min(1, rawDt * 14);
+      camera.position.z += (camZ - camera.position.z) * Math.min(1, rawDt * 8);
+    }
+    camera.lookAt(camera.position.x, camera.position.y, 0);
+
+    // Key light + shadow frustum track the player so shadows stay crisp.
+    key.position.set(w2x(s.x) - 280, w2y(s.y) + 460, 820);
+    key.target.position.set(w2x(s.x), w2y(s.y), 0);
+    key.target.updateMatrixWorld();
+
+    // Sky + sun follow the camera horizontally so they sit always behind.
+    sky.position.set(camera.position.x, camera.position.y, 0);
+    sunMesh.position.x = camera.position.x + 180;
+    sunGlow.position.x = camera.position.x + 180;
+
+    // ── Player rig pose. Mirrors the 2D stickman's lean / reach / tuck /
+    // trail logic, expressed as bone rotations.
+    const vx = s.x - s.px, vy = s.y - s.py;
+    const speed = Math.hypot(vx, vy);
+    const alive = !s.dead || s.deathT < 0.5;
+    playerGroup.visible = alive;
+    if (alive) {
+      playerGroup.position.set(w2x(s.x), w2y(s.y), 0);
+
+      // Torso lean: toward the anchor when attached, into velocity airborne.
+      let leanAngle = 0;
+      if (s.attached !== null) {
+        const [ax, ay] = L.anchors[s.attached];
+        // Sim-space direction to anchor; the torso should lean that way.
+        leanAngle = Math.atan2(ax - s.x, -(ay - s.y)) * 0.55;
+      } else if (!s.onGround) {
+        leanAngle = clamp(vx * 0.05, -0.9, 0.9);
+      }
+      torsoPivot.rotation.z = -leanAngle;
+
+      // Facing — eye + slight body twist by velocity sign.
+      const face = vx >= 0 ? 1 : -1;
+      eye.position.x = face * 3.4;
+      playerGroup.rotation.y = face >= 0 ? 0 : Math.PI;
+
+      // Arms.
+      if (s.attached !== null) {
+        // Reach toward the anchor: arms point up the rope.
+        const [ax, ay] = L.anchors[s.attached];
+        const reach = Math.atan2(ax - s.x, -(ay - s.y));
+        // Convert to limb angle relative to torso (which is already leaned).
+        const a = reach + leanAngle;
+        poseLimb(armL, a + 0.18 - Math.PI, 0);
+        poseLimb(armR, a - 0.18 - Math.PI, 0);
+      } else if (!s.onGround && speed > 10) {
+        // Tuck — arms hug forward toward the knees.
+        const f = vx >= 0 ? 0.9 : -0.9;
+        poseLimb(armL, f - 0.2, 0);
+        poseLimb(armR, f + 0.2, 0);
+      } else if (!s.onGround && vy > 2.5) {
+        // Flail — arms thrown up, wobbling.
+        const wob = Math.sin(s.tick * 0.45) * 0.4;
+        poseLimb(armL, Math.PI - 0.6 + wob, 0);
+        poseLimb(armR, -(Math.PI) + 0.6 - wob, 0);
+      } else {
+        // Idle / glide — relaxed at the sides.
+        const sway = Math.sin(s.tick * 0.08) * 0.12;
+        poseLimb(armL, 0.38 + sway, 0);
+        poseLimb(armR, -0.38 - sway, 0);
+      }
+
+      // Legs.
+      if (s.onGround && s.attached === null) {
+        const bob = Math.sin(s.tick * 0.08) * 0.06;
+        poseLimb(legL, 0.16 + bob, 0);
+        poseLimb(legR, -0.16 - bob, 0);
+      } else if (!s.onGround && speed > 10 && s.attached === null) {
+        // Tuck — knees pulled up forward.
+        const f = vx >= 0 ? 1.0 : -1.0;
+        poseLimb(legL, f - 0.15, 0);
+        poseLimb(legR, f + 0.15, 0);
+      } else {
+        // Trail opposite velocity, with a scissor phase.
+        const sp = Math.max(speed, 0.001);
+        // Trail direction in sim space, blended toward straight-down for slow.
+        let tx2 = -vx / sp, ty2 = -vy / sp;
+        const blend = clamp(speed / 8, 0, 0.8);
+        tx2 = tx2 * blend; ty2 = ty2 * blend + (1 - blend);
+        const trailAng = Math.atan2(tx2, ty2);   // 0 = straight down
+        const phase = Math.sin(s.tick * 0.3) * (s.attached !== null ? 0.22 : 0.12);
+        poseLimb(legL, trailAng + 0.18 + phase, 0);
+        poseLimb(legR, trailAng - 0.18 - phase, 0);
+      }
+
+      // Death tumble — spin as the figure falls away.
+      if (s.dead) {
+        playerGroup.rotation.z = s.deathT * 8;
+      } else {
+        playerGroup.rotation.z = 0;
+      }
+
+      // Subtle speed glow on the body.
+      bodyMat.emissiveIntensity = 0.4 + Math.min(0.5, speed / 14 * 0.5);
+    }
+
+    // ── Rope — a sagging tube from the active anchor to the player's hands.
+    if (s.attached !== null && alive && !s.dead) {
+      const [ax, ay] = L.anchors[s.attached];
+      const x0 = w2x(ax), y0 = w2y(ay);
+      const x1 = w2x(s.x), y1 = w2y(s.y - 14);   // hands a touch above pelvis
+      const d = Math.hypot(s.x - ax, s.y - ay) || 1;
+      const slack = Math.max(0, s.ropeLen - d);
+      let sag = 3 + slack * 0.55 + (1 - clamp(d / (s.ropeLen || 1), 0, 1)) * 8;
+      if (s.attachT > 0) sag += Math.sin(s.attachT * 26) * 7 * s.attachT;
+      // Sag pulls the control point DOWN in screen space → down in world (−Y).
+      const mx = (x0 + x1) / 2;
+      const my = (y0 + y1) / 2 - sag;
+      ropeCurve.v0.set(x0, y0, 0);
+      ropeCurve.v1.set(mx, my, 2);
+      ropeCurve.v2.set(x1, y1, 0);
+      ropeMesh.geometry.dispose();
+      ropeMesh.geometry = new THREE.TubeGeometry(ropeCurve, ROPE_SEG, 1.6, 6, false);
+      ropeMesh.visible = true;
+    } else {
+      ropeMesh.visible = false;
+    }
+
+    // ── Anchors — nearest grabbable glow + hooked highlight. Compute the
+    // same nearest-anchor affordance the 2D version drew.
+    let nearest = -1;
+    if (s.attached === null && !s.dead) {
+      let bd = s.onGround ? GRAB_RANGE_GROUND : GRAB_RANGE;
+      L.anchors.forEach(([ax, ay], i) => {
+        const dd = Math.hypot(ax - s.x, ay - s.y);
+        if (dd < bd) { bd = dd; nearest = i; }
+      });
+    }
+    const tnow = performance.now();
+    for (let i = 0; i < anchorRecs.length; i++) {
+      const rec = anchorRecs[i];
+      const inRange = Math.hypot(rec.sx - s.x, rec.sy - s.y) < GRAB_RANGE;
+      const isNear = i === nearest;
+      const isHooked = s.attached === i;
+      const hot = isHooked || isNear;
+      _c.set(isHooked ? PAL.anchorHook : hot ? PAL.anchorReady : PAL.anchorIdle);
+      rec.coreMat.emissive.copy(_c);
+      rec.coreMat.emissiveIntensity = isHooked ? 1.3 : hot ? 1.0 : inRange ? 0.7 : 0.45;
+      rec.haloMat.color.set(isHooked ? PAL.anchorHook : hot ? PAL.anchorReady : PAL.anchorIdle);
+      rec.haloMat.opacity = hot ? 0.6 : inRange ? 0.32 : 0.18;
+      const pulse = hot ? 1.0 + 0.18 * Math.sin(tnow / 130) : 1.0;
+      rec.halo.scale.set(pulse, pulse, pulse);
+      rec.halo.rotation.z += rawDt * (hot ? 1.2 : 0.3);
+    }
+
+    // ── Goal pulse.
+    if (goalRec) {
+      const pulse = 0.6 + 0.4 * Math.sin(tnow / 260);
+      goalRec.flagMat.emissiveIntensity = 0.7 + pulse * 0.5;
+      goalRec.glowMat.opacity = 0.08 + pulse * 0.1;
+      goalRec.flag.rotation.y = Math.sin(tnow / 200) * 0.25;
+    }
+
+    // ── Motion trail. Reads the sim's trail list.
+    const trail = s.trail;
+    for (let i = 0; i < TRAIL_N; i++) {
+      const t = trail[trail.length - 1 - i];
+      if (t && alive && !s.dead) {
+        const f = (TRAIL_N - i) / TRAIL_N;
+        _p.set(w2x(t.x), w2y(t.y), -2);
+        _q.identity();
+        const r = 5 * f;
+        _s.set(r, r, r);
+        _m.compose(_p, _q, _s);
+      } else {
+        _m.makeScale(0, 0, 0);
+      }
+      trailMesh.setMatrixAt(i, _m);
+    }
+    trailMesh.instanceMatrix.needsUpdate = true;
+
+    // ── Particles — advance + draw render-local fx, plus the sim's dust.
+    for (let i = fx.length - 1; i >= 0; i--) {
+      const f = fx[i];
+      f.x += f.vx * rawDt; f.y += f.vy * rawDt; f.z += f.vz * rawDt;
+      f.vy -= 300 * rawDt;
+      f.life -= rawDt;
+      if (f.life <= 0) fx.splice(i, 1);
+    }
+    let pi = 0;
+    // Sim dust (landing puffs), mapped to world space.
+    for (const d of s.dust) {
+      if (pi >= PART_N) break;
+      _p.set(w2x(d.x), w2y(d.y), 0);
+      _q.identity();
+      const sz = d.size * (0.6 + d.life * 0.8);
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      _c.set('#ffe6f5');
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    // Render-local fx bursts.
+    for (const f of fx) {
+      if (pi >= PART_N) break;
+      _p.set(f.x, f.y, f.z);
+      _q.identity();
+      const sz = f.size * (f.life / f.max);
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      _c.set(f.color);
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    for (let k = pi; k < PART_N; k++) {
+      _m.makeScale(0, 0, 0);
+      partMesh.setMatrixAt(k, _m);
+    }
+    partMesh.count = PART_N;
+    partMesh.instanceMatrix.needsUpdate = true;
+    if (partMesh.instanceColor) partMesh.instanceColor.needsUpdate = true;
+
+    renderer.render(scene, camera);
+  }
+
+  function dispose() {
+    clearLevel();
+    scene.remove(levelGroup);
+    // Persistent objects.
+    playerGroup.traverse((o) => { o.geometry?.dispose?.(); });
+    [bodyMat, skinMat, eyeMat].forEach((m) => m.dispose?.());
+    [ropeMesh, trailMesh, partMesh, sky, sunMesh, sunGlow].forEach((o) => o.geometry?.dispose?.());
+    [ropeMat, trailMat, partMat, skyMat, sunMat, sunGlowMat].forEach((m) => m.dispose?.());
+    windowTex.dispose();
+    renderer.dispose();
+  }
+
+  return { scene, camera, renderer, rebuildLevel, render, resize, dispose, burst };
+}
+
+// ──────────────────────────────────────────────────────────────────────────
+// Main component
+// ──────────────────────────────────────────────────────────────────────────
 export default function StickmanHookGame() {
   const canvasRef = useRef(null);
+  const wrapRef = useRef(null);
   const stateRef = useRef(null);
+  const rendererRef = useRef(null);
+  const statusRef = useRef('playing');
+  const levelIdxRef = useRef(0);
   const deathsRef = useRef(0);
   const [levelIdx, setLevelIdx] = useState(0);
   const [status, setStatus] = useState('playing'); // 'playing' | 'won'
@@ -101,8 +858,6 @@ export default function StickmanHookGame() {
       flick: null,                     // rope snap-back after release
       trail: [],
       dust: [],
-      lines: [],                       // screen-space speed lines
-      floats: [],                      // rising bonus texts
       perfects: 0,
       dead: false,
       deathT: 0,
@@ -113,424 +868,55 @@ export default function StickmanHookGame() {
         { x: L.goal - 90, w: 190, y: PLAT_TOP },
       ],
     };
+    statusRef.current = 'playing';
+    rendererRef.current?.rebuildLevel(L);
     setStatus('playing');
     setFinalTime(null);
   };
 
-  useEffect(() => { resetLevel(levelIdx); }, [levelIdx]);
+  // Keep refs in sync so the persistent RAF loop reads live values.
+  useEffect(() => { levelIdxRef.current = levelIdx; }, [levelIdx]);
+  useEffect(() => { statusRef.current = status; }, [status]);
 
+  // Rebuild the sim state + 3D level when the level index changes.
+  useEffect(() => {
+    if (levelIdx < 0) return;
+    if (rendererRef.current) resetLevel(levelIdx);
+  }, [levelIdx]);
+
+  // ── Boot the renderer + the single persistent simulation/render loop.
   useEffect(() => {
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const wrap = wrapRef.current;
 
-    // ── pose helpers ──────────────────────────────────────────────────
-    const limb = (ax, ay, bx, by, cx, cy) => {
-      ctx.beginPath();
-      ctx.moveTo(ax, ay);
-      ctx.lineTo(bx, by);
-      ctx.lineTo(cx, cy);
-      ctx.stroke();
+    let renderer = null;
+    try { renderer = makeRenderer3D(canvas); }
+    catch (err) { renderer = null; if (import.meta.env.DEV) console.error('[stickman-hook] WebGL init failed', err); }
+    rendererRef.current = renderer;
+
+    if (import.meta.env.DEV && renderer) {
+      window.__stickman3d = { scene: renderer.scene, camera: renderer.camera, renderer: renderer.renderer };
+    }
+
+    // Build the first level now that the renderer exists.
+    resetLevel(levelIdxRef.current);
+
+    // ── Manual fluid sizing (NOT sizeCanvasFluid — that grabs a 2D context,
+    // locking the canvas out of WebGL). ResizeObserver + orientationchange.
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const fit = () => {
+      const cssW = Math.max(1, wrap.clientWidth || W);
+      const cssH = Math.max(1, wrap.clientHeight || H);
+      renderer?.resize(cssW, cssH);
     };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
+    const onOrient = () => fit();
+    window.addEventListener('orientationchange', onOrient);
 
-    const drawStickman = (s, cam) => {
-      const x = s.x - cam, y = s.y;
-      const vx = s.x - s.px, vy = s.y - s.py;
-      const speed = Math.hypot(vx, vy);
-      const t = s.tick;
-
-      ctx.strokeStyle = '#16181d';
-      ctx.fillStyle = '#16181d';
-      ctx.lineWidth = 4.2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      // Body direction — lean into velocity airborne, toward rope attached.
-      let bdx = 0, bdy = -1;
-      if (s.attached !== null) {
-        const [ax2, ay2] = s.L.anchors[s.attached];
-        const dx = ax2 - s.x, dy = ay2 - s.y;
-        const d = Math.hypot(dx, dy) || 1;
-        bdx = (dx / d) * 0.65; bdy = -1 + (dy / d) * 0.65 * 0.6;
-        const bl = Math.hypot(bdx, bdy) || 1;
-        bdx /= bl; bdy /= bl;
-      } else if (!s.onGround) {
-        const lean = clamp(vx * 0.055, -1.0, 1.0);
-        bdx = Math.sin(lean); bdy = -Math.cos(lean);
-      }
-      const perpX = -bdy, perpY = bdx;
-
-      const shX = x + bdx * 13, shY = y + bdy * 13;      // shoulder
-      const headX = x + bdx * 23, headY = y + bdy * 23;  // head center
-
-      // torso
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.lineTo(shX, shY);
-      ctx.stroke();
-      // head
-      ctx.beginPath();
-      ctx.arc(headX, headY, 8.2, 0, Math.PI * 2);
-      ctx.fill();
-      // eye — gives the swing a facing
-      const face = vx >= 0 ? 1 : -1;
-      ctx.fillStyle = '#fff';
-      ctx.beginPath();
-      ctx.arc(headX + face * 3.4, headY - 1.4, 1.6, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = '#16181d';
-
-      // ── arms ─────────────────────────────────────────────────────
-      if (s.attached !== null) {
-        // Reach toward the anchor, elbows slightly split.
-        const [ax2, ay2] = s.L.anchors[s.attached];
-        const dx = ax2 - s.x, dy = ay2 - s.y;
-        const d = Math.hypot(dx, dy) || 1;
-        const ux = dx / d, uy = dy / d;
-        for (const side of [-1, 1]) {
-          const sx0 = shX + perpX * side * 3.5, sy0 = shY + perpY * side * 3.5;
-          const hx = shX + ux * 19 + perpX * side * 2.5;
-          const hy = shY + uy * 19 + perpY * side * 2.5;
-          const ex = (sx0 + hx) / 2 + perpX * side * 3.5;
-          const ey = (sy0 + hy) / 2 + perpY * side * 3.5;
-          limb(sx0, sy0, ex, ey, hx, hy);
-        }
-      } else if (!s.onGround && speed > 10) {
-        // Tuck — arms hug forward toward the knees.
-        const fwd = vx >= 0 ? 1 : -1;
-        for (const side of [-1, 1]) {
-          limb(shX, shY,
-            shX + fwd * 7, shY + 7 + side * 1.5,
-            x + fwd * 9, y + 9 + side * 2);
-        }
-      } else if (!s.onGround && vy > 2.5) {
-        // Flail — arms thrown up, wobbling.
-        for (const side of [-1, 1]) {
-          const wob = Math.sin(t * 0.45 + side * 2.1) * 4;
-          limb(shX, shY,
-            shX + side * 10, shY - 7 + wob * 0.4,
-            shX + side * 15 + wob, shY - 16);
-        }
-      } else {
-        // Idle / glide — relaxed arms at the sides.
-        const sway = Math.sin(t * 0.08) * 1.5;
-        for (const side of [-1, 1]) {
-          limb(shX, shY,
-            shX + side * 7, shY + 7,
-            shX + side * (9 + sway), shY + 15);
-        }
-      }
-
-      // ── legs ─────────────────────────────────────────────────────
-      if (s.onGround && s.attached === null) {
-        const bob = Math.sin(t * 0.08) * 0.8;
-        for (const side of [-1, 1]) {
-          limb(x, y, x + side * 4, y + 13, x + side * (6 + bob), y + 26);
-        }
-      } else if (!s.onGround && speed > 10 && s.attached === null) {
-        // Tuck — knees pulled up in front.
-        const fwd = vx >= 0 ? 1 : -1;
-        for (const side of [-1, 1]) {
-          limb(x, y,
-            x + fwd * 10, y + 5 + side * 2,
-            x + fwd * 4, y + 13 + side * 2.5);
-        }
-      } else {
-        // Trail opposite the velocity, with a small swing-phase scissor.
-        const sp = Math.max(speed, 0.001);
-        let tx = -vx / sp, ty = -vy / sp;
-        // blend with straight-down so slow swings still read as hanging
-        const blend = clamp(speed / 8, 0, 0.8);
-        tx = tx * blend; ty = ty * blend + (1 - blend);
-        const tl = Math.hypot(tx, ty) || 1;
-        tx /= tl; ty /= tl;
-        const tpx = -ty, tpy = tx;
-        const phase = Math.sin(t * 0.3) * (s.attached !== null ? 4 : 2);
-        for (const side of [-1, 1]) {
-          const footX = x + tx * 22 + tpx * (side * 5 + phase * side);
-          const footY = y + ty * 22 + tpy * (side * 5 + phase * side);
-          const kneeX = x + tx * 11 + tpx * side * 7 - tx * 2;
-          const kneeY = y + ty * 11 + tpy * side * 7 - ty * 2;
-          limb(x, y, kneeX, kneeY, footX, footY);
-        }
-      }
-
-      // round joints at shoulder/pelvis to sell the articulation
-      ctx.beginPath(); ctx.arc(shX, shY, 2.4, 0, Math.PI * 2); ctx.fill();
-      ctx.beginPath(); ctx.arc(x, y, 2.6, 0, Math.PI * 2); ctx.fill();
-    };
-
-    // ── background ───────────────────────────────────────────────────
-    const drawBackground = (cam) => {
-      // Dusk gradient — margins cover the zoom-out reveal.
-      const g = ctx.createLinearGradient(0, -80, 0, H + 80);
-      g.addColorStop(0, '#41197f');
-      g.addColorStop(0.55, '#9b4ff0');
-      g.addColorStop(1, '#ff8ec6');
-      ctx.fillStyle = g;
-      ctx.fillRect(-90, -90, W + 180, H + 180);
-
-      // Sun low on the horizon (parallax 0.03)
-      const sunX = W * 0.74 - cam * 0.03;
-      ctx.fillStyle = 'rgba(255, 222, 150, 0.85)';
-      ctx.beginPath(); ctx.arc(sunX, 270, 34, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = 'rgba(255, 222, 150, 0.18)';
-      ctx.beginPath(); ctx.arc(sunX, 270, 60, 0, Math.PI * 2); ctx.fill();
-
-      // Distant hills (parallax 0.12)
-      ctx.fillStyle = 'rgba(74, 28, 134, 0.55)';
-      {
-        const p = cam * 0.12, tile = 170;
-        const i0 = Math.floor((p - 100) / tile);
-        for (let i = i0; i < i0 + Math.ceil(W / tile) + 3; i++) {
-          const hx = i * tile - p;
-          const hh = 40 + hash(i) * 70;
-          ctx.beginPath();
-          ctx.ellipse(hx, 332, 130, hh, 0, Math.PI, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-      ctx.fillRect(-90, 330, W + 180, H - 240);
-
-      // Mid skyline (parallax 0.3) — flat building silhouettes + lit windows
-      {
-        const p = cam * 0.3, tile = 110;
-        const i0 = Math.floor((p - 100) / tile);
-        for (let i = i0; i < i0 + Math.ceil(W / tile) + 3; i++) {
-          const bx = i * tile - p;
-          const bw = 64 + hash(i * 3 + 1) * 34;
-          const bh = 70 + hash(i * 7 + 2) * 110;
-          ctx.fillStyle = 'rgba(38, 14, 74, 0.78)';
-          ctx.fillRect(bx, 360 - bh, bw, bh + H);
-          // sparse warm windows
-          ctx.fillStyle = 'rgba(255, 210, 130, 0.32)';
-          const rows = Math.floor(bh / 26);
-          for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < 3; c++) {
-              if (hash(i * 31 + r * 7 + c) < 0.4) {
-                ctx.fillRect(bx + 9 + c * 18, 368 - bh + r * 24, 5, 7);
-              }
-            }
-          }
-        }
-      }
-
-      // Clouds (parallax 0.45)
-      ctx.fillStyle = 'rgba(255, 235, 248, 0.5)';
-      {
-        const p = cam * 0.45, tile = 380;
-        const i0 = Math.floor((p - 120) / tile);
-        for (let i = i0; i < i0 + Math.ceil(W / tile) + 2; i++) {
-          const cx2 = i * tile - p + hash(i * 13) * 120;
-          const cy2 = 50 + hash(i * 17) * 90;
-          const cr = 26 + hash(i * 23) * 22;
-          ctx.beginPath();
-          ctx.ellipse(cx2, cy2, cr, cr * 0.34, 0, 0, Math.PI * 2);
-          ctx.ellipse(cx2 + cr * 0.7, cy2 + 4, cr * 0.6, cr * 0.24, 0, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
-    };
-
-    const drawRope = (s, cam) => {
-      const [ax, ay] = s.L.anchors[s.attached];
-      const x0 = ax - cam, y0 = ay;
-      const x1 = s.x - cam, y1 = s.y;
-      const d = Math.hypot(s.x - ax, s.y - ay) || 1;
-      // Sag: slack rope bows down; taut rope straightens. The attach
-      // wobble gives the "elastic stretch" read for the first beats.
-      const slack = Math.max(0, s.ropeLen - d);
-      let sag = 3 + slack * 0.55 + (1 - clamp(d / (s.ropeLen || 1), 0, 1)) * 8;
-      if (s.attachT > 0) sag += Math.sin(s.attachT * 26) * 7 * s.attachT;
-      const mx = (x0 + x1) / 2, my = (y0 + y1) / 2 + sag;
-      ctx.strokeStyle = '#ffe14f';
-      ctx.lineWidth = 2.6;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(x0, y0);
-      ctx.quadraticCurveTo(mx, my, x1, y1);
-      ctx.stroke();
-      // bright filament core
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.55)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(x0, y0);
-      ctx.quadraticCurveTo(mx, my, x1, y1);
-      ctx.stroke();
-    };
-
-    const drawFlick = (s, cam) => {
-      const f = s.flick;
-      const t = f.t;
-      const ex = f.ax + (f.px - f.ax) * t * 0.85 - cam;
-      const ey = f.ay + (f.py - f.ay) * t * 0.85;
-      const mx = (f.ax - cam + ex) / 2 + Math.sin((1 - t) * 14) * 16 * t;
-      const my = (f.ay + ey) / 2 + Math.cos((1 - t) * 11) * 10 * t;
-      ctx.strokeStyle = `rgba(255, 225, 79, ${(t * 0.9).toFixed(3)})`;
-      ctx.lineWidth = 2.2;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(f.ax - cam, f.ay);
-      ctx.quadraticCurveTo(mx, my, ex, ey);
-      ctx.stroke();
-    };
-
-    const draw = () => {
-      const s = stateRef.current;
-      if (!s) return;
-      const L = s.L;
-      const cam = s.camX;
-
-      ctx.clearRect(0, 0, W, H);
-      ctx.save();
-      // speed zoom-out around screen center
-      ctx.translate(W / 2, H / 2);
-      ctx.scale(s.zoom, s.zoom);
-      ctx.translate(-W / 2, -H / 2);
-
-      drawBackground(cam);
-
-      // ── world layer ───────────────────────────────────────────────
-      // platforms
-      for (const p of s.plats) {
-        const px2 = p.x - cam;
-        if (px2 > W + 100 || px2 + p.w < -100) continue;
-        ctx.fillStyle = '#241140';
-        ctx.fillRect(px2, p.y, p.w, 70);
-        ctx.fillStyle = 'rgba(255, 209, 236, 0.85)';
-        ctx.fillRect(px2, p.y, p.w, 4);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
-        ctx.fillRect(px2 + 6, p.y + 12, p.w - 12, 3);
-      }
-
-      // goal flag on the far platform
-      const gx = L.goal - cam;
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 3;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(gx, PLAT_TOP); ctx.lineTo(gx, PLAT_TOP - 80);
-      ctx.stroke();
-      const wave = Math.sin(s.tick * 0.1) * 3;
-      ctx.fillStyle = '#35f0c9';
-      ctx.beginPath();
-      ctx.moveTo(gx, PLAT_TOP - 80);
-      ctx.quadraticCurveTo(gx + 16, PLAT_TOP - 76 + wave, gx + 30, PLAT_TOP - 70 + wave);
-      ctx.quadraticCurveTo(gx + 14, PLAT_TOP - 66, gx, PLAT_TOP - 60);
-      ctx.closePath();
-      ctx.fill();
-
-      // nearest grabbable anchor (affordance for WHEN to press)
-      let nearest = -1;
-      if (s.attached === null && !s.dead) {
-        let bd = s.onGround ? GRAB_RANGE_GROUND : GRAB_RANGE;
-        L.anchors.forEach(([ax, ay], i) => {
-          const d = Math.hypot(ax - s.x, ay - s.y);
-          if (d < bd) { bd = d; nearest = i; }
-        });
-      }
-
-      // anchors
-      L.anchors.forEach(([ax, ay], i) => {
-        const x = ax - cam;
-        if (x < -40 || x > W + 40) return;
-        const inRange = Math.hypot(ax - s.x, ay - s.y) < GRAB_RANGE;
-        const isNear = i === nearest;
-        const isHooked = s.attached === i;
-        // glow halo — bright pulse on the nearest grabbable anchor
-        if (isHooked || isNear) {
-          const pulse = 16 + Math.sin(s.tick * 0.18) * 3.5;
-          const halo = ctx.createRadialGradient(x, ay, 4, x, ay, pulse + 10);
-          halo.addColorStop(0, isHooked ? 'rgba(255, 225, 79, 0.55)' : 'rgba(255, 255, 255, 0.5)');
-          halo.addColorStop(1, 'rgba(255, 255, 255, 0)');
-          ctx.fillStyle = halo;
-          ctx.beginPath(); ctx.arc(x, ay, pulse + 10, 0, Math.PI * 2); ctx.fill();
-          ctx.strokeStyle = isHooked ? 'rgba(255, 225, 79, 0.9)' : 'rgba(255, 255, 255, 0.85)';
-          ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(x, ay, pulse, 0, Math.PI * 2); ctx.stroke();
-        } else if (inRange) {
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
-          ctx.beginPath(); ctx.arc(x, ay, 15, 0, Math.PI * 2); ctx.fill();
-        }
-        // stud
-        ctx.beginPath();
-        ctx.arc(x, ay, 9.5, 0, Math.PI * 2);
-        ctx.fillStyle = inRange || isHooked ? '#fff' : 'rgba(255, 255, 255, 0.55)';
-        ctx.fill();
-        ctx.beginPath();
-        ctx.arc(x, ay, 4.6, 0, Math.PI * 2);
-        ctx.fillStyle = isHooked ? '#ffe14f' : inRange ? '#9b4ff0' : 'rgba(80, 40, 140, 0.8)';
-        ctx.fill();
-      });
-
-      // motion trail
-      for (let i = 0; i < s.trail.length; i++) {
-        const tp = s.trail[i];
-        const a = (i / s.trail.length) * 0.30;
-        ctx.fillStyle = `rgba(22, 24, 29, ${a.toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(tp.x - cam, tp.y, 2 + (i / s.trail.length) * 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // rope + snap-back flick
-      if (s.attached !== null) drawRope(s, cam);
-      if (s.flick) drawFlick(s, cam);
-
-      // dust particles
-      for (const d of s.dust) {
-        ctx.fillStyle = `rgba(255, 230, 245, ${(d.life * 0.7).toFixed(3)})`;
-        ctx.beginPath();
-        ctx.arc(d.x - cam, d.y, d.size * (0.5 + d.life * 0.8), 0, Math.PI * 2);
-        ctx.fill();
-      }
-
-      // stickman
-      if (!s.dead || s.deathT < 0.5) drawStickman(s, cam);
-
-      // floating bonus texts
-      for (const f of s.floats) {
-        ctx.font = '800 16px ui-monospace, SFMono-Regular, Menlo, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = `rgba(255, 225, 79, ${f.t.toFixed(3)})`;
-        ctx.strokeStyle = `rgba(30, 10, 50, ${(f.t * 0.7).toFixed(3)})`;
-        ctx.lineWidth = 3;
-        ctx.strokeText(f.txt, f.x - cam, f.y);
-        ctx.fillText(f.txt, f.x - cam, f.y);
-      }
-      ctx.textAlign = 'left';
-
-      ctx.restore(); // end zoom
-
-      // ── screen-space layer ────────────────────────────────────────
-      // speed lines
-      for (const ln of s.lines) {
-        ctx.strokeStyle = `rgba(255, 255, 255, ${(ln.life * 0.38).toFixed(3)})`;
-        ctx.lineWidth = 1.4;
-        ctx.beginPath();
-        ctx.moveTo(ln.x, ln.y);
-        ctx.lineTo(ln.x - ln.ux * ln.len, ln.y - ln.uy * ln.len);
-        ctx.stroke();
-      }
-
-      // HUD — timer + falls
-      ctx.font = '600 11px ui-monospace, SFMono-Regular, Menlo, monospace';
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-      ctx.fillText(`TIME ${s.elapsed.toFixed(1)}s`, W - 14, 24);
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
-      ctx.fillText(`FALLS ${deathsRef.current}`, W - 14, 40);
-      ctx.textAlign = 'left';
-
-      // death fade-out / respawn fade-in
-      if (s.dead) {
-        ctx.fillStyle = `rgba(20, 8, 38, ${clamp(s.deathT * 2.4, 0, 1).toFixed(3)})`;
-        ctx.fillRect(0, 0, W, H);
-      } else if (s.fadeIn > 0) {
-        ctx.fillStyle = `rgba(20, 8, 38, ${s.fadeIn.toFixed(3)})`;
-        ctx.fillRect(0, 0, W, H);
-      }
-    };
-
+    // ── Simulation helpers — UNCHANGED from the 2D version. ────────────────
     const tryAttach = (s) => {
       if (!s.grabHeld || s.attached !== null || s.dead) return;
       let best = -1, bestD = s.onGround ? GRAB_RANGE_GROUND : GRAB_RANGE;
@@ -541,12 +927,12 @@ export default function StickmanHookGame() {
       if (best >= 0) {
         s.attached = best;
         s.ropeLen = bestD;
-        // Reel floor: pull in for energy, but never winch the player into
-        // a dead dangle right under the anchor.
         s.ropeMin = Math.max(80, bestD * 0.55);
         s.attachT = 1;
         s.flick = null;
         sfx.open();
+        const [ax, ay] = s.L.anchors[best];
+        rendererRef.current?.burst(ax, ay, PAL.ropeSpark, 8, 160);
       }
     };
 
@@ -568,7 +954,10 @@ export default function StickmanHookGame() {
       if (!s) { raf = requestAnimationFrame(step); return; }
       s.tick++;
 
-      if (status === 'playing' && !s.dead) {
+      const playing = statusRef.current === 'playing';
+      const levelIdxNow = levelIdxRef.current;
+
+      if (playing && !s.dead) {
         tryAttach(s);
 
         // Verlet integration
@@ -582,9 +971,7 @@ export default function StickmanHookGame() {
         s.y += vy + GRAVITY;
 
         // Rope constraint — soft right after attach (elastic give), then
-        // stiff. A slow reel-in plus a tangential pump keep the swing fed
-        // with energy: holding builds momentum instead of decaying into a
-        // dead dangle (the verlet slack-catch cycle is dissipative).
+        // stiff. Slow reel-in + tangential pump keep momentum fed.
         if (s.attached !== null) {
           const [ax, ay] = s.L.anchors[s.attached];
           s.ropeLen = Math.max(s.ropeMin || 80, s.ropeLen - ROPE_REEL);
@@ -633,10 +1020,12 @@ export default function StickmanHookGame() {
         if (s.x >= s.L.goal) {
           const time = s.elapsed;
           setStatus('won');
+          statusRef.current = 'won';
           setFinalTime(time);
           sfx.win();
-          submitScore('stickman-hook', (levelIdx + 1) * 100 + s.perfects * 10, {
-            level: levelIdx + 1,
+          rendererRef.current?.burst(s.L.goal, PLAT_TOP - 50, PAL.goal, 30, 320);
+          submitScore('stickman-hook', (levelIdxNow + 1) * 100 + s.perfects * 10, {
+            level: levelIdxNow + 1,
             time: Math.round(time * 10) / 10,
             perfects: s.perfects,
           });
@@ -649,6 +1038,7 @@ export default function StickmanHookGame() {
           s.attached = null;
           deathsRef.current += 1;
           sfx.lose();
+          rendererRef.current?.burst(s.x, clamp(s.y, 0, H), PAL.rope, 16, 220);
         }
       } else if (s.dead) {
         // quick fade, respawn at the start pad
@@ -666,7 +1056,7 @@ export default function StickmanHookGame() {
       }
       if (s.fadeIn > 0) s.fadeIn = Math.max(0, s.fadeIn - 0.07);
 
-      // ── camera: lead + speed zoom-out ───────────────────────────────
+      // ── camera: lead + speed zoom-out (UNCHANGED math) ──────────────────
       const vx2 = s.x - s.px, vy2 = s.y - s.py;
       const speed = Math.hypot(vx2, vy2);
       const lead = clamp(vx2 * 9, -110, 150);
@@ -675,7 +1065,7 @@ export default function StickmanHookGame() {
       const zTarget = clamp(1 - Math.max(0, speed - 5) * 0.013, 0.86, 1);
       s.zoom += (zTarget - s.zoom) * 0.08;
 
-      // ── effects updates ────────────────────────────────────────────
+      // ── effects updates ────────────────────────────────────────────────
       if (speed > 3.5 && !s.dead) {
         s.trail.push({ x: s.x, y: s.y });
         if (s.trail.length > 16) s.trail.shift();
@@ -683,42 +1073,37 @@ export default function StickmanHookGame() {
         s.trail.shift();
       }
 
-      if (speed > 8 && !s.dead) {
-        const ux = vx2 / speed, uy = vy2 / speed;
-        for (let i = 0; i < 2; i++) {
-          s.lines.push({
-            x: Math.random() * W,
-            y: Math.random() * H,
-            ux, uy,
-            len: 26 + speed * 4 * Math.random(),
-            life: 1,
-          });
-        }
-      }
-      for (const ln of s.lines) ln.life -= 0.14;
-      s.lines = s.lines.filter((l) => l.life > 0);
-
       for (const d of s.dust) {
         d.x += d.vx; d.y += d.vy; d.vy += 0.06; d.life -= 0.04;
       }
       s.dust = s.dust.filter((d) => d.life > 0);
-
-      for (const f of s.floats) { f.y -= 0.7; f.t -= 0.018; }
-      s.floats = s.floats.filter((f) => f.t > 0);
 
       if (s.flick) {
         s.flick.t -= 0.07;
         if (s.flick.t <= 0) s.flick = null;
       }
 
-      draw();
+      // Render the 3D frame from the live sim state.
+      rendererRef.current?.render(s, 1 / 60);
       raf = requestAnimationFrame(step);
     };
 
     let raf = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(raf);
-  }, [levelIdx, status]);
 
+    return () => {
+      cancelAnimationFrame(raf);
+      try { ro.disconnect(); } catch {}
+      window.removeEventListener('orientationchange', onOrient);
+      try { rendererRef.current?.dispose(); } catch {}
+      rendererRef.current = null;
+      if (import.meta.env.DEV && window.__stickman3d) {
+        try { delete window.__stickman3d; } catch {}
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // ── Controls — UNCHANGED semantics. ──────────────────────────────────────
   const onDown = () => { const s = stateRef.current; if (s) s.grabHeld = true; };
   const onUp = () => {
     const s = stateRef.current;
@@ -732,10 +1117,11 @@ export default function StickmanHookGame() {
       if (speed > PERFECT_SPEED && vy < -1.5) {
         // released near the top of a fast arc — reward it
         s.perfects += 1;
-        s.floats.push({ x: s.x, y: s.y - 34, t: 1, txt: 'PERFECT' });
         sfx.star();
+        rendererRef.current?.burst(s.x, s.y, PAL.anchorHook, 14, 240);
       } else {
         sfx.bounce();
+        rendererRef.current?.burst(s.x, s.y, PAL.rope, 8, 180);
       }
       s.attached = null;
     }
@@ -768,16 +1154,19 @@ export default function StickmanHookGame() {
         <span>Level <b>{levelIdx + 1}/{LEVELS.length}</b></span>
         <button className="btn btn-ghost btn-sm" onClick={doRetry}>Retry</button>
       </div>
-      <canvas
-        ref={canvasRef}
-        className="hook-canvas"
-        width={W}
-        height={H}
-        onMouseDown={onDown}
-        onMouseUp={onUp}
-        onMouseLeave={onUp}
-        onTouchStart={(e) => { e.preventDefault(); onDown(); }}
-        onTouchEnd={(e) => { e.preventDefault(); onUp(); }}/>
+      <div
+        ref={wrapRef}
+        className="hook-stage"
+        style={{ position: 'relative', width: '100%', maxWidth: W, aspectRatio: `${W} / ${H}` }}>
+        <canvas
+          ref={canvasRef}
+          className="hook-canvas"
+          onMouseDown={onDown}
+          onMouseUp={onUp}
+          onMouseLeave={onUp}
+          onTouchStart={(e) => { e.preventDefault(); onDown(); }}
+          onTouchEnd={(e) => { e.preventDefault(); onUp(); }}/>
+      </div>
       {status === 'won' && (
         <div className="hook-bar">
           <span style={{color: 'var(--accent)', fontWeight: 700}}>

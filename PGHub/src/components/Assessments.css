@@ -91,6 +91,23 @@
 }
 .asm-card:hover::after { opacity: 1; }
 
+.asm-card-thumb {
+  width: 100%;
+  height: 88px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.asm-card-thumb .forge-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.asm-card:hover .asm-card-thumb { border-color: var(--card-accent, var(--accent)); }
+
 .asm-card-head {
   display: flex;
   align-items: baseline;

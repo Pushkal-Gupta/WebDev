@@ -10,7 +10,37 @@ import {
 import { primaryTopicLabel } from '../lib/topicLabel';
 import StatusPill from './StatusPill';
 import { legacyToStatus } from '../lib/status';
+import ForgeThumb from './ml/forge/ForgeThumb';
 import './Assessments.css';
+
+// Keyword -> ForgeThumb archetype, so each topic card carries a distinct,
+// topic-related motif. First match wins; specific patterns precede generic ones
+// so e.g. "advanced graphs" hits network before any array catch-all.
+const MOTIF_RULES = [
+  [/two.?pointer/i, 'vectors'],
+  [/sliding.?window/i, 'attention'],
+  [/bit|bitmask|xor/i, 'bits'],
+  [/2.?d.?\s*d\.?p|2d.?dp|grid.?dp|range|prefix|interval|knapsack|\bdp\b|dynamic.?prog/i, 'matrix'],
+  [/trie|heap|priority.?queue|\bbst\b|tree|binary.?indexed|segment/i, 'tree'],
+  [/backtrack|recursion|recursive|permutation|combination|subset/i, 'tree'],
+  [/advanced.?graph|shortest.?path|dijkstra|\bmst\b|union.?find|topolog|graph/i, 'network'],
+  [/binary.?search|search/i, 'scatter'],
+  [/geometr|\bgeo\b|coordinate|convex/i, 'field'],
+  [/linked.?list/i, 'field'],
+  [/\bstack\b|monotonic/i, 'bars'],
+  [/\bqueue\b|deque/i, 'cuda'],
+  [/greedy|schedul/i, 'bars'],
+  [/math|number.?theory|arithmetic|combinatoric|modul/i, 'rings'],
+  [/string|substring|palindrome|matching|anagram/i, 'heat'],
+  [/hash|hashmap|hash.?table|\bmap\b|\bset\b/i, 'grid'],
+  [/array|sort|matrix|two.?sum/i, 'grid'],
+];
+
+function motifForTopic(name) {
+  const s = String(name || '');
+  for (const [re, motif] of MOTIF_RULES) if (re.test(s)) return motif;
+  return 'cards';
+}
 
 const DEFAULTS = {
   problemCount: 3,
@@ -143,6 +173,9 @@ export default function Assessments({ session, roadmapMode = '500' }) {
             const solved = t.problems.filter(p => byId[p.id]?.is_completed).length;
             return (
               <li key={t.topicId} className="asm-card">
+                <div className="asm-card-thumb">
+                  <ForgeThumb seed={t.label} kind={motifForTopic(t.label)} label={t.label} />
+                </div>
                 <div className="asm-card-head">
                   <h3 className="asm-card-title">{t.label}</h3>
                   <span className="asm-card-meta">{solved} / {t.problems.length} solved</span>

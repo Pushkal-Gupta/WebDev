@@ -6,6 +6,20 @@
 //  time, jump buffering. No copyrighted Nintendo assets — original geometry,
 //  modern palette, abstract silhouettes.
 //
+//  3D rewrite. The gameplay is unchanged: the entire simulation (level/tile
+//  grid, collision, player physics, enemies, collectibles, goal, lives,
+//  score, sfx) is byte-for-byte the same as the 2D version. Only the
+//  *presentation* moved to Three.js.
+//
+//  2.5D mapping: the sim runs on the same (x, y) plane it always did, in
+//  logical 480x270 pixels @ 16px tiles. The renderer maps it onto the z = 0
+//  plane of a real perspective scene with
+//    worldX → +X,  worldY → −Y  (sim y grows downward; three's +Y is up)
+//  and a perspective side camera looking down the −Z axis. Because the
+//  physics never touches z, every number — gravity, AABB collisions, the
+//  camera lead/deadzone clamp — keeps its exact 2D meaning. The depth,
+//  lighting, shadows and parallax hills are pure decoration.
+//
 //  Engine notes (all in 480x270 logical pixels @ 16px tiles):
 //    - Player AABB: 12x16. Run accel ramps to 3.6 px/frame over 12 frames.
 //    - Jump: vy = -5.4. Gravity 0.32 px/f^2. Hold-jump cuts gravity 60%
@@ -21,6 +35,7 @@
 //  100 coins = +1 life. Submit on level 3 win as 'bricklands'.
 
 import { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
 import { submitScore } from '../../scoreBus.js';
 import { sfx } from '../../sound.js';
 import { consumeAdminStartLevel } from '../../utils/admin.js';
@@ -354,12 +369,816 @@ function aabb(a, b) {
 }
 
 // ----------------------------------------------------------------------
+// 2.5D plane mapping. Sim (x, y) → three world (x, -y, z). Sim y grows
+// downward (screen coords); three +Y is up, so we negate. The physics
+// never sees z; only the renderer applies this.
+// ----------------------------------------------------------------------
+const SY = -1;
+const w2x = (x) => x;
+const w2y = (y) => y * SY;
+
+// Deterministic hash for stable parallax placement.
+function hash2(x, y) {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+// ----------------------------------------------------------------------
+// Procedural CanvasTextures (no external assets). Built once, shared.
+// ----------------------------------------------------------------------
+function makeBrickTexture(faceCol, mortarCol) {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 64;
+  const g = c.getContext('2d');
+  g.fillStyle = mortarCol;
+  g.fillRect(0, 0, 64, 64);
+  g.fillStyle = faceCol;
+  const bw = 30, bh = 14, gap = 2;
+  for (let row = 0, y = 0; y < 64; row++, y += bh + gap) {
+    const off = (row % 2) * ((bw + gap) / 2);
+    for (let x = -bw; x < 64 + bw; x += bw + gap) {
+      g.fillRect(x + off, y, bw, bh);
+    }
+  }
+  // subtle top highlight per brick
+  g.fillStyle = 'rgba(255,255,255,0.10)';
+  for (let row = 0, y = 0; y < 64; row++, y += bh + gap) {
+    const off = (row % 2) * ((bw + gap) / 2);
+    for (let x = -bw; x < 64 + bw; x += bw + gap) {
+      g.fillRect(x + off, y, bw, 2);
+    }
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function makeGrassTexture(grassCol, soilCol) {
+  const c = document.createElement('canvas');
+  c.width = 64; c.height = 32;
+  const g = c.getContext('2d');
+  g.fillStyle = soilCol;
+  g.fillRect(0, 0, 64, 32);
+  g.fillStyle = grassCol;
+  g.fillRect(0, 0, 64, 12);
+  // grass tufts
+  for (let x = 0; x < 64; x += 4) {
+    const h = 10 + ((x * 7) % 6);
+    g.fillRect(x + 1, 12, 2, -((h - 10)) - 2);
+    g.fillRect(x + 1, 10, 2, 4);
+  }
+  // soil speckle
+  g.fillStyle = 'rgba(0,0,0,0.18)';
+  for (let i = 0; i < 40; i++) {
+    g.fillRect((i * 23) % 64, 14 + ((i * 13) % 16), 2, 2);
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+// ----------------------------------------------------------------------
+// Three.js renderer. Built once; rebuildLevel() builds static geometry per
+// level from the SAME tile grid the collision uses. render() reads the live
+// sim state each frame. dispose() tears everything down.
+// ----------------------------------------------------------------------
+function makeRenderer3D(canvas) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.45;            // bright, cheerful
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+
+  // Perspective side camera looking down −Z at the z=0 play plane.
+  const camera = new THREE.PerspectiveCamera(42, VIEW_W / VIEW_H, 1, 6000);
+  camera.position.set(0, 0, 420);
+  scene.add(camera);
+
+  // ── Sky dome — vertical gradient via shader (fog:false so it stays put).
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    fog: false,
+    uniforms: {
+      uTop: { value: new THREE.Color('#7fd0ff') },
+      uMid: { value: new THREE.Color('#ffd6e0') },
+      uBot: { value: new THREE.Color('#1a2240') },
+    },
+    vertexShader: /* glsl */`
+      varying vec3 vWorld;
+      void main() {
+        vWorld = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */`
+      varying vec3 vWorld;
+      uniform vec3 uTop, uMid, uBot;
+      void main() {
+        float h = clamp((normalize(vWorld).y + 0.35) * 0.85, 0.0, 1.0);
+        vec3 col = mix(uBot, uMid, smoothstep(0.0, 0.5, h));
+        col = mix(col, uTop, smoothstep(0.5, 1.0, h));
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(4000, 24, 16), skyMat);
+  sky.frustumCulled = false;
+  scene.add(sky);
+
+  // ── Lights — bright, cheerful. Key light on the CAMERA side (+Z) so the
+  // faces we see are lit, not silhouetted.
+  const key = new THREE.DirectionalLight(0xfff3da, 1.55);
+  key.position.set(-120, 260, 360);
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 1400;
+  key.shadow.camera.left = -360;
+  key.shadow.camera.right = 360;
+  key.shadow.camera.top = 320;
+  key.shadow.camera.bottom = -320;
+  key.shadow.bias = -0.0006;
+  scene.add(key);
+  scene.add(key.target);
+
+  const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x4a5a3a, 1.0);
+  scene.add(hemi);
+
+  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+  scene.add(ambient);
+
+  const fill = new THREE.DirectionalLight(0xa9c8ff, 0.45);
+  fill.position.set(160, 120, 320);
+  scene.add(fill);
+
+  // ── Parallax background — clouds + hill bands, rebuilt per level so the
+  // palette matches. Lives in its own group at large −z.
+  let bgGroup = new THREE.Group();
+  scene.add(bgGroup);
+
+  // ── Level container — rebuilt per level. Holds the tile blocks, goal,
+  // built from the unchanged grid. Player/enemies/coins/stars/particles
+  // live in persistent pools that survive level swaps.
+  let levelGroup = new THREE.Group();
+  scene.add(levelGroup);
+
+  // Persistent shared textures.
+  const brickTexCache = new Map();
+  const grassTexCache = new Map();
+  function brickTex(face, mortar) {
+    const k = face + mortar;
+    if (!brickTexCache.has(k)) brickTexCache.set(k, makeBrickTexture(face, mortar));
+    return brickTexCache.get(k);
+  }
+  function grassTex(grass, soil) {
+    const k = grass + soil;
+    if (!grassTexCache.has(k)) grassTexCache.set(k, makeGrassTexture(grass, soil));
+    return grassTexCache.get(k);
+  }
+
+  // Per-level tracked materials/geometries for disposal.
+  let levelMats = [];
+  let levelGeos = [];
+
+  // Records that the render loop animates.
+  let goalRec = null;          // { pole, flagMat }
+  const coinRecs = [];         // { mesh } indexed parallel to lvl.coins
+  const starRecs = [];         // { group, glowMat }
+  const enemyRecs = [];        // { group, bodyMat, eyeL?, eyeR?, kind }
+  const platformRecs = [];     // { mesh }
+  let mysteryRecs = [];        // { mesh, col, row } so we can swap spent blocks
+
+  // ── Player rig — a little 3D character: body, head, two arms, two legs.
+  const playerGroup = new THREE.Group();
+  const skin = new THREE.MeshStandardMaterial({ color: '#fff1d4', roughness: 0.6, metalness: 0.0 });
+  const cloth = new THREE.MeshStandardMaterial({ color: '#2a2a2a', roughness: 0.7, metalness: 0.05 });
+  const accent = new THREE.MeshStandardMaterial({
+    color: '#ff3a8a', emissive: new THREE.Color('#ff3a8a'),
+    emissiveIntensity: 0.35, roughness: 0.5,
+  });
+  const limbMat = new THREE.MeshStandardMaterial({ color: '#1a1a1a', roughness: 0.7 });
+  // body
+  const bodyMesh = new THREE.Mesh(new THREE.BoxGeometry(P_W, P_H - 7, 7), cloth);
+  bodyMesh.position.set(0, -(5 + (P_H - 7) / 2 - P_H / 2), 0);
+  bodyMesh.castShadow = true;
+  playerGroup.add(bodyMesh);
+  // accent stripe
+  const stripeMesh = new THREE.Mesh(new THREE.BoxGeometry(P_W, 3, 7.4), accent);
+  stripeMesh.position.set(0, -(9 + 1.5 - P_H / 2), 0);
+  playerGroup.add(stripeMesh);
+  // head
+  const headMesh = new THREE.Mesh(new THREE.SphereGeometry(4, 18, 14), skin);
+  headMesh.position.set(0, P_H / 2 - 4, 1);
+  headMesh.castShadow = true;
+  playerGroup.add(headMesh);
+  // eye (faces forward, nudged by facing)
+  const eyeMat = new THREE.MeshBasicMaterial({ color: '#222' });
+  const eyeMesh = new THREE.Mesh(new THREE.SphereGeometry(0.9, 8, 6), eyeMat);
+  eyeMesh.position.set(1.4, P_H / 2 - 4, 4.2);
+  playerGroup.add(eyeMesh);
+  // legs (animated)
+  const legGeo = new THREE.BoxGeometry(3, 5, 4);
+  const legL = new THREE.Mesh(legGeo, limbMat); legL.castShadow = true;
+  const legR = new THREE.Mesh(legGeo, limbMat); legR.castShadow = true;
+  legL.position.set(-3, -P_H / 2 + 2.5, 0);
+  legR.position.set(3, -P_H / 2 + 2.5, 0);
+  playerGroup.add(legL); playerGroup.add(legR);
+  // arms (animated)
+  const armGeo = new THREE.BoxGeometry(2.5, 6, 3);
+  const armL = new THREE.Mesh(armGeo, cloth); armL.castShadow = true;
+  const armR = new THREE.Mesh(armGeo, cloth); armR.castShadow = true;
+  armL.position.set(-(P_W / 2 + 0.5), 0, 0);
+  armR.position.set(P_W / 2 + 0.5, 0, 0);
+  playerGroup.add(armL); playerGroup.add(armR);
+  scene.add(playerGroup);
+
+  // ── Particle pool — instanced cubes. No per-frame allocation.
+  const PART_N = 220;
+  const partMat = new THREE.MeshBasicMaterial({
+    transparent: true, depthWrite: false, vertexColors: true,
+  });
+  const partGeo = new THREE.BoxGeometry(1.6, 1.6, 1.6);
+  const partMesh = new THREE.InstancedMesh(partGeo, partMat, PART_N);
+  partMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  partMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PART_N * 3), 3);
+  partMesh.frustumCulled = false;
+  scene.add(partMesh);
+
+  // Reusable temps — no allocation in render().
+  const _m = new THREE.Matrix4();
+  const _q = new THREE.Quaternion();
+  const _s = new THREE.Vector3();
+  const _p = new THREE.Vector3();
+  const _c = new THREE.Color();
+
+  function disposeGroup(group) {
+    group.traverse((o) => {
+      if (o.geometry) o.geometry.dispose?.();
+      if (o.material && o.material !== partMat) {
+        if (Array.isArray(o.material)) o.material.forEach((mm) => mm.dispose?.());
+        else o.material.dispose?.();
+      }
+    });
+  }
+
+  function clearLevel() {
+    scene.remove(levelGroup);
+    disposeGroup(levelGroup);
+    scene.remove(bgGroup);
+    disposeGroup(bgGroup);
+    // playerGroup children swap their materials? No — those are persistent.
+    // Enemy/coin/star groups are children of levelGroup, so disposed above.
+    levelMats.forEach((m) => m.dispose?.());
+    levelGeos.forEach((g) => g.dispose?.());
+    levelMats = [];
+    levelGeos = [];
+    goalRec = null;
+    coinRecs.length = 0;
+    starRecs.length = 0;
+    enemyRecs.length = 0;
+    platformRecs.length = 0;
+    mysteryRecs = [];
+    levelGroup = new THREE.Group();
+    bgGroup = new THREE.Group();
+    scene.add(bgGroup);
+    scene.add(levelGroup);
+  }
+
+  // Build a beveled-top tile block at the given tile (col,row), using one of
+  // the shared/level materials. Returns the mesh (already added to group).
+  function addBlock(group, col, row, depth, topMat, sideMat, z = 0) {
+    const geo = new THREE.BoxGeometry(TILE, TILE, depth);
+    levelGeos.push(geo);
+    // box face order: +x,-x,+y,-y,+z,-z. top is +y.
+    const mats = [sideMat, sideMat, topMat, sideMat, sideMat, sideMat];
+    const m = new THREE.Mesh(geo, mats);
+    m.position.set(col * TILE + TILE / 2, w2y(row * TILE + TILE / 2), z);
+    m.castShadow = true;
+    m.receiveShadow = true;
+    group.add(m);
+    return m;
+  }
+
+  // ── Build the entire level scene from the unchanged tile grid + entities.
+  function rebuildLevel(state) {
+    clearLevel();
+    camPrimed = false;
+    const lvl = state.level;
+    const pal = PALETTE[state.levelIdx];
+
+    // Sky gradient swap.
+    skyMat.uniforms.uTop.value.set(pal.skyTop);
+    skyMat.uniforms.uMid.value.set(pal.skyMid);
+    skyMat.uniforms.uBot.value.set(pal.skyBottom);
+
+    const worldW = lvl.cols * TILE;
+    const worldH = lvl.rows * TILE;
+    const floorY = w2y(worldH);
+
+    // ── Parallax hill bands (far/mid/near) + clouds, palette-tinted.
+    const bands = [
+      { z: -900, col: pal.far, base: 70, amp: 60, step: 90, op: 0.9 },
+      { z: -560, col: pal.mid, base: 95, amp: 70, step: 76, op: 0.95 },
+      { z: -300, col: pal.near, base: 120, amp: 50, step: 64, op: 1 },
+    ];
+    for (const b of bands) {
+      const count = Math.ceil((worldW + 800) / b.step) + 2;
+      const geo = new THREE.ConeGeometry(b.step * 0.9, 1, 6);
+      levelGeos.push(geo);
+      const mat = new THREE.MeshStandardMaterial({
+        color: b.col, roughness: 1, metalness: 0,
+        transparent: b.op < 1, opacity: b.op,
+      });
+      levelMats.push(mat);
+      const inst = new THREE.InstancedMesh(geo, mat, count);
+      inst.frustumCulled = false;
+      for (let i = 0; i < count; i++) {
+        const hx = -400 + i * b.step;
+        const hh = b.base + hash2(i * 2.3, b.z) * b.amp;
+        _p.set(hx, floorY - 110 + hh / 2, b.z);
+        _q.identity();
+        _s.set(1, hh, 1);
+        _m.compose(_p, _q, _s);
+        inst.setMatrixAt(i, _m);
+      }
+      inst.instanceMatrix.needsUpdate = true;
+      bgGroup.add(inst);
+    }
+    // Clouds — soft white discs drifting (animated in render via group offset).
+    const cloudGeo = new THREE.SphereGeometry(1, 12, 8);
+    levelGeos.push(cloudGeo);
+    const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.8 });
+    levelMats.push(cloudMat);
+    const cloudCount = Math.ceil(worldW / 240) + 4;
+    const cloudInst = new THREE.InstancedMesh(cloudGeo, cloudMat, cloudCount * 3);
+    cloudInst.frustumCulled = false;
+    let ci = 0;
+    for (let i = 0; i < cloudCount; i++) {
+      const cx = -200 + i * 240 + hash2(i, 7) * 120;
+      const cy = floorY - 40 - hash2(i, 13) * 160;
+      for (let p = 0; p < 3; p++) {
+        const r = 22 + hash2(i * 3 + p, 4) * 16;
+        _p.set(cx + (p - 1) * r * 0.9, cy + (p === 1 ? r * 0.4 : 0), -680);
+        _q.identity();
+        _s.set(r, r * 0.7, r);
+        _m.compose(_p, _q, _s);
+        cloudInst.setMatrixAt(ci++, _m);
+      }
+    }
+    cloudInst.count = ci;
+    cloudInst.instanceMatrix.needsUpdate = true;
+    bgGroup.add(cloudInst);
+
+    // ── Tile blocks built straight from lvl.grid (the collision grid). We
+    // never read or change tile coords here — only render them.
+    const topGround = new THREE.MeshStandardMaterial({
+      color: '#ffffff', roughness: 0.95, metalness: 0,
+      map: grassTex(pal.ground, pal.groundDk),
+    });
+    const sideGround = new THREE.MeshStandardMaterial({
+      color: '#ffffff', roughness: 0.95, metalness: 0,
+      map: brickTex(pal.groundDk, '#00000033'),
+    });
+    const spentMat = new THREE.MeshStandardMaterial({
+      color: pal.groundDk, roughness: 0.9, metalness: 0.05,
+    });
+    levelMats.push(topGround, sideGround, spentMat);
+
+    for (let r = 0; r < lvl.rows; r++) {
+      for (let c = 0; c < lvl.cols; c++) {
+        const ch = lvl.grid[r][c];
+        if (ch === '#') {
+          // Grass-topped only if no solid directly above; else all-brick.
+          const above = (r > 0) ? lvl.grid[r - 1][c] : '.';
+          const exposedTop = !(SOLID.has(above) || MYSTERY.has(above));
+          addBlock(levelGroup, c, r, 22, exposedTop ? topGround : sideGround, sideGround);
+        } else if (ch === '-') {
+          addBlock(levelGroup, c, r, 20, spentMat, spentMat);
+        } else if (ch === '?') {
+          const mat = new THREE.MeshStandardMaterial({
+            color: pal.accent, emissive: new THREE.Color(pal.accent),
+            emissiveIntensity: 0.45, roughness: 0.4, metalness: 0.2,
+          });
+          levelMats.push(mat);
+          const m = addBlock(levelGroup, c, r, 20, mat, mat);
+          mysteryRecs.push({ mesh: m, col: c, row: r, mat });
+        } else if (ch === '=') {
+          // Oneway — slim slab, sits at the top of the tile.
+          const geo = new THREE.BoxGeometry(TILE, 4, 16);
+          levelGeos.push(geo);
+          const mat = new THREE.MeshStandardMaterial({
+            color: pal.accent, emissive: new THREE.Color(pal.accent),
+            emissiveIntensity: 0.5, roughness: 0.4, metalness: 0.3,
+          });
+          levelMats.push(mat);
+          const m = new THREE.Mesh(geo, mat);
+          m.position.set(c * TILE + TILE / 2, w2y(r * TILE + 2), 0);
+          m.castShadow = true;
+          m.receiveShadow = true;
+          levelGroup.add(m);
+        } else if (ch === '^') {
+          // Spikes — a row of cones on the bottom half of the tile.
+          const geo = new THREE.ConeGeometry(1.6, 8, 4);
+          levelGeos.push(geo);
+          const mat = new THREE.MeshStandardMaterial({
+            color: '#cc2244', emissive: new THREE.Color('#7a0e22'),
+            emissiveIntensity: 0.35, roughness: 0.5, metalness: 0.3,
+          });
+          levelMats.push(mat);
+          const inst = new THREE.InstancedMesh(geo, mat, 4);
+          inst.castShadow = true;
+          for (let i = 0; i < 4; i++) {
+            _p.set(c * TILE + i * 4 + 2, w2y(r * TILE + TILE - 4), 0);
+            _q.identity(); _s.set(1, 1, 1);
+            _m.compose(_p, _q, _s);
+            inst.setMatrixAt(i, _m);
+          }
+          inst.instanceMatrix.needsUpdate = true;
+          levelGroup.add(inst);
+        }
+      }
+    }
+
+    // ── Goal flag — pole + triangular flag.
+    {
+      const g = lvl.goal;
+      const poleGeo = new THREE.CylinderGeometry(1.2, 1.2, 60, 8);
+      levelGeos.push(poleGeo);
+      const poleMat = new THREE.MeshStandardMaterial({ color: '#cfd6e0', roughness: 0.5, metalness: 0.4 });
+      levelMats.push(poleMat);
+      const pole = new THREE.Mesh(poleGeo, poleMat);
+      pole.position.set(g.x, w2y(g.y - 6), 0);
+      pole.castShadow = true;
+      levelGroup.add(pole);
+      // flag (a flattened triangle)
+      const flagShape = new THREE.Shape();
+      flagShape.moveTo(0, 0);
+      flagShape.lineTo(18, 8);
+      flagShape.lineTo(0, 16);
+      flagShape.closePath();
+      const flagGeo = new THREE.ExtrudeGeometry(flagShape, { depth: 1.5, bevelEnabled: false });
+      levelGeos.push(flagGeo);
+      const flagMat = new THREE.MeshStandardMaterial({
+        color: pal.accent, emissive: new THREE.Color(pal.accent),
+        emissiveIntensity: 0.4, roughness: 0.5, side: THREE.DoubleSide,
+      });
+      levelMats.push(flagMat);
+      const flag = new THREE.Mesh(flagGeo, flagMat);
+      flag.position.set(g.x, w2y(g.y - 36) - 16, 0);
+      flag.castShadow = true;
+      levelGroup.add(flag);
+      goalRec = { flag, flagMat };
+    }
+
+    // ── Moving platforms.
+    for (const pf of lvl.platforms) {
+      const geo = new THREE.BoxGeometry(pf.w, pf.h + 6, 16);
+      levelGeos.push(geo);
+      const mat = new THREE.MeshStandardMaterial({
+        color: pal.accent, emissive: new THREE.Color(pal.accent),
+        emissiveIntensity: 0.4, roughness: 0.4, metalness: 0.3,
+      });
+      levelMats.push(mat);
+      const m = new THREE.Mesh(geo, mat);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      levelGroup.add(m);
+      platformRecs.push({ mesh: m, pf });
+    }
+
+    // ── Coins — spinning 3D discs.
+    const coinGeo = new THREE.CylinderGeometry(4, 4, 1.4, 16);
+    levelGeos.push(coinGeo);
+    const coinMat = new THREE.MeshStandardMaterial({
+      color: '#f6c93a', emissive: new THREE.Color('#f6c93a'),
+      emissiveIntensity: 0.45, roughness: 0.3, metalness: 0.6,
+    });
+    levelMats.push(coinMat);
+    for (let i = 0; i < lvl.coins.length; i++) {
+      const m = new THREE.Mesh(coinGeo, coinMat);
+      m.castShadow = true;
+      m.rotation.x = Math.PI / 2;       // face the camera, spin about world Y later
+      levelGroup.add(m);
+      coinRecs[i] = { mesh: m };
+    }
+
+    // ── Stars — 3D extruded stars with a glow shell.
+    const starShape = new THREE.Shape();
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
+      const a2 = a + Math.PI / 5;
+      const r1 = 6, r2 = 2.6;
+      if (i === 0) starShape.moveTo(Math.cos(a) * r1, Math.sin(a) * r1);
+      else starShape.lineTo(Math.cos(a) * r1, Math.sin(a) * r1);
+      starShape.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2);
+    }
+    starShape.closePath();
+    const starGeo = new THREE.ExtrudeGeometry(starShape, { depth: 2.4, bevelEnabled: true, bevelSize: 0.6, bevelThickness: 0.6, bevelSegments: 1 });
+    starGeo.center();
+    levelGeos.push(starGeo);
+    const starMat = new THREE.MeshStandardMaterial({
+      color: '#fff5a0', emissive: new THREE.Color('#ffe87a'),
+      emissiveIntensity: 0.7, roughness: 0.3, metalness: 0.4,
+    });
+    levelMats.push(starMat);
+    const glowGeo = new THREE.SphereGeometry(9, 14, 10);
+    levelGeos.push(glowGeo);
+    for (let i = 0; i < lvl.stars.length; i++) {
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(starGeo, starMat);
+      body.castShadow = true;
+      group.add(body);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: pal.accent, transparent: true, opacity: 0.35, depthWrite: false,
+      });
+      levelMats.push(glowMat);
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      group.add(glow);
+      levelGroup.add(group);
+      starRecs[i] = { group, body, glowMat };
+    }
+
+    // ── Enemies — 3D creatures.
+    for (let i = 0; i < lvl.enemies.length; i++) {
+      const e = lvl.enemies[i];
+      const group = new THREE.Group();
+      if (e.kind === 'crawler') {
+        const bodyMat = new THREE.MeshStandardMaterial({ color: '#5a3e60', roughness: 0.6, metalness: 0.1 });
+        levelMats.push(bodyMat);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(e.w, e.h, e.w), bodyMat);
+        body.castShadow = true;
+        group.add(body);
+        const shellMat = new THREE.MeshStandardMaterial({ color: '#3a2a40', roughness: 0.5 });
+        levelMats.push(shellMat);
+        const shell = new THREE.Mesh(new THREE.SphereGeometry(e.w * 0.55, 12, 8), shellMat);
+        shell.scale.set(1, 0.6, 1);
+        shell.position.set(0, e.h * 0.35, 0);
+        shell.castShadow = true;
+        group.add(shell);
+        const eyeM = new THREE.MeshBasicMaterial({ color: '#fff' });
+        levelMats.push(eyeM);
+        const eyeL = new THREE.Mesh(new THREE.SphereGeometry(1.3, 8, 6), eyeM);
+        const eyeR = new THREE.Mesh(new THREE.SphereGeometry(1.3, 8, 6), eyeM);
+        eyeL.position.set(-2.4, e.h * 0.2, e.w * 0.5);
+        eyeR.position.set(2.4, e.h * 0.2, e.w * 0.5);
+        group.add(eyeL); group.add(eyeR);
+        levelGroup.add(group);
+        enemyRecs[i] = { group, kind: 'crawler' };
+      } else if (e.kind === 'hopper') {
+        const bodyMat = new THREE.MeshStandardMaterial({
+          color: '#a02050', emissive: new THREE.Color('#3a0820'),
+          emissiveIntensity: 0.2, roughness: 0.55,
+        });
+        levelMats.push(bodyMat);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(e.w, e.h - 2, e.w), bodyMat);
+        body.castShadow = true;
+        group.add(body);
+        const capMat = new THREE.MeshStandardMaterial({ color: '#1a0820', roughness: 0.6 });
+        levelMats.push(capMat);
+        const cap = new THREE.Mesh(new THREE.SphereGeometry(e.w * 0.55, 12, 8), capMat);
+        cap.scale.set(1, 0.7, 1);
+        cap.position.set(0, e.h * 0.45, 0);
+        cap.castShadow = true;
+        group.add(cap);
+        const eyeM = new THREE.MeshBasicMaterial({ color: '#fff' });
+        levelMats.push(eyeM);
+        const eyeL = new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), eyeM);
+        const eyeR = new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), eyeM);
+        eyeL.position.set(-2.2, e.h * 0.42, e.w * 0.5);
+        eyeR.position.set(2.2, e.h * 0.42, e.w * 0.5);
+        group.add(eyeL); group.add(eyeR);
+        levelGroup.add(group);
+        enemyRecs[i] = { group, kind: 'hopper', bodyMat };
+      }
+    }
+  }
+
+  // ── Resize — manual, never via sizeCanvasFluid (that grabs a 2D ctx).
+  let camPrimed = false;
+  let viewW = VIEW_W, viewH = VIEW_H;
+  function resize(cssW, cssH) {
+    viewW = Math.max(1, cssW);
+    viewH = Math.max(1, cssH);
+    renderer.setSize(viewW, viewH, false);
+    camera.aspect = viewW / viewH;
+    camera.updateProjectionMatrix();
+  }
+
+  // Camera distance so VIEW_W sim-px span across, matching the 2D camera's
+  // horizontal field of view.
+  function camDistanceForSpan(spanX) {
+    const vHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+    const hHalf = Math.atan(Math.tan(vHalf) * Math.max(0.3, camera.aspect));
+    return (spanX / 2) / Math.tan(hHalf);
+  }
+
+  // ── Per-frame render. Reads sim state; never mutates it (except litT-like
+  // render-local decay, of which there is none here).
+  function render(state, rawDt) {
+    if (!state) return;
+    const lvl = state.level;
+    const p = state.player;
+    const cam = state.cam;
+    const t = performance.now() / 1000;
+
+    // Camera: the sim's cam.x/cam.y is the viewport top-left in sim space.
+    // Centre on it; match the horizontal span to VIEW_W (2D viewport).
+    const centreSimX = cam.x + VIEW_W / 2;
+    const centreSimY = cam.y + VIEW_H / 2;
+    const camZ = camDistanceForSpan(VIEW_W);
+    const tx = w2x(centreSimX);
+    const ty = w2y(centreSimY);
+    if (!camPrimed) {
+      camera.position.set(tx, ty, camZ);
+      camPrimed = true;
+    } else {
+      camera.position.x += (tx - camera.position.x) * Math.min(1, rawDt * 14);
+      camera.position.y += (ty - camera.position.y) * Math.min(1, rawDt * 14);
+      camera.position.z += (camZ - camera.position.z) * Math.min(1, rawDt * 6);
+    }
+    camera.lookAt(camera.position.x, camera.position.y, 0);
+
+    // Key light follows the player so shadows stay crisp on screen.
+    key.position.set(w2x(p.x) - 120, w2y(p.y) + 260, 360);
+    key.target.position.set(w2x(p.x), w2y(p.y), 0);
+    key.target.updateMatrixWorld();
+
+    // Sky + background follow the camera (parallax via fractional follow).
+    sky.position.set(camera.position.x, camera.position.y, 0);
+
+    // ── Mystery blocks — swap to "spent" look when the sim flips them to '-'.
+    for (const rec of mysteryRecs) {
+      if (rec.spent) continue;
+      if (lvl.grid[rec.row][rec.col] === '-') {
+        rec.spent = true;
+        const dim = PALETTE[state.levelIdx].groundDk;
+        rec.mat.color.set(dim);
+        rec.mat.emissive.set('#000000');
+        rec.mat.emissiveIntensity = 0;
+      } else {
+        // gentle pulse while live
+        rec.mat.emissiveIntensity = 0.4 + 0.15 * Math.sin(t * 3 + rec.col);
+      }
+    }
+
+    // ── Moving platforms.
+    for (const rec of platformRecs) {
+      const pf = rec.pf;
+      rec.mesh.position.set(pf.x + pf.w / 2, w2y(pf.y + pf.h / 2), 0);
+    }
+
+    // ── Goal flag wave.
+    if (goalRec) {
+      goalRec.flag.rotation.y = Math.sin(t * 3) * 0.35;
+      goalRec.flagMat.emissiveIntensity = 0.35 + 0.2 * (0.5 + 0.5 * Math.sin(t * 2));
+    }
+
+    // ── Coins — spin + bob, hide taken.
+    for (let i = 0; i < coinRecs.length; i++) {
+      const coin = lvl.coins[i];
+      const rec = coinRecs[i];
+      if (!rec) continue;
+      if (!coin || coin.taken) { rec.mesh.visible = false; continue; }
+      rec.mesh.visible = true;
+      const cx = coin.x + 4;
+      const cy = coin.y + 4;
+      rec.mesh.position.set(cx, w2y(cy) + Math.sin(t * 3 + i) * 1.4, 0);
+      // spin about world Y: keep the disc upright then rotate
+      rec.mesh.rotation.z = t * 4 + i;
+    }
+    // Late-spawned coins (mystery-block coins) have no rec — none expected
+    // beyond the authored set in practice, but guard the count.
+
+    // ── Stars — spin + bob + pulse glow.
+    for (let i = 0; i < starRecs.length; i++) {
+      const star = lvl.stars[i];
+      const rec = starRecs[i];
+      if (!rec) continue;
+      if (!star || star.taken) { rec.group.visible = false; continue; }
+      rec.group.visible = true;
+      const sx = star.x + 6;
+      const sy = star.y + 6 + Math.sin(star.t) * 1.4;
+      rec.group.position.set(sx, w2y(sy), 0);
+      rec.body.rotation.z = star.t;
+      const pulse = 0.3 + 0.15 * (0.5 + 0.5 * Math.sin(t * 5 + i));
+      rec.glowMat.opacity = pulse;
+    }
+
+    // ── Enemies — position + facing + animation, hide dead.
+    for (let i = 0; i < enemyRecs.length; i++) {
+      const e = lvl.enemies[i];
+      const rec = enemyRecs[i];
+      if (!rec) continue;
+      if (!e || !e.alive) { rec.group.visible = false; continue; }
+      rec.group.visible = true;
+      rec.group.position.set(e.x + e.w / 2, w2y(e.y + e.h / 2), 0);
+      if (rec.kind === 'crawler') {
+        rec.group.rotation.y = e.vx > 0 ? 0.25 : -0.25;
+        rec.group.rotation.z = Math.sin(t * 8) * 0.06;   // waddle
+      } else if (rec.kind === 'hopper') {
+        rec.group.rotation.y = e.vx > 0 ? 0.2 : -0.2;
+        // squash on telegraph
+        const sq = e.telegraph ? 1.25 : 1;
+        rec.group.scale.set(sq, 2 - sq, sq);
+        if (rec.bodyMat) {
+          rec.bodyMat.emissive.set(e.telegraph ? '#ff4060' : '#3a0820');
+          rec.bodyMat.emissiveIntensity = e.telegraph ? 0.6 : 0.2;
+        }
+      }
+    }
+
+    // ── Player rig — position, facing, run/jump animation.
+    const blink = p.invul > 0 && (Math.floor(p.invul / 4) % 2 === 0);
+    playerGroup.visible = !blink && !(p.dead && p.y < -50);
+    playerGroup.position.set(w2x(p.x + P_W / 2), w2y(p.y + P_H / 2), 0);
+    playerGroup.rotation.y = p.facing > 0 ? 0 : Math.PI;
+    eyeMesh.position.x = 1.4;   // facing handled by group flip
+    // run cycle / jump pose
+    const running = p.onGround && Math.abs(p.vx) > 0.4;
+    const stride = running ? Math.sin(state.elapsed * 18) : 0;
+    if (!p.onGround) {
+      // jump pose — legs tucked, arms up a touch
+      legL.rotation.x = -0.5; legR.rotation.x = 0.5;
+      armL.rotation.x = -0.6; armR.rotation.x = -0.6;
+    } else {
+      legL.rotation.x = stride * 0.8;
+      legR.rotation.x = -stride * 0.8;
+      armL.rotation.x = -stride * 0.7;
+      armR.rotation.x = stride * 0.7;
+    }
+
+    // ── Particles. Read the sim's particle list (death/coin/stomp/star/dust).
+    let pi = 0;
+    for (const part of state.particles) {
+      if (pi >= PART_N) break;
+      const a = Math.max(0, part.life / 30);
+      _p.set(w2x(part.x), w2y(part.y), 2);
+      _q.identity();
+      const sz = 1 + a * 1.4;
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      if (part.kind === 'spark') _c.set('#ffe080');
+      else if (part.kind === 'debris') _c.set('#b45078');
+      else if (part.kind === 'star') _c.set('#fff0a0');
+      else _c.set('#dcdcc8');   // dust
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    for (let k = pi; k < PART_N; k++) {
+      _m.makeScale(0, 0, 0);
+      partMesh.setMatrixAt(k, _m);
+    }
+    partMesh.count = PART_N;
+    partMesh.instanceMatrix.needsUpdate = true;
+    if (partMesh.instanceColor) partMesh.instanceColor.needsUpdate = true;
+
+    // ── Death/clear screen fade via tone exposure dip (subtle, visual only).
+    renderer.toneMappingExposure = 1.45 * (1 - state.screenFade * 0.5);
+
+    renderer.render(scene, camera);
+  }
+
+  function dispose() {
+    clearLevel();
+    scene.remove(levelGroup);
+    scene.remove(bgGroup);
+    // Persistent objects.
+    playerGroup.traverse((o) => { o.geometry?.dispose?.(); });
+    [skin, cloth, accent, limbMat, eyeMat].forEach((m) => m.dispose?.());
+    [sky].forEach((o) => o.geometry?.dispose?.());
+    skyMat.dispose();
+    partGeo.dispose();
+    partMat.dispose();
+    brickTexCache.forEach((tx) => tx.dispose?.());
+    grassTexCache.forEach((tx) => tx.dispose?.());
+    renderer.dispose();
+  }
+
+  return { scene, camera, renderer, rebuildLevel, render, resize, dispose };
+}
+
+// ----------------------------------------------------------------------
 // Component
 // ----------------------------------------------------------------------
 export default function BricklandsGame() {
   const canvasRef = useRef(null);
   const wrapRef   = useRef(null);
   const stateRef  = useRef(null);
+  const rendererRef = useRef(null);
   const submittedRef = useRef(false);
 
   // HUD state — updated at ~10Hz from the loop.
@@ -372,31 +1191,29 @@ export default function BricklandsGame() {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
 
     // Detect touch — virtual controls ride alongside, dispatch to keys map.
     const isTouch = typeof window !== 'undefined' && 'ontouchstart' in window;
 
-    // Backing buffer scaling. We render into VIEW_W x VIEW_H logical px,
-    // then the canvas CSS layer stretches that buffer to fill the frame.
-    // This keeps the world coords clean while looking sharp on Retina.
-    let viewScale = 1;
+    // ── Build the WebGL renderer. WebGL can be unavailable (old GPU, blocked
+    // context); fail loud in DEV but don't crash the host page.
+    let renderer = null;
+    try { renderer = makeRenderer3D(canvas); }
+    catch (err) { renderer = null; if (import.meta.env.DEV) console.error('[bricklands] WebGL init failed', err); }
+    rendererRef.current = renderer;
+
+    if (import.meta.env.DEV && renderer) {
+      window.__bricklands3d = { scene: renderer.scene, camera: renderer.camera, renderer: renderer.renderer };
+    }
+
+    // ── Manual fluid sizing (NOT sizeCanvasFluid — it grabs a 2D context,
+    // locking the canvas out of WebGL). ResizeObserver + orientationchange.
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
     const sizeCanvas = () => {
-      const rect = wrap.getBoundingClientRect();
-      const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-      const cssW = Math.max(320, Math.floor(rect.width));
-      const cssH = Math.max(180, Math.floor(rect.height));
-      // Scale buffer to viewport while keeping the logical render at 480x270.
-      const scaleX = cssW / VIEW_W;
-      const scaleY = cssH / VIEW_H;
-      viewScale = Math.max(1, Math.min(scaleX, scaleY));
-      canvas.width  = Math.round(VIEW_W * viewScale * dpr);
-      canvas.height = Math.round(VIEW_H * viewScale * dpr);
-      canvas.style.width  = cssW + 'px';
-      canvas.style.height = cssH + 'px';
-      ctx.setTransform(viewScale * dpr, 0, 0, viewScale * dpr, 0, 0);
-      ctx.imageSmoothingEnabled = false;
+      const cssW = Math.max(320, Math.floor(wrap.clientWidth));
+      const cssH = Math.max(180, Math.floor(wrap.clientHeight));
+      renderer?.resize(cssW, cssH);
     };
     sizeCanvas();
     const ro = new ResizeObserver(sizeCanvas);
@@ -470,6 +1287,7 @@ export default function BricklandsGame() {
       const adminStart = consumeAdminStartLevel('bricklands');
       const startIdx = adminStart != null ? Math.max(0, Math.min(2, adminStart)) : 0;
       stateRef.current = newGame(startIdx);
+      rendererRef.current?.rebuildLevel(stateRef.current);
     }
 
     function pushHud() {
@@ -583,6 +1401,7 @@ export default function BricklandsGame() {
               deaths: s.deaths,
               elapsed: s.elapsed,
             });
+            rendererRef.current?.rebuildLevel(stateRef.current);
           }
         }
         return;
@@ -624,8 +1443,8 @@ export default function BricklandsGame() {
       if (!p.onGround && p.vy > WALL_SLIDE) {
         const sideC = Math.floor(((p.facing > 0 ? p.x + P_W + 1 : p.x - 1)) / TILE);
         const rowMid = Math.floor((p.y + P_H / 2) / TILE);
-        const t = tileAt(lvl, sideC, rowMid);
-        if (SOLID.has(t) || MYSTERY.has(t)) {
+        const tt = tileAt(lvl, sideC, rowMid);
+        if (SOLID.has(tt) || MYSTERY.has(tt)) {
           if ((p.facing > 0 && right) || (p.facing < 0 && left)) {
             p.vy = WALL_SLIDE;
           }
@@ -806,8 +1625,8 @@ export default function BricklandsGame() {
             const aheadX = e.vx > 0 ? e.x + e.w + 1 : e.x - 1;
             const groundC = Math.floor(aheadX / TILE);
             const groundR = Math.floor((e.y + e.h + 1) / TILE);
-            const t = tileAt(lvl, groundC, groundR);
-            if (!SOLID.has(t) && !MYSTERY.has(t)) e.vx = -e.vx;
+            const tt = tileAt(lvl, groundC, groundR);
+            if (!SOLID.has(tt) && !MYSTERY.has(tt)) e.vx = -e.vx;
           }
         } else if (e.kind === 'hopper') {
           // Sit-and-jump on a clock.
@@ -895,288 +1714,6 @@ export default function BricklandsGame() {
       }
     }
 
-    // ---- Render ----
-    function draw() {
-      const s = stateRef.current; if (!s) return;
-      const lvl = s.level;
-      const pal = PALETTE[s.levelIdx];
-      const cam = s.cam;
-
-      // ---- Background gradient (sky) ----
-      const grad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
-      grad.addColorStop(0, pal.skyTop);
-      grad.addColorStop(0.55, pal.skyMid);
-      grad.addColorStop(1, pal.skyBottom);
-      ctx.fillStyle = grad;
-      ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-
-      // ---- Far parallax (mountains) ----
-      ctx.save();
-      ctx.translate(-cam.x * 0.3, -cam.y * 0.2);
-      ctx.fillStyle = pal.far;
-      ctx.globalAlpha = 0.55;
-      for (let i = 0; i < 12; i++) {
-        const x = i * 80;
-        const h = 60 + (i * 17) % 50;
-        ctx.beginPath();
-        ctx.moveTo(x, VIEW_H - 60);
-        ctx.lineTo(x + 40, VIEW_H - 60 - h);
-        ctx.lineTo(x + 80, VIEW_H - 60);
-        ctx.closePath();
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      ctx.restore();
-
-      // ---- Mid parallax ----
-      ctx.save();
-      ctx.translate(-cam.x * 0.5, -cam.y * 0.3);
-      ctx.fillStyle = pal.mid;
-      ctx.globalAlpha = 0.7;
-      for (let i = 0; i < 16; i++) {
-        const x = i * 60;
-        const h = 40 + (i * 23) % 36;
-        ctx.beginPath();
-        ctx.moveTo(x, VIEW_H - 40);
-        ctx.lineTo(x + 30, VIEW_H - 40 - h);
-        ctx.lineTo(x + 60, VIEW_H - 40);
-        ctx.closePath();
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      ctx.restore();
-
-      // ---- Near parallax (props) ----
-      ctx.save();
-      ctx.translate(-cam.x * 0.7, -cam.y * 0.5);
-      for (let i = 0; i < 14; i++) {
-        const x = i * 70 + 20;
-        const yBase = VIEW_H - 30;
-        // Tree-like prop
-        ctx.fillStyle = pal.near;
-        ctx.fillRect(x, yBase - 14, 4, 14);
-        ctx.beginPath();
-        ctx.arc(x + 2, yBase - 18, 8, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // ---- Tilemap ----
-      ctx.save();
-      ctx.translate(-cam.x, -cam.y);
-      const c0 = Math.max(0, Math.floor(cam.x / TILE) - 1);
-      const c1 = Math.min(lvl.cols - 1, Math.floor((cam.x + VIEW_W) / TILE) + 1);
-      const r0 = Math.max(0, Math.floor(cam.y / TILE) - 1);
-      const r1 = Math.min(lvl.rows - 1, Math.floor((cam.y + VIEW_H) / TILE) + 1);
-      for (let r = r0; r <= r1; r++) {
-        for (let c = c0; c <= c1; c++) {
-          const ch = lvl.grid[r][c];
-          const x = c * TILE, y = r * TILE;
-          if (ch === '#') {
-            // Solid block — gradient.
-            ctx.fillStyle = pal.ground;
-            ctx.fillRect(x, y, TILE, TILE);
-            ctx.fillStyle = pal.groundDk;
-            ctx.fillRect(x, y + TILE - 4, TILE, 4);
-            ctx.fillStyle = 'rgba(255,255,255,0.12)';
-            ctx.fillRect(x, y, TILE, 2);
-          } else if (ch === '=') {
-            // Oneway — slim slab.
-            ctx.fillStyle = pal.accent;
-            ctx.fillRect(x, y, TILE, 4);
-            ctx.fillStyle = 'rgba(0,0,0,0.25)';
-            ctx.fillRect(x, y + 4, TILE, 2);
-          } else if (ch === '?') {
-            // Mystery block.
-            ctx.fillStyle = pal.accent;
-            ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.55)';
-            ctx.font = 'bold 11px monospace';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('?', x + TILE / 2, y + TILE / 2 + 1);
-          } else if (ch === '-') {
-            // Spent mystery.
-            ctx.fillStyle = pal.groundDk;
-            ctx.fillRect(x + 1, y + 1, TILE - 2, TILE - 2);
-            ctx.fillStyle = 'rgba(0,0,0,0.3)';
-            ctx.fillRect(x + 1, y + TILE - 3, TILE - 2, 2);
-          } else if (ch === '^') {
-            // Spike — saw-tooth row.
-            ctx.fillStyle = '#cc2244';
-            ctx.beginPath();
-            const yTop = y + 8;
-            ctx.moveTo(x, y + TILE);
-            for (let i = 0; i < 4; i++) {
-              ctx.lineTo(x + i * 4 + 2, yTop);
-              ctx.lineTo(x + i * 4 + 4, y + TILE);
-            }
-            ctx.closePath();
-            ctx.fill();
-          }
-        }
-      }
-
-      // ---- Goal flag ----
-      const g = lvl.goal;
-      ctx.strokeStyle = '#222';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(g.x, g.y + 24);
-      ctx.lineTo(g.x, g.y - 36);
-      ctx.stroke();
-      ctx.fillStyle = pal.accent;
-      ctx.beginPath();
-      ctx.moveTo(g.x, g.y - 36);
-      ctx.lineTo(g.x + 18, g.y - 28);
-      ctx.lineTo(g.x, g.y - 20);
-      ctx.closePath();
-      ctx.fill();
-
-      // ---- Moving platforms ----
-      for (const pf of lvl.platforms) {
-        ctx.fillStyle = pal.accent;
-        ctx.fillRect(pf.x, pf.y, pf.w, pf.h);
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.fillRect(pf.x, pf.y + pf.h - 2, pf.w, 2);
-      }
-
-      // ---- Coins ----
-      for (const coin of lvl.coins) {
-        if (coin.taken) continue;
-        const cx = coin.x + 4;
-        const cy = coin.y + 4;
-        const sq = Math.abs(Math.cos(coin.t));
-        const w = Math.max(2, 8 * sq);
-        ctx.fillStyle = '#f6c93a';
-        ctx.fillRect(cx - w / 2, cy - 4, w, 8);
-        ctx.fillStyle = '#fff7c0';
-        ctx.fillRect(cx - w / 4, cy - 3, Math.max(1, w / 4), 2);
-      }
-
-      // ---- Stars ----
-      for (const star of lvl.stars) {
-        if (star.taken) continue;
-        const sx = star.x + 6;
-        const sy = star.y + 6 + Math.sin(star.t) * 1.4;
-        ctx.save();
-        ctx.translate(sx, sy);
-        ctx.rotate(star.t);
-        ctx.fillStyle = '#fff5a0';
-        ctx.beginPath();
-        for (let i = 0; i < 5; i++) {
-          const a = (i / 5) * Math.PI * 2 - Math.PI / 2;
-          const r1 = 6, r2 = 2.6;
-          ctx.lineTo(Math.cos(a) * r1, Math.sin(a) * r1);
-          const a2 = a + Math.PI / 5;
-          ctx.lineTo(Math.cos(a2) * r2, Math.sin(a2) * r2);
-        }
-        ctx.closePath();
-        ctx.fill();
-        // Glow
-        ctx.globalAlpha = 0.4;
-        ctx.fillStyle = pal.accent;
-        ctx.beginPath();
-        ctx.arc(0, 0, 9, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.restore();
-      }
-
-      // ---- Enemies ----
-      for (const e of lvl.enemies) {
-        if (!e.alive) continue;
-        if (e.kind === 'crawler') {
-          // Squat wide silhouette.
-          ctx.fillStyle = '#3a2a40';
-          ctx.fillRect(e.x, e.y + 2, e.w, e.h - 2);
-          ctx.fillStyle = '#5a3e60';
-          ctx.fillRect(e.x + 1, e.y + 4, e.w - 2, 3);
-          // Eyes
-          ctx.fillStyle = '#fff';
-          const eyeOffset = e.vx > 0 ? 1 : -1;
-          ctx.fillRect(e.x + e.w / 2 - 3 + eyeOffset, e.y + 4, 2, 2);
-          ctx.fillRect(e.x + e.w / 2 + 1 + eyeOffset, e.y + 4, 2, 2);
-        } else if (e.kind === 'hopper') {
-          // Tall narrow silhouette.
-          ctx.fillStyle = e.telegraph ? '#ff4060' : '#a02050';
-          ctx.fillRect(e.x, e.y + 4, e.w, e.h - 4);
-          ctx.fillStyle = '#1a0820';
-          ctx.fillRect(e.x + 2, e.y, e.w - 4, 6);
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(e.x + 3, e.y + 2, 1.5, 1.5);
-          ctx.fillRect(e.x + e.w - 4.5, e.y + 2, 1.5, 1.5);
-          if (e.telegraph) {
-            ctx.fillStyle = 'rgba(255,80,120,0.4)';
-            ctx.fillRect(e.x - 2, e.y - 2, e.w + 4, e.h + 4);
-          }
-        }
-      }
-
-      // ---- Particles ----
-      for (const part of s.particles) {
-        const a = Math.max(0, part.life / 30);
-        if (part.kind === 'spark') {
-          ctx.fillStyle = `rgba(255,224,128,${a})`;
-          ctx.fillRect(part.x - 1, part.y - 1, 2, 2);
-        } else if (part.kind === 'debris') {
-          ctx.fillStyle = `rgba(180,80,120,${a})`;
-          ctx.fillRect(part.x - 1, part.y - 1, 2, 2);
-        } else if (part.kind === 'star') {
-          ctx.fillStyle = `rgba(255,240,160,${a})`;
-          ctx.fillRect(part.x - 1, part.y - 1, 2, 2);
-        } else { // dust
-          ctx.fillStyle = `rgba(220,220,200,${a * 0.6})`;
-          ctx.fillRect(part.x - 1, part.y, 2, 1);
-        }
-      }
-
-      // ---- Player ----
-      const p = s.player;
-      const flash = p.invul > 0 && (Math.floor(p.invul / 4) % 2 === 0);
-      if (!flash) {
-        const px = p.x;
-        const py = p.y;
-        // Body block
-        ctx.fillStyle = '#2a2a2a';
-        ctx.fillRect(px, py + 5, P_W, P_H - 7);
-        // Magenta accent stripe
-        ctx.fillStyle = '#ff3a8a';
-        ctx.fillRect(px, py + 9, P_W, 3);
-        // Head circle
-        ctx.fillStyle = '#fff1d4';
-        ctx.beginPath();
-        ctx.arc(px + P_W / 2, py + 4, 4, 0, Math.PI * 2);
-        ctx.fill();
-        // Eye (facing-aware)
-        ctx.fillStyle = '#222';
-        ctx.fillRect(px + P_W / 2 + (p.facing > 0 ? 1 : -2), py + 3, 1.5, 1.5);
-        // Legs
-        const stride = (p.onGround && Math.abs(p.vx) > 0.4)
-          ? Math.sin(s.elapsed * 18) * 1.5 : 0;
-        ctx.fillStyle = '#1a1a1a';
-        ctx.fillRect(px + 1, py + P_H - 3, 3, 3);
-        ctx.fillRect(px + P_W - 4, py + P_H - 3, 3, 3);
-        if (!p.onGround) {
-          // Slight tilt
-          ctx.fillStyle = 'rgba(255,58,138,0.4)';
-          ctx.fillRect(px + (p.facing > 0 ? -2 : P_W), py + 8, 2, 4);
-        }
-        // Stride foot offset
-        if (stride !== 0) {
-          ctx.fillStyle = '#1a1a1a';
-          ctx.fillRect(px + 1 + stride, py + P_H - 3, 3, 3);
-        }
-      }
-
-      ctx.restore();
-
-      // ---- Fade overlay (death/clear) ----
-      if (s.screenFade > 0) {
-        ctx.fillStyle = `rgba(0,0,0,${s.screenFade * 0.6})`;
-        ctx.fillRect(0, 0, VIEW_W, VIEW_H);
-      }
-    }
-
     // ---- Main loop with dt-scaled fixed update ----
     let raf = 0;
     const clock = { last: performance.now(), acc: 0 };
@@ -1193,7 +1730,7 @@ export default function BricklandsGame() {
         clock.acc -= FIXED;
         steps += 1;
       }
-      draw();
+      rendererRef.current?.render(stateRef.current, dt);
 
       // HUD push at ~10Hz.
       const s = stateRef.current;
@@ -1204,15 +1741,9 @@ export default function BricklandsGame() {
     };
     raf = requestAnimationFrame(loop);
 
-    // ---- Touch overlay handlers (rendered as DOM; here we just bind pointer
-    //      events to set the touchKeys flags). The DOM lives below in JSX.
+    // ---- Touch overlay handlers — set the touchKeys flags. The DOM lives
+    //      below in JSX and routes through wrap._setTouch.
     const wrapEl = wrap;
-    const touchHandler = (id, value) => () => {
-      if (id === 'left')  touchKeys.left  = value;
-      if (id === 'right') touchKeys.right = value;
-      if (id === 'jump')  touchKeys.jump  = value;
-    };
-    // Expose to outer scope via dataset markers — see JSX touch buttons.
     wrapEl._setTouch = (id, v) => {
       if (id === 'left')  touchKeys.left  = v;
       if (id === 'right') touchKeys.right = v;
@@ -1225,20 +1756,19 @@ export default function BricklandsGame() {
       window.removeEventListener('keydown', kd);
       window.removeEventListener('keyup', ku);
       window.removeEventListener('orientationchange', sizeCanvas);
+      try { rendererRef.current?.dispose(); } catch {}
+      rendererRef.current = null;
+      try { delete wrapEl._setTouch; } catch {}
+      if (import.meta.env.DEV && window.__bricklands3d) { try { delete window.__bricklands3d; } catch {} }
     };
   }, []);
 
   // Restart handler: rebuild state from scratch.
   const restart = () => {
     submittedRef.current = false;
-    // Easiest: force a fresh component remount by toggling a key isn't
-    // available here, so instead reach into stateRef and rebuild.
     const wrap = wrapRef.current;
     if (!wrap) return;
-    // The effect's `newGame` is captured — easiest path is a full remount
-    // via a key change, but to keep this self-contained we re-init state
-    // via a custom event the loop ignores. Simplest: reload the level.
-    // We re-build level 0 directly.
+    // Re-build level 0 directly and re-mount the 3D scene for it.
     const lvl = buildLevel(0);
     stateRef.current = {
       ...stateRef.current,
@@ -1257,6 +1787,7 @@ export default function BricklandsGame() {
       elapsed: 0, status: 'playing',
       particles: [], cleared: false, clearT: 0, screenFade: 0,
     };
+    rendererRef.current?.rebuildLevel(stateRef.current);
     setHud({ level: 1, lives: 3, score: 0, coins: 0, stars: 0, time: 0, deaths: 0, status: 'playing' });
   };
 
@@ -1270,90 +1801,100 @@ export default function BricklandsGame() {
   };
 
   return (
-    <div ref={wrapRef} style={{
-      position: 'relative',
+    <div style={{
       width: '100%',
       height: '100%',
-      background: '#0a1020',
-      overflow: 'hidden',
-      userSelect: 'none',
-      touchAction: 'none',
+      display: 'flex',
+      flexDirection: 'column',
     }}>
-      <canvas ref={canvasRef} style={{
+      <div ref={wrapRef} style={{
+        position: 'relative',
+        flex: '1 1 0',
+        minHeight: 0,
         width: '100%',
-        height: '100%',
-        display: 'block',
-        imageRendering: 'pixelated',
-      }}/>
-
-      {/* HUD — overlayed in CSS px */}
-      <div style={{
-        position: 'absolute', top: 8, left: 8, right: 8,
-        display: 'flex', justifyContent: 'space-between',
-        pointerEvents: 'none',
-        color: '#fff', fontFamily: 'ui-monospace, monospace',
-        textShadow: '0 1px 2px rgba(0,0,0,0.7)',
-        fontSize: 13, lineHeight: 1.2,
+        maxWidth: 'none',
+        margin: '0 auto',
+        background: '#0a1020',
+        borderRadius: 12,
+        overflow: 'hidden',
+        userSelect: 'none',
+        touchAction: 'none',
       }}>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <span>{'♥'.repeat(Math.max(0, hud.lives))}</span>
-          <span style={{ fontVariantNumeric: 'tabular-nums' }}>
-            {String(hud.score).padStart(6, '0')}
-          </span>
-          <span style={{ color: '#f6c93a' }}>{'◆'} {hud.coins}</span>
-          <span style={{ color: '#cfd6e0' }}>L{hud.level}/3</span>
+        <canvas ref={canvasRef} style={{
+          width: '100%',
+          height: '100%',
+          display: 'block',
+        }}/>
+
+        {/* HUD — overlayed in CSS px */}
+        <div style={{
+          position: 'absolute', top: 8, left: 8, right: 8,
+          display: 'flex', justifyContent: 'space-between',
+          pointerEvents: 'none',
+          color: '#fff', fontFamily: 'ui-monospace, monospace',
+          textShadow: '0 1px 2px rgba(0,0,0,0.7)',
+          fontSize: 13, lineHeight: 1.2,
+        }}>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <span>{'♥'.repeat(Math.max(0, hud.lives))}</span>
+            <span style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {String(hud.score).padStart(6, '0')}
+            </span>
+            <span style={{ color: '#f6c93a' }}>{'◆'} {hud.coins}</span>
+            <span style={{ color: '#cfd6e0' }}>L{hud.level}/3</span>
+          </div>
+          <div style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {String(Math.floor(hud.time / 60)).padStart(2, '0')}:
+            {String(hud.time % 60).padStart(2, '0')}
+          </div>
         </div>
-        <div style={{ fontVariantNumeric: 'tabular-nums' }}>
-          {String(Math.floor(hud.time / 60)).padStart(2, '0')}:
-          {String(hud.time % 60).padStart(2, '0')}
-        </div>
+
+        {/* Status overlays */}
+        {hud.status === 'won' && (
+          <div style={overlayStyle}>
+            <div style={overlayPanel}>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>Run cleared</div>
+              <div style={{ marginTop: 8, color: '#cfd6e0' }}>
+                Score {hud.score} &middot; {hud.coins} coins &middot; {hud.deaths} deaths
+              </div>
+              <button className="btn btn-primary btn-sm" style={{ marginTop: 14 }} onClick={restart}>
+                Play again
+              </button>
+            </div>
+          </div>
+        )}
+        {hud.status === 'gameover' && (
+          <div style={overlayStyle}>
+            <div style={overlayPanel}>
+              <div style={{ fontSize: 22, fontWeight: 700 }}>Game over</div>
+              <div style={{ marginTop: 8, color: '#cfd6e0' }}>
+                Score {hud.score} &middot; reached level {hud.level}
+              </div>
+              <button className="btn btn-primary btn-sm" style={{ marginTop: 14 }} onClick={restart}>
+                Try again
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Touch controls — only rendered on touch devices */}
+        {isTouch && (
+          <>
+            <div style={{
+              position: 'absolute', bottom: 18, left: 18,
+              display: 'flex', gap: 10,
+            }}>
+              <TouchBtn label="←" onDown={() => setTouchKey('left', true)} onUp={() => setTouchKey('left', false)} />
+              <TouchBtn label="→" onDown={() => setTouchKey('right', true)} onUp={() => setTouchKey('right', false)} />
+            </div>
+            <div style={{
+              position: 'absolute', bottom: 18, right: 18,
+            }}>
+              <TouchBtn label="JUMP" big onDown={() => setTouchKey('jump', true)} onUp={() => setTouchKey('jump', false)} />
+            </div>
+          </>
+        )}
       </div>
-
-      {/* Status overlays */}
-      {hud.status === 'won' && (
-        <div style={overlayStyle}>
-          <div style={overlayPanel}>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>Run cleared</div>
-            <div style={{ marginTop: 8, color: '#cfd6e0' }}>
-              Score {hud.score} &middot; {hud.coins} coins &middot; {hud.deaths} deaths
-            </div>
-            <button className="btn btn-primary btn-sm" style={{ marginTop: 14 }} onClick={restart}>
-              Play again
-            </button>
-          </div>
-        </div>
-      )}
-      {hud.status === 'gameover' && (
-        <div style={overlayStyle}>
-          <div style={overlayPanel}>
-            <div style={{ fontSize: 22, fontWeight: 700 }}>Game over</div>
-            <div style={{ marginTop: 8, color: '#cfd6e0' }}>
-              Score {hud.score} &middot; reached level {hud.level}
-            </div>
-            <button className="btn btn-primary btn-sm" style={{ marginTop: 14 }} onClick={restart}>
-              Try again
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Touch controls — only rendered on touch devices */}
-      {isTouch && (
-        <>
-          <div style={{
-            position: 'absolute', bottom: 18, left: 18,
-            display: 'flex', gap: 10,
-          }}>
-            <TouchBtn label="←" onDown={() => setTouchKey('left', true)} onUp={() => setTouchKey('left', false)} />
-            <TouchBtn label="→" onDown={() => setTouchKey('right', true)} onUp={() => setTouchKey('right', false)} />
-          </div>
-          <div style={{
-            position: 'absolute', bottom: 18, right: 18,
-          }}>
-            <TouchBtn label="JUMP" big onDown={() => setTouchKey('jump', true)} onUp={() => setTouchKey('jump', false)} />
-          </div>
-        </>
-      )}
     </div>
   );
 }

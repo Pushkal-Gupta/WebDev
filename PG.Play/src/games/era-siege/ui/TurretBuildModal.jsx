@@ -14,8 +14,33 @@ import { BALANCE } from '../content/balance.js';
 
 const TIER_ORDER = { light: 0, medium: 1, heavy: 2 };
 
+// Approximate footprint of the wide build card, used to clamp the
+// anchored position inside the viewport. The real card is
+// width: min(560px, 94vw); height varies but stays under ~320px.
+const CARD_W = 560;
+const CARD_H = 320;
+const VIEW_MARGIN = 8;
+
+// Translate a slot's on-screen point into a clamped {left, top} for the
+// modal scrim. Offset up-and-left of the pylon so the card doesn't cover
+// the slot it belongs to, then clamp so it never leaves the viewport.
+function anchorStyle(anchor) {
+  if (!anchor || !Number.isFinite(anchor.x) || !Number.isFinite(anchor.y)) return null;
+  const w = Math.min(CARD_W, window.innerWidth * 0.94);
+  // Center the card horizontally over the pylon; sit it above the slot.
+  let left = anchor.x - w / 2;
+  let top  = anchor.y - CARD_H - 24;
+  const maxLeft = window.innerWidth  - w - VIEW_MARGIN;
+  const maxTop  = window.innerHeight - CARD_H - VIEW_MARGIN;
+  left = Math.max(VIEW_MARGIN, Math.min(left, Math.max(VIEW_MARGIN, maxLeft)));
+  top  = Math.max(VIEW_MARGIN, Math.min(top,  Math.max(VIEW_MARGIN, maxTop)));
+  // Inline left/top must beat the stylesheet's bottom/right fallback —
+  // explicitly clear those so the two positioning schemes don't conflict.
+  return { left, top, right: 'auto', bottom: 'auto' };
+}
+
 export default function TurretBuildModal({
-  open, slotIndex, eraIndex, gold, spotBuilt,
+  open, slotIndex, anchor, eraIndex, gold, spotBuilt,
   onBuild, onBuildSpot, onCancelSpot, onClose,
 }) {
   useEffect(() => {
@@ -43,8 +68,13 @@ export default function TurretBuildModal({
   const canLay       = !spotBuilt && gold >= spotCost;
   const dps          = (def.damage / (def.cooldownMs / 1000)).toFixed(1);
 
+  // When an anchor is supplied, float near the clicked pylon (clamped to
+  // the viewport). Otherwise leave style undefined so the stylesheet's
+  // bottom-right fallback applies — preserves 2D / off-screen behavior.
+  const scrimStyle = anchorStyle(anchor) || undefined;
+
   return (
-    <div className="es-tb-scrim" role="dialog" aria-label="Build turret" onClick={onClose}>
+    <div className="es-tb-scrim" style={scrimStyle} role="dialog" aria-label="Build turret" onClick={onClose}>
       <div className="es-tb-card es-tb-card-wide" onClick={(e) => e.stopPropagation()}>
         <header className="es-tb-head">
           <span className="es-tb-eyebrow">

@@ -1,33 +1,32 @@
 import { useEffect, useRef, useState } from 'react';
+import * as THREE from 'three';
 import { submitScore } from '../../scoreBus.js';
 import { isMuted as platformIsMuted, subscribeMute } from '../../sound.js';
-import { sizeCanvasFluid } from '../../util/canvasDpr.js';
 import { consumeAdminStartLevel } from '../../utils/admin.js';
 
 // Swingwire — an original one-button rope-swing action platformer.
+//
+// 3D rewrite. The gameplay is unchanged: the entire simulation (physics,
+// controls, anchors, hazards, checkpoints, scoring, sfx) is byte-for-byte
+// the same as the 2D version. Only the *presentation* moved to Three.js.
+//
+// 2.5D mapping: the sim runs on the same (x, y) plane it always did. We
+// render it on the z = 0 plane of a real perspective scene with
+//   worldX → +X,  worldY → −Y  (sim y grows downward; three's +Y is up)
+// and a perspective camera looking down the −Z axis. Because the physics
+// never touches z, every number — gravity, rope length, AABB collisions,
+// camera lead — keeps its exact 2D meaning. The depth, lighting, shadows
+// and parallax towers are pure decoration layered behind the play plane.
 //
 // Core fantasy: you are a bolt of kinetic silhouette moving across a dark
 // neon skyline. One input. Hold to fire a wire at the nearest anchor above
 // you; release to let gravity take over. Your life is the momentum you
 // managed to build and time.
-//
-// Pillars:
-//   1. One button. Every depth comes from *when* you let go.
-//   2. Momentum is the reward — late release arcs farther than early release.
-//   3. Wire-to-anchor auto-aim prefers overhead targets so swinging is always
-//      spatially readable; mis-targeting is never a failure mode.
-//   4. Failure is instant (building impact, ground, or hazard) and so is the
-//      respawn. Courses are short enough to memorize, varied enough to keep
-//      teaching.
 
 // ──────────────────────────────────────────────────────────────────────────
-// Constants
+// Constants — IDENTICAL to the 2D version. Do not retune; the physics and
+// scoring contract depend on these exact numbers.
 // ──────────────────────────────────────────────────────────────────────────
-// Default playfield dims — also act as the *minimum* viewport the camera
-// math is allowed to assume. The fluid sizer can grow these up to MAX_W /
-// MAX_H so wide displays scroll the city skyline naturally instead of
-// stretching the existing viewport. Render code shadows W / H with the
-// current viewport size pulled from viewRef.
 const W = 1120;
 const H = 640;
 const MAX_W = 1600;
@@ -55,7 +54,7 @@ const aabb = (ax, ay, aw, ah, bx, by, bw, bh) =>
 const pick = (a) => a[(Math.random() * a.length) | 0];
 
 // ──────────────────────────────────────────────────────────────────────────
-// Palette — industrial night, neon accents
+// Palette — industrial night, neon accents (shared by 3D materials + DOM HUD)
 // ──────────────────────────────────────────────────────────────────────────
 const PAL = {
   skyTop:    '#0a1323',
@@ -66,23 +65,15 @@ const PAL = {
   nearBuildings: '#050a13',
   windowCool:  '#6ac7ff',
   windowWarm:  '#ffb547',
-  windowDead:  '#2a3850',
-  floodCone:   'rgba(255, 181, 71, 0.08)',
   anchorIdle:  '#3a5a88',
   anchorReady: '#ffb547',
   anchorActive:'#ff4a6a',
   wire:        '#ff4a6a',
   wireSpark:   '#ffe6c4',
   player:      '#ffe6c4',
-  playerTrail: 'rgba(255, 74, 106, 0.55)',
   hazard:      '#ff2e4e',
-  hazardSoft:  'rgba(255, 46, 78, 0.4)',
-  hazardPulse: '#ff9ab5',
   goal:        '#6ffcf2',
-  rainLine:    'rgba(110, 170, 200, 0.22)',
-  fogWash:     'rgba(40, 70, 110, 0.14)',
-  scoreText:   '#ffe6c4',
-  vignette:    'rgba(4, 6, 12, 0.6)',
+  fog:         '#0b1424',
 };
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -113,11 +104,8 @@ const EPITAPHS = {
 };
 
 // ──────────────────────────────────────────────────────────────────────────
-// Course data — each course is a horizontal scroll with anchors overhead,
-// buildings to avoid, and a glowing goal portal at the end.
-//
-// Anchors are the only attach points. Walls are solid (death on contact).
-// Hazards are lethal zones (spikes, lasers). Props are visual-only.
+// Course data — IDENTICAL to the 2D version. The (x, y) layout is the
+// gameplay plane; the 3D renderer maps it onto z = 0.
 // ──────────────────────────────────────────────────────────────────────────
 const COURSES = [
   // ── 1. NIGHT SHIFT — tutorial ──────────────────────────────────────────
@@ -237,7 +225,8 @@ const COURSES = [
 ];
 
 // ──────────────────────────────────────────────────────────────────────────
-// Audio — procedural cues only. Two oscillators + filtered noise.
+// Audio — procedural cues only. UNCHANGED from the 2D version. Self-mutes
+// via the platform mute bus; every cue fires at the same gameplay event.
 // ──────────────────────────────────────────────────────────────────────────
 function makeAudio() {
   let ctx = null;
@@ -360,7 +349,9 @@ function makeAudio() {
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// Course-state factory
+// Course-state factory — UNCHANGED simulation state. (The 2D-only `stars`,
+// `rainDrops`, `shake`, `flash`, `zoom` fields are dropped; the 3D renderer
+// expresses those as camera/material effects instead.)
 // ──────────────────────────────────────────────────────────────────────────
 function buildCourseState(def) {
   return {
@@ -373,14 +364,13 @@ function buildCourseState(def) {
     player: makePlayer(def.spawn),
     wire: null,   // { ax, ay, length } when attached
     particles: [],
-    stars: seedStars(def.world.w),
-    rainDrops: seedRain(),
     cam: { x: 0, y: 0, kickX: 0, kickY: 0 },
     status: 'playing', tStatus: 0,
     epitaph: null, deathKind: null,
-    shake: 0, flash: 0, slowmo: 0, zoom: 1,
+    shake: 0, slowmo: 0,
     enteredAt: performance.now(),
     trail: [],
+    fx: [],       // 3D render event queue (attach/release/finish bursts)
   };
 }
 
@@ -394,31 +384,695 @@ function makePlayer(spawn) {
   };
 }
 
-function seedStars(worldW) {
-  const stars = [];
-  for (let i = 0; i < 140; i++) {
-    stars.push({
-      x: Math.random() * worldW,
-      y: Math.random() * 280,
-      r: Math.random() * 1.1 + 0.3,
-      flicker: Math.random() * 6,
-    });
+// ──────────────────────────────────────────────────────────────────────────
+// 2.5D plane mapping. Sim (x, y) → three world (x, -y, z). Sim y grows
+// downward (screen coords); three +Y is up, so we negate. Everything the
+// physics computes stays in sim space; only the renderer applies this.
+// ──────────────────────────────────────────────────────────────────────────
+const SY = -1;                  // sim-y → world-y sign flip
+const w2x = (x) => x;           // world x == sim x
+const w2y = (y) => y * SY;      // world y == -sim y
+
+// ──────────────────────────────────────────────────────────────────────────
+// Three.js renderer. Builds a scene once per course (rebuildLevel), then
+// render() each frame reads the live sim state. No allocation in the hot
+// path beyond the pooled particles. dispose() tears everything down.
+// ──────────────────────────────────────────────────────────────────────────
+function makeRenderer3D(canvas) {
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: 'high-performance',
+  });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.45;            // bright, per the brief
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(PAL.fog, 900, 2600);
+
+  // Perspective camera looking down −Z at the z=0 play plane. A modest FOV
+  // keeps the orthographic-ish read of a side-scroller while still giving
+  // real depth to the towers behind.
+  const camera = new THREE.PerspectiveCamera(42, 1, 1, 8000);
+  camera.position.set(0, 0, 1100);
+  scene.add(camera);
+
+  // ── Sky dome — vertical gradient via shader, fog:false so it stays put.
+  const skyMat = new THREE.ShaderMaterial({
+    side: THREE.BackSide,
+    depthWrite: false,
+    fog: false,
+    uniforms: {
+      uTop: { value: new THREE.Color(PAL.skyTop) },
+      uMid: { value: new THREE.Color(PAL.skyMid) },
+      uBot: { value: new THREE.Color(PAL.skyBottom) },
+    },
+    vertexShader: /* glsl */`
+      varying vec3 vWorld;
+      void main() {
+        vWorld = position;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: /* glsl */`
+      varying vec3 vWorld;
+      uniform vec3 uTop, uMid, uBot;
+      void main() {
+        float h = clamp((normalize(vWorld).y + 0.4) * 0.8, 0.0, 1.0);
+        vec3 col = mix(uBot, uMid, smoothstep(0.0, 0.5, h));
+        col = mix(col, uTop, smoothstep(0.5, 1.0, h));
+        gl_FragColor = vec4(col, 1.0);
+      }
+    `,
+  });
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(5000, 24, 16), skyMat);
+  sky.frustumCulled = false;
+  scene.add(sky);
+
+  // ── Lights. Key light on the CAMERA side (+Z) per wiki gotcha #1, so the
+  // player and tower faces we actually see are lit, not silhouetted.
+  const key = new THREE.DirectionalLight(0xfff0d8, 1.35);
+  key.position.set(-300, 500, 900);     // camera-side, upper-left
+  key.castShadow = true;
+  key.shadow.mapSize.set(2048, 2048);
+  key.shadow.camera.near = 1;
+  key.shadow.camera.far = 3000;
+  key.shadow.camera.left = -1100;
+  key.shadow.camera.right = 1100;
+  key.shadow.camera.top = 900;
+  key.shadow.camera.bottom = -900;
+  key.shadow.bias = -0.0006;
+  scene.add(key);
+  scene.add(key.target);
+
+  const hemi = new THREE.HemisphereLight(0x8fb6ff, 0x0a0f1a, 0.55);
+  scene.add(hemi);
+
+  const fill = new THREE.DirectionalLight(0x4a6cff, 0.4);
+  fill.position.set(400, 200, 700);     // cool rim from the other camera-side
+  scene.add(fill);
+
+  // ── Level container — rebuilt per course. Holds towers, ground, anchors,
+  // hazards, checkpoints, goal, props. The player rig, wire and particle
+  // pool live in persistent groups so they survive course swaps.
+  let levelGroup = new THREE.Group();
+  scene.add(levelGroup);
+
+  // Anchor visual records, addressable by sim anchor object identity.
+  const anchorRecs = new Map();   // anchorObj -> { core, halo }
+  const hazardRecs = [];          // { def, mesh|meshes, kind }
+  const checkpointRecs = [];      // { def, ring, dot }
+  let goalRec = null;
+  let groundMesh = null;
+
+  // ── Player rig — an orb with an accent fin/scarf, casts a shadow.
+  const playerGroup = new THREE.Group();
+  const orbMat = new THREE.MeshStandardMaterial({
+    color: PAL.player, emissive: new THREE.Color(PAL.player),
+    emissiveIntensity: 0.35, roughness: 0.3, metalness: 0.1,
+  });
+  const orbMesh = new THREE.Mesh(new THREE.SphereGeometry(P_R, 24, 18), orbMat);
+  orbMesh.castShadow = true;
+  playerGroup.add(orbMesh);
+  // Glowing core
+  const coreMat = new THREE.MeshBasicMaterial({ color: 0xfff6e0 });
+  const coreMesh = new THREE.Mesh(new THREE.SphereGeometry(P_R * 0.4, 12, 10), coreMat);
+  coreMesh.position.set(-2, 2, P_R * 0.6);
+  playerGroup.add(coreMesh);
+  // Accent scarf/fin — a flattened cone that points opposite to motion.
+  const scarfMat = new THREE.MeshStandardMaterial({
+    color: PAL.hazard, emissive: new THREE.Color(PAL.hazard),
+    emissiveIntensity: 0.5, roughness: 0.5,
+  });
+  const scarfMesh = new THREE.Mesh(new THREE.ConeGeometry(P_R * 0.7, P_R * 2.6, 10), scarfMat);
+  scarfMesh.castShadow = true;
+  const scarfPivot = new THREE.Group();          // rotated to face motion
+  scarfMesh.position.set(0, -(P_R + P_R * 1.3), 0);
+  scarfPivot.add(scarfMesh);
+  playerGroup.add(scarfPivot);
+  scene.add(playerGroup);
+
+  // ── Wire — a thin emissive tube rebuilt each frame between player+anchor.
+  const wireMat = new THREE.MeshBasicMaterial({ color: PAL.wire });
+  const wireMesh = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 1, 6, 1), wireMat);
+  wireMesh.visible = false;
+  scene.add(wireMesh);
+
+  // ── Motion trail — a pool of fading quads behind the player.
+  const TRAIL_N = 18;
+  const trailMat = new THREE.MeshBasicMaterial({
+    color: PAL.hazard, transparent: true, opacity: 0.5, depthWrite: false,
+  });
+  const trailGeo = new THREE.SphereGeometry(1, 8, 6);
+  const trailMesh = new THREE.InstancedMesh(trailGeo, trailMat, TRAIL_N);
+  trailMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  trailMesh.frustumCulled = false;
+  scene.add(trailMesh);
+
+  // ── Particle pool — instanced cubes. Drawn from the sim's particle list +
+  // local fx bursts. A fixed pool, no per-frame allocation.
+  const PART_N = 256;
+  const partMat = new THREE.MeshBasicMaterial({
+    transparent: true, depthWrite: false, vertexColors: true,
+  });
+  const partGeo = new THREE.BoxGeometry(1, 1, 1);
+  const partMesh = new THREE.InstancedMesh(partGeo, partMat, PART_N);
+  partMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  partMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PART_N * 3), 3);
+  partMesh.frustumCulled = false;
+  scene.add(partMesh);
+
+  // Reusable temps — no allocation in render().
+  const _m = new THREE.Matrix4();
+  const _q = new THREE.Quaternion();
+  const _s = new THREE.Vector3();
+  const _p = new THREE.Vector3();
+  const _up = new THREE.Vector3(0, 1, 0);
+  const _c = new THREE.Color();
+  const _dir = new THREE.Vector3();
+
+  // ── Procedural window texture for towers — one shared CanvasTexture.
+  function makeWindowTexture() {
+    const c = document.createElement('canvas');
+    c.width = 64; c.height = 128;
+    const g = c.getContext('2d');
+    g.fillStyle = '#070d18';
+    g.fillRect(0, 0, 64, 128);
+    for (let y = 6; y < 128; y += 12) {
+      for (let x = 6; x < 64; x += 12) {
+        const r = ((x * 31 + y * 17) % 7);
+        if (r < 3) {
+          g.fillStyle = r < 1 ? PAL.windowWarm : PAL.windowCool;
+          g.globalAlpha = 0.45 + (r * 0.12);
+          g.fillRect(x, y, 5, 7);
+        }
+      }
+    }
+    g.globalAlpha = 1;
+    const tex = new THREE.CanvasTexture(c);
+    tex.wrapS = THREE.RepeatWrapping;
+    tex.wrapT = THREE.RepeatWrapping;
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
   }
-  return stars;
+  const windowTex = makeWindowTexture();
+
+  // Materials created in rebuildLevel are tracked for disposal.
+  let levelMats = [];
+  let levelGeos = [];
+  const track = (obj) => {
+    if (obj.geometry) levelGeos.push(obj.geometry);
+    if (obj.material) levelMats.push(obj.material);
+    return obj;
+  };
+
+  function clearLevel() {
+    scene.remove(levelGroup);
+    levelGroup.traverse((o) => {
+      if (o.geometry) o.geometry.dispose?.();
+      if (o.material) {
+        if (Array.isArray(o.material)) o.material.forEach((m) => m.dispose?.());
+        else o.material.dispose?.();
+      }
+    });
+    levelMats = [];
+    levelGeos = [];
+    anchorRecs.clear();
+    hazardRecs.length = 0;
+    checkpointRecs.length = 0;
+    goalRec = null;
+    groundMesh = null;
+    levelGroup = new THREE.Group();
+    scene.add(levelGroup);
+  }
+
+  // Build all static + lit-state geometry for a course.
+  function rebuildLevel(state) {
+    clearLevel();
+    camPrimed = false;        // snap the camera onto the new level next frame
+    const def = state.def;
+    const worldW = def.world.w;
+    const worldH = def.world.h;
+
+    // ── Ground slab — long box along the lane at the world floor.
+    {
+      const groundTop = worldH - 100;      // matches the ground wall's y
+      const geo = new THREE.BoxGeometry(worldW + 1200, 220, 700);
+      const mat = new THREE.MeshStandardMaterial({
+        color: PAL.nearBuildings, roughness: 0.95, metalness: 0.0,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(worldW / 2, w2y(groundTop) - 110, -40);
+      m.receiveShadow = true;
+      levelGroup.add(m);
+      track(m);
+      groundMesh = m;
+      // A subtle emissive ridge line on the front face
+      const ridgeGeo = new THREE.BoxGeometry(worldW + 1200, 4, 4);
+      const ridgeMat = new THREE.MeshBasicMaterial({ color: 0x16314d });
+      const ridge = new THREE.Mesh(ridgeGeo, ridgeMat);
+      ridge.position.set(worldW / 2, w2y(groundTop), 22);
+      levelGroup.add(ridge);
+      track(ridge);
+    }
+
+    // ── Background tower rows — three parallax depths, procedural. These are
+    // pure decoration behind the play plane (negative z), so they never
+    // intersect the physics. Heights derived from a stable hash.
+    const towerDefs = [
+      { z: -1400, step: 360, wMin: 180, wMax: 260, hMin: 600, hMax: 1300, tint: PAL.farBuildings, lit: false },
+      { z: -800,  step: 300, wMin: 150, wMax: 220, hMin: 500, hMax: 1100, tint: '#0e1c2e', lit: true },
+      { z: -360,  step: 260, wMin: 120, wMax: 180, hMin: 400, hMax: 900,  tint: PAL.midBuildings, lit: true },
+    ];
+    const groundY = w2y(worldH - 100);
+    for (const row of towerDefs) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: row.tint, roughness: 0.9, metalness: 0.05,
+        map: row.lit ? windowTex : null,
+        emissive: row.lit ? new THREE.Color(0x1a2c44) : new THREE.Color(0x000000),
+        emissiveMap: row.lit ? windowTex : null,
+        emissiveIntensity: row.lit ? 0.8 : 0,
+      });
+      levelMats.push(mat);
+      const count = Math.ceil((worldW + 1400) / row.step) + 2;
+      const geo = new THREE.BoxGeometry(1, 1, 1);
+      levelGeos.push(geo);
+      const inst = new THREE.InstancedMesh(geo, mat, count);
+      inst.castShadow = false;
+      inst.receiveShadow = false;
+      for (let i = 0; i < count; i++) {
+        const bx = -400 + i * row.step;
+        const seed = hash2(i * 1.3 + row.z * 0.01, row.z);
+        const bw = row.wMin + seed * (row.wMax - row.wMin);
+        const bh = row.hMin + hash2(row.z, i * 2.1) * (row.hMax - row.hMin);
+        _p.set(bx, groundY + bh / 2, row.z);
+        _q.identity();
+        _s.set(bw, bh, bw * 0.8);
+        _m.compose(_p, _q, _s);
+        inst.setMatrixAt(i, _m);
+        if (row.lit) {
+          mat.map.repeat.set(1, 1);   // shared; per-tile not needed visually
+        }
+      }
+      inst.instanceMatrix.needsUpdate = true;
+      levelGroup.add(inst);
+    }
+
+    // ── Walls / pillars — solid, lethal in the sim. Render as dark slabs on
+    // the play plane (z=0) so they read as foreground obstacles.
+    for (const w of state.walls) {
+      const isGround = w.y >= worldH - 120 && w.w >= worldW - 100;
+      if (isGround) continue;     // ground handled above as a slab
+      const geo = new THREE.BoxGeometry(w.w, w.h, Math.max(60, w.w * 1.4));
+      const mat = new THREE.MeshStandardMaterial({
+        color: '#0b1726', roughness: 0.85, metalness: 0.1,
+        emissive: new THREE.Color(0x0a1828), emissiveIntensity: 0.4,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(w.x + w.w / 2, w2y(w.y + w.h / 2), 0);
+      m.castShadow = true;
+      m.receiveShadow = true;
+      levelGroup.add(m);
+      track(m);
+    }
+
+    // ── Props — billboards (emissive strip), antennae, moon disc.
+    for (const pr of (def.props || [])) {
+      if (pr.kind === 'billboard') {
+        const geo = new THREE.PlaneGeometry(pr.w + 4, pr.h * 0.7);
+        const mat = new THREE.MeshBasicMaterial({
+          color: PAL.windowWarm, transparent: true, opacity: 0.55,
+        });
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(pr.x + pr.w / 2, w2y(pr.y + pr.h / 2), Math.max(40, pr.w));
+        levelGroup.add(m);
+        track(m);
+      } else if (pr.kind === 'antenna') {
+        const geo = new THREE.CylinderGeometry(1.4, 1.4, pr.h, 6);
+        const mat = new THREE.MeshStandardMaterial({ color: '#1a2838', roughness: 0.7 });
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(pr.x, w2y(pr.y) + pr.h / 2, 0);
+        levelGroup.add(m);
+        track(m);
+        const tipGeo = new THREE.SphereGeometry(3, 8, 6);
+        const tipMat = new THREE.MeshBasicMaterial({ color: PAL.hazard });
+        const tip = new THREE.Mesh(tipGeo, tipMat);
+        tip.position.set(pr.x, w2y(pr.y) + pr.h, 0);
+        levelGroup.add(tip);
+        track(tip);
+      } else if (pr.kind === 'moon') {
+        const geo = new THREE.CircleGeometry(pr.r, 32);
+        const mat = new THREE.MeshBasicMaterial({ color: 0xfff0dc });
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(pr.x, w2y(pr.y), -2200);
+        levelGroup.add(m);
+        track(m);
+      }
+    }
+
+    // ── Anchors — visible 3D nodes (sphere + halo ring).
+    for (const a of state.anchors) {
+      const coreGeo = new THREE.SphereGeometry(5, 12, 10);
+      const coreMatA = new THREE.MeshStandardMaterial({
+        color: PAL.anchorIdle, emissive: new THREE.Color(PAL.anchorReady),
+        emissiveIntensity: 0.6, roughness: 0.4,
+      });
+      const core = new THREE.Mesh(coreGeo, coreMatA);
+      core.position.set(a.x, w2y(a.y), 0);
+      core.castShadow = true;
+      levelGroup.add(core);
+      track(core);
+
+      const haloGeo = new THREE.RingGeometry(9, 13, 20);
+      const haloMat = new THREE.MeshBasicMaterial({
+        color: PAL.anchorIdle, transparent: true, opacity: 0.4,
+        side: THREE.DoubleSide, depthWrite: false,
+      });
+      const halo = new THREE.Mesh(haloGeo, haloMat);
+      halo.position.set(a.x, w2y(a.y), 0);
+      levelGroup.add(halo);
+      track(halo);
+
+      anchorRecs.set(a, { core, coreMat: coreMatA, halo, haloMat });
+    }
+
+    // ── Hazards — lasers (glowing bars) + spikes (tetra rows).
+    for (const h of state.hazards) {
+      if (h.type === 'laser') {
+        const geo = new THREE.BoxGeometry(h.w, 6, 6);
+        const mat = new THREE.MeshBasicMaterial({ color: PAL.hazard, transparent: true, opacity: 0.3 });
+        const m = new THREE.Mesh(geo, mat);
+        m.position.set(h.x + h.w / 2, w2y(h.y), 0);
+        levelGroup.add(m);
+        track(m);
+        hazardRecs.push({ def: h, mesh: m, mat, kind: 'laser' });
+      } else if (h.type === 'spikes') {
+        const count = Math.max(3, Math.floor(h.w / 8));
+        const step = h.w / count;
+        const geo = new THREE.ConeGeometry(step * 0.45, 18, 4);
+        const mat = new THREE.MeshStandardMaterial({
+          color: '#cfd6df', emissive: new THREE.Color(0x223040), emissiveIntensity: 0.3,
+          roughness: 0.5, metalness: 0.3,
+        });
+        const inst = new THREE.InstancedMesh(geo, mat, count);
+        inst.castShadow = true;
+        for (let i = 0; i < count; i++) {
+          _p.set(h.x + i * step + step / 2, w2y(h.y) + 9, 0);
+          _q.identity();
+          _s.set(1, 1, 1);
+          _m.compose(_p, _q, _s);
+          inst.setMatrixAt(i, _m);
+        }
+        inst.instanceMatrix.needsUpdate = true;
+        levelGroup.add(inst);
+        levelGeos.push(geo); levelMats.push(mat);
+        hazardRecs.push({ def: h, mesh: inst, mat, kind: 'spikes' });
+      }
+    }
+
+    // ── Checkpoints — emissive torus gates.
+    for (const c of state.checkpoints) {
+      const geo = new THREE.TorusGeometry(24, 2.2, 8, 28);
+      const mat = new THREE.MeshBasicMaterial({
+        color: PAL.wireSpark, transparent: true, opacity: 0.5,
+      });
+      const ring = new THREE.Mesh(geo, mat);
+      ring.position.set(c.x, w2y(c.y), 0);
+      levelGroup.add(ring);
+      track(ring);
+      checkpointRecs.push({ def: c, ring, mat });
+    }
+
+    // ── Goal — a glowing portal frame.
+    {
+      const g = def.goal;
+      const geo = new THREE.BoxGeometry(g.w, g.h, 14);
+      const mat = new THREE.MeshStandardMaterial({
+        color: PAL.goal, emissive: new THREE.Color(PAL.goal),
+        emissiveIntensity: 1.1, transparent: true, opacity: 0.8,
+        roughness: 0.3,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      m.position.set(g.x + g.w / 2, w2y(g.y + g.h / 2), 0);
+      levelGroup.add(m);
+      track(m);
+      // Outer glow shell
+      const glowGeo = new THREE.BoxGeometry(g.w + 18, g.h + 18, 4);
+      const glowMat = new THREE.MeshBasicMaterial({
+        color: PAL.goal, transparent: true, opacity: 0.18, depthWrite: false,
+      });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.position.set(g.x + g.w / 2, w2y(g.y + g.h / 2), -6);
+      levelGroup.add(glow);
+      track(glow);
+      goalRec = { mesh: m, mat, glow };
+    }
+  }
+
+  // ── Resize — manual, never via sizeCanvasFluid (that grabs a 2D ctx).
+  let camPrimed = false;       // snap camera onto level on first frame / rebuild
+  let viewW = W, viewH = H;
+  function resize(cssW, cssH) {
+    viewW = Math.max(1, cssW);
+    viewH = Math.max(1, cssH);
+    renderer.setSize(viewW, viewH, false);
+    camera.aspect = viewW / viewH;
+    camera.updateProjectionMatrix();
+  }
+
+  // Camera distance so the sim viewport (W..MAX_W wide) frames like the 2D
+  // camera did: we want ~ the same world span visible. The 2D camera showed
+  // `viewW` sim-px across; match that with the perspective frustum.
+  function camDistanceForSpan(spanX) {
+    const vHalf = THREE.MathUtils.degToRad(camera.fov / 2);
+    const hHalf = Math.atan(Math.tan(vHalf) * Math.max(0.3, camera.aspect));
+    return (spanX / 2) / Math.tan(hHalf);
+  }
+
+  // ── Per-frame render. Reads sim state; advances only render-local fx.
+  function render(state, rawDt, opts) {
+    if (!state) return;
+    const reduceM = opts.reducedMotion;
+    const p = state.player;
+    const span = clamp(viewW, W, MAX_W);
+
+    // Camera target: centre on the player using the SAME lead/clamp math the
+    // sim's updateCamera already produced (state.cam.x/y is the viewport top-
+    // left in sim space). Centre = cam + viewport/2.
+    const centreSimX = state.cam.x + span / 2;
+    const spanY = clamp(viewH, H, MAX_H);
+    const centreSimY = state.cam.y + spanY / 2;
+    const camZ = camDistanceForSpan(span);
+
+    // Subtle shake from the sim's shake value (death feedback), camera-space.
+    const sh = reduceM ? 0 : state.shake;
+    const shx = sh ? (Math.random() - 0.5) * sh : 0;
+    const shy = sh ? (Math.random() - 0.5) * sh : 0;
+    if (state.shake > 0) state.shake = Math.max(0, state.shake - 40 * rawDt);
+
+    const tx = w2x(centreSimX) + shx;
+    const ty = w2y(centreSimY) + shy;
+    if (!camPrimed) {
+      // First frame after a (re)build: snap the camera into the level so the
+      // very first rendered frame already shows the world framed on the
+      // player — important for the immediate-on-mount screenshot.
+      camera.position.set(tx, ty, camZ);
+      camPrimed = true;
+    } else {
+      // Smooth the camera position (extra polish over the already-smoothed cam).
+      camera.position.x += (tx - camera.position.x) * Math.min(1, rawDt * 12);
+      camera.position.y += (ty - camera.position.y) * Math.min(1, rawDt * 12);
+      camera.position.z += (camZ - camera.position.z) * Math.min(1, rawDt * 6);
+    }
+    camera.lookAt(camera.position.x - shx, camera.position.y - shy, 0);
+
+    // Key light tracks the player so shadows stay crisp on screen.
+    key.position.set(w2x(p.x) - 300, w2y(p.y) + 500, 900);
+    key.target.position.set(w2x(p.x), w2y(p.y), 0);
+    key.target.updateMatrixWorld();
+
+    // Sky follows the camera so the gradient is always behind the action.
+    sky.position.set(camera.position.x, camera.position.y, 0);
+
+    // ── Player rig.
+    const alive = state.status !== 'dead';
+    playerGroup.visible = alive;
+    if (alive) {
+      playerGroup.position.set(w2x(p.x), w2y(p.y), 0);
+      // Invuln blink.
+      const blink = p.invuln > 0 && (Math.floor(p.invuln * 18) % 2 === 0);
+      orbMesh.visible = !blink;
+      coreMesh.visible = !blink;
+      scarfMesh.visible = !blink;
+      // Scarf points opposite motion. Sim angle = atan2(vy, vx); in world the
+      // y axis flips, so the world heading is atan2(-vy, vx).
+      const heading = Math.atan2(-p.vy, p.vx || 0.0001);
+      // Cone default points +Y; we want it to trail behind, i.e. point at
+      // heading + 180°. Rotate scarfPivot about Z so −Y aligns with motion.
+      scarfPivot.rotation.z = heading + Math.PI / 2;
+      // Speed-based emissive pulse for "fast" juice.
+      const spd = Math.hypot(p.vx, p.vy);
+      orbMat.emissiveIntensity = 0.3 + Math.min(0.5, spd / MAX_SPEED * 0.5);
+    }
+
+    // ── Wire — orient a unit cylinder between anchor and player.
+    if (state.wire && alive) {
+      const ax = w2x(state.wire.ax), ay = w2y(state.wire.ay);
+      const bx = w2x(p.x), by = w2y(p.y);
+      _p.set(bx - ax, by - ay, 0);
+      const len = _p.length() || 0.0001;
+      wireMesh.visible = true;
+      wireMesh.position.set((ax + bx) / 2, (ay + by) / 2, 0);
+      _dir.copy(_p).normalize();
+      _q.setFromUnitVectors(_up, _dir);
+      wireMesh.quaternion.copy(_q);
+      wireMesh.scale.set(1, len, 1);
+    } else {
+      wireMesh.visible = false;
+    }
+
+    // ── Anchor lit-state. litT decays here (render-local, matches 2D feel).
+    for (const a of state.anchors) {
+      const rec = anchorRecs.get(a);
+      if (!rec) continue;
+      if (a.litT > 0) a.litT = Math.max(0, a.litT - rawDt);
+      const active = state.wire && state.wire.anchor === a;
+      const lit = active || a.litT > 0;
+      _c.set(lit ? PAL.anchorActive : PAL.anchorIdle);
+      rec.coreMat.color.copy(_c);
+      rec.coreMat.emissive.set(lit ? PAL.anchorActive : PAL.anchorReady);
+      rec.coreMat.emissiveIntensity = lit ? 1.1 : 0.5;
+      rec.haloMat.color.set(lit ? PAL.anchorActive : PAL.anchorIdle);
+      rec.haloMat.opacity = lit ? 0.6 : 0.32;
+      const sc = lit ? 1.3 : 1;
+      rec.halo.scale.set(sc, sc, sc);
+      rec.halo.rotation.z += rawDt * 0.6;
+    }
+
+    // ── Hazards — laser opacity/scale by lethal/warning; spikes static.
+    for (const rec of hazardRecs) {
+      if (rec.kind === 'laser') {
+        const h = rec.def;
+        const intensity = h.lethal ? 1 : h.warning ? 0.45 : 0.18;
+        rec.mat.opacity = intensity;
+        const thick = h.lethal ? 1.8 : 1;
+        rec.mesh.scale.set(1, thick, thick);
+      }
+    }
+
+    // ── Checkpoints — colour shift + pulse when reached.
+    const tnow = performance.now();
+    for (const rec of checkpointRecs) {
+      const reached = rec.def.reached;
+      rec.mat.color.set(reached ? PAL.goal : PAL.wireSpark);
+      const pulse = 0.5 + 0.4 * Math.sin(tnow / 260);
+      rec.mat.opacity = reached ? pulse * 0.9 : 0.45;
+      rec.ring.rotation.z += rawDt * (reached ? 1.2 : 0.3);
+    }
+
+    // ── Goal pulse.
+    if (goalRec) {
+      const pulse = 0.6 + 0.4 * Math.sin(tnow / 280);
+      goalRec.mat.emissiveIntensity = 0.8 + pulse * 0.6;
+      goalRec.glow.material.opacity = 0.12 + pulse * 0.12;
+    }
+
+    // ── Motion trail. Reads the sim's trail list (positions over time).
+    const trail = state.trail;
+    for (let i = 0; i < TRAIL_N; i++) {
+      const t = trail[trail.length - 1 - i];
+      if (t && alive) {
+        const f = (TRAIL_N - i) / TRAIL_N;
+        _p.set(w2x(t.x), w2y(t.y), -1);
+        _q.identity();
+        const r = P_R * 0.5 * f;
+        _s.set(r, r, r);
+        _m.compose(_p, _q, _s);
+      } else {
+        _m.makeScale(0, 0, 0);
+      }
+      trailMesh.setMatrixAt(i, _m);
+    }
+    trailMesh.instanceMatrix.needsUpdate = true;
+
+    // ── Particles. Advance render-local fx bursts, draw sim particles + fx.
+    advanceFx(state, rawDt);
+    let pi = 0;
+    // Sim particles (death splash, attach sparks, checkpoint pops).
+    for (const pt of state.particles) {
+      if (pi >= PART_N) break;
+      _p.set(w2x(pt.x), w2y(pt.y), 0);
+      _q.identity();
+      const sz = pt.size || 2;
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      _c.set(pt.color || PAL.wireSpark);
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    // Render-local fx (3D bursts on attach/release/finish).
+    for (const f of state.fx) {
+      if (pi >= PART_N) break;
+      _p.set(f.x, f.y, f.z);
+      _q.identity();
+      const sz = f.size * (f.life / f.max);
+      _s.set(sz, sz, sz);
+      _m.compose(_p, _q, _s);
+      partMesh.setMatrixAt(pi, _m);
+      _c.set(f.color);
+      partMesh.setColorAt(pi, _c);
+      pi++;
+    }
+    // Park the rest off-screen.
+    for (let k = pi; k < PART_N; k++) {
+      _m.makeScale(0, 0, 0);
+      partMesh.setMatrixAt(k, _m);
+    }
+    partMesh.count = PART_N;
+    partMesh.instanceMatrix.needsUpdate = true;
+    if (partMesh.instanceColor) partMesh.instanceColor.needsUpdate = true;
+
+    renderer.render(scene, camera);
+  }
+
+  // Render-local fx burst pool — purely visual, fed from gameplay events
+  // (see the burst() exposed below). Lives in state.fx so it survives the
+  // closure but is owned/advanced here.
+  function advanceFx(state, dt) {
+    const fx = state.fx;
+    for (let i = fx.length - 1; i >= 0; i--) {
+      const f = fx[i];
+      f.x += f.vx * dt; f.y += f.vy * dt; f.z += f.vz * dt;
+      f.vy -= 320 * dt;          // world-up gravity (negative)
+      f.life -= dt;
+      if (f.life <= 0) fx.splice(i, 1);
+    }
+  }
+
+  function dispose() {
+    clearLevel();
+    scene.remove(levelGroup);
+    // Persistent objects.
+    [orbMesh, coreMesh, scarfMesh, wireMesh, trailMesh, partMesh, sky].forEach((o) => {
+      o.geometry?.dispose?.();
+    });
+    [orbMat, coreMat, scarfMat, wireMat, trailMat, partMat, skyMat].forEach((m) => m.dispose?.());
+    windowTex.dispose();
+    renderer.dispose();
+  }
+
+  return { scene, camera, renderer, rebuildLevel, render, resize, dispose };
 }
 
-function seedRain(vw = W, vh = H) {
-  const drops = [];
-  for (let i = 0; i < 56; i++) {
-    drops.push({
-      x: Math.random() * vw,
-      y: Math.random() * vh,
-      vy: 360 + Math.random() * 260,
-      vx: -30 - Math.random() * 50,
-      len: 8 + Math.random() * 12,
-    });
-  }
-  return drops;
+// Deterministic hash for tower placement so the skyline is stable per boot.
+function hash2(x, y) {
+  const s = Math.sin(x * 127.1 + y * 311.7) * 43758.5453;
+  return s - Math.floor(s);
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -430,6 +1084,7 @@ export default function SwingwireGame() {
   const viewRef = useRef({ W, H });
   const stateRef = useRef(null);
   const audioRef = useRef(null);
+  const rendererRef = useRef(null);
 
   const runRef = useRef({
     courseIdx: 0, deaths: 0, startMs: 0,
@@ -459,26 +1114,41 @@ export default function SwingwireGame() {
     audioRef.current = makeAudio();
     const adminStart = consumeAdminStartLevel('hook');
     const startCourse = adminStart != null ? Math.max(0, Math.min(2, adminStart)) : 0;
+
+    const canvas = canvasRef.current;
+    const wrap = wrapRef.current;
+
+    // ── Build the WebGL renderer. WebGL can be unavailable (old GPU, blocked
+    // context); fail loud in DEV but don't crash the host page.
+    let renderer = null;
+    try { renderer = makeRenderer3D(canvas); }
+    catch (err) { renderer = null; if (import.meta.env.DEV) console.error('[swingwire] WebGL init failed', err); }
+    rendererRef.current = renderer;
+
+    if (import.meta.env.DEV && renderer) {
+      window.__hook3d = { scene: renderer.scene, camera: renderer.camera, renderer: renderer.renderer };
+    }
+
+    // enterCourse needs the renderer ready so the scene mounts immediately.
     enterCourse(startCourse);
     runRef.current.startMs = performance.now();
     runRef.current.courseStartMs = performance.now();
 
-    const canvas = canvasRef.current;
-    const wrap = wrapRef.current;
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-
-    // Fluid sizer — playfield viewport stretches between (W, H) and
-    // (MAX_W, MAX_H). Beyond MAX, the city skyline scrolls naturally
-    // instead of growing the camera window. Re-seed the rain so existing
-    // drops aren't bunched in a corner after a resize.
-    const dispose = wrap ? sizeCanvasFluid(canvas, wrap, (cssW, cssH) => {
-      const vw = clamp(cssW, W, MAX_W);
-      const vh = clamp(cssH, H, MAX_H);
-      viewRef.current = { W: vw, H: vh };
-      const s = stateRef.current;
-      if (s) s.rainDrops = seedRain(vw, vh);
-    }) : () => {};
+    // ── Manual fluid sizing (NOT sizeCanvasFluid — it grabs a 2D context,
+    // locking the canvas out of WebGL). ResizeObserver + orientationchange.
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    const fit = () => {
+      const cssW = clamp(Math.max(1, wrap.clientWidth), W, MAX_W);
+      const cssH = clamp(Math.max(1, wrap.clientHeight), H, MAX_H);
+      viewRef.current = { W: cssW, H: cssH };
+      renderer?.resize(cssW, cssH);
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
+    const onOrient = () => fit();
+    window.addEventListener('orientationchange', onOrient);
 
     // Inputs — rope is engaged while any of these are "down":
     //   keyboard (Space / W / Up — touch button dispatches synthetic Space),
@@ -492,11 +1162,8 @@ export default function SwingwireGame() {
         e.preventDefault();
         inputs.kb = true;
       } else if (k === 'p' || k === 'P') {
-        // Mirror GameShell's pause so the game loop actually freezes (the
-        // shell's overlay otherwise sits on top of a still-running game).
         togglePause();
       } else if (k === 'm' || k === 'M') {
-        // GameShell's mute uses src/sound.js; our WebAudio is separate.
         toggleMute();
       }
       // R (restart) and H/? (help) are handled exclusively by GameShell.
@@ -547,7 +1214,7 @@ export default function SwingwireGame() {
           acc -= STEP;
         }
       }
-      render(ctx, rawDt);
+      rendererRef.current?.render(stateRef.current, rawDt, optsRef.current);
       raf = requestAnimationFrame(loop);
     };
     raf = requestAnimationFrame(loop);
@@ -562,13 +1229,17 @@ export default function SwingwireGame() {
     return () => {
       cancelAnimationFrame(raf);
       clearInterval(hudTimer);
-      dispose();
+      try { ro.disconnect(); } catch {}
+      window.removeEventListener('orientationchange', onOrient);
       audioRef.current?.cleanup?.();
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
       canvas.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
       canvas.removeEventListener('mouseleave', onMouseLeave);
+      try { rendererRef.current?.dispose(); } catch {}
+      rendererRef.current = null;
+      if (import.meta.env.DEV && window.__hook3d) { try { delete window.__hook3d; } catch {} }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -576,11 +1247,23 @@ export default function SwingwireGame() {
   function enterCourse(idx) {
     const def = COURSES[idx];
     stateRef.current = buildCourseState(def);
+    seedCamera(stateRef.current);
+    rendererRef.current?.rebuildLevel(stateRef.current);
     runRef.current.courseIdx = idx;
     runRef.current.courseStartMs = performance.now();
     audioRef.current?.startDrone();
     setUi((u) => ({ ...u, courseIdx: idx, status: 'playing', epitaph: null }));
   }
+  // Instantly centre the camera viewport on the player's spawn so the very
+  // first rendered frame frames the player (matches the camera-clamp math in
+  // updateCamera, run once with no smoothing).
+  function seedCamera(s) {
+    const { W: vw, H: vh } = viewRef.current;
+    const p = s.player;
+    s.cam.x = clamp(p.x - vw / 2, 0, Math.max(0, s.def.world.w - vw));
+    s.cam.y = clamp(p.y - vh / 2, 0, Math.max(0, s.def.world.h - vh));
+  }
+
   function restartCourse() {
     if (runRef.current.completed) return;
     const s = stateRef.current;
@@ -594,7 +1277,9 @@ export default function SwingwireGame() {
         if (c.x <= s.lastCheckpoint.x) c.reached = true;
       });
     }
+    seedCamera(fresh);
     stateRef.current = fresh;
+    rendererRef.current?.rebuildLevel(fresh);
     setUi((u) => ({ ...u, status: 'playing', epitaph: null }));
     audioRef.current?.click();
   }
@@ -620,6 +1305,26 @@ export default function SwingwireGame() {
     setUi((u) => ({ ...u, highContrast: optsRef.current.highContrast }));
   }
 
+  // ── render-local 3D burst on a gameplay event (visual only). Pushed into
+  // state.fx; the renderer advances + draws + retires them.
+  function burst3D(simX, simY, color, n, spread, z = 0) {
+    const s = stateRef.current;
+    if (!s) return;
+    if (optsRef.current.reducedMotion) n = Math.min(n, 4);
+    for (let i = 0; i < n; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const sp = spread * (0.4 + Math.random() * 0.6);
+      s.fx.push({
+        x: w2x(simX), y: w2y(simY), z: z + (Math.random() - 0.5) * 20,
+        vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp + 60,
+        vz: (Math.random() - 0.5) * sp * 0.6,
+        life: 0.4 + Math.random() * 0.4, max: 0.8,
+        size: 3 + Math.random() * 3, color,
+      });
+      if (s.fx.length > 180) s.fx.shift();
+    }
+  }
+
   function kill(kind) {
     const s = stateRef.current;
     if (!s || s.status !== 'playing') return;
@@ -628,13 +1333,12 @@ export default function SwingwireGame() {
     s.tStatus = 0;
     s.slowmo = SLOWMO_TIME;
     s.shake = optsRef.current.reducedMotion ? 4 : 14;
-    s.flash = 0.2;
     s.epitaph = pick(EPITAPHS[kind] || EPITAPHS.ground);
     s.deathKind = kind;
     s.wire = null;
     const p = s.player;
     p.splat = { x: p.x, y: p.y };
-    // Splash particles
+    // Splash particles (sim-space; rendered by the 3D particle pool).
     for (let i = 0; i < 22; i++) {
       s.particles.push({
         x: p.x, y: p.y,
@@ -645,6 +1349,8 @@ export default function SwingwireGame() {
         color: i % 3 === 0 ? PAL.hazard : i % 3 === 1 ? '#802030' : PAL.wireSpark,
       });
     }
+    // 3D death burst.
+    burst3D(p.x, p.y, PAL.hazard, 24, 280);
     audioRef.current?.splat();
     const r = runRef.current;
     r.deaths += 1;
@@ -657,6 +1363,9 @@ export default function SwingwireGame() {
     if (!s || s.status !== 'playing') return;
     s.status = 'clear';
     s.tStatus = 0;
+    // Finish burst at the goal.
+    const g = s.def.goal;
+    burst3D(g.x + g.w / 2, g.y + g.h / 2, PAL.goal, 30, 320);
     const r = runRef.current;
     r.courseTimes[r.courseIdx] = (performance.now() - r.courseStartMs) / 1000;
     audioRef.current?.checkpoint();
@@ -687,14 +1396,13 @@ export default function SwingwireGame() {
     setUi((u) => ({ ...u, deaths: 0, elapsed: 0, completed: false, status: 'playing', epitaph: null, score: 0 }));
     enterCourse(0);
   }
+  void resetRun;   // exposed-by-shell parity; retained for completeness
 
-  // ── update ─────────────────────────────────────────────────────────────
+  // ── update — PHYSICS UNCHANGED from the 2D version. Only the rain-drift
+  // block (a 2D-only screen effect) is removed; nothing else differs.
   function update(dt, holding) {
     const s = stateRef.current;
     if (!s) return;
-    // Shadow module-level W/H with the live viewport so screen-space wraps
-    // (rain re-spawn, etc.) match the actual canvas size.
-    const { W, H } = viewRef.current;
     const p = s.player;
 
     if (s.slowmo > 0) s.slowmo = Math.max(0, s.slowmo - dt);
@@ -705,7 +1413,6 @@ export default function SwingwireGame() {
       updateHazards(s, dt);
       updateCamera(s, dt, true);
       s.shake = Math.max(0, s.shake - 40 * dt);
-      s.flash = Math.max(0, s.flash - 1.4 * dt);
       if (s.tStatus >= RESPAWN_DELAY) {
         const respawn = s.lastCheckpoint || s.def.spawn;
         const fresh = buildCourseState(s.def);
@@ -715,7 +1422,9 @@ export default function SwingwireGame() {
         });
         fresh.player.x = respawn.x;
         fresh.player.y = respawn.y;
+        seedCamera(fresh);
         stateRef.current = fresh;
+        rendererRef.current?.rebuildLevel(fresh);
         setUi((u) => ({ ...u, status: 'playing', epitaph: null }));
       }
       return;
@@ -847,17 +1556,6 @@ export default function SwingwireGame() {
 
     updateParticles(s, dt);
     updateCamera(s, dt, false);
-
-    // Rain drift
-    for (const r of s.rainDrops) {
-      r.x += r.vx * dt;
-      r.y += r.vy * dt;
-      if (r.y > H + 20) {
-        r.y = -20;
-        r.x = Math.random() * W;
-      }
-      if (r.x < -20) r.x = W + 20;
-    }
   }
 
   function updateParticles(s, dt) {
@@ -897,10 +1595,9 @@ export default function SwingwireGame() {
     s.cam.y = lerp(s.cam.y, targetY, Math.min(1, dt * CAMERA_SMOOTH));
     s.cam.kickX = lerp(s.cam.kickX ?? 0, 0, Math.min(1, dt * 8));
     s.cam.kickY = lerp(s.cam.kickY ?? 0, 0, Math.min(1, dt * 8));
-    s.zoom = lerp(s.zoom, dying ? 1.24 : 1, Math.min(1, dt * (dying ? 5 : 3)));
   }
 
-  // ── wire attach logic ──────────────────────────────────────────────────
+  // ── wire attach logic — UNCHANGED from the 2D version.
   function tryAttach(s) {
     const p = s.player;
     // Score each anchor — prefer "above and ahead of facing"
@@ -929,7 +1626,7 @@ export default function SwingwireGame() {
     s.wire = { ax: best.x, ay: best.y, length: dist(p.x, p.y, best.x, best.y), anchor: best };
     best.litT = 0.35;  // brief glow on attach
     audioRef.current?.attach();
-    // Tiny spark on attach
+    // Tiny spark on attach (sim-space particles).
     for (let i = 0; i < 4; i++) {
       s.particles.push({
         x: best.x, y: best.y,
@@ -939,571 +1636,24 @@ export default function SwingwireGame() {
         size: 2, color: PAL.wireSpark,
       });
     }
+    // 3D attach burst at the anchor node.
+    burst3D(best.x, best.y, PAL.wireSpark, 8, 160);
     return true;
   }
   function detach(s) {
+    // 3D release burst at the player.
+    const p = s.player;
+    burst3D(p.x, p.y, PAL.wire, 8, 200);
     s.wire = null;
     audioRef.current?.release();
   }
 
-  // ──────────────────────────────────────────────────────────────────────
-  // RENDER
-  // ──────────────────────────────────────────────────────────────────────
-  function render(ctx, rawDt) {
-    const s = stateRef.current;
-    if (!s) return;
-    // Shadow module-level W / H with the live viewport. Every nested helper
-    // declared inside render() (drawFarBuildings, drawHud, drawPause…) closes
-    // over these locals, so the entire render tree resizes from one assignment.
-    const { W, H } = viewRef.current;
-    const r = runRef.current;
-    const reduceM = optsRef.current.reducedMotion;
-    const hc = optsRef.current.highContrast;
-    const zoom = s.zoom;
-    const shakeX = reduceM ? 0 : (Math.random() - 0.5) * s.shake;
-    const shakeY = reduceM ? 0 : (Math.random() - 0.5) * s.shake;
-
-    // Clear to sky
-    const skyG = ctx.createLinearGradient(0, 0, 0, H);
-    skyG.addColorStop(0, PAL.skyTop);
-    skyG.addColorStop(0.7, PAL.skyMid);
-    skyG.addColorStop(1, PAL.skyBottom);
-    ctx.fillStyle = skyG; ctx.fillRect(0, 0, W, H);
-
-    // Zoom + shake
-    ctx.save();
-    ctx.translate(W / 2, H / 2);
-    ctx.scale(zoom, zoom);
-    ctx.translate(-W / 2 + shakeX, -H / 2 + shakeY);
-
-    const camX = s.cam.x, camY = s.cam.y;
-
-    // ── Stars (parallax 0.1) ──────────────────────────────────────────
-    for (const st of s.stars) {
-      const x = ((st.x - camX * 0.1) % (s.def.world.w * 0.5));
-      const y = st.y - camY * 0.05;
-      const flick = 0.7 + 0.3 * Math.sin(performance.now() / 500 + st.flicker);
-      ctx.fillStyle = `rgba(255, 220, 190, ${0.5 * flick})`;
-      ctx.beginPath();
-      ctx.arc(x < 0 ? x + s.def.world.w * 0.5 : x, y, st.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // Fog wash above horizon
-    ctx.fillStyle = PAL.fogWash;
-    ctx.fillRect(0, 240, W, 220);
-
-    // ── Far buildings (parallax 0.28) ─────────────────────────────────
-    drawFarBuildings(ctx, camX, camY);
-
-    // ── Mid buildings (parallax 0.6) ──────────────────────────────────
-    drawMidBuildings(ctx, camX, camY);
-
-    // ── World layer (parallax 1.0) ────────────────────────────────────
-    const kx = reduceM ? 0 : (s.cam.kickX || 0);
-    const ky = reduceM ? 0 : (s.cam.kickY || 0);
-    ctx.save();
-    ctx.translate(-camX + kx, -camY + ky);
-
-    // Near buildings + walls
-    for (const w of s.walls) drawWall(ctx, w, s.def.world);
-
-    // Props
-    for (const pr of (s.def.props || [])) drawProp(ctx, pr);
-
-    // Anchors
-    for (const a of s.anchors) drawAnchor(ctx, a, s.wire && s.wire.anchor === a);
-
-    // Hazards
-    for (const h of s.hazards) drawHazard(ctx, h, hc);
-
-    // Checkpoints
-    for (const c of s.checkpoints) drawCheckpoint(ctx, c);
-
-    // Goal
-    drawGoal(ctx, s.def.goal);
-
-    // Wire
-    if (s.wire) drawWire(ctx, s.player, s.wire);
-
-    // Player trail
-    drawTrail(ctx, s.trail);
-
-    // Player / splat
-    if (s.status !== 'dead') drawPlayer(ctx, s.player);
-    else if (s.player.splat) drawSplat(ctx, s.player);
-
-    // Particles
-    for (const pt of s.particles) {
-      ctx.globalAlpha = Math.min(1, pt.life / pt.max);
-      ctx.fillStyle = pt.color;
-      ctx.fillRect(pt.x - pt.size / 2, pt.y - pt.size / 2, pt.size, pt.size);
-    }
-    ctx.globalAlpha = 1;
-
-    ctx.restore();
-    // End world
-
-    // Rain (screen-space so it always feels present)
-    ctx.strokeStyle = PAL.rainLine;
-    ctx.lineWidth = 1;
-    for (const rdp of s.rainDrops) {
-      ctx.beginPath();
-      ctx.moveTo(rdp.x, rdp.y);
-      ctx.lineTo(rdp.x + rdp.vx * 0.03, rdp.y + rdp.len);
-      ctx.stroke();
-    }
-
-    // Vignette
-    const vg = ctx.createRadialGradient(W/2, H/2, W*0.35, W/2, H/2, W*0.72);
-    vg.addColorStop(0, 'transparent');
-    vg.addColorStop(1, PAL.vignette);
-    ctx.fillStyle = vg;
-    ctx.fillRect(0, 0, W, H);
-
-    ctx.restore();
-    // End zoom/shake
-
-    // Slow-mo veil + radial focus
-    if (s.slowmo > 0 && !reduceM) {
-      const t = s.slowmo / SLOWMO_TIME;
-      ctx.fillStyle = `rgba(8, 6, 14, ${t * 0.22})`;
-      ctx.fillRect(0, 0, W, H);
-      const cx = W/2, cy = H/2;
-      const vg2 = ctx.createRadialGradient(cx, cy, W*(0.15 + 0.2*(1-t)), cx, cy, W*0.62);
-      vg2.addColorStop(0, 'transparent');
-      vg2.addColorStop(1, `rgba(90, 10, 30, ${0.5 * t})`);
-      ctx.fillStyle = vg2;
-      ctx.fillRect(0, 0, W, H);
-      // CSS filter color grade
-      const filter = `saturate(${(1 + t * 0.38).toFixed(2)}) hue-rotate(${(-t * 6).toFixed(1)}deg) brightness(${(1 - t * 0.1).toFixed(2)})`;
-      if (ctx.canvas.style.filter !== filter) ctx.canvas.style.filter = filter;
-    } else if (ctx.canvas.style.filter) {
-      ctx.canvas.style.filter = '';
-    }
-
-    // Death flash
-    if (s.flash > 0) {
-      ctx.fillStyle = `rgba(255, 46, 78, ${Math.min(0.42, s.flash)})`;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    // HUD + overlays
-    drawHud(ctx, s, r);
-    drawTip(ctx, s);
-    if (s.status === 'dead' && s.epitaph) drawEpitaph(ctx, s);
-    if (s.status === 'clear') {
-      const a = 0.26 * (1 - s.tStatus / 0.6);
-      ctx.fillStyle = `rgba(111, 252, 242, ${a})`;
-      ctx.fillRect(0, 0, W, H);
-    }
-    if (r.paused && !r.completed) drawPause(ctx);
-    if (r.completed) drawFinish(ctx, r);
-
-    // ── helpers that need world state via closure ──────────────────────
-    function drawFarBuildings(ctx, cx, cy) {
-      ctx.fillStyle = PAL.farBuildings;
-      const paraX = cx * 0.28;
-      const paraY = cy * 0.1;
-      const base = H - 80 + paraY;
-      for (let i = -2; i < 20; i++) {
-        const bx = i * 150 - (paraX % 150);
-        const h = 120 + ((i * 31) % 160);
-        ctx.fillRect(bx, base - h, 120, h);
-        // windows
-        ctx.fillStyle = (i % 4 === 1) ? PAL.windowWarm : PAL.windowCool;
-        for (let y = 0; y < h - 20; y += 22) {
-          for (let x = 8; x < 112; x += 16) {
-            if (((i * 31 + y + x) % 5) < 3) {
-              ctx.globalAlpha = 0.18;
-              ctx.fillRect(bx + x, base - h + 10 + y, 3, 4);
-            }
-          }
-        }
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = PAL.farBuildings;
-      }
-    }
-    function drawMidBuildings(ctx, cx, cy) {
-      ctx.fillStyle = PAL.midBuildings;
-      const paraX = cx * 0.6;
-      const paraY = cy * 0.35;
-      const base = H - 30 + paraY;
-      for (let i = -2; i < 20; i++) {
-        const bx = i * 220 - (paraX % 220);
-        const h = 200 + ((i * 47) % 220);
-        ctx.fillRect(bx, base - h, 170, h);
-        // windows (sharper)
-        for (let y = 0; y < h - 30; y += 26) {
-          for (let x = 10; x < 160; x += 20) {
-            const seed = (i * 47 + y + x) % 7;
-            if (seed < 4) {
-              ctx.fillStyle = seed < 2 ? PAL.windowWarm : PAL.windowCool;
-              ctx.globalAlpha = 0.38;
-              ctx.fillRect(bx + x, base - h + 14 + y, 5, 6);
-            }
-          }
-        }
-        ctx.globalAlpha = 1;
-        // Rooftop trim
-        ctx.fillStyle = PAL.nearBuildings;
-        ctx.fillRect(bx, base - h, 170, 3);
-        ctx.fillStyle = PAL.midBuildings;
-      }
-    }
-
-    function drawWall(ctx, w, world) {
-      // Ground or pillar — render with a front stripe and subtle grain
-      const isGround = w.y >= world.h - 120 && w.w >= world.w - 100;
-      ctx.fillStyle = PAL.nearBuildings;
-      ctx.fillRect(w.x, w.y, w.w, w.h);
-      ctx.fillStyle = isGround ? '#0a1220' : '#122132';
-      ctx.fillRect(w.x, w.y, w.w, 3);
-      if (!isGround) {
-        ctx.fillStyle = '#040810';
-        ctx.fillRect(w.x, w.y + w.h - 3, w.w, 3);
-      }
-    }
-
-    function drawProp(ctx, pr) {
-      if (pr.kind === 'billboard') {
-        // Text stripe on pillar
-        ctx.fillStyle = PAL.windowWarm;
-        ctx.globalAlpha = 0.55;
-        const strips = 3;
-        for (let i = 0; i < strips; i++) {
-          ctx.fillRect(pr.x + 2, pr.y + 12 + i * 24, pr.w - 4, 5);
-        }
-        ctx.globalAlpha = 1;
-        ctx.save();
-        ctx.fillStyle = PAL.windowWarm;
-        ctx.font = '700 10px "Courier New", monospace';
-        ctx.textAlign = 'center';
-        ctx.translate(pr.x + pr.w / 2, pr.y + pr.h / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText(pr.text, 0, 3);
-        ctx.restore();
-      } else if (pr.kind === 'antenna') {
-        ctx.strokeStyle = '#0e1522';
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.moveTo(pr.x, pr.y);
-        ctx.lineTo(pr.x, pr.y - pr.h);
-        ctx.stroke();
-        ctx.fillStyle = PAL.hazard;
-        ctx.beginPath();
-        ctx.arc(pr.x, pr.y - pr.h, 2.2, 0, Math.PI * 2);
-        ctx.fill();
-      } else if (pr.kind === 'moon') {
-        ctx.fillStyle = 'rgba(255, 240, 220, 0.85)';
-        ctx.beginPath();
-        ctx.arc(pr.x, pr.y, pr.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = 'rgba(40, 60, 90, 0.25)';
-        ctx.beginPath();
-        ctx.arc(pr.x - pr.r * 0.3, pr.y - pr.r * 0.2, pr.r * 0.85, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    function drawAnchor(ctx, a, active) {
-      // Idle anchor: dim node + rim; active anchor: bright + pulse
-      const pulse = (a.litT || 0) > 0 ? 1 : 0;
-      if (a.litT > 0) a.litT = Math.max(0, a.litT - rawDt);
-      // Outer halo
-      ctx.fillStyle = active ? 'rgba(255, 74, 106, 0.35)' : 'rgba(80, 120, 160, 0.15)';
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, 12 + pulse * 4, 0, Math.PI * 2);
-      ctx.fill();
-      // Mount pin
-      ctx.strokeStyle = '#1a2838';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(a.x, a.y);
-      ctx.lineTo(a.x, a.y + 6);
-      ctx.stroke();
-      // Body
-      ctx.fillStyle = active ? PAL.anchorActive : PAL.anchorIdle;
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, 4, 0, Math.PI * 2);
-      ctx.fill();
-      // Hot center
-      ctx.fillStyle = active ? PAL.wireSpark : PAL.anchorReady;
-      ctx.beginPath();
-      ctx.arc(a.x, a.y, 1.6, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawHazard(ctx, h, hc) {
-      if (h.type === 'laser') {
-        const cx = h.x + h.w / 2;
-        const intensity = h.lethal ? 1 : h.warning ? 0.35 : 0.15;
-        ctx.strokeStyle = hc ? `rgba(0,255,255,${intensity})` : `rgba(255, 46, 78, ${intensity})`;
-        ctx.lineWidth = h.lethal ? 3 : 1.5;
-        ctx.beginPath();
-        ctx.moveTo(h.x, h.y);
-        ctx.lineTo(h.x + h.w, h.y);
-        ctx.stroke();
-        if (h.lethal) {
-          ctx.strokeStyle = 'rgba(255, 154, 181, 0.5)';
-          ctx.lineWidth = 6;
-          ctx.stroke();
-        }
-        // Emitters at ends
-        ctx.fillStyle = '#2a1818';
-        ctx.fillRect(h.x - 4, h.y - 4, 4, 8);
-        ctx.fillRect(h.x + h.w, h.y - 4, 4, 8);
-        // warning marker
-        if (h.warning || h.lethal) {
-          ctx.fillStyle = h.lethal ? PAL.hazard : PAL.anchorReady;
-          ctx.beginPath();
-          ctx.arc(h.x - 2, h.y, 2, 0, Math.PI * 2);
-          ctx.arc(h.x + h.w + 2, h.y, 2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      } else if (h.type === 'spikes') {
-        ctx.fillStyle = hc ? '#ff00ff' : '#cfd6df';
-        const count = Math.max(3, Math.floor(h.w / 8));
-        const step = h.w / count;
-        for (let i = 0; i < count; i++) {
-          const bx = h.x + i * step;
-          ctx.beginPath();
-          ctx.moveTo(bx, h.y);
-          ctx.lineTo(bx + step / 2, h.y - 14);
-          ctx.lineTo(bx + step, h.y);
-          ctx.closePath();
-          ctx.fill();
-        }
-        ctx.fillStyle = '#2a1818';
-        ctx.fillRect(h.x, h.y - 3, h.w, 3);
-      }
-    }
-
-    function drawCheckpoint(ctx, c) {
-      const pulse = 0.6 + 0.4 * Math.sin(performance.now() / 260);
-      ctx.strokeStyle = c.reached ? PAL.goal : 'rgba(255, 230, 196, 0.4)';
-      ctx.lineWidth = 2;
-      ctx.globalAlpha = c.reached ? pulse * 0.9 : 0.5;
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 24, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = c.reached ? PAL.goal : '#555';
-      ctx.beginPath();
-      ctx.arc(c.x, c.y, 3, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawGoal(ctx, g) {
-      // Neon portal: vertical bars + glow
-      const cx = g.x + g.w / 2;
-      const pulse = 0.6 + 0.4 * Math.sin(performance.now() / 280);
-      ctx.strokeStyle = `rgba(111, 252, 242, ${pulse})`;
-      ctx.lineWidth = 3;
-      ctx.strokeRect(g.x, g.y, g.w, g.h);
-      ctx.strokeStyle = `rgba(111, 252, 242, ${0.25 * pulse})`;
-      ctx.lineWidth = 10;
-      ctx.strokeRect(g.x, g.y, g.w, g.h);
-      ctx.font = '700 10px "Courier New", monospace';
-      ctx.fillStyle = 'rgba(111, 252, 242, 0.85)';
-      ctx.textAlign = 'center';
-      ctx.fillText('OUT', cx, g.y - 10);
-    }
-
-    function drawWire(ctx, p, wire) {
-      // Main wire with glow
-      ctx.strokeStyle = 'rgba(255, 74, 106, 0.35)';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(wire.ax, wire.ay);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      ctx.strokeStyle = PAL.wire;
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.moveTo(wire.ax, wire.ay);
-      ctx.lineTo(p.x, p.y);
-      ctx.stroke();
-      // Sparks at player end
-      ctx.fillStyle = PAL.wireSpark;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, 2.2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawTrail(ctx, trail) {
-      if (trail.length < 2) return;
-      for (let i = 1; i < trail.length; i++) {
-        const alpha = i / trail.length * 0.5;
-        ctx.strokeStyle = `rgba(255, 74, 106, ${alpha})`;
-        ctx.lineWidth = (i / trail.length) * 2.6;
-        ctx.beginPath();
-        ctx.moveTo(trail[i - 1].x, trail[i - 1].y);
-        ctx.lineTo(trail[i].x, trail[i].y);
-        ctx.stroke();
-      }
-    }
-
-    function drawPlayer(ctx, p) {
-      const blink = p.invuln > 0 && (Math.floor(p.invuln * 18) % 2 === 0);
-      if (blink) return;
-      // Body
-      ctx.fillStyle = PAL.player;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, P_R, 0, Math.PI * 2);
-      ctx.fill();
-      // Scarf/streak (trails behind motion)
-      const angle = Math.atan2(p.vy, p.vx || 0.01);
-      ctx.strokeStyle = PAL.hazard;
-      ctx.lineWidth = 3;
-      ctx.beginPath();
-      ctx.moveTo(p.x - Math.cos(angle) * P_R, p.y - Math.sin(angle) * P_R);
-      ctx.lineTo(p.x - Math.cos(angle) * (P_R + 12), p.y - Math.sin(angle) * (P_R + 12));
-      ctx.stroke();
-      // Core highlight
-      ctx.fillStyle = 'rgba(255, 220, 170, 0.85)';
-      ctx.beginPath();
-      ctx.arc(p.x - 1.5, p.y - 1.8, 2, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawSplat(ctx, p) {
-      const s2 = p.splat;
-      const r = 14;
-      ctx.fillStyle = 'rgba(255, 46, 78, 0.35)';
-      ctx.beginPath();
-      ctx.ellipse(s2.x, s2.y, r * 1.2, r * 0.7, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = 'rgba(128, 32, 48, 0.7)';
-      ctx.beginPath();
-      ctx.ellipse(s2.x, s2.y, r * 0.7, r * 0.4, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawHud(ctx, s, r) {
-      const alpha = s.status === 'playing' ? 0.22 : 0.55;
-      ctx.fillStyle = `rgba(0,0,0,${alpha})`;
-      ctx.fillRect(0, 0, W, 20);
-      ctx.font = '600 10px "Courier New", monospace';
-      ctx.textAlign = 'left';
-      ctx.fillStyle = 'rgba(255, 230, 196, 0.92)';
-      ctx.fillText(`${s.def.title.toUpperCase()}  ·  COURSE ${r.courseIdx + 1}/${COURSES.length}`, 10, 14);
-      ctx.textAlign = 'right';
-      ctx.fillStyle = 'rgba(210, 196, 160, 0.8)';
-      ctx.fillText(`${fmtTime(r.elapsed)}  ·  DEATHS ${r.deaths}`, W - 10, 14);
-    }
-
-    function drawTip(ctx, s) {
-      const age = (performance.now() - s.enteredAt) / 1000;
-      if (age > 3.6) return;
-      const alpha = age < 2 ? 0.9 : 0.9 * (1 - (age - 2) / 1.6);
-      if (alpha <= 0) return;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.font = '600 12px "Courier New", monospace';
-      ctx.textAlign = 'center';
-      ctx.fillStyle = '#ffe6c4';
-      ctx.fillText(s.def.tip, W / 2, H - 22);
-      ctx.restore();
-    }
-
-    function drawEpitaph(ctx, s) {
-      const age = s.tStatus;
-      const inT = clamp(age / 0.16, 0, 1);
-      const outT = clamp(1 - (age - 0.25) / 0.18, 0, 1);
-      const alpha = age < 0.25 ? inT : outT;
-      if (alpha <= 0) return;
-      const msg = s.epitaph;
-      ctx.save();
-      ctx.globalAlpha = alpha;
-      ctx.font = 'italic 15px "Lora", Georgia, serif';
-      ctx.textAlign = 'center';
-      const mw = Math.min(W - 80, ctx.measureText(msg).width + 60);
-      const mx = (W - mw) / 2, my = H / 2 - 56;
-      ctx.fillStyle = 'rgba(10, 6, 10, 0.9)';
-      ctx.fillRect(mx, my, mw, 64);
-      ctx.strokeStyle = 'rgba(255, 46, 78, 0.45)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(mx + 0.5, my + 0.5, mw - 1, 63);
-      ctx.font = '700 10px "Courier New", monospace';
-      ctx.fillStyle = '#ff2e4e';
-      ctx.fillText('OFFLINE', W / 2, my + 20);
-      ctx.font = 'italic 14px "Lora", Georgia, serif';
-      ctx.fillStyle = '#e0d6c0';
-      ctx.fillText(msg, W / 2, my + 46);
-      ctx.restore();
-    }
-
-    function drawPause(ctx) {
-      ctx.fillStyle = 'rgba(8, 6, 14, 0.72)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.textAlign = 'center';
-      ctx.font = '700 42px "Lora", Georgia, serif';
-      ctx.fillStyle = '#ffe6c4';
-      ctx.fillText('Paused', W / 2, H / 2 - 8);
-      ctx.font = '600 12px "Courier New", monospace';
-      ctx.fillStyle = '#c9b48a';
-      ctx.fillText('P to resume  ·  R to restart course  ·  H for help  ·  M to mute', W / 2, H / 2 + 22);
-    }
-
-    function drawFinish(ctx, r) {
-      ctx.fillStyle = 'rgba(8, 6, 14, 0.93)';
-      ctx.fillRect(0, 0, W, H);
-      ctx.textAlign = 'center';
-      ctx.font = '700 52px "Lora", Georgia, serif';
-      ctx.fillStyle = '#6ffcf2';
-      ctx.shadowBlur = 20;
-      ctx.shadowColor = '#6ffcf2';
-      ctx.fillText('CLEAR LINE', W / 2, H / 2 - 160);
-      ctx.shadowBlur = 0;
-      const score = Math.max(0, Math.round(1800 - r.deaths * 28 - r.elapsed * 2.2));
-      ctx.font = '600 14px "Courier New", monospace';
-      ctx.fillStyle = '#ffe6c4';
-      ctx.fillText(
-        `TIME ${fmtTime(r.elapsed)}   ·   DEATHS ${r.deaths}   ·   SCORE ${score}`,
-        W / 2, H / 2 - 118
-      );
-      ctx.font = '600 10px "Courier New", monospace';
-      ctx.fillStyle = 'rgba(201, 180, 138, 0.7)';
-      ctx.fillText('COURSE BREAKDOWN', W / 2, H / 2 - 82);
-      const rowH = 24;
-      const startY = H / 2 - 48;
-      const leftX = W / 2 - 180;
-      const rightX = W / 2 + 180;
-      COURSES.forEach((course, i) => {
-        const d = r.courseDeaths[i] || 0;
-        const t = r.courseTimes[i];
-        const y = startY + i * rowH;
-        ctx.textAlign = 'left';
-        ctx.font = '600 13px "Courier New", monospace';
-        ctx.fillStyle = 'rgba(255, 230, 196, 0.82)';
-        ctx.fillText(course.title, leftX, y);
-        ctx.textAlign = 'right';
-        ctx.font = '700 14px "Courier New", monospace';
-        ctx.fillStyle = d === 0 ? PAL.goal
-                      : d <= 3 ? '#ffe6c4'
-                      : d <= 6 ? PAL.anchorReady
-                      : PAL.hazard;
-        ctx.fillText(
-          `${t ? fmtTime(t) : '—    '}    ${String(d).padStart(2, '0')}`,
-          rightX, y
-        );
-      });
-      const best = loadBest();
-      ctx.textAlign = 'center';
-      if (best != null) {
-        ctx.font = '600 10px "Courier New", monospace';
-        ctx.fillStyle = score >= best ? '#ffe6c4' : 'rgba(138, 155, 165, 0.75)';
-        ctx.fillText(
-          score >= best ? `NEW BEST — ${score}` : `BEST ${best}`,
-          W / 2, startY + COURSES.length * rowH + 8
-        );
-      }
-      ctx.font = '600 11px "Courier New", monospace';
-      ctx.fillStyle = '#8a9ba5';
-      ctx.fillText('R to run it back', W / 2, startY + COURSES.length * rowH + 44);
-    }
-  }
+  // ── DOM overlays — the gameplay info that used to be drawn on the 2D
+  // canvas (tip, epitaph, pause, finish) now lives as DOM, matching the
+  // "keep the DOM HUD" directive. Driven entirely by the React `ui` state.
+  const showTip = stateRef.current
+    ? (performance.now() - stateRef.current.enteredAt) / 1000 < 3.6
+    : false;
 
   return (
     <div className="swingwire">
@@ -1524,6 +1674,59 @@ export default function SwingwireGame() {
         className="swingwire-stage"
         style={{ flex: '1 1 0', minHeight: 0, position: 'relative' }}>
         <canvas ref={canvasRef} className="swingwire-canvas" tabIndex={0}/>
+
+        {/* Course tip — fades after ~3.6s; mirrors the old on-canvas tip. */}
+        {showTip && !ui.paused && !ui.completed && ui.status === 'playing' && (
+          <div className="swingwire-overlay swingwire-tip" aria-hidden="true">
+            {COURSES[ui.courseIdx]?.tip}
+          </div>
+        )}
+
+        {/* Death epitaph. */}
+        {ui.status === 'dead' && ui.epitaph && (
+          <div className="swingwire-overlay swingwire-epitaph" role="status">
+            <span className="swingwire-epitaph-tag">OFFLINE</span>
+            <span className="swingwire-epitaph-msg">{ui.epitaph}</span>
+          </div>
+        )}
+
+        {/* Pause veil. */}
+        {ui.paused && !ui.completed && (
+          <div className="swingwire-overlay swingwire-pause">
+            <div className="swingwire-pause-title">Paused</div>
+            <div className="swingwire-pause-sub">
+              P to resume · R to restart course · H for help · M to mute
+            </div>
+          </div>
+        )}
+
+        {/* Finish summary. */}
+        {ui.completed && (
+          <div className="swingwire-overlay swingwire-finish">
+            <div className="swingwire-finish-title">CLEAR LINE</div>
+            <div className="swingwire-finish-stats">
+              TIME {fmtTime(ui.elapsed)} · DEATHS {ui.deaths} · SCORE {ui.score}
+            </div>
+            <div className="swingwire-finish-breakdown">
+              {COURSES.map((course, i) => {
+                const d = runRef.current.courseDeaths[i] || 0;
+                const t = runRef.current.courseTimes[i];
+                return (
+                  <div className="swingwire-finish-row" key={course.id}>
+                    <span>{course.title}</span>
+                    <b>{t ? fmtTime(t) : '—'} · {String(d).padStart(2, '0')}</b>
+                  </div>
+                );
+              })}
+            </div>
+            {ui.best != null && (
+              <div className="swingwire-finish-best">
+                {ui.score >= ui.best ? `NEW BEST — ${ui.score}` : `BEST ${ui.best}`}
+              </div>
+            )}
+            <div className="swingwire-finish-hint">R to run it back</div>
+          </div>
+        )}
       </div>
       <div className="swingwire-hint">
         Hold to fire wire. Release to detach. {COURSES.length} courses, instant respawn.

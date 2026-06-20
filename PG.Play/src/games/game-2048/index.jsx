@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { submitScore } from '../../scoreBus.js';
+import { sfx } from '../../sound.js';
 import Celebration from '../../components/Celebration.jsx';
 
 const SIZE = 4;
@@ -171,8 +172,9 @@ export default function Game2048() {
 
   const tryMove = useCallback((mover) => {
     if (over || celebrating) return;
-    const { grid: moved } = mover(grid);
+    const { grid: moved, gained } = mover(grid);
     if (equal(moved, grid)) return;
+    if (gained > 0) sfx.star();
     const next = addTile(moved);
     setGrid(next);
     // First uncelebrated tier the player has now reached.
@@ -185,6 +187,7 @@ export default function Game2048() {
           return nx;
         });
         setCelebrating(tier);
+        sfx.achievement();
         break;
       }
     }
@@ -195,6 +198,7 @@ export default function Game2048() {
     if (over && score > 0 && submittedRef.current !== score) {
       submittedRef.current = score;
       submitScore('g2048', score);
+      sfx.lose();
     }
   }, [over, score]);
 

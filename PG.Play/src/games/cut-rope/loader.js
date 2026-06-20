@@ -9,10 +9,16 @@ import {
 import { makeWorld } from './physics.js';
 import { PALETTE } from './levels.js';
 import { makeDecor } from './decor.js';
+import { makeAmbient } from './ambient.js';
 
 export function loadLevel(scene, sceneRoot, level) {
   const palette = PALETTE[level.theme];
   const world = makeWorld();
+
+  // Ambient atmosphere — slow-drifting bokeh motes behind the decor.
+  // Purely decorative; ticked from the gameplay loop, never physics.
+  const ambient = makeAmbient(palette);
+  sceneRoot.add(ambient.mesh);
 
   // Diorama decor — per-world accent meshes behind the gameplay plane.
   const decor = makeDecor(level.theme, palette);
@@ -110,7 +116,7 @@ export function loadLevel(scene, sceneRoot, level) {
     sceneRoot.add(tutorial.mesh);
   }
 
-  return { world, anchors, candy, ropes, stars, target, bubbles, blowers, spikes, decor, tutorial, palette };
+  return { world, anchors, candy, ropes, stars, target, bubbles, blowers, spikes, decor, ambient, tutorial, palette };
 }
 
 export function disposeLevel(sceneRoot, lev) {
@@ -132,5 +138,6 @@ export function disposeLevel(sceneRoot, lev) {
   lev.blowers.forEach(drop);
   lev.spikes.forEach(drop);
   if (lev.decor) drop(lev.decor);
+  if (lev.ambient) drop(lev.ambient);
   if (lev.tutorial) drop(lev.tutorial);
 }

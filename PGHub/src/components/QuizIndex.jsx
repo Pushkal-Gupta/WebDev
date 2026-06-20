@@ -3,9 +3,40 @@ import { Link } from 'react-router-dom';
 import { Brain, Sparkles, ArrowRight, ListChecks, Lock, ArrowLeft, X, ChevronDown, Check } from 'lucide-react';
 import { QUIZZES, QUIZZES_BY_TOPIC, TOPIC_LABELS } from '../content/quizzes';
 import { isAiEnabled } from '../lib/ai';
+import ForgeThumb from './ml/forge/ForgeThumb';
 import './QuizIndex.css';
 
 const LazyQuizRunner = lazy(() => import('./QuizRunner'));
+
+// Keyword -> ForgeThumb archetype, so each quiz topic card carries a distinct,
+// topic-related motif. First match wins; specific patterns precede generic ones
+// so e.g. "BFS / shortest path" hits network before any array catch-all.
+const MOTIF_RULES = [
+  [/two.?pointer/i, 'vectors'],
+  [/sliding.?window/i, 'attention'],
+  [/bit|bitmask|xor/i, 'bits'],
+  [/2.?d.?\s*d\.?p|2d.?dp|grid.?dp|range|prefix|interval|knapsack|\bdp\b|dynamic.?prog/i, 'matrix'],
+  [/trie|heap|priority.?queue|\bbst\b|binary.?search.?tree|tree|binary.?indexed|segment/i, 'tree'],
+  [/backtrack|recursion|recursive|permutation|combination|subset/i, 'tree'],
+  [/\bbfs\b|\bdfs\b|breadth|depth.?first|advanced.?graph|shortest.?path|dijkstra|\bmst\b|union.?find|topolog|graph/i, 'network'],
+  [/binary.?search|search/i, 'scatter'],
+  [/geometr|\bgeo\b|coordinate|convex/i, 'field'],
+  [/linked.?list/i, 'field'],
+  [/\bstack\b|monotonic/i, 'bars'],
+  [/\bqueue\b|deque/i, 'cuda'],
+  [/greedy|schedul/i, 'bars'],
+  [/sort/i, 'distribution'],
+  [/math|number.?theory|arithmetic|combinatoric|modul/i, 'rings'],
+  [/string|substring|palindrome|matching|anagram/i, 'heat'],
+  [/hash|hashmap|hash.?table|\bmap\b|\bset\b/i, 'grid'],
+  [/array|matrix|two.?sum/i, 'grid'],
+];
+
+function motifForTopic(name) {
+  const s = String(name || '');
+  for (const [re, motif] of MOTIF_RULES) if (re.test(s)) return motif;
+  return 'cards';
+}
 
 const DIFFICULTY_CLASS = {
   Beginner: 'quiz-pill-beginner',
@@ -74,6 +105,9 @@ export default function QuizIndex() {
       <ul className="quiz-grid">
         {topics.flatMap(t => t.quizzes.map(q => ({ ...q, _topic: t.label }))).map(q => (
           <li key={q.id} className="quiz-card">
+            <div className="quiz-card-thumb">
+              <ForgeThumb seed={q._topic} kind={motifForTopic(q._topic)} label={q._topic} />
+            </div>
             <div className="quiz-card-head">
               <span className="quiz-card-topic">{q._topic}</span>
               <span className={`quiz-pill ${DIFFICULTY_CLASS[q.difficulty] || ''}`}>

@@ -2554,12 +2554,23 @@ svg { display: block; width: 100%; height: 100%; }
 .ember {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: var(--s-3);
   user-select: none;
   width: 100%;
-  max-width: 900px;
+  height: 100%;
+  max-width: none;
   position: relative;
+}
+.ember-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  position: relative;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
 }
 .ember-bar {
   display: flex;
@@ -2575,13 +2586,11 @@ svg { display: block; width: 100%; height: 100%; }
 }
 .ember-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
 .ember-canvas {
-  background: #0a0614;
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
   touch-action: none;
-  image-rendering: pixelated;
 }
 .ember-tip {
   width: 100%;
@@ -2826,11 +2835,10 @@ svg { display: block; width: 100%; height: 100%; }
 .face {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: var(--s-3);
   user-select: none;
   width: 100%;
-  max-width: 900px;
+  height: 100%;
 }
 .face-bar {
   display: flex;
@@ -2844,12 +2852,24 @@ svg { display: block; width: 100%; height: 100%; }
   color: var(--text-mute);
 }
 .face-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
+/* Full-bleed WebGL stage — fills the game shell, capped width, centered.
+   Mirrors the swingwire-stage pattern so the canvas is never a centered
+   intrinsic-size box. */
+.face-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  position: relative;
+}
 .face-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   background: #8bd6ff;
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
   touch-action: none;
 }
 .face-result {
@@ -2858,6 +2878,28 @@ svg { display: block; width: 100%; height: 100%; }
   border-radius: var(--r-pill);
   font-size: 0.9rem;
   font-weight: 600;
+}
+/* FACEPLANT crash stamp — DOM overlay over the wrecked rider. Pops in,
+   rotated, with a heavy outline for the comic punch the 2D canvas had. */
+.face-stamp {
+  position: absolute;
+  top: 34%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-6deg);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 7vw, 4rem);
+  letter-spacing: 0.04em;
+  color: #ff4d6d;
+  -webkit-text-stroke: 4px #0a0d0e;
+  paint-order: stroke fill;
+  pointer-events: none;
+  z-index: 6;
+  animation: face-stamp-pop 0.28s cubic-bezier(0.2, 1.4, 0.4, 1) both;
+}
+@keyframes face-stamp-pop {
+  0% { transform: translate(-50%, -50%) rotate(-6deg) scale(0.4); opacity: 0; }
+  100% { transform: translate(-50%, -50%) rotate(-6deg) scale(1); opacity: 1; }
 }
 .face-hint {
   font-family: var(--font-mono);
@@ -3896,11 +3938,10 @@ svg { display: block; width: 100%; height: 100%; }
 .trace {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: var(--s-3);
   user-select: none;
   width: 100%;
-  max-width: 860px;
+  height: 100%;
 }
 .trace-bar {
   display: flex;
@@ -3914,12 +3955,22 @@ svg { display: block; width: 100%; height: 100%; }
   color: var(--text-mute);
 }
 .trace-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
-.trace-canvas {
-  background: #f3efe8;
+.trace-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  position: relative;
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
+  overflow: hidden;
+  background: #070d18;
+  touch-action: none;
+}
+.trace-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
   touch-action: none;
 }
 .trace-tip {
@@ -3945,7 +3996,7 @@ svg { display: block; width: 100%; height: 100%; }
   gap: var(--s-2);
   user-select: none;
   width: 100%;
-  max-width: 900px;
+  height: 100%;
 }
 .nightshift-bar {
   display: flex;
@@ -3963,8 +4014,10 @@ svg { display: block; width: 100%; height: 100%; }
   background: #0a0e16;
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
   touch-action: none;
 }
 .nightshift-tip {
@@ -4151,7 +4204,7 @@ svg { display: block; width: 100%; height: 100%; }
   animation: slip-pop 0.7s ease-out;
 }
 
-/* Loft Defense (TD) */
+/* Loft Defense (TD) — 3D (Three.js), full-bleed WebGL canvas */
 .loft {
   display: flex;
   flex-direction: column;
@@ -4159,13 +4212,14 @@ svg { display: block; width: 100%; height: 100%; }
   gap: var(--s-3);
   user-select: none;
   width: 100%;
-  max-width: 900px;
+  height: 100%;
 }
 .loft-bar {
   display: flex;
   align-items: center;
   gap: var(--s-4);
   width: 100%;
+  max-width: 1120px;
   font-family: var(--font-mono);
   font-size: 0.72rem;
   letter-spacing: 0.12em;
@@ -4173,12 +4227,21 @@ svg { display: block; width: 100%; height: 100%; }
   color: var(--text-mute);
 }
 .loft-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
-.loft-canvas {
-  background: #6fbf2a;
+.loft-stage {
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  position: relative;
   border-radius: var(--r-lg);
+  overflow: hidden;
   box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
+}
+.loft-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   cursor: crosshair;
   touch-action: none;
 }
@@ -4655,6 +4718,8 @@ svg { display: block; width: 100%; height: 100%; }
   align-items: center;
   gap: var(--s-4);
   user-select: none;
+  width: 100%;
+  height: 100%;
 }
 .hook-bar {
   display: flex;
@@ -4667,12 +4732,22 @@ svg { display: block; width: 100%; height: 100%; }
   color: var(--text-mute);
 }
 .hook-bar b { color: var(--text); font-weight: 700; margin-left: var(--s-1); }
-.hook-canvas {
-  background: linear-gradient(180deg, #ff8ec6 0%, #9b4ff0 100%);
+.hook-stage {
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
-  max-width: 100%;
-  height: auto;
+  overflow: hidden;
+  background: linear-gradient(180deg, #3a1a6e 0%, #8a44d8 55%, #ff8ec6 100%);
+}
+.hook-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   touch-action: none;
 }
@@ -5718,21 +5793,23 @@ svg { display: block; width: 100%; height: 100%; }
 .swingwire-stage {
   position: relative;
   width: 100%;
-  max-width: 1120px;
+  max-width: none;
+  min-height: 360px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow:
+    var(--shadow-lift),
+    0 0 0 1px rgba(255, 74, 106, 0.12) inset;
 }
 .swingwire-canvas {
   background: #0a1323;
   border-radius: var(--r-lg);
-  box-shadow:
-    var(--shadow-lift),
-    0 0 0 1px rgba(255, 74, 106, 0.12) inset;
-  max-width: 100%;
-  width: 100%;
-  height: auto;
   display: block;
+  width: 100%;
+  height: 100%;
   touch-action: none;
   outline: none;
 }
@@ -5806,6 +5883,117 @@ svg { display: block; width: 100%; height: 100%; }
 @media (hover: none) and (pointer: coarse) {
   .swingwire-bar { gap: var(--s-2); font-size: 0.66rem; }
   .swingwire-hint { display: none; }
+}
+
+/* ── 3D in-stage overlays (moved off the old on-canvas HUD) ─────────── */
+.swingwire-overlay {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  font-family: var(--font-mono);
+}
+.swingwire-tip {
+  left: 50%;
+  bottom: var(--s-5);
+  transform: translateX(-50%);
+  color: #ffe6c4;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.8);
+  animation: swingwireFade 0.4s ease;
+  text-align: center;
+  max-width: 90%;
+}
+.swingwire-epitaph {
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-1);
+  background: rgba(10, 6, 10, 0.9);
+  border: 1px solid rgba(255, 46, 78, 0.45);
+  border-radius: var(--r-md);
+  padding: var(--s-3) var(--s-6);
+}
+.swingwire-epitaph-tag {
+  font-size: 0.62rem;
+  letter-spacing: 0.22em;
+  color: #ff2e4e;
+  font-weight: 700;
+}
+.swingwire-epitaph-msg {
+  font-family: var(--font-display, "Lora", Georgia, serif);
+  font-style: italic;
+  font-size: 1rem;
+  color: #e0d6c0;
+}
+.swingwire-pause,
+.swingwire-finish {
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  background: rgba(8, 6, 14, 0.82);
+  text-align: center;
+  padding: var(--s-5);
+}
+.swingwire-finish { background: rgba(8, 6, 14, 0.93); }
+.swingwire-pause-title {
+  font-family: var(--font-display, "Lora", Georgia, serif);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #ffe6c4;
+}
+.swingwire-pause-sub {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: #c9b48a;
+}
+.swingwire-finish-title {
+  font-family: var(--font-display, "Lora", Georgia, serif);
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #6ffcf2;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 20px rgba(111, 252, 242, 0.6);
+}
+.swingwire-finish-stats {
+  font-size: 0.82rem;
+  color: #ffe6c4;
+  letter-spacing: 0.03em;
+}
+.swingwire-finish-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: var(--s-2) 0;
+  min-width: 280px;
+}
+.swingwire-finish-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-5);
+  font-size: 0.78rem;
+  color: rgba(255, 230, 196, 0.82);
+}
+.swingwire-finish-row b { color: #ffe6c4; font-weight: 700; }
+.swingwire-finish-best {
+  font-size: 0.72rem;
+  color: #ffe6c4;
+  letter-spacing: 0.06em;
+}
+.swingwire-finish-hint {
+  font-size: 0.74rem;
+  color: #8a9ba5;
+  margin-top: var(--s-2);
+}
+@keyframes swingwireFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
