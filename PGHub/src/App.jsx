@@ -92,6 +92,7 @@ const MLHub = lazy(() => import('./components/ml/MLHub'));
 const PGForgeHub = lazy(() => import('./components/ml/forge/PGForgeHub'));
 const PGForgePapers = lazy(() => import('./components/ml/forge/PGForgePapers'));
 const PGForgeProjects = lazy(() => import('./components/ml/forge/PGForgeProjects'));
+const PGForgeProjectDetail = lazy(() => import('./components/ml/forge/PGForgeProjectDetail'));
 const PGForgeRoadmaps = lazy(() => import('./components/ml/forge/PGForgeRoadmaps'));
 const PGForgeProblems = lazy(() => import('./components/ml/forge/PGForgeProblems'));
 const PGForgeProblemDetail = lazy(() => import('./components/ml/forge/PGForgeProblemDetail'));
@@ -280,6 +281,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/ml/learn" element={<MLHub />} />
           <Route path="/ml/papers" element={<PGForgePapers />} />
           <Route path="/ml/projects" element={<PGForgeProjects />} />
+          <Route path="/ml/projects/:slug" element={<PGForgeProjectDetail />} />
           <Route path="/ml/roadmaps" element={<PGForgeRoadmaps />} />
           <Route path="/ml/problems" element={<PGForgeProblems />} />
           <Route path="/ml/problems/:slug" element={<PGForgeProblemDetail />} />
@@ -289,7 +291,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/ml/arena" element={<PGForgeArena />} />
           <Route path="/ml/cuda" element={<PGForgeCuda />} />
           <Route path="/ml/cuda/:slug" element={<PGForgeCudaDetail />} />
-          <Route path="/ml/progress" element={<PGForgeProgress />} />
+          <Route path="/ml/progress" element={<PGForgeProgress session={session} />} />
           <Route path="/ml/sheets" element={<PGForgeSheets />} />
           <Route path="/ml/sheets/:slug" element={<PGForgeSheetDetail />} />
           <Route path="/ml/g/:groupSlug" element={<MLGroup />} />

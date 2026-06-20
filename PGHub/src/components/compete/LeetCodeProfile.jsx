@@ -147,7 +147,7 @@ function ChartTip({ tip }) {
   const onRight = tip.x > tip.w * 0.5;
   return (
     <div
-      className="lcp-tip"
+      className="lpf-tip"
       style={{
         left: tip.x,
         top: tip.y,
@@ -155,12 +155,12 @@ function ChartTip({ tip }) {
       }}
       role="status"
     >
-      {tip.title && <span className="lcp-tip-title">{tip.title}</span>}
+      {tip.title && <span className="lpf-tip-title">{tip.title}</span>}
       {tip.rows.map((r, i) => (
-        <span key={i} className="lcp-tip-row">
-          <span className="lcp-tip-dot" style={{ background: r.color }} />
-          <span className="lcp-tip-label">{r.label}</span>
-          <strong className="lcp-tip-val">{r.value}</strong>
+        <span key={i} className="lpf-tip-row">
+          <span className="lpf-tip-dot" style={{ background: r.color }} />
+          <span className="lpf-tip-label">{r.label}</span>
+          <strong className="lpf-tip-val">{r.value}</strong>
         </span>
       ))}
     </div>
@@ -259,10 +259,10 @@ function TopTags({ skills }) {
   return (
     <>
       <HBarChart rows={rows} />
-      <div className="lcp-tag-key">
-        <span className="lcp-tag-key-item"><span className="lcp-tag-key-dot" style={{ background: 'var(--hard)' }} />Advanced</span>
-        <span className="lcp-tag-key-item"><span className="lcp-tag-key-dot" style={{ background: 'var(--medium)' }} />Intermediate</span>
-        <span className="lcp-tag-key-item"><span className="lcp-tag-key-dot" style={{ background: 'var(--easy)' }} />Fundamental</span>
+      <div className="lpf-tag-key">
+        <span className="lpf-tag-key-item"><span className="lpf-tag-key-dot" style={{ background: 'var(--hard)' }} />Advanced</span>
+        <span className="lpf-tag-key-item"><span className="lpf-tag-key-dot" style={{ background: 'var(--medium)' }} />Intermediate</span>
+        <span className="lpf-tag-key-item"><span className="lpf-tag-key-dot" style={{ background: 'var(--easy)' }} />Fundamental</span>
       </div>
     </>
   );
@@ -274,12 +274,12 @@ function RatingSection({ history }) {
   const peak = Math.max(...points.map((p) => p.value));
   const latest = points[points.length - 1].value;
   return (
-    <div className="lcp-chart">
+    <div className="lpf-chart">
       <LineChart series={[{ points, color: 'var(--accent)' }]} area interactive peakLabel />
-      <div className="lcp-chart-readout">
-        <span className="lcp-readout-rating">{Math.round(latest)}</span>
-        <span className="lcp-readout-title">current · peak {Math.round(peak)}</span>
-        <span className="lcp-readout-rank">{points.length} contests</span>
+      <div className="lpf-chart-readout">
+        <span className="lpf-readout-rating">{Math.round(latest)}</span>
+        <span className="lpf-readout-title">current · peak {Math.round(peak)}</span>
+        <span className="lpf-readout-rank">{points.length} contests</span>
       </div>
     </div>
   );
@@ -304,46 +304,46 @@ function ProfileBody({ data }) {
   ];
 
   return (
-    <div className="lcp-result">
-      <div className="lcp-id">
+    <div className="lpf-result">
+      <div className="lpf-id">
         {data.avatar
-          ? <img className="lcp-avatar" src={data.avatar} alt="" />
-          : <div className="lcp-avatar lcp-avatar-fallback">{(data.username || '?').slice(0, 1).toUpperCase()}</div>}
-        <div className="lcp-id-text">
-          <span className="lcp-id-name">{data.realName || data.username}</span>
-          <span className="lcp-id-handle">@{data.username}</span>
+          ? <img className="lpf-avatar" src={data.avatar} alt="" />
+          : <div className="lpf-avatar lpf-avatar-fallback">{(data.username || '?').slice(0, 1).toUpperCase()}</div>}
+        <div className="lpf-id-text">
+          <span className="lpf-id-name">{data.realName || data.username}</span>
+          <span className="lpf-id-handle">@{data.username}</span>
         </div>
-        {data.badge && <span className="lcp-badge">{data.badge}</span>}
+        {data.badge && <span className="lpf-badge">{data.badge}</span>}
       </div>
 
-      <div className="lcp-stats">
+      <div className="lpf-stats">
         {stats.map((s) => (
           <StatCard key={s.label} icon={s.icon} label={s.label} value={s.value} hue={s.hue} big={s.big} />
         ))}
       </div>
 
-      <div className="lcp-grid">
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><TrendingUp size={14} /> Rating over time</h3>
+      <div className="lpf-grid">
+        <section className="lpf-card lpf-card-wide">
+          <h3 className="lpf-panel-title"><TrendingUp size={14} /> Rating over time</h3>
           <RatingSection history={history} />
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><PieChart size={14} /> Solved split</h3>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><PieChart size={14} /> Solved split</h3>
           {submit
             ? <Donut segments={solvedSegments(submit)} total={num(submit.total)} caption="solved" ariaLabel="Solved problems by difficulty" />
             : <div className="chk-empty">No solved-problem data.</div>}
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><BarChart3 size={14} /> Solved vs total</h3>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><BarChart3 size={14} /> Solved vs total</h3>
           <SolvedByDifficulty submit={submit} totals={data.totalQuestions} />
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><Target size={14} /> Beats percentile</h3>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><Target size={14} /> Beats percentile</h3>
           {beats && DIFFS.some((d) => num(beats[d]) != null) ? (
-            <div className="lcp-gauges">
+            <div className="lpf-gauges">
               {DIFFS.map((d) => (
                 <GaugeRing
                   key={d}
@@ -358,46 +358,46 @@ function ProfileBody({ data }) {
           ) : <div className="chk-empty">No percentile data.</div>}
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><Send size={14} /> Submissions by difficulty</h3>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><Send size={14} /> Submissions by difficulty</h3>
           <SubmissionsByDifficulty submit={submit} />
         </section>
 
-        <section className="lcp-card lcp-card-activity">
-          <h3 className="lcp-panel-title"><Flame size={14} /> Activity</h3>
-          <div className="lcp-gauges">
+        <section className="lpf-card lpf-card-activity">
+          <h3 className="lpf-panel-title"><Flame size={14} /> Activity</h3>
+          <div className="lpf-gauges">
             <GaugeRing value={num(act?.streak)} max={30} hue="var(--warning)" icon={Flame} caption="Day streak" goalLabel="of 30" />
             <GaugeRing value={num(act?.totalActiveDays)} max={365} hue="var(--accent)" icon={CalendarDays} caption="Active days" goalLabel="of 365" />
           </div>
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><Code2 size={14} /> Languages</h3>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><Code2 size={14} /> Languages</h3>
           <LanguageBars languages={data.languages} />
         </section>
 
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><Tags size={14} /> Top tags by solved</h3>
+        <section className="lpf-card lpf-card-wide">
+          <h3 className="lpf-panel-title"><Tags size={14} /> Top tags by solved</h3>
           <TopTags skills={data.skills} />
         </section>
 
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><Trophy size={14} /> Recent contests</h3>
-          <div className="lcp-contests">
+        <section className="lpf-card lpf-card-wide">
+          <h3 className="lpf-panel-title"><Trophy size={14} /> Recent contests</h3>
+          <div className="lpf-contests">
             {recent.length === 0 && <div className="chk-empty">No attended contests.</div>}
             {recent.map((h) => (
-              <div key={h.index} className="lcp-contest-row">
-                <div className="lcp-contest-main">
-                  <span className="lcp-contest-name">{h.title || h.slug || `Contest ${h.index + 1}`}</span>
-                  <span className="lcp-contest-meta">
+              <div key={h.index} className="lpf-contest-row">
+                <div className="lpf-contest-main">
+                  <span className="lpf-contest-name">{h.title || h.slug || `Contest ${h.index + 1}`}</span>
+                  <span className="lpf-contest-meta">
                     {h.ranking != null && <>rank #{h.ranking.toLocaleString()}</>}
                     {h.problemsSolved != null && h.totalProblems != null && (
                       <> · {h.problemsSolved}/{h.totalProblems} solved</>
                     )}
                   </span>
                 </div>
-                <span className="lcp-contest-rating">{h.rating != null ? Math.round(h.rating) : '—'}</span>
-                <span className={`lcp-contest-delta${h.delta == null ? '' : h.delta >= 0 ? ' up' : ' down'}`}>
+                <span className="lpf-contest-rating">{h.rating != null ? Math.round(h.rating) : '—'}</span>
+                <span className={`lpf-contest-delta${h.delta == null ? '' : h.delta >= 0 ? ' up' : ' down'}`}>
                   {h.delta == null
                     ? <Minus size={12} />
                     : h.delta >= 0
@@ -417,16 +417,16 @@ function ProfileBody({ data }) {
 
 function CompareIdentity({ data, color }) {
   return (
-    <div className="lcp-cmp-id">
-      <span className="lcp-cmp-swatch" style={{ background: color }} />
+    <div className="lpf-cmp-id">
+      <span className="lpf-cmp-swatch" style={{ background: color }} />
       {data.avatar
-        ? <img className="lcp-avatar" src={data.avatar} alt="" />
-        : <div className="lcp-avatar lcp-avatar-fallback">{(data.username || '?').slice(0, 1).toUpperCase()}</div>}
-      <div className="lcp-id-text">
-        <span className="lcp-id-name">{data.realName || data.username}</span>
-        <span className="lcp-id-handle">@{data.username}</span>
+        ? <img className="lpf-avatar" src={data.avatar} alt="" />
+        : <div className="lpf-avatar lpf-avatar-fallback">{(data.username || '?').slice(0, 1).toUpperCase()}</div>}
+      <div className="lpf-id-text">
+        <span className="lpf-id-name">{data.realName || data.username}</span>
+        <span className="lpf-id-handle">@{data.username}</span>
       </div>
-      {data.badge && <span className="lcp-badge">{data.badge}</span>}
+      {data.badge && <span className="lpf-badge">{data.badge}</span>}
     </div>
   );
 }
@@ -470,8 +470,8 @@ function CommonContestsTable({ a, b }) {
   const rows = commonContests(a, b);
   if (rows.length === 0) return <div className="chk-empty">No common contests.</div>;
   return (
-    <div className="lcp-common" role="table" aria-label="Contests both profiles attended">
-      <div className="lcp-common-head" role="row">
+    <div className="lpf-common" role="table" aria-label="Contests both profiles attended">
+      <div className="lpf-common-head" role="row">
         <span role="columnheader">Contest</span>
         <span role="columnheader">A rank</span>
         <span role="columnheader">B rank</span>
@@ -479,8 +479,8 @@ function CommonContestsTable({ a, b }) {
         <span role="columnheader">B solved</span>
       </div>
       {rows.map((r, i) => (
-        <div key={i} className="lcp-common-row" role="row">
-          <span className="lcp-common-name" role="cell">{r.title}</span>
+        <div key={i} className="lpf-common-row" role="row">
+          <span className="lpf-common-name" role="cell">{r.title}</span>
           <span role="cell" style={{ color: CMP_A }}>{r.ha.ranking != null ? `#${r.ha.ranking.toLocaleString()}` : '—'}</span>
           <span role="cell" style={{ color: CMP_B }}>{r.hb.ranking != null ? `#${r.hb.ranking.toLocaleString()}` : '—'}</span>
           <span role="cell">{r.ha.problemsSolved != null ? `${r.ha.problemsSolved}/${r.ha.totalProblems ?? '?'}` : '—'}</span>
@@ -543,40 +543,40 @@ function metricWinner(m, a, b) {
 
 function Scoreboard({ a, b, tally, headline }) {
   return (
-    <div className="lcp-board">
-      <div className="lcp-board-top">
-        <div className="lcp-board-side lcp-board-a">
-          <span className="lcp-board-dot" style={{ background: CMP_A }} />
-          <span className="lcp-board-handle">@{a.username}</span>
+    <div className="lpf-board">
+      <div className="lpf-board-top">
+        <div className="lpf-board-side lpf-board-a">
+          <span className="lpf-board-dot" style={{ background: CMP_A }} />
+          <span className="lpf-board-handle">@{a.username}</span>
         </div>
-        <div className="lcp-board-score">
-          <span className="lcp-board-tally" style={{ color: CMP_A }}>{tally.a}</span>
-          <span className="lcp-board-dash">–</span>
-          <span className="lcp-board-tally" style={{ color: CMP_B }}>{tally.b}</span>
+        <div className="lpf-board-score">
+          <span className="lpf-board-tally" style={{ color: CMP_A }}>{tally.a}</span>
+          <span className="lpf-board-dash">–</span>
+          <span className="lpf-board-tally" style={{ color: CMP_B }}>{tally.b}</span>
         </div>
-        <div className="lcp-board-side lcp-board-b">
-          <span className="lcp-board-handle">@{b.username}</span>
-          <span className="lcp-board-dot" style={{ background: CMP_B }} />
+        <div className="lpf-board-side lpf-board-b">
+          <span className="lpf-board-handle">@{b.username}</span>
+          <span className="lpf-board-dot" style={{ background: CMP_B }} />
         </div>
       </div>
-      <div className="lcp-board-headline"><Swords size={14} /> {headline}</div>
-      <div className="lcp-board-chips">
+      <div className="lpf-board-headline"><Swords size={14} /> {headline}</div>
+      <div className="lpf-board-chips">
         {H2H_METRICS.map((m) => {
           const { win, av, bv } = metricWinner(m, a, b);
           const winColor = win === 'a' ? CMP_A : win === 'b' ? CMP_B : 'var(--text-dim)';
           return (
-            <div key={m.key} className="lcp-chip">
-              <span className="lcp-chip-label">{m.label}</span>
-              <span className="lcp-chip-vals">
-                <span className={win === 'a' ? 'lcp-chip-lead' : ''} style={win === 'a' ? { color: CMP_A } : undefined}>
+            <div key={m.key} className="lpf-chip">
+              <span className="lpf-chip-label">{m.label}</span>
+              <span className="lpf-chip-vals">
+                <span className={win === 'a' ? 'lpf-chip-lead' : ''} style={win === 'a' ? { color: CMP_A } : undefined}>
                   {av == null ? '—' : m.fmt(av)}
                 </span>
-                <span className="lcp-chip-sep">vs</span>
-                <span className={win === 'b' ? 'lcp-chip-lead' : ''} style={win === 'b' ? { color: CMP_B } : undefined}>
+                <span className="lpf-chip-sep">vs</span>
+                <span className={win === 'b' ? 'lpf-chip-lead' : ''} style={win === 'b' ? { color: CMP_B } : undefined}>
                   {bv == null ? '—' : m.fmt(bv)}
                 </span>
               </span>
-              <span className="lcp-chip-bar" style={{ background: winColor }} />
+              <span className="lpf-chip-bar" style={{ background: winColor }} />
             </div>
           );
         })}
@@ -591,21 +591,21 @@ function Scoreboard({ a, b, tally, headline }) {
 function StackedRow({ row, color, handle, max, move, clear }) {
   const fillPct = max > 0 ? (row.total / max) * 100 : 0;
   return (
-    <div className="lcp-stack-row">
-      <div className="lcp-stack-head">
-        <span className="lcp-stack-dot" style={{ background: color }} />
-        <span className="lcp-stack-handle">@{handle}</span>
-        <span className="lcp-stack-total">{row.total.toLocaleString()}</span>
+    <div className="lpf-stack-row">
+      <div className="lpf-stack-head">
+        <span className="lpf-stack-dot" style={{ background: color }} />
+        <span className="lpf-stack-handle">@{handle}</span>
+        <span className="lpf-stack-total">{row.total.toLocaleString()}</span>
       </div>
-      <div className="lcp-stack-track" role="img" aria-label={`Solved split for ${handle}`}>
-        <div className="lcp-stack-fill" style={{ width: `${fillPct.toFixed(2)}%` }}>
+      <div className="lpf-stack-track" role="img" aria-label={`Solved split for ${handle}`}>
+        <div className="lpf-stack-fill" style={{ width: `${fillPct.toFixed(2)}%` }}>
           {row.segs.map((s) => {
             const segPct = row.total > 0 ? (s.value / row.total) * 100 : 0;
             if (segPct <= 0) return null;
             return (
               <div
                 key={s.key}
-                className="lcp-stack-seg"
+                className="lpf-stack-seg"
                 style={{ width: `${segPct.toFixed(2)}%`, background: s.hue }}
                 onMouseMove={(e) => move(e, {
                   title: `@${handle} · ${s.key}`,
@@ -617,10 +617,10 @@ function StackedRow({ row, color, handle, max, move, clear }) {
           })}
         </div>
       </div>
-      <div className="lcp-stack-legend">
+      <div className="lpf-stack-legend">
         {row.segs.map((s) => (
-          <span key={s.key} className="lcp-stack-leg">
-            <span className="lcp-stack-leg-dot" style={{ background: s.hue }} />{s.key} {s.value.toLocaleString()}
+          <span key={s.key} className="lpf-stack-leg">
+            <span className="lpf-stack-leg-dot" style={{ background: s.hue }} />{s.key} {s.value.toLocaleString()}
           </span>
         ))}
       </div>
@@ -638,7 +638,7 @@ function StackedDifficulty({ a, b }) {
   const rb = rowFor(b);
   const max = Math.max(1, ra.total, rb.total);
   return (
-    <div className="lcp-stack" ref={ref}>
+    <div className="lpf-stack" ref={ref}>
       <StackedRow row={ra} color={CMP_A} handle={a.username} max={max} move={move} clear={clear} />
       <StackedRow row={rb} color={CMP_B} handle={b.username} max={max} move={move} clear={clear} />
       <ChartTip tip={tip} />
@@ -658,7 +658,7 @@ function BeatsGauges({ a, b }) {
     return { dash: `${(frac * C).toFixed(1)} ${C.toFixed(1)}`, C };
   };
   return (
-    <div className="lcp-beats" ref={ref}>
+    <div className="lpf-beats" ref={ref}>
       {DIFFS.map((d) => {
         const av = num(a.beats?.[d]);
         const bv = num(b.beats?.[d]);
@@ -667,7 +667,7 @@ function BeatsGauges({ a, b }) {
         return (
           <div
             key={d}
-            className="lcp-beat-cell"
+            className="lpf-beat-cell"
             onMouseMove={(e) => move(e, {
               title: `${d} percentile`,
               rows: [
@@ -680,12 +680,12 @@ function BeatsGauges({ a, b }) {
             <svg viewBox="0 0 100 100" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${d} percentile: ${a.username} ${av ?? '—'}, ${b.username} ${bv ?? '—'}`}>
               <circle cx="50" cy="50" r={R_OUT} fill="none" stroke="var(--hover-box)" strokeWidth="6" />
               <circle cx="50" cy="50" r={R_IN} fill="none" stroke="var(--hover-box)" strokeWidth="6" />
-              <circle cx="50" cy="50" r={R_OUT} fill="none" stroke={CMP_A} strokeWidth="6" strokeLinecap="round" strokeDasharray={ao.dash} transform="rotate(-90 50 50)" className="lcp-beat-arc" />
-              <circle cx="50" cy="50" r={R_IN} fill="none" stroke={CMP_B} strokeWidth="6" strokeLinecap="round" strokeDasharray={bi.dash} transform="rotate(-90 50 50)" className="lcp-beat-arc" />
-              <text x="50" y="47" textAnchor="middle" className="lcp-beat-a" fill={CMP_A}>{av == null ? '—' : `${av.toFixed(0)}`}</text>
-              <text x="50" y="62" textAnchor="middle" className="lcp-beat-b" fill={CMP_B}>{bv == null ? '—' : `${bv.toFixed(0)}`}</text>
+              <circle cx="50" cy="50" r={R_OUT} fill="none" stroke={CMP_A} strokeWidth="6" strokeLinecap="round" strokeDasharray={ao.dash} transform="rotate(-90 50 50)" className="lpf-beat-arc" />
+              <circle cx="50" cy="50" r={R_IN} fill="none" stroke={CMP_B} strokeWidth="6" strokeLinecap="round" strokeDasharray={bi.dash} transform="rotate(-90 50 50)" className="lpf-beat-arc" />
+              <text x="50" y="47" textAnchor="middle" className="lpf-beat-a" fill={CMP_A}>{av == null ? '—' : `${av.toFixed(0)}`}</text>
+              <text x="50" y="62" textAnchor="middle" className="lpf-beat-b" fill={CMP_B}>{bv == null ? '—' : `${bv.toFixed(0)}`}</text>
             </svg>
-            <span className="lcp-beat-cap" style={{ color: DIFF_HUES[d] }}>{d}</span>
+            <span className="lpf-beat-cap" style={{ color: DIFF_HUES[d] }}>{d}</span>
           </div>
         );
       })}
@@ -701,7 +701,7 @@ function TagDumbbell({ rows, handleA, handleB }) {
   const [active, setActive] = useState(null);
   const max = Math.max(1, ...rows.flatMap((r) => [r.a, r.b]));
   return (
-    <div className="lcp-dumb" ref={ref}>
+    <div className="lpf-dumb" ref={ref}>
       {rows.map((r) => {
         const aPct = (r.a / max) * 100;
         const bPct = (r.b / max) * 100;
@@ -712,7 +712,7 @@ function TagDumbbell({ rows, handleA, handleB }) {
         return (
           <div
             key={r.key}
-            className={`lcp-dumb-row${isActive ? ' active' : ''}`}
+            className={`lpf-dumb-row${isActive ? ' active' : ''}`}
             onMouseMove={(e) => {
               setActive(r.key);
               move(e, {
@@ -725,19 +725,19 @@ function TagDumbbell({ rows, handleA, handleB }) {
             }}
             onMouseLeave={() => { setActive(null); clear(); }}
           >
-            <span className="lcp-dumb-label" title={r.label}>{r.label}</span>
-            <div className="lcp-dumb-track">
-              <svg viewBox="0 0 100 12" width="100%" preserveAspectRatio="none" className="lcp-dumb-svg" aria-hidden="true">
+            <span className="lpf-dumb-label" title={r.label}>{r.label}</span>
+            <div className="lpf-dumb-track">
+              <svg viewBox="0 0 100 12" width="100%" preserveAspectRatio="none" className="lpf-dumb-svg" aria-hidden="true">
                 <line x1="0" y1="6" x2="100" y2="6" stroke="var(--hover-box)" strokeWidth="1.5" />
                 <line x1={lo} y1="6" x2={hi} y2="6" stroke="var(--border)" strokeWidth="3" strokeLinecap="round" />
-                <circle cx={bPct} cy="6" r={isActive ? 5 : aLead ? 3.4 : 4.4} fill={CMP_B} className="lcp-dumb-dot" />
-                <circle cx={aPct} cy="6" r={isActive ? 5 : aLead ? 4.4 : 3.4} fill={CMP_A} className="lcp-dumb-dot" />
+                <circle cx={bPct} cy="6" r={isActive ? 5 : aLead ? 3.4 : 4.4} fill={CMP_B} className="lpf-dumb-dot" />
+                <circle cx={aPct} cy="6" r={isActive ? 5 : aLead ? 4.4 : 3.4} fill={CMP_A} className="lpf-dumb-dot" />
               </svg>
             </div>
-            <span className="lcp-dumb-vals">
-              <span style={{ color: CMP_A }} className={aLead ? 'lcp-dumb-lead' : ''}>{r.a}</span>
-              <span className="lcp-dumb-sep">/</span>
-              <span style={{ color: CMP_B }} className={!aLead ? 'lcp-dumb-lead' : ''}>{r.b}</span>
+            <span className="lpf-dumb-vals">
+              <span style={{ color: CMP_A }} className={aLead ? 'lpf-dumb-lead' : ''}>{r.a}</span>
+              <span className="lpf-dumb-sep">/</span>
+              <span style={{ color: CMP_B }} className={!aLead ? 'lpf-dumb-lead' : ''}>{r.b}</span>
             </span>
           </div>
         );
@@ -836,7 +836,7 @@ function CompareRatingChart({ ptsA, ptsB, handleA, handleB }) {
   );
 
   return (
-    <div className="lcp-cmp-line" ref={ref}>
+    <div className="lpf-cmp-line" ref={ref}>
       <svg
         viewBox={`0 0 ${CR_VB_W} ${CR_VB_H}`}
         width="100%"
@@ -895,65 +895,65 @@ function CompareView({ a, b }) {
   }
 
   return (
-    <div className="lcp-result">
+    <div className="lpf-result">
       <Scoreboard a={a} b={b} tally={tally} headline={headline} />
 
-      <div className="lcp-cmp-ids">
+      <div className="lpf-cmp-ids">
         <CompareIdentity data={a} color={CMP_A} />
         <CompareIdentity data={b} color={CMP_B} />
       </div>
 
       {/* Uniform top-row analytics cards — every card equal size via the same
           grid track + align-items: stretch, no per-card width overrides. */}
-      <div className="lcp-cmp-grid">
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><BarChart3 size={14} /> Solved by difficulty</h3>
+      <div className="lpf-cmp-grid">
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><BarChart3 size={14} /> Solved by difficulty</h3>
           <StackedDifficulty a={a} b={b} />
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><Target size={14} /> Beats percentile</h3>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><Target size={14} /> Beats percentile</h3>
           <BeatsGauges a={a} b={b} />
           <Legend items={[{ color: CMP_A, label: `@${a.username}` }, { color: CMP_B, label: `@${b.username}` }]} />
         </section>
 
-        <section className="lcp-card">
-          <h3 className="lcp-panel-title"><PieChart size={14} /> Solved split</h3>
-          <div className="lcp-donuts">
-            <div className="lcp-donut-cell">
-              <div className="lcp-donut-head"><span className="lcp-donut-swatch" style={{ background: CMP_A }} /><span className="lcp-donut-name">@{a.username}</span></div>
+        <section className="lpf-card">
+          <h3 className="lpf-panel-title"><PieChart size={14} /> Solved split</h3>
+          <div className="lpf-donuts">
+            <div className="lpf-donut-cell">
+              <div className="lpf-donut-head"><span className="lpf-donut-swatch" style={{ background: CMP_A }} /><span className="lpf-donut-name">@{a.username}</span></div>
               <Donut segments={solvedSegments(a.submitStats)} total={num(a.submitStats?.total)} caption="solved" ariaLabel={`Solved split for ${a.username}`} />
             </div>
-            <div className="lcp-donut-cell">
-              <div className="lcp-donut-head"><span className="lcp-donut-swatch" style={{ background: CMP_B }} /><span className="lcp-donut-name">@{b.username}</span></div>
+            <div className="lpf-donut-cell">
+              <div className="lpf-donut-head"><span className="lpf-donut-swatch" style={{ background: CMP_B }} /><span className="lpf-donut-name">@{b.username}</span></div>
               <Donut segments={solvedSegments(b.submitStats)} total={num(b.submitStats?.total)} caption="solved" ariaLabel={`Solved split for ${b.username}`} />
             </div>
           </div>
         </section>
       </div>
 
-      <div className="lcp-grid">
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><TrendingUp size={14} /> Rating over time</h3>
+      <div className="lpf-grid">
+        <section className="lpf-card lpf-card-wide">
+          <h3 className="lpf-panel-title"><TrendingUp size={14} /> Rating over time</h3>
           {ptsA.length === 0 && ptsB.length === 0
             ? <div className="chk-empty">No attended contests to plot yet.</div>
             : (
-              <div className="lcp-chart">
+              <div className="lpf-chart">
                 <CompareRatingChart ptsA={ptsA} ptsB={ptsB} handleA={a.username} handleB={b.username} />
                 <Legend items={[{ color: CMP_A, label: `@${a.username}` }, { color: CMP_B, label: `@${b.username}` }]} />
               </div>
             )}
         </section>
 
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><Tags size={14} /> Tags by solved</h3>
+        <section className="lpf-card lpf-card-wide">
+          <h3 className="lpf-panel-title"><Tags size={14} /> Tags by solved</h3>
           {tagRows.length === 0
             ? <div className="chk-empty">No tag data on either side.</div>
             : <TagDumbbell rows={tagRows} handleA={a.username} handleB={b.username} />}
         </section>
 
-        <section className="lcp-card lcp-card-wide">
-          <h3 className="lcp-panel-title"><Trophy size={14} /> Common contests</h3>
+        <section className="lpf-card lpf-card-wide">
+          <h3 className="lpf-panel-title"><Trophy size={14} /> Common contests</h3>
           <CommonContestsTable a={a} b={b} />
         </section>
       </div>
@@ -1004,12 +1004,12 @@ export default function LeetCodeProfile() {
   const oneEmpty = mode === 'compare' && (handleA || handleB) && (!handleA || !handleB);
 
   return (
-    <div className="lcp-wrap">
-      <div className="lcp-modes" role="tablist" aria-label="Lookup mode">
+    <div className="lpf-wrap">
+      <div className="lpf-modes" role="tablist" aria-label="Lookup mode">
         <button
           role="tab"
           aria-selected={mode === 'single'}
-          className={`lcp-mode${mode === 'single' ? ' active' : ''}`}
+          className={`lpf-mode${mode === 'single' ? ' active' : ''}`}
           onClick={() => setMode('single')}
         >
           <User size={14} /> Single
@@ -1017,7 +1017,7 @@ export default function LeetCodeProfile() {
         <button
           role="tab"
           aria-selected={mode === 'compare'}
-          className={`lcp-mode${mode === 'compare' ? ' active' : ''}`}
+          className={`lpf-mode${mode === 'compare' ? ' active' : ''}`}
           onClick={() => setMode('compare')}
         >
           <Users size={14} /> Compare
@@ -1026,11 +1026,11 @@ export default function LeetCodeProfile() {
 
       {mode === 'single' ? (
         <>
-          <form className="lcp-search" onSubmit={submitSingle}>
-            <div className="lcp-input-box">
-              <Search size={15} className="lcp-input-icon" />
+          <form className="lpf-search" onSubmit={submitSingle}>
+            <div className="lpf-input-box">
+              <Search size={15} className="lpf-input-icon" />
               <input
-                className="lcp-input"
+                className="lpf-input"
                 type="text"
                 placeholder="LeetCode username"
                 value={input}
@@ -1040,14 +1040,14 @@ export default function LeetCodeProfile() {
                 autoCorrect="off"
               />
             </div>
-            <button className="lcp-btn" type="submit" disabled={!input.trim() || single.isLoading}>
-              {single.isLoading ? <Loader2 size={15} className="lcp-spin" /> : <Search size={15} />}
+            <button className="lpf-btn" type="submit" disabled={!input.trim() || single.isLoading}>
+              {single.isLoading ? <Loader2 size={15} className="lpf-spin" /> : <Search size={15} />}
               Look up
             </button>
           </form>
 
           {singleFallback && (
-            <div className="lcp-note">
+            <div className="lpf-note">
               <Info size={14} />
               {single.data?.notFound
                 ? <>No LeetCode user <strong>{handle}</strong> found — showing a sample profile below.</>
@@ -1061,11 +1061,11 @@ export default function LeetCodeProfile() {
         </>
       ) : (
         <>
-          <form className="lcp-search lcp-search-compare" onSubmit={submitCompare}>
-            <div className="lcp-input-box">
-              <Search size={15} className="lcp-input-icon" />
+          <form className="lpf-search lpf-search-compare" onSubmit={submitCompare}>
+            <div className="lpf-input-box">
+              <Search size={15} className="lpf-input-icon" />
               <input
-                className="lcp-input"
+                className="lpf-input"
                 type="text"
                 placeholder="Ex: hy_34"
                 value={inputA}
@@ -1075,11 +1075,11 @@ export default function LeetCodeProfile() {
                 autoCorrect="off"
               />
             </div>
-            <span className="lcp-vs">vs</span>
-            <div className="lcp-input-box">
-              <Search size={15} className="lcp-input-icon" />
+            <span className="lpf-vs">vs</span>
+            <div className="lpf-input-box">
+              <Search size={15} className="lpf-input-icon" />
               <input
-                className="lcp-input"
+                className="lpf-input"
                 type="text"
                 placeholder="Ex: sb_03"
                 value={inputB}
@@ -1090,24 +1090,24 @@ export default function LeetCodeProfile() {
               />
             </div>
             <button
-              className="lcp-btn"
+              className="lpf-btn"
               type="submit"
               disabled={(!inputA.trim() && !inputB.trim()) || cmpLoading}
             >
-              {cmpLoading ? <Loader2 size={15} className="lcp-spin" /> : <Swords size={15} />}
+              {cmpLoading ? <Loader2 size={15} className="lpf-spin" /> : <Swords size={15} />}
               Compare
             </button>
           </form>
 
           {oneEmpty && (
-            <div className="lcp-note">
+            <div className="lpf-note">
               <Info size={14} />
               Enter a handle on both sides for a full head-to-head — the empty side shows a sample for now.
             </div>
           )}
 
           {(failA || failB) && (
-            <div className="lcp-note">
+            <div className="lpf-note">
               <Info size={14} />
               {failA && failB
                 ? <>Neither handle resolved — showing sample profiles for both sides.</>
@@ -1131,18 +1131,18 @@ export default function LeetCodeProfile() {
 // Animated placeholder grid mirroring the dashboard layout while data loads.
 function LoadingSkeleton({ label }) {
   return (
-    <div className="lcp-skeleton" aria-busy="true" aria-label={label}>
-      <div className="lcp-skel-stats">
-        {[0, 1, 2, 3, 4].map((i) => <div key={i} className="lcp-skel-tile" />)}
+    <div className="lpf-skeleton" aria-busy="true" aria-label={label}>
+      <div className="lpf-skel-stats">
+        {[0, 1, 2, 3, 4].map((i) => <div key={i} className="lpf-skel-tile" />)}
       </div>
-      <div className="lcp-skel-grid">
-        <div className="lcp-skel-card lcp-skel-wide" />
-        <div className="lcp-skel-card" />
-        <div className="lcp-skel-card" />
-        <div className="lcp-skel-card" />
-        <div className="lcp-skel-card" />
+      <div className="lpf-skel-grid">
+        <div className="lpf-skel-card lpf-skel-wide" />
+        <div className="lpf-skel-card" />
+        <div className="lpf-skel-card" />
+        <div className="lpf-skel-card" />
+        <div className="lpf-skel-card" />
       </div>
-      <div className="lcp-skel-foot"><Loader2 size={16} className="lcp-spin" /> {label}</div>
+      <div className="lpf-skel-foot"><Loader2 size={16} className="lpf-spin" /> {label}</div>
     </div>
   );
 }

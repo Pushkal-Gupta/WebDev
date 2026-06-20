@@ -27,7 +27,7 @@ function hash(str) {
 const MOTIFS = [
   'vectors', 'matrix', 'descent', 'attention', 'network', 'distribution',
   'entropy', 'wave', 'diffusion', 'orbit', 'cuda', 'paper', 'bits',
-  'scatter', 'bars', 'field', 'rings', 'tree', 'heat', 'cards',
+  'scatter', 'bars', 'field', 'rings', 'tree', 'heat', 'chain', 'grid', 'cards',
 ];
 
 // Keyword -> motif. First match wins; order matters (specific before generic).
@@ -218,12 +218,13 @@ function Motif({ name, c1, c2 }) {
         </g>
       );
     case 'bars':
+      // Sorted ascending bars — reads as an array / sorting motif.
       return (
         <g>
           <line x1="14" y1="66" x2="106" y2="66" className="ft-axis" />
-          {[26, 44, 30, 54, 38, 60, 48].map((h, i) => (
+          {[14, 22, 30, 38, 46, 54, 62].map((h, i) => (
             <rect key={i} x={18 + i * 13} y={66 - h} width="9" height={h} rx="1.5"
-              fill={i % 2 ? c2 : c1} opacity={0.55 + (i % 3) * 0.15} />
+              fill={i % 2 ? c2 : c1} opacity={0.5 + (i / 7) * 0.45} />
           ))}
         </g>
       );
@@ -275,6 +276,38 @@ function Motif({ name, c1, c2 }) {
             return (
               <rect key={`${r}-${col}`} x={16 + col * 15} y={16 + r * 12} width="14" height="11" rx="1"
                 fill={v > 0.5 ? c1 : c2} opacity={0.2 + v * 0.7} />
+            );
+          }))}
+        </g>
+      );
+    case 'chain':
+      // Linked list: circular nodes connected left-to-right by arrowed edges.
+      return (
+        <g>
+          {[20, 50, 80].map((x) => (
+            <line key={`l${x}`} x1={x + 9} y1="40" x2={x + 21} y2="40"
+              stroke={c2} strokeWidth="2.5" markerEnd="url(#ft-a2)" />
+          ))}
+          {[20, 50, 80, 110].map((x, i) => (
+            <g key={`n${x}`}>
+              <circle cx={x} cy="40" r="9"
+                fill={i === 3 ? 'none' : c1} stroke={i === 3 ? c2 : 'none'}
+                strokeWidth="2" strokeDasharray={i === 3 ? '3 3' : undefined}
+                opacity={i === 3 ? 0.7 : 0.9 - i * 0.12} />
+            </g>
+          ))}
+        </g>
+      );
+    case 'grid':
+      // 2D grid / board: clean lattice of equal cells with a couple highlighted.
+      return (
+        <g>
+          {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4].map((col) => {
+            const on = (r === 1 && col === 1) || (r === 2 && col === 3);
+            return (
+              <rect key={`${r}-${col}`} x={20 + col * 16} y={16 + r * 13} width="14" height="11" rx="2"
+                fill={on ? c1 : 'none'} stroke={c2} strokeWidth="1.5"
+                opacity={on ? 0.9 : 0.5} />
             );
           }))}
         </g>

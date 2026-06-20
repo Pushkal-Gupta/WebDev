@@ -441,4 +441,4 @@
   text-transform: uppercase;
   transition: background var(--t);
 }
-.account-logout-btn:hover { background: rgba(239, 68, 68, 0.08); }
+.account-logout-btn:hover { background: color-mix(in srgb, var(--hard) 8%, transparent); }

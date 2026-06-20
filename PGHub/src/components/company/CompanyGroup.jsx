@@ -64,7 +64,7 @@ export default function CompanyGroup() {
           <p className="comp-empty-sub">No companies in this group yet.</p>
         </div>
       ) : (
-        <div className="comp-grid comp-sections">
+        <div className="comp-grid comp-group-members">
           {members.map((c) => (
             <Link key={c.slug} to={`/company/${c.slug}`} className="comp-card">
               <div className="comp-card-head">

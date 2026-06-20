@@ -220,6 +220,193 @@ export const ARCHITECTURES = {
       { key: 'out', label: 'Softmax', sub: 'output vocabulary', kind: 'output', lane: 'right' },
     ],
   },
+
+  dqn: {
+    title: 'Deep Q-Network',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Stacked Frames', sub: 'last 4 grayscale screens', kind: 'input' },
+      { key: 1, label: 'Conv Q-Network', sub: 'pixels -> Q(s, a)', kind: 'conv' },
+      { key: 3, label: 'Epsilon-Greedy', sub: 'exploit or explore', kind: 'flow' },
+      { key: 4, label: 'Replay Buffer', sub: 'sample past transitions', kind: 'op' },
+      { key: 2, label: 'TD Target', sub: 'r + gamma max Q_target', kind: 'output' },
+    ],
+    skips: [{ from: 4, to: 1, label: 'replay batch' }],
+  },
+
+  gpt3: {
+    title: 'GPT-3 In-Context',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Prompt + Examples', sub: 'task described in text', kind: 'input' },
+      { key: 1, label: 'Decoder-only Transformer', sub: '175B params, L layers', kind: 'attention', repeat: 'dec' },
+      { key: 2, label: 'Next-Token Logits', sub: 'distribution over vocab', kind: 'dense' },
+      { key: 3, label: 'Sample Completion', sub: 'feed each token back', kind: 'output' },
+    ],
+  },
+
+  gru: {
+    title: 'Gated Recurrent Unit',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Input  x_t  +  h_{t-1}', sub: 'token and prior state', kind: 'input' },
+      { key: 1, label: 'Reset / Update Gates', sub: 'sigmoid gating', kind: 'op' },
+      { key: 2, label: 'Candidate State', sub: 'tanh of reset-gated history', kind: 'flow' },
+      { key: 3, label: 'New Hidden  h_t', sub: 'interpolate by update gate', kind: 'output' },
+    ],
+  },
+
+  attention: {
+    title: 'Bahdanau Attention',
+    orientation: 'vertical',
+    blocks: [
+      { key: 'enc', label: 'BiRNN Encoder', sub: 'annotation per source word', kind: 'conv' },
+      { key: 'attn', label: 'Alignment Scores', sub: 'score(s_{t-1}, h_j)', kind: 'attention' },
+      { key: 'attn', label: 'Softmax Weights', sub: 'attention distribution', kind: 'norm', repeat: 'ctx' },
+      { key: 'attn', label: 'Context Vector', sub: 'weighted sum of states', kind: 'op', repeat: 'ctx' },
+      { key: 'dec', label: 'Decoder Step', sub: 'emit next target token', kind: 'output' },
+    ],
+  },
+
+  layernorm: {
+    title: 'Layer Normalization',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Feature Vector', sub: 'one token / example', kind: 'input' },
+      { key: 1, label: 'Per-Example Stats', sub: 'mean / var over features', kind: 'op' },
+      { key: 2, label: 'Normalize', sub: '(x - mu) / sqrt(var + e)', kind: 'norm' },
+      { key: 3, label: 'Gain & Bias', sub: 'gamma * x_hat + beta', kind: 'output' },
+    ],
+  },
+
+  clip: {
+    title: 'CLIP',
+    orientation: 'vertical',
+    blocks: [
+      { key: 'imgenc', label: 'Image Encoder', sub: 'ViT / ResNet -> embedding', kind: 'conv' },
+      { key: 'textenc', label: 'Text Encoder', sub: 'Transformer -> embedding', kind: 'attention' },
+      { key: 'align', label: 'Shared Projection', sub: 'L2-normalized space', kind: 'op' },
+      { key: 'align', label: 'Contrastive Loss', sub: 'pull matched, push rest', kind: 'loss', repeat: 'train' },
+      { key: 'shared', label: 'Zero-Shot Match', sub: 'score image vs prompts', kind: 'output' },
+    ],
+  },
+
+  lora: {
+    title: 'LoRA Adapter',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Frozen Weight  W', sub: 'pretrained, no grad', kind: 'input' },
+      { key: 1, label: 'Low-Rank  B x A', sub: 'rank-r update, dW', kind: 'op' },
+      { key: 2, label: 'Train A and B Only', sub: '~10000x fewer params', kind: 'dense' },
+      { key: 3, label: 'Merge for Inference', sub: 'W + BA, zero latency', kind: 'output' },
+    ],
+    skips: [{ from: 0, to: 3, label: 'residual W' }],
+  },
+
+  instructgpt: {
+    title: 'RLHF Pipeline',
+    orientation: 'vertical',
+    blocks: [
+      { key: 'demo', label: 'Demonstrations', sub: 'human-written answers', kind: 'input' },
+      { key: 'sft', label: 'Supervised Fine-Tune', sub: 'imitate the demos', kind: 'dense' },
+      { key: 'rm', label: 'Reward Model', sub: 'fit to ranked outputs', kind: 'op' },
+      { key: 'ppo', label: 'PPO Policy', sub: 'maximize reward', kind: 'output' },
+      { key: 'ppo', label: 'KL Penalty', sub: 'stay near SFT model', kind: 'norm', repeat: 'rl' },
+    ],
+  },
+
+  chinchilla: {
+    title: 'Compute-Optimal Scaling',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Fixed Compute Budget', sub: 'C FLOPs available', kind: 'input' },
+      { key: 1, label: 'Sweep Size vs Tokens', sub: 'train many (N, D) points', kind: 'op' },
+      { key: 2, label: 'Fit Scaling Law', sub: '~20 tokens per param', kind: 'dense' },
+      { key: 3, label: 'Compute-Optimal Model', sub: 'smaller N, larger D', kind: 'output' },
+    ],
+  },
+
+  alphago: {
+    title: 'AlphaGo',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Board State', sub: 'input planes', kind: 'input' },
+      { key: 1, label: 'Policy Network', sub: 'propose moves', kind: 'conv' },
+      { key: 2, label: 'Value Network', sub: 'estimate win prob', kind: 'op' },
+      { key: 3, label: 'MCTS Search', sub: 'guided rollouts', kind: 'flow' },
+      { key: 4, label: 'Best Move', sub: 'strongest statistics', kind: 'output' },
+    ],
+    skips: [{ from: 4, to: 1, label: 'self-play update' }],
+  },
+
+  gpt1: {
+    title: 'GPT (Generative Pre-Training)',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Raw Text Corpus', sub: 'unlabeled', kind: 'input' },
+      { key: 1, label: 'Decoder Pre-Training', sub: 'masked self-attention LM', kind: 'attention', repeat: 'dec' },
+      { key: 2, label: 'Task as Token Stream', sub: 'delimiter-wrapped input', kind: 'embed' },
+      { key: 3, label: 'Linear Task Head', sub: 'fine-tune end to end', kind: 'output' },
+    ],
+  },
+
+  lstm: {
+    title: 'LSTM Cell',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'x_t  +  h_{t-1}  +  c_{t-1}', sub: 'input and memory', kind: 'input' },
+      { key: 1, label: 'Forget / Input Gates', sub: 'sigmoid + tanh candidate', kind: 'op' },
+      { key: 2, label: 'Update Cell  c_t', sub: 'f * c + i * g', kind: 'flow' },
+      { key: 3, label: 'Output Gate  ->  h_t', sub: 'o * tanh(c_t)', kind: 'output' },
+    ],
+    skips: [{ from: 0, to: 2, label: 'cell memory path' }],
+  },
+
+  flashattention: {
+    title: 'FlashAttention',
+    orientation: 'vertical',
+    blocks: [
+      { key: 'tile', label: 'Tile Q, K, V', sub: 'blocks fit on-chip SRAM', kind: 'input' },
+      { key: 'tile', label: 'Stream KV Tiles', sub: 'loop, never load all keys', kind: 'flow', repeat: 'loop' },
+      { key: 'softmax', label: 'Online Softmax', sub: 'running max + denominator', kind: 'op', repeat: 'loop' },
+      { key: 'softmax', label: 'Rescale Accumulator', sub: 'correct earlier partials', kind: 'norm', repeat: 'loop' },
+      { key: 'out', label: 'Write Output Once', sub: 'no N x N matrix in HBM', kind: 'output' },
+    ],
+  },
+
+  'switch-transformer': {
+    title: 'Switch Transformer (MoE)',
+    orientation: 'vertical',
+    blocks: [
+      { key: 'route', label: 'Router', sub: 'score every expert', kind: 'input' },
+      { key: 'route', label: 'Top-1 Select', sub: 'one expert per token', kind: 'flow', repeat: 'moe' },
+      { key: 'expert', label: 'Expert FFN', sub: 'sparse, flat compute', kind: 'dense', repeat: 'moe' },
+      { key: 'expert', label: 'Load-Balance Loss', sub: 'even expert usage', kind: 'norm' },
+      { key: 'out', label: 'Weighted Output', sub: 'scale by router prob', kind: 'output' },
+    ],
+  },
+
+  glove: {
+    title: 'GloVe',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Co-occurrence Matrix', sub: 'global word-word counts', kind: 'input' },
+      { key: 1, label: 'Fit  w . w  =  log X', sub: 'dot product to log count', kind: 'op' },
+      { key: 2, label: 'Weighted Least Squares', sub: 'damp rare / cap frequent', kind: 'dense' },
+      { key: 3, label: 'Word Vectors', sub: 'linear analogy offsets', kind: 'output' },
+    ],
+  },
+
+  t5: {
+    title: 'T5 Text-to-Text',
+    orientation: 'vertical',
+    blocks: [
+      { key: 0, label: 'Task Prefix + Input', sub: 'translate: / summarize:', kind: 'input' },
+      { key: 1, label: 'Span-Corruption Pretrain', sub: 'mask and regenerate spans', kind: 'embed' },
+      { key: 2, label: 'Encoder-Decoder', sub: 'one shared objective', kind: 'attention', repeat: 'enc' },
+      { key: 3, label: 'Generated Text Answer', sub: 'fine-tune or multitask', kind: 'output' },
+    ],
+  },
 };
 
 const ALIASES = {

@@ -12,12 +12,12 @@ export default function PGForgeCudaDetail() {
 
   return (
     <div className="forge-cd">
-      <nav className="forge-cd-crumb">
-        <Link to="/ml" className="forge-cd-crumb-link">PGForge</Link>
+      <nav className="forge-crumb">
+        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
         <ChevronRight size={13} />
-        <Link to="/ml/cuda" className="forge-cd-crumb-link">CUDA kernels</Link>
+        <Link to="/ml/cuda" className="forge-crumb-link">CUDA kernels</Link>
         <ChevronRight size={13} />
-        <span className="forge-cd-crumb-cur">{lesson.title}</span>
+        <span className="forge-crumb-cur">{lesson.title}</span>
       </nav>
 
       <div className="forge-cd-meta">

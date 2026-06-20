@@ -191,6 +191,19 @@ When you find an ASCII diagram that should be a real picture:
 
 26 ASCII sections currently in `mlContent.js` — convert them to viz components on each content pass.
 
+## Architecture / model diagrams are VERTICAL ONLY (HARD — repeated bug, the user HATES horizontal)
+
+**Every architecture, pipeline, or model-flow diagram flows TOP-TO-BOTTOM. Never left-to-right.** The user has flagged this multiple times. A transformer / encoder-decoder / CNN / VAE / diffusion / RLHF block stack drawn horizontally (Encoder on the left, Decoder on the right; `x → weight → weight → +` across the page; stages 1·2·3·4 in a row) is a bug, not a style choice.
+
+Rules:
+- Model blocks stack in a single centered **vertical column**, data flowing downward, arrows pointing down. The canonical, correct implementation is `src/components/ml/forge/ArchitectureDiagram.jsx` (single column, `V_GAP` spacing, straight-down trunk edges, residual/skip arrows in the left gutter, `xN` brackets on the right). Match it.
+- Encoder/decoder pairs: stack the encoder column above the decoder column, or place them as two vertical lanes side-by-side — but each lane still flows top-to-bottom. Never a left-encoder / right-decoder horizontal split.
+- Multi-stage pipelines (tokenize → embed → attention → …, or RLHF demo → SFT → RM → PPO): vertical list of stages, each connected by a downward arrow. Not a horizontal row of boxes.
+- Applies to BOTH the big right-rail diagrams AND the small inline card / bespoke SVGs. The `PaperDiagram` family in `PGForgePapers.jsx` (Transformer / Resnet / Seq2Seq / Vae / Diffusion / Vit / Clip / Rlhf / Flow) were the offenders — all drawn horizontally.
+- Scatter plots, 2D projections, number lines, heatmaps, and genuinely-2D math figures (PCA / SVD / eigenvector / kernel plots) are NOT architecture diagrams — horizontal axes there are fine. The rule is about *model / pipeline block flows*.
+
+When you find a horizontal architecture diagram: rebuild it vertical (reuse `ArchitectureDiagram` with `pgForgeArchData.js` block specs where possible, rather than hand-rolling another bespoke SVG), verify it fills its container width with no horizontal scrollbar, then move on.
+
 ## Interactive · Visual · Intuitive (HARD — three words that govern all learning content)
 
 Every learning page must hit all three:

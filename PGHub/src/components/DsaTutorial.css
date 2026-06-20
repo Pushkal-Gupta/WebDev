@@ -1185,7 +1185,7 @@
 /* Note — sky tint (3% bg) */
 .tut-callout-note {
   border-left-color: var(--hue-sky);
-  background: rgba(73, 168, 220, 0.03);
+  background: color-mix(in srgb, var(--hue-sky) 4%, transparent);
 }
 .tut-callout-note .tut-callout-icon,
 .tut-callout-note .tut-callout-label { color: var(--hue-sky); }
@@ -1194,7 +1194,7 @@
 .tut-callout-tip,
 .tut-callout-insight {
   border-left-color: var(--hue-mint, var(--easy));
-  background: rgba(34, 197, 94, 0.03);
+  background: color-mix(in srgb, var(--hue-mint, var(--easy)) 4%, transparent);
 }
 .tut-callout-tip .tut-callout-icon,
 .tut-callout-insight .tut-callout-icon,
@@ -1207,7 +1207,7 @@
 .tut-callout-warning,
 .tut-callout-caution {
   border-left-color: var(--warning, var(--hard));
-  background: rgba(239, 68, 68, 0.03);
+  background: color-mix(in srgb, var(--warning, var(--hard)) 4%, transparent);
 }
 .tut-callout-warning .tut-callout-icon,
 .tut-callout-caution .tut-callout-icon,

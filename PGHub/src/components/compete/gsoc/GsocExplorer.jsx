@@ -34,11 +34,6 @@ export default function GsocExplorer() {
     });
   }, [cat, query]);
 
-  const stats = useMemo(() => {
-    const ideas = GSOC_ORGS.reduce((a, o) => a + o.sampleIdeas.length, 0);
-    return { orgs: GSOC_ORGS.length, cats: GSOC_CATEGORIES.length, ideas };
-  }, []);
-
   const toggle = (slug) =>
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -52,11 +47,6 @@ export default function GsocExplorer() {
       <header className="gsoc-head">
         <h1 className="gsoc-title"><GitBranch size={24} /> GSoC Explorer</h1>
         <p className="gsoc-sub">Mentoring organizations and their project ideas — filter by domain, search by tech, open a card for sample tasks.</p>
-        <div className="gsoc-stats">
-          <span><strong>{stats.orgs}</strong> organizations</span>
-          <span><strong>{stats.cats}</strong> domains</span>
-          <span><strong>{stats.ideas}</strong> project ideas</span>
-        </div>
       </header>
 
       <section className="gsoc-timeline" aria-label="Program timeline">

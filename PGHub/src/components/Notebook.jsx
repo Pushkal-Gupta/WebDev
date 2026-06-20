@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Notebook as NotebookIcon, Search, X, ArrowLeft } from 'lucide-react';
+import { Search, X, ArrowLeft } from 'lucide-react';
 import { useUserProgress, useProblemsCompact } from '../lib/queries';
 import ConfidenceMeter from './vault/ConfidenceMeter';
 import './vault/vault.css';
@@ -43,8 +43,7 @@ export default function Notebook({ session }) {
     return (
       <div className="nb-container">
         <header className="nb-header">
-          <span className="nb-eyebrow"><NotebookIcon size={11} /> Notebook</span>
-          <h1 className="nb-title">All your problem notes, one place</h1>
+          <h1 className="nb-title">Notes</h1>
           <p className="nb-sub">
             Sign in to see every note you've written, searchable and grouped by problem.
           </p>
@@ -76,10 +75,9 @@ export default function Notebook({ session }) {
         <span className="vault-crumbs-current">Notes</span>
       </nav>
       <header className="nb-header">
-        <span className="nb-eyebrow"><NotebookIcon size={11} /> Notebook</span>
-        <h1 className="nb-title">Notes you've written</h1>
+        <h1 className="nb-title">Notes</h1>
         <p className="nb-sub">
-          <strong>{noteRows.length}</strong> problem{noteRows.length === 1 ? '' : 's'} with notes, newest first.
+          Every note you've written on a problem — <strong>{noteRows.length}</strong> with notes, newest first.
         </p>
       </header>
 

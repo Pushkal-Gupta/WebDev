@@ -65,5 +65,45 @@ Partitioned so agents own disjoint files (no collisions). Each: audit → FIX in
 - Full theme audit across all 8 palettes (static hardcoded-color check — last run PASSED token completeness; ~14 P2 tints remain).
 - Final build-green + lint-0 across the whole app.
 
+---
+
+## PASS 1 — APPLIED (2026-06-20, 9-agent area wave, build green + lint 0)
+
+Disjoint-file fleet; each agent audited → fixed in place → eslint+build clean. Documented so these never silently regress.
+
+**Real bugs fixed (not just style):**
+- **Search not working (#1)** — root cause was the `pgcode_problem_page` RPC: number-bucket paging stayed active during a search, dropping matches outside the current number range. Fix in `scripts/migrate-58-search-number-bucket-fix.sql` — bucket paging only when `p_sort='number'` AND no search; with a search it position-pages the matched set and returns `maxNumber:0` (client `numberMode` auto-flips off, no client change). **STILL NEEDS CENTRAL DB APPLY** (see below).
+- **Constraints shown twice (#2)** — `Workspace.jsx`: LC-imported rows bake `Constraints:` into description HTML AND the dedicated `.ws-constraints` block rendered it again. Added `descHasConstraints` regex gate (`!descHasConstraints &&`). Curated problems still show the dedicated block.
+- **CSS class collision** — `LeetCodeProfile` shared 7 `.lcp-*` names with `LcProblemsBrowser` (different rules, same names → load-order corruption). Re-namespaced to `.lpf-*` (358 refs). Collision-free now.
+- **Scroll-clip bug** — `Companies.css` used `min-height:calc(100vh-104px)` (clips against `#root overflow:hidden`) → `height:calc(100vh-100px)`.
+- **Back-nav viz glitch (#7)** — `MLLesson.jsx`: added `scrollRef` + `useEffect([lessonSlug,pillarSlug])` scroll-to-top so off-screen `VizBlock` IntersectionObservers re-fire (no more stuck "Loading visualization…").
+- **Context-aware back-nav (#5, partial)** — `MLLesson/MLPillar/MLGroup`: `resolveFrom(?from=)` → vault/forge/default crumb target+label; `location.search` threaded through internal links. **Remaining:** `PGVaultHub.jsx:45` "ML Progress" card → `/ml/progress` (routes to `PGForgeProgress.jsx`, NOT MLLesson) needs `?from=vault` + the context-back applied in `PGForgeProgress.jsx`.
+- **How-it-works disclosure (#9)** — `LeetCodeAnalytics.jsx`: dropped the collapse gate; renders open under `.lca-section-title`. Removed dead `showMath`/`ChevronDown`.
+
+**Consistency/style fixes:**
+- Uniform card heights (CTA pinned `margin-top:auto`, `grid-auto-rows:1fr`/`stretch`): Vault, Learn (`viz-cat/member/result-grid`), CompeteHub, Companies (`.comp-card`), Roadmaps (`.rmx-card`), all PGForge grids, PGForgeProjects, ConferencesSection.
+- Hardcoded color → token: Courses/DsaTutorial callout tints → `color-mix`; SettingsModal (4 rgb + added missing `.error` style), LoginModal hover → `color-mix(var(--hard))`; Math card border/bg → house `--border`/`--surface`.
+- One-line-intro rule: RoadmapsIndex pitch intro trimmed; Gsoc/Kaggle/LcLlmBenchmark stats-triple headers removed (+dead useMemos/CSS); ExternalContestsCalendar builder-voice empty state rewritten.
+- Modal parity: LoginModal + SettingsModal got Escape-to-close (matching CommandPalette).
+- Breadcrumbs unified: all PGForge bespoke `forge-*-crumb*` → canonical `forge-crumb`.
+- PGForgeProgress dashboard rows `auto auto 1fr` → fills viewport, no empty band.
+
+**STILL OPEN after Pass 1 (carry to later passes):**
+- migrate-58 DB apply (search fix is code-complete, DB not yet patched).
+- Logos dark-mode (#4 BrandLogo light-chip) — re-dispatched.
+- Projects detail route (#6) — verify PGForgeProjects cards link to a real `/ml/projects/:slug`.
+- Dup headings re-scan (#8), notifications panel (#10), theme P2 triples (#11), card visuals (#12), My-Lists add-to-list (#13).
+
+---
+
+## HARD RULES added from live review (never re-break)
+- **Architecture / model diagrams are VERTICAL ONLY** — top-to-bottom block flow, never left-to-right. Flagged by the user multiple times ("how many times do you need to be told"). Canonical impl: `ArchitectureDiagram.jsx`. Offenders were the bespoke horizontal `PaperDiagram` SVGs in `PGForgePapers.jsx`. Full rule now in CLAUDE.md ("Architecture / model diagrams are VERTICAL ONLY"). Scatter/PCA/SVD/heatmap math figures are exempt (not architecture).
+
+## PASS 2 — feedback batch 2026-06-20 (papers + diagrams + problem animation)
+1. **Papers steps do nothing** — `/papers` (PGForgePapers) steps only highlight an arch block; clicking "Tokenization" leads nowhere meaningful. TensorTonic decomposes each paper into an implement-it experience with theory + an interactive widget + description. FIX: each step needs a real **description/explanation** rendered in the detail panel (expand the active step into a theory paragraph + code), and where a matching PGForge problem exists, link the step to it. Not just a one-line `detail`.
+2. **Architecture diagram flow animation** — animate `ArchitectureDiagram` to show data flowing DOWN the vertical stack (a pulse traveling the trunk edges + sequential block activation). Respect `prefers-reduced-motion`.
+3. **ML problem animations need major professional work** — the 200+ `ml/viz/*` components (esp. the attention/transformer/tokenization family: AttentionStepViz, AttentionHeatmapViz, multi-head, BPETokenizerViz) must hit TensorTonic-grade animated polish — smooth transitions, staged reveals, professional motion, live readouts. Currently many are static/rough.
+4. **Horizontal→vertical sweep** — rebuild the bespoke `PaperDiagram` SVGs (Transformer/Resnet/Seq2Seq/Vae/Diffusion/Vit/Clip/Rlhf/Flow) vertical, OR give every paper `pgForgeArchData` so the vertical `ArchitectureDiagram` renders instead.
+
 ## Parallel (non-UI) lane
 - **Test-case grow drive** — relaunch from `/PGHub/`: `node scripts/bulk-grow-test-cases.js --max 250 --target 50 --resume`. ~103 problems grown, ~2000+ cases added; ~99% of problems are growable (only ~1.3% SQL/async excluded). Judge0 free-tier rate-limits it — a dedicated Judge0 key is the real accelerator.

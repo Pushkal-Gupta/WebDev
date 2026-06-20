@@ -108,10 +108,9 @@ export default function ExternalContestsCalendar() {
     return (
       <div className="ctx-empty">
         <CalendarPlus size={30} className="ctx-empty-icon" />
-        <h2 className="ctx-empty-title">No external contests loaded yet</h2>
+        <h2 className="ctx-empty-title">No contests on the calendar yet</h2>
         <p className="ctx-empty-sub">
-          Apply <code>migrate-50-external-contests.sql</code> and run{' '}
-          <code>scripts/seed-external-contests.mjs</code> to populate the calendar.
+          Upcoming rounds across LeetCode, Codeforces, AtCoder and more land here as platforms announce them.
         </p>
       </div>
     );

@@ -5,17 +5,35 @@ import { useContests } from '../../lib/queries';
 import ForgeThumb from '../ml/forge/ForgeThumb';
 import './Contests.css';
 
-// Map the contest's flavour (name + difficulty) to a fitting ForgeThumb motif;
-// fall back to 'auto' so the seed-hash spreads the rest across distinct motifs.
+// Map the contest's topic (name + description) to a fitting ForgeThumb motif so
+// the picture matches the content (Linked List Night -> chain, Tree Tour ->
+// tree, Graph Grind -> network). Keyword-matched, specific-before-generic.
+// General/mixed contests fall back to 'network' (varied nodes+edges), never a
+// random seed-hash or a bare grid.
+const CONTEST_TOPIC_RULES = [
+  [/linked.?list|pointer|sentinel|dummy.?node|fast.?slow/i, 'chain'],
+  [/\bbst\b|binary.?search.?tree|\bheap\b|priority.?queue|segment.?tree|fenwick|binary.?indexed|trie|\btree\b|hierarch/i, 'tree'],
+  [/graph|union.?find|disjoint|topolog|shortest|dijkstra|bellman|\bbfs\b|\bdfs\b|\bmst\b|spanning|network|traversal/i, 'network'],
+  [/backtrack|recursion|recursive|permutation|combination|subset|divide.?and.?conquer/i, 'tree'],
+  [/\bdp\b|dynamic.?prog|knapsack|subsequence|memo|tabulation|\bgrid\b|\b2d\b|matrix|interval/i, 'matrix'],
+  [/two.?pointer/i, 'vectors'],
+  [/sliding.?window/i, 'attention'],
+  [/prefix.?sum|range.?query|difference.?array/i, 'matrix'],
+  [/bit.?manip|bitmask|\bxor\b|\bbit\b/i, 'bits'],
+  [/string|substring|palindrome|anagram|parsing|\bkmp\b|rabin|pattern.?match/i, 'bits'],
+  [/math|number.?theory|prime|modular|\bgcd\b|combinatoric|arithmetic|geometr|coordinate|convex/i, 'scatter'],
+  [/\bstack\b|monotonic|greedy|schedul/i, 'bars'],
+  [/\bqueue\b|deque/i, 'cuda'],
+  [/\bhash\b|hashmap|hash.?table|\bmap\b|\bset\b/i, 'heat'],
+  [/sort|search|binary.?search|scan/i, 'bars'],
+  [/speed|sprint|round|weekly|daily|timed|epoch|cycle|loop/i, 'rings'],
+  [/array|sequence/i, 'bars'],
+];
+
 function contestThumbKind(c) {
-  const text = `${c.name || ''} ${c.description || ''}`.toLowerCase();
-  if (/graph|tree|network|shortest|path|dijkstra/.test(text)) return 'network';
-  if (/\bdp\b|dynamic|knapsack|subsequence|matrix/.test(text)) return 'matrix';
-  if (/slid|window|array|two.?pointer|prefix|subarray/.test(text)) return 'bars';
-  if (/search|binary|sort|scan/.test(text)) return 'scatter';
-  if (/string|hash|trie/.test(text)) return 'bits';
-  if (/speed|sprint|round|weekly|daily|timed/.test(text)) return 'rings';
-  return 'auto';
+  const text = `${c.name || ''} ${c.description || ''}`;
+  for (const [re, motif] of CONTEST_TOPIC_RULES) if (re.test(text)) return motif;
+  return 'network';
 }
 
 function fmtDuration(min) {
@@ -45,7 +63,7 @@ export default function ContestsIndex() {
   return (
     <div className="ctx-container">
       <header className="ctx-header">
-        <h1 className="ctx-title"><span style={{ color: 'var(--text-dim)', fontSize: '0.6em', opacity: 0.55, fontWeight: 600 }}>PG</span>Arena</h1>
+        <h1 className="ctx-title"><span className="ctx-brand">PG</span>Arena</h1>
         <p className="ctx-sub">
           Virtual ICPC-style problem sets — start whenever, the clock runs while you solve.
         </p>

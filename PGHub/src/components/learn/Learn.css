@@ -1895,6 +1895,23 @@
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem;
+  /* Center the visual and clip any SVG that tries to overflow sideways, so the
+     diagram fits the card instead of bleeding past it (no horizontal scroll).
+     Bounded height keeps the stage from dominating the page or leaving a tall
+     dead band: it grows with content but never past ~58vh. */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  overflow-x: hidden;
+  min-height: 320px;
+  max-height: 58vh;
+}
+/* Let the hero child size to the stage width without forcing its own scroll. */
+.viz-detail-stage > * {
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
 }
 
 .viz-detail-section {
@@ -2074,8 +2091,10 @@
 .viz-cat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-  align-items: start;
+  gap: 1.1rem;
+  /* stretch → every card in a row is the same height (no ragged gaps under
+     shorter cards); the CTA is pinned to the bottom via margin-top:auto below. */
+  align-items: stretch;
 }
 
 /* Premium hue card: left stripe, corner flourish, tinted icon-box, hover lift */
@@ -2201,6 +2220,7 @@
   display: inline-flex;
   align-items: center;
   margin-left: auto;
+  margin-top: auto;
   color: var(--text-dim);
   transition: color var(--t), transform var(--t);
 }
@@ -2214,7 +2234,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 0.9rem;
-  align-items: start;
+  align-items: stretch;
 }
 .viz-member-card {
   display: flex;
@@ -2308,7 +2328,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 0.7rem;
-  align-items: start;
+  align-items: stretch;
 }
 .viz-result-card {
   display: flex;

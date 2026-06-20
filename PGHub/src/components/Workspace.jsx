@@ -1063,6 +1063,12 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   const cleanedName = activeProblem.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
   const displayName = activeProblem.leetcode_number ? `${activeProblem.leetcode_number}. ${cleanedName}` : cleanedName;
 
+  // LC-imported problems bake a "Constraints:" section into the description HTML.
+  // When that's already present we must NOT render the dedicated constraints
+  // block below, or the reader sees Constraints twice.
+  const descHasConstraints = typeof activeProblem.description === 'string'
+    && /constraints?\s*:/i.test(activeProblem.description);
+
   // Examples to render below the description. We prefer the seeded description's
   // own examples (lots of legacy problems embed them as HTML); if it has none,
   // synthesize from the first ~3 sample test cases so the user always sees concrete
@@ -1270,8 +1276,9 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                   </div>
                 )}
 
-                {/* Constraints */}
-                {(() => {
+                {/* Constraints — skipped when the description HTML already
+                    embeds its own Constraints section (LC-imported rows). */}
+                {!descHasConstraints && (() => {
                   const raw = activeProblem.constraints;
                   if (!raw) return null;
                   const arr = Array.isArray(raw)

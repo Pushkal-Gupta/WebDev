@@ -12,7 +12,7 @@ import { INTERACTIVE_TEMPLATES } from './interactiveTemplates';
 import { INTERACTIVE_VIZ } from './interactiveViz';
 import { recordLocalVisit } from '../../lib/achievements';
 import { useConcept } from '../../lib/queries';
-import RunnableCodeBlock from '../ml/RunnableCodeBlock';
+import RunnableCodePanel from '../RunnableCodePanel';
 import ForgeThumb from '../ml/forge/ForgeThumb';
 import '../ml/MLLesson.css';
 import './Learn.css';
@@ -419,10 +419,10 @@ function VizDetail({ slug }) {
           <div className="viz-detail-section-head">
             <Code2 size={14} />
             <span>Reference implementation — edit and run it</span>
-            <span className="viz-detail-section-meta">{refCode.label}</span>
           </div>
-          <RunnableCodeBlock
-            section={{ body: refCode.body, language: refCode.language, heading: viz.title }}
+          <RunnableCodePanel
+            code={concept?.code && typeof concept.code === 'object' ? concept.code : refCode.body}
+            lang={refCode.language}
           />
         </section>
       )}

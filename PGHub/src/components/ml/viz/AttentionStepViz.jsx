@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Shuffle, RotateCcw } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Shuffle, RotateCcw, Play, Pause, SkipForward } from 'lucide-react';
 import './MLViz.css';
 
 const W = 680;
@@ -39,6 +39,23 @@ function dot(a, b) {
   return s;
 }
 
+function easeInOut(t) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+}
+
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setReduced(mq.matches);
+    sync();
+    mq.addEventListener?.('change', sync);
+    return () => mq.removeEventListener?.('change', sync);
+  }, []);
+  return reduced;
+}
+
 function computePipeline(X, queryIdx) {
   const Q = X[queryIdx];
   const rawScores = X.map((k) => dot(Q, k));
@@ -70,9 +87,54 @@ function weightColor(w) {
 export default function AttentionStepViz() {
   const [X, setX] = useState(DEFAULT_X.map((r) => r.slice()));
   const [queryIdx, setQueryIdx] = useState(1);
-  const [stage, setStage] = useState(4);
+  // `prog` is a continuous position across stages: 0 .. STAGES.length-1.
+  const [prog, setProg] = useState(STAGES.length - 1);
+  const [playing, setPlaying] = useState(false);
+  const reduced = useReducedMotion();
+  const rafRef = useRef(null);
+  const lastRef = useRef(null);
 
+  const stage = Math.round(prog);
   const pipe = useMemo(() => computePipeline(X, queryIdx), [X, queryIdx]);
+
+  // Continuous auto-advance driver.
+  useEffect(() => {
+    if (!playing) {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastRef.current = null;
+      return undefined;
+    }
+    if (reduced) {
+      // No continuous motion: snap straight to the end (one-shot, intentional).
+      /* eslint-disable react-hooks/set-state-in-effect */
+      setProg(STAGES.length - 1);
+      setPlaying(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
+      return undefined;
+    }
+    const SPEED = 0.9; // stages per second
+    const tick = (now) => {
+      if (lastRef.current == null) lastRef.current = now;
+      const dt = (now - lastRef.current) / 1000;
+      lastRef.current = now;
+      setProg((p) => {
+        const next = p + dt * SPEED;
+        if (next >= STAGES.length - 1) {
+          setPlaying(false);
+          return STAGES.length - 1;
+        }
+        return next;
+      });
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastRef.current = null;
+    };
+  }, [playing, reduced]);
 
   const stageX = useMemo(() => {
     const innerW = W - PAD_L - PAD_R;
@@ -88,6 +150,7 @@ export default function AttentionStepViz() {
   };
 
   const randomize = () => {
+    setPlaying(false);
     setX(Array.from({ length: N }, () => [
       Math.round((Math.random() * 2 - 1) * 20) / 20,
       Math.round((Math.random() * 2 - 1) * 20) / 20,
@@ -95,19 +158,39 @@ export default function AttentionStepViz() {
   };
 
   const reset = () => {
+    setPlaying(false);
     setX(DEFAULT_X.map((r) => r.slice()));
     setQueryIdx(1);
-    setStage(4);
+    setProg(STAGES.length - 1);
   };
 
-  const showRaw = stage >= 0;
-  const showScaled = stage >= 1;
-  const showSoftmax = stage >= 2;
-  const showValueMix = stage >= 3;
-  const showOutput = stage >= 4;
+  const play = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+    if (stage >= STAGES.length - 1) setProg(0);
+    setPlaying(true);
+  };
+
+  const stepFwd = () => {
+    setPlaying(false);
+    setProg((p) => Math.min(STAGES.length - 1, Math.round(p) + 1));
+  };
+
+  // Per-stage reveal amount in 0..1 (eased), so lanes fade/fill in as the
+  // continuous head crosses them rather than hard-cutting.
+  const reveal = (i) => {
+    const v = prog - (i - 1);
+    return easeInOut(Math.max(0, Math.min(1, v)));
+  };
 
   const STAGE_BAND_H = 38;
   const stageY = PAD_T - 16;
+
+  // Flow animation: a marker travels along the score connector toward the
+  // softmax lane while stage 2 is being revealed.
+  const flowR = reveal(2);
 
   return (
     <div className="mlviz-wrap">
@@ -115,7 +198,9 @@ export default function AttentionStepViz() {
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '840px', aspectRatio: `${W} / ${H}` }}>
           {/* Stage labels along top */}
           {STAGES.map((s, i) => {
-            const active = stage >= i;
+            const r = reveal(i);
+            const active = r > 0.02;
+            const headHere = Math.abs(prog - i) < 0.5 && playing;
             return (
               <g key={`stage-${i}`}>
                 <rect
@@ -124,10 +209,10 @@ export default function AttentionStepViz() {
                   width={100}
                   height={STAGE_BAND_H}
                   rx={6}
-                  fill={active ? 'rgba(var(--accent-rgb, 0,255,245), 0.10)' : 'var(--surface)'}
+                  fill={active ? `rgba(var(--accent-rgb, 0,255,245), ${0.04 + r * 0.1})` : 'var(--surface)'}
                   stroke={active ? 'var(--accent)' : 'var(--border)'}
-                  strokeWidth="1"
-                  opacity={active ? 1 : 0.55}
+                  strokeWidth={headHere ? 1.8 : 1}
+                  opacity={0.55 + r * 0.45}
                 />
                 <text
                   x={stageX[i]}
@@ -161,17 +246,18 @@ export default function AttentionStepViz() {
             const x1 = stageX[i] + 50;
             const x2 = stageX[i + 1] - 50;
             const y = stageY + 5;
-            const active = stage > i;
+            const r = reveal(i + 1);
+            const active = r > 0.02;
             return (
               <line
                 key={`arr-${i}`}
                 x1={x1}
                 y1={y}
-                x2={x2}
+                x2={x1 + (x2 - x1) * (active ? 1 : 0.0)}
                 y2={y}
                 stroke={active ? 'var(--accent)' : 'var(--border)'}
                 strokeWidth={active ? 1.4 : 0.8}
-                opacity={active ? 0.9 : 0.5}
+                opacity={active ? 0.4 + r * 0.5 : 0.5}
                 markerEnd={`url(#att-arrow-${active ? 'on' : 'off'})`}
               />
             );
@@ -183,6 +269,10 @@ export default function AttentionStepViz() {
             <marker id="att-arrow-off" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
               <path d="M0,0 L10,5 L0,10 z" fill="var(--border)" />
             </marker>
+            <radialGradient id="att-flow-dot" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="1" />
+              <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
           {/* Lane 1: Q · Kᵀ — show 3 dot products into raw scores */}
@@ -190,6 +280,7 @@ export default function AttentionStepViz() {
             const cx = stageX[0];
             const top = PAD_T + 38;
             const cellH = 32;
+            const r0 = reveal(0);
             return (
               <g>
                 {X.map((kv, i) => {
@@ -197,7 +288,7 @@ export default function AttentionStepViz() {
                   const v = pipe.rawScores[i];
                   const isQuery = i === queryIdx;
                   return (
-                    <g key={`raw-${i}`}>
+                    <g key={`raw-${i}`} opacity={0.4 + r0 * 0.6}>
                       <text
                         x={cx - 44}
                         y={cy + 4}
@@ -214,21 +305,20 @@ export default function AttentionStepViz() {
                         width={64}
                         height={18}
                         rx={4}
-                        fill={showRaw ? chipColor(v) : 'var(--surface)'}
+                        fill={r0 > 0.02 ? chipColor(v) : 'var(--surface)'}
                         stroke={isQuery ? 'var(--hue-mint, #6fe3a8)' : 'var(--border)'}
                         strokeWidth={isQuery ? 1.4 : 0.8}
-                        opacity={showRaw ? 1 : 0.4}
                       />
                       <text
                         x={cx}
                         y={cy + 4}
                         fontSize="10"
-                        fill={showRaw ? 'var(--text-main)' : 'var(--text-dim)'}
+                        fill={r0 > 0.02 ? 'var(--text-main)' : 'var(--text-dim)'}
                         fontFamily="var(--mono, monospace)"
                         textAnchor="middle"
                         fontWeight="700"
                       >
-                        {showRaw ? snap(v, 2) : '·'}
+                        {r0 > 0.02 ? snap(v, 2) : '·'}
                       </text>
                     </g>
                   );
@@ -242,8 +332,9 @@ export default function AttentionStepViz() {
             const cx = stageX[1];
             const top = PAD_T + 38;
             const cellH = 32;
+            const r1 = reveal(1);
             return (
-              <g>
+              <g opacity={0.4 + r1 * 0.6}>
                 {X.map((_, i) => {
                   const cy = top + i * cellH;
                   const v = pipe.scaled[i];
@@ -255,21 +346,20 @@ export default function AttentionStepViz() {
                         width={64}
                         height={18}
                         rx={4}
-                        fill={showScaled ? chipColor(v) : 'var(--surface)'}
+                        fill={r1 > 0.02 ? chipColor(v) : 'var(--surface)'}
                         stroke="var(--border)"
                         strokeWidth="0.8"
-                        opacity={showScaled ? 1 : 0.4}
                       />
                       <text
                         x={cx}
                         y={cy + 4}
                         fontSize="10"
-                        fill={showScaled ? 'var(--text-main)' : 'var(--text-dim)'}
+                        fill={r1 > 0.02 ? 'var(--text-main)' : 'var(--text-dim)'}
                         fontFamily="var(--mono, monospace)"
                         textAnchor="middle"
                         fontWeight="700"
                       >
-                        {showScaled ? snap(v, 2) : '·'}
+                        {r1 > 0.02 ? snap(v, 2) : '·'}
                       </text>
                     </g>
                   );
@@ -288,17 +378,41 @@ export default function AttentionStepViz() {
             );
           })()}
 
-          {/* Lane 3: softmax weights as horizontal bars */}
+          {/* Flowing markers: scaled scores travel toward softmax bars */}
+          {flowR > 0.01 && flowR < 0.999 && !reduced && (() => {
+            const top = PAD_T + 38;
+            const cellH = 32;
+            const x1 = stageX[1] + 32;
+            const x2 = stageX[2] - 40;
+            const t = flowR;
+            return X.map((_, i) => {
+              const cy = top + i * cellH;
+              const x = x1 + (x2 - x1) * t;
+              return (
+                <circle
+                  key={`flow-${i}`}
+                  cx={x}
+                  cy={cy}
+                  r={6}
+                  fill="url(#att-flow-dot)"
+                  opacity={Math.sin(t * Math.PI)}
+                />
+              );
+            });
+          })()}
+
+          {/* Lane 3: softmax weights as horizontal bars (bars grow with reveal) */}
           {(() => {
             const cx = stageX[2];
             const top = PAD_T + 38;
             const cellH = 32;
             const maxBarW = 80;
+            const r2 = reveal(2);
             return (
-              <g>
+              <g opacity={0.4 + r2 * 0.6}>
                 {pipe.weights.map((w, i) => {
                   const cy = top + i * cellH;
-                  const barW = showSoftmax ? w * maxBarW : 0;
+                  const barW = w * maxBarW * r2;
                   return (
                     <g key={`sm-${i}`}>
                       <rect
@@ -310,7 +424,6 @@ export default function AttentionStepViz() {
                         fill="var(--surface)"
                         stroke="var(--border)"
                         strokeWidth="0.6"
-                        opacity={showSoftmax ? 1 : 0.4}
                       />
                       <rect
                         x={cx - maxBarW / 2}
@@ -319,7 +432,7 @@ export default function AttentionStepViz() {
                         height={18}
                         rx={4}
                         fill={weightColor(w)}
-                        opacity={showSoftmax ? 0.95 : 0}
+                        opacity={0.95}
                       />
                       <text
                         x={cx - maxBarW / 2 - 6}
@@ -335,12 +448,12 @@ export default function AttentionStepViz() {
                         x={cx}
                         y={cy + 4}
                         fontSize="9.5"
-                        fill={showSoftmax ? 'var(--text-main)' : 'var(--text-dim)'}
+                        fill={r2 > 0.02 ? 'var(--text-main)' : 'var(--text-dim)'}
                         fontFamily="var(--mono, monospace)"
                         textAnchor="middle"
                         fontWeight="700"
                       >
-                        {showSoftmax ? snap(w, 2) : '·'}
+                        {r2 > 0.02 ? snap(w, 2) : '·'}
                       </text>
                     </g>
                   );
@@ -364,14 +477,15 @@ export default function AttentionStepViz() {
             const cx = stageX[3];
             const top = PAD_T + 38;
             const cellH = 32;
+            const r3 = reveal(3);
             return (
               <g>
                 {X.map((v, i) => {
                   const cy = top + i * cellH;
                   const w = pipe.weights[i];
-                  const opacity = showValueMix ? 0.3 + w * 0.7 : 0.4;
+                  const opacity = 0.3 + w * 0.7 * r3 + (1 - r3) * 0.1;
                   return (
-                    <g key={`v-${i}`} opacity={opacity}>
+                    <g key={`v-${i}`} opacity={Math.min(1, opacity)}>
                       <rect
                         x={cx - 32}
                         y={cy - 9}
@@ -380,7 +494,7 @@ export default function AttentionStepViz() {
                         rx={4}
                         fill="var(--surface)"
                         stroke="var(--hue-pink, #ff66cc)"
-                        strokeWidth={showValueMix ? 1 : 0.6}
+                        strokeWidth={0.6 + r3 * 0.4}
                       />
                       {/* mini 2-D component bars */}
                       <g>
@@ -428,28 +542,30 @@ export default function AttentionStepViz() {
             );
           })()}
 
-          {/* Lane 5: output */}
+          {/* Lane 5: output (scales up as it reveals) */}
           {(() => {
             const cx = stageX[4];
             const cy = PAD_T + 38 + (N * 32) / 2 - 16;
             const v = pipe.out;
+            const r4 = reveal(4);
+            const s = 0.85 + r4 * 0.15;
             return (
-              <g>
+              <g transform={`translate(${cx} ${cy}) scale(${s}) translate(${-cx} ${-cy})`} opacity={0.4 + r4 * 0.6}>
                 <rect
                   x={cx - 42}
                   y={cy - 18}
                   width={84}
                   height={56}
                   rx={6}
-                  fill={showOutput ? 'rgba(var(--accent-rgb, 0,255,245), 0.15)' : 'var(--surface)'}
-                  stroke={showOutput ? 'var(--accent)' : 'var(--border)'}
-                  strokeWidth={showOutput ? 1.4 : 0.8}
+                  fill={r4 > 0.02 ? `rgba(var(--accent-rgb, 0,255,245), ${0.06 + r4 * 0.12})` : 'var(--surface)'}
+                  stroke={r4 > 0.02 ? 'var(--accent)' : 'var(--border)'}
+                  strokeWidth={r4 > 0.5 ? 1.4 : 0.8}
                 />
                 <text
                   x={cx}
                   y={cy - 4}
                   fontSize="10"
-                  fill={showOutput ? 'var(--accent)' : 'var(--text-dim)'}
+                  fill={r4 > 0.02 ? 'var(--accent)' : 'var(--text-dim)'}
                   fontFamily="var(--mono, monospace)"
                   textAnchor="middle"
                   fontWeight="700"
@@ -461,12 +577,12 @@ export default function AttentionStepViz() {
                   x={cx}
                   y={cy + 10}
                   fontSize="10.5"
-                  fill={showOutput ? 'var(--text-main)' : 'var(--text-dim)'}
+                  fill={r4 > 0.02 ? 'var(--text-main)' : 'var(--text-dim)'}
                   fontFamily="var(--mono, monospace)"
                   textAnchor="middle"
                   fontWeight="700"
                 >
-                  {showOutput ? `(${snap(v[0], 2)}, ${snap(v[1], 2)})` : '(·, ·)'}
+                  {r4 > 0.02 ? `(${snap(v[0], 2)}, ${snap(v[1], 2)})` : '(·, ·)'}
                 </text>
                 <text
                   x={cx}
@@ -556,7 +672,7 @@ export default function AttentionStepViz() {
             key={`btn-${i}`}
             type="button"
             className={`mlviz-toggle ${stage >= i ? 'is-on' : ''}`}
-            onClick={() => setStage(i)}
+            onClick={() => { setPlaying(false); setProg(i); }}
           >
             <span className="mlviz-toggle-dot" />
             <span>{i + 1}. {s.label}</span>
@@ -565,6 +681,17 @@ export default function AttentionStepViz() {
       </div>
 
       <div className="mlviz-readout">
+        <div className="mlviz-row mlviz-btn-row">
+          <button type="button" className="mlviz-btn mlviz-btn-primary" onClick={play}>
+            {playing ? <Pause size={13} /> : <Play size={13} />}
+            <span>{playing ? 'Pause' : (stage >= STAGES.length - 1 ? 'Replay' : 'Play')}</span>
+          </button>
+          <button type="button" className="mlviz-btn" onClick={stepFwd} disabled={stage >= STAGES.length - 1}>
+            <SkipForward size={13} />
+            <span>Step</span>
+          </button>
+        </div>
+
         <div className="mlviz-row">
           <span className="mlviz-slider-label">QUERY TOKEN</span>
           {TOKEN_LABELS.map((t, i) => (

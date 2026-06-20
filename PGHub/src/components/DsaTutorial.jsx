@@ -14,8 +14,8 @@ import './DsaTutorial.css';
 // gets a picture that fits its subject, and adjacent cards stay visually
 // distinct. First matching rule wins (specific before generic).
 const TOPIC_MOTIF_RULES = [
-  [/binary search tree|bst/i, 'network'],
-  [/trie/i, 'network'],
+  [/binary search tree|bst/i, 'tree'],
+  [/trie/i, 'tree'],
   [/binary tree|heap|\btree\b/i, 'tree'],
   [/graph|shortest|traversal|\bmst\b|spanning/i, 'network'],
   [/backtrack|recursion|pattern/i, 'tree'],
@@ -27,10 +27,10 @@ const TOPIC_MOTIF_RULES = [
   [/hash/i, 'heat'],
   [/bit manipulation|\bbit\b/i, 'bits'],
   [/number theory|math|prime|modular|gcd/i, 'rings'],
-  [/linked list/i, 'field'],
+  [/linked list/i, 'chain'],
   [/\bstack\b/i, 'bars'],
   [/\bqueue\b/i, 'cuda'],
-  [/\bdeque\b/i, 'cards'],
+  [/\bdeque\b/i, 'chain'],
   [/sort/i, 'distribution'],
   [/search/i, 'scatter'],
   [/greedy/i, 'bars'],

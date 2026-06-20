@@ -1,16 +1,16 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
-import Editor from '@monaco-editor/react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import {
-  ChevronRight, ChevronDown, Play, RotateCcw, Loader2, Terminal, Lightbulb, Check,
+  ChevronRight, ChevronDown, Play, Loader2, Terminal, Lightbulb, Check,
   FileText, ListChecks, Sparkles, FlaskConical, Layers, Target, BookOpen,
   CheckCircle2, XCircle, MinusCircle, AlertTriangle,
 } from 'lucide-react';
 import { getForgeProblem } from './pgForgeProblemsData';
 import { isSolved, markSolved, unmarkSolved } from './forgeProgressStore';
 import { runCode } from '../../../lib/codeRunner';
+import RunnableCodePanel from '../../RunnableCodePanel';
 import ActivationExplorerViz from '../viz/ActivationExplorerViz';
 import './PGForgeProblemDetail.css';
 
@@ -36,16 +36,6 @@ function inlineVizFor(slug) {
     return { Comp: ActivationExplorerViz, props: { fn: activation[slug] }, label: 'Explore the activation' };
   }
   return null;
-}
-
-const DARK_FALLBACK = 'vs-dark';
-const LIGHT_THEMES = new Set(['light', 'solarized', 'midnight-light', 'dracula-light']);
-
-function currentMonacoTheme() {
-  const preset = typeof document !== 'undefined'
-    ? document.documentElement.getAttribute('data-theme')
-    : null;
-  return LIGHT_THEMES.has(preset) ? 'vs' : DARK_FALLBACK;
 }
 
 function katexHtml(tex, displayMode) {
@@ -403,13 +393,11 @@ export default function PGForgeProblemDetail() {
   const { slug } = useParams();
   const problem = useMemo(() => getForgeProblem(slug), [slug]);
 
-  const [code, setCode] = useState(problem ? problem.starterCode.python : '');
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
   const [report, setReport] = useState(null);
   const [hintsOpen, setHintsOpen] = useState(false);
   const [solved, setSolved] = useState(() => (problem ? isSolved(problem.slug) : false));
-  const editorRef = useRef(null);
 
   const toggleSolved = useCallback(() => {
     if (!problem) return;
@@ -450,8 +438,18 @@ export default function PGForgeProblemDetail() {
     return { checkable, display };
   }, [problem, fn]);
 
-  const handleRun = useCallback(async () => {
+  // Submit feeds the current editor buffer to the python grader. Free execution is
+  // handled by the panel's own Run button; grading is the canonical python path.
+  const handleSubmit = useCallback(async (code, lang) => {
     if (!problem) return;
+    if (lang !== 'python') {
+      setReport(null);
+      setResult({
+        status: 'runtime_error',
+        output: 'Grading runs against the Python reference. Switch to the Python tab to submit.',
+      });
+      return;
+    }
     setRunning(true);
     setResult(null);
     setReport(null);
@@ -507,26 +505,23 @@ export default function PGForgeProblemDetail() {
     } finally {
       setRunning(false);
     }
-  }, [problem, code, fnName, testPlan, solved]);
+  }, [problem, fnName, testPlan, solved]);
 
-  const handleReset = useCallback(() => {
-    if (!problem) return;
-    setCode(problem.starterCode.python);
-    setResult(null);
-    setReport(null);
-    if (editorRef.current) editorRef.current.setValue(problem.starterCode.python);
-  }, [problem]);
+  const starter = useMemo(
+    () => (problem ? { python: problem.starterCode.python } : {}),
+    [problem],
+  );
 
   if (!problem) return <Navigate to="/ml/problems" replace />;
 
   return (
     <div className="forge-pd" style={{ '--pd-hue': hue }}>
-      <nav className="forge-pd-crumb">
-        <Link to="/ml" className="forge-pd-crumb-link">PGForge</Link>
+      <nav className="forge-crumb">
+        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
         <ChevronRight size={13} />
-        <Link to="/ml/problems" className="forge-pd-crumb-link">Problems</Link>
+        <Link to="/ml/problems" className="forge-crumb-link">Problems</Link>
         <ChevronRight size={13} />
-        <span className="forge-pd-crumb-cur">{problem.title}</span>
+        <span className="forge-crumb-cur">{problem.title}</span>
       </nav>
 
       <div className="forge-pd-grid">
@@ -625,19 +620,14 @@ export default function PGForgeProblemDetail() {
             <div className="forge-pd-cta-copy">
               <span className="forge-pd-cta-title">Ready to solve it?</span>
               <span className="forge-pd-cta-sub">
-                Edit the code, then Run to grade it against {testPlan.checkable.length || problem.tests.length} test
+                Edit the code, then hit Run my code to grade it against {testPlan.checkable.length || problem.tests.length} test
                 {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
               </span>
             </div>
-            <button
-              type="button"
-              className="forge-pd-cta-btn"
-              onClick={handleRun}
-              disabled={running}
-            >
+            <span className="forge-pd-cta-badge">
               {running ? <Loader2 size={15} className="forge-pd-spin" /> : <Play size={15} />}
-              {running ? 'Running' : 'Run my code'}
-            </button>
+              {running ? 'Grading' : 'Run my code'}
+            </span>
           </div>
 
           <div className="forge-pd-block">
@@ -660,46 +650,14 @@ export default function PGForgeProblemDetail() {
         </section>
 
         <section className="forge-pd-right" aria-label="Code editor">
-          <div className="forge-pd-toolbar">
-            <span className="forge-pd-lang">Python 3</span>
-            <div className="forge-pd-actions">
-              <button
-                type="button"
-                className="forge-pd-btn forge-pd-btn-ghost"
-                onClick={handleReset}
-                disabled={running}
-              >
-                <RotateCcw size={14} /> Reset
-              </button>
-              <button
-                type="button"
-                className="forge-pd-btn forge-pd-btn-primary"
-                onClick={handleRun}
-                disabled={running}
-              >
-                {running ? <Loader2 size={14} className="forge-pd-spin" /> : <Play size={14} />}
-                {running ? 'Running' : 'Run'}
-              </button>
-            </div>
-          </div>
-
           <div className="forge-pd-editor">
-            <Editor
-              height="100%"
-              language="python"
-              value={code}
-              onChange={(v) => setCode(v ?? '')}
-              onMount={(editor) => { editorRef.current = editor; }}
-              theme={currentMonacoTheme()}
-              options={{
-                minimap: { enabled: false },
-                fontSize: 13,
-                lineNumbers: 'on',
-                scrollBeyondLastLine: false,
-                tabSize: 4,
-                automaticLayout: true,
-                padding: { top: 10, bottom: 10 },
-              }}
+            <RunnableCodePanel
+              fill
+              code={starter}
+              lang="python"
+              runnable
+              onSubmit={handleSubmit}
+              submitLabel="Run my code"
             />
           </div>
 
@@ -803,24 +761,24 @@ export default function PGForgeProblemDetail() {
             )}
           </div>
 
-          <div className="forge-pd-output">
-            <div className="forge-pd-output-head">
-              <Terminal size={13} />
-              <span>Output</span>
-              {result && (
-                <span className={`forge-pd-status forge-pd-status-${result.status}`}>
-                  {STATUS_LABEL[result.status] || result.status}
-                </span>
-              )}
+          {(running || result) && (
+            <div className="forge-pd-output">
+              <div className="forge-pd-output-head">
+                <Terminal size={13} />
+                <span>Submission output</span>
+                {result && (
+                  <span className={`forge-pd-status forge-pd-status-${result.status}`}>
+                    {STATUS_LABEL[result.status] || result.status}
+                  </span>
+                )}
+              </div>
+              <pre className="forge-pd-output-body">
+                {running
+                  ? 'Grading on the judge...'
+                  : (result.output || '(no output)')}
+              </pre>
             </div>
-            <pre className="forge-pd-output-body">
-              {running
-                ? 'Running on the judge...'
-                : result
-                  ? (result.output || '(no output)')
-                  : 'Run your code to grade it against the tests and see stdout here.'}
-            </pre>
-          </div>
+          )}
         </section>
       </div>
     </div>

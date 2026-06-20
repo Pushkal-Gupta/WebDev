@@ -78,9 +78,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--viz-line);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  background: var(--viz-card);
+  background: var(--surface);
   overflow: hidden;
   text-decoration: none;
   color: inherit;

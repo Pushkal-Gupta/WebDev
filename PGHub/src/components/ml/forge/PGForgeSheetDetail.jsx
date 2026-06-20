@@ -16,12 +16,12 @@ export default function PGForgeSheetDetail() {
 
   return (
     <div className="forge-shd">
-      <nav className="forge-shd-crumb">
-        <Link to="/ml" className="forge-shd-crumb-link">PGForge</Link>
+      <nav className="forge-crumb">
+        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
         <ChevronRight size={13} />
-        <Link to="/ml/sheets" className="forge-shd-crumb-link">Sheets</Link>
+        <Link to="/ml/sheets" className="forge-crumb-link">Sheets</Link>
         <ChevronRight size={13} />
-        <span className="forge-shd-crumb-cur">{sheet.title}</span>
+        <span className="forge-crumb-cur">{sheet.title}</span>
       </nav>
 
       <header className="forge-shd-header">

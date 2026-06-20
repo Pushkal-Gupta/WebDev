@@ -120,24 +120,93 @@
   color: var(--hard);
 }
 
+/* ── Workspace: canvas on the left, explanation panel on the right (wide);
+   stacked on narrow. The stage scales its content to fit width first, and
+   never grows past a viewport-relative max-height (no inner scrollbars). ── */
+.viz-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 320px);
+  gap: var(--viz-section-gap);
+  align-items: start;
+}
+.viz-canvas-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
 .viz-stage {
-  min-height: 280px;
+  min-height: 240px;
+  max-height: 52vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem 0;
-  overflow-x: hidden;
-  overflow-y: visible;
+  padding: 1.25rem 0;
+  overflow: hidden;
   position: relative;
 }
 
 .viz-stage-frame {
   width: 100%;
+  max-height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1.25rem;
   animation: viz-frame-in 0.3s ease-out;
+}
+
+/* ── Explanation panel (VisuAlgo-style) ── */
+.viz-explain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1rem 1.1rem;
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  position: sticky;
+  top: 0.5rem;
+}
+.viz-explain-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dashed var(--border);
+}
+.viz-explain-kicker {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+.viz-explain-count {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+.viz-explain-count strong { color: var(--accent); }
+.viz-explain-body {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  margin: 0;
+  animation: viz-caption-in 0.28s ease-out;
+}
+.viz-explain-empty { color: var(--text-dim); }
+
+/* Narrow / sidebar widths: explanation drops below the canvas. */
+@media (max-width: 920px) {
+  .viz-workspace { grid-template-columns: minmax(0, 1fr); }
+  .viz-explain { position: static; border-left-width: 3px; }
+  .viz-stage { max-height: 60vh; }
 }
 
 @keyframes viz-frame-in {
@@ -372,9 +441,8 @@
   min-width: 0;
 }
 
-/* ── Pointer labels (above cells) ── */
+/* ── Pointer labels (above cells) — grid columns match the array row below ── */
 .viz-pointer-row {
-  display: flex;
   align-items: flex-end;
   min-height: 28px;
 }
@@ -383,7 +451,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-end;
-  flex: 0 0 auto;
+  min-width: 0;
 }
 .viz-pointer-stack {
   display: flex;
@@ -493,7 +561,7 @@
 .viz-subrow-wrap {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 3px;
 }
 .viz-subrow-label {
@@ -505,13 +573,13 @@
   color: var(--text-dim);
 }
 .viz-subrow {
-  display: flex;
   align-items: stretch;
 }
 .viz-subrow-cell {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   height: 24px;
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -523,51 +591,41 @@
   transition: background 0.25s ease-out, color 0.25s ease-out;
 }
 
-/* ── Array bars ── */
+/* ── Array bars ──
+   Grid columns (set inline as repeat(n, 1fr)) make every bar an equal fraction
+   of the width, so the row shrinks to fit any container — no px overflow. Bars
+   are bottom-aligned within their track and scale their height by percentage. */
 .viz-array {
-  display: flex;
-  align-items: flex-end;
-  gap: 6px;
+  align-items: end;
   height: 160px;
   width: 100%;
   padding-bottom: 4px;
 }
 @media (max-width: 720px) {
-  .viz-array { gap: 3px; height: 140px; }
+  .viz-array { height: 140px; }
 }
 
-/* ── Array tiles (for non-numeric arrays — strings, structured labels) ── */
+/* ── Array tiles (for non-numeric arrays — strings, structured labels) ──
+   Rendered in a CSS grid (repeat(n, 1fr), set inline) so every tile is an equal
+   fraction of the width and the row scales to fit — never overflows. */
 .viz-tiles {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  min-height: 80px;
-  align-items: flex-start;
-  align-content: flex-start;
-  padding: 0.5rem 0;
+  width: 100%;
+  min-height: 64px;
+  align-items: stretch;
+  padding: 0.25rem 0;
 }
-/* When inside an array-block (pointers/subrow/arcs alignment) tiles must NOT wrap. */
-.viz-array-block .viz-tiles {
-  flex-wrap: nowrap;
-  padding: 0;
-  min-height: 0;
-}
-.viz-array-block .viz-tile {
-  flex: 1 1 0;
-  min-width: 0;
-}
-.viz-array-block .viz-tile-value {
+.viz-tile-value {
   max-width: 100%;
 }
 .viz-tile {
   position: relative;
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.2rem;
-  padding: 0.55rem 0.75rem;
-  min-width: 68px;
+  padding: 0.55rem 0.5rem;
+  min-width: 0;
   min-height: 64px;
   background: var(--surface);
   border: 1px solid var(--border);
@@ -613,9 +671,10 @@
 
 .viz-bar {
   position: relative;
-  flex: 1 1 0;
-  min-width: 6px;
+  align-self: end;
+  width: 100%;
   max-width: 52px;
+  justify-self: center;
   background: var(--border);
   border-radius: 4px 4px 0 0;
   display: flex;
@@ -658,18 +717,20 @@
   color: var(--text-dim);
 }
 
-/* ── Window cells ── */
+/* ── Window cells ──
+   Grid columns (repeat(n, 1fr), set inline) keep all cells on one row and scale
+   them to fit the container width — never wrap, never overflow. */
 .viz-window {
-  display: flex;
-  gap: 6px;
   width: 100%;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 .viz-cell {
-  width: clamp(28px, 4vw, 60px);
-  height: 72px;
+  width: 100%;
+  max-width: 64px;
+  justify-self: center;
+  aspect-ratio: 4 / 5;
+  height: auto;
+  max-height: 84px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -735,8 +796,18 @@
 }
 .viz-num-cross     { background: var(--medium-bg); border-color: var(--medium); color: var(--medium); }
 
-/* ── Graph ── */
-.viz-graph { width: 100%; max-width: 100%; height: auto; aspect-ratio: 520 / 340; }
+/* ── Graph / Tree SVG ──
+   width:100% scales to the container; the inline aspect-ratio comes from the
+   content-fit viewBox. max-height caps a tall graph/tree so it fits ~one
+   viewport-band without an inner scrollbar — it scales down to fit instead. */
+.viz-graph {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  max-height: 48vh;
+  margin: 0 auto;
+}
 
 .viz-edge {
   stroke: var(--border);
@@ -873,6 +944,7 @@
 @media (prefers-reduced-motion: reduce) {
   .viz-stage-frame,
   .viz-caption,
+  .viz-explain-body,
   .viz-help-popover,
   .viz-pointer-stack,
   .viz-chip,

@@ -1,6 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ClipboardList, Clock, Play, ArrowLeft, Award } from 'lucide-react';
+import { Clock, Play, ArrowLeft, Award } from 'lucide-react';
 import {
   useTopics,
   useProblemsCompact,
@@ -26,13 +26,13 @@ const MOTIF_RULES = [
   [/advanced.?graph|shortest.?path|dijkstra|\bmst\b|union.?find|topolog|graph/i, 'network'],
   [/binary.?search|search/i, 'scatter'],
   [/geometr|\bgeo\b|coordinate|convex/i, 'field'],
-  [/linked.?list/i, 'field'],
+  [/linked.?list/i, 'chain'],
   [/\bstack\b|monotonic/i, 'bars'],
   [/\bqueue\b|deque/i, 'cuda'],
   [/greedy|schedul/i, 'bars'],
   [/math|number.?theory|arithmetic|combinatoric|modul/i, 'rings'],
   [/string|substring|palindrome|matching|anagram/i, 'heat'],
-  [/hash|hashmap|hash.?table|\bmap\b|\bset\b/i, 'grid'],
+  [/hash|hashmap|hash.?table|\bmap\b|\bset\b/i, 'heat'],
   [/array|sort|matrix|two.?sum/i, 'grid'],
 ];
 
@@ -139,12 +139,17 @@ export default function Assessments({ session, roadmapMode = '500' }) {
 
   return (
     <div className="asm-container">
+      <nav className="vault-crumbs" aria-label="Breadcrumb">
+        <Link to="/vault" className="vault-crumbs-back">
+          <ArrowLeft size={12} /> Vault
+        </Link>
+        <span className="vault-crumbs-sep">/</span>
+        <span className="vault-crumbs-current">Assessments</span>
+      </nav>
       <header className="asm-header">
-        <h1 className="asm-title"><ClipboardList size={20} className="asm-title-icon" /> Assessments</h1>
+        <h1 className="asm-title">Assessments</h1>
         <p className="asm-sub">
-          Timed mini-tests focused on a single topic. Pick your level — Beginner (3 easy / 25 min),
-          Intermediate (1 easy + 2 medium / 45 min), or Advanced (2 medium + 1 hard / 75 min). Problems
-          are picked randomly from the topic so retakes stay fresh.
+          Timed single-topic mini-tests at three levels, with problems drawn at random so retakes stay fresh.
         </p>
       </header>
 
