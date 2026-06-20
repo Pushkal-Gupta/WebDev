@@ -1,8 +1,0 @@
-{
-  "questionId": "3823",
-  "titleSlug": "count-islands-with-total-value-divisible-by-k",
-  "title": "Count Islands With Total Value Divisible by K",
-  "exampleTestcases": "[[0,2,1,0,0],[0,5,0,0,5],[0,0,1,0,0],[0,1,4,7,0],[0,2,0,0,8]]\n5\n[[3,0,3,0],[0,3,0,3],[3,0,3,0]]\n3",
-  "sampleTestCase": "[[0,2,1,0,0],[0,5,0,0,5],[0,0,1,0,0],[0,1,4,7,0],[0,2,0,0,8]]\n5",
-  "metaData": "{\n  \"name\": \"countIslands\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

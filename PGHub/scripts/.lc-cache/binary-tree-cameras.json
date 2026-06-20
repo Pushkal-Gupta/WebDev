@@ -1,0 +1,8 @@
+{
+  "questionId": "1008",
+  "titleSlug": "binary-tree-cameras",
+  "title": "Binary Tree Cameras",
+  "exampleTestcases": "[0,0,null,0,0]\n[0,0,null,0,null,0,null,null,0]",
+  "sampleTestCase": "[0,0,null,0,0]",
+  "metaData": "{\r\n  \"name\": \"minCameraCover\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

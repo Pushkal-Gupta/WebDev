@@ -1,8 +1,0 @@
-{
-  "questionId": "3674",
-  "titleSlug": "count-non-decreasing-subarrays-after-k-operations",
-  "title": "Count Non-Decreasing Subarrays After K Operations",
-  "exampleTestcases": "[6,3,1,2,4,4]\n7\n[6,3,1,3,6]\n4",
-  "sampleTestCase": "[6,3,1,2,4,4]\n7",
-  "metaData": "{\n  \"name\": \"countNonDecreasingSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

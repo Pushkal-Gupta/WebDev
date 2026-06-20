@@ -1,0 +1,8 @@
+{
+  "questionId": "4052",
+  "titleSlug": "equal-score-substrings",
+  "title": "Equal Score Substrings",
+  "exampleTestcases": "\"adcb\"\n\"bace\"",
+  "sampleTestCase": "\"adcb\"",
+  "metaData": "{\n  \"name\": \"scoreBalance\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

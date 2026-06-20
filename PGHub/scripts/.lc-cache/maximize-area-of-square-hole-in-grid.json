@@ -1,0 +1,8 @@
+{
+  "questionId": "3214",
+  "titleSlug": "maximize-area-of-square-hole-in-grid",
+  "title": "Maximize Area of Square Hole in Grid",
+  "exampleTestcases": "2\n1\n[2,3]\n[2]\n1\n1\n[2]\n[2]\n2\n3\n[2,3]\n[2,4]",
+  "sampleTestCase": "2\n1\n[2,3]\n[2]",
+  "metaData": "{\n  \"name\": \"maximizeSquareHoleArea\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"hBars\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"vBars\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

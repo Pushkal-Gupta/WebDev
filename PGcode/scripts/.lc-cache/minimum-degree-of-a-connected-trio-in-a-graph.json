@@ -1,8 +1,0 @@
-{
-  "questionId": "1887",
-  "titleSlug": "minimum-degree-of-a-connected-trio-in-a-graph",
-  "title": "Minimum Degree of a Connected Trio in a Graph",
-  "exampleTestcases": "6\n[[1,2],[1,3],[3,2],[4,1],[5,2],[3,6]]\n7\n[[1,3],[4,1],[4,3],[2,5],[5,6],[6,7],[7,5],[2,6]]",
-  "sampleTestCase": "6\n[[1,2],[1,3],[3,2],[4,1],[5,2],[3,6]]",
-  "metaData": "{\n  \"name\": \"minTrioDegree\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

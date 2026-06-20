@@ -1,8 +1,0 @@
-{
-  "questionId": "2764",
-  "titleSlug": "maximum-number-of-fish-in-a-grid",
-  "title": "Maximum Number of Fish in a Grid",
-  "exampleTestcases": "[[0,2,1,0],[4,0,0,3],[1,0,0,4],[0,3,2,0]]\n[[1,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,1]]",
-  "sampleTestCase": "[[0,2,1,0],[4,0,0,3],[1,0,0,4],[0,3,2,0]]",
-  "metaData": "{\n  \"name\": \"findMaxFish\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

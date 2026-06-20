@@ -1,8 +1,0 @@
-{
-  "questionId": "3606",
-  "titleSlug": "minimum-element-after-replacement-with-digit-sum",
-  "title": "Minimum Element After Replacement With Digit Sum",
-  "exampleTestcases": "[10,12,13,14]\n[1,2,3,4]\n[999,19,199]",
-  "sampleTestCase": "[10,12,13,14]",
-  "metaData": "{\n  \"name\": \"minElement\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

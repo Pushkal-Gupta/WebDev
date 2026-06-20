@@ -1,0 +1,8 @@
+{
+  "questionId": "416",
+  "titleSlug": "partition-equal-subset-sum",
+  "title": "Partition Equal Subset Sum",
+  "exampleTestcases": "[1,5,11,5]\n[1,2,3,5]",
+  "sampleTestCase": "[1,5,11,5]",
+  "metaData": "{\r\n  \"name\": \"canPartition\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

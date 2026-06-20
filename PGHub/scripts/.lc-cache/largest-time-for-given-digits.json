@@ -1,0 +1,8 @@
+{
+  "questionId": "986",
+  "titleSlug": "largest-time-for-given-digits",
+  "title": "Largest Time for Given Digits",
+  "exampleTestcases": "[1,2,3,4]\n[5,5,5,5]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"largestTimeFromDigits\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

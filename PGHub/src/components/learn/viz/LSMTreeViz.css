@@ -1,0 +1,427 @@
+.lsmv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.lsmv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lsmv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.lsmv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.lsmv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lsmv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lsmv-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lsmv-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+.lsmv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.lsmv-spacer {
+  flex: 1 1 auto;
+}
+
+.lsmv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.lsmv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lsmv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.lsmv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lsmv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.lsmv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.lsmv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.lsmv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.lsmv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lsmv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* nodes */
+.lsmv-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: stroke 0.2s, fill 0.2s;
+}
+.lsmv-box-mem { fill: rgba(var(--accent-rgb), 0.07); }
+.lsmv-box-read { fill: var(--surface); }
+.lsmv-box-disk { fill: var(--surface); }
+
+.lsmv-node.is-active .lsmv-box {
+  stroke: var(--accent);
+  stroke-width: 2.4;
+}
+
+.lsmv-ic { color: var(--accent); }
+.lsmv-ic-row { color: var(--hue-sky); }
+.lsmv-ic-tomb { color: var(--hard); }
+
+.lsmv-box-title {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+
+.lsmv-box-tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.lsmv-box-empty {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  opacity: 0.7;
+}
+
+/* memtable entries */
+.lsmv-entry {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1;
+  transition: stroke 0.2s, fill 0.2s;
+}
+.lsmv-entry.is-active-entry {
+  fill: rgba(var(--accent-rgb), 0.16);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.lsmv-entry.is-tomb {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--hard);
+  stroke-dasharray: 4 3;
+}
+.lsmv-entry-key {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.lsmv-entry-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+.lsmv-entry-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+/* read path probes */
+.lsmv-probe {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1;
+}
+.lsmv-probe.is-hit {
+  fill: rgba(var(--accent-rgb), 0.14);
+  stroke: var(--easy);
+}
+.lsmv-probe.is-tomb-hit {
+  fill: rgba(var(--accent-rgb), 0.06);
+  stroke: var(--hard);
+}
+.lsmv-probe.is-miss {
+  fill: var(--bg);
+  stroke: var(--border);
+  opacity: 0.65;
+}
+.lsmv-probe-where {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.lsmv-probe-res {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+.lsmv-read-verdict {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+.lsmv-read-verdict.is-found { fill: var(--easy); }
+.lsmv-read-verdict.is-gone { fill: var(--hard); }
+
+/* disk levels */
+.lsmv-lane-sep {
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.lsmv-lane-label {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.lsmv-lane-label.is-over { fill: var(--warning, var(--hard)); }
+.lsmv-lane-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+.lsmv-lane-empty {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  opacity: 0.6;
+}
+
+/* SSTable cards */
+.lsmv-sst {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1.2;
+  transition: stroke 0.2s, fill 0.2s;
+}
+.lsmv-sst.is-fresh {
+  fill: rgba(var(--accent-rgb), 0.12);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.lsmv-sst.is-probe {
+  stroke: var(--hue-sky);
+  stroke-width: 1.6;
+}
+.lsmv-sst.is-probe-hit {
+  fill: rgba(var(--accent-rgb), 0.14);
+  stroke: var(--easy);
+  stroke-width: 2;
+}
+.lsmv-sst-id {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.lsmv-sst-seq {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+.lsmv-sst-entry {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--text-main);
+}
+.lsmv-sst-entry.is-tomb {
+  fill: var(--hard);
+}
+.lsmv-sst-more {
+  font-family: var(--mono);
+  font-size: 8.5px;
+  fill: var(--text-dim);
+  opacity: 0.8;
+}
+
+/* edges */
+.lsmv-edge {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: stroke 0.2s;
+}
+.lsmv-edge.is-hot {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+.lsmv-edge-compact {
+  stroke-dasharray: 4 3;
+}
+.lsmv-arrowhead {
+  fill: var(--text-dim);
+}
+.lsmv-flow-ic {
+  color: var(--text-dim);
+  transition: color 0.2s;
+}
+.lsmv-flow-ic.is-hot {
+  color: var(--accent);
+}
+
+/* metrics */
+.lsmv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.lsmv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.lsmv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lsmv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.lsmv-metric-value.is-warn { color: var(--warning, var(--hard)); }
+
+.lsmv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.lsmv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.lsmv-phase-l0 { color: var(--accent); }
+.lsmv-phase-compact { color: var(--hue-sky); }
+.lsmv-phase-read { color: var(--easy); }
+
+.lsmv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lsmv-btn,
+  .lsmv-box,
+  .lsmv-edge,
+  .lsmv-entry,
+  .lsmv-sst,
+  .lsmv-flow-ic {
+    transition: none;
+  }
+}

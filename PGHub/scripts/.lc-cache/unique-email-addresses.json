@@ -1,0 +1,8 @@
+{
+  "questionId": "965",
+  "titleSlug": "unique-email-addresses",
+  "title": "Unique Email Addresses",
+  "exampleTestcases": "[\"test.email+alex@leetcode.com\",\"test.e.mail+bob.cathy@leetcode.com\",\"testemail+david@lee.tcode.com\"]\n[\"a@leetcode.com\",\"b@leetcode.com\",\"c@leetcode.com\"]",
+  "sampleTestCase": "[\"test.email+alex@leetcode.com\",\"test.e.mail+bob.cathy@leetcode.com\",\"testemail+david@lee.tcode.com\"]",
+  "metaData": "{\r\n  \"name\": \"numUniqueEmails\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"emails\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3608",
+  "titleSlug": "find-the-number-of-subsequences-with-equal-gcd",
+  "title": "Find the Number of Subsequences With Equal GCD",
+  "exampleTestcases": "[1,2,3,4]\n[10,20,30]\n[1,1,1,1]",
+  "sampleTestCase": "[1,2,3,4]",
+  "metaData": "{\n  \"name\": \"subsequencePairCount\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

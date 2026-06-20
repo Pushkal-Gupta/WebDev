@@ -1,8 +1,0 @@
-{
-  "questionId": "2283",
-  "titleSlug": "sort-even-and-odd-indices-independently",
-  "title": "Sort Even and Odd Indices Independently",
-  "exampleTestcases": "[4,1,2,3]\n[2,1]",
-  "sampleTestCase": "[4,1,2,3]",
-  "metaData": "{\n  \"name\": \"sortEvenOdd\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"manual\": false\n}"
-}

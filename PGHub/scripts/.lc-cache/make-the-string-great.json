@@ -1,0 +1,8 @@
+{
+  "questionId": "1666",
+  "titleSlug": "make-the-string-great",
+  "title": "Make The String Great",
+  "exampleTestcases": "\"leEeetcode\"\n\"abBAcC\"\n\"s\"",
+  "sampleTestCase": "\"leEeetcode\"",
+  "metaData": "{\n  \"name\": \"makeGood\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

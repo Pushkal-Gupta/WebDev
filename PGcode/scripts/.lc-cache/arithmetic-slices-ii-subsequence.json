@@ -1,8 +1,0 @@
-{
-  "questionId": "446",
-  "titleSlug": "arithmetic-slices-ii-subsequence",
-  "title": "Arithmetic Slices II - Subsequence",
-  "exampleTestcases": "[2,4,6,8,10]\n[7,7,7,7,7]",
-  "sampleTestCase": "[2,4,6,8,10]",
-  "metaData": "{\n  \"name\": \"numberOfArithmeticSlices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

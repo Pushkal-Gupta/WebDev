@@ -1,0 +1,8 @@
+{
+  "questionId": "3388",
+  "titleSlug": "right-triangles",
+  "title": "Right Triangles",
+  "exampleTestcases": "[[0,1,0],[0,1,1],[0,1,0]]\n[[1,0,0,0],[0,1,0,1],[1,0,0,0]]\n[[1,0,1],[1,0,0],[1,0,0]]",
+  "sampleTestCase": "[[0,1,0],[0,1,1],[0,1,0]]",
+  "metaData": "{\n  \"name\": \"numberOfRightTriangles\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

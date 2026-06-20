@@ -1,8 +1,0 @@
-{
-  "questionId": "3813",
-  "titleSlug": "smallest-palindromic-rearrangement-ii",
-  "title": "Smallest Palindromic Rearrangement II",
-  "exampleTestcases": "\"abba\"\n2\n\"aa\"\n2\n\"bacab\"\n1",
-  "sampleTestCase": "\"abba\"\n2",
-  "metaData": "{\n  \"name\": \"smallestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

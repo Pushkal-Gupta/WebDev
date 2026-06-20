@@ -1,8 +1,0 @@
-{
-  "questionId": "3870",
-  "titleSlug": "minimum-moves-to-clean-the-classroom",
-  "title": "Minimum Moves to Clean the Classroom",
-  "exampleTestcases": "[\"S.\", \"XL\"]\n2\n[\"LS\", \"RL\"]\n4\n[\"L.S\", \"RXL\"]\n3",
-  "sampleTestCase": "[\"S.\", \"XL\"]\n2",
-  "metaData": "{\n  \"name\": \"minMoves\",\n  \"params\": [\n    {\n      \"name\": \"classroom\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"energy\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

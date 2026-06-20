@@ -1,0 +1,8 @@
+{
+  "questionId": "993",
+  "titleSlug": "tallest-billboard",
+  "title": "Tallest Billboard",
+  "exampleTestcases": "[1,2,3,6]\n[1,2,3,4,5,6]\n[1,2]",
+  "sampleTestCase": "[1,2,3,6]",
+  "metaData": "{\r\n  \"name\": \"tallestBillboard\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"rods\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

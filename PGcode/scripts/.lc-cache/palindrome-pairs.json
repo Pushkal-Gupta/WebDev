@@ -1,8 +1,0 @@
-{
-  "questionId": "336",
-  "titleSlug": "palindrome-pairs",
-  "title": "Palindrome Pairs",
-  "exampleTestcases": "[\"abcd\",\"dcba\",\"lls\",\"s\",\"sssll\"]\n[\"bat\",\"tab\",\"cat\"]\n[\"a\",\"\"]",
-  "sampleTestCase": "[\"abcd\",\"dcba\",\"lls\",\"s\",\"sssll\"]",
-  "metaData": "{\n  \"name\": \"palindromePairs\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

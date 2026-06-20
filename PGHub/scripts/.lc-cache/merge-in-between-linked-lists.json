@@ -1,0 +1,8 @@
+{
+  "questionId": "1765",
+  "titleSlug": "merge-in-between-linked-lists",
+  "title": "Merge In Between Linked Lists",
+  "exampleTestcases": "[10,1,13,6,9,5]\n3\n4\n[1000000,1000001,1000002]\n[0,1,2,3,4,5,6]\n2\n5\n[1000000,1000001,1000002,1000003,1000004]",
+  "sampleTestCase": "[10,1,13,6,9,5]\n3\n4\n[1000000,1000001,1000002]",
+  "metaData": "{\n  \"name\": \"mergeInBetween\",\n  \"params\": [\n    {\n      \"name\": \"list1\",\n      \"type\": \"ListNode\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"a\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"ListNode\",\n      \"name\": \"list2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  },\n  \"manual\": true\n}"
+}

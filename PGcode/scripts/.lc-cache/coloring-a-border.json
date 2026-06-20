@@ -1,8 +1,0 @@
-{
-  "questionId": "1104",
-  "titleSlug": "coloring-a-border",
-  "title": "Coloring A Border",
-  "exampleTestcases": "[[1,1],[1,2]]\n0\n0\n3\n[[1,2,2],[2,3,2]]\n0\n1\n3\n[[1,1,1],[1,1,1],[1,1,1]]\n1\n1\n2",
-  "sampleTestCase": "[[1,1],[1,2]]\n0\n0\n3",
-  "metaData": "{\n  \"name\": \"colorBorder\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"row\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"col\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"color\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

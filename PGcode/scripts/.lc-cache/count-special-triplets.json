@@ -1,8 +1,0 @@
-{
-  "questionId": "3885",
-  "titleSlug": "count-special-triplets",
-  "title": "Count Special Triplets",
-  "exampleTestcases": "[6,3,6]\n[0,1,0,0]\n[8,4,2,8,4]",
-  "sampleTestCase": "[6,3,6]",
-  "metaData": "{\n  \"name\": \"specialTriplets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

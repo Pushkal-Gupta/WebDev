@@ -1,8 +1,0 @@
-{
-  "questionId": "1989",
-  "titleSlug": "minimum-xor-sum-of-two-arrays",
-  "title": "Minimum XOR Sum of Two Arrays",
-  "exampleTestcases": "[1,2]\n[2,3]\n[1,0,3]\n[5,3,4]",
-  "sampleTestCase": "[1,2]\n[2,3]",
-  "metaData": "{\n  \"name\": \"minimumXORSum\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

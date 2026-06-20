@@ -1,0 +1,8 @@
+{
+  "questionId": "1936",
+  "titleSlug": "maximize-number-of-nice-divisors",
+  "title": "Maximize Number of Nice Divisors",
+  "exampleTestcases": "5\n8",
+  "sampleTestCase": "5",
+  "metaData": "{\n  \"name\": \"maxNiceDivisors\",\n  \"params\": [\n    {\n      \"name\": \"primeFactors\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

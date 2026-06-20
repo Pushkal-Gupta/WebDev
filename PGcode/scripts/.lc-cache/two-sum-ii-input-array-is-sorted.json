@@ -1,8 +1,0 @@
-{
-  "questionId": "167",
-  "titleSlug": "two-sum-ii-input-array-is-sorted",
-  "title": "Two Sum II - Input Array Is Sorted",
-  "exampleTestcases": "[2,7,11,15]\n9\n[2,3,4]\n6\n[-1,0]\n-1",
-  "sampleTestCase": "[2,7,11,15]\n9",
-  "metaData": "{\r\n  \"name\": \"twoSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"numbers\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
-}

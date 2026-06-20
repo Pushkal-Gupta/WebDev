@@ -1,8 +1,0 @@
-{
-  "questionId": "363",
-  "titleSlug": "max-sum-of-rectangle-no-larger-than-k",
-  "title": "Max Sum of Rectangle No Larger Than K",
-  "exampleTestcases": "[[1,0,1],[0,-2,3]]\n2\n[[2,2,-1]]\n3",
-  "sampleTestCase": "[[1,0,1],[0,-2,3]]\n2",
-  "metaData": "{\r\n  \"name\": \"maxSumSubmatrix\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"matrix\",\r\n      \"type\": \"integer[][]\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

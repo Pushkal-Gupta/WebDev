@@ -1,8 +1,0 @@
-{
-  "questionId": "2680",
-  "titleSlug": "count-collisions-of-monkeys-on-a-polygon",
-  "title": "Count Collisions of Monkeys on a Polygon",
-  "exampleTestcases": "3\n4",
-  "sampleTestCase": "3",
-  "metaData": "{\n  \"name\": \"monkeyMove\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

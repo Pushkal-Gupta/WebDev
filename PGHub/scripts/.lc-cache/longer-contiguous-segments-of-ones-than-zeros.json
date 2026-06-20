@@ -1,0 +1,8 @@
+{
+  "questionId": "1999",
+  "titleSlug": "longer-contiguous-segments-of-ones-than-zeros",
+  "title": "Longer Contiguous Segments of Ones than Zeros",
+  "exampleTestcases": "\"1101\"\n\"111000\"\n\"110100010\"",
+  "sampleTestCase": "\"1101\"",
+  "metaData": "{\n  \"name\": \"checkZeroOnes\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

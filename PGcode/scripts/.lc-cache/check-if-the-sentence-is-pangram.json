@@ -1,8 +1,0 @@
-{
-  "questionId": "1960",
-  "titleSlug": "check-if-the-sentence-is-pangram",
-  "title": "Check if the Sentence Is Pangram",
-  "exampleTestcases": "\"thequickbrownfoxjumpsoverthelazydog\"\n\"leetcode\"",
-  "sampleTestCase": "\"thequickbrownfoxjumpsoverthelazydog\"",
-  "metaData": "{\n  \"name\": \"checkIfPangram\",\n  \"params\": [\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

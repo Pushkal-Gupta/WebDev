@@ -1,0 +1,8 @@
+{
+  "questionId": "2733",
+  "titleSlug": "sleep",
+  "title": "Sleep",
+  "exampleTestcases": "100\n200",
+  "sampleTestCase": "100",
+  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"millis\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ]\n}"
+}

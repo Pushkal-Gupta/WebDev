@@ -1,8 +1,0 @@
-{
-  "questionId": "3328",
-  "titleSlug": "apply-operations-to-make-sum-of-array-greater-than-or-equal-to-k",
-  "title": "Apply Operations to Make Sum of Array Greater Than or Equal to k",
-  "exampleTestcases": "11\n1",
-  "sampleTestCase": "11",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

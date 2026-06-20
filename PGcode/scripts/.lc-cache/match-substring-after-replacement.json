@@ -1,8 +1,0 @@
-{
-  "questionId": "2393",
-  "titleSlug": "match-substring-after-replacement",
-  "title": "Match Substring After Replacement",
-  "exampleTestcases": "\"fool3e7bar\"\n\"leet\"\n[[\"e\",\"3\"],[\"t\",\"7\"],[\"t\",\"8\"]]\n\"fooleetbar\"\n\"f00l\"\n[[\"o\",\"0\"]]\n\"Fool33tbaR\"\n\"leetd\"\n[[\"e\",\"3\"],[\"t\",\"7\"],[\"t\",\"8\"],[\"d\",\"b\"],[\"p\",\"b\"]]",
-  "sampleTestCase": "\"fool3e7bar\"\n\"leet\"\n[[\"e\",\"3\"],[\"t\",\"7\"],[\"t\",\"8\"]]",
-  "metaData": "{\n  \"name\": \"matchReplacement\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"sub\"\n    },\n    {\n      \"type\": \"character[][]\",\n      \"name\": \"mappings\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

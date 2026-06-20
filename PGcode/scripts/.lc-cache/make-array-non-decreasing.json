@@ -1,8 +1,0 @@
-{
-  "questionId": "3738",
-  "titleSlug": "make-array-non-decreasing",
-  "title": "Make Array Non-decreasing",
-  "exampleTestcases": "[4,2,5,3,5]\n[1,2,3]",
-  "sampleTestCase": "[4,2,5,3,5]",
-  "metaData": "{\n  \"name\": \"maximumPossibleSize\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

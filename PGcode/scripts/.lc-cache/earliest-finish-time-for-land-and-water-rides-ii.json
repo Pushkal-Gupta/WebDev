@@ -1,8 +1,0 @@
-{
-  "questionId": "3967",
-  "titleSlug": "earliest-finish-time-for-land-and-water-rides-ii",
-  "title": "Earliest Finish Time for Land and Water Rides II",
-  "exampleTestcases": "[2,8]\n[4,1]\n[6]\n[3]\n[5]\n[3]\n[1]\n[10]",
-  "sampleTestCase": "[2,8]\n[4,1]\n[6]\n[3]",
-  "metaData": "{\n  \"name\": \"earliestFinishTime\",\n  \"params\": [\n    {\n      \"name\": \"landStartTime\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"landDuration\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"waterStartTime\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"waterDuration\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

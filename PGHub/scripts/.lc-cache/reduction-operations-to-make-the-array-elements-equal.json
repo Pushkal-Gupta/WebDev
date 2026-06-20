@@ -1,0 +1,8 @@
+{
+  "questionId": "2016",
+  "titleSlug": "reduction-operations-to-make-the-array-elements-equal",
+  "title": "Reduction Operations to Make the Array Elements Equal",
+  "exampleTestcases": "[5,1,3]\n[1,1,1]\n[1,1,2,2,3]",
+  "sampleTestCase": "[5,1,3]",
+  "metaData": "{\n  \"name\": \"reductionOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3324",
-  "titleSlug": "split-the-array",
-  "title": "Split the Array",
-  "exampleTestcases": "[1,1,2,2,3,4]\n[1,1,1,1]",
-  "sampleTestCase": "[1,1,2,2,3,4]",
-  "metaData": "{\n  \"name\": \"isPossibleToSplit\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

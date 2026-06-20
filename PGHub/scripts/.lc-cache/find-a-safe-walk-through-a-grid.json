@@ -1,0 +1,8 @@
+{
+  "questionId": "3558",
+  "titleSlug": "find-a-safe-walk-through-a-grid",
+  "title": "Find a Safe Walk Through a Grid",
+  "exampleTestcases": "[[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0]]\n1\n[[0,1,1,0,0,0],[1,0,1,0,0,0],[0,1,1,1,0,1],[0,0,1,0,1,0]]\n3\n[[1,1,1],[1,0,1],[1,1,1]]\n5",
+  "sampleTestCase": "[[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0]]\n1",
+  "metaData": "{\n  \"name\": \"findSafeWalk\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"list<list<integer>>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"health\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

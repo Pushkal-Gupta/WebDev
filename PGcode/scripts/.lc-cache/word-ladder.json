@@ -1,8 +1,0 @@
-{
-  "questionId": "127",
-  "titleSlug": "word-ladder",
-  "title": "Word Ladder",
-  "exampleTestcases": "\"hit\"\n\"cog\"\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]\n\"hit\"\n\"cog\"\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\"]",
-  "sampleTestCase": "\"hit\"\n\"cog\"\n[\"hot\",\"dot\",\"dog\",\"lot\",\"log\",\"cog\"]",
-  "metaData": "{\r\n  \"name\": \"ladderLength\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"beginWord\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"endWord\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"wordList\",\r\n      \"type\": \"list<string>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

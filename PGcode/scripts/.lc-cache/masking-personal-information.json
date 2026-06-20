@@ -1,8 +1,0 @@
-{
-  "questionId": "858",
-  "titleSlug": "masking-personal-information",
-  "title": "Masking Personal Information",
-  "exampleTestcases": "\"LeetCode@LeetCode.com\"\n\"AB@qq.com\"\n\"1(234)567-890\"",
-  "sampleTestCase": "\"LeetCode@LeetCode.com\"",
-  "metaData": "{\n  \"name\": \"maskPII\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

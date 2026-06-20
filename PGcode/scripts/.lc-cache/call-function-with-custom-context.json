@@ -1,8 +1,0 @@
-{
-  "questionId": "2790",
-  "titleSlug": "call-function-with-custom-context",
-  "title": "Call Function with Custom Context",
-  "exampleTestcases": "function add(b) { return this.a + b; }\n[{\"a\":5},7]\nfunction tax(price, taxRate) { return `The cost of the ${this.item} is ${price * taxRate}`; }\n[{\"item\":\"burger\"},10,1.1]",
-  "sampleTestCase": "function add(b) { return this.a + b; }\n[{\"a\":5},7]",
-  "metaData": "{\n  \"name\": \"callPolyfill\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"context\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"args\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

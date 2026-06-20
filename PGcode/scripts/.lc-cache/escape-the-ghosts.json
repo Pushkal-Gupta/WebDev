@@ -1,8 +1,0 @@
-{
-  "questionId": "805",
-  "titleSlug": "escape-the-ghosts",
-  "title": "Escape The Ghosts",
-  "exampleTestcases": "[[1,0],[0,3]]\n[0,1]\n[[1,0]]\n[2,0]\n[[2,0]]\n[1,0]",
-  "sampleTestCase": "[[1,0],[0,3]]\n[0,1]",
-  "metaData": "{\r\n  \"name\": \"escapeGhosts\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"ghosts\",\r\n      \"type\": \"integer[][]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

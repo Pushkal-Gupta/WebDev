@@ -1,0 +1,8 @@
+{
+  "questionId": "1793",
+  "titleSlug": "minimum-moves-to-make-array-complementary",
+  "title": "Minimum Moves to Make Array Complementary",
+  "exampleTestcases": "[1,2,4,3]\n4\n[1,2,2,1]\n2\n[1,2,1,2]\n2",
+  "sampleTestCase": "[1,2,4,3]\n4",
+  "metaData": "{\n  \"name\": \"minMoves\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

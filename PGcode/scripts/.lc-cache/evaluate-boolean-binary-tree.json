@@ -1,8 +1,0 @@
-{
-  "questionId": "2416",
-  "titleSlug": "evaluate-boolean-binary-tree",
-  "title": "Evaluate Boolean Binary Tree",
-  "exampleTestcases": "[2,1,3,null,null,0,1]\n[0]",
-  "sampleTestCase": "[2,1,3,null,null,0,1]",
-  "metaData": "{\n  \"name\": \"evaluateTree\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

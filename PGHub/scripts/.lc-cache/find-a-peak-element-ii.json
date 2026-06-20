@@ -1,0 +1,8 @@
+{
+  "questionId": "2047",
+  "titleSlug": "find-a-peak-element-ii",
+  "title": "Find a Peak Element II",
+  "exampleTestcases": "[[1,4],[3,2]]\n[[10,20,15],[21,30,14],[7,16,32]]",
+  "sampleTestCase": "[[1,4],[3,2]]",
+  "metaData": "{\n  \"name\": \"findPeakGrid\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"manual\": false\n}"
+}

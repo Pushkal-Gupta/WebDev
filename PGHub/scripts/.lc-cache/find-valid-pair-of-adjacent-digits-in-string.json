@@ -1,0 +1,8 @@
+{
+  "questionId": "3736",
+  "titleSlug": "find-valid-pair-of-adjacent-digits-in-string",
+  "title": "Find Valid Pair of Adjacent Digits in String",
+  "exampleTestcases": "\"2523533\"\n\"221\"\n\"22\"",
+  "sampleTestCase": "\"2523533\"",
+  "metaData": "{\n  \"name\": \"findValidPair\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

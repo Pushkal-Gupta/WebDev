@@ -1,8 +1,0 @@
-{
-  "questionId": "137",
-  "titleSlug": "single-number-ii",
-  "title": "Single Number II",
-  "exampleTestcases": "[2,2,3,2]\n[0,1,0,1,0,1,99]",
-  "sampleTestCase": "[2,2,3,2]",
-  "metaData": "{\r\n  \"name\": \"singleNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1378",
-  "titleSlug": "cells-with-odd-values-in-a-matrix",
-  "title": "Cells with Odd Values in a Matrix",
-  "exampleTestcases": "2\n3\n[[0,1],[1,1]]\n2\n2\n[[1,1],[0,0]]",
-  "sampleTestCase": "2\n3\n[[0,1],[1,1]]",
-  "metaData": "{\n  \"name\": \"oddCells\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"indices\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

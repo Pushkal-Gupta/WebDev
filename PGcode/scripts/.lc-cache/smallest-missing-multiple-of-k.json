@@ -1,8 +1,0 @@
-{
-  "questionId": "4080",
-  "titleSlug": "smallest-missing-multiple-of-k",
-  "title": "Smallest Missing Multiple of K",
-  "exampleTestcases": "[8,2,3,4,6]\n2\n[1,4,7,10,15]\n5",
-  "sampleTestCase": "[8,2,3,4,6]\n2",
-  "metaData": "{\n  \"name\": \"missingMultiple\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

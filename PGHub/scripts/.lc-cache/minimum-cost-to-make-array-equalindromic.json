@@ -1,0 +1,8 @@
+{
+  "questionId": "3229",
+  "titleSlug": "minimum-cost-to-make-array-equalindromic",
+  "title": "Minimum Cost to Make Array Equalindromic",
+  "exampleTestcases": "[1,2,3,4,5]\n[10,12,13,14,15]\n[22,33,22,33,22]",
+  "sampleTestCase": "[1,2,3,4,5]",
+  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

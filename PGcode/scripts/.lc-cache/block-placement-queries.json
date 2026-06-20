@@ -1,8 +1,0 @@
-{
-  "questionId": "3435",
-  "titleSlug": "block-placement-queries",
-  "title": "Block Placement Queries",
-  "exampleTestcases": "[[1,2],[2,3,3],[2,3,1],[2,2,2]]\n[[1,7],[2,7,6],[1,2],[2,7,5],[2,7,6]]",
-  "sampleTestCase": "[[1,2],[2,3,3],[2,3,1],[2,2,2]]",
-  "metaData": "{\n  \"name\": \"getResults\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\"\n  }\n}"
-}

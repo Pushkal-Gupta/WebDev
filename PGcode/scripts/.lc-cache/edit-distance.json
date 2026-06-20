@@ -1,8 +1,0 @@
-{
-  "questionId": "72",
-  "titleSlug": "edit-distance",
-  "title": "Edit Distance",
-  "exampleTestcases": "\"horse\"\n\"ros\"\n\"intention\"\n\"execution\"",
-  "sampleTestCase": "\"horse\"\n\"ros\"",
-  "metaData": "{ \r\n  \"name\": \"minDistance\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"word1\",\r\n      \"type\": \"string\"\r\n    },\r\n    { \r\n      \"name\": \"word2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

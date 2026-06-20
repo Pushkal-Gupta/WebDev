@@ -1,8 +1,0 @@
-{
-  "questionId": "2736",
-  "titleSlug": "minimum-additions-to-make-valid-string",
-  "title": "Minimum Additions to Make Valid String",
-  "exampleTestcases": "\"b\"\n\"aaa\"\n\"abc\"",
-  "sampleTestCase": "\"b\"",
-  "metaData": "{\n  \"name\": \"addMinimum\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

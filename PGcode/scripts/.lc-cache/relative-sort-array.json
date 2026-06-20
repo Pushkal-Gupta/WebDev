@@ -1,8 +1,0 @@
-{
-  "questionId": "1217",
-  "titleSlug": "relative-sort-array",
-  "title": "Relative Sort Array",
-  "exampleTestcases": "[2,3,1,3,2,4,6,7,9,2,19]\n[2,1,4,3,9,6]\n[28,6,22,8,44,17]\n[22,28,8,6]",
-  "sampleTestCase": "[2,3,1,3,2,4,6,7,9,2,19]\n[2,1,4,3,9,6]",
-  "metaData": "{\n  \"name\": \"relativeSortArray\",\n  \"params\": [\n    {\n      \"name\": \"arr1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arr2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

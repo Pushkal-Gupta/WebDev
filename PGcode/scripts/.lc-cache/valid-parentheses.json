@@ -1,8 +1,0 @@
-{
-  "questionId": "20",
-  "titleSlug": "valid-parentheses",
-  "title": "Valid Parentheses",
-  "exampleTestcases": "\"()\"\n\"()[]{}\"\n\"(]\"\n\"([])\"\n\"([)]\"",
-  "sampleTestCase": "\"()\"",
-  "metaData": "{ \r\n  \"name\": \"isValid\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

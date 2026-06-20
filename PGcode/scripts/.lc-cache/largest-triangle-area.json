@@ -1,8 +1,0 @@
-{
-  "questionId": "830",
-  "titleSlug": "largest-triangle-area",
-  "title": "Largest Triangle Area",
-  "exampleTestcases": "[[0,0],[0,1],[1,0],[0,2],[2,0]]\n[[1,0],[0,0],[0,1]]",
-  "sampleTestCase": "[[0,0],[0,1],[1,0],[0,2],[2,0]]",
-  "metaData": "{\r\n  \"name\": \"largestTriangleArea\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"points\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"double\"\r\n  }\r\n}\r\n"
-}

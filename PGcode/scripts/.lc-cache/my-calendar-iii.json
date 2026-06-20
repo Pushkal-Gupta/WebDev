@@ -1,8 +1,0 @@
-{
-  "questionId": "732",
-  "titleSlug": "my-calendar-iii",
-  "title": "My Calendar III",
-  "exampleTestcases": "[\"MyCalendarThree\",\"book\",\"book\",\"book\",\"book\",\"book\",\"book\"]\n[[],[10,20],[50,60],[10,40],[5,15],[5,10],[25,55]]",
-  "sampleTestCase": "[\"MyCalendarThree\",\"book\",\"book\",\"book\",\"book\",\"book\",\"book\"]\n[[],[10,20],[50,60],[10,40],[5,15],[5,10],[25,55]]",
-  "metaData": "{\n  \"classname\": \"MyCalendarThree\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"name\": \"book\",\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"startTime\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"endTime\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"starts\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"ends\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\",\n    \"dealloc\": true\n  }\n}"
-}

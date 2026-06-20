@@ -1,8 +1,0 @@
-{
-  "questionId": "3062",
-  "titleSlug": "create-a-dataframe-from-list",
-  "title": "Create a DataFrame from List",
-  "exampleTestcases": "[[1,15],[2,11],[3,11],[4,20]]",
-  "sampleTestCase": "[[1,15],[2,11],[3,11],[4,20]]",
-  "metaData": "{\n  \"name\": \"create_a_dataframe\",\n  \"params\": [\n    {\n      \"name\": \"student_data\",\n      \"type\": \"list<list<integer>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"DataFrame\"\n  },\n  \"data\": true,\n  \"manual\": true\n}"
-}

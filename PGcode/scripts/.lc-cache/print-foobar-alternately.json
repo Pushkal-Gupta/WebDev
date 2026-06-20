@@ -1,8 +1,0 @@
-{
-  "questionId": "1187",
-  "titleSlug": "print-foobar-alternately",
-  "title": "Print FooBar Alternately",
-  "exampleTestcases": "1\n2",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"FooBar\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"java\",\n    \"cpp\",\n    \"python\",\n    \"c\",\n    \"python3\",\n    \"csharp\",\n    \"golang\",\n    \"rust\"\n  ],\n  \"manual\": true\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2205",
-  "titleSlug": "find-good-days-to-rob-the-bank",
-  "title": "Find Good Days to Rob the Bank",
-  "exampleTestcases": "[5,3,3,3,5,6,2]\n2\n[1,1,1,1,1]\n0\n[1,2,3,4,5,6]\n2",
-  "sampleTestCase": "[5,3,3,3,5,6,2]\n2",
-  "metaData": "{\n  \"name\": \"goodDaysToRobBank\",\n  \"params\": [\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"security\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"time\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "884",
-  "titleSlug": "k-similar-strings",
-  "title": "K-Similar Strings",
-  "exampleTestcases": "\"ab\"\n\"ba\"\n\"abc\"\n\"bca\"",
-  "sampleTestCase": "\"ab\"\n\"ba\"",
-  "metaData": "{\n  \"name\": \"kSimilarity\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"s2\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

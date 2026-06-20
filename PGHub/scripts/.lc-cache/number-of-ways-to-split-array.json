@@ -1,0 +1,8 @@
+{
+  "questionId": "2358",
+  "titleSlug": "number-of-ways-to-split-array",
+  "title": "Number of Ways to Split Array",
+  "exampleTestcases": "[10,4,-8,7]\n[2,3,1,0]",
+  "sampleTestCase": "[10,4,-8,7]",
+  "metaData": "{\n  \"name\": \"waysToSplitArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

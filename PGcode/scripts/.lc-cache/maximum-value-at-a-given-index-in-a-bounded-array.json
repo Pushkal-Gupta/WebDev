@@ -1,8 +1,0 @@
-{
-  "questionId": "1929",
-  "titleSlug": "maximum-value-at-a-given-index-in-a-bounded-array",
-  "title": "Maximum Value at a Given Index in a Bounded Array",
-  "exampleTestcases": "4\n2\n6\n6\n1\n10",
-  "sampleTestCase": "4\n2\n6",
-  "metaData": "{\n  \"name\": \"maxValue\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"index\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxSum\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

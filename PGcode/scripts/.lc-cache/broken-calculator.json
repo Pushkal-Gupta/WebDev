@@ -1,8 +1,0 @@
-{
-  "questionId": "1033",
-  "titleSlug": "broken-calculator",
-  "title": "Broken Calculator",
-  "exampleTestcases": "2\n3\n5\n8\n3\n10",
-  "sampleTestCase": "2\n3",
-  "metaData": "{\n  \"name\": \"brokenCalc\",\n  \"params\": [\n    {\n      \"name\": \"startValue\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1492",
-  "titleSlug": "time-needed-to-inform-all-employees",
-  "title": "Time Needed to Inform All Employees",
-  "exampleTestcases": "1\n0\n[-1]\n[0]\n6\n2\n[2,2,-1,2,2,2]\n[0,0,1,0,0,0]",
-  "sampleTestCase": "1\n0\n[-1]\n[0]",
-  "metaData": "{\n  \"name\": \"numOfMinutes\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"headID\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"manager\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"informTime\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

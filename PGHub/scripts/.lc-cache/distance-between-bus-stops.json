@@ -1,0 +1,8 @@
+{
+  "questionId": "1287",
+  "titleSlug": "distance-between-bus-stops",
+  "title": "Distance Between Bus Stops",
+  "exampleTestcases": "[1,2,3,4]\n0\n1\n[1,2,3,4]\n0\n2\n[1,2,3,4]\n0\n3",
+  "sampleTestCase": "[1,2,3,4]\n0\n1",
+  "metaData": "{\n  \"name\": \"distanceBetweenBusStops\",\n  \"params\": [\n    {\n      \"name\": \"distance\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"start\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"destination\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

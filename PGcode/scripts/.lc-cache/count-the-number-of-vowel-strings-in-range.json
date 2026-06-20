@@ -1,8 +1,0 @@
-{
-  "questionId": "2654",
-  "titleSlug": "count-the-number-of-vowel-strings-in-range",
-  "title": "Count the Number of Vowel Strings in Range",
-  "exampleTestcases": "[\"are\",\"amy\",\"u\"]\n0\n2\n[\"hey\",\"aeo\",\"mu\",\"ooo\",\"artro\"]\n1\n4",
-  "sampleTestCase": "[\"are\",\"amy\",\"u\"]\n0\n2",
-  "metaData": "{\n  \"name\": \"vowelStrings\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"left\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"right\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

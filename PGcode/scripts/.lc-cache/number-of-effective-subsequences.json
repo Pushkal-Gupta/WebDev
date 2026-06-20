@@ -1,8 +1,0 @@
-{
-  "questionId": "4134",
-  "titleSlug": "number-of-effective-subsequences",
-  "title": "Number of Effective Subsequences",
-  "exampleTestcases": "[1,2,3]\n[7,4,6]\n[8,8]\n[2,2,1]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"countEffective\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

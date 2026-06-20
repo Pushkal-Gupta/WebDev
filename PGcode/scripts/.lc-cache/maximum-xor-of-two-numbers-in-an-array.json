@@ -1,8 +1,0 @@
-{
-  "questionId": "421",
-  "titleSlug": "maximum-xor-of-two-numbers-in-an-array",
-  "title": "Maximum XOR of Two Numbers in an Array",
-  "exampleTestcases": "[3,10,5,25,2,8]\n[14,70,53,83,49,91,36,80,92,51,66,70]",
-  "sampleTestCase": "[3,10,5,25,2,8]",
-  "metaData": "{\n  \"name\": \"findMaximumXOR\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

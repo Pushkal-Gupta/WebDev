@@ -1,8 +1,0 @@
-{
-  "questionId": "1871",
-  "titleSlug": "palindrome-partitioning-iv",
-  "title": "Palindrome Partitioning IV",
-  "exampleTestcases": "\"abcbdd\"\n\"bcbddxy\"",
-  "sampleTestCase": "\"abcbdd\"",
-  "metaData": "{\n  \"name\": \"checkPartitioning\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

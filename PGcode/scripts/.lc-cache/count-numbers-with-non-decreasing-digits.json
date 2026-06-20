@@ -1,8 +1,0 @@
-{
-  "questionId": "3810",
-  "titleSlug": "count-numbers-with-non-decreasing-digits",
-  "title": "Count Numbers with Non-Decreasing Digits ",
-  "exampleTestcases": "\"23\"\n\"28\"\n8\n\"2\"\n\"7\"\n2",
-  "sampleTestCase": "\"23\"\n\"28\"\n8",
-  "metaData": "{\n  \"name\": \"countNumbers\",\n  \"params\": [\n    {\n      \"name\": \"l\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"r\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2146",
-  "titleSlug": "check-if-word-can-be-placed-in-crossword",
-  "title": "Check if Word Can Be Placed In Crossword",
-  "exampleTestcases": "[[\"#\",\" \",\"#\"],[\" \",\" \",\"#\"],[\"#\",\"c\",\" \"]]\n\"abc\"\n[[\" \",\"#\",\"a\"],[\" \",\"#\", \"c\"],[\" \",\"#\",\"a\"]]\n\"ac\"\n[[\"#\",\" \",\"#\"],[\" \",\" \",\"#\"],[\"#\",\" \",\"c\"]]\n\"ca\"",
-  "sampleTestCase": "[[\"#\",\" \",\"#\"],[\" \",\" \",\"#\"],[\"#\",\"c\",\" \"]]\n\"abc\"",
-  "metaData": "{\n  \"name\": \"placeWordInCrossword\",\n  \"params\": [\n    {\n      \"name\": \"board\",\n      \"type\": \"character[][]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

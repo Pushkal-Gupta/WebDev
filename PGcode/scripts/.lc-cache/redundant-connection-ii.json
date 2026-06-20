@@ -1,8 +1,0 @@
-{
-  "questionId": "685",
-  "titleSlug": "redundant-connection-ii",
-  "title": "Redundant Connection II",
-  "exampleTestcases": "[[1,2],[1,3],[2,3]]\n[[1,2],[2,3],[3,4],[4,1],[1,5]]",
-  "sampleTestCase": "[[1,2],[1,3],[2,3]]",
-  "metaData": "{\r\n  \"name\": \"findRedundantDirectedConnection\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"edges\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
-}

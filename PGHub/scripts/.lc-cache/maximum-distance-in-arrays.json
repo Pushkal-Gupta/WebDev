@@ -1,0 +1,8 @@
+{
+  "questionId": "624",
+  "titleSlug": "maximum-distance-in-arrays",
+  "title": "Maximum Distance in Arrays",
+  "exampleTestcases": "[[1,2,3],[4,5],[1,2,3]]\n[[1],[1]]",
+  "sampleTestCase": "[[1,2,3],[4,5],[1,2,3]]",
+  "metaData": "{\r\n  \"name\": \"maxDistance\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"arrays\",\r\n      \"type\": \"list<list<integer>>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

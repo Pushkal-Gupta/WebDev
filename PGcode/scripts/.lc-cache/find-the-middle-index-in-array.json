@@ -1,8 +1,0 @@
-{
-  "questionId": "2102",
-  "titleSlug": "find-the-middle-index-in-array",
-  "title": "Find the Middle Index in Array",
-  "exampleTestcases": "[2,3,-1,8,4]\n[1,-1,4]\n[2,5]",
-  "sampleTestCase": "[2,3,-1,8,4]",
-  "metaData": "{\n  \"name\": \"findMiddleIndex\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

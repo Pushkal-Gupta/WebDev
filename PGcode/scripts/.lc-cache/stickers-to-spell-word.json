@@ -1,8 +1,0 @@
-{
-  "questionId": "691",
-  "titleSlug": "stickers-to-spell-word",
-  "title": "Stickers to Spell Word",
-  "exampleTestcases": "[\"with\",\"example\",\"science\"]\n\"thehat\"\n[\"notice\",\"possible\"]\n\"basicbasic\"",
-  "sampleTestCase": "[\"with\",\"example\",\"science\"]\n\"thehat\"",
-  "metaData": "{\r\n  \"name\": \"minStickers\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"stickers\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

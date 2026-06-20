@@ -1,8 +1,0 @@
-{
-  "questionId": "2619",
-  "titleSlug": "categorize-box-according-to-criteria",
-  "title": "Categorize Box According to Criteria",
-  "exampleTestcases": "1000\n35\n700\n300\n200\n50\n800\n50",
-  "sampleTestCase": "1000\n35\n700\n300",
-  "metaData": "{\n  \"name\": \"categorizeBox\",\n  \"params\": [\n    {\n      \"name\": \"length\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"width\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"height\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"mass\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

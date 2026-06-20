@@ -1,8 +1,0 @@
-{
-  "questionId": "3405",
-  "titleSlug": "count-the-number-of-special-characters-ii",
-  "title": "Count the Number of Special Characters II",
-  "exampleTestcases": "\"aaAbcBC\"\n\"abc\"\n\"AbBCab\"",
-  "sampleTestCase": "\"aaAbcBC\"",
-  "metaData": "{\n  \"name\": \"numberOfSpecialChars\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

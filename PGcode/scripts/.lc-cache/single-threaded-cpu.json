@@ -1,8 +1,0 @@
-{
-  "questionId": "1962",
-  "titleSlug": "single-threaded-cpu",
-  "title": "Single-Threaded CPU",
-  "exampleTestcases": "[[1,2],[2,4],[3,2],[4,1]]\n[[7,10],[7,12],[7,5],[7,4],[7,2]]",
-  "sampleTestCase": "[[1,2],[2,4],[3,2],[4,1]]",
-  "metaData": "{\n  \"name\": \"getOrder\",\n  \"params\": [\n    {\n      \"name\": \"tasks\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

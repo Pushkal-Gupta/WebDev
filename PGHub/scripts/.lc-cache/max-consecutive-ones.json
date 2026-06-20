@@ -1,0 +1,8 @@
+{
+  "questionId": "485",
+  "titleSlug": "max-consecutive-ones",
+  "title": "Max Consecutive Ones",
+  "exampleTestcases": "[1,1,0,1,1,1]\n[1,0,1,1,0,1]",
+  "sampleTestCase": "[1,1,0,1,1,1]",
+  "metaData": "{\r\n  \"name\": \"findMaxConsecutiveOnes\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

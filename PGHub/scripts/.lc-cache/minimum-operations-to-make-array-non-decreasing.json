@@ -1,0 +1,8 @@
+{
+  "questionId": "4270",
+  "titleSlug": "minimum-operations-to-make-array-non-decreasing",
+  "title": "Minimum Operations to Make Array Non Decreasing",
+  "exampleTestcases": "[3,3,2,1]\n[5,1,2,3]",
+  "sampleTestCase": "[3,3,2,1]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

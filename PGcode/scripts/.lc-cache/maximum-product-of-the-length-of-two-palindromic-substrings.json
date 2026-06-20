@@ -1,8 +1,0 @@
-{
-  "questionId": "1336",
-  "titleSlug": "maximum-product-of-the-length-of-two-palindromic-substrings",
-  "title": "Maximum Product of the Length of Two Palindromic Substrings",
-  "exampleTestcases": "\"ababbb\"\n\"zaaaxbbby\"",
-  "sampleTestCase": "\"ababbb\"",
-  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3044",
+  "titleSlug": "minimum-operations-to-collect-elements",
+  "title": "Minimum Operations to Collect Elements",
+  "exampleTestcases": "[3,1,5,4,2]\n2\n[3,1,5,4,2]\n5\n[3,2,5,3,1]\n3",
+  "sampleTestCase": "[3,1,5,4,2]\n2",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

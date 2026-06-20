@@ -1,8 +1,0 @@
-{
-  "questionId": "1498",
-  "titleSlug": "find-a-corresponding-node-of-a-binary-tree-in-a-clone-of-that-tree",
-  "title": "Find a Corresponding Node of a Binary Tree in a Clone of That Tree",
-  "exampleTestcases": "[7,4,3,null,null,6,19]\n3\n[7]\n7\n[8,null,6,null,5,null,4,null,3,null,2,null,1]\n4",
-  "sampleTestCase": "[7,4,3,null,null,6,19]\n3",
-  "metaData": "{\n  \"name\": \"getTargetCopy\",\n  \"params\": [\n    {\n      \"name\": \"tree\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"csharp\",\n    \"javascript\",\n    \"python3\",\n    \"typescript\"\n  ]\n}"
-}

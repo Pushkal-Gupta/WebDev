@@ -1,8 +1,0 @@
-{
-  "questionId": "3179",
-  "titleSlug": "maximum-points-after-collecting-coins-from-all-nodes",
-  "title": "Maximum Points After Collecting Coins From All Nodes",
-  "exampleTestcases": "[[0,1],[1,2],[2,3]]\n[10,10,3,3]\n5\n[[0,1],[0,2]]\n[8,4,4]\n0",
-  "sampleTestCase": "[[0,1],[1,2],[2,3]]\n[10,10,3,3]\n5",
-  "metaData": "{\n  \"name\": \"maximumPoints\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"coins\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

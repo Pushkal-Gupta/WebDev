@@ -1,8 +1,0 @@
-{
-  "questionId": "2096",
-  "titleSlug": "find-the-longest-valid-obstacle-course-at-each-position",
-  "title": "Find the Longest Valid Obstacle Course at Each Position",
-  "exampleTestcases": "[1,2,3,2]\n[2,2,1]\n[3,1,5,6,4,2]",
-  "sampleTestCase": "[1,2,3,2]",
-  "metaData": "{\n  \"name\": \"longestObstacleCourseAtEachPosition\",\n  \"params\": [\n    {\n      \"name\": \"obstacles\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "900",
-  "titleSlug": "reordered-power-of-2",
-  "title": "Reordered Power of 2",
-  "exampleTestcases": "1\n10",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"reorderedPowerOf2\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

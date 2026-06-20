@@ -1,0 +1,8 @@
+{
+  "questionId": "961",
+  "titleSlug": "long-pressed-name",
+  "title": "Long Pressed Name",
+  "exampleTestcases": "\"alex\"\n\"aaleex\"\n\"saeed\"\n\"ssaaedd\"",
+  "sampleTestCase": "\"alex\"\n\"aaleex\"",
+  "metaData": "{\r\n  \"name\": \"isLongPressedName\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"name\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"typed\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

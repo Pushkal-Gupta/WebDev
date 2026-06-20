@@ -1,8 +1,0 @@
-{
-  "questionId": "2732",
-  "titleSlug": "counter",
-  "title": "Counter",
-  "exampleTestcases": "10\n[\"call\",\"call\",\"call\"]\n-2\n[\"call\",\"call\",\"call\",\"call\",\"call\"]",
-  "sampleTestCase": "10\n[\"call\",\"call\",\"call\"]",
-  "metaData": "{\n  \"name\": \"createCounter\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"calls\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

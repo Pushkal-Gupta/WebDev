@@ -1,0 +1,8 @@
+{
+  "questionId": "572",
+  "titleSlug": "subtree-of-another-tree",
+  "title": "Subtree of Another Tree",
+  "exampleTestcases": "[3,4,5,1,2]\n[4,1,2]\n[3,4,5,1,2,null,null,null,null,0]\n[4,1,2]",
+  "sampleTestCase": "[3,4,5,1,2]\n[4,1,2]",
+  "metaData": "{\n  \"name\": \"isSubtree\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"name\": \"subRoot\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

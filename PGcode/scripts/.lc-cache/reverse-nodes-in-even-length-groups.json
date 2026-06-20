@@ -1,8 +1,0 @@
-{
-  "questionId": "2196",
-  "titleSlug": "reverse-nodes-in-even-length-groups",
-  "title": "Reverse Nodes in Even Length Groups",
-  "exampleTestcases": "[5,2,6,3,9,1,7,3,8,4]\n[1,1,0,6]\n[1,1,0,6,5]",
-  "sampleTestCase": "[5,2,6,3,9,1,7,3,8,4]",
-  "metaData": "{\n  \"name\": \"reverseEvenLengthGroups\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
-}

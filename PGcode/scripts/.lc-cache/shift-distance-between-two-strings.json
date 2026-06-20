@@ -1,8 +1,0 @@
-{
-  "questionId": "3591",
-  "titleSlug": "shift-distance-between-two-strings",
-  "title": "Shift Distance Between Two Strings",
-  "exampleTestcases": "\"abab\"\n\"baba\"\n[100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]\n[1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]\n\"leet\"\n\"code\"\n[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]\n[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]",
-  "sampleTestCase": "\"abab\"\n\"baba\"\n[100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]\n[1,100,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]",
-  "metaData": "{\n  \"name\": \"shiftDistance\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nextCost\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"previousCost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

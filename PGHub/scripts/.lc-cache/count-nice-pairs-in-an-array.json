@@ -1,0 +1,8 @@
+{
+  "questionId": "1925",
+  "titleSlug": "count-nice-pairs-in-an-array",
+  "title": "Count Nice Pairs in an Array",
+  "exampleTestcases": "[42,11,1,97]\n[13,10,35,24,76]",
+  "sampleTestCase": "[42,11,1,97]",
+  "metaData": "{\n  \"name\": \"countNicePairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

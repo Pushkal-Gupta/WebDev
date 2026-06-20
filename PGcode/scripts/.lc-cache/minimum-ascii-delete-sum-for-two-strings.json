@@ -1,8 +1,0 @@
-{
-  "questionId": "712",
-  "titleSlug": "minimum-ascii-delete-sum-for-two-strings",
-  "title": "Minimum ASCII Delete Sum for Two Strings",
-  "exampleTestcases": "\"sea\"\n\"eat\"\n\"delete\"\n\"leet\"",
-  "sampleTestCase": "\"sea\"\n\"eat\"",
-  "metaData": "{\r\n  \"name\": \"minimumDeleteSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s1\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"s2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

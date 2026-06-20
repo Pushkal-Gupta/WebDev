@@ -1,0 +1,8 @@
+{
+  "questionId": "2319",
+  "titleSlug": "longest-substring-of-one-repeating-character",
+  "title": "Longest Substring of One Repeating Character",
+  "exampleTestcases": "\"babacc\"\n\"bcb\"\n[1,3,3]\n\"abyzz\"\n\"aa\"\n[2,1]",
+  "sampleTestCase": "\"babacc\"\n\"bcb\"\n[1,3,3]",
+  "metaData": "{\n  \"name\": \"longestRepeating\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"queryCharacters\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"queryIndices\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

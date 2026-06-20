@@ -1,8 +1,0 @@
-{
-  "questionId": "2228",
-  "titleSlug": "watering-plants-ii",
-  "title": "Watering Plants II",
-  "exampleTestcases": "[2,2,3,3]\n5\n5\n[2,2,3,3]\n3\n4\n[5]\n10\n8",
-  "sampleTestCase": "[2,2,3,3]\n5\n5",
-  "metaData": "{\n  \"name\": \"minimumRefill\",\n  \"params\": [\n    {\n      \"name\": \"plants\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"capacityA\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"capacityB\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

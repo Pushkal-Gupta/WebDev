@@ -1,8 +1,0 @@
-{
-  "questionId": "2044",
-  "titleSlug": "number-of-wonderful-substrings",
-  "title": "Number of Wonderful Substrings",
-  "exampleTestcases": "\"aba\"\n\"aabb\"\n\"he\"",
-  "sampleTestCase": "\"aba\"",
-  "metaData": "{\n  \"name\": \"wonderfulSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

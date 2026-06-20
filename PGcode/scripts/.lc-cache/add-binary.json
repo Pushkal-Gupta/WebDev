@@ -1,8 +1,0 @@
-{
-  "questionId": "67",
-  "titleSlug": "add-binary",
-  "title": "Add Binary",
-  "exampleTestcases": "\"11\"\n\"1\"\n\"1010\"\n\"1011\"",
-  "sampleTestCase": "\"11\"\n\"1\"",
-  "metaData": "{\r\n  \"name\": \"addBinary\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"a\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"b\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

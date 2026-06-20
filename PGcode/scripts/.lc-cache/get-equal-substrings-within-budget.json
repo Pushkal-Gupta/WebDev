@@ -1,8 +1,0 @@
-{
-  "questionId": "1321",
-  "titleSlug": "get-equal-substrings-within-budget",
-  "title": "Get Equal Substrings Within Budget",
-  "exampleTestcases": "\"abcd\"\n\"bcdf\"\n3\n\"abcd\"\n\"cdef\"\n3\n\"abcd\"\n\"acde\"\n0",
-  "sampleTestCase": "\"abcd\"\n\"bcdf\"\n3",
-  "metaData": "{\n  \"name\": \"equalSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxCost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

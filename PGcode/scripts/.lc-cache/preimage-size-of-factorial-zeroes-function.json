@@ -1,8 +1,0 @@
-{
-  "questionId": "809",
-  "titleSlug": "preimage-size-of-factorial-zeroes-function",
-  "title": "Preimage Size of Factorial Zeroes Function",
-  "exampleTestcases": "0\n5\n3",
-  "sampleTestCase": "0",
-  "metaData": "{\n  \"name\": \"preimageSizeFZF\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

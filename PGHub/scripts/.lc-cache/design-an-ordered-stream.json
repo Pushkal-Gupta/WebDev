@@ -1,0 +1,8 @@
+{
+  "questionId": "1775",
+  "titleSlug": "design-an-ordered-stream",
+  "title": "Design an Ordered Stream",
+  "exampleTestcases": "[\"OrderedStream\",\"insert\",\"insert\",\"insert\",\"insert\",\"insert\"]\n[[5],[3,\"ccccc\"],[1,\"aaaaa\"],[2,\"bbbbb\"],[5,\"eeeee\"],[4,\"ddddd\"]]",
+  "sampleTestCase": "[\"OrderedStream\",\"insert\",\"insert\",\"insert\",\"insert\",\"insert\"]\n[[5],[3,\"ccccc\"],[1,\"aaaaa\"],[2,\"bbbbb\"],[5,\"eeeee\"],[4,\"ddddd\"]]",
+  "metaData": "{\n  \"classname\": \"OrderedStream\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"idKey\"\n        },\n        {\n          \"type\": \"string\",\n          \"name\": \"value\"\n        }\n      ],\n      \"name\": \"insert\",\n      \"return\": {\n        \"type\": \"list<string>\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

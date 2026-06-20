@@ -1,8 +1,0 @@
-{
-  "questionId": "3877",
-  "titleSlug": "two-letter-card-game",
-  "title": "Two-Letter Card Game",
-  "exampleTestcases": "[\"aa\",\"ab\",\"ba\",\"ac\"]\n\"a\"\n[\"aa\",\"ab\",\"ba\"]\n\"a\"\n[\"aa\",\"ab\",\"ba\",\"ac\"]\n\"b\"",
-  "sampleTestCase": "[\"aa\",\"ab\",\"ba\",\"ac\"]\n\"a\"",
-  "metaData": "{\n  \"name\": \"score\",\n  \"params\": [\n    {\n      \"name\": \"cards\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

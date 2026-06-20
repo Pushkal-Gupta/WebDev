@@ -1,8 +1,0 @@
-{
-  "questionId": "1332",
-  "titleSlug": "count-vowels-permutation",
-  "title": "Count Vowels Permutation",
-  "exampleTestcases": "1\n2",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"countVowelPermutation\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

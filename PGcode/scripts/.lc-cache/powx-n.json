@@ -1,8 +1,0 @@
-{
-  "questionId": "50",
-  "titleSlug": "powx-n",
-  "title": "Pow(x, n)",
-  "exampleTestcases": "2.00000\n10\n2.10000\n3\n2.00000\n-2",
-  "sampleTestCase": "2.00000\n10",
-  "metaData": "{\r\n  \"name\": \"myPow\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"double\"\r\n    },\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"double\"\r\n  }\r\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2603",
+  "titleSlug": "reward-top-k-students",
+  "title": "Reward Top K Students",
+  "exampleTestcases": "[\"smart\",\"brilliant\",\"studious\"]\n[\"not\"]\n[\"this student is studious\",\"the student is smart\"]\n[1,2]\n2\n[\"smart\",\"brilliant\",\"studious\"]\n[\"not\"]\n[\"this student is not studious\",\"the student is smart\"]\n[1,2]\n2",
+  "sampleTestCase": "[\"smart\",\"brilliant\",\"studious\"]\n[\"not\"]\n[\"this student is studious\",\"the student is smart\"]\n[1,2]\n2",
+  "metaData": "{\n  \"name\": \"topStudents\",\n  \"params\": [\n    {\n      \"name\": \"positive_feedback\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"negative_feedback\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"report\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"student_id\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3882",
-  "titleSlug": "partition-array-for-maximum-xor-and-and",
-  "title": "Partition Array for Maximum XOR and AND",
-  "exampleTestcases": "[2,3]\n[1,3,2]\n[2,3,6,7]",
-  "sampleTestCase": "[2,3]",
-  "metaData": "{\n  \"name\": \"maximizeXorAndXor\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

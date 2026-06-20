@@ -1,8 +1,0 @@
-{
-  "questionId": "3685",
-  "titleSlug": "count-subarrays-of-length-three-with-a-condition",
-  "title": "Count Subarrays of Length Three With a Condition",
-  "exampleTestcases": "[1,2,1,4,1]\n[1,1,1]",
-  "sampleTestCase": "[1,2,1,4,1]",
-  "metaData": "{\n  \"name\": \"countSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

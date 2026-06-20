@@ -1,8 +1,0 @@
-{
-  "questionId": "2494",
-  "titleSlug": "sum-of-prefix-scores-of-strings",
-  "title": "Sum of Prefix Scores of Strings",
-  "exampleTestcases": "[\"abc\",\"ab\",\"bc\",\"b\"]\n[\"abcd\"]",
-  "sampleTestCase": "[\"abc\",\"ab\",\"bc\",\"b\"]",
-  "metaData": "{\n  \"name\": \"sumPrefixScores\",\n  \"params\": [\n    {\n      \"type\": \"string[]\",\n      \"name\": \"words\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "717",
-  "titleSlug": "1-bit-and-2-bit-characters",
-  "title": "1-bit and 2-bit Characters",
-  "exampleTestcases": "[1,0,0]\n[1,1,1,0]",
-  "sampleTestCase": "[1,0,0]",
-  "metaData": "{\r\n  \"name\": \"isOneBitCharacter\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"bits\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

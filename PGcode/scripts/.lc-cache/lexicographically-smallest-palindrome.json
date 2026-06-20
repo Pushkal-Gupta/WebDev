@@ -1,8 +1,0 @@
-{
-  "questionId": "2816",
-  "titleSlug": "lexicographically-smallest-palindrome",
-  "title": "Lexicographically Smallest Palindrome",
-  "exampleTestcases": "\"egcfe\"\n\"abcd\"\n\"seven\"",
-  "sampleTestCase": "\"egcfe\"",
-  "metaData": "{\n  \"name\": \"makeSmallestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "454",
-  "titleSlug": "4sum-ii",
-  "title": "4Sum II",
-  "exampleTestcases": "[1,2]\n[-2,-1]\n[-1,2]\n[0,2]\n[0]\n[0]\n[0]\n[0]",
-  "sampleTestCase": "[1,2]\n[-2,-1]\n[-1,2]\n[0,2]",
-  "metaData": "{\n  \"name\": \"fourSumCount\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"nums2\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"nums3\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"nums4\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

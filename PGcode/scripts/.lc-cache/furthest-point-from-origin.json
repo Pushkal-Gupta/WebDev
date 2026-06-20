@@ -1,8 +1,0 @@
-{
-  "questionId": "3019",
-  "titleSlug": "furthest-point-from-origin",
-  "title": "Furthest Point From Origin",
-  "exampleTestcases": "\"L_RL__R\"\n\"_R__LL_\"\n\"_______\"",
-  "sampleTestCase": "\"L_RL__R\"",
-  "metaData": "{\n  \"name\": \"furthestDistanceFromOrigin\",\n  \"params\": [\n    {\n      \"name\": \"moves\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

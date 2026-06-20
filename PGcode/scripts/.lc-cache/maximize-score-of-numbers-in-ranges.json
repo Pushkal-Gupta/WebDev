@@ -1,8 +1,0 @@
-{
-  "questionId": "3485",
-  "titleSlug": "maximize-score-of-numbers-in-ranges",
-  "title": "Maximize Score of Numbers in Ranges",
-  "exampleTestcases": "[6,0,3]\n2\n[2,6,13,13]\n5",
-  "sampleTestCase": "[6,0,3]\n2",
-  "metaData": "{\n  \"name\": \"maxPossibleScore\",\n  \"params\": [\n    {\n      \"name\": \"start\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"d\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3686",
-  "titleSlug": "count-beautiful-splits-in-an-array",
-  "title": "Count Beautiful Splits in an Array",
-  "exampleTestcases": "[1,1,2,1]\n[1,2,3,4]",
-  "sampleTestCase": "[1,1,2,1]",
-  "metaData": "{\n  \"name\": \"beautifulSplits\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

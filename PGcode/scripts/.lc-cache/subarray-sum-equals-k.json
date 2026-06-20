@@ -1,8 +1,0 @@
-{
-  "questionId": "560",
-  "titleSlug": "subarray-sum-equals-k",
-  "title": "Subarray Sum Equals K",
-  "exampleTestcases": "[1,1,1]\n2\n[1,2,3]\n3",
-  "sampleTestCase": "[1,1,1]\n2",
-  "metaData": "{\n  \"name\": \"subarraySum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
-}

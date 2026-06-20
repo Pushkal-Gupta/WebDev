@@ -1,8 +1,0 @@
-{
-  "questionId": "842",
-  "titleSlug": "card-flipping-game",
-  "title": "Card Flipping Game",
-  "exampleTestcases": "[1,2,4,4,7]\n[1,3,4,1,3]\n[1]\n[1]",
-  "sampleTestCase": "[1,2,4,4,7]\n[1,3,4,1,3]",
-  "metaData": "{\r\n  \"name\": \"flipgame\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"fronts\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"backs\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

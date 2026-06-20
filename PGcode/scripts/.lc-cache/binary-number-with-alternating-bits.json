@@ -1,8 +1,0 @@
-{
-  "questionId": "693",
-  "titleSlug": "binary-number-with-alternating-bits",
-  "title": "Binary Number with Alternating Bits",
-  "exampleTestcases": "5\n7\n11",
-  "sampleTestCase": "5",
-  "metaData": "{\r\n  \"name\": \"hasAlternatingBits\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

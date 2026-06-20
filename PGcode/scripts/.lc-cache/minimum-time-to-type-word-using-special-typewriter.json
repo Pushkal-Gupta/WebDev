@@ -1,8 +1,0 @@
-{
-  "questionId": "2088",
-  "titleSlug": "minimum-time-to-type-word-using-special-typewriter",
-  "title": "Minimum Time to Type Word Using Special Typewriter",
-  "exampleTestcases": "\"abc\"\n\"bza\"\n\"zjpc\"",
-  "sampleTestCase": "\"abc\"",
-  "metaData": "{\n  \"name\": \"minTimeToType\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

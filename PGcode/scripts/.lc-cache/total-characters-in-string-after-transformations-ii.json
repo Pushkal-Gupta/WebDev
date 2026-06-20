@@ -1,8 +1,0 @@
-{
-  "questionId": "3630",
-  "titleSlug": "total-characters-in-string-after-transformations-ii",
-  "title": "Total Characters in String After Transformations II",
-  "exampleTestcases": "\"abcyy\"\n2\n[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]\n\"azbk\"\n1\n[2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2]",
-  "sampleTestCase": "\"abcyy\"\n2\n[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2]",
-  "metaData": "{\n  \"name\": \"lengthAfterTransformations\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"list<integer>\",\n      \"name\": \"nums\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

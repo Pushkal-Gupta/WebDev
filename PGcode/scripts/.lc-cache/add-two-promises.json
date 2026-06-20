@@ -1,8 +1,0 @@
-{
-  "questionId": "2859",
-  "titleSlug": "add-two-promises",
-  "title": "Add Two Promises",
-  "exampleTestcases": "new Promise(resolve => setTimeout(() => resolve(2), 20))\nnew Promise(resolve => setTimeout(() => resolve(5), 60))\nnew Promise(resolve => setTimeout(() => resolve(10), 50))\nnew Promise(resolve => setTimeout(() => resolve(-12), 30))",
-  "sampleTestCase": "new Promise(resolve => setTimeout(() => resolve(2), 20))\nnew Promise(resolve => setTimeout(() => resolve(5), 60))",
-  "metaData": "{\n  \"name\": \"addTwoPromises\",\n  \"params\": [\n    {\n      \"name\": \"promise1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"promise2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

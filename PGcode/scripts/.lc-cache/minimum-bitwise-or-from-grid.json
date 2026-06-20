@@ -1,8 +1,0 @@
-{
-  "questionId": "4161",
-  "titleSlug": "minimum-bitwise-or-from-grid",
-  "title": "Minimum Bitwise OR From Grid",
-  "exampleTestcases": "[[1,5],[2,4]]\n[[3,5],[6,4]]\n[[7,9,8]]",
-  "sampleTestCase": "[[1,5],[2,4]]",
-  "metaData": "{\n  \"name\": \"minimumOR\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

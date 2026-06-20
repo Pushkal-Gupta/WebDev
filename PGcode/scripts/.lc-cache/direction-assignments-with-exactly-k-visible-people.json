@@ -1,8 +1,0 @@
-{
-  "questionId": "4251",
-  "titleSlug": "direction-assignments-with-exactly-k-visible-people",
-  "title": "Direction Assignments with Exactly K Visible People",
-  "exampleTestcases": "3\n1\n0\n3\n2\n1\n1\n0\n0",
-  "sampleTestCase": "3\n1\n0",
-  "metaData": "{\n  \"name\": \"countVisiblePeople\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"pos\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

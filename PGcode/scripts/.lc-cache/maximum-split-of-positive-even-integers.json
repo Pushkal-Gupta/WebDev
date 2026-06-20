@@ -1,8 +1,0 @@
-{
-  "questionId": "2279",
-  "titleSlug": "maximum-split-of-positive-even-integers",
-  "title": "Maximum Split of Positive Even Integers",
-  "exampleTestcases": "12\n7\n28",
-  "sampleTestCase": "12",
-  "metaData": "{\n  \"name\": \"maximumEvenSplit\",\n  \"params\": [\n    {\n      \"name\": \"finalSum\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<long>\"\n  }\n}"
-}

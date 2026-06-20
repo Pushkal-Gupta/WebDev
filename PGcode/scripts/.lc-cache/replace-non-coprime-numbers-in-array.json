@@ -1,8 +1,0 @@
-{
-  "questionId": "2307",
-  "titleSlug": "replace-non-coprime-numbers-in-array",
-  "title": "Replace Non-Coprime Numbers in Array",
-  "exampleTestcases": "[6,4,3,2,7,6,2]\n[2,2,1,1,3,3,3]",
-  "sampleTestCase": "[6,4,3,2,7,6,2]",
-  "metaData": "{\n  \"name\": \"replaceNonCoprimes\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

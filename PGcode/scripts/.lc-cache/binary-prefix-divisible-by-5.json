@@ -1,8 +1,0 @@
-{
-  "questionId": "1071",
-  "titleSlug": "binary-prefix-divisible-by-5",
-  "title": "Binary Prefix Divisible By 5",
-  "exampleTestcases": "[0,1,1]\n[1,1,1]",
-  "sampleTestCase": "[0,1,1]",
-  "metaData": "{\n  \"name\": \"prefixesDivBy5\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\"\n  },\n  \"manual\": false\n}"
-}

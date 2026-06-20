@@ -1,8 +1,0 @@
-{
-  "questionId": "1967",
-  "titleSlug": "longest-substring-of-all-vowels-in-order",
-  "title": "Longest Substring Of All Vowels in Order",
-  "exampleTestcases": "\"aeiaaioaaaaeiiiiouuuooaauuaeiu\"\n\"aeeeiiiioooauuuaeiou\"\n\"a\"",
-  "sampleTestCase": "\"aeiaaioaaaaeiiiiouuuooaauuaeiu\"",
-  "metaData": "{\n  \"name\": \"longestBeautifulSubstring\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

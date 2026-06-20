@@ -1,8 +1,0 @@
-{
-  "questionId": "2168",
-  "titleSlug": "check-if-numbers-are-ascending-in-a-sentence",
-  "title": "Check if Numbers Are Ascending in a Sentence",
-  "exampleTestcases": "\"1 box has 3 blue 4 red 6 green and 12 yellow marbles\"\n\"hello world 5 x 5\"\n\"sunset is at 7 51 pm overnight lows will be in the low 50 and 60 s\"",
-  "sampleTestCase": "\"1 box has 3 blue 4 red 6 green and 12 yellow marbles\"",
-  "metaData": "{\n  \"name\": \"areNumbersAscending\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

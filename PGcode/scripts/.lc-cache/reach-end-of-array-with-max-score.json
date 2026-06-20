@@ -1,8 +1,0 @@
-{
-  "questionId": "3528",
-  "titleSlug": "reach-end-of-array-with-max-score",
-  "title": "Reach End of Array With Max Score",
-  "exampleTestcases": "[1,3,1,5]\n[4,3,1,3,2]",
-  "sampleTestCase": "[1,3,1,5]",
-  "metaData": "{\n  \"name\": \"findMaximumScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

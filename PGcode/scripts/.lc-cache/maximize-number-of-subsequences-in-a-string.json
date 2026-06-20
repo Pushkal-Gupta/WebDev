@@ -1,8 +1,0 @@
-{
-  "questionId": "2309",
-  "titleSlug": "maximize-number-of-subsequences-in-a-string",
-  "title": "Maximize Number of Subsequences in a String",
-  "exampleTestcases": "\"abdcdbc\"\n\"ac\"\n\"aabb\"\n\"ab\"",
-  "sampleTestCase": "\"abdcdbc\"\n\"ac\"",
-  "metaData": "{\n  \"name\": \"maximumSubsequenceCount\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"pattern\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

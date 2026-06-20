@@ -1,8 +1,0 @@
-{
-  "questionId": "1057",
-  "titleSlug": "numbers-with-repeated-digits",
-  "title": "Numbers With Repeated Digits",
-  "exampleTestcases": "20\n100\n1000",
-  "sampleTestCase": "20",
-  "metaData": "{\n  \"name\": \"numDupDigitsAtMostN\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

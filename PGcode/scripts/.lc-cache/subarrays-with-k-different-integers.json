@@ -1,8 +1,0 @@
-{
-  "questionId": "1034",
-  "titleSlug": "subarrays-with-k-different-integers",
-  "title": "Subarrays with K Different Integers",
-  "exampleTestcases": "[1,2,1,2,3]\n2\n[1,2,1,3,4]\n3",
-  "sampleTestCase": "[1,2,1,2,3]\n2",
-  "metaData": "{\n  \"name\": \"subarraysWithKDistinct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

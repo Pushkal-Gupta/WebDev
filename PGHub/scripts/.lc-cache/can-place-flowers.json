@@ -1,0 +1,8 @@
+{
+  "questionId": "605",
+  "titleSlug": "can-place-flowers",
+  "title": "Can Place Flowers",
+  "exampleTestcases": "[1,0,0,0,1]\n1\n[1,0,0,0,1]\n2",
+  "sampleTestCase": "[1,0,0,0,1]\n1",
+  "metaData": "{\r\n  \"name\": \"canPlaceFlowers\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"flowerbed\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

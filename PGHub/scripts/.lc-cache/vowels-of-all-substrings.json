@@ -1,0 +1,8 @@
+{
+  "questionId": "2187",
+  "titleSlug": "vowels-of-all-substrings",
+  "title": "Vowels of All Substrings",
+  "exampleTestcases": "\"aba\"\n\"abc\"\n\"ltcd\"",
+  "sampleTestCase": "\"aba\"",
+  "metaData": "{\n  \"name\": \"countVowels\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

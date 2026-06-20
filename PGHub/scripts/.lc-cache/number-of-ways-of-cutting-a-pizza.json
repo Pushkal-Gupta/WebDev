@@ -1,0 +1,8 @@
+{
+  "questionId": "1555",
+  "titleSlug": "number-of-ways-of-cutting-a-pizza",
+  "title": "Number of Ways of Cutting a Pizza",
+  "exampleTestcases": "[\"A..\",\"AAA\",\"...\"]\n3\n[\"A..\",\"AA.\",\"...\"]\n3\n[\"A..\",\"A..\",\"...\"]\n1",
+  "sampleTestCase": "[\"A..\",\"AAA\",\"...\"]\n3",
+  "metaData": "{\n  \"name\": \"ways\",\n  \"params\": [\n    {\n      \"name\": \"pizza\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

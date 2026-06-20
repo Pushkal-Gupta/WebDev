@@ -1,8 +1,0 @@
-{
-  "questionId": "2669",
-  "titleSlug": "find-the-substring-with-maximum-cost",
-  "title": "Find the Substring With Maximum Cost",
-  "exampleTestcases": "\"adaa\"\n\"d\"\n[-1000]\n\"abc\"\n\"abc\"\n[-1,-1,-1]",
-  "sampleTestCase": "\"adaa\"\n\"d\"\n[-1000]",
-  "metaData": "{\n  \"name\": \"maximumCostSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"chars\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"vals\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

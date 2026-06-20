@@ -1,8 +1,0 @@
-{
-  "questionId": "826",
-  "titleSlug": "soup-servings",
-  "title": "Soup Servings",
-  "exampleTestcases": "50\n100",
-  "sampleTestCase": "50",
-  "metaData": "{\n  \"name\": \"soupServings\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
-}

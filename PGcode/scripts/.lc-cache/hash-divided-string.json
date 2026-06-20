@@ -1,8 +1,0 @@
-{
-  "questionId": "3540",
-  "titleSlug": "hash-divided-string",
-  "title": "Hash Divided String",
-  "exampleTestcases": "\"abcd\"\n2\n\"mxz\"\n3",
-  "sampleTestCase": "\"abcd\"\n2",
-  "metaData": "{\n  \"name\": \"stringHash\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1392",
-  "titleSlug": "find-the-difference-of-two-arrays",
-  "title": "Find the Difference of Two Arrays",
-  "exampleTestcases": "[1,2,3]\n[2,4,6]\n[1,2,3,3]\n[1,1,2,2]",
-  "sampleTestCase": "[1,2,3]\n[2,4,6]",
-  "metaData": "{\n  \"name\": \"findDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

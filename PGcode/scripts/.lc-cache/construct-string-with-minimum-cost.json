@@ -1,8 +1,0 @@
-{
-  "questionId": "3482",
-  "titleSlug": "construct-string-with-minimum-cost",
-  "title": "Construct String with Minimum Cost",
-  "exampleTestcases": "\"abcdef\"\n[\"abdef\",\"abc\",\"d\",\"def\",\"ef\"]\n[100,1,1,10,5]\n\"aaaa\"\n[\"z\",\"zz\",\"zzz\"]\n[1,10,100]",
-  "sampleTestCase": "\"abcdef\"\n[\"abdef\",\"abc\",\"d\",\"def\",\"ef\"]\n[100,1,1,10,5]",
-  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"words\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"costs\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "796",
-  "titleSlug": "reaching-points",
-  "title": "Reaching Points",
-  "exampleTestcases": "1\n1\n3\n5\n1\n1\n2\n2\n1\n1\n1\n1",
-  "sampleTestCase": "1\n1\n3\n5",
-  "metaData": "{\r\n  \"name\": \"reachingPoints\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"sx\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"sy\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"tx\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"ty\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

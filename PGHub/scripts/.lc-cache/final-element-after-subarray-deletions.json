@@ -1,0 +1,8 @@
+{
+  "questionId": "4122",
+  "titleSlug": "final-element-after-subarray-deletions",
+  "title": "Final Element After Subarray Deletions",
+  "exampleTestcases": "[1,5,2]\n[3,7]",
+  "sampleTestCase": "[1,5,2]",
+  "metaData": "{\n  \"name\": \"finalElement\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

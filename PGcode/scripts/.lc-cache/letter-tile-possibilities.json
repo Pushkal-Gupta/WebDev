@@ -1,8 +1,0 @@
-{
-  "questionId": "1160",
-  "titleSlug": "letter-tile-possibilities",
-  "title": "Letter Tile Possibilities",
-  "exampleTestcases": "\"AAB\"\n\"AAABBC\"\n\"V\"",
-  "sampleTestCase": "\"AAB\"",
-  "metaData": "{\r\n  \"name\": \"numTilePossibilities\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"tiles\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

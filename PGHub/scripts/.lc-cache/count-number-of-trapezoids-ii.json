@@ -1,0 +1,8 @@
+{
+  "questionId": "3897",
+  "titleSlug": "count-number-of-trapezoids-ii",
+  "title": "Count Number of Trapezoids II",
+  "exampleTestcases": "[[-3,2],[3,0],[2,3],[3,2],[2,-3]]\n[[0,0],[1,0],[0,1],[2,1]]",
+  "sampleTestCase": "[[-3,2],[3,0],[2,3],[3,2],[2,-3]]",
+  "metaData": "{\n  \"name\": \"countTrapezoids\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

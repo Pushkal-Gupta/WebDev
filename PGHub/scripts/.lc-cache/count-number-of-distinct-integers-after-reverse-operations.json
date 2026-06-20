@@ -1,0 +1,8 @@
+{
+  "questionId": "2525",
+  "titleSlug": "count-number-of-distinct-integers-after-reverse-operations",
+  "title": "Count Number of Distinct Integers After Reverse Operations",
+  "exampleTestcases": "[1,13,10,12,31]\n[2,2,2]",
+  "sampleTestCase": "[1,13,10,12,31]",
+  "metaData": "{\n  \"name\": \"countDistinctIntegers\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

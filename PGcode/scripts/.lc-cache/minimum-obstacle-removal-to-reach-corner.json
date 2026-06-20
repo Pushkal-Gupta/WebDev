@@ -1,8 +1,0 @@
-{
-  "questionId": "2375",
-  "titleSlug": "minimum-obstacle-removal-to-reach-corner",
-  "title": "Minimum Obstacle Removal to Reach Corner",
-  "exampleTestcases": "[[0,1,1],[1,1,0],[1,1,0]]\n[[0,1,0,0,0],[0,1,0,1,0],[0,0,0,1,0]]",
-  "sampleTestCase": "[[0,1,1],[1,1,0],[1,1,0]]",
-  "metaData": "{\n  \"name\": \"minimumObstacles\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

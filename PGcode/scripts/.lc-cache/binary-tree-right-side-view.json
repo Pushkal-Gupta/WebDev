@@ -1,8 +1,0 @@
-{
-  "questionId": "199",
-  "titleSlug": "binary-tree-right-side-view",
-  "title": "Binary Tree Right Side View",
-  "exampleTestcases": "[1,2,3,null,5,null,4]\n[1,2,3,4,null,null,null,5]\n[1,null,3]\n[]",
-  "sampleTestCase": "[1,2,3,null,5,null,4]",
-  "metaData": "{\r\n  \"name\": \"rightSideView\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

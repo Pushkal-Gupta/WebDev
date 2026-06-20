@@ -1,8 +1,0 @@
-{
-  "questionId": "2300",
-  "titleSlug": "construct-string-with-repeat-limit",
-  "title": "Construct String With Repeat Limit",
-  "exampleTestcases": "\"cczazcc\"\n3\n\"aababab\"\n2",
-  "sampleTestCase": "\"cczazcc\"\n3",
-  "metaData": "{\n  \"name\": \"repeatLimitedString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"repeatLimit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

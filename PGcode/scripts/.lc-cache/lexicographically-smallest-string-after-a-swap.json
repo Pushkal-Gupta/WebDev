@@ -1,8 +1,0 @@
-{
-  "questionId": "3484",
-  "titleSlug": "lexicographically-smallest-string-after-a-swap",
-  "title": "Lexicographically Smallest String After a Swap",
-  "exampleTestcases": "\"45320\"\n\"001\"",
-  "sampleTestCase": "\"45320\"",
-  "metaData": "{\n  \"name\": \"getSmallestString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

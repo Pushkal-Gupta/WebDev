@@ -1,0 +1,8 @@
+{
+  "questionId": "2778",
+  "titleSlug": "frequency-tracker",
+  "title": "Frequency Tracker",
+  "exampleTestcases": "[\"FrequencyTracker\",\"add\",\"add\",\"hasFrequency\"]\n[[],[3],[3],[2]]\n[\"FrequencyTracker\",\"add\",\"deleteOne\",\"hasFrequency\"]\n[[],[1],[1],[1]]\n[\"FrequencyTracker\",\"hasFrequency\",\"add\",\"hasFrequency\"]\n[[],[2],[3],[1]]",
+  "sampleTestCase": "[\"FrequencyTracker\",\"add\",\"add\",\"hasFrequency\"]\n[[],[3],[3],[2]]",
+  "metaData": "{\n  \"classname\": \"FrequencyTracker\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"number\"\n        }\n      ],\n      \"name\": \"add\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"number\"\n        }\n      ],\n      \"name\": \"deleteOne\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"frequency\"\n        }\n      ],\n      \"name\": \"hasFrequency\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

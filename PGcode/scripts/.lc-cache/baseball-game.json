@@ -1,8 +1,0 @@
-{
-  "questionId": "682",
-  "titleSlug": "baseball-game",
-  "title": "Baseball Game",
-  "exampleTestcases": "[\"5\",\"2\",\"C\",\"D\",\"+\"]\n[\"5\",\"-2\",\"4\",\"C\",\"D\",\"9\",\"+\",\"+\"]\n[\"1\",\"C\"]",
-  "sampleTestCase": "[\"5\",\"2\",\"C\",\"D\",\"+\"]",
-  "metaData": "{\n  \"name\": \"calPoints\",\n  \"params\": [\n    {\n      \"name\": \"operations\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

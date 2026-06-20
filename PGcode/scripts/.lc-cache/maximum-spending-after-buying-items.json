@@ -1,8 +1,0 @@
-{
-  "questionId": "3107",
-  "titleSlug": "maximum-spending-after-buying-items",
-  "title": "Maximum Spending After Buying Items",
-  "exampleTestcases": "[[8,5,2],[6,4,1],[9,7,3]]\n[[10,8,6,4,2],[9,7,5,3,2]]",
-  "sampleTestCase": "[[8,5,2],[6,4,1],[9,7,3]]",
-  "metaData": "{\n  \"name\": \"maxSpending\",\n  \"params\": [\n    {\n      \"name\": \"values\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

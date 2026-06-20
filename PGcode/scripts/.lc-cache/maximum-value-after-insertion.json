@@ -1,8 +1,0 @@
-{
-  "questionId": "2011",
-  "titleSlug": "maximum-value-after-insertion",
-  "title": "Maximum Value after Insertion",
-  "exampleTestcases": "\"99\"\n9\n\"-13\"\n2",
-  "sampleTestCase": "\"99\"\n9",
-  "metaData": "{\n  \"name\": \"maxValue\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

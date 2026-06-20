@@ -1,8 +1,0 @@
-{
-  "questionId": "857",
-  "titleSlug": "positions-of-large-groups",
-  "title": "Positions of Large Groups",
-  "exampleTestcases": "\"abbxxxxzzy\"\n\"abc\"\n\"abcdddeeeeaabbbcd\"",
-  "sampleTestCase": "\"abbxxxxzzy\"",
-  "metaData": "{\n  \"name\": \"largeGroupPositions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

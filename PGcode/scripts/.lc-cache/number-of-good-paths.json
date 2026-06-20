@@ -1,8 +1,0 @@
-{
-  "questionId": "2505",
-  "titleSlug": "number-of-good-paths",
-  "title": "Number of Good Paths",
-  "exampleTestcases": "[1,3,2,1,3]\n[[0,1],[0,2],[2,3],[2,4]]\n[1,1,2,2,3]\n[[0,1],[1,2],[2,3],[2,4]]\n[1]\n[]",
-  "sampleTestCase": "[1,3,2,1,3]\n[[0,1],[0,2],[2,3],[2,4]]",
-  "metaData": "{\n  \"name\": \"numberOfGoodPaths\",\n  \"params\": [\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"vals\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

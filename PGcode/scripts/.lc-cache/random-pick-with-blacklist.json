@@ -1,8 +1,0 @@
-{
-  "questionId": "894",
-  "titleSlug": "random-pick-with-blacklist",
-  "title": "Random Pick with Blacklist",
-  "exampleTestcases": "[\"Solution\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\"]\n[[7,[2,3,5]],[],[],[],[],[],[],[]]",
-  "sampleTestCase": "[\"Solution\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\"]\n[[7,[2,3,5]],[],[],[],[],[],[],[]]",
-  "metaData": "{\n  \"classname\": \"Solution\",\n  \"maxbytesperline\": 200000,\n  \"constructor\": {\n    \"params\": [\n      {\n        \"name\": \"n\",\n        \"type\": \"integer\"\n      },\n      {\n        \"name\": \"blacklist\",\n        \"type\": \"integer[]\"\n      },\n      {\n        \"type\": \"integer\",\n        \"name\": \"blacklistSize\",\n        \"lang\": \"c\",\n        \"value\": \"size_2\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"name\": \"pick\",\n      \"params\": [],\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<String>\",\n    \"dealloc\": true\n  }\n}"
-}

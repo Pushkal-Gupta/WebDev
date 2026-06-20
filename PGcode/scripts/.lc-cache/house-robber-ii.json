@@ -1,8 +1,0 @@
-{
-  "questionId": "213",
-  "titleSlug": "house-robber-ii",
-  "title": "House Robber II",
-  "exampleTestcases": "[2,3,2]\n[1,2,3,1]\n[1,2,3]",
-  "sampleTestCase": "[2,3,2]",
-  "metaData": "{\n  \"name\": \"rob\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
-}

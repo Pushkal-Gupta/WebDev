@@ -1,8 +1,0 @@
-{
-  "questionId": "3812",
-  "titleSlug": "smallest-palindromic-rearrangement-i",
-  "title": "Smallest Palindromic Rearrangement I",
-  "exampleTestcases": "\"z\"\n\"babab\"\n\"daccad\"",
-  "sampleTestCase": "\"z\"",
-  "metaData": "{\n  \"name\": \"smallestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

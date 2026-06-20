@@ -1,8 +1,0 @@
-{
-  "questionId": "928",
-  "titleSlug": "surface-area-of-3d-shapes",
-  "title": "Surface Area of 3D Shapes",
-  "exampleTestcases": "[[1,2],[3,4]]\n[[1,1,1],[1,0,1],[1,1,1]]\n[[2,2,2],[2,1,2],[2,2,2]]",
-  "sampleTestCase": "[[1,2],[3,4]]",
-  "metaData": "{\r\n  \"name\": \"surfaceArea\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

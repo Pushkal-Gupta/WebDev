@@ -1,8 +1,0 @@
-{
-  "questionId": "4230",
-  "titleSlug": "longest-arithmetic-sequence-after-changing-at-most-one-element",
-  "title": "Longest Arithmetic Sequence After Changing At Most One Element",
-  "exampleTestcases": "[9,7,5,10,1]\n[1,2,6,7]",
-  "sampleTestCase": "[9,7,5,10,1]",
-  "metaData": "{\n  \"name\": \"longestArithmetic\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "458",
-  "titleSlug": "poor-pigs",
-  "title": "Poor Pigs",
-  "exampleTestcases": "4\n15\n15\n4\n15\n30",
-  "sampleTestCase": "4\n15\n15",
-  "metaData": "{\r\n  \"name\": \"poorPigs\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"buckets\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"minutesToDie\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"minutesToTest\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

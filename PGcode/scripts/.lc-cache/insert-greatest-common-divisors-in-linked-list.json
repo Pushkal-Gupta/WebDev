@@ -1,8 +1,0 @@
-{
-  "questionId": "2903",
-  "titleSlug": "insert-greatest-common-divisors-in-linked-list",
-  "title": "Insert Greatest Common Divisors in Linked List",
-  "exampleTestcases": "[18,6,10,3]\n[7]",
-  "sampleTestCase": "[18,6,10,3]",
-  "metaData": "{\n  \"name\": \"insertGreatestCommonDivisors\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
-}

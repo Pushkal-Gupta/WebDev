@@ -1,0 +1,8 @@
+{
+  "questionId": "2538",
+  "titleSlug": "minimum-cost-to-make-array-equal",
+  "title": "Minimum Cost to Make Array Equal",
+  "exampleTestcases": "[1,3,5,2]\n[2,3,1,14]\n[2,2,2,2,2]\n[4,2,8,1,3]",
+  "sampleTestCase": "[1,3,5,2]\n[2,3,1,14]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"cost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

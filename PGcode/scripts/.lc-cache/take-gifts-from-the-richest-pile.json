@@ -1,8 +1,0 @@
-{
-  "questionId": "2692",
-  "titleSlug": "take-gifts-from-the-richest-pile",
-  "title": "Take Gifts From the Richest Pile",
-  "exampleTestcases": "[25,64,9,4,100]\n4\n[1,1,1,1]\n4",
-  "sampleTestCase": "[25,64,9,4,100]\n4",
-  "metaData": "{\n  \"name\": \"pickGifts\",\n  \"params\": [\n    {\n      \"name\": \"gifts\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

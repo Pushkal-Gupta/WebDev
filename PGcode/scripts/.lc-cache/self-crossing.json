@@ -1,8 +1,0 @@
-{
-  "questionId": "335",
-  "titleSlug": "self-crossing",
-  "title": "Self Crossing",
-  "exampleTestcases": "[2,1,1,2]\n[1,2,3,4]\n[1,1,1,2,1]",
-  "sampleTestCase": "[2,1,1,2]",
-  "metaData": "{\n  \"name\": \"isSelfCrossing\",\n  \"params\": [\n    {\n      \"name\": \"distance\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

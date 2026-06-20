@@ -1,8 +1,0 @@
-{
-  "questionId": "1004",
-  "titleSlug": "least-operators-to-express-number",
-  "title": "Least Operators to Express Number",
-  "exampleTestcases": "3\n19\n5\n501\n100\n100000000",
-  "sampleTestCase": "3\n19",
-  "metaData": "{\r\n  \"name\": \"leastOpsExpressTarget\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

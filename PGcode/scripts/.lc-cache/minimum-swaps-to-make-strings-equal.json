@@ -1,8 +1,0 @@
-{
-  "questionId": "1369",
-  "titleSlug": "minimum-swaps-to-make-strings-equal",
-  "title": "Minimum Swaps to Make Strings Equal",
-  "exampleTestcases": "\"xx\"\n\"yy\"\n\"xy\"\n\"yx\"\n\"xx\"\n\"xy\"",
-  "sampleTestCase": "\"xx\"\n\"yy\"",
-  "metaData": "{\n  \"name\": \"minimumSwap\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

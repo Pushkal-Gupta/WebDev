@@ -1,8 +1,0 @@
-{
-  "questionId": "2144",
-  "titleSlug": "maximum-difference-between-increasing-elements",
-  "title": "Maximum Difference Between Increasing Elements",
-  "exampleTestcases": "[7,1,5,4]\n[9,4,3,2]\n[1,5,2,10]",
-  "sampleTestCase": "[7,1,5,4]",
-  "metaData": "{\n  \"name\": \"maximumDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

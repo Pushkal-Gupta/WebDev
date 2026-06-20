@@ -1,0 +1,8 @@
+{
+  "questionId": "4280",
+  "titleSlug": "count-digit-appearances",
+  "title": "Count Digit Appearances",
+  "exampleTestcases": "[12,54,32,22]\n2\n[1,34,7]\n9",
+  "sampleTestCase": "[12,54,32,22]\n2",
+  "metaData": "{\n  \"name\": \"countDigitOccurrences\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"digit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

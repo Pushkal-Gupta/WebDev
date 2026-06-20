@@ -1,8 +1,0 @@
-{
-  "questionId": "957",
-  "titleSlug": "minimum-add-to-make-parentheses-valid",
-  "title": "Minimum Add to Make Parentheses Valid",
-  "exampleTestcases": "\"())\"\n\"(((\"",
-  "sampleTestCase": "\"())\"",
-  "metaData": "{\n  \"name\": \"minAddToMakeValid\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

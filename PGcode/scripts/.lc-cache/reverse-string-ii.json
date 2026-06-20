@@ -1,8 +1,0 @@
-{
-  "questionId": "541",
-  "titleSlug": "reverse-string-ii",
-  "title": "Reverse String II",
-  "exampleTestcases": "\"abcdefg\"\n2\n\"abcd\"\n2",
-  "sampleTestCase": "\"abcdefg\"\n2",
-  "metaData": "{\r\n  \"name\": \"reverseStr\",\r\n  \"params\": [\r\n      {\r\n        \"name\": \"s\",\r\n        \"type\": \"string\"\r\n      },\r\n      \r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
-}

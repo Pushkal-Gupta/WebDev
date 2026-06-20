@@ -1,8 +1,0 @@
-{
-  "questionId": "3263",
-  "titleSlug": "divide-an-array-into-subarrays-with-minimum-cost-i",
-  "title": "Divide an Array Into Subarrays With Minimum Cost I",
-  "exampleTestcases": "[1,2,3,12]\n[5,4,3]\n[10,3,1,1]",
-  "sampleTestCase": "[1,2,3,12]",
-  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

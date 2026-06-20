@@ -1,8 +1,0 @@
-{
-  "questionId": "4198",
-  "titleSlug": "longest-alternating-subarray-after-removing-at-most-one-element",
-  "title": "Longest Alternating Subarray After Removing At Most One Element",
-  "exampleTestcases": "[2,1,3,2]\n[3,2,1,2,3,2,1]\n[100000,100000]",
-  "sampleTestCase": "[2,1,3,2]",
-  "metaData": "{\n  \"name\": \"longestAlternating\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3344",
-  "titleSlug": "minimize-manhattan-distances",
-  "title": "Minimize Manhattan Distances",
-  "exampleTestcases": "[[3,10],[5,15],[10,2],[4,4]]\n[[1,1],[1,1],[1,1]]",
-  "sampleTestCase": "[[3,10],[5,15],[10,2],[4,4]]",
-  "metaData": "{\n  \"name\": \"minimumDistance\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

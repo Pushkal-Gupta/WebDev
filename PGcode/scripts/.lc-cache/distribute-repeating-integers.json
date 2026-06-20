@@ -1,8 +1,0 @@
-{
-  "questionId": "1758",
-  "titleSlug": "distribute-repeating-integers",
-  "title": "Distribute Repeating Integers",
-  "exampleTestcases": "[1,2,3,4]\n[2]\n[1,2,3,3]\n[2]\n[1,1,2,2]\n[2,2]",
-  "sampleTestCase": "[1,2,3,4]\n[2]",
-  "metaData": "{\n  \"name\": \"canDistribute\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"quantity\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

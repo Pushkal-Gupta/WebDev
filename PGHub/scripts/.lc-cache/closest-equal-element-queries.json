@@ -1,0 +1,8 @@
+{
+  "questionId": "3750",
+  "titleSlug": "closest-equal-element-queries",
+  "title": "Closest Equal Element Queries",
+  "exampleTestcases": "[1,3,1,4,1,3,2]\n[0,3,5]\n[1,2,3,4]\n[0,1,2,3]",
+  "sampleTestCase": "[1,3,1,4,1,3,2]\n[0,3,5]",
+  "metaData": "{\n  \"name\": \"solveQueries\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

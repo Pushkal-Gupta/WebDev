@@ -1,0 +1,8 @@
+{
+  "questionId": "1002",
+  "titleSlug": "maximum-width-ramp",
+  "title": "Maximum Width Ramp",
+  "exampleTestcases": "[6,0,8,2,1,5]\n[9,8,1,0,1,9,4,0,4,1]",
+  "sampleTestCase": "[6,0,8,2,1,5]",
+  "metaData": "{\n  \"name\": \"maxWidthRamp\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

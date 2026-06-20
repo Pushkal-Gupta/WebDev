@@ -1,8 +1,0 @@
-{
-  "questionId": "3236",
-  "titleSlug": "smallest-missing-integer-greater-than-sequential-prefix-sum",
-  "title": "Smallest Missing Integer Greater Than Sequential Prefix Sum",
-  "exampleTestcases": "[1,2,3,2,5]\n[3,4,5,1,12,14,13]",
-  "sampleTestCase": "[1,2,3,2,5]",
-  "metaData": "{\n  \"name\": \"missingInteger\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

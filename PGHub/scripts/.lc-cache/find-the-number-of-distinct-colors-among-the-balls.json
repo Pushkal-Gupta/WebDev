@@ -1,0 +1,8 @@
+{
+  "questionId": "3434",
+  "titleSlug": "find-the-number-of-distinct-colors-among-the-balls",
+  "title": "Find the Number of Distinct Colors Among the Balls",
+  "exampleTestcases": "4\n[[1,4],[2,5],[1,3],[3,4]]\n4\n[[0,1],[1,2],[2,2],[3,4],[4,5]]",
+  "sampleTestCase": "4\n[[1,4],[2,5],[1,3],[3,4]]",
+  "metaData": "{\n  \"name\": \"queryResults\",\n  \"params\": [\n    {\n      \"name\": \"limit\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

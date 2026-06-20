@@ -1,0 +1,8 @@
+{
+  "questionId": "1762",
+  "titleSlug": "furthest-building-you-can-reach",
+  "title": "Furthest Building You Can Reach",
+  "exampleTestcases": "[4,2,7,6,9,14,12]\n5\n1\n[4,12,2,7,3,18,20,3,19]\n10\n2\n[14,3,19,3]\n17\n0",
+  "sampleTestCase": "[4,2,7,6,9,14,12]\n5\n1",
+  "metaData": "{\n  \"name\": \"furthestBuilding\",\n  \"params\": [\n    {\n      \"name\": \"heights\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"bricks\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"ladders\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

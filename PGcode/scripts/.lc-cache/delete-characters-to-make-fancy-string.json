@@ -1,8 +1,0 @@
-{
-  "questionId": "1302",
-  "titleSlug": "delete-characters-to-make-fancy-string",
-  "title": "Delete Characters to Make Fancy String",
-  "exampleTestcases": "\"leeetcode\"\n\"aaabaaaa\"\n\"aab\"",
-  "sampleTestCase": "\"leeetcode\"",
-  "metaData": "{\n  \"name\": \"makeFancyString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

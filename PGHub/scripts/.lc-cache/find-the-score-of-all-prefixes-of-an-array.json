@@ -1,0 +1,8 @@
+{
+  "questionId": "2676",
+  "titleSlug": "find-the-score-of-all-prefixes-of-an-array",
+  "title": "Find the Score of All Prefixes of an Array",
+  "exampleTestcases": "[2,3,7,5,10]\n[1,1,2,4,8,16]",
+  "sampleTestCase": "[2,3,7,5,10]",
+  "metaData": "{\n  \"name\": \"findPrefixScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
+}

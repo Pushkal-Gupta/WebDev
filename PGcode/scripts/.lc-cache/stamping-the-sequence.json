@@ -1,8 +1,0 @@
-{
-  "questionId": "973",
-  "titleSlug": "stamping-the-sequence",
-  "title": "Stamping The Sequence",
-  "exampleTestcases": "\"abc\"\n\"ababc\"\n\"abca\"\n\"aabcaca\"",
-  "sampleTestCase": "\"abc\"\n\"ababc\"",
-  "metaData": "{\r\n  \"name\": \"movesToStamp\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"stamp\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1250",
-  "titleSlug": "longest-common-subsequence",
-  "title": "Longest Common Subsequence",
-  "exampleTestcases": "\"abcde\"\n\"ace\"\n\"abc\"\n\"abc\"\n\"abc\"\n\"def\"",
-  "sampleTestCase": "\"abcde\"\n\"ace\"",
-  "metaData": "{\n  \"name\": \"longestCommonSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"text1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"text2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

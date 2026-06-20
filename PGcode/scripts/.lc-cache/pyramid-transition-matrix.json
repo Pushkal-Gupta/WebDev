@@ -1,8 +1,0 @@
-{
-  "questionId": "757",
-  "titleSlug": "pyramid-transition-matrix",
-  "title": "Pyramid Transition Matrix",
-  "exampleTestcases": "\"BCD\"\n[\"BCC\",\"CDE\",\"CEA\",\"FFF\"]\n\"AAAA\"\n[\"AAB\",\"AAC\",\"BCD\",\"BBE\",\"DEF\"]",
-  "sampleTestCase": "\"BCD\"\n[\"BCC\",\"CDE\",\"CEA\",\"FFF\"]",
-  "metaData": "{\n  \"name\": \"pyramidTransition\",\n  \"params\": [\n    {\n      \"name\": \"bottom\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"allowed\",\n      \"type\": \"list<string>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}\n"
-}

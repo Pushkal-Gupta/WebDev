@@ -1,8 +1,0 @@
-{
-  "questionId": "832",
-  "titleSlug": "binary-tree-pruning",
-  "title": "Binary Tree Pruning",
-  "exampleTestcases": "[1,null,0,0,1]\n[1,0,1,0,0,0,1]\n[1,1,0,1,1,0,1,0]",
-  "sampleTestCase": "[1,null,0,0,1]",
-  "metaData": "{\n  \"name\": \"pruneTree\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  },\n  \"manual\": false\n}"
-}

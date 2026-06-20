@@ -1,8 +1,0 @@
-{
-  "questionId": "299",
-  "titleSlug": "bulls-and-cows",
-  "title": "Bulls and Cows",
-  "exampleTestcases": "\"1807\"\n\"7810\"\n\"1123\"\n\"0111\"",
-  "sampleTestCase": "\"1807\"\n\"7810\"",
-  "metaData": "{ \r\n  \"name\": \"getHint\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"secret\",\r\n      \"type\": \"string\"\r\n    },\r\n    { \r\n      \"name\": \"guess\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

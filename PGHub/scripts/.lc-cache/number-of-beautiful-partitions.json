@@ -1,0 +1,8 @@
+{
+  "questionId": "2569",
+  "titleSlug": "number-of-beautiful-partitions",
+  "title": "Number of Beautiful Partitions",
+  "exampleTestcases": "\"23542185131\"\n3\n2\n\"23542185131\"\n3\n3\n\"3312958\"\n3\n1",
+  "sampleTestCase": "\"23542185131\"\n3\n2",
+  "metaData": "{\n  \"name\": \"beautifulPartitions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"minLength\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

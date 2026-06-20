@@ -1,8 +1,0 @@
-{
-  "questionId": "2701",
-  "titleSlug": "subsequence-with-the-minimum-score",
-  "title": "Subsequence With the Minimum Score",
-  "exampleTestcases": "\"abacaba\"\n\"bzaa\"\n\"cde\"\n\"xyz\"",
-  "sampleTestCase": "\"abacaba\"\n\"bzaa\"",
-  "metaData": "{\n  \"name\": \"minimumScore\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

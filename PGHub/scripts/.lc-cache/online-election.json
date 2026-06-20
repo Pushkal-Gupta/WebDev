@@ -1,0 +1,8 @@
+{
+  "questionId": "947",
+  "titleSlug": "online-election",
+  "title": "Online Election",
+  "exampleTestcases": "[\"TopVotedCandidate\",\"q\",\"q\",\"q\",\"q\",\"q\",\"q\"]\n[[[0,1,1,0,0,1,0],[0,5,10,15,20,25,30]],[3],[12],[25],[15],[24],[8]]",
+  "sampleTestCase": "[\"TopVotedCandidate\",\"q\",\"q\",\"q\",\"q\",\"q\",\"q\"]\n[[[0,1,1,0,0,1,0],[0,5,10,15,20,25,30]],[3],[12],[25],[15],[24],[8]]",
+  "metaData": "{\r\n    \"classname\": \"TopVotedCandidate\",\r\n    \"maxbytesperline\": 200000,\r\n    \"constructor\": {\r\n        \"params\": [\r\n            { \"type\": \"integer[]\",\r\n              \"name\": \"persons\"\r\n            },\r\n            { \"type\": \"integer[]\",\r\n              \"name\": \"times\"\r\n            }\r\n            ]\r\n    },\r\n    \"methods\": [\r\n        {\r\n            \"name\" : \"q\",\r\n            \"params\": [\r\n                {\r\n                    \"type\": \"integer\",\r\n                    \"name\": \"t\"\r\n                }\r\n            ],\r\n            \"return\": {\r\n                \"type\": \"integer\"\r\n            }\r\n        }\r\n    ],\r\n    \"systemdesign\": true,\r\n    \"params\": [\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        },\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        }\r\n    ],\r\n    \"return\": {\r\n        \"type\": \"list<String>\",\r\n        \"dealloc\": true\r\n    }\r\n}"
+}

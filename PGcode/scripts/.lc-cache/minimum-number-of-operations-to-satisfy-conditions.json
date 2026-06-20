@@ -1,8 +1,0 @@
-{
-  "questionId": "3404",
-  "titleSlug": "minimum-number-of-operations-to-satisfy-conditions",
-  "title": "Minimum Number of Operations to Satisfy Conditions",
-  "exampleTestcases": "[[1,0,2],[1,0,2]]\n[[1,1,1],[0,0,0]]\n[[1],[2],[3]]",
-  "sampleTestCase": "[[1,0,2],[1,0,2]]",
-  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

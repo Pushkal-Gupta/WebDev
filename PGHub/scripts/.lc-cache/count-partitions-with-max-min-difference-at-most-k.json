@@ -1,0 +1,8 @@
+{
+  "questionId": "3835",
+  "titleSlug": "count-partitions-with-max-min-difference-at-most-k",
+  "title": "Count Partitions With Max-Min Difference at Most K",
+  "exampleTestcases": "[9,4,1,3,7]\n4\n[3,3,4]\n0",
+  "sampleTestCase": "[9,4,1,3,7]\n4",
+  "metaData": "{\n  \"name\": \"countPartitions\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

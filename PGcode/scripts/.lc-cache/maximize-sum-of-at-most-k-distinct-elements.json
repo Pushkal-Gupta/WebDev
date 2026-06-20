@@ -1,8 +1,0 @@
-{
-  "questionId": "3997",
-  "titleSlug": "maximize-sum-of-at-most-k-distinct-elements",
-  "title": "Maximize Sum of At Most K Distinct Elements",
-  "exampleTestcases": "[84,93,100,77,90]\n3\n[84,93,100,77,93]\n3\n[1,1,1,2,2,2]\n6",
-  "sampleTestCase": "[84,93,100,77,90]\n3",
-  "metaData": "{\n  \"name\": \"maxKDistinct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

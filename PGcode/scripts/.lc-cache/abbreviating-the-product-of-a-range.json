@@ -1,8 +1,0 @@
-{
-  "questionId": "2222",
-  "titleSlug": "abbreviating-the-product-of-a-range",
-  "title": "Abbreviating the Product of a Range",
-  "exampleTestcases": "1\n4\n2\n11\n371\n375",
-  "sampleTestCase": "1\n4",
-  "metaData": "{\n  \"name\": \"abbreviateProduct\",\n  \"params\": [\n    {\n      \"name\": \"left\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"right\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

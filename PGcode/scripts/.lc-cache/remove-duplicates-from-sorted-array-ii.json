@@ -1,8 +1,0 @@
-{
-  "questionId": "80",
-  "titleSlug": "remove-duplicates-from-sorted-array-ii",
-  "title": "Remove Duplicates from Sorted Array II",
-  "exampleTestcases": "[1,1,1,2,2,3]\n[0,0,1,1,1,1,2,3,3]",
-  "sampleTestCase": "[1,1,1,2,2,3]",
-  "metaData": "{\r\n  \"name\": \"removeDuplicates\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  },\r\n  \"output\": {\r\n    \"paramindex\": 0,\r\n    \"size\": \"ret\"\r\n  }\r\n}"
-}

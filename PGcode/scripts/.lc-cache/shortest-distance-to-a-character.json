@@ -1,8 +1,0 @@
-{
-  "questionId": "841",
-  "titleSlug": "shortest-distance-to-a-character",
-  "title": "Shortest Distance to a Character",
-  "exampleTestcases": "\"loveleetcode\"\n\"e\"\n\"aaab\"\n\"b\"",
-  "sampleTestCase": "\"loveleetcode\"\n\"e\"",
-  "metaData": "{\n  \"name\": \"shortestToChar\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"c\",\n      \"type\": \"character\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

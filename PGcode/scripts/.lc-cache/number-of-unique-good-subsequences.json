@@ -1,8 +1,0 @@
-{
-  "questionId": "2115",
-  "titleSlug": "number-of-unique-good-subsequences",
-  "title": "Number of Unique Good Subsequences",
-  "exampleTestcases": "\"001\"\n\"11\"\n\"101\"",
-  "sampleTestCase": "\"001\"",
-  "metaData": "{\n  \"name\": \"numberOfUniqueGoodSubsequences\",\n  \"params\": [\n    {\n      \"name\": \"binary\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

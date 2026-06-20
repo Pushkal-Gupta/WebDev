@@ -1,8 +1,0 @@
-{
-  "questionId": "2759",
-  "titleSlug": "flatten-deeply-nested-array",
-  "title": "Flatten Deeply Nested Array",
-  "exampleTestcases": "[1,2,3,[4,5,6],[7,8,[9,10,11],12],[13,14,15]]\n0\n[1,2,3,[4,5,6],[7,8,[9,10,11],12],[13,14,15]]\n1\n[1,2,3,[4,5,6],[7,8,[9,10,11],12],[13,14,15]]\n2",
-  "sampleTestCase": "[1,2,3,[4,5,6],[7,8,[9,10,11],12],[13,14,15]]\n0",
-  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

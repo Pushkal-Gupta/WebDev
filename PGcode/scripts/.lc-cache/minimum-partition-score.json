@@ -1,8 +1,0 @@
-{
-  "questionId": "4121",
-  "titleSlug": "minimum-partition-score",
-  "title": "Minimum Partition Score",
-  "exampleTestcases": "[5,1,2,1]\n2\n[1,2,3,4]\n1\n[1,1,1]\n3",
-  "sampleTestCase": "[5,1,2,1]\n2",
-  "metaData": "{\n  \"name\": \"minPartitionScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

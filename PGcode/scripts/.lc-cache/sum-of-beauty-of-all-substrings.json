@@ -1,8 +1,0 @@
-{
-  "questionId": "1890",
-  "titleSlug": "sum-of-beauty-of-all-substrings",
-  "title": "Sum of Beauty of All Substrings",
-  "exampleTestcases": "\"aabcb\"\n\"aabcbaa\"",
-  "sampleTestCase": "\"aabcb\"",
-  "metaData": "{\n  \"name\": \"beautySum\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

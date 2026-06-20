@@ -1,8 +1,0 @@
-{
-  "questionId": "679",
-  "titleSlug": "24-game",
-  "title": "24 Game",
-  "exampleTestcases": "[4,1,8,7]\n[1,2,1,2]",
-  "sampleTestCase": "[4,1,8,7]",
-  "metaData": "{\n  \"name\": \"judgePoint24\",\n  \"params\": [\n    {\n      \"name\": \"cards\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "117",
-  "titleSlug": "populating-next-right-pointers-in-each-node-ii",
-  "title": "Populating Next Right Pointers in Each Node II",
-  "exampleTestcases": "[1,2,3,4,5,null,7]\n[]",
-  "sampleTestCase": "[1,2,3,4,5,null,7]",
-  "metaData": "{\n  \"name\": \"connect\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"csharp\",\n    \"javascript\",\n    \"python3\",\n    \"golang\",\n    \"swift\",\n    \"kotlin\",\n    \"ruby\",\n    \"c\",\n    \"scala\",\n    \"php\",\n    \"typescript\"\n  ],\n  \"manual\": true,\n      \"typescriptCustomType\" : \"class _Node {\\n    val: number\\n    left: _Node | null\\n    right: _Node | null\\n    next: _Node | null\\n\\n    constructor(val?: number, left?: _Node, right?: _Node, next?: _Node) {\\n        this.val = (val===undefined ? 0 : val)\\n        this.left = (left===undefined ? null : left)\\n        this.right = (right===undefined ? null : right)\\n        this.next = (next===undefined ? null : next)\\n    }\\n}\\n\"\n\n}"
-}

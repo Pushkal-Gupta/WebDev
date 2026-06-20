@@ -1,8 +1,0 @@
-{
-  "questionId": "1146",
-  "titleSlug": "greatest-common-divisor-of-strings",
-  "title": "Greatest Common Divisor of Strings",
-  "exampleTestcases": "\"ABCABC\"\n\"ABC\"\n\"ABABAB\"\n\"ABAB\"\n\"LEET\"\n\"CODE\"\n\"AAAAAB\"\n\"AAA\"",
-  "sampleTestCase": "\"ABCABC\"\n\"ABC\"",
-  "metaData": "{\n  \"name\": \"gcdOfStrings\",\n  \"params\": [\n    {\n      \"name\": \"str1\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"str2\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}\n"
-}

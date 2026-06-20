@@ -1,8 +1,0 @@
-{
-  "questionId": "767",
-  "titleSlug": "prime-number-of-set-bits-in-binary-representation",
-  "title": "Prime Number of Set Bits in Binary Representation",
-  "exampleTestcases": "6\n10\n10\n15",
-  "sampleTestCase": "6\n10",
-  "metaData": "{\n  \"name\": \"countPrimeSetBits\",\n  \"params\": [\n    {\n      \"name\": \"left\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"right\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

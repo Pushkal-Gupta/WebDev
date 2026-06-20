@@ -1,8 +1,0 @@
-{
-  "questionId": "1075",
-  "titleSlug": "index-pairs-of-a-string",
-  "title": "Index Pairs of a String",
-  "exampleTestcases": "\"thestoryofleetcodeandme\"\n[\"story\",\"fleet\",\"leetcode\"]\n\"ababa\"\n[\"aba\",\"ab\"]",
-  "sampleTestCase": "\"thestoryofleetcodeandme\"\n[\"story\",\"fleet\",\"leetcode\"]",
-  "metaData": "{\r\n  \"name\": \"indexPairs\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"text\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[][]\"\r\n  }\r\n}\r\n"
-}

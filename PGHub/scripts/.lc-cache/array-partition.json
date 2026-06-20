@@ -1,0 +1,8 @@
+{
+  "questionId": "561",
+  "titleSlug": "array-partition",
+  "title": "Array Partition",
+  "exampleTestcases": "[1,4,3,2]\n[6,2,6,5,1,2]",
+  "sampleTestCase": "[1,4,3,2]",
+  "metaData": "{\r\n  \"name\": \"arrayPairSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

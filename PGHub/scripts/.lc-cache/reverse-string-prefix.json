@@ -1,0 +1,8 @@
+{
+  "questionId": "4177",
+  "titleSlug": "reverse-string-prefix",
+  "title": "Reverse String Prefix",
+  "exampleTestcases": "\"abcd\"\n2\n\"xyz\"\n3\n\"hey\"\n1",
+  "sampleTestCase": "\"abcd\"\n2",
+  "metaData": "{\n  \"name\": \"reversePrefix\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

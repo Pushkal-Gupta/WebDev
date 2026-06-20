@@ -1,8 +1,0 @@
-{
-  "questionId": "3437",
-  "titleSlug": "maximum-total-damage-with-spell-casting",
-  "title": "Maximum Total Damage With Spell Casting",
-  "exampleTestcases": "[1,1,3,4]\n[7,1,6,6]",
-  "sampleTestCase": "[1,1,3,4]",
-  "metaData": "{\n  \"name\": \"maximumTotalDamage\",\n  \"params\": [\n    {\n      \"name\": \"power\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

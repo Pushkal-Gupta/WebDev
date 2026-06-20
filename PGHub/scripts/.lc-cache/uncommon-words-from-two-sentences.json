@@ -1,0 +1,8 @@
+{
+  "questionId": "920",
+  "titleSlug": "uncommon-words-from-two-sentences",
+  "title": "Uncommon Words from Two Sentences",
+  "exampleTestcases": "\"this apple is sweet\"\n\"this apple is sour\"\n\"apple apple\"\n\"banana\"",
+  "sampleTestCase": "\"this apple is sweet\"\n\"this apple is sour\"",
+  "metaData": "{\n  \"name\": \"uncommonFromSentences\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"s2\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
+}

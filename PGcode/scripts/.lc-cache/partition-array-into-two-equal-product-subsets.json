@@ -1,8 +1,0 @@
-{
-  "questionId": "3843",
-  "titleSlug": "partition-array-into-two-equal-product-subsets",
-  "title": "Partition Array into Two Equal Product Subsets",
-  "exampleTestcases": "[3,1,6,8,4]\n24\n[2,5,3,7]\n15",
-  "sampleTestCase": "[3,1,6,8,4]\n24",
-  "metaData": "{\n  \"name\": \"checkEqualPartitions\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

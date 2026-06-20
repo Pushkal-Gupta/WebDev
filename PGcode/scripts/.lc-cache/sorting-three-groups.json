@@ -1,8 +1,0 @@
-{
-  "questionId": "2904",
-  "titleSlug": "sorting-three-groups",
-  "title": "Sorting Three Groups",
-  "exampleTestcases": "[2,1,3,2,1]\n[1,3,2,1,3,3]\n[2,2,2,2,3,3]",
-  "sampleTestCase": "[2,1,3,2,1]",
-  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

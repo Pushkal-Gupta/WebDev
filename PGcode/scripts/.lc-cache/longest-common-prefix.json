@@ -1,8 +1,0 @@
-{
-  "questionId": "14",
-  "titleSlug": "longest-common-prefix",
-  "title": "Longest Common Prefix",
-  "exampleTestcases": "[\"flower\",\"flow\",\"flight\"]\n[\"dog\",\"racecar\",\"car\"]",
-  "sampleTestCase": "[\"flower\",\"flow\",\"flight\"]",
-  "metaData": "{\r\n  \"name\": \"longestCommonPrefix\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"strs\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

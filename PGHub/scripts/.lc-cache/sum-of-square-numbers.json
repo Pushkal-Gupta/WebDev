@@ -1,0 +1,8 @@
+{
+  "questionId": "633",
+  "titleSlug": "sum-of-square-numbers",
+  "title": "Sum of Square Numbers",
+  "exampleTestcases": "5\n3",
+  "sampleTestCase": "5",
+  "metaData": "{\r\n  \"name\": \"judgeSquareSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"c\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

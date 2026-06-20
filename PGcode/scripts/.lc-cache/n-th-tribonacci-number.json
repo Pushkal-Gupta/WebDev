@@ -1,8 +1,0 @@
-{
-  "questionId": "1236",
-  "titleSlug": "n-th-tribonacci-number",
-  "title": "N-th Tribonacci Number",
-  "exampleTestcases": "4\n25",
-  "sampleTestCase": "4",
-  "metaData": "{\n  \"name\": \"tribonacci\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

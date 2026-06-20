@@ -1,8 +1,0 @@
-{
-  "questionId": "1804",
-  "titleSlug": "maximum-binary-string-after-change",
-  "title": "Maximum Binary String After Change",
-  "exampleTestcases": "\"000110\"\n\"01\"",
-  "sampleTestCase": "\"000110\"",
-  "metaData": "{\n  \"name\": \"maximumBinaryString\",\n  \"params\": [\n    {\n      \"name\": \"binary\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

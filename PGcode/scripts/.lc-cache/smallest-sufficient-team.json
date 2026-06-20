@@ -1,8 +1,0 @@
-{
-  "questionId": "1220",
-  "titleSlug": "smallest-sufficient-team",
-  "title": "Smallest Sufficient Team",
-  "exampleTestcases": "[\"java\",\"nodejs\",\"reactjs\"]\n[[\"java\"],[\"nodejs\"],[\"nodejs\",\"reactjs\"]]\n[\"algorithms\",\"math\",\"java\",\"reactjs\",\"csharp\",\"aws\"]\n[[\"algorithms\",\"math\",\"java\"],[\"algorithms\",\"math\",\"reactjs\"],[\"java\",\"csharp\",\"aws\"],[\"reactjs\",\"csharp\"],[\"csharp\",\"math\"],[\"aws\",\"java\"]]",
-  "sampleTestCase": "[\"java\",\"nodejs\",\"reactjs\"]\n[[\"java\"],[\"nodejs\"],[\"nodejs\",\"reactjs\"]]",
-  "metaData": "{\n  \"name\": \"smallestSufficientTeam\",\n  \"params\": [\n    {\n      \"name\": \"req_skills\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"list<list<string>>\",\n      \"name\": \"people\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

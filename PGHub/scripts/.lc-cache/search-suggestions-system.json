@@ -1,0 +1,8 @@
+{
+  "questionId": "1397",
+  "titleSlug": "search-suggestions-system",
+  "title": "Search Suggestions System",
+  "exampleTestcases": "[\"mobile\",\"mouse\",\"moneypot\",\"monitor\",\"mousepad\"]\n\"mouse\"\n[\"havana\"]\n\"havana\"",
+  "sampleTestCase": "[\"mobile\",\"mouse\",\"moneypot\",\"monitor\",\"mousepad\"]\n\"mouse\"",
+  "metaData": "{\n  \"name\": \"suggestedProducts\",\n  \"params\": [\n    {\n      \"name\": \"products\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"searchWord\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<string>>\"\n  }\n}"
+}

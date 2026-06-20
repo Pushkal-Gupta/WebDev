@@ -1,0 +1,8 @@
+{
+  "questionId": "2788",
+  "titleSlug": "design-cancellable-function",
+  "title": "Design Cancellable Function",
+  "exampleTestcases": "function*() { return 42; }\n{\"cancelledAt\":100}\nfunction*() { const msg = yield new Promise(res => res(\"Hello\")); throw `Error: ${msg}`; }\n{\"cancelledAt\":null}\nfunction*() { yield new Promise(res => setTimeout(res, 200)); return \"Success\"; }\n{\"cancelledAt\":100}\nfunction*() { let result = 0; yield new Promise(res => setTimeout(res, 100)); result += yield new Promise(res => res(1)); yield new Promise(res => setTimeout(res, 100)); result += yield new Promise(res => res(1)); return result; }\n{\"cancelledAt\":null}\nfunction*() { let result = 0; try { yield new Promise(res => setTimeout(res, 100)); result += yield new Promise(res => res(1)); yield new Promise(res => setTimeout(res, 100)); result += yield new Promise(res => res(1)); } catch(e) { return result; } return result; }\n{\"cancelledAt\":150}\nfunction*() { try { yield new Promise((resolve, reject) => reject(\"Promise Rejected\")); } catch(e) { let a = yield new Promise(resolve => resolve(2)); let b = yield new Promise(resolve => resolve(2)); return a + b; }; }\n{\"cancelledAt\":null}",
+  "sampleTestCase": "function*() { return 42; }\n{\"cancelledAt\":100}",
+  "metaData": "{\n  \"name\": \"cancellable\",\n  \"params\": [\n    {\n      \"name\": \"generator\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cancelledAT\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1543",
-  "titleSlug": "simplified-fractions",
-  "title": "Simplified Fractions",
-  "exampleTestcases": "2\n3\n4",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"simplifiedFractions\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

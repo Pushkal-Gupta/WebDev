@@ -1,8 +1,0 @@
-{
-  "questionId": "2817",
-  "titleSlug": "minimum-cost-to-make-all-characters-equal",
-  "title": "Minimum Cost to Make All Characters Equal",
-  "exampleTestcases": "\"0011\"\n\"010101\"",
-  "sampleTestCase": "\"0011\"",
-  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

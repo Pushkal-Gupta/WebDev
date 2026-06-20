@@ -1,8 +1,0 @@
-{
-  "questionId": "4051",
-  "titleSlug": "remove-zeros-in-decimal-representation",
-  "title": "Remove Zeros in Decimal Representation",
-  "exampleTestcases": "1020030\n1",
-  "sampleTestCase": "1020030",
-  "metaData": "{\n  \"name\": \"removeZeros\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

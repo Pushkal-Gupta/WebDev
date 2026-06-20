@@ -1,8 +1,0 @@
-{
-  "questionId": "40",
-  "titleSlug": "combination-sum-ii",
-  "title": "Combination Sum II",
-  "exampleTestcases": "[10,1,2,7,6,1,5]\n8\n[2,5,2,1,2]\n5",
-  "sampleTestCase": "[10,1,2,7,6,1,5]\n8",
-  "metaData": "{\n  \"name\": \"combinationSum2\",\n  \"params\": [\n    {\n      \"name\": \"candidates\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\",\n    \"dealloc\": true\n  }\n}"
-}

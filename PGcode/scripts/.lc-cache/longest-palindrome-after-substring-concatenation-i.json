@@ -1,8 +1,0 @@
-{
-  "questionId": "3793",
-  "titleSlug": "longest-palindrome-after-substring-concatenation-i",
-  "title": "Longest Palindrome After Substring Concatenation I",
-  "exampleTestcases": "\"a\"\n\"a\"\n\"abc\"\n\"def\"\n\"b\"\n\"aaaa\"\n\"abcde\"\n\"ecdba\"",
-  "sampleTestCase": "\"a\"\n\"a\"",
-  "metaData": "{\n  \"name\": \"longestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3595",
-  "titleSlug": "rearrange-k-substrings-to-form-target-string",
-  "title": "Rearrange K Substrings to Form Target String",
-  "exampleTestcases": "\"abcd\"\n\"cdab\"\n2\n\"aabbcc\"\n\"bbaacc\"\n3\n\"aabbcc\"\n\"bbaacc\"\n2",
-  "sampleTestCase": "\"abcd\"\n\"cdab\"\n2",
-  "metaData": "{\n  \"name\": \"isPossibleToRearrange\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

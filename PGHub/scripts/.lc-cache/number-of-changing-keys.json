@@ -1,0 +1,8 @@
+{
+  "questionId": "3312",
+  "titleSlug": "number-of-changing-keys",
+  "title": "Number of Changing Keys",
+  "exampleTestcases": "\"aAbBcC\"\n\"AaAaAaaA\"",
+  "sampleTestCase": "\"aAbBcC\"",
+  "metaData": "{\n  \"name\": \"countKeyChanges\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2421",
-  "titleSlug": "maximum-number-of-pairs-in-array",
-  "title": "Maximum Number of Pairs in Array",
-  "exampleTestcases": "[1,3,2,1,3,2,2]\n[1,1]\n[0]",
-  "sampleTestCase": "[1,3,2,1,3,2,2]",
-  "metaData": "{\n  \"name\": \"numberOfPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

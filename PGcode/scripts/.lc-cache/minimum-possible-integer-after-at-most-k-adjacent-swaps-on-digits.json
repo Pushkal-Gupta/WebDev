@@ -1,8 +1,0 @@
-{
-  "questionId": "1629",
-  "titleSlug": "minimum-possible-integer-after-at-most-k-adjacent-swaps-on-digits",
-  "title": "Minimum Possible Integer After at Most K Adjacent Swaps On Digits",
-  "exampleTestcases": "\"4321\"\n4\n\"100\"\n1\n\"36789\"\n1000",
-  "sampleTestCase": "\"4321\"\n4",
-  "metaData": "{\n  \"name\": \"minInteger\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

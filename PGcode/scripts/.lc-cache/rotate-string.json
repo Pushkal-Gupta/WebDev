@@ -1,8 +1,0 @@
-{
-  "questionId": "812",
-  "titleSlug": "rotate-string",
-  "title": "Rotate String",
-  "exampleTestcases": "\"abcde\"\n\"cdeab\"\n\"abcde\"\n\"abced\"",
-  "sampleTestCase": "\"abcde\"\n\"cdeab\"",
-  "metaData": "{\n  \"name\": \"rotateString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"goal\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

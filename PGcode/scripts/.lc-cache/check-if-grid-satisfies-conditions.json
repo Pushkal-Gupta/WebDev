@@ -1,8 +1,0 @@
-{
-  "questionId": "3415",
-  "titleSlug": "check-if-grid-satisfies-conditions",
-  "title": "Check if Grid Satisfies Conditions",
-  "exampleTestcases": "[[1,0,2],[1,0,2]]\n[[1,1,1],[0,0,0]]\n[[1],[2],[3]]",
-  "sampleTestCase": "[[1,0,2],[1,0,2]]",
-  "metaData": "{\n  \"name\": \"satisfiesConditions\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

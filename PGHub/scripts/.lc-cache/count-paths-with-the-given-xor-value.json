@@ -1,0 +1,8 @@
+{
+  "questionId": "3659",
+  "titleSlug": "count-paths-with-the-given-xor-value",
+  "title": "Count Paths With the Given XOR Value",
+  "exampleTestcases": "[[2,1,5],[7,10,0],[12,6,4]]\n11\n[[1,3,3,3],[0,3,3,2],[3,0,1,1]]\n2\n[[1,1,1,2],[3,0,3,2],[3,0,2,2]]\n10",
+  "sampleTestCase": "[[2,1,5],[7,10,0],[12,6,4]]\n11",
+  "metaData": "{\n  \"name\": \"countPathsWithXorValue\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

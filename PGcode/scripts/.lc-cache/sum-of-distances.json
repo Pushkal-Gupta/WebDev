@@ -1,8 +1,0 @@
-{
-  "questionId": "2721",
-  "titleSlug": "sum-of-distances",
-  "title": "Sum of Distances",
-  "exampleTestcases": "[1,3,1,1,2]\n[0,5,3]",
-  "sampleTestCase": "[1,3,1,1,2]",
-  "metaData": "{\n  \"name\": \"distance\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

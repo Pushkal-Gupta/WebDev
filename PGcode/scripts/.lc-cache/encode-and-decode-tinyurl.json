@@ -1,8 +1,0 @@
-{
-  "questionId": "535",
-  "titleSlug": "encode-and-decode-tinyurl",
-  "title": "Encode and Decode TinyURL",
-  "exampleTestcases": "\"https://leetcode.com/problems/design-tinyurl\"",
-  "sampleTestCase": "\"https://leetcode.com/problems/design-tinyurl\"",
-  "metaData": "{\n  \"name\": \"CodecDriver\",\n  \"params\": [\n    {\n      \"name\": \"url\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"manual\": true\n}"
-}

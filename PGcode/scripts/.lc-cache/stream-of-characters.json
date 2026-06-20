@@ -1,8 +1,0 @@
-{
-  "questionId": "1097",
-  "titleSlug": "stream-of-characters",
-  "title": "Stream of Characters",
-  "exampleTestcases": "[\"StreamChecker\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\"]\n[[[\"cd\",\"f\",\"kl\"]],[\"a\"],[\"b\"],[\"c\"],[\"d\"],[\"e\"],[\"f\"],[\"g\"],[\"h\"],[\"i\"],[\"j\"],[\"k\"],[\"l\"]]",
-  "sampleTestCase": "[\"StreamChecker\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\",\"query\"]\n[[[\"cd\",\"f\",\"kl\"]],[\"a\"],[\"b\"],[\"c\"],[\"d\"],[\"e\"],[\"f\"],[\"g\"],[\"h\"],[\"i\"],[\"j\"],[\"k\"],[\"l\"]]",
-  "metaData": "{\n    \"classname\": \"StreamChecker\",\n    \"maxbytesperline\": 500000,\n    \"constructor\": {\n        \"params\": [\n            {\n                \"type\": \"string[]\",\n                \"name\": \"words\"\n            }]\n    },\n    \"methods\": [\n        {\n            \"name\" : \"query\",\n            \"params\": [\n                {\n                    \"type\": \"character\",\n                    \"name\": \"letter\"\n                }\n            ],\n            \"return\": {\n                \"type\": \"boolean\"\n            }\n        }\n    ],\n    \"systemdesign\": true,\n    \"params\": [\n        {\n            \"name\": \"starts\",\n            \"type\": \"integer[]\"\n        },\n        {\n            \"name\": \"ends\",\n            \"type\": \"integer[]\"\n        }\n    ],\n    \"return\": {\n        \"type\": \"list<boolean>\",\n        \"dealloc\": true\n    }\n}"
-}

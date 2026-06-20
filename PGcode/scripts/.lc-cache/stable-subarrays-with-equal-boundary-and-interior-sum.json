@@ -1,8 +1,0 @@
-{
-  "questionId": "4083",
-  "titleSlug": "stable-subarrays-with-equal-boundary-and-interior-sum",
-  "title": "Stable Subarrays With Equal Boundary and Interior Sum",
-  "exampleTestcases": "[9,3,3,3,9]\n[1,2,3,4,5]\n[-4,4,0,0,-8,-4]",
-  "sampleTestCase": "[9,3,3,3,9]",
-  "metaData": "{\n  \"name\": \"countStableSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"capacity\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3691",
-  "titleSlug": "minimum-operations-to-make-columns-strictly-increasing",
-  "title": "Minimum Operations to Make Columns Strictly Increasing",
-  "exampleTestcases": "[[3,2],[1,3],[3,4],[0,1]]\n[[3,2,1],[2,1,0],[1,2,3]]",
-  "sampleTestCase": "[[3,2],[1,3],[3,4],[0,1]]",
-  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2378",
-  "titleSlug": "sender-with-largest-word-count",
-  "title": "Sender With Largest Word Count",
-  "exampleTestcases": "[\"Hello userTwooo\",\"Hi userThree\",\"Wonderful day Alice\",\"Nice day userThree\"]\n[\"Alice\",\"userTwo\",\"userThree\",\"Alice\"]\n[\"How is leetcode for everyone\",\"Leetcode is useful for practice\"]\n[\"Bob\",\"Charlie\"]",
-  "sampleTestCase": "[\"Hello userTwooo\",\"Hi userThree\",\"Wonderful day Alice\",\"Nice day userThree\"]\n[\"Alice\",\"userTwo\",\"userThree\",\"Alice\"]",
-  "metaData": "{\n  \"name\": \"largestWordCount\",\n  \"params\": [\n    {\n      \"name\": \"messages\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"senders\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

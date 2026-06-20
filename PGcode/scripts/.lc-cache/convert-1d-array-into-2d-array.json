@@ -1,8 +1,0 @@
-{
-  "questionId": "2132",
-  "titleSlug": "convert-1d-array-into-2d-array",
-  "title": "Convert 1D Array Into 2D Array",
-  "exampleTestcases": "[1,2,3,4]\n2\n2\n[1,2,3]\n1\n3\n[1,2]\n1\n1",
-  "sampleTestCase": "[1,2,3,4]\n2\n2",
-  "metaData": "{\n  \"name\": \"construct2DArray\",\n  \"params\": [\n    {\n      \"name\": \"original\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3261",
-  "titleSlug": "minimize-or-of-remaining-elements-using-operations",
-  "title": "Minimize OR of Remaining Elements Using Operations",
-  "exampleTestcases": "[3,5,3,2,7]\n2\n[7,3,15,14,2,8]\n4\n[10,7,10,3,9,14,9,4]\n1",
-  "sampleTestCase": "[3,5,3,2,7]\n2",
-  "metaData": "{\n  \"name\": \"minOrAfterOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

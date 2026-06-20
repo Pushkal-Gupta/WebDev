@@ -1,8 +1,0 @@
-{
-  "questionId": "2492",
-  "titleSlug": "length-of-the-longest-alphabetical-continuous-substring",
-  "title": "Length of the Longest Alphabetical Continuous Substring",
-  "exampleTestcases": "\"abacaba\"\n\"abcde\"",
-  "sampleTestCase": "\"abacaba\"",
-  "metaData": "{\n  \"name\": \"longestContinuousSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2713",
+  "titleSlug": "find-the-divisibility-array-of-a-string",
+  "title": "Find the Divisibility Array of a String",
+  "exampleTestcases": "\"998244353\"\n3\n\"1010\"\n10",
+  "sampleTestCase": "\"998244353\"\n3",
+  "metaData": "{\n  \"name\": \"divisibilityArray\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

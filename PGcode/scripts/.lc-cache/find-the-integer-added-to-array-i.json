@@ -1,8 +1,0 @@
-{
-  "questionId": "3397",
-  "titleSlug": "find-the-integer-added-to-array-i",
-  "title": "Find the Integer Added to Array I",
-  "exampleTestcases": "[2,6,4]\n[9,7,5]\n[10]\n[5]\n[1,1,1,1]\n[1,1,1,1]",
-  "sampleTestCase": "[2,6,4]\n[9,7,5]",
-  "metaData": "{\n  \"name\": \"addedInteger\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

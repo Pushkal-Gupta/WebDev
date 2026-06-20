@@ -1,0 +1,304 @@
+/* ── Learnings Section ── */
+.learnings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.learnings-loading,
+.learnings-empty {
+  padding: 3rem;
+  text-align: center;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+/* ── Overview ── */
+.learnings-overview {
+  display: flex;
+  gap: 1rem;
+  padding: 1.2rem 1.4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  border-left: 3px solid var(--accent);
+}
+
+.overview-icon {
+  flex-shrink: 0;
+  color: var(--accent);
+  margin-top: 2px;
+}
+
+.overview-text {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Concept Card ── */
+/* Each concept gets one of CONCEPT_ACCENTS as a --cc hue driving the tile tint,
+   border-left strip, and key-points label. Keeps card bg uniform with the
+   rest of the app while still letting the accent read at a glance. */
+.concept-card {
+  --cc: 16, 185, 129;                    /* default: emerald (overridden below) */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid rgba(var(--cc), 0.75);
+  border-radius: 10px;
+  padding: 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  transition: border-color var(--t), transform var(--t), box-shadow var(--t);
+}
+.concept-card:hover {
+  border-color: var(--border);
+  border-left-color: rgba(var(--cc), 1);
+  box-shadow: 0 1px 0 rgba(var(--cc), 0.18) inset, 0 0 0 1px rgba(var(--cc), 0.12);
+}
+
+.concept-card--teal    { --cc: 20, 184, 166; }
+.concept-card--blue    { --cc: 59, 130, 246; }
+.concept-card--amber   { --cc: 234, 179,   8; }
+.concept-card--rose    { --cc: 244,  63,  94; }
+.concept-card--violet  { --cc: 168,  85, 247; }
+.concept-card--cyan    { --cc:   6, 182, 212; }
+.concept-card--emerald { --cc:  16, 185, 129; }
+.concept-card--orange  { --cc: 249, 115,  22; }
+
+.concept-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.concept-card-tile {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  background: rgba(var(--cc), 0.12);
+  color: rgb(var(--cc));
+  border: 1px solid rgba(var(--cc), 0.28);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.concept-title {
+  font-family: var(--sans);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.concept-content {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* ── Key Points ── */
+.concept-keypoints {
+  background: var(--hover-box);
+  border-radius: 8px;
+  padding: 1rem 1.2rem;
+  margin-top: 0.3rem;
+}
+
+.keypoints-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+.concept-card .keypoints-label { color: rgb(var(--cc)); }
+
+.keypoints-list {
+  margin: 0;
+  padding: 0 0 0 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.keypoints-list li {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+.keypoints-list li::marker {
+  color: var(--accent);
+}
+
+/* ── Complexity ── */
+.concept-complexity {
+  display: flex;
+  gap: 1.5rem;
+  padding: 0.7rem 1rem;
+  background: var(--hover-box);
+  border-radius: 6px;
+  flex-wrap: wrap;
+}
+
+.complexity-item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.complexity-label {
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.complexity-value {
+  color: var(--text-main);
+}
+
+/* ── Video List ── */
+.video-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.video-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color var(--t);
+}
+
+.video-card:hover {
+  border-color: var(--accent);
+}
+
+/* ── Thumbnail ── */
+.video-thumbnail {
+  position: relative;
+  cursor: pointer;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform var(--t);
+}
+
+.video-thumbnail:hover img {
+  transform: scale(1.03);
+}
+
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--text-main);
+  transition: background var(--t);
+}
+
+.video-thumbnail:hover .play-overlay {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* ── Embed ── */
+.video-embed {
+  aspect-ratio: 16 / 9;
+}
+
+.video-embed iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+/* ── Info ── */
+.video-info {
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.video-title {
+  font-family: var(--sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.video-source {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* ── Light mode (uses theme tokens for forward-compat with custom palettes) ── */
+[data-theme="light"] .concept-content {
+  color: var(--text-dim);
+}
+
+[data-theme="light"] .overview-text {
+  color: var(--text-main);
+}
+
+[data-theme="light"] .concept-keypoints {
+  background: var(--hover-box);
+}
+
+[data-theme="light"] .concept-complexity {
+  background: var(--hover-box);
+}
+
+[data-theme="light"] .learnings-overview {
+  background: var(--hover-box);
+  border-left-color: var(--accent);
+}
+
+[data-theme="light"] .overview-icon {
+  color: var(--accent);
+}
+
+[data-theme="light"] .keypoints-label {
+  color: var(--accent);
+}
+
+[data-theme="light"] .keypoints-list li {
+  color: var(--text-main);
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3768",
-  "titleSlug": "check-if-digits-are-equal-in-string-after-operations-i",
-  "title": "Check If Digits Are Equal in String After Operations I",
-  "exampleTestcases": "\"3902\"\n\"34789\"",
-  "sampleTestCase": "\"3902\"",
-  "metaData": "{\n  \"name\": \"hasSameDigits\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

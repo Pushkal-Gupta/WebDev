@@ -1,0 +1,8 @@
+{
+  "questionId": "3411",
+  "titleSlug": "find-products-of-elements-of-big-array",
+  "title": "Find Products of Elements of Big Array",
+  "exampleTestcases": "[[1,3,7]]\n[[2,5,3],[7,7,4]]",
+  "sampleTestCase": "[[1,3,7]]",
+  "metaData": "{\n  \"name\": \"findProductsOfElements\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"long[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

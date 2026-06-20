@@ -1,8 +1,0 @@
-{
-  "questionId": "3784",
-  "titleSlug": "longest-common-prefix-of-k-strings-after-removal",
-  "title": "Longest Common Prefix of K Strings After Removal",
-  "exampleTestcases": "[\"jump\",\"run\",\"run\",\"jump\",\"run\"]\n2\n[\"dog\",\"racer\",\"car\"]\n2",
-  "sampleTestCase": "[\"jump\",\"run\",\"run\",\"jump\",\"run\"]\n2",
-  "metaData": "{\n  \"name\": \"longestCommonPrefix\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

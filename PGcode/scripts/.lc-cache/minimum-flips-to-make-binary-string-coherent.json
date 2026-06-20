@@ -1,8 +1,0 @@
-{
-  "questionId": "4131",
-  "titleSlug": "minimum-flips-to-make-binary-string-coherent",
-  "title": "Minimum Flips to Make Binary String Coherent",
-  "exampleTestcases": "\"1010\"\n\"0110\"\n\"1000\"",
-  "sampleTestCase": "\"1010\"",
-  "metaData": "{\n  \"name\": \"minFlips\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

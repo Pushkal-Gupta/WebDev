@@ -1,0 +1,8 @@
+{
+  "questionId": "3221",
+  "titleSlug": "find-the-peaks",
+  "title": "Find the Peaks",
+  "exampleTestcases": "[2,4,4]\n[1,4,3,8,5]",
+  "sampleTestCase": "[2,4,4]",
+  "metaData": "{\n  \"name\": \"findPeaks\",\n  \"params\": [\n    {\n      \"name\": \"mountain\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

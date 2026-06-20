@@ -1,8 +1,0 @@
-{
-  "questionId": "2730",
-  "titleSlug": "maximum-or",
-  "title": "Maximum OR",
-  "exampleTestcases": "[12,9]\n1\n[8,1,2]\n2",
-  "sampleTestCase": "[12,9]\n1",
-  "metaData": "{\n  \"name\": \"maximumOr\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

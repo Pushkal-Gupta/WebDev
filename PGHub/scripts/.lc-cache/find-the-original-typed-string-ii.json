@@ -1,0 +1,8 @@
+{
+  "questionId": "3618",
+  "titleSlug": "find-the-original-typed-string-ii",
+  "title": "Find the Original Typed String II",
+  "exampleTestcases": "\"aabbccdd\"\n7\n\"aabbccdd\"\n8\n\"aaabbb\"\n3",
+  "sampleTestCase": "\"aabbccdd\"\n7",
+  "metaData": "{\n  \"name\": \"possibleStringCount\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

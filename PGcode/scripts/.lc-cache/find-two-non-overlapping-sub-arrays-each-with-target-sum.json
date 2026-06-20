@@ -1,8 +1,0 @@
-{
-  "questionId": "1573",
-  "titleSlug": "find-two-non-overlapping-sub-arrays-each-with-target-sum",
-  "title": "Find Two Non-overlapping Sub-arrays Each With Target Sum",
-  "exampleTestcases": "[3,2,2,4,3]\n3\n[7,3,4,7]\n7\n[4,3,2,6,2,3,4]\n6",
-  "sampleTestCase": "[3,2,2,4,3]\n3",
-  "metaData": "{\n  \"name\": \"minSumOfLengths\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

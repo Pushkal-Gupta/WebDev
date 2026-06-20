@@ -1,8 +1,0 @@
-{
-  "questionId": "2423",
-  "titleSlug": "minimum-deletions-to-make-array-divisible",
-  "title": "Minimum Deletions to Make Array Divisible",
-  "exampleTestcases": "[2,3,2,4,3]\n[9,6,9,3,15]\n[4,3,6]\n[8,2,6,10]",
-  "sampleTestCase": "[2,3,2,4,3]\n[9,6,9,3,15]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"numsDivide\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

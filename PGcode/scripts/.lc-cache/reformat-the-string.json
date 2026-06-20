@@ -1,8 +1,0 @@
-{
-  "questionId": "1532",
-  "titleSlug": "reformat-the-string",
-  "title": "Reformat The String",
-  "exampleTestcases": "\"a0b1c2\"\n\"leetcode\"\n\"1229857369\"",
-  "sampleTestCase": "\"a0b1c2\"",
-  "metaData": "{\n  \"name\": \"reformat\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1769",
-  "titleSlug": "get-maximum-in-generated-array",
-  "title": "Get Maximum in Generated Array",
-  "exampleTestcases": "7\n2\n3",
-  "sampleTestCase": "7",
-  "metaData": "{\n  \"name\": \"getMaximumGenerated\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

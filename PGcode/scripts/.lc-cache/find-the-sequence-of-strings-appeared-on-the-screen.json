@@ -1,8 +1,0 @@
-{
-  "questionId": "3566",
-  "titleSlug": "find-the-sequence-of-strings-appeared-on-the-screen",
-  "title": "Find the Sequence of Strings Appeared on the Screen",
-  "exampleTestcases": "\"abc\"\n\"he\"",
-  "sampleTestCase": "\"abc\"",
-  "metaData": "{\n  \"name\": \"stringSequence\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

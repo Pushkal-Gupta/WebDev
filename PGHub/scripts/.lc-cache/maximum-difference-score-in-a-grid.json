@@ -1,0 +1,8 @@
+{
+  "questionId": "3391",
+  "titleSlug": "maximum-difference-score-in-a-grid",
+  "title": "Maximum Difference Score in a Grid",
+  "exampleTestcases": "[[9,5,7,3],[8,9,6,1],[6,7,14,3],[2,5,3,1]]\n[[4,3,2],[3,2,1]]",
+  "sampleTestCase": "[[9,5,7,3],[8,9,6,1],[6,7,14,3],[2,5,3,1]]",
+  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"list<list<integer>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

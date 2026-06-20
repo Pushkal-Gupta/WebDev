@@ -1,0 +1,8 @@
+{
+  "questionId": "990",
+  "titleSlug": "verifying-an-alien-dictionary",
+  "title": "Verifying an Alien Dictionary",
+  "exampleTestcases": "[\"hello\",\"leetcode\"]\n\"hlabcdefgijkmnopqrstuvwxyz\"\n[\"word\",\"world\",\"row\"]\n\"worldabcefghijkmnpqstuvxyz\"\n[\"apple\",\"app\"]\n\"abcdefghijklmnopqrstuvwxyz\"",
+  "sampleTestCase": "[\"hello\",\"leetcode\"]\n\"hlabcdefgijkmnopqrstuvwxyz\"",
+  "metaData": "{\r\n  \"name\": \"isAlienSorted\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n      \"name\": \"order\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

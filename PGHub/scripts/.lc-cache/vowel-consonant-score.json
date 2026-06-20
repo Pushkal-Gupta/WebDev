@@ -1,0 +1,8 @@
+{
+  "questionId": "4178",
+  "titleSlug": "vowel-consonant-score",
+  "title": "Vowel-Consonant Score",
+  "exampleTestcases": "\"cooear\"\n\"axeyizou\"\n\"au 123\"",
+  "sampleTestCase": "\"cooear\"",
+  "metaData": "{\n  \"name\": \"vowelConsonantScore\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

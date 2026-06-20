@@ -1,0 +1,8 @@
+{
+  "questionId": "1831",
+  "titleSlug": "ways-to-split-array-into-three-subarrays",
+  "title": "Ways to Split Array Into Three Subarrays",
+  "exampleTestcases": "[1,1,1]\n[1,2,2,2,5,0]\n[3,2,1]",
+  "sampleTestCase": "[1,1,1]",
+  "metaData": "{\n  \"name\": \"waysToSplit\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3075",
+  "titleSlug": "drop-missing-data",
+  "title": "Drop Missing Data",
+  "exampleTestcases": "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[32,\"Piper\",5],[217,null,19],[779,\"Georgia\",20],[849,\"Willow\",14]]}}",
+  "sampleTestCase": "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[32,\"Piper\",5],[217,null,19],[779,\"Georgia\",20],[849,\"Willow\",14]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"students = pd.DataFrame([], columns=['student_id', 'name', 'age']).astype({'student_id':'Int64', 'name':'object', 'age':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"dropMissingData\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

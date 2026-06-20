@@ -1,8 +1,0 @@
-{
-  "questionId": "968",
-  "titleSlug": "beautiful-array",
-  "title": "Beautiful Array",
-  "exampleTestcases": "4\n5",
-  "sampleTestCase": "4",
-  "metaData": "{\n  \"name\": \"beautifulArray\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

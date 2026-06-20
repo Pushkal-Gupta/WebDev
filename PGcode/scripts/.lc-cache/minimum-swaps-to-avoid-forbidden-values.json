@@ -1,8 +1,0 @@
-{
-  "questionId": "4061",
-  "titleSlug": "minimum-swaps-to-avoid-forbidden-values",
-  "title": "Minimum Swaps to Avoid Forbidden Values",
-  "exampleTestcases": "[1,2,3]\n[3,2,1]\n[4,6,6,5]\n[4,6,5,5]\n[7,7]\n[8,7]\n[1,2]\n[2,1]",
-  "sampleTestCase": "[1,2,3]\n[3,2,1]",
-  "metaData": "{\n  \"name\": \"minSwaps\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"forbidden\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "235",
+  "titleSlug": "lowest-common-ancestor-of-a-binary-search-tree",
+  "title": "Lowest Common Ancestor of a Binary Search Tree",
+  "exampleTestcases": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n8\n[6,2,8,0,4,7,9,null,null,3,5]\n2\n4\n[2,1]\n2\n1",
+  "sampleTestCase": "[6,2,8,0,4,7,9,null,null,3,5]\n2\n8",
+  "metaData": "{\n  \"name\": \"lowestCommonAncestor\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"name\": \"p\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"q\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  },\n  \"manual\": true\n}"
+}

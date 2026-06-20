@@ -1,8 +1,0 @@
-{
-  "questionId": "915",
-  "titleSlug": "generate-random-point-in-a-circle",
-  "title": "Generate Random Point in a Circle",
-  "exampleTestcases": "[\"Solution\",\"randPoint\",\"randPoint\",\"randPoint\"]\n[[1.0,0.0,0.0],[],[],[]]",
-  "sampleTestCase": "[\"Solution\",\"randPoint\",\"randPoint\",\"randPoint\"]\n[[1.0,0.0,0.0],[],[],[]]",
-  "metaData": "{\r\n    \"classname\": \"Solution\",\r\n    \"maxbytesperline\": 200000,\r\n    \"constructor\": {\r\n        \"params\": [\r\n            {\r\n                \"name\": \"radius\",\r\n                \"type\": \"double\"\r\n            },\r\n            {\r\n                \"name\": \"x_center\",\r\n                \"type\": \"double\"\r\n            },\r\n            {\r\n                \"name\": \"y_center\",\r\n                \"type\": \"double\"\r\n            }\r\n        ]\r\n    },\r\n    \"methods\": [\r\n        {\r\n            \"name\" : \"randPoint\",\r\n            \"params\": [\r\n            ],\r\n            \"return\": {\r\n                \"type\": \"double[]\"\r\n            }\r\n        }\r\n    ],\r\n    \"systemdesign\": true,\r\n    \"params\": [\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        },\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        }\r\n    ],\r\n    \"return\": {\r\n        \"type\": \"list<String>\",\r\n        \"dealloc\": true\r\n    }\r\n}"
-}

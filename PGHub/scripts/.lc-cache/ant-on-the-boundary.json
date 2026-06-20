@@ -1,0 +1,8 @@
+{
+  "questionId": "3311",
+  "titleSlug": "ant-on-the-boundary",
+  "title": "Ant on the Boundary",
+  "exampleTestcases": "[2,3,-5]\n[3,2,-3,-4]",
+  "sampleTestCase": "[2,3,-5]",
+  "metaData": "{\n  \"name\": \"returnToBoundaryCount\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

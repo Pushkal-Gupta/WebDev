@@ -1,0 +1,8 @@
+{
+  "questionId": "326",
+  "titleSlug": "power-of-three",
+  "title": "Power of Three",
+  "exampleTestcases": "27\n0\n-1",
+  "sampleTestCase": "27",
+  "metaData": "{\r\n  \"name\": \"isPowerOfThree\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

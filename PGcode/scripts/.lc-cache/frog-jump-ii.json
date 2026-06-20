@@ -1,8 +1,0 @@
-{
-  "questionId": "2591",
-  "titleSlug": "frog-jump-ii",
-  "title": "Frog Jump II",
-  "exampleTestcases": "[0,2,5,6,7]\n[0,3,9]",
-  "sampleTestCase": "[0,2,5,6,7]",
-  "metaData": "{\n  \"name\": \"maxJump\",\n  \"params\": [\n    {\n      \"name\": \"stones\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "916",
-  "titleSlug": "decoded-string-at-index",
-  "title": "Decoded String at Index",
-  "exampleTestcases": "\"leet2code3\"\n10\n\"ha22\"\n5\n\"a2345678999999999999999\"\n1",
-  "sampleTestCase": "\"leet2code3\"\n10",
-  "metaData": "{\n  \"name\": \"decodeAtIndex\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

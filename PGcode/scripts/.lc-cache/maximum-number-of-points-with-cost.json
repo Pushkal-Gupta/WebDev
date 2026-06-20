@@ -1,8 +1,0 @@
-{
-  "questionId": "2067",
-  "titleSlug": "maximum-number-of-points-with-cost",
-  "title": "Maximum Number of Points with Cost",
-  "exampleTestcases": "[[1,2,3],[1,5,1],[3,1,1]]\n[[1,5],[2,3],[4,2]]",
-  "sampleTestCase": "[[1,2,3],[1,5,1],[3,1,1]]",
-  "metaData": "{\n  \"name\": \"maxPoints\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2174",
-  "titleSlug": "next-greater-numerically-balanced-number",
-  "title": "Next Greater Numerically Balanced Number",
-  "exampleTestcases": "1\n1000\n3000",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"nextBeautifulNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

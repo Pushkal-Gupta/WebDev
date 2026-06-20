@@ -1,8 +1,0 @@
-{
-  "questionId": "627",
-  "titleSlug": "swap-sex-of-employees",
-  "title": "Swap Sex of Employees",
-  "exampleTestcases": "{\"headers\":{\"Salary\":[\"id\",\"name\",\"sex\",\"salary\"]},\"rows\":{\"Salary\":[[1,\"A\",\"m\",2500],[2,\"B\",\"f\",1500],[3,\"C\",\"m\",5500],[4,\"D\",\"f\",500]]}}",
-  "sampleTestCase": "{\"headers\":{\"Salary\":[\"id\",\"name\",\"sex\",\"salary\"]},\"rows\":{\"Salary\":[[1,\"A\",\"m\",2500],[2,\"B\",\"f\",1500],[3,\"C\",\"m\",5500],[4,\"D\",\"f\",500]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Salary (id int, name varchar(100), sex char(1), salary int)\"], \"mssql\": [\"Create table Salary (id int, name varchar(100), sex char(1), salary int)\"], \"oraclesql\": [\"Create table Salary (id int, name varchar(100), sex char(1), salary int)\"], \"database\": true, \"manual\": true, \"name\": \"swap_salary\", \"pythondata\": [\"Salary = pd.DataFrame([], columns=['id', 'name', 'sex', 'salary']).astype({'id':'Int64', 'name':'object', 'sex':'object', 'salary':'Int64'})\\n\"], \"postgresql\": [\"Create table If Not Exists Salary (id int, name varchar, sex char, salary int)\\n\"], \"database_schema\": {\"Salary\": {\"id\": \"INT\", \"name\": \"VARCHAR(100)\", \"sex\": \"CHAR(1)\", \"salary\": \"INT\"}}}"
-}

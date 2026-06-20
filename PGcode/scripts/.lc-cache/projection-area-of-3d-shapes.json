@@ -1,8 +1,0 @@
-{
-  "questionId": "919",
-  "titleSlug": "projection-area-of-3d-shapes",
-  "title": "Projection Area of 3D Shapes",
-  "exampleTestcases": "[[1,2],[3,4]]\n[[2]]\n[[1,0],[0,2]]",
-  "sampleTestCase": "[[1,2],[3,4]]",
-  "metaData": "{\r\n  \"name\": \"projectionArea\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

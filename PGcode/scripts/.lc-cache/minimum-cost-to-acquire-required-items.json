@@ -1,8 +1,0 @@
-{
-  "questionId": "4147",
-  "titleSlug": "minimum-cost-to-acquire-required-items",
-  "title": "Minimum Cost to Acquire Required Items",
-  "exampleTestcases": "3\n2\n1\n3\n2\n5\n4\n15\n2\n3\n5\n4\n15\n0\n0",
-  "sampleTestCase": "3\n2\n1\n3\n2",
-  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"cost1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cost2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"costBoth\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"need1\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"need2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

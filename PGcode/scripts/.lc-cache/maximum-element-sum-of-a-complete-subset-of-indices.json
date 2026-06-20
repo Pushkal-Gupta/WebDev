@@ -1,8 +1,0 @@
-{
-  "questionId": "3047",
-  "titleSlug": "maximum-element-sum-of-a-complete-subset-of-indices",
-  "title": "Maximum Element-Sum of a Complete Subset of Indices",
-  "exampleTestcases": "[8,7,3,5,7,2,4,9]\n[8,10,3,8,1,13,7,9,4]",
-  "sampleTestCase": "[8,7,3,5,7,2,4,9]",
-  "metaData": "{\n  \"name\": \"maximumSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

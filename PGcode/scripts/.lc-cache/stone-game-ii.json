@@ -1,8 +1,0 @@
-{
-  "questionId": "1240",
-  "titleSlug": "stone-game-ii",
-  "title": "Stone Game II",
-  "exampleTestcases": "[2,7,9,4,4]\n[1,2,3,4,5,100]",
-  "sampleTestCase": "[2,7,9,4,4]",
-  "metaData": "{\n  \"name\": \"stoneGameII\",\n  \"params\": [\n    {\n      \"name\": \"piles\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

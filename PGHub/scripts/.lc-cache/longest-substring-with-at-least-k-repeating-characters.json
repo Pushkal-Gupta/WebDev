@@ -1,0 +1,8 @@
+{
+  "questionId": "395",
+  "titleSlug": "longest-substring-with-at-least-k-repeating-characters",
+  "title": "Longest Substring with At Least K Repeating Characters",
+  "exampleTestcases": "\"aaabb\"\n3\n\"ababbc\"\n2",
+  "sampleTestCase": "\"aaabb\"\n3",
+  "metaData": "{\r\n  \"name\": \"longestSubstring\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

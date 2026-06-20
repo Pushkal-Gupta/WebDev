@@ -1,8 +1,0 @@
-{
-  "questionId": "2077",
-  "titleSlug": "largest-number-after-mutating-substring",
-  "title": "Largest Number After Mutating Substring",
-  "exampleTestcases": "\"132\"\n[9,8,5,0,3,6,4,2,6,8]\n\"021\"\n[9,4,3,5,7,2,1,9,0,6]\n\"5\"\n[1,4,7,5,3,2,5,6,9,4]",
-  "sampleTestCase": "\"132\"\n[9,8,5,0,3,6,4,2,6,8]",
-  "metaData": "{\n  \"name\": \"maximumNumber\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"change\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3864",
-  "titleSlug": "count-the-number-of-computer-unlocking-permutations",
-  "title": "Count the Number of Computer Unlocking Permutations",
-  "exampleTestcases": "[1,2,3]\n[3,3,3,4,4,4]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"countPermutations\",\n  \"params\": [\n    {\n      \"name\": \"complexity\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "746",
-  "titleSlug": "prefix-and-suffix-search",
-  "title": "Prefix and Suffix Search",
-  "exampleTestcases": "[\"WordFilter\",\"f\"]\n[[[\"apple\"]],[\"a\",\"e\"]]",
-  "sampleTestCase": "[\"WordFilter\",\"f\"]\n[[[\"apple\"]],[\"a\",\"e\"]]",
-  "metaData": "{\n  \"classname\": \"WordFilter\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"string[]\",\n        \"name\": \"words\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"name\": \"f\",\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"pref\"\n        },\n        {\n          \"type\": \"string\",\n          \"name\": \"suff\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<String>\",\n    \"dealloc\": true\n  }\n}"
-}

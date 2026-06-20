@@ -1,8 +1,0 @@
-{
-  "questionId": "2406",
-  "titleSlug": "decode-the-message",
-  "title": "Decode the Message",
-  "exampleTestcases": "\"the quick brown fox jumps over the lazy dog\"\n\"vkbs bs t suepuv\"\n\"eljuxhpwnyrdgtqkviszcfmabo\"\n\"zwx hnfx lqantp mnoeius ycgk vcnjrdb\"",
-  "sampleTestCase": "\"the quick brown fox jumps over the lazy dog\"\n\"vkbs bs t suepuv\"",
-  "metaData": "{\n  \"name\": \"decodeMessage\",\n  \"params\": [\n    {\n      \"name\": \"key\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"message\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

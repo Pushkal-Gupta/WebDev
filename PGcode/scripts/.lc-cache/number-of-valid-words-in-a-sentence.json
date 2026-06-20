@@ -1,8 +1,0 @@
-{
-  "questionId": "2173",
-  "titleSlug": "number-of-valid-words-in-a-sentence",
-  "title": "Number of Valid Words in a Sentence",
-  "exampleTestcases": "\"cat and  dog\"\n\"!this  1-s b8d!\"\n\"alice and  bob are playing stone-game10\"",
-  "sampleTestCase": "\"cat and  dog\"",
-  "metaData": "{\n  \"name\": \"countValidWords\",\n  \"params\": [\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "772",
-  "titleSlug": "construct-quad-tree",
-  "title": "Construct Quad Tree",
-  "exampleTestcases": "[[0,1],[1,0]]\n[[1,1,1,1,0,0,0,0],[1,1,1,1,0,0,0,0],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,0,0,0,0],[1,1,1,1,0,0,0,0],[1,1,1,1,0,0,0,0],[1,1,1,1,0,0,0,0]]",
-  "sampleTestCase": "[[0,1],[1,0]]",
-  "metaData": "{\n  \"name\": \"construct\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"csharp\",\n    \"javascript\",\n    \"python3\",\n    \"kotlin\",\n    \"ruby\",\n    \"scala\",\n    \"swift\",\n    \"golang\",\n    \"php\",\n    \"typescript\"\n  ],\n  \"manual\": true, \"typescriptCustomType\" : \"class _Node {\\n    val: boolean\\n    isLeaf: boolean\\n    topLeft: _Node | null\\n\\ttopRight: _Node | null\\n\\tbottomLeft: _Node | null\\n\\tbottomRight: _Node | null\\n\\tconstructor(val?: boolean, isLeaf?: boolean, topLeft?: _Node, topRight?: _Node, bottomLeft?: _Node, bottomRight?: _Node) {\\n        this.val = (val===undefined ? false : val)\\n        this.isLeaf = (isLeaf===undefined ? false : isLeaf)\\n        this.topLeft = (topLeft===undefined ? null : topLeft)\\n        this.topRight = (topRight===undefined ? null : topRight)\\n        this.bottomLeft = (bottomLeft===undefined ? null : bottomLeft)\\n        this.bottomRight = (bottomRight===undefined ? null : bottomRight)\\n  }\\n}\\n\"\n\n}"
-}

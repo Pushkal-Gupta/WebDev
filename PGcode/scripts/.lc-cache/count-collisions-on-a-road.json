@@ -1,8 +1,0 @@
-{
-  "questionId": "2317",
-  "titleSlug": "count-collisions-on-a-road",
-  "title": "Count Collisions on a Road",
-  "exampleTestcases": "\"RLRSLL\"\n\"LLRR\"",
-  "sampleTestCase": "\"RLRSLL\"",
-  "metaData": "{\n  \"name\": \"countCollisions\",\n  \"params\": [\n    {\n      \"name\": \"directions\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

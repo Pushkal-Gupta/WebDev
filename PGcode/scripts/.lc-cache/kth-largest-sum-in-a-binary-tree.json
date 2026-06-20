@@ -1,8 +1,0 @@
-{
-  "questionId": "2646",
-  "titleSlug": "kth-largest-sum-in-a-binary-tree",
-  "title": "Kth Largest Sum in a Binary Tree",
-  "exampleTestcases": "[5,8,9,2,1,3,7,4,6]\n2\n[1,2,null,3]\n1",
-  "sampleTestCase": "[5,8,9,2,1,3,7,4,6]\n2",
-  "metaData": "{\n  \"name\": \"kthLargestLevelSum\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3884",
-  "titleSlug": "minimum-absolute-difference-in-sliding-submatrix",
-  "title": "Minimum Absolute Difference in Sliding Submatrix",
-  "exampleTestcases": "[[1,8],[3,-2]]\n2\n[[3,-1]]\n1\n[[1,-2,3],[2,3,5]]\n2",
-  "sampleTestCase": "[[1,8],[3,-2]]\n2",
-  "metaData": "{\n  \"name\": \"minAbsDiff\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

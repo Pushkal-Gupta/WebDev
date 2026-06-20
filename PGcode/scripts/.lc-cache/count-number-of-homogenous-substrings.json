@@ -1,8 +1,0 @@
-{
-  "questionId": "1885",
-  "titleSlug": "count-number-of-homogenous-substrings",
-  "title": "Count Number of Homogenous Substrings",
-  "exampleTestcases": "\"abbcccaa\"\n\"xy\"\n\"zzzzz\"",
-  "sampleTestCase": "\"abbcccaa\"",
-  "metaData": "{\n  \"name\": \"countHomogenous\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

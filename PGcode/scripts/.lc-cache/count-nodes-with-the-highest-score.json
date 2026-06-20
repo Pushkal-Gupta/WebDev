@@ -1,8 +1,0 @@
-{
-  "questionId": "2175",
-  "titleSlug": "count-nodes-with-the-highest-score",
-  "title": "Count Nodes With the Highest Score",
-  "exampleTestcases": "[-1,2,0,2,0]\n[-1,2,0]",
-  "sampleTestCase": "[-1,2,0,2,0]",
-  "metaData": "{\n  \"name\": \"countHighestScoreNodes\",\n  \"params\": [\n    {\n      \"name\": \"parents\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

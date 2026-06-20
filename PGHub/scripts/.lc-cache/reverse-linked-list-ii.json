@@ -1,0 +1,8 @@
+{
+  "questionId": "92",
+  "titleSlug": "reverse-linked-list-ii",
+  "title": "Reverse Linked List II",
+  "exampleTestcases": "[1,2,3,4,5]\n2\n4\n[5]\n1\n1",
+  "sampleTestCase": "[1,2,3,4,5]\n2\n4",
+  "metaData": "{\n  \"name\": \"reverseBetween\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\",\n      \"dealloc\": false\n    },\n    {\n      \"name\": \"left\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"right\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\",\n    \"dealloc\": true\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "177",
-  "titleSlug": "nth-highest-salary",
-  "title": "Nth Highest Salary",
-  "exampleTestcases": "{\"headers\": {\"Employee\": [\"id\", \"salary\"]}, \"argument\": 2, \"rows\": {\"Employee\": [[1, 100], [2, 200], [3, 300]]}}\n{\"headers\": {\"Employee\": [\"id\", \"salary\"]}, \"argument\": 2, \"rows\": {\"Employee\": [[1, 100]]}}",
-  "sampleTestCase": "{\"headers\": {\"Employee\": [\"id\", \"salary\"]}, \"argument\": 2, \"rows\": {\"Employee\": [[1, 100], [2, 200], [3, 300]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Employee (Id int, Salary int)\"], \"mssql\": [\"Create table Employee (Id int, Salary int)\"], \"oraclesql\": [\"Create table Employee (Id int, Salary int)\"], \"database\": true, \"manual\": true, \"name\": \"nth_highest_salary\", \"pythondata\": [\"Employee = pd.DataFrame([], columns=['Id', 'Salary']).astype({'Id':'Int64', 'Salary':'Int64'})\"], \"database_schema\": {\"Employee\": {\"Id\": \"INT\", \"Salary\": \"INT\"}}}"
-}

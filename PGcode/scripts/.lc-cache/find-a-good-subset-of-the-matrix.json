@@ -1,8 +1,0 @@
-{
-  "questionId": "2826",
-  "titleSlug": "find-a-good-subset-of-the-matrix",
-  "title": "Find a Good Subset of the Matrix",
-  "exampleTestcases": "[[0,1,1,0],[0,0,0,1],[1,1,1,1]]\n[[0]]\n[[1,1,1],[1,1,1]]",
-  "sampleTestCase": "[[0,1,1,0],[0,0,0,1],[1,1,1,1]]",
-  "metaData": "{\n  \"name\": \"goodSubsetofBinaryMatrix\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

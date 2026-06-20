@@ -1,8 +1,0 @@
-{
-  "questionId": "1168",
-  "titleSlug": "duplicate-zeros",
-  "title": "Duplicate Zeros",
-  "exampleTestcases": "[1,0,2,3,0,4,5,0]\n[1,2,3]",
-  "sampleTestCase": "[1,0,2,3,0,4,5,0]",
-  "metaData": "{\n  \"name\": \"duplicateZeros\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"void\"\n  },\n  \"output\": {\n    \"paramindex\": 0\n  }\n}\n"
-}

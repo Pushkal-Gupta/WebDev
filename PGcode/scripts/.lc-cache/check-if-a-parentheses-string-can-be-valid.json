@@ -1,8 +1,0 @@
-{
-  "questionId": "2221",
-  "titleSlug": "check-if-a-parentheses-string-can-be-valid",
-  "title": "Check if a Parentheses String Can Be Valid",
-  "exampleTestcases": "\"))()))\"\n\"010100\"\n\"()()\"\n\"0000\"\n\")\"\n\"0\"\n\"(((())(((())\"\n\"111111010111\"",
-  "sampleTestCase": "\"))()))\"\n\"010100\"",
-  "metaData": "{\n  \"name\": \"canBeValid\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"locked\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

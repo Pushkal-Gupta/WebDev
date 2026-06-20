@@ -1,0 +1,8 @@
+{
+  "questionId": "3851",
+  "titleSlug": "find-sum-of-array-product-of-magical-sequences",
+  "title": "Find Sum of Array Product of Magical Sequences",
+  "exampleTestcases": "5\n5\n[1,10,100,10000,1000000]\n2\n2\n[5,4,3,2,1]\n1\n1\n[28]",
+  "sampleTestCase": "5\n5\n[1,10,100,10000,1000000]",
+  "metaData": "{\n  \"name\": \"magicalSum\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1205",
-  "titleSlug": "defanging-an-ip-address",
-  "title": "Defanging an IP Address",
-  "exampleTestcases": "\"1.1.1.1\"\n\"255.100.50.0\"",
-  "sampleTestCase": "\"1.1.1.1\"",
-  "metaData": "{\n  \"name\": \"defangIPaddr\",\n  \"params\": [\n    {\n      \"name\": \"address\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2572",
-  "titleSlug": "append-characters-to-string-to-make-subsequence",
-  "title": "Append Characters to String to Make Subsequence",
-  "exampleTestcases": "\"coaching\"\n\"coding\"\n\"abcde\"\n\"a\"\n\"z\"\n\"abcde\"",
-  "sampleTestCase": "\"coaching\"\n\"coding\"",
-  "metaData": "{\n  \"name\": \"appendCharacters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3692",
+  "titleSlug": "shortest-matching-substring",
+  "title": "Shortest Matching Substring",
+  "exampleTestcases": "\"abaacbaecebce\"\n\"ba*c*ce\"\n\"baccbaadbc\"\n\"cc*baa*adb\"\n\"a\"\n\"**\"\n\"madlogic\"\n\"*adlogi*\"",
+  "sampleTestCase": "\"abaacbaecebce\"\n\"ba*c*ce\"",
+  "metaData": "{\n  \"name\": \"shortestMatchingSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"p\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

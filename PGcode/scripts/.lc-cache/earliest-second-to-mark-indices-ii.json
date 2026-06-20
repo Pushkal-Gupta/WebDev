@@ -1,8 +1,0 @@
-{
-  "questionId": "3289",
-  "titleSlug": "earliest-second-to-mark-indices-ii",
-  "title": "Earliest Second to Mark Indices II",
-  "exampleTestcases": "[3,2,3]\n[1,3,2,2,2,2,3]\n[0,0,1,2]\n[1,2,1,2,1,2,1,2]\n[1,2,3]\n[1,2,3]",
-  "sampleTestCase": "[3,2,3]\n[1,3,2,2,2,2,3]",
-  "metaData": "{\n  \"name\": \"earliestSecondToMarkIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"changeIndices\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

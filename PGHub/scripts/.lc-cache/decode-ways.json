@@ -1,0 +1,8 @@
+{
+  "questionId": "91",
+  "titleSlug": "decode-ways",
+  "title": "Decode Ways",
+  "exampleTestcases": "\"12\"\n\"226\"\n\"06\"",
+  "sampleTestCase": "\"12\"",
+  "metaData": "{ \r\n  \"name\": \"numDecodings\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1408",
-  "titleSlug": "find-the-smallest-divisor-given-a-threshold",
-  "title": "Find the Smallest Divisor Given a Threshold",
-  "exampleTestcases": "[1,2,5,9]\n6\n[44,22,33,11,1]\n5",
-  "sampleTestCase": "[1,2,5,9]\n6",
-  "metaData": "{\n  \"name\": \"smallestDivisor\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"threshold\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

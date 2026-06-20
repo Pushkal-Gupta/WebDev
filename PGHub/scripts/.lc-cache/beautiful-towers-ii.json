@@ -1,0 +1,8 @@
+{
+  "questionId": "3113",
+  "titleSlug": "beautiful-towers-ii",
+  "title": "Beautiful Towers II",
+  "exampleTestcases": "[5,3,4,1,1]\n[6,5,3,9,2,7]\n[3,2,5,5,2,3]",
+  "sampleTestCase": "[5,3,4,1,1]",
+  "metaData": "{\n  \"name\": \"maximumSumOfHeights\",\n  \"params\": [\n    {\n      \"name\": \"maxHeights\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

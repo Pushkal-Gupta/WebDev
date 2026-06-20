@@ -1,8 +1,0 @@
-{
-  "questionId": "2201",
-  "titleSlug": "valid-arrangement-of-pairs",
-  "title": "Valid Arrangement of Pairs",
-  "exampleTestcases": "[[5,1],[4,5],[11,9],[9,4]]\n[[1,3],[3,2],[2,1]]\n[[1,2],[1,3],[2,1]]",
-  "sampleTestCase": "[[5,1],[4,5],[11,9],[9,4]]",
-  "metaData": "{\n  \"name\": \"validArrangement\",\n  \"params\": [\n    {\n      \"name\": \"pairs\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

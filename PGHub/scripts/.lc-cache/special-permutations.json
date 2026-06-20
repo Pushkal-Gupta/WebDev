@@ -1,0 +1,8 @@
+{
+  "questionId": "2848",
+  "titleSlug": "special-permutations",
+  "title": "Special Permutations",
+  "exampleTestcases": "[2,3,6]\n[1,4,3]",
+  "sampleTestCase": "[2,3,6]",
+  "metaData": "{\n  \"name\": \"specialPerm\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

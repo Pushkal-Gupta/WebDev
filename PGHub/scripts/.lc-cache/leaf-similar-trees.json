@@ -1,0 +1,8 @@
+{
+  "questionId": "904",
+  "titleSlug": "leaf-similar-trees",
+  "title": "Leaf-Similar Trees",
+  "exampleTestcases": "[3,5,1,6,2,9,8,null,null,7,4]\n[3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]\n[1,2,3]\n[1,3,2]",
+  "sampleTestCase": "[3,5,1,6,2,9,8,null,null,7,4]\n[3,5,1,6,7,4,2,null,null,null,null,null,null,9,8]",
+  "metaData": "{\r\n  \"name\": \"leafSimilar\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root1\",\r\n      \"type\": \"TreeNode\"\r\n    },\r\n    {\r\n      \"name\": \"root2\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

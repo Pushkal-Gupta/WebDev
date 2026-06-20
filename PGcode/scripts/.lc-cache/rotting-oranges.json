@@ -1,8 +1,0 @@
-{
-  "questionId": "1036",
-  "titleSlug": "rotting-oranges",
-  "title": "Rotting Oranges",
-  "exampleTestcases": "[[2,1,1],[1,1,0],[0,1,1]]\n[[2,1,1],[0,1,1],[1,0,1]]\n[[0,2]]",
-  "sampleTestCase": "[[2,1,1],[1,1,0],[0,1,1]]",
-  "metaData": "{\r\n  \"name\": \"orangesRotting\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

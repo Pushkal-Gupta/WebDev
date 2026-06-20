@@ -1,8 +1,0 @@
-{
-  "questionId": "768",
-  "titleSlug": "partition-labels",
-  "title": "Partition Labels",
-  "exampleTestcases": "\"ababcbacadefegdehijhklij\"\n\"eccbbbbdec\"",
-  "sampleTestCase": "\"ababcbacadefegdehijhklij\"",
-  "metaData": "{\n  \"name\": \"partitionLabels\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

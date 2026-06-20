@@ -1,8 +1,0 @@
-{
-  "questionId": "4085",
-  "titleSlug": "largest-prime-from-consecutive-prime-sum",
-  "title": "Largest Prime from Consecutive Prime Sum",
-  "exampleTestcases": "20\n2",
-  "sampleTestCase": "20",
-  "metaData": "{\n  \"name\": \"largestPrime\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

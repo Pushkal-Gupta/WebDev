@@ -1,8 +1,0 @@
-{
-  "questionId": "1988",
-  "titleSlug": "minimize-maximum-pair-sum-in-array",
-  "title": "Minimize Maximum Pair Sum in Array",
-  "exampleTestcases": "[3,5,2,3]\n[3,5,4,2,4,6]",
-  "sampleTestCase": "[3,5,2,3]",
-  "metaData": "{\n  \"name\": \"minPairSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

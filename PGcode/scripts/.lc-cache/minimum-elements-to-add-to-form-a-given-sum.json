@@ -1,8 +1,0 @@
-{
-  "questionId": "1911",
-  "titleSlug": "minimum-elements-to-add-to-form-a-given-sum",
-  "title": "Minimum Elements to Add to Form a Given Sum",
-  "exampleTestcases": "[1,-1,1]\n3\n-4\n[1,-10,9,1]\n100\n0",
-  "sampleTestCase": "[1,-1,1]\n3\n-4",
-  "metaData": "{\n  \"name\": \"minElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"goal\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

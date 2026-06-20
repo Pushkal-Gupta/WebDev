@@ -1,8 +1,0 @@
-{
-  "questionId": "1836",
-  "titleSlug": "count-ways-to-make-array-with-product",
-  "title": "Count Ways to Make Array With Product",
-  "exampleTestcases": "[[2,6],[5,1],[73,660]]\n[[1,1],[2,2],[3,3],[4,4],[5,5]]",
-  "sampleTestCase": "[[2,6],[5,1],[73,660]]",
-  "metaData": "{\n  \"name\": \"waysToFillArray\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3541",
-  "titleSlug": "report-spam-message",
-  "title": "Report Spam Message",
-  "exampleTestcases": "[\"hello\",\"world\",\"leetcode\"]\n[\"world\",\"hello\"]\n[\"hello\",\"programming\",\"fun\"]\n[\"world\",\"programming\",\"leetcode\"]",
-  "sampleTestCase": "[\"hello\",\"world\",\"leetcode\"]\n[\"world\",\"hello\"]",
-  "metaData": "{\n  \"name\": \"reportSpam\",\n  \"params\": [\n    {\n      \"name\": \"message\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"bannedWords\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

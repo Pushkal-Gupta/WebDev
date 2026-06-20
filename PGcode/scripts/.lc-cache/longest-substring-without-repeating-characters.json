@@ -1,8 +1,0 @@
-{
-  "questionId": "3",
-  "titleSlug": "longest-substring-without-repeating-characters",
-  "title": "Longest Substring Without Repeating Characters",
-  "exampleTestcases": "\"abcabcbb\"\n\"bbbbb\"\n\"pwwkew\"",
-  "sampleTestCase": "\"abcabcbb\"",
-  "metaData": "{ \r\n  \"name\": \"lengthOfLongestSubstring\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

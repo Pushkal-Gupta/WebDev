@@ -1,8 +1,0 @@
-{
-  "questionId": "4053",
-  "titleSlug": "majority-frequency-characters",
-  "title": "Majority Frequency Characters",
-  "exampleTestcases": "\"aaabbbccdddde\"\n\"abcd\"\n\"pfpfgi\"",
-  "sampleTestCase": "\"aaabbbccdddde\"",
-  "metaData": "{\n  \"name\": \"majorityFrequencyGroup\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

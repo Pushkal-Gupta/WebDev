@@ -1,0 +1,8 @@
+{
+  "questionId": "2602",
+  "titleSlug": "maximum-enemy-forts-that-can-be-captured",
+  "title": "Maximum Enemy Forts That Can Be Captured",
+  "exampleTestcases": "[1,0,0,-1,0,0,0,0,1]\n[0,0,1,-1]",
+  "sampleTestCase": "[1,0,0,-1,0,0,0,0,1]",
+  "metaData": "{\n  \"name\": \"captureForts\",\n  \"params\": [\n    {\n      \"name\": \"forts\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

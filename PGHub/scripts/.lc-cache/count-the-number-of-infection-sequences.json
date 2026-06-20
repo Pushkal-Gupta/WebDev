@@ -1,0 +1,8 @@
+{
+  "questionId": "3224",
+  "titleSlug": "count-the-number-of-infection-sequences",
+  "title": "Count the Number of Infection Sequences",
+  "exampleTestcases": "5\n[0,4]\n4\n[1]",
+  "sampleTestCase": "5\n[0,4]",
+  "metaData": "{\n  \"name\": \"numberOfSequence\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"sick\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

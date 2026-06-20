@@ -1,8 +1,0 @@
-{
-  "questionId": "4268",
-  "titleSlug": "integers-with-multiple-sum-of-two-cubes",
-  "title": "Integers With Multiple Sum of Two Cubes",
-  "exampleTestcases": "4104\n578",
-  "sampleTestCase": "4104",
-  "metaData": "{\n  \"name\": \"findGoodIntegers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

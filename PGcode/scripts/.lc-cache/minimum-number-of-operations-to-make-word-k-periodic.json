@@ -1,8 +1,0 @@
-{
-  "questionId": "3384",
-  "titleSlug": "minimum-number-of-operations-to-make-word-k-periodic",
-  "title": "Minimum Number of Operations to Make Word K-Periodic",
-  "exampleTestcases": "\"leetcodeleet\"\n4\n\"leetcoleet\"\n2",
-  "sampleTestCase": "\"leetcodeleet\"\n4",
-  "metaData": "{\n  \"name\": \"minimumOperationsToMakeKPeriodic\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2190",
-  "titleSlug": "count-common-words-with-one-occurrence",
-  "title": "Count Common Words With One Occurrence",
-  "exampleTestcases": "[\"leetcode\",\"is\",\"amazing\",\"as\",\"is\"]\n[\"amazing\",\"leetcode\",\"is\"]\n[\"b\",\"bb\",\"bbb\"]\n[\"a\",\"aa\",\"aaa\"]\n[\"a\",\"ab\"]\n[\"a\",\"a\",\"a\",\"ab\"]",
-  "sampleTestCase": "[\"leetcode\",\"is\",\"amazing\",\"as\",\"is\"]\n[\"amazing\",\"leetcode\",\"is\"]",
-  "metaData": "{\n  \"name\": \"countWords\",\n  \"params\": [\n    {\n      \"name\": \"words1\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"words2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

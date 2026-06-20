@@ -1,8 +1,0 @@
-{
-  "questionId": "1684",
-  "titleSlug": "find-latest-group-of-size-m",
-  "title": "Find Latest Group of Size M",
-  "exampleTestcases": "[3,5,1,2,4]\n1\n[3,1,5,4,2]\n2",
-  "sampleTestCase": "[3,5,1,2,4]\n1",
-  "metaData": "{\n  \"name\": \"findLatestStep\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

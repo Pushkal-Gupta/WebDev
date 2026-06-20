@@ -1,8 +1,0 @@
-{
-  "questionId": "63",
-  "titleSlug": "unique-paths-ii",
-  "title": "Unique Paths II",
-  "exampleTestcases": "[[0,0,0],[0,1,0],[0,0,0]]\n[[0,1],[0,0]]",
-  "sampleTestCase": "[[0,0,0],[0,1,0],[0,0,0]]",
-  "metaData": "{\r\n  \"name\": \"uniquePathsWithObstacles\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"obstacleGrid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

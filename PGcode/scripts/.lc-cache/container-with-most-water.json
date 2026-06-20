@@ -1,8 +1,0 @@
-{
-  "questionId": "11",
-  "titleSlug": "container-with-most-water",
-  "title": "Container With Most Water",
-  "exampleTestcases": "[1,8,6,2,5,4,8,3,7]\n[1,1]",
-  "sampleTestCase": "[1,8,6,2,5,4,8,3,7]",
-  "metaData": "{\r\n  \"name\": \"maxArea\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"height\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

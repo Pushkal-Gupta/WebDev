@@ -1,8 +1,0 @@
-{
-  "questionId": "1850",
-  "titleSlug": "minimum-length-of-string-after-deleting-similar-ends",
-  "title": "Minimum Length of String After Deleting Similar Ends",
-  "exampleTestcases": "\"ca\"\n\"cabaabac\"\n\"aabccabba\"",
-  "sampleTestCase": "\"ca\"",
-  "metaData": "{\n  \"name\": \"minimumLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

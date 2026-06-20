@@ -1,8 +1,0 @@
-{
-  "questionId": "3711",
-  "titleSlug": "first-letter-capitalization-ii",
-  "title": "First Letter Capitalization II",
-  "exampleTestcases": "{\"headers\":{\"user_content\":[\"content_id\",\"content_text\"]},\"rows\":{\"user_content\":[[1,\"hello world of SQL\"],[2,\"the QUICK-brown fox\"],[3,\"modern-day DATA science\"],[4,\"web-based FRONT-end development\"]]}}",
-  "sampleTestCase": "{\"headers\":{\"user_content\":[\"content_id\",\"content_text\"]},\"rows\":{\"user_content\":[[1,\"hello world of SQL\"],[2,\"the QUICK-brown fox\"],[3,\"modern-day DATA science\"],[4,\"web-based FRONT-end development\"]]}}",
-  "metaData": "{\"mysql\": [\"CREATE TABLE If not exists user_content (\\n    content_id INT,\\n    content_text VARCHAR(255)\\n)\"], \"mssql\": [\"CREATE TABLE user_content (\\n    content_id INT,\\n    content_text VARCHAR(255)\\n)\"], \"oraclesql\": [\"CREATE TABLE user_content (\\n    content_id NUMBER,\\n    content_text VARCHAR2(255)\\n)\"], \"database\": true, \"name\": \"capitalize_content\", \"pythondata\": [\"user_content = pd.DataFrame({\\n    'content_id': pd.Series(dtype='int'),\\n    'content_text': pd.Series(dtype='str')\\n})\"], \"postgresql\": [\"CREATE TABLE IF NOT EXISTS user_content (\\n    content_id SERIAL PRIMARY KEY,\\n    content_text VARCHAR(255)\\n);\\n\"], \"database_schema\": {\"user_content\": {\"content_id\": \"INT\", \"content_text\": \"VARCHAR(255)\"}}}"
-}

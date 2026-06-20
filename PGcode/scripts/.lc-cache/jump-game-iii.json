@@ -1,8 +1,0 @@
-{
-  "questionId": "1428",
-  "titleSlug": "jump-game-iii",
-  "title": "Jump Game III",
-  "exampleTestcases": "[4,2,3,0,3,1,2]\n5\n[4,2,3,0,3,1,2]\n0\n[3,0,2,1,2]\n2",
-  "sampleTestCase": "[4,2,3,0,3,1,2]\n5",
-  "metaData": "{\n  \"name\": \"canReach\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"start\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

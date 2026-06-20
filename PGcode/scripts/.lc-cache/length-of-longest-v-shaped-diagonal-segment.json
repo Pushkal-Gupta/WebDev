@@ -1,8 +1,0 @@
-{
-  "questionId": "3733",
-  "titleSlug": "length-of-longest-v-shaped-diagonal-segment",
-  "title": "Length of Longest V-Shaped Diagonal Segment",
-  "exampleTestcases": "[[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]\n[[2,2,2,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]\n[[1,2,2,2,2],[2,2,2,2,0],[2,0,0,0,0],[0,0,2,2,2],[2,0,0,2,0]]\n[[1]]",
-  "sampleTestCase": "[[2,2,1,2,2],[2,0,2,2,0],[2,0,1,1,0],[1,0,2,2,2],[2,0,0,2,2]]",
-  "metaData": "{\n  \"name\": \"lenOfVDiagonal\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

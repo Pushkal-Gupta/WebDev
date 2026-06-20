@@ -1,0 +1,8 @@
+{
+  "questionId": "4271",
+  "titleSlug": "find-the-degree-of-each-vertex",
+  "title": "Find the Degree of Each Vertex",
+  "exampleTestcases": "[[0,1,1],[1,0,1],[1,1,0]]\n[[0,1,0],[1,0,0],[0,0,0]]\n[[0]]",
+  "sampleTestCase": "[[0,1,1],[1,0,1],[1,1,0]]",
+  "metaData": "{\n  \"name\": \"findDegrees\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

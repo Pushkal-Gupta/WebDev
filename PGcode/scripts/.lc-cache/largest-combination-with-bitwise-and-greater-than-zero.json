@@ -1,8 +1,0 @@
-{
-  "questionId": "2356",
-  "titleSlug": "largest-combination-with-bitwise-and-greater-than-zero",
-  "title": "Largest Combination With Bitwise AND Greater Than Zero",
-  "exampleTestcases": "[16,17,71,62,12,24,14]\n[8,8]",
-  "sampleTestCase": "[16,17,71,62,12,24,14]",
-  "metaData": "{\n  \"name\": \"largestCombination\",\n  \"params\": [\n    {\n      \"name\": \"candidates\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

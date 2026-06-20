@@ -1,8 +1,0 @@
-{
-  "questionId": "2295",
-  "titleSlug": "minimum-time-to-finish-the-race",
-  "title": "Minimum Time to Finish the Race",
-  "exampleTestcases": "[[2,3],[3,4]]\n5\n4\n[[1,10],[2,2],[3,4]]\n6\n5",
-  "sampleTestCase": "[[2,3],[3,4]]\n5\n4",
-  "metaData": "{\n  \"name\": \"minimumFinishTime\",\n  \"params\": [\n    {\n      \"name\": \"tires\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"changeTime\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numLaps\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

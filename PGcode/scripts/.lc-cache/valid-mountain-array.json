@@ -1,8 +1,0 @@
-{
-  "questionId": "978",
-  "titleSlug": "valid-mountain-array",
-  "title": "Valid Mountain Array",
-  "exampleTestcases": "[2,1]\n[3,5,5]\n[0,3,2,1]",
-  "sampleTestCase": "[2,1]",
-  "metaData": "{\n  \"name\": \"validMountainArray\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

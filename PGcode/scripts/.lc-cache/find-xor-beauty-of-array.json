@@ -1,8 +1,0 @@
-{
-  "questionId": "2621",
-  "titleSlug": "find-xor-beauty-of-array",
-  "title": "Find Xor-Beauty of Array",
-  "exampleTestcases": "[1,4]\n[15,45,20,2,34,35,5,44,32,30]",
-  "sampleTestCase": "[1,4]",
-  "metaData": "{\n  \"name\": \"xorBeauty\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

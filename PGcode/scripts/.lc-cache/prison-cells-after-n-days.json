@@ -1,8 +1,0 @@
-{
-  "questionId": "994",
-  "titleSlug": "prison-cells-after-n-days",
-  "title": "Prison Cells After N Days",
-  "exampleTestcases": "[0,1,0,1,1,0,0,1]\n7\n[1,0,0,1,0,0,1,0]\n1000000000",
-  "sampleTestCase": "[0,1,0,1,1,0,0,1]\n7",
-  "metaData": "{\n  \"name\": \"prisonAfterNDays\",\n  \"params\": [\n    {\n      \"name\": \"cells\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

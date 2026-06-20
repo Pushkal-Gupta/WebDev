@@ -1,0 +1,8 @@
+{
+  "questionId": "1251",
+  "titleSlug": "longest-chunked-palindrome-decomposition",
+  "title": "Longest Chunked Palindrome Decomposition",
+  "exampleTestcases": "\"ghiabcdefhelloadamhelloabcdefghi\"\n\"merchant\"\n\"antaprezatepzapreanta\"",
+  "sampleTestCase": "\"ghiabcdefhelloadamhelloabcdefghi\"",
+  "metaData": "{\n  \"name\": \"longestDecomposition\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "375",
-  "titleSlug": "guess-number-higher-or-lower-ii",
-  "title": "Guess Number Higher or Lower II",
-  "exampleTestcases": "10\n1\n2",
-  "sampleTestCase": "10",
-  "metaData": "{\n  \"name\": \"getMoneyAmount\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

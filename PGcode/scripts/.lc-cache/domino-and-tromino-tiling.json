@@ -1,8 +1,0 @@
-{
-  "questionId": "806",
-  "titleSlug": "domino-and-tromino-tiling",
-  "title": "Domino and Tromino Tiling",
-  "exampleTestcases": "3\n1",
-  "sampleTestCase": "3",
-  "metaData": "{\n  \"name\": \"numTilings\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1352",
-  "titleSlug": "maximum-profit-in-job-scheduling",
-  "title": "Maximum Profit in Job Scheduling",
-  "exampleTestcases": "[1,2,3,3]\n[3,4,5,6]\n[50,10,40,70]\n[1,2,3,4,6]\n[3,5,10,6,9]\n[20,20,100,70,60]\n[1,1,1]\n[2,3,4]\n[5,6,4]",
-  "sampleTestCase": "[1,2,3,3]\n[3,4,5,6]\n[50,10,40,70]",
-  "metaData": "{\n  \"name\": \"jobScheduling\",\n  \"params\": [\n    {\n      \"name\": \"startTime\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"endTime\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"profit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

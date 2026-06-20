@@ -1,8 +1,0 @@
-{
-  "questionId": "139",
-  "titleSlug": "word-break",
-  "title": "Word Break",
-  "exampleTestcases": "\"leetcode\"\n[\"leet\",\"code\"]\n\"applepenapple\"\n[\"apple\",\"pen\"]\n\"catsandog\"\n[\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
-  "sampleTestCase": "\"leetcode\"\n[\"leet\",\"code\"]",
-  "metaData": "{\r\n  \"name\": \"wordBreak\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"wordDict\",\r\n      \"type\": \"list<string>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "214",
-  "titleSlug": "shortest-palindrome",
-  "title": "Shortest Palindrome",
-  "exampleTestcases": "\"aacecaaa\"\n\"abcd\"",
-  "sampleTestCase": "\"aacecaaa\"",
-  "metaData": "{\r\n  \"name\": \"shortestPalindrome\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

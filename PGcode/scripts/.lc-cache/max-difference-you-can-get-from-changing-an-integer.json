@@ -1,8 +1,0 @@
-{
-  "questionId": "1529",
-  "titleSlug": "max-difference-you-can-get-from-changing-an-integer",
-  "title": "Max Difference You Can Get From Changing an Integer",
-  "exampleTestcases": "555\n9",
-  "sampleTestCase": "555",
-  "metaData": "{\n  \"name\": \"maxDiff\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

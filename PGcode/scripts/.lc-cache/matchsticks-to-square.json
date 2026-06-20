@@ -1,8 +1,0 @@
-{
-  "questionId": "473",
-  "titleSlug": "matchsticks-to-square",
-  "title": "Matchsticks to Square",
-  "exampleTestcases": "[1,1,2,2,2]\n[3,3,3,3,4]",
-  "sampleTestCase": "[1,1,2,2,2]",
-  "metaData": "{\n  \"name\": \"makesquare\",\n  \"params\": [\n    {\n      \"name\": \"matchsticks\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

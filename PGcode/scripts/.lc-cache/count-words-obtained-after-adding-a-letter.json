@@ -1,8 +1,0 @@
-{
-  "questionId": "2256",
-  "titleSlug": "count-words-obtained-after-adding-a-letter",
-  "title": "Count Words Obtained After Adding a Letter",
-  "exampleTestcases": "[\"ant\",\"act\",\"tack\"]\n[\"tack\",\"act\",\"acti\"]\n[\"ab\",\"a\"]\n[\"abc\",\"abcd\"]",
-  "sampleTestCase": "[\"ant\",\"act\",\"tack\"]\n[\"tack\",\"act\",\"acti\"]",
-  "metaData": "{\n  \"name\": \"wordCount\",\n  \"params\": [\n    {\n      \"name\": \"startWords\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"targetWords\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

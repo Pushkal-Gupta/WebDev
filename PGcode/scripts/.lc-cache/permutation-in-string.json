@@ -1,8 +1,0 @@
-{
-  "questionId": "567",
-  "titleSlug": "permutation-in-string",
-  "title": "Permutation in String",
-  "exampleTestcases": "\"ab\"\n\"eidbaooo\"\n\"ab\"\n\"eidboaoo\"",
-  "sampleTestCase": "\"ab\"\n\"eidbaooo\"",
-  "metaData": "{\r\n  \"name\": \"checkInclusion\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s1\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"s2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

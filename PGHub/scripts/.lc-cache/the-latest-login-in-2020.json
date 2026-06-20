@@ -1,0 +1,8 @@
+{
+  "questionId": "2041",
+  "titleSlug": "the-latest-login-in-2020",
+  "title": "The Latest Login in 2020",
+  "exampleTestcases": "{\"headers\": {\"Logins\": [\"user_id\", \"time_stamp\"]}, \"rows\": {\"Logins\": [[6, \"2020-06-30 15:06:07\"], [6, \"2021-04-21 14:06:06\"], [6, \"2019-03-07 00:18:15\"], [8, \"2020-02-01 05:10:53\"], [8, \"2020-12-30 00:46:50\"], [2, \"2020-01-16 02:49:50\"], [2, \"2019-08-25 07:59:08\"], [14, \"2019-07-14 09:00:00\"], [14, \"2021-01-06 11:59:59\"]]}}",
+  "sampleTestCase": "{\"headers\": {\"Logins\": [\"user_id\", \"time_stamp\"]}, \"rows\": {\"Logins\": [[6, \"2020-06-30 15:06:07\"], [6, \"2021-04-21 14:06:06\"], [6, \"2019-03-07 00:18:15\"], [8, \"2020-02-01 05:10:53\"], [8, \"2020-12-30 00:46:50\"], [2, \"2020-01-16 02:49:50\"], [2, \"2019-08-25 07:59:08\"], [14, \"2019-07-14 09:00:00\"], [14, \"2021-01-06 11:59:59\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Logins (user_id int, time_stamp datetime)\"], \"mssql\": [\"Create table Logins (user_id int, time_stamp datetime)\"], \"oraclesql\": [\"Create table Logins (user_id int, time_stamp date)\", \"ALTER SESSION SET nls_date_format='YYYY-MM-DD HH24:MI:SS'\"], \"database\": true, \"name\": \"latest_login\", \"pythondata\": [\"Logins = pd.DataFrame([], columns=['user_id', 'time_stamp']).astype({'user_id':'Int64', 'time_stamp':'datetime64[ns]'})\"], \"postgresql\": [\"Create table If Not Exists Logins (user_id int, time_stamp timestamp)\"], \"database_schema\": {\"Logins\": {\"user_id\": \"INT\", \"time_stamp\": \"DATETIME\"}}}"
+}

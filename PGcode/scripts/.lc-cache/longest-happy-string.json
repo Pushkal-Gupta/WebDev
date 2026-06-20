@@ -1,8 +1,0 @@
-{
-  "questionId": "1304",
-  "titleSlug": "longest-happy-string",
-  "title": "Longest Happy String",
-  "exampleTestcases": "1\n1\n7\n7\n1\n0",
-  "sampleTestCase": "1\n1\n7",
-  "metaData": "{\n  \"name\": \"longestDiverseString\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"c\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

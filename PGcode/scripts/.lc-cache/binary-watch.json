@@ -1,8 +1,0 @@
-{
-  "questionId": "401",
-  "titleSlug": "binary-watch",
-  "title": "Binary Watch",
-  "exampleTestcases": "1\n9",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"readBinaryWatch\",\n  \"params\": [\n    {\n      \"name\": \"turnedOn\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

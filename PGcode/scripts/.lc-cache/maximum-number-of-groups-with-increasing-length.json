@@ -1,8 +1,0 @@
-{
-  "questionId": "2919",
-  "titleSlug": "maximum-number-of-groups-with-increasing-length",
-  "title": "Maximum Number of Groups With Increasing Length",
-  "exampleTestcases": "[1,2,5]\n[2,1,2]\n[1,1]",
-  "sampleTestCase": "[1,2,5]",
-  "metaData": "{\n  \"name\": \"maxIncreasingGroups\",\n  \"params\": [\n    {\n      \"name\": \"usageLimits\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

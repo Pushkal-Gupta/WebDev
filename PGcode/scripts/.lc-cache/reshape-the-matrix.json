@@ -1,8 +1,0 @@
-{
-  "questionId": "566",
-  "titleSlug": "reshape-the-matrix",
-  "title": "Reshape the Matrix",
-  "exampleTestcases": "[[1,2],[3,4]]\n1\n4\n[[1,2],[3,4]]\n2\n4",
-  "sampleTestCase": "[[1,2],[3,4]]\n1\n4",
-  "metaData": "{\n  \"name\": \"matrixReshape\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"r\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"c\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

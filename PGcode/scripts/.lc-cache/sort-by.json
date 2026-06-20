@@ -1,8 +1,0 @@
-{
-  "questionId": "2860",
-  "titleSlug": "sort-by",
-  "title": "Sort By",
-  "exampleTestcases": "[5,4,1,2,3]\n(x) => x\n[{\"x\":1},{\"x\": 0},{\"x\": -1}]\n(x) => x.x\n[[3,4],[5,2],[10,1]]\n(x) => x[1]",
-  "sampleTestCase": "[5,4,1,2,3]\n(x) => x",
-  "metaData": "{\n  \"name\": \"sortBy\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"fn\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

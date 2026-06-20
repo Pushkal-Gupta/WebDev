@@ -1,8 +1,0 @@
-{
-  "questionId": "3607",
-  "titleSlug": "minimum-division-operations-to-make-array-non-decreasing",
-  "title": "Minimum Division Operations to Make Array Non Decreasing",
-  "exampleTestcases": "[25,7]\n[7,7,6]\n[1,1,1,1]",
-  "sampleTestCase": "[25,7]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

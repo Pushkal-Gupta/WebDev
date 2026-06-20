@@ -1,8 +1,0 @@
-{
-  "questionId": "2360",
-  "titleSlug": "substring-with-largest-variance",
-  "title": "Substring With Largest Variance",
-  "exampleTestcases": "\"aababbb\"\n\"abcde\"",
-  "sampleTestCase": "\"aababbb\"",
-  "metaData": "{\n  \"name\": \"largestVariance\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

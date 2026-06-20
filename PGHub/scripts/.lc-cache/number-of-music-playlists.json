@@ -1,0 +1,8 @@
+{
+  "questionId": "956",
+  "titleSlug": "number-of-music-playlists",
+  "title": "Number of Music Playlists",
+  "exampleTestcases": "3\n3\n1\n2\n3\n0\n2\n3\n1",
+  "sampleTestCase": "3\n3\n1",
+  "metaData": "{\n  \"name\": \"numMusicPlaylists\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"goal\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "591",
+  "titleSlug": "tag-validator",
+  "title": "Tag Validator",
+  "exampleTestcases": "\"<DIV>This is the first line <![CDATA[<div>]]></DIV>\"\n\"<DIV>>>  ![cdata[]] <![CDATA[<div>]>]]>]]>>]</DIV>\"\n\"<A>  <B> </A>   </B>\"",
+  "sampleTestCase": "\"<DIV>This is the first line <![CDATA[<div>]]></DIV>\"",
+  "metaData": "{\r\n  \"name\": \"isValid\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"code\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

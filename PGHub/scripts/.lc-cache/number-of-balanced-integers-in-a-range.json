@@ -1,0 +1,8 @@
+{
+  "questionId": "4095",
+  "titleSlug": "number-of-balanced-integers-in-a-range",
+  "title": "Number of Balanced Integers in a Range",
+  "exampleTestcases": "1\n100\n120\n129\n1234\n1234",
+  "sampleTestCase": "1\n100",
+  "metaData": "{\n  \"name\": \"countBalanced\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"high\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

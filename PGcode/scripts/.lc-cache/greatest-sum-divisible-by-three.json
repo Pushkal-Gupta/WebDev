@@ -1,8 +1,0 @@
-{
-  "questionId": "1388",
-  "titleSlug": "greatest-sum-divisible-by-three",
-  "title": "Greatest Sum Divisible by Three",
-  "exampleTestcases": "[3,6,5,1,8]\n[4]\n[1,2,3,4,4]",
-  "sampleTestCase": "[3,6,5,1,8]",
-  "metaData": "{\n  \"name\": \"maxSumDivThree\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

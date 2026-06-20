@@ -1,8 +1,0 @@
-{
-  "questionId": "2493",
-  "titleSlug": "reverse-odd-levels-of-binary-tree",
-  "title": "Reverse Odd Levels of Binary Tree",
-  "exampleTestcases": "[2,3,5,8,13,21,34]\n[7,13,11]\n[0,1,2,0,0,0,0,1,1,1,1,2,2,2,2]",
-  "sampleTestCase": "[2,3,5,8,13,21,34]",
-  "metaData": "{\n  \"name\": \"reverseOddLevels\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  }\n}"
-}

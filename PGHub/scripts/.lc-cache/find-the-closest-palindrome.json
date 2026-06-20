@@ -1,0 +1,8 @@
+{
+  "questionId": "564",
+  "titleSlug": "find-the-closest-palindrome",
+  "title": "Find the Closest Palindrome",
+  "exampleTestcases": "\"123\"\n\"1\"",
+  "sampleTestCase": "\"123\"",
+  "metaData": "{\r\n  \"name\": \"nearestPalindromic\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
+}

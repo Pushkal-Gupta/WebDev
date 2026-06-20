@@ -1,8 +1,0 @@
-{
-  "questionId": "3966",
-  "titleSlug": "minimum-sum-after-divisible-sum-deletions",
-  "title": "Minimum Sum After Divisible Sum Deletions",
-  "exampleTestcases": "[1,1,1]\n2\n[3,1,4,1,5]\n3",
-  "sampleTestCase": "[1,1,1]\n2",
-  "metaData": "{\n  \"name\": \"minArraySum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

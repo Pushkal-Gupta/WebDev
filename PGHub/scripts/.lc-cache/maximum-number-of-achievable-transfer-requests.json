@@ -1,0 +1,8 @@
+{
+  "questionId": "1723",
+  "titleSlug": "maximum-number-of-achievable-transfer-requests",
+  "title": "Maximum Number of Achievable Transfer Requests",
+  "exampleTestcases": "5\n[[0,1],[1,0],[0,1],[1,2],[2,0],[3,4]]\n3\n[[0,0],[1,2],[2,1]]\n4\n[[0,3],[3,1],[1,2],[2,0]]",
+  "sampleTestCase": "5\n[[0,1],[1,0],[0,1],[1,2],[2,0],[3,4]]",
+  "metaData": "{\n  \"name\": \"maximumRequests\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"requests\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

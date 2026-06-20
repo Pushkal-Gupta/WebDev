@@ -1,8 +1,0 @@
-{
-  "questionId": "1968",
-  "titleSlug": "maximum-building-height",
-  "title": "Maximum Building Height",
-  "exampleTestcases": "5\n[[2,1],[4,1]]\n6\n[]\n10\n[[5,3],[2,5],[7,4],[10,3]]",
-  "sampleTestCase": "5\n[[2,1],[4,1]]",
-  "metaData": "{\n  \"name\": \"maxBuilding\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"restrictions\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

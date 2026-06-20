@@ -1,8 +1,0 @@
-{
-  "questionId": "2085",
-  "titleSlug": "array-with-elements-not-equal-to-average-of-neighbors",
-  "title": "Array With Elements Not Equal to Average of Neighbors",
-  "exampleTestcases": "[1,2,3,4,5]\n[6,2,0,9,7]",
-  "sampleTestCase": "[1,2,3,4,5]",
-  "metaData": "{\n  \"name\": \"rearrangeArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2352",
-  "titleSlug": "design-an-atm-machine",
-  "title": "Design an ATM Machine",
-  "exampleTestcases": "[\"ATM\",\"deposit\",\"withdraw\",\"deposit\",\"withdraw\",\"withdraw\"]\n[[],[[0,0,1,2,1]],[600],[[0,1,0,1,1]],[600],[550]]",
-  "sampleTestCase": "[\"ATM\",\"deposit\",\"withdraw\",\"deposit\",\"withdraw\",\"withdraw\"]\n[[],[[0,0,1,2,1]],[600],[[0,1,0,1,1]],[600],[550]]",
-  "metaData": "{\n  \"classname\": \"ATM\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer[]\",\n          \"name\": \"banknotesCount\"\n        }\n      ],\n      \"name\": \"deposit\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"amount\"\n        }\n      ],\n      \"name\": \"withdraw\",\n      \"return\": {\n        \"type\": \"integer[]\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

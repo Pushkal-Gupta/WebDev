@@ -1,8 +1,0 @@
-{
-  "questionId": "242",
-  "titleSlug": "valid-anagram",
-  "title": "Valid Anagram",
-  "exampleTestcases": "\"anagram\"\n\"nagaram\"\n\"rat\"\n\"car\"",
-  "sampleTestCase": "\"anagram\"\n\"nagaram\"",
-  "metaData": "{\r\n  \"name\": \"isAnagram\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"t\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

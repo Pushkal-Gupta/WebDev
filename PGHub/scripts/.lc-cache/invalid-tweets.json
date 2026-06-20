@@ -1,0 +1,8 @@
+{
+  "questionId": "1827",
+  "titleSlug": "invalid-tweets",
+  "title": "Invalid Tweets",
+  "exampleTestcases": "{\"headers\":{\"Tweets\":[\"tweet_id\",\"content\"]},\"rows\":{\"Tweets\":[[1,\"Let us Code\"],[2,\"More than fifteen chars are here!\"]]}}",
+  "sampleTestCase": "{\"headers\":{\"Tweets\":[\"tweet_id\",\"content\"]},\"rows\":{\"Tweets\":[[1,\"Let us Code\"],[2,\"More than fifteen chars are here!\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Tweets(tweet_id int, content varchar(50))\"], \"mssql\": [\"Create table Tweets(tweet_id int, content varchar(50))\"], \"oraclesql\": [\"Create table Tweets(tweet_id int, content varchar(50))\"], \"database\": true, \"name\": \"invalid_tweets\", \"pythondata\": [\"Tweets = pd.DataFrame([], columns=['tweet_id', 'content']).astype({'tweet_id':'Int64', 'content':'object'})\"], \"postgresql\": [\"Create table If Not Exists Tweets(tweet_id int, content varchar(50))\"], \"database_schema\": {\"Tweets\": {\"tweet_id\": \"INT\", \"content\": \"VARCHAR(50)\"}}}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4171",
-  "titleSlug": "rotate-non-negative-elements",
-  "title": "Rotate Non Negative Elements",
-  "exampleTestcases": "[1,-2,3,-4]\n3\n[-3,-2,7]\n1\n[5,4,-9,6]\n2",
-  "sampleTestCase": "[1,-2,3,-4]\n3",
-  "metaData": "{\n  \"name\": \"rotateElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

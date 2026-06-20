@@ -1,8 +1,0 @@
-{
-  "questionId": "4071",
-  "titleSlug": "word-squares-ii",
-  "title": "Word Squares II",
-  "exampleTestcases": "[\"able\",\"area\",\"echo\",\"also\"]\n[\"code\",\"cafe\",\"eden\",\"edge\"]",
-  "sampleTestCase": "[\"able\",\"area\",\"echo\",\"also\"]",
-  "metaData": "{\n  \"name\": \"wordSquares\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<string>>\"\n  }\n}"
-}

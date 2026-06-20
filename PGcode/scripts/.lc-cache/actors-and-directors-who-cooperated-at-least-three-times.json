@@ -1,8 +1,0 @@
-{
-  "questionId": "1136",
-  "titleSlug": "actors-and-directors-who-cooperated-at-least-three-times",
-  "title": "Actors and Directors Who Cooperated At Least Three Times",
-  "exampleTestcases": "{\"headers\":{\"ActorDirector\":[\"actor_id\",\"director_id\",\"timestamp\"]},\"rows\":{\"ActorDirector\":[[1,1,0],[1,1,1],[1,1,2],[1,2,3],[1,2,4],[2,1,5],[2,1,6]]}}",
-  "sampleTestCase": "{\"headers\":{\"ActorDirector\":[\"actor_id\",\"director_id\",\"timestamp\"]},\"rows\":{\"ActorDirector\":[[1,1,0],[1,1,1],[1,1,2],[1,2,3],[1,2,4],[2,1,5],[2,1,6]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists ActorDirector (actor_id int, director_id int, timestamp int)\"], \"mssql\": [\"Create table ActorDirector (actor_id int, director_id int, timestamp int)\"], \"oraclesql\": [\"Create table ActorDirector (actor_id int, director_id int, timestamp int)\"], \"database\": true, \"name\": \"actors_and_directors\", \"pythondata\": [\"ActorDirector = pd.DataFrame([], columns=['actor_id', 'director_id', 'timestamp']).astype({'actor_id':'int64', 'director_id':'int64', 'timestamp':'int64'})\"], \"manual\": false, \"postgresql\": [\"Create table If Not Exists ActorDirector (actor_id int, director_id int, timestamp int)\"], \"database_schema\": {\"ActorDirector\": {\"actor_id\": \"INT\", \"director_id\": \"INT\", \"timestamp\": \"INT\"}}}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3402",
+  "titleSlug": "minimum-cost-to-equalize-array",
+  "title": "Minimum Cost to Equalize Array",
+  "exampleTestcases": "[4,1]\n5\n2\n[2,3,3,3,5]\n2\n1\n[3,5,3]\n1\n3",
+  "sampleTestCase": "[4,1]\n5\n2",
+  "metaData": "{\n  \"name\": \"minCostToEqualizeArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cost1\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cost2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

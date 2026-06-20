@@ -1,8 +1,0 @@
-{
-  "questionId": "352",
-  "titleSlug": "data-stream-as-disjoint-intervals",
-  "title": "Data Stream as Disjoint Intervals",
-  "exampleTestcases": "[\"SummaryRanges\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\"]\n[[],[1],[],[3],[],[7],[],[2],[],[6],[]]",
-  "sampleTestCase": "[\"SummaryRanges\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\",\"addNum\",\"getIntervals\"]\n[[],[1],[],[3],[],[7],[],[2],[],[6],[]]",
-  "metaData": "{\n  \"classname\": \"SummaryRanges\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"value\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"void\"\n      },\n      \"name\": \"addNum\"\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"integer[][]\"\n      },\n      \"name\": \"getIntervals\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

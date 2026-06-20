@@ -1,8 +1,0 @@
-{
-  "questionId": "1186",
-  "titleSlug": "building-h2o",
-  "title": "Building H2O",
-  "exampleTestcases": "\"HOH\"\n\"OOHHHH\"",
-  "sampleTestCase": "\"HOH\"",
-  "metaData": "{\n  \"name\": \"H2O\",\n  \"params\": [\n    {\n      \"name\": \"water\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"java\",\n    \"cpp\",\n    \"python\",\n    \"python3\",\n    \"csharp\",\n    \"c\",\n    \"golang\"\n  ],\n  \"manual\": true\n}"
-}

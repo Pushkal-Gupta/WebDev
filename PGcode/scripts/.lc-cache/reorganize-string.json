@@ -1,8 +1,0 @@
-{
-  "questionId": "778",
-  "titleSlug": "reorganize-string",
-  "title": "Reorganize String",
-  "exampleTestcases": "\"aab\"\n\"aaab\"",
-  "sampleTestCase": "\"aab\"",
-  "metaData": "{\n  \"name\": \"reorganizeString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2690",
-  "titleSlug": "house-robber-iv",
-  "title": "House Robber IV",
-  "exampleTestcases": "[2,3,5,9]\n2\n[2,7,9,3,1]\n2",
-  "sampleTestCase": "[2,3,5,9]\n2",
-  "metaData": "{\n  \"name\": \"minCapability\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

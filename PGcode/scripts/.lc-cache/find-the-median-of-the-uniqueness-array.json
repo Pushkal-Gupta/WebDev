@@ -1,8 +1,0 @@
-{
-  "questionId": "3362",
-  "titleSlug": "find-the-median-of-the-uniqueness-array",
-  "title": "Find the Median of the Uniqueness Array",
-  "exampleTestcases": "[1,2,3]\n[3,4,3,4,5]\n[4,3,5,4]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"medianOfUniquenessArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

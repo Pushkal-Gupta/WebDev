@@ -1,8 +1,0 @@
-{
-  "questionId": "1517",
-  "titleSlug": "restore-the-array",
-  "title": "Restore The Array",
-  "exampleTestcases": "\"1000\"\n10000\n\"1000\"\n10\n\"1317\"\n2000",
-  "sampleTestCase": "\"1000\"\n10000",
-  "metaData": "{\n  \"name\": \"numberOfArrays\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

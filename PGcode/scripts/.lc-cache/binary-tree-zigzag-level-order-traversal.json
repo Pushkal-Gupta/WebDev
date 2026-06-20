@@ -1,8 +1,0 @@
-{
-  "questionId": "103",
-  "titleSlug": "binary-tree-zigzag-level-order-traversal",
-  "title": "Binary Tree Zigzag Level Order Traversal",
-  "exampleTestcases": "[3,9,20,null,null,15,7]\n[1]\n[]",
-  "sampleTestCase": "[3,9,20,null,null,15,7]",
-  "metaData": "{\r\n  \"name\": \"zigzagLevelOrder\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

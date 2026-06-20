@@ -1,8 +1,0 @@
-{
-  "questionId": "2308",
-  "titleSlug": "divide-array-into-equal-pairs",
-  "title": "Divide Array Into Equal Pairs",
-  "exampleTestcases": "[3,2,3,2,2,2]\n[1,2,3,4]",
-  "sampleTestCase": "[3,2,3,2,2,2]",
-  "metaData": "{\n  \"name\": \"divideArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

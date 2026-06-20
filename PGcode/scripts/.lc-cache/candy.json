@@ -1,8 +1,0 @@
-{
-  "questionId": "135",
-  "titleSlug": "candy",
-  "title": "Candy",
-  "exampleTestcases": "[1,0,2]\n[1,2,2]",
-  "sampleTestCase": "[1,0,2]",
-  "metaData": "{\r\n  \"name\": \"candy\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"ratings\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3492",
-  "titleSlug": "count-submatrices-with-equal-frequency-of-x-and-y",
-  "title": "Count Submatrices With Equal Frequency of X and Y",
-  "exampleTestcases": "[[\"X\",\"Y\",\".\"],[\"Y\",\".\",\".\"]]\n[[\"X\",\"X\"],[\"X\",\"Y\"]]\n[[\".\",\".\"],[\".\",\".\"]]",
-  "sampleTestCase": "[[\"X\",\"Y\",\".\"],[\"Y\",\".\",\".\"]]",
-  "metaData": "{\n  \"name\": \"numberOfSubmatrices\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"character[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

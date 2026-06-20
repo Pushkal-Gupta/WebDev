@@ -1,8 +1,0 @@
-{
-  "questionId": "2151",
-  "titleSlug": "the-time-when-the-network-becomes-idle",
-  "title": "The Time When the Network Becomes Idle",
-  "exampleTestcases": "[[0,1],[1,2]]\n[0,2,1]\n[[0,1],[0,2],[1,2]]\n[0,10,10]",
-  "sampleTestCase": "[[0,1],[1,2]]\n[0,2,1]",
-  "metaData": "{\n  \"name\": \"networkBecomesIdle\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"patience\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2404",
+  "titleSlug": "number-of-distinct-roll-sequences",
+  "title": "Number of Distinct Roll Sequences",
+  "exampleTestcases": "4\n2",
+  "sampleTestCase": "4",
+  "metaData": "{\n  \"name\": \"distinctSequences\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

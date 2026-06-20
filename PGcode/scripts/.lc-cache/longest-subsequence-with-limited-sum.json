@@ -1,8 +1,0 @@
-{
-  "questionId": "2469",
-  "titleSlug": "longest-subsequence-with-limited-sum",
-  "title": "Longest Subsequence With Limited Sum",
-  "exampleTestcases": "[4,5,2,1]\n[3,10,21]\n[2,3,4,5]\n[1]",
-  "sampleTestCase": "[4,5,2,1]\n[3,10,21]",
-  "metaData": "{\n  \"name\": \"answerQueries\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

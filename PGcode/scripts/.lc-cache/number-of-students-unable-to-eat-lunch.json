@@ -1,8 +1,0 @@
-{
-  "questionId": "1802",
-  "titleSlug": "number-of-students-unable-to-eat-lunch",
-  "title": "Number of Students Unable to Eat Lunch",
-  "exampleTestcases": "[1,1,0,0]\n[0,1,0,1]\n[1,1,1,0,0,1]\n[1,0,0,0,1,1]",
-  "sampleTestCase": "[1,1,0,0]\n[0,1,0,1]",
-  "metaData": "{\n  \"name\": \"countStudents\",\n  \"params\": [\n    {\n      \"name\": \"students\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"sandwiches\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

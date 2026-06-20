@@ -1,8 +1,0 @@
-{
-  "questionId": "665",
-  "titleSlug": "non-decreasing-array",
-  "title": "Non-decreasing Array",
-  "exampleTestcases": "[4,2,3]\n[4,2,1]",
-  "sampleTestCase": "[4,2,3]",
-  "metaData": "{\r\n  \"name\": \"checkPossibility\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

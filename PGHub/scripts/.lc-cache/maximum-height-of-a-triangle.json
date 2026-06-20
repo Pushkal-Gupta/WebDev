@@ -1,0 +1,8 @@
+{
+  "questionId": "3469",
+  "titleSlug": "maximum-height-of-a-triangle",
+  "title": "Maximum Height of a Triangle",
+  "exampleTestcases": "2\n4\n2\n1\n1\n1\n10\n1",
+  "sampleTestCase": "2\n4",
+  "metaData": "{\n  \"name\": \"maxHeightOfTriangle\",\n  \"params\": [\n    {\n      \"name\": \"red\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"blue\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

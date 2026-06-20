@@ -1,8 +1,0 @@
-{
-  "questionId": "825",
-  "titleSlug": "max-increase-to-keep-city-skyline",
-  "title": "Max Increase to Keep City Skyline",
-  "exampleTestcases": "[[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]\n[[0,0,0],[0,0,0],[0,0,0]]",
-  "sampleTestCase": "[[3,0,8,4],[2,4,5,7],[9,2,6,3],[0,3,1,0]]",
-  "metaData": "{\r\n  \"name\": \"maxIncreaseKeepingSkyline\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2246",
-  "titleSlug": "maximum-employees-to-be-invited-to-a-meeting",
-  "title": "Maximum Employees to Be Invited to a Meeting",
-  "exampleTestcases": "[2,2,1,2]\n[1,2,0]\n[3,0,1,4,1]",
-  "sampleTestCase": "[2,2,1,2]",
-  "metaData": "{\n  \"name\": \"maximumInvitations\",\n  \"params\": [\n    {\n      \"name\": \"favorite\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

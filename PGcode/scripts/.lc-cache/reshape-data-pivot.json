@@ -1,8 +1,0 @@
-{
-  "questionId": "3072",
-  "titleSlug": "reshape-data-pivot",
-  "title": "Reshape Data: Pivot",
-  "exampleTestcases": "{\"headers\":{\"weather\":[\"city\",\"month\",\"temperature\"]},\"rows\":{\"weather\":[[\"Jacksonville\",\"January\",13],[\"Jacksonville\",\"February\",23],[\"Jacksonville\",\"March\",38],[\"Jacksonville\",\"April\",5],[\"Jacksonville\",\"May\",34],[\"ElPaso\",\"January\",20],[\"ElPaso\",\"February\",6],[\"ElPaso\",\"March\",26],[\"ElPaso\",\"April\",2],[\"ElPaso\",\"May\",43]]}}",
-  "sampleTestCase": "{\"headers\":{\"weather\":[\"city\",\"month\",\"temperature\"]},\"rows\":{\"weather\":[[\"Jacksonville\",\"January\",13],[\"Jacksonville\",\"February\",23],[\"Jacksonville\",\"March\",38],[\"Jacksonville\",\"April\",5],[\"Jacksonville\",\"May\",34],[\"ElPaso\",\"January\",20],[\"ElPaso\",\"February\",6],[\"ElPaso\",\"March\",26],[\"ElPaso\",\"April\",2],[\"ElPaso\",\"May\",43]]}}",
-  "metaData": "{\n  \"pythondata\": [\n    \"weather = pd.DataFrame([], columns=['city', 'month', 'temperature']).astype({'city':'object', 'month':'object', 'temperature':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"pivot_table\",\n  \"languages\": [\n    \"pythondata\"\n  ],\n  \"manual\": true\n}"
-}

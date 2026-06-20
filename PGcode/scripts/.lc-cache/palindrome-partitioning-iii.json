@@ -1,8 +1,0 @@
-{
-  "questionId": "1403",
-  "titleSlug": "palindrome-partitioning-iii",
-  "title": "Palindrome Partitioning III",
-  "exampleTestcases": "\"abc\"\n2\n\"aabbc\"\n3\n\"leetcode\"\n8",
-  "sampleTestCase": "\"abc\"\n2",
-  "metaData": "{\n  \"name\": \"palindromePartition\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1489",
-  "titleSlug": "pizza-with-3n-slices",
-  "title": "Pizza With 3n Slices",
-  "exampleTestcases": "[1,2,3,4,5,6]\n[8,9,8,6,1,1]",
-  "sampleTestCase": "[1,2,3,4,5,6]",
-  "metaData": "{\n  \"name\": \"maxSizeSlices\",\n  \"params\": [\n    {\n      \"name\": \"slices\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

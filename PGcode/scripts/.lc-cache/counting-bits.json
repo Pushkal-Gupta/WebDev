@@ -1,8 +1,0 @@
-{
-  "questionId": "338",
-  "titleSlug": "counting-bits",
-  "title": "Counting Bits",
-  "exampleTestcases": "2\n5",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"countBits\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

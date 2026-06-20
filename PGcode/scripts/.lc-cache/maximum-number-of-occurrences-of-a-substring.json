@@ -1,8 +1,0 @@
-{
-  "questionId": "1423",
-  "titleSlug": "maximum-number-of-occurrences-of-a-substring",
-  "title": "Maximum Number of Occurrences of a Substring",
-  "exampleTestcases": "\"aababcaab\"\n2\n3\n4\n\"aaaa\"\n1\n3\n3",
-  "sampleTestCase": "\"aababcaab\"\n2\n3\n4",
-  "metaData": "{\n  \"name\": \"maxFreq\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxLetters\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"minSize\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxSize\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

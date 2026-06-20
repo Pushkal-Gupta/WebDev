@@ -1,8 +1,0 @@
-{
-  "questionId": "3947",
-  "titleSlug": "balanced-k-factor-decomposition",
-  "title": "Balanced K-Factor Decomposition",
-  "exampleTestcases": "100\n2\n44\n3",
-  "sampleTestCase": "100\n2",
-  "metaData": "{\n  \"name\": \"minDifference\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

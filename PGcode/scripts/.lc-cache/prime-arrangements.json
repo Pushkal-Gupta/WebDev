@@ -1,8 +1,0 @@
-{
-  "questionId": "1279",
-  "titleSlug": "prime-arrangements",
-  "title": "Prime Arrangements",
-  "exampleTestcases": "5\n100",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"numPrimeArrangements\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

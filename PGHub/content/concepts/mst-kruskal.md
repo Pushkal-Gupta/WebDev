@@ -1,0 +1,249 @@
+---
+slug: mst-kruskal
+module: graphs-mst
+title: Kruskal's Algorithm (MST)
+subtitle: Minimum spanning tree via global edge sort plus union-find cycle detection, O(E log E).
+difficulty: Intermediate
+position: 17
+estimatedReadMinutes: 6
+prereqs: []
+relatedProblems: []
+references:
+  - title: "CLRS — Part VI: Graph Algorithms (walkccc notes)"
+    url: "https://walkccc.me/CLRS/"
+    type: book
+  - title: "cp-algorithms — Graph algorithms"
+    url: "https://cp-algorithms.com/graph/all-submissions.html"
+    type: blog
+  - title: "TheAlgorithms/Python — graphs/"
+    url: "https://github.com/TheAlgorithms/Python/tree/master/graphs"
+    type: repo
+status: published
+---
+
+## intro
+Kruskal's algorithm builds a minimum spanning tree (MST) by sorting *all* edges by weight and greedily adding each edge that does not create a cycle. Cycle detection uses a disjoint-set / union-find structure, which makes the "would adding this edge close a loop?" test effectively O(alpha(V)) per query. Total runtime is dominated by the sort: O(E log E) = O(E log V) since E <= V^2.
+
+## whyItMatters
+Kruskal is the MST algorithm of choice on sparse graphs and on edge-list inputs — exactly the format competitive-programming problems and many real datasets provide. It is also the canonical introductory use of union-find (Tarjan 1975 inverse-Ackermann analysis) and produces a natural by-product: the MST edges arrive in increasing weight order, which directly drives **single-linkage hierarchical clustering** — pause Kruskal after `E - k` edges and you have a `k`-cluster partition. Boruvka's 1926 original, Prim 1957, and Kruskal 1956 are the three classical MST algorithms; modern systems use Kruskal for offline batch problems (network design, percolation, image segmentation in Felzenszwalb-Huttenlocher 2004) and Prim for streaming-edge inputs.
+
+## intuition
+Sort the edges from cheapest to most expensive and walk them in order. For each edge `(u, v, w)`, ask "are `u` and `v` already in the same connected component?" If yes, skip — adding the edge would create a cycle and waste weight. If no, accept the edge and **union** the two components. After `V - 1` accepted edges you have a spanning tree, and by the **cut property** of MSTs (the cheapest edge across any cut is safe to include), it is a minimum one.
+
+The correctness proof in one sentence: at every step the set of accepted edges is a subset of some MST. The cut property tells you that the cheapest edge crossing any cut between accepted vertices and unaccepted vertices must be in every MST; Kruskal's sort-then-scan order picks exactly that edge first. The cycle property tells you that skipping cycle-closing edges is safe because removing the heaviest edge of any cycle never breaks the MST.
+
+The performance hinges on the union-find data structure underneath. With *union by rank* (or size) plus *path compression*, each `find` and `union` runs in amortized `O(alpha(V))` where `alpha` is the inverse Ackermann function — effectively constant for any conceivable `V` (`alpha(2^65536) < 5`). The sort dominates, so total cost is `O(E log E)` which on sparse graphs (`E ≈ V`) beats Prim's `O(V^2)` and ties Prim's heap variant `O(E log V)`.
+
+## visualization
+```
+Graph: A,B,C,D,E. Edges sorted by weight:
+  (A-B, 1)
+  (B-C, 2)
+  (C-D, 3)
+  (A-C, 4)
+  (B-D, 5)
+  (D-E, 6)
+  (C-E, 7)
+
+DSU starts: {A}{B}{C}{D}{E}
+
+(A-B,1):  components differ -> ACCEPT. DSU: {A,B}{C}{D}{E}
+(B-C,2):  components differ -> ACCEPT. DSU: {A,B,C}{D}{E}
+(C-D,3):  components differ -> ACCEPT. DSU: {A,B,C,D}{E}
+(A-C,4):  same component    -> SKIP (cycle)
+(B-D,5):  same component    -> SKIP (cycle)
+(D-E,6):  components differ -> ACCEPT. DSU: {A,B,C,D,E}
+(C-E,7):  same component    -> SKIP (we already have V-1=4 edges; could break early)
+
+MST: {A-B(1), B-C(2), C-D(3), D-E(6)}. Total = 12.
+```
+
+## bruteForce
+Without union-find, cycle detection per edge takes a DFS or BFS through the current edge set — O(V + E') where E' is edges accepted so far. Across E candidate edges that's O(V * E). For dense graphs you might as well use the V^2 Prim variant. Brute "enumerate spanning trees" is exponential (Cayley's formula gives n^(n-2) trees on K_n) and never a real answer.
+
+## optimal
+Sort edges by weight, scan with union-find, accept any edge whose endpoints are in different components. Stop after `V - 1` accepts. Total cost is `O(E log E)` time dominated by the sort, plus `O(V)` space for the DSU. With path compression and union by rank the DSU operations are amortized `O(alpha(V))` — effectively constant.
+
+```python
+class DSU:
+    def __init__(self, n):
+        self.p = list(range(n))
+        self.r = [0] * n
+    def find(self, x):
+        while self.p[x] != x:
+            self.p[x] = self.p[self.p[x]]  # path compression (halving)
+            x = self.p[x]
+        return x
+    def union(self, x, y):
+        rx, ry = self.find(x), self.find(y)
+        if rx == ry: return False
+        if self.r[rx] < self.r[ry]: rx, ry = ry, rx
+        self.p[ry] = rx
+        if self.r[rx] == self.r[ry]: self.r[rx] += 1
+        return True
+
+def kruskal(V, edges):
+    edges.sort(key=lambda e: e[2])
+    dsu = DSU(V)
+    mst, total = [], 0
+    for u, v, w in edges:
+        if dsu.union(u, v):
+            mst.append((u, v, w))
+            total += w
+            if len(mst) == V - 1: break
+    return mst, total
+```
+
+The critical line is `if dsu.union(u, v):` — the `union` returns `False` if the endpoints were already connected, in which case adding the edge would create a cycle. This is what enforces the cut and cycle properties simultaneously. For dense graphs (`E ≈ V^2`) Prim's algorithm with an adjacency-matrix representation is `O(V^2)` and outperforms Kruskal because the sort cost dominates. For very large graphs that do not fit in memory, use Boruvka's algorithm in parallel rounds: each component picks its cheapest outgoing edge in parallel, then merges; runs in `O(log V)` rounds and parallelizes naturally on GPUs and distributed clusters. For percolation studies and single-linkage clustering, Kruskal is the standard because the partial-MST stream is exactly the dendrogram.
+
+## complexity
+time: O(E log E) for the sort, then O(E * alpha(V)) for DSU operations. alpha is the inverse-Ackermann function, < 5 for all practical V. Net: O(E log V).
+space: O(V) for the DSU, O(E) for the edge list.
+notes: Works whether the graph is connected or not — if disconnected, you get a *minimum spanning forest* with c trees for c components. Kruskal is naturally parallelizable via boruvka-style multi-edge contraction passes; Prim is harder to parallelize.
+
+## pitfalls
+- Forgetting path compression *or* union-by-rank — naive DSU can degenerate to O(E * V), turning Kruskal into O(E * V).
+- Mutating the edge list in place across multiple Kruskal runs — sort it once and reuse, or pass a copy.
+- Treating the input as directed — MST is undirected. If the input is directed, take each edge as a single undirected edge (or use the minimum spanning *arborescence* / Chu-Liu/Edmonds algorithm instead).
+- Stopping after the first cycle-skip instead of after V - 1 accepts — early loops skip edges but more accepts may follow.
+- Ignoring ties — Kruskal yields *a* MST, not *the* MST when weights tie. Sort with a tiebreaker if you need determinism.
+
+## interviewTips
+- Pair the algorithm with its data structure: "Kruskal = edge-sort + union-find. Without DSU, the cycle check dominates."
+- Compare to Prim: Kruskal wins on sparse graphs and edge-list input; Prim wins on dense graphs with adjacency lists.
+- Mention the cut property and the cycle property as the two correctness pillars — cheapest edge across a cut is safe to add; heaviest edge in a cycle is safe to remove.
+- Real-world hooks: single-linkage clustering (stop after V - k accepts to get k clusters), bottleneck spanning tree (Kruskal naturally produces it), minimum-cost network design.
+
+## code.python
+```python
+class DSU:
+    def __init__(self, n):
+        self.p = list(range(n))
+        self.r = [0] * n
+    def find(self, x):
+        while self.p[x] != x:
+            self.p[x] = self.p[self.p[x]]
+            x = self.p[x]
+        return x
+    def union(self, a, b):
+        ra, rb = self.find(a), self.find(b)
+        if ra == rb: return False
+        if self.r[ra] < self.r[rb]: ra, rb = rb, ra
+        self.p[rb] = ra
+        if self.r[ra] == self.r[rb]: self.r[ra] += 1
+        return True
+
+def kruskal(n, edges):
+    edges_sorted = sorted(edges, key=lambda e: e[2])
+    dsu = DSU(n)
+    mst, total = [], 0
+    for u, v, w in edges_sorted:
+        if dsu.union(u, v):
+            mst.append((u, v, w))
+            total += w
+            if len(mst) == n - 1: break
+    return mst, total
+```
+
+## code.javascript
+```javascript
+class DSU {
+  constructor(n) { this.p = Array.from({length: n}, (_, i) => i); this.r = new Int32Array(n); }
+  find(x) { while (this.p[x] !== x) { this.p[x] = this.p[this.p[x]]; x = this.p[x]; } return x; }
+  union(a, b) {
+    let ra = this.find(a), rb = this.find(b);
+    if (ra === rb) return false;
+    if (this.r[ra] < this.r[rb]) [ra, rb] = [rb, ra];
+    this.p[rb] = ra;
+    if (this.r[ra] === this.r[rb]) this.r[ra]++;
+    return true;
+  }
+}
+
+function kruskal(n, edges) {
+  const sorted = [...edges].sort((a, b) => a[2] - b[2]);
+  const dsu = new DSU(n);
+  const mst = []; let total = 0;
+  for (const [u, v, w] of sorted) {
+    if (dsu.union(u, v)) {
+      mst.push([u, v, w]); total += w;
+      if (mst.length === n - 1) break;
+    }
+  }
+  return { mst, total };
+}
+```
+
+## code.java
+```java
+import java.util.*;
+
+public class Kruskal {
+    static class DSU {
+        int[] p, r;
+        DSU(int n) { p = new int[n]; r = new int[n]; for (int i = 0; i < n; i++) p[i] = i; }
+        int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }
+        boolean union(int a, int b) {
+            int ra = find(a), rb = find(b);
+            if (ra == rb) return false;
+            if (r[ra] < r[rb]) { int t = ra; ra = rb; rb = t; }
+            p[rb] = ra;
+            if (r[ra] == r[rb]) r[ra]++;
+            return true;
+        }
+    }
+
+    public int[] mst(int n, int[][] edges) {
+        int[][] sorted = edges.clone();
+        Arrays.sort(sorted, (a, b) -> Integer.compare(a[2], b[2]));
+        DSU dsu = new DSU(n);
+        int total = 0, count = 0;
+        for (int[] e : sorted) {
+            if (dsu.union(e[0], e[1])) {
+                total += e[2]; count++;
+                if (count == n - 1) break;
+            }
+        }
+        return new int[]{total, count};
+    }
+}
+```
+
+## code.cpp
+```cpp
+#include <vector>
+#include <algorithm>
+#include <tuple>
+#include <numeric>
+
+struct DSU {
+    std::vector<int> p, r;
+    DSU(int n) : p(n), r(n, 0) { std::iota(p.begin(), p.end(), 0); }
+    int find(int x) { while (p[x] != x) { p[x] = p[p[x]]; x = p[x]; } return x; }
+    bool unite(int a, int b) {
+        int ra = find(a), rb = find(b);
+        if (ra == rb) return false;
+        if (r[ra] < r[rb]) std::swap(ra, rb);
+        p[rb] = ra;
+        if (r[ra] == r[rb]) r[ra]++;
+        return true;
+    }
+};
+
+std::pair<int, std::vector<std::tuple<int,int,int>>> kruskal(int n, std::vector<std::tuple<int,int,int>> edges) {
+    std::sort(edges.begin(), edges.end(), [](auto& a, auto& b) {
+        return std::get<2>(a) < std::get<2>(b);
+    });
+    DSU dsu(n);
+    std::vector<std::tuple<int,int,int>> mst;
+    int total = 0;
+    for (auto& [u, v, w] : edges) {
+        if (dsu.unite(u, v)) {
+            mst.emplace_back(u, v, w);
+            total += w;
+            if ((int)mst.size() == n - 1) break;
+        }
+    }
+    return {total, mst};
+}
+```

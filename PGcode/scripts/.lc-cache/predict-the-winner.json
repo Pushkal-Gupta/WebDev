@@ -1,8 +1,0 @@
-{
-  "questionId": "486",
-  "titleSlug": "predict-the-winner",
-  "title": "Predict the Winner",
-  "exampleTestcases": "[1,5,2]\n[1,5,233,7]",
-  "sampleTestCase": "[1,5,2]",
-  "metaData": "{\n  \"name\": \"predictTheWinner\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

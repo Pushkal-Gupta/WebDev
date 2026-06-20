@@ -1,0 +1,8 @@
+{
+  "questionId": "2635",
+  "titleSlug": "check-if-point-is-reachable",
+  "title": "Check if Point Is Reachable",
+  "exampleTestcases": "6\n9\n4\n7",
+  "sampleTestCase": "6\n9",
+  "metaData": "{\n  \"name\": \"isReachable\",\n  \"params\": [\n    {\n      \"name\": \"targetX\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"targetY\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

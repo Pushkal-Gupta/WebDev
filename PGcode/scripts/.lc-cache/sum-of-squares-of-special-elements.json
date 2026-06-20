@@ -1,8 +1,0 @@
-{
-  "questionId": "2844",
-  "titleSlug": "sum-of-squares-of-special-elements",
-  "title": "Sum of Squares of Special Elements ",
-  "exampleTestcases": "[1,2,3,4]\n[2,7,1,19,18,3]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\n  \"name\": \"sumOfSquares\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

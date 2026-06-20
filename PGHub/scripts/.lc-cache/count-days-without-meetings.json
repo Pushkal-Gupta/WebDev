@@ -1,0 +1,8 @@
+{
+  "questionId": "3430",
+  "titleSlug": "count-days-without-meetings",
+  "title": "Count Days Without Meetings",
+  "exampleTestcases": "10\n[[5,7],[1,3],[9,10]]\n5\n[[2,4],[1,3]]\n6\n[[1,6]]",
+  "sampleTestCase": "10\n[[5,7],[1,3],[9,10]]",
+  "metaData": "{\n  \"name\": \"countDays\",\n  \"params\": [\n    {\n      \"name\": \"days\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"meetings\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

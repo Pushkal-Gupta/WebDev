@@ -1,0 +1,8 @@
+{
+  "questionId": "1111",
+  "titleSlug": "minimum-score-triangulation-of-polygon",
+  "title": "Minimum Score Triangulation of Polygon",
+  "exampleTestcases": "[1,2,3]\n[3,7,4,5]\n[1,3,1,4,1,5]",
+  "sampleTestCase": "[1,2,3]",
+  "metaData": "{\n  \"name\": \"minScoreTriangulation\",\n  \"params\": [\n    {\n      \"name\": \"values\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

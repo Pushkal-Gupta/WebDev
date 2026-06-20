@@ -1,8 +1,0 @@
-{
-  "questionId": "436",
-  "titleSlug": "find-right-interval",
-  "title": "Find Right Interval",
-  "exampleTestcases": "[[1,2]]\n[[3,4],[2,3],[1,2]]\n[[1,4],[2,3],[3,4]]",
-  "sampleTestCase": "[[1,2]]",
-  "metaData": "{\r\n  \"name\": \"findRightInterval\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"intervals\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
-}

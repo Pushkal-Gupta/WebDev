@@ -1,8 +1,0 @@
-{
-  "questionId": "2807",
-  "titleSlug": "execute-asynchronous-functions-in-parallel",
-  "title": "Execute Asynchronous Functions in Parallel",
-  "exampleTestcases": "[() => new Promise(resolve => setTimeout(() => resolve(5), 200))]\n[() => new Promise(resolve => setTimeout(() => resolve(1), 200)), () => new Promise((resolve, reject) => setTimeout(() => reject(\"Error\"), 100))]\n[() => new Promise(resolve => setTimeout(() => resolve(4), 50)), () => new Promise(resolve => setTimeout(() => resolve(10), 150)), () => new Promise(resolve => setTimeout(() => resolve(16), 100))]",
-  "sampleTestCase": "[() => new Promise(resolve => setTimeout(() => resolve(5), 200))]",
-  "metaData": "{\n  \"name\": \"promiseAll\",\n  \"params\": [\n    {\n      \"name\": \"functions\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

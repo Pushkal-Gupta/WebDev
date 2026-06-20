@@ -1,8 +1,0 @@
-{
-  "questionId": "2631",
-  "titleSlug": "sort-the-students-by-their-kth-score",
-  "title": "Sort the Students by Their Kth Score",
-  "exampleTestcases": "[[10,6,9,1],[7,5,11,2],[4,8,3,15]]\n2\n[[3,4],[5,6]]\n0",
-  "sampleTestCase": "[[10,6,9,1],[7,5,11,2],[4,8,3,15]]\n2",
-  "metaData": "{\n  \"name\": \"sortTheStudents\",\n  \"params\": [\n    {\n      \"name\": \"score\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

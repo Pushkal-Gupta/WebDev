@@ -1,8 +1,0 @@
-{
-  "questionId": "3032",
-  "titleSlug": "maximize-value-of-function-in-a-ball-passing-game",
-  "title": "Maximize Value of Function in a Ball Passing Game",
-  "exampleTestcases": "[2,0,1]\n4\n[1,1,1,2,3]\n3",
-  "sampleTestCase": "[2,0,1]\n4",
-  "metaData": "{\n  \"name\": \"getMaxFunctionValue\",\n  \"params\": [\n    {\n      \"name\": \"receiver\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

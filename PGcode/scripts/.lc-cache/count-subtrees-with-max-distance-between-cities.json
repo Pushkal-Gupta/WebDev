@@ -1,8 +1,0 @@
-{
-  "questionId": "1740",
-  "titleSlug": "count-subtrees-with-max-distance-between-cities",
-  "title": "Count Subtrees With Max Distance Between Cities",
-  "exampleTestcases": "4\n[[1,2],[2,3],[2,4]]\n2\n[[1,2]]\n3\n[[1,2],[2,3]]",
-  "sampleTestCase": "4\n[[1,2],[2,3],[2,4]]",
-  "metaData": "{\n  \"name\": \"countSubgraphsForEachDiameter\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

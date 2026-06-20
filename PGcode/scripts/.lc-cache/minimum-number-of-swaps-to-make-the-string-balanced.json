@@ -1,8 +1,0 @@
-{
-  "questionId": "2095",
-  "titleSlug": "minimum-number-of-swaps-to-make-the-string-balanced",
-  "title": "Minimum Number of Swaps to Make the String Balanced",
-  "exampleTestcases": "\"][][\"\n\"]]][[[\"\n\"[]\"",
-  "sampleTestCase": "\"][][\"",
-  "metaData": "{\n  \"name\": \"minSwaps\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

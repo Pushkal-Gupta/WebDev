@@ -1,0 +1,8 @@
+{
+  "questionId": "3945",
+  "titleSlug": "minimum-sensors-to-cover-grid",
+  "title": "Minimum Sensors to Cover Grid",
+  "exampleTestcases": "5\n5\n1\n2\n2\n2",
+  "sampleTestCase": "5\n5\n1",
+  "metaData": "{\n  \"name\": \"minSensors\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

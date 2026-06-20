@@ -1,8 +1,0 @@
-{
-  "questionId": "3423",
-  "titleSlug": "maximum-sum-of-subsequence-with-non-adjacent-elements",
-  "title": "Maximum Sum of Subsequence With Non-adjacent Elements",
-  "exampleTestcases": "[3,5,9]\n[[1,-2],[0,-3]]\n[0,-1]\n[[0,-5]]",
-  "sampleTestCase": "[3,5,9]\n[[1,-2],[0,-3]]",
-  "metaData": "{\n  \"name\": \"maximumSumSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

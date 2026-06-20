@@ -1,8 +1,0 @@
-{
-  "questionId": "3604",
-  "titleSlug": "find-the-number-of-possible-ways-for-an-event",
-  "title": "Find the Number of Possible Ways for an Event",
-  "exampleTestcases": "1\n2\n3\n5\n2\n1\n3\n3\n4",
-  "sampleTestCase": "1\n2\n3",
-  "metaData": "{\n  \"name\": \"numberOfWays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

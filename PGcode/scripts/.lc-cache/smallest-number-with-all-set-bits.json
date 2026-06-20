@@ -1,8 +1,0 @@
-{
-  "questionId": "3676",
-  "titleSlug": "smallest-number-with-all-set-bits",
-  "title": "Smallest Number With All Set Bits",
-  "exampleTestcases": "5\n10\n3",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"smallestNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

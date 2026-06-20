@@ -1,0 +1,8 @@
+{
+  "questionId": "4065",
+  "titleSlug": "count-sequences-to-k",
+  "title": "Count Sequences to K",
+  "exampleTestcases": "[2,3,2]\n6\n[4,6,3]\n2\n[1,5]\n1",
+  "sampleTestCase": "[2,3,2]\n6",
+  "metaData": "{\n  \"name\": \"countSequences\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3188",
-  "titleSlug": "find-champion-i",
-  "title": "Find Champion I",
-  "exampleTestcases": "[[0,1],[0,0]]\n[[0,0,1],[1,0,1],[0,0,0]]",
-  "sampleTestCase": "[[0,1],[0,0]]",
-  "metaData": "{\n  \"name\": \"findChampion\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

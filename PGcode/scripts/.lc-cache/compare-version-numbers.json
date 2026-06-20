@@ -1,8 +1,0 @@
-{
-  "questionId": "165",
-  "titleSlug": "compare-version-numbers",
-  "title": "Compare Version Numbers",
-  "exampleTestcases": "\"1.2\"\n\"1.10\"\n\"1.01\"\n\"1.001\"\n\"1.0\"\n\"1.0.0.0\"",
-  "sampleTestCase": "\"1.2\"\n\"1.10\"",
-  "metaData": "{\r\n  \"name\": \"compareVersion\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"version1\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"version2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1296",
-  "titleSlug": "kth-ancestor-of-a-tree-node",
-  "title": "Kth Ancestor of a Tree Node",
-  "exampleTestcases": "[\"TreeAncestor\",\"getKthAncestor\",\"getKthAncestor\",\"getKthAncestor\"]\n[[7,[-1,0,0,1,1,2,2]],[3,1],[5,2],[6,3]]",
-  "sampleTestCase": "[\"TreeAncestor\",\"getKthAncestor\",\"getKthAncestor\",\"getKthAncestor\"]\n[[7,[-1,0,0,1,1,2,2]],[3,1],[5,2],[6,3]]",
-  "metaData": "{\n  \"classname\": \"TreeAncestor\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      },\n      {\n        \"name\": \"parent\",\n        \"type\": \"integer[]\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"node\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        }\n      ],\n      \"name\": \"getKthAncestor\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

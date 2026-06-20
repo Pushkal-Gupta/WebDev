@@ -1,8 +1,0 @@
-{
-  "questionId": "4153",
-  "titleSlug": "count-routes-to-climb-a-rectangular-grid",
-  "title": "Count Routes to Climb a Rectangular Grid",
-  "exampleTestcases": "[\"..\",\"#.\"]\n1\n[\"..\",\"#.\"]\n2\n[\"#\"]\n750\n[\"..\"]\n1",
-  "sampleTestCase": "[\"..\",\"#.\"]\n1",
-  "metaData": "{\n  \"name\": \"numberOfRoutes\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"d\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

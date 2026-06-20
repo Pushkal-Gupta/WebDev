@@ -1,8 +1,0 @@
-{
-  "questionId": "1843",
-  "titleSlug": "number-of-rectangles-that-can-form-the-largest-square",
-  "title": "Number Of Rectangles That Can Form The Largest Square",
-  "exampleTestcases": "[[5,8],[3,9],[5,12],[16,5]]\n[[2,3],[3,7],[4,3],[3,7]]",
-  "sampleTestCase": "[[5,8],[3,9],[5,12],[16,5]]",
-  "metaData": "{\n  \"name\": \"countGoodRectangles\",\n  \"params\": [\n    {\n      \"name\": \"rectangles\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

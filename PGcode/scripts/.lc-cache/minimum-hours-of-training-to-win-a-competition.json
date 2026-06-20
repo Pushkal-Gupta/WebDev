@@ -1,8 +1,0 @@
-{
-  "questionId": "2459",
-  "titleSlug": "minimum-hours-of-training-to-win-a-competition",
-  "title": "Minimum Hours of Training to Win a Competition",
-  "exampleTestcases": "5\n3\n[1,4,3,2]\n[2,6,3,1]\n2\n4\n[1]\n[3]",
-  "sampleTestCase": "5\n3\n[1,4,3,2]\n[2,6,3,1]",
-  "metaData": "{\n  \"name\": \"minNumberOfHours\",\n  \"params\": [\n    {\n      \"name\": \"initialEnergy\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"initialExperience\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"energy\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"experience\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

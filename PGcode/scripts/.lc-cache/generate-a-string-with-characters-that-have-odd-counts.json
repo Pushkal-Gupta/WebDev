@@ -1,8 +1,0 @@
-{
-  "questionId": "1490",
-  "titleSlug": "generate-a-string-with-characters-that-have-odd-counts",
-  "title": "Generate a String With Characters That Have Odd Counts",
-  "exampleTestcases": "4\n2\n7",
-  "sampleTestCase": "4",
-  "metaData": "{\n  \"name\": \"generateTheString\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "667",
-  "titleSlug": "beautiful-arrangement-ii",
-  "title": "Beautiful Arrangement II",
-  "exampleTestcases": "3\n1\n3\n2",
-  "sampleTestCase": "3\n1",
-  "metaData": "{\n  \"name\": \"constructArray\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}\n"
-}

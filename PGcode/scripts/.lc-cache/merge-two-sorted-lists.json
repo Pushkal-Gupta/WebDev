@@ -1,8 +1,0 @@
-{
-  "questionId": "21",
-  "titleSlug": "merge-two-sorted-lists",
-  "title": "Merge Two Sorted Lists",
-  "exampleTestcases": "[1,2,4]\n[1,3,4]\n[]\n[]\n[]\n[0]",
-  "sampleTestCase": "[1,2,4]\n[1,3,4]",
-  "metaData": "{\n  \"name\": \"mergeTwoLists\",\n  \"params\": [\n    {\n      \"name\": \"list1\",\n      \"type\": \"ListNode\",\n      \"dealloc\": false\n    },\n    {\n      \"name\": \"list2\",\n      \"type\": \"ListNode\",\n      \"dealloc\": false\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\",\n    \"dealloc\": true\n  }\n}"
-}

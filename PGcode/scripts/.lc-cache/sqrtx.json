@@ -1,8 +1,0 @@
-{
-  "questionId": "69",
-  "titleSlug": "sqrtx",
-  "title": "Sqrt(x)",
-  "exampleTestcases": "4\n8",
-  "sampleTestCase": "4",
-  "metaData": "{\r\n  \"name\": \"mySqrt\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2573",
-  "titleSlug": "remove-nodes-from-linked-list",
-  "title": "Remove Nodes From Linked List",
-  "exampleTestcases": "[5,2,13,3,8]\n[1,1,1,1]",
-  "sampleTestCase": "[5,2,13,3,8]",
-  "metaData": "{\n  \"name\": \"removeNodes\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
-}

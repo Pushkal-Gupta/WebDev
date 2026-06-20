@@ -1,0 +1,8 @@
+{
+  "questionId": "2511",
+  "titleSlug": "partition-string-into-substrings-with-values-at-most-k",
+  "title": "Partition String Into Substrings With Values at Most K",
+  "exampleTestcases": "\"165462\"\n60\n\"238182\"\n5",
+  "sampleTestCase": "\"165462\"\n60",
+  "metaData": "{\n  \"name\": \"minimumPartition\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

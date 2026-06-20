@@ -1,0 +1,8 @@
+{
+  "questionId": "2310",
+  "titleSlug": "minimum-operations-to-halve-array-sum",
+  "title": "Minimum Operations to Halve Array Sum",
+  "exampleTestcases": "[5,19,8,1]\n[3,8,20]",
+  "sampleTestCase": "[5,19,8,1]",
+  "metaData": "{\n  \"name\": \"halveArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

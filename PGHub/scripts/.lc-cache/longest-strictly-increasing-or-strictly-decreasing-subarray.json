@@ -1,0 +1,8 @@
+{
+  "questionId": "3372",
+  "titleSlug": "longest-strictly-increasing-or-strictly-decreasing-subarray",
+  "title": "Longest Strictly Increasing or Strictly Decreasing Subarray",
+  "exampleTestcases": "[1,4,3,3,2]\n[3,3,3,3]\n[3,2,1]",
+  "sampleTestCase": "[1,4,3,3,2]",
+  "metaData": "{\n  \"name\": \"longestMonotonicSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "451",
-  "titleSlug": "sort-characters-by-frequency",
-  "title": "Sort Characters By Frequency",
-  "exampleTestcases": "\"tree\"\n\"cccaaa\"\n\"Aabb\"",
-  "sampleTestCase": "\"tree\"",
-  "metaData": "{\n  \"name\": \"frequencySort\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1525",
-  "titleSlug": "queries-on-a-permutation-with-key",
-  "title": "Queries on a Permutation With Key",
-  "exampleTestcases": "[3,1,2,1]\n5\n[4,1,2,2]\n4\n[7,5,5,8,3]\n8",
-  "sampleTestCase": "[3,1,2,1]\n5",
-  "metaData": "{\n  \"name\": \"processQueries\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

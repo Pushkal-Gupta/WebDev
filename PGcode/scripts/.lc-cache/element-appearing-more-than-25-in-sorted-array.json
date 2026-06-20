@@ -1,8 +1,0 @@
-{
-  "questionId": "1221",
-  "titleSlug": "element-appearing-more-than-25-in-sorted-array",
-  "title": "Element Appearing More Than 25% In Sorted Array",
-  "exampleTestcases": "[1,2,2,6,6,6,6,7,10]\n[1,1]",
-  "sampleTestCase": "[1,2,2,6,6,6,6,7,10]",
-  "metaData": "{\n  \"name\": \"findSpecialInteger\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

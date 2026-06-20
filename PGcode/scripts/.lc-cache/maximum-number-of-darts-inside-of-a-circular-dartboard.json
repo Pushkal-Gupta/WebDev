@@ -1,8 +1,0 @@
-{
-  "questionId": "1563",
-  "titleSlug": "maximum-number-of-darts-inside-of-a-circular-dartboard",
-  "title": "Maximum Number of Darts Inside of a Circular Dartboard",
-  "exampleTestcases": "[[-2,0],[2,0],[0,2],[0,-2]]\n2\n[[-3,0],[3,0],[2,6],[5,4],[0,9],[7,8]]\n5",
-  "sampleTestCase": "[[-2,0],[2,0],[0,2],[0,-2]]\n2",
-  "metaData": "{\n  \"name\": \"numPoints\",\n  \"params\": [\n    {\n      \"name\": \"darts\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4293",
-  "titleSlug": "count-valid-word-occurrences",
-  "title": "Count Valid Word Occurrences",
-  "exampleTestcases": "[\"hello wor\",\"ld hello\"]\n[\"hello\",\"world\",\"wor\"]\n[\"a-b a--b \",\"a-\",\"b\"]\n[\"a-b\",\"a\",\"b\"]\n[\"-cat dog- mouse\"]\n[\"cat\",\"dog\",\"mouse\",\"cat-dog\"]",
-  "sampleTestCase": "[\"hello wor\",\"ld hello\"]\n[\"hello\",\"world\",\"wor\"]",
-  "metaData": "{\n  \"name\": \"countWordOccurrences\",\n  \"params\": [\n    {\n      \"name\": \"chunks\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

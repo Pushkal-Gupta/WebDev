@@ -1,8 +1,0 @@
-{
-  "questionId": "3321",
-  "titleSlug": "type-of-triangle",
-  "title": "Type of Triangle",
-  "exampleTestcases": "[3,3,3]\n[3,4,5]",
-  "sampleTestCase": "[3,3,3]",
-  "metaData": "{\n  \"name\": \"triangleType\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "215",
+  "titleSlug": "kth-largest-element-in-an-array",
+  "title": "Kth Largest Element in an Array",
+  "exampleTestcases": "[3,2,1,5,6,4]\n2\n[3,2,3,1,2,4,5,5,6]\n4",
+  "sampleTestCase": "[3,2,1,5,6,4]\n2",
+  "metaData": "{\n  \"name\": \"findKthLargest\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

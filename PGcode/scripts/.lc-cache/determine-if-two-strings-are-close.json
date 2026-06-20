@@ -1,8 +1,0 @@
-{
-  "questionId": "1777",
-  "titleSlug": "determine-if-two-strings-are-close",
-  "title": "Determine if Two Strings Are Close",
-  "exampleTestcases": "\"abc\"\n\"bca\"\n\"a\"\n\"aa\"\n\"cabbba\"\n\"abbccc\"",
-  "sampleTestCase": "\"abc\"\n\"bca\"",
-  "metaData": "{\n  \"name\": \"closeStrings\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

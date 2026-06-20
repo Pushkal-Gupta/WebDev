@@ -1,0 +1,8 @@
+{
+  "questionId": "851",
+  "titleSlug": "goat-latin",
+  "title": "Goat Latin",
+  "exampleTestcases": "\"I speak Goat Latin\"\n\"The quick brown fox jumped over the lazy dog\"",
+  "sampleTestCase": "\"I speak Goat Latin\"",
+  "metaData": "{\n  \"name\": \"toGoatLatin\",\n  \"params\": [\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

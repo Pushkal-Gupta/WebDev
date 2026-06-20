@@ -1,8 +1,0 @@
-{
-  "questionId": "432",
-  "titleSlug": "all-oone-data-structure",
-  "title": "All O`one Data Structure",
-  "exampleTestcases": "[\"AllOne\",\"inc\",\"inc\",\"getMaxKey\",\"getMinKey\",\"inc\",\"getMaxKey\",\"getMinKey\"]\n[[],[\"hello\"],[\"hello\"],[],[],[\"leet\"],[],[]]",
-  "sampleTestCase": "[\"AllOne\",\"inc\",\"inc\",\"getMaxKey\",\"getMinKey\",\"inc\",\"getMaxKey\",\"getMinKey\"]\n[[],[\"hello\"],[\"hello\"],[],[],[\"leet\"],[],[]]",
-  "metaData": "{\n  \"classname\": \"AllOne\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"key\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"void\"\n      },\n      \"name\": \"inc\"\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"key\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"void\"\n      },\n      \"name\": \"dec\"\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"string\"\n      },\n      \"name\": \"getMaxKey\"\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"string\"\n      },\n      \"name\": \"getMinKey\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

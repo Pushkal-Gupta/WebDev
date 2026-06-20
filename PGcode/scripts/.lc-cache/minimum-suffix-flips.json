@@ -1,8 +1,0 @@
-{
-  "questionId": "1652",
-  "titleSlug": "minimum-suffix-flips",
-  "title": "Minimum Suffix Flips",
-  "exampleTestcases": "\"10111\"\n\"101\"\n\"00000\"",
-  "sampleTestCase": "\"10111\"",
-  "metaData": "{\n  \"name\": \"minFlips\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

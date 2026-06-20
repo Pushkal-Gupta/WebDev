@@ -1,8 +1,0 @@
-{
-  "questionId": "1527",
-  "titleSlug": "number-of-ways-to-paint-n-3-grid",
-  "title": "Number of Ways to Paint N × 3 Grid",
-  "exampleTestcases": "1\n5000",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"numOfWays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

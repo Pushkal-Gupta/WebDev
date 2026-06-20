@@ -1,8 +1,0 @@
-{
-  "questionId": "1185",
-  "titleSlug": "find-in-mountain-array",
-  "title": "Find in Mountain Array",
-  "exampleTestcases": "[1,2,3,4,5,3,1]\n3\n[0,1,2,4,2,1]\n3",
-  "sampleTestCase": "[1,2,3,4,5,3,1]\n3",
-  "metaData": "{\n  \"name\": \"findInMountainArray\",\n  \"params\": [\n    {\n      \"name\": \"mountainArr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true,\n  \"typescriptCustomType\": \"class MountainArray {\\n    __secret: number[];\\n    __N: number;\\n    __guesses: number;\\n    constructor(secret: number[]) {\\n        this.__secret = secret;\\n        this.__N = secret.length;\\n        this.__guesses = 100;\\n    }\\n\\n    get(index: number): number {\\n        this.__guesses -= 1;\\n        return this.__secret[index];\\n    }\\n\\n    getGuesses(): number {\\n        return this.__guesses;\\n    }\\n        \\n    length(): number {\\n        return this.__N;\\n    }\\n};\\n\"\n}"
-}

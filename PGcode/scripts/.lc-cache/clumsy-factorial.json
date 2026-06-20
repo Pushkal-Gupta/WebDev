@@ -1,8 +1,0 @@
-{
-  "questionId": "1048",
-  "titleSlug": "clumsy-factorial",
-  "title": "Clumsy Factorial",
-  "exampleTestcases": "4\n10",
-  "sampleTestCase": "4",
-  "metaData": "{\n  \"name\": \"clumsy\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2338",
-  "titleSlug": "minimum-consecutive-cards-to-pick-up",
-  "title": "Minimum Consecutive Cards to Pick Up",
-  "exampleTestcases": "[3,4,2,3,4,7]\n[1,0,5,3]",
-  "sampleTestCase": "[3,4,2,3,4,7]",
-  "metaData": "{\n  \"name\": \"minimumCardPickup\",\n  \"params\": [\n    {\n      \"name\": \"cards\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

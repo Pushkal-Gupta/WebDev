@@ -1,8 +1,0 @@
-{
-  "questionId": "2711",
-  "titleSlug": "minimum-time-to-visit-a-cell-in-a-grid",
-  "title": "Minimum Time to Visit a Cell In a Grid",
-  "exampleTestcases": "[[0,1,3,2],[5,1,2,5],[4,3,8,6]]\n[[0,2,4],[3,2,1],[1,0,4]]",
-  "sampleTestCase": "[[0,1,3,2],[5,1,2,5],[4,3,8,6]]",
-  "metaData": "{\n  \"name\": \"minimumTime\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

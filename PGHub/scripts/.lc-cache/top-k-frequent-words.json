@@ -1,0 +1,8 @@
+{
+  "questionId": "692",
+  "titleSlug": "top-k-frequent-words",
+  "title": "Top K Frequent Words",
+  "exampleTestcases": "[\"i\",\"love\",\"leetcode\",\"i\",\"love\",\"coding\"]\n2\n[\"the\",\"day\",\"is\",\"sunny\",\"the\",\"the\",\"the\",\"sunny\",\"is\",\"is\"]\n4",
+  "sampleTestCase": "[\"i\",\"love\",\"leetcode\",\"i\",\"love\",\"coding\"]\n2",
+  "metaData": "{\r\n  \"name\": \"topKFrequent\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    },\r\n    {\r\n        \"name\": \"k\",\r\n        \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}\r\n"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2160",
-  "titleSlug": "minimum-operations-to-make-a-uni-value-grid",
-  "title": "Minimum Operations to Make a Uni-Value Grid",
-  "exampleTestcases": "[[2,4],[6,8]]\n2\n[[1,5],[2,3]]\n1\n[[1,2],[3,4]]\n2",
-  "sampleTestCase": "[[2,4],[6,8]]\n2",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1346",
+  "titleSlug": "maximize-the-topmost-element-after-k-moves",
+  "title": "Maximize the Topmost Element After K Moves",
+  "exampleTestcases": "[5,2,2,4,0,6]\n4\n[2]\n1",
+  "sampleTestCase": "[5,2,2,4,0,6]\n4",
+  "metaData": "{\n  \"name\": \"maximumTop\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "720",
-  "titleSlug": "longest-word-in-dictionary",
-  "title": "Longest Word in Dictionary",
-  "exampleTestcases": "[\"w\",\"wo\",\"wor\",\"worl\",\"world\"]\n[\"a\",\"banana\",\"app\",\"appl\",\"ap\",\"apply\",\"apple\"]",
-  "sampleTestCase": "[\"w\",\"wo\",\"wor\",\"worl\",\"world\"]",
-  "metaData": "{\r\n  \"name\": \"longestWord\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1984",
-  "titleSlug": "maximum-distance-between-a-pair-of-values",
-  "title": "Maximum Distance Between a Pair of Values",
-  "exampleTestcases": "[55,30,5,4,2]\n[100,20,10,10,5]\n[2,2,2]\n[10,10,1]\n[30,29,19,5]\n[25,25,25,25,25]",
-  "sampleTestCase": "[55,30,5,4,2]\n[100,20,10,10,5]",
-  "metaData": "{\n  \"name\": \"maxDistance\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

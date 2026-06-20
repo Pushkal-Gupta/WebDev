@@ -1,8 +1,0 @@
-{
-  "questionId": "4277",
-  "titleSlug": "minimum-operations-to-transform-array-into-alternating-prime",
-  "title": "Minimum Operations to Transform Array into Alternating Prime",
-  "exampleTestcases": "[1,2,3,4]\n[5,6,7,8]\n[4,4]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

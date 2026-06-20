@@ -1,8 +1,0 @@
-{
-  "questionId": "1156",
-  "titleSlug": "occurrences-after-bigram",
-  "title": "Occurrences After Bigram",
-  "exampleTestcases": "\"alice is a good girl she is a good student\"\n\"a\"\n\"good\"\n\"we will we will rock you\"\n\"we\"\n\"will\"",
-  "sampleTestCase": "\"alice is a good girl she is a good student\"\n\"a\"\n\"good\"",
-  "metaData": "{\r\n  \"name\": \"findOcurrences\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"text\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"first\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"second\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string[]\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3460",
-  "titleSlug": "count-the-number-of-inversions",
-  "title": "Count the Number of Inversions",
-  "exampleTestcases": "3\n[[2,2],[0,0]]\n3\n[[2,2],[1,1],[0,0]]\n2\n[[0,0],[1,0]]",
-  "sampleTestCase": "3\n[[2,2],[0,0]]",
-  "metaData": "{\n  \"name\": \"numberOfPermutations\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"requirements\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

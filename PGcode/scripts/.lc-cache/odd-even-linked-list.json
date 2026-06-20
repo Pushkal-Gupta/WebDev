@@ -1,8 +1,0 @@
-{
-  "questionId": "328",
-  "titleSlug": "odd-even-linked-list",
-  "title": "Odd Even Linked List",
-  "exampleTestcases": "[1,2,3,4,5]\n[2,1,3,5,6,4,7]",
-  "sampleTestCase": "[1,2,3,4,5]",
-  "metaData": "{\r\n  \"name\": \"oddEvenList\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"head\",\r\n      \"type\": \"ListNode\",\r\n      \"dealloc\": false\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

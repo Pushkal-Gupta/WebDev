@@ -1,8 +1,0 @@
-{
-  "questionId": "763",
-  "titleSlug": "special-binary-string",
-  "title": "Special Binary String",
-  "exampleTestcases": "\"11011000\"\n\"10\"",
-  "sampleTestCase": "\"11011000\"",
-  "metaData": "{\n  \"name\": \"makeLargestSpecial\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

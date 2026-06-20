@@ -1,8 +1,0 @@
-{
-  "questionId": "1288",
-  "titleSlug": "maximum-subarray-sum-with-one-deletion",
-  "title": "Maximum Subarray Sum with One Deletion",
-  "exampleTestcases": "[1,-2,0,3]\n[1,-2,-2,3]\n[-1,-1,-1,-1]",
-  "sampleTestCase": "[1,-2,0,3]",
-  "metaData": "{\n  \"name\": \"maximumSum\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

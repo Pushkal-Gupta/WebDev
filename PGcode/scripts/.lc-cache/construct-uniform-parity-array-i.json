@@ -1,8 +1,0 @@
-{
-  "questionId": "4256",
-  "titleSlug": "construct-uniform-parity-array-i",
-  "title": "Construct Uniform Parity Array I",
-  "exampleTestcases": "[2,3]\n[4,6]",
-  "sampleTestCase": "[2,3]",
-  "metaData": "{\n  \"name\": \"uniformArray\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1272",
-  "titleSlug": "invalid-transactions",
-  "title": "Invalid Transactions",
-  "exampleTestcases": "[\"alice,20,800,mtv\",\"alice,50,100,beijing\"]\n[\"alice,20,800,mtv\",\"alice,50,1200,mtv\"]\n[\"alice,20,800,mtv\",\"bob,50,1200,mtv\"]",
-  "sampleTestCase": "[\"alice,20,800,mtv\",\"alice,50,100,beijing\"]",
-  "metaData": "{\n  \"name\": \"invalidTransactions\",\n  \"params\": [\n    {\n      \"name\": \"transactions\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

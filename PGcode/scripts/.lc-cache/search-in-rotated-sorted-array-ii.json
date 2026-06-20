@@ -1,8 +1,0 @@
-{
-  "questionId": "81",
-  "titleSlug": "search-in-rotated-sorted-array-ii",
-  "title": "Search in Rotated Sorted Array II",
-  "exampleTestcases": "[2,5,6,0,0,1,2]\n0\n[2,5,6,0,0,1,2]\n3",
-  "sampleTestCase": "[2,5,6,0,0,1,2]\n0",
-  "metaData": "{\r\n  \"name\": \"search\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

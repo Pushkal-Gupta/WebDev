@@ -1,8 +1,0 @@
-{
-  "questionId": "1511",
-  "titleSlug": "count-number-of-teams",
-  "title": "Count Number of Teams",
-  "exampleTestcases": "[2,5,3,4,1]\n[2,1,3]\n[1,2,3,4]",
-  "sampleTestCase": "[2,5,3,4,1]",
-  "metaData": "{\n  \"name\": \"numTeams\",\n  \"params\": [\n    {\n      \"name\": \"rating\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

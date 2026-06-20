@@ -1,8 +1,0 @@
-{
-  "questionId": "745",
-  "titleSlug": "find-smallest-letter-greater-than-target",
-  "title": "Find Smallest Letter Greater Than Target",
-  "exampleTestcases": "[\"c\",\"f\",\"j\"]\n\"a\"\n[\"c\",\"f\",\"j\"]\n\"c\"\n[\"x\",\"x\",\"y\",\"y\"]\n\"z\"",
-  "sampleTestCase": "[\"c\",\"f\",\"j\"]\n\"a\"",
-  "metaData": "{\r\n  \"name\": \"nextGreatestLetter\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"letters\",\r\n      \"type\": \"character[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"character\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"character\"\r\n  }\r\n}\r\n"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3701",
+  "titleSlug": "minimum-cost-good-caption",
+  "title": "Minimum Cost Good Caption",
+  "exampleTestcases": "\"cdcd\"\n\"aca\"\n\"bc\"",
+  "sampleTestCase": "\"cdcd\"",
+  "metaData": "{\n  \"name\": \"minCostGoodCaption\",\n  \"params\": [\n    {\n      \"name\": \"caption\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

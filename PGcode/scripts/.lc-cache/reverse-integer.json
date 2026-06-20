@@ -1,8 +1,0 @@
-{
-  "questionId": "7",
-  "titleSlug": "reverse-integer",
-  "title": "Reverse Integer",
-  "exampleTestcases": "123\n-123\n120",
-  "sampleTestCase": "123",
-  "metaData": "{\r\n  \"name\": \"reverse\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

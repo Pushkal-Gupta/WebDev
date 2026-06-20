@@ -1,0 +1,8 @@
+{
+  "questionId": "2220",
+  "titleSlug": "find-all-possible-recipes-from-given-supplies",
+  "title": "Find All Possible Recipes from Given Supplies",
+  "exampleTestcases": "[\"bread\"]\n[[\"yeast\",\"flour\"]]\n[\"yeast\",\"flour\",\"corn\"]\n[\"bread\",\"sandwich\"]\n[[\"yeast\",\"flour\"],[\"bread\",\"meat\"]]\n[\"yeast\",\"flour\",\"meat\"]\n[\"bread\",\"sandwich\",\"burger\"]\n[[\"yeast\",\"flour\"],[\"bread\",\"meat\"],[\"sandwich\",\"meat\",\"bread\"]]\n[\"yeast\",\"flour\",\"meat\"]",
+  "sampleTestCase": "[\"bread\"]\n[[\"yeast\",\"flour\"]]\n[\"yeast\",\"flour\",\"corn\"]",
+  "metaData": "{\n  \"name\": \"findAllRecipes\",\n  \"params\": [\n    {\n      \"name\": \"recipes\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"list<list<string>>\",\n      \"name\": \"ingredients\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"supplies\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

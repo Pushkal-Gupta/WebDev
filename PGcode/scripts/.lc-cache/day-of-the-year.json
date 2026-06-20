@@ -1,8 +1,0 @@
-{
-  "questionId": "1260",
-  "titleSlug": "day-of-the-year",
-  "title": "Day of the Year",
-  "exampleTestcases": "\"2019-01-09\"\n\"2019-02-10\"",
-  "sampleTestCase": "\"2019-01-09\"",
-  "metaData": "{\n  \"name\": \"dayOfYear\",\n  \"params\": [\n    {\n      \"name\": \"date\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

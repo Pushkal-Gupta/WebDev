@@ -1,8 +1,0 @@
-{
-  "questionId": "1463",
-  "titleSlug": "the-k-weakest-rows-in-a-matrix",
-  "title": "The K Weakest Rows in a Matrix",
-  "exampleTestcases": "[[1,1,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,1,0,0,0],[1,1,1,1,1]]\n3\n[[1,0,0,0],[1,1,1,1],[1,0,0,0],[1,0,0,0]]\n2",
-  "sampleTestCase": "[[1,1,0,0,0],[1,1,1,1,0],[1,0,0,0,0],[1,1,0,0,0],[1,1,1,1,1]]\n3",
-  "metaData": "{\n  \"name\": \"kWeakestRows\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

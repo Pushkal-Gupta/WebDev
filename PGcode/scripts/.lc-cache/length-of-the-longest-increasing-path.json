@@ -1,8 +1,0 @@
-{
-  "questionId": "3571",
-  "titleSlug": "length-of-the-longest-increasing-path",
-  "title": "Length of the Longest Increasing Path",
-  "exampleTestcases": "[[3,1],[2,2],[4,1],[0,0],[5,3]]\n1\n[[2,1],[7,0],[5,6]]\n2",
-  "sampleTestCase": "[[3,1],[2,2],[4,1],[0,0],[5,3]]\n1",
-  "metaData": "{\n  \"name\": \"maxPathLength\",\n  \"params\": [\n    {\n      \"name\": \"coordinates\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

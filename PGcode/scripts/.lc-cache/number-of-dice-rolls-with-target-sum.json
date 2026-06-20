@@ -1,8 +1,0 @@
-{
-  "questionId": "1263",
-  "titleSlug": "number-of-dice-rolls-with-target-sum",
-  "title": "Number of Dice Rolls With Target Sum",
-  "exampleTestcases": "1\n6\n3\n2\n6\n7\n30\n30\n500",
-  "sampleTestCase": "1\n6\n3",
-  "metaData": "{\n  \"name\": \"numRollsToTarget\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

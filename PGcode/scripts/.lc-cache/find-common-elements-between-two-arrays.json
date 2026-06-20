@@ -1,8 +1,0 @@
-{
-  "questionId": "3206",
-  "titleSlug": "find-common-elements-between-two-arrays",
-  "title": "Find Common Elements Between Two Arrays",
-  "exampleTestcases": "[2,3,2]\n[1,2]\n[4,3,2,3,1]\n[2,2,5,2,3,6]\n[3,4,2,3]\n[1,5]",
-  "sampleTestCase": "[2,3,2]\n[1,2]",
-  "metaData": "{\n  \"name\": \"findIntersectionValues\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

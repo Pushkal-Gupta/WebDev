@@ -1,8 +1,0 @@
-{
-  "questionId": "2722",
-  "titleSlug": "prime-in-diagonal",
-  "title": "Prime In Diagonal",
-  "exampleTestcases": "[[1,2,3],[5,6,7],[9,10,11]]\n[[1,2,3],[5,17,7],[9,11,10]]",
-  "sampleTestCase": "[[1,2,3],[5,6,7],[9,10,11]]",
-  "metaData": "{\n  \"name\": \"diagonalPrime\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

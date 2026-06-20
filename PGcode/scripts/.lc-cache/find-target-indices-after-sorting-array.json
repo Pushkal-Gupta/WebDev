@@ -1,8 +1,0 @@
-{
-  "questionId": "2210",
-  "titleSlug": "find-target-indices-after-sorting-array",
-  "title": "Find Target Indices After Sorting Array",
-  "exampleTestcases": "[1,2,5,2,3]\n2\n[1,2,5,2,3]\n3\n[1,2,5,2,3]\n5",
-  "sampleTestCase": "[1,2,5,2,3]\n2",
-  "metaData": "{\n  \"name\": \"targetIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

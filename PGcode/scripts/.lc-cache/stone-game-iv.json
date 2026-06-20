@@ -1,8 +1,0 @@
-{
-  "questionId": "1617",
-  "titleSlug": "stone-game-iv",
-  "title": "Stone Game IV",
-  "exampleTestcases": "1\n2\n4",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"winnerSquareGame\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "241",
-  "titleSlug": "different-ways-to-add-parentheses",
-  "title": "Different Ways to Add Parentheses",
-  "exampleTestcases": "\"2-1-1\"\n\"2*3-4*5\"",
-  "sampleTestCase": "\"2-1-1\"",
-  "metaData": "{\n  \"name\": \"diffWaysToCompute\",\n  \"params\": [\n    {\n      \"name\": \"expression\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2157",
-  "titleSlug": "smallest-k-length-subsequence-with-occurrences-of-a-letter",
-  "title": "Smallest K-Length Subsequence With Occurrences of a Letter",
-  "exampleTestcases": "\"leet\"\n3\n\"e\"\n1\n\"leetcode\"\n4\n\"e\"\n2\n\"bb\"\n2\n\"b\"\n2",
-  "sampleTestCase": "\"leet\"\n3\n\"e\"\n1",
-  "metaData": "{\n  \"name\": \"smallestSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"letter\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"repetition\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

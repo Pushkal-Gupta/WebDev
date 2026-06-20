@@ -1,8 +1,0 @@
-{
-  "questionId": "2456",
-  "titleSlug": "construct-smallest-number-from-di-string",
-  "title": "Construct Smallest Number From DI String",
-  "exampleTestcases": "\"IIIDIDDD\"\n\"DDD\"",
-  "sampleTestCase": "\"IIIDIDDD\"",
-  "metaData": "{\n  \"name\": \"smallestNumber\",\n  \"params\": [\n    {\n      \"name\": \"pattern\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

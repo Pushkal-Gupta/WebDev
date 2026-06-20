@@ -1,8 +1,0 @@
-{
-  "questionId": "3439",
-  "titleSlug": "find-minimum-diameter-after-merging-two-trees",
-  "title": "Find Minimum Diameter After Merging Two Trees",
-  "exampleTestcases": "[[0,1],[0,2],[0,3]]\n[[0,1]]\n[[0,1],[0,2],[0,3],[2,4],[2,5],[3,6],[2,7]]\n[[0,1],[0,2],[0,3],[2,4],[2,5],[3,6],[2,7]]",
-  "sampleTestCase": "[[0,1],[0,2],[0,3]]\n[[0,1]]",
-  "metaData": "{\n  \"name\": \"minimumDiameterAfterMerge\",\n  \"params\": [\n    {\n      \"name\": \"edges1\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

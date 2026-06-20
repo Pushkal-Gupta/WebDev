@@ -1,8 +1,0 @@
-{
-  "questionId": "219",
-  "titleSlug": "contains-duplicate-ii",
-  "title": "Contains Duplicate II",
-  "exampleTestcases": "[1,2,3,1]\n3\n[1,0,1,1]\n1\n[1,2,3,1,2,3]\n2",
-  "sampleTestCase": "[1,2,3,1]\n3",
-  "metaData": "{\r\n  \"name\": \"containsNearbyDuplicate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

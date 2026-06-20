@@ -1,8 +1,0 @@
-{
-  "questionId": "2649",
-  "titleSlug": "count-total-number-of-colored-cells",
-  "title": "Count Total Number of Colored Cells",
-  "exampleTestcases": "1\n2",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"coloredCells\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

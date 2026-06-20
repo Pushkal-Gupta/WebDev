@@ -1,8 +1,0 @@
-{
-  "questionId": "1805",
-  "titleSlug": "minimum-adjacent-swaps-for-k-consecutive-ones",
-  "title": "Minimum Adjacent Swaps for K Consecutive Ones",
-  "exampleTestcases": "[1,0,0,1,0,1]\n2\n[1,0,0,0,0,0,1,1]\n3\n[1,1,0,1]\n2",
-  "sampleTestCase": "[1,0,0,1,0,1]\n2",
-  "metaData": "{\n  \"name\": \"minMoves\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

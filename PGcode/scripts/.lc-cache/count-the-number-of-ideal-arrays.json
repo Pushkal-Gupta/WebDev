@@ -1,8 +1,0 @@
-{
-  "questionId": "2415",
-  "titleSlug": "count-the-number-of-ideal-arrays",
-  "title": "Count the Number of Ideal Arrays",
-  "exampleTestcases": "2\n5\n5\n3",
-  "sampleTestCase": "2\n5",
-  "metaData": "{\n  \"name\": \"idealArrays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxValue\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

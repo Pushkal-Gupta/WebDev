@@ -1,8 +1,0 @@
-{
-  "questionId": "152",
-  "titleSlug": "maximum-product-subarray",
-  "title": "Maximum Product Subarray",
-  "exampleTestcases": "[2,3,-2,4]\n[-2,0,-1]",
-  "sampleTestCase": "[2,3,-2,4]",
-  "metaData": "{\r\n  \"name\": \"maxProduct\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

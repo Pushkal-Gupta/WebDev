@@ -1,0 +1,8 @@
+{
+  "questionId": "2417",
+  "titleSlug": "the-latest-time-to-catch-a-bus",
+  "title": "The Latest Time to Catch a Bus",
+  "exampleTestcases": "[10,20]\n[2,17,18,19]\n2\n[20,30,10]\n[19,13,26,4,25,11,21]\n2",
+  "sampleTestCase": "[10,20]\n[2,17,18,19]\n2",
+  "metaData": "{\n  \"name\": \"latestTimeCatchTheBus\",\n  \"params\": [\n    {\n      \"name\": \"buses\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"passengers\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"capacity\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2089",
+  "titleSlug": "maximum-matrix-sum",
+  "title": "Maximum Matrix Sum",
+  "exampleTestcases": "[[1,-1],[-1,1]]\n[[1,2,3],[-1,-2,-3],[1,2,3]]",
+  "sampleTestCase": "[[1,-1],[-1,1]]",
+  "metaData": "{\n  \"name\": \"maxMatrixSum\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

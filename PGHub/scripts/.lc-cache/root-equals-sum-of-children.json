@@ -1,0 +1,8 @@
+{
+  "questionId": "2384",
+  "titleSlug": "root-equals-sum-of-children",
+  "title": "Root Equals Sum of Children",
+  "exampleTestcases": "[10,4,6]\n[5,3,1]",
+  "sampleTestCase": "[10,4,6]",
+  "metaData": "{\n  \"name\": \"checkTree\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

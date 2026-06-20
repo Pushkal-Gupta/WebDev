@@ -1,8 +1,0 @@
-{
-  "questionId": "2864",
-  "titleSlug": "is-object-empty",
-  "title": "Is Object Empty",
-  "exampleTestcases": "{\"x\": 5, \"y\": 42}\n{}\n[null, false, 0]",
-  "sampleTestCase": "{\"x\": 5, \"y\": 42}",
-  "metaData": "{\n  \"name\": \"isEmpty\",\n  \"params\": [\n    {\n      \"name\": \"obj\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ]\n}"
-}

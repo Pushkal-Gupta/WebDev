@@ -1,0 +1,8 @@
+{
+  "questionId": "2390",
+  "titleSlug": "naming-a-company",
+  "title": "Naming a Company",
+  "exampleTestcases": "[\"coffee\",\"donuts\",\"time\",\"toffee\"]\n[\"lack\",\"back\"]",
+  "sampleTestCase": "[\"coffee\",\"donuts\",\"time\",\"toffee\"]",
+  "metaData": "{\n  \"name\": \"distinctNames\",\n  \"params\": [\n    {\n      \"name\": \"ideas\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

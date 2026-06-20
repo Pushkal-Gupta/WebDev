@@ -1,8 +1,0 @@
-{
-  "questionId": "4175",
-  "titleSlug": "smallest-all-ones-multiple",
-  "title": "Smallest All-Ones Multiple",
-  "exampleTestcases": "3\n7\n2",
-  "sampleTestCase": "3",
-  "metaData": "{\n  \"name\": \"minAllOneMultiple\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

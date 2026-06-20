@@ -1,8 +1,0 @@
-{
-  "questionId": "2557",
-  "titleSlug": "number-of-subarrays-with-lcm-equal-to-k",
-  "title": "Number of Subarrays With LCM Equal to K",
-  "exampleTestcases": "[3,6,2,7,1]\n6\n[3]\n2",
-  "sampleTestCase": "[3,6,2,7,1]\n6",
-  "metaData": "{\n  \"name\": \"subarrayLCM\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

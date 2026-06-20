@@ -45,7 +45,7 @@ A production-grade chess application with real-time multiplayer, AI opponents, a
 
 ---
 
-### [PGcode](PGcode/) — DSA Learning Platform
+### [PGHub](PGHub/) — Coding Hub
 
 A structured Data Structures & Algorithms platform with interactive visualizations, spaced repetition, and live code execution.
 
@@ -65,7 +65,7 @@ A structured Data Structures & Algorithms platform with interactive visualizatio
 
 **Database:** 10 PostgreSQL tables with RLS — topics, edges, problems, templates, solution approaches, dry runs, questions, user progress, profiles, videos
 
-**Live:** [pushkalgupta.com/PGcode](https://pushkalgupta.com/PGcode/dist/index.html)
+**Live:** [pushkalgupta.com/PGHub](https://pushkalgupta.com/PGHub/dist/index.html)
 
 ---
 
@@ -109,7 +109,7 @@ Personal blog with long-form essays.
 
 | Component | Details |
 |-----------|---------|
-| **Backend** | Single Supabase project shared across onlineChess, PGcode, PG, and blog |
+| **Backend** | Single Supabase project shared across onlineChess, PGHub, PG, and blog |
 | **Auth** | Email + Google OAuth via Supabase Auth |
 | **Database** | PostgreSQL with Row-Level Security on all user tables |
 | **Hosting** | GitHub Pages with custom domain (`pushkalgupta.com`) |
@@ -132,7 +132,7 @@ Personal blog with long-form essays.
 │   │   └── functions/    # 3 Edge Functions (Deno/TypeScript)
 │   └── dist/             # Production build
 │
-├── PGcode/               # DSA learning platform (React + Monaco + Judge0)
+├── PGHub/                # Coding hub (DSA + ML + contests + compiler) (React + Monaco + Judge0)
 │   ├── src/
 │   │   ├── components/   # 22 components + 6 renderers
 │   │   ├── lib/          # Supabase client, code runner, driver code
@@ -167,13 +167,13 @@ cd onlineChess
 npm install
 npm run dev       # http://localhost:5173
 
-# PGcode
-cd PGcode
+# PGHub
+cd PGHub
 npm install
 npm run dev       # http://localhost:5173
 ```
 
-PGcode requires a `.env` file — copy `.env.example` and fill in your Supabase credentials:
+PGHub requires a `.env` file — copy `.env.example` and fill in your Supabase credentials:
 
 ```
 VITE_SUPABASE_URL=https://your-project.supabase.co

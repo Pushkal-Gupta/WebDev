@@ -1,8 +1,0 @@
-{
-  "questionId": "3920",
-  "titleSlug": "minimum-stability-factor-of-array",
-  "title": "Minimum Stability Factor of Array",
-  "exampleTestcases": "[3,5,10]\n1\n[2,6,8]\n2\n[2,4,9,6]\n1",
-  "sampleTestCase": "[3,5,10]\n1",
-  "metaData": "{\n  \"name\": \"minStable\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxC\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

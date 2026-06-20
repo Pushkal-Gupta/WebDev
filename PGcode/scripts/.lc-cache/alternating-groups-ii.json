@@ -1,8 +1,0 @@
-{
-  "questionId": "3483",
-  "titleSlug": "alternating-groups-ii",
-  "title": "Alternating Groups II",
-  "exampleTestcases": "[0,1,0,1,0]\n3\n[0,1,0,0,1,0,1]\n6\n[1,1,0,1]\n4",
-  "sampleTestCase": "[0,1,0,1,0]\n3",
-  "metaData": "{\n  \"name\": \"numberOfAlternatingGroups\",\n  \"params\": [\n    {\n      \"name\": \"colors\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

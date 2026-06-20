@@ -1,8 +1,0 @@
-{
-  "questionId": "1460",
-  "titleSlug": "number-of-substrings-containing-all-three-characters",
-  "title": "Number of Substrings Containing All Three Characters",
-  "exampleTestcases": "\"abcabc\"\n\"aaacb\"\n\"abc\"",
-  "sampleTestCase": "\"abcabc\"",
-  "metaData": "{\n  \"name\": \"numberOfSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

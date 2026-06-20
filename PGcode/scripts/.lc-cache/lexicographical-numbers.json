@@ -1,8 +1,0 @@
-{
-  "questionId": "386",
-  "titleSlug": "lexicographical-numbers",
-  "title": "Lexicographical Numbers",
-  "exampleTestcases": "13\n2",
-  "sampleTestCase": "13",
-  "metaData": "{\r\n  \"name\": \"lexicalOrder\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}"
-}

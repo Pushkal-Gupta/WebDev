@@ -1,8 +1,0 @@
-{
-  "questionId": "1695",
-  "titleSlug": "maximum-sum-obtained-of-any-permutation",
-  "title": "Maximum Sum Obtained of Any Permutation",
-  "exampleTestcases": "[1,2,3,4,5]\n[[1,3],[0,1]]\n[1,2,3,4,5,6]\n[[0,1]]\n[1,2,3,4,5,10]\n[[0,2],[1,3],[1,1]]",
-  "sampleTestCase": "[1,2,3,4,5]\n[[1,3],[0,1]]",
-  "metaData": "{\n  \"name\": \"maxSumRangeQuery\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"requests\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

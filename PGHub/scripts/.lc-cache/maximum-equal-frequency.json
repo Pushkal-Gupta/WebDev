@@ -1,0 +1,8 @@
+{
+  "questionId": "1344",
+  "titleSlug": "maximum-equal-frequency",
+  "title": "Maximum Equal Frequency",
+  "exampleTestcases": "[2,2,1,1,5,3,3,5]\n[1,1,1,2,2,2,3,3,3,4,4,4,5]",
+  "sampleTestCase": "[2,2,1,1,5,3,3,5]",
+  "metaData": "{\n  \"name\": \"maxEqualFreq\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

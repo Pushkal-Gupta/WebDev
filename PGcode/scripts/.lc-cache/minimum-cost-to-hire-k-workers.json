@@ -1,8 +1,0 @@
-{
-  "questionId": "887",
-  "titleSlug": "minimum-cost-to-hire-k-workers",
-  "title": "Minimum Cost to Hire K Workers",
-  "exampleTestcases": "[10,20,5]\n[70,50,30]\n2\n[3,1,10,10,1]\n[4,8,2,2,7]\n3",
-  "sampleTestCase": "[10,20,5]\n[70,50,30]\n2",
-  "metaData": "{\n  \"name\": \"mincostToHireWorkers\",\n  \"params\": [\n    {\n      \"name\": \"quality\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"wage\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2626",
-  "titleSlug": "count-the-number-of-good-subarrays",
-  "title": "Count the Number of Good Subarrays",
-  "exampleTestcases": "[1,1,1,1,1]\n10\n[3,1,4,3,2,2,4]\n2",
-  "sampleTestCase": "[1,1,1,1,1]\n10",
-  "metaData": "{\n  \"name\": \"countGood\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

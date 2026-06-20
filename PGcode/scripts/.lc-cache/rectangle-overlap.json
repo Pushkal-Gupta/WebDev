@@ -1,8 +1,0 @@
-{
-  "questionId": "866",
-  "titleSlug": "rectangle-overlap",
-  "title": "Rectangle Overlap",
-  "exampleTestcases": "[0,0,2,2]\n[1,1,3,3]\n[0,0,1,1]\n[1,0,2,1]\n[0,0,1,1]\n[2,2,3,3]",
-  "sampleTestCase": "[0,0,2,2]\n[1,1,3,3]",
-  "metaData": "{\r\n  \"name\": \"isRectangleOverlap\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"rec1\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"rec2\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

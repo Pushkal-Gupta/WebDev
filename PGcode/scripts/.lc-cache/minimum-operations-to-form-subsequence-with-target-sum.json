@@ -1,8 +1,0 @@
-{
-  "questionId": "3025",
-  "titleSlug": "minimum-operations-to-form-subsequence-with-target-sum",
-  "title": "Minimum Operations to Form Subsequence With Target Sum",
-  "exampleTestcases": "[1,2,8]\n7\n[1,32,1,2]\n12\n[1,32,1]\n35",
-  "sampleTestCase": "[1,2,8]\n7",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

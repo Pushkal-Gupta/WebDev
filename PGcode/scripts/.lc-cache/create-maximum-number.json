@@ -1,8 +1,0 @@
-{
-  "questionId": "321",
-  "titleSlug": "create-maximum-number",
-  "title": "Create Maximum Number",
-  "exampleTestcases": "[3,4,6,5]\n[9,1,2,5,8,3]\n5\n[6,7]\n[6,0,4]\n5\n[3,9]\n[8,9]\n3",
-  "sampleTestCase": "[3,4,6,5]\n[9,1,2,5,8,3]\n5",
-  "metaData": "{\r\n  \"name\": \"maxNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums1\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"nums2\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n        \"name\": \"k\",\r\n        \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
-}

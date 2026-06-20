@@ -1,8 +1,0 @@
-{
-  "questionId": "2503",
-  "titleSlug": "longest-subarray-with-maximum-bitwise-and",
-  "title": "Longest Subarray With Maximum Bitwise AND",
-  "exampleTestcases": "[1,2,3,3,2,2]\n[1,2,3,4]",
-  "sampleTestCase": "[1,2,3,3,2,2]",
-  "metaData": "{\n  \"name\": \"longestSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1933",
+  "titleSlug": "number-of-different-integers-in-a-string",
+  "title": "Number of Different Integers in a String",
+  "exampleTestcases": "\"a123bc34d8ef34\"\n\"leet1234code234\"\n\"a1b01c001\"",
+  "sampleTestCase": "\"a123bc34d8ef34\"",
+  "metaData": "{\n  \"name\": \"numDifferentIntegers\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1284",
+  "titleSlug": "four-divisors",
+  "title": "Four Divisors",
+  "exampleTestcases": "[21,4,7]\n[21,21]\n[1,2,3,4,5]",
+  "sampleTestCase": "[21,4,7]",
+  "metaData": "{\n  \"name\": \"sumFourDivisors\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3106",
-  "titleSlug": "length-of-the-longest-subsequence-that-sums-to-target",
-  "title": "Length of the Longest Subsequence That Sums to Target",
-  "exampleTestcases": "[1,2,3,4,5]\n9\n[4,1,3,2,1,5]\n7\n[1,1,5,4,5]\n3",
-  "sampleTestCase": "[1,2,3,4,5]\n9",
-  "metaData": "{\n  \"name\": \"lengthOfLongestSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

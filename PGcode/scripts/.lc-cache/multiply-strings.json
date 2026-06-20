@@ -1,8 +1,0 @@
-{
-  "questionId": "43",
-  "titleSlug": "multiply-strings",
-  "title": "Multiply Strings",
-  "exampleTestcases": "\"2\"\n\"3\"\n\"123\"\n\"456\"",
-  "sampleTestCase": "\"2\"\n\"3\"",
-  "metaData": "{ \r\n  \"name\": \"multiply\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"num1\",\r\n      \"type\": \"string\"\r\n    },\r\n    { \r\n      \"name\": \"num2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

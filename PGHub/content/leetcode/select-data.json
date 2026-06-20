@@ -1,0 +1,23 @@
+{
+  "slug": "select-data",
+  "leetcode_id": "3074",
+  "title": "Select Data",
+  "difficulty": "Easy",
+  "tags": [],
+  "description_html": "<pre>\nDataFrame students\n+-------------+--------+\n| Column Name | Type   |\n+-------------+--------+\n| student_id  | int    |\n| name        | object |\n| age         | int    |\n+-------------+--------+\n\n</pre>\n\n<p>Write a solution to select the name and age of the student with <code>student_id = 101</code>.</p>\n\n<p>The result format is in the following example.</p>\n\n<p>&nbsp;</p>\n<pre>\n<strong>Example 1:\nInput:</strong>\n+------------+---------+-----+\n| student_id | name    | age |\n+------------+---------+-----+\n| 101        | Ulysses | 13  |\n| 53         | William | 10  |\n| 128        | Henry   | 6   |\n| 3          | Henry   | 11  |\n+------------+---------+-----+\n<strong>Output:</strong>\n+---------+-----+\n| name    | age | \n+---------+-----+\n| Ulysses | 13  |\n+---------+-----+\n<strong>Explanation:\n</strong>Student Ulysses has student_id = 101, we select the name and age.</pre>\n",
+  "hints": [
+    "Consider applying both row and column filtering to select the desired data."
+  ],
+  "sample_test_cases": [
+    "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[101,\"Ulysses\",13],[53,\"William\",10],[128,\"Henry\",6],[3,\"Henry\",11]]}}"
+  ],
+  "content_signature": "-c1a9zd",
+  "fetched_at": "2026-05-30T07:34:26.254Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef selectData(students: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
+}

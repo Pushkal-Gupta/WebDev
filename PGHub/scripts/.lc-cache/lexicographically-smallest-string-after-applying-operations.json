@@ -1,0 +1,8 @@
+{
+  "questionId": "1747",
+  "titleSlug": "lexicographically-smallest-string-after-applying-operations",
+  "title": "Lexicographically Smallest String After Applying Operations",
+  "exampleTestcases": "\"5525\"\n9\n2\n\"74\"\n5\n1\n\"0011\"\n4\n2",
+  "sampleTestCase": "\"5525\"\n9\n2",
+  "metaData": "{\n  \"name\": \"findLexSmallestString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"a\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

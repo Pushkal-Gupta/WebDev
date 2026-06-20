@@ -1,8 +1,0 @@
-{
-  "questionId": "987",
-  "titleSlug": "reveal-cards-in-increasing-order",
-  "title": "Reveal Cards In Increasing Order",
-  "exampleTestcases": "[17,13,11,2,3,5,7]\n[1,1000]",
-  "sampleTestCase": "[17,13,11,2,3,5,7]",
-  "metaData": "{\r\n  \"name\": \"deckRevealedIncreasing\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"deck\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2079",
+  "titleSlug": "delete-duplicate-folders-in-system",
+  "title": "Delete Duplicate Folders in System",
+  "exampleTestcases": "[[\"a\"],[\"c\"],[\"d\"],[\"a\",\"b\"],[\"c\",\"b\"],[\"d\",\"a\"]]\n[[\"a\"],[\"c\"],[\"a\",\"b\"],[\"c\",\"b\"],[\"a\",\"b\",\"x\"],[\"a\",\"b\",\"x\",\"y\"],[\"w\"],[\"w\",\"y\"]]\n[[\"a\",\"b\"],[\"c\",\"d\"],[\"c\"],[\"a\"]]",
+  "sampleTestCase": "[[\"a\"],[\"c\"],[\"d\"],[\"a\",\"b\"],[\"c\",\"b\"],[\"d\",\"a\"]]",
+  "metaData": "{\n  \"name\": \"deleteDuplicateFolder\",\n  \"params\": [\n    {\n      \"name\": \"paths\",\n      \"type\": \"list<list<string>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<string>>\"\n  }\n}"
+}

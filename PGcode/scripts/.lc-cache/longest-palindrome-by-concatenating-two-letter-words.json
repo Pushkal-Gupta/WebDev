@@ -1,8 +1,0 @@
-{
-  "questionId": "2237",
-  "titleSlug": "longest-palindrome-by-concatenating-two-letter-words",
-  "title": "Longest Palindrome by Concatenating Two Letter Words",
-  "exampleTestcases": "[\"lc\",\"cl\",\"gg\"]\n[\"ab\",\"ty\",\"yt\",\"lc\",\"cl\",\"ab\"]\n[\"cc\",\"ll\",\"xx\"]",
-  "sampleTestCase": "[\"lc\",\"cl\",\"gg\"]",
-  "metaData": "{\n  \"name\": \"longestPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

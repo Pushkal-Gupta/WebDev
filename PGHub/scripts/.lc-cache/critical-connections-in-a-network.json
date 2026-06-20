@@ -1,0 +1,8 @@
+{
+  "questionId": "1300",
+  "titleSlug": "critical-connections-in-a-network",
+  "title": "Critical Connections in a Network",
+  "exampleTestcases": "4\n[[0,1],[1,2],[2,0],[1,3]]\n2\n[[0,1]]",
+  "sampleTestCase": "4\n[[0,1],[1,2],[2,0],[1,3]]",
+  "metaData": "{\n  \"name\": \"criticalConnections\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"list<list<integer>>\",\n      \"name\": \"connections\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
+}

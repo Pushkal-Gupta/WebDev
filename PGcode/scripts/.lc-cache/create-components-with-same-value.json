@@ -1,8 +1,0 @@
-{
-  "questionId": "2531",
-  "titleSlug": "create-components-with-same-value",
-  "title": "Create Components With Same Value",
-  "exampleTestcases": "[6,2,2,2,6]\n[[0,1],[1,2],[1,3],[3,4]]\n[2]\n[]",
-  "sampleTestCase": "[6,2,2,2,6]\n[[0,1],[1,2],[1,3],[3,4]]",
-  "metaData": "{\n  \"name\": \"componentValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

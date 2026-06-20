@@ -1,0 +1,8 @@
+{
+  "questionId": "2049",
+  "titleSlug": "eliminate-maximum-number-of-monsters",
+  "title": "Eliminate Maximum Number of Monsters",
+  "exampleTestcases": "[1,3,4]\n[1,1,1]\n[1,1,2,3]\n[1,1,1,1]\n[3,2,4]\n[5,3,2]",
+  "sampleTestCase": "[1,3,4]\n[1,1,1]",
+  "metaData": "{\n  \"name\": \"eliminateMaximum\",\n  \"params\": [\n    {\n      \"name\": \"dist\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"speed\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

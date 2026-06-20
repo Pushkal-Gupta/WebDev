@@ -1,8 +1,0 @@
-{
-  "questionId": "2761",
-  "titleSlug": "array-reduce-transformation",
-  "title": "Array Reduce Transformation",
-  "exampleTestcases": "[1,2,3,4]\nfunction sum(accum, curr) { return accum + curr; }\n0\n[1,2,3,4]\nfunction sum(accum, curr) { return accum + curr * curr; }\n100\n[]\nfunction sum(accum, curr) { return 0; }\n25",
-  "sampleTestCase": "[1,2,3,4]\nfunction sum(accum, curr) { return accum + curr; }\n0",
-  "metaData": "{\n  \"name\": \"reduce\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"fn\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"init\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ]\n}"
-}

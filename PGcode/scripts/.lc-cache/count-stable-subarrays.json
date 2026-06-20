@@ -1,8 +1,0 @@
-{
-  "questionId": "4110",
-  "titleSlug": "count-stable-subarrays",
-  "title": "Count Stable Subarrays",
-  "exampleTestcases": "[3,1,2]\n[[0,1],[1,2],[0,2]]\n[2,2]\n[[0,1],[0,0]]",
-  "sampleTestCase": "[3,1,2]\n[[0,1],[1,2],[0,2]]",
-  "metaData": "{\n  \"name\": \"countStableSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

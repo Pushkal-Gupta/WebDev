@@ -1,0 +1,8 @@
+{
+  "questionId": "3779",
+  "titleSlug": "eat-pizzas",
+  "title": "Eat Pizzas!",
+  "exampleTestcases": "[1,2,3,4,5,6,7,8]\n[2,1,1,1,1,1,1,1]",
+  "sampleTestCase": "[1,2,3,4,5,6,7,8]",
+  "metaData": "{\n  \"name\": \"maxWeight\",\n  \"params\": [\n    {\n      \"name\": \"pizzas\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

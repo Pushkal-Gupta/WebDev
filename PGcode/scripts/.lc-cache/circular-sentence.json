@@ -1,8 +1,0 @@
-{
-  "questionId": "2580",
-  "titleSlug": "circular-sentence",
-  "title": "Circular Sentence",
-  "exampleTestcases": "\"leetcode exercises sound delightful\"\n\"eetcode\"\n\"Leetcode is cool\"",
-  "sampleTestCase": "\"leetcode exercises sound delightful\"",
-  "metaData": "{\n  \"name\": \"isCircularSentence\",\n  \"params\": [\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

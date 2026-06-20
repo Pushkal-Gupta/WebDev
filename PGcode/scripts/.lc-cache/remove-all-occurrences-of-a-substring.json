@@ -1,8 +1,0 @@
-{
-  "questionId": "2021",
-  "titleSlug": "remove-all-occurrences-of-a-substring",
-  "title": "Remove All Occurrences of a Substring",
-  "exampleTestcases": "\"daabcbaabcbc\"\n\"abc\"\n\"axxxxyyyyb\"\n\"xy\"",
-  "sampleTestCase": "\"daabcbaabcbc\"\n\"abc\"",
-  "metaData": "{\n  \"name\": \"removeOccurrences\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"part\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

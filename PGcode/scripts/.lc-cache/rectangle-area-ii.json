@@ -1,8 +1,0 @@
-{
-  "questionId": "880",
-  "titleSlug": "rectangle-area-ii",
-  "title": "Rectangle Area II",
-  "exampleTestcases": "[[0,0,2,2],[1,0,2,3],[1,0,3,1]]\n[[0,0,1000000000,1000000000]]",
-  "sampleTestCase": "[[0,0,2,2],[1,0,2,3],[1,0,3,1]]",
-  "metaData": "{\r\n  \"name\": \"rectangleArea\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"rectangles\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

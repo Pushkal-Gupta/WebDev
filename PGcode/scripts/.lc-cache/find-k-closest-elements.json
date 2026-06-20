@@ -1,8 +1,0 @@
-{
-  "questionId": "658",
-  "titleSlug": "find-k-closest-elements",
-  "title": "Find K Closest Elements",
-  "exampleTestcases": "[1,2,3,4,5]\n4\n3\n[1,1,2,3,4,5]\n4\n-1",
-  "sampleTestCase": "[1,2,3,4,5]\n4\n3",
-  "metaData": "{\r\n  \"name\": \"findClosestElements\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"arr\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"       \r\n    },\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"       \r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}\r\n"
-}

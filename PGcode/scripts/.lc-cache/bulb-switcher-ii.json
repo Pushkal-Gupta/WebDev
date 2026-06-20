@@ -1,8 +1,0 @@
-{
-  "questionId": "672",
-  "titleSlug": "bulb-switcher-ii",
-  "title": "Bulb Switcher II",
-  "exampleTestcases": "1\n1\n2\n1\n3\n1",
-  "sampleTestCase": "1\n1",
-  "metaData": "{\n  \"name\": \"flipLights\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"presses\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

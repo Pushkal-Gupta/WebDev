@@ -1,0 +1,8 @@
+{
+  "questionId": "2741",
+  "titleSlug": "function-composition",
+  "title": "Function Composition",
+  "exampleTestcases": "[x => x + 1, x => x * x, x => 2 * x]\n4\n[x => 10 * x, x => 10 * x, x => 10 * x]\n1\n[]\n42",
+  "sampleTestCase": "[x => x + 1, x => x * x, x => 2 * x]\n4",
+  "metaData": "{\n  \"name\": \"compose\",\n  \"params\": [\n    {\n      \"name\": \"functions\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

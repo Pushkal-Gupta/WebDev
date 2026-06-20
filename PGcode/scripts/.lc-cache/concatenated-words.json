@@ -1,8 +1,0 @@
-{
-  "questionId": "472",
-  "titleSlug": "concatenated-words",
-  "title": "Concatenated Words",
-  "exampleTestcases": "[\"cat\",\"cats\",\"catsdogcats\",\"dog\",\"dogcatsdog\",\"hippopotamuses\",\"rat\",\"ratcatdogcat\"]\n[\"cat\",\"dog\",\"catdog\"]",
-  "sampleTestCase": "[\"cat\",\"cats\",\"catsdogcats\",\"dog\",\"dogcatsdog\",\"hippopotamuses\",\"rat\",\"ratcatdogcat\"]",
-  "metaData": "{\r\n  \"name\": \"findAllConcatenatedWordsInADict\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}\r\n"
-}

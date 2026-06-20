@@ -1,8 +1,0 @@
-{
-  "questionId": "2700",
-  "titleSlug": "substring-xor-queries",
-  "title": "Substring XOR Queries",
-  "exampleTestcases": "\"101101\"\n[[0,5],[1,2]]\n\"0101\"\n[[12,8]]\n\"1\"\n[[4,5]]",
-  "sampleTestCase": "\"101101\"\n[[0,5],[1,2]]",
-  "metaData": "{\n  \"name\": \"substringXorQueries\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

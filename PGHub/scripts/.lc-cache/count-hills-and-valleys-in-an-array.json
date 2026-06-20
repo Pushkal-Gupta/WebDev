@@ -1,0 +1,8 @@
+{
+  "questionId": "2316",
+  "titleSlug": "count-hills-and-valleys-in-an-array",
+  "title": "Count Hills and Valleys in an Array",
+  "exampleTestcases": "[2,4,1,1,6,5]\n[6,6,5,5,4,1]",
+  "sampleTestCase": "[2,4,1,1,6,5]",
+  "metaData": "{\n  \"name\": \"countHillValley\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

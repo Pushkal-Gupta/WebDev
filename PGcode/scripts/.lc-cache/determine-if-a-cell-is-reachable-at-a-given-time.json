@@ -1,8 +1,0 @@
-{
-  "questionId": "3056",
-  "titleSlug": "determine-if-a-cell-is-reachable-at-a-given-time",
-  "title": "Determine if a Cell Is Reachable at a Given Time",
-  "exampleTestcases": "2\n4\n7\n7\n6\n3\n1\n7\n3\n3",
-  "sampleTestCase": "2\n4\n7\n7\n6",
-  "metaData": "{\n  \"name\": \"isReachableAtTime\",\n  \"params\": [\n    {\n      \"name\": \"sx\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"sy\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"fx\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"fy\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

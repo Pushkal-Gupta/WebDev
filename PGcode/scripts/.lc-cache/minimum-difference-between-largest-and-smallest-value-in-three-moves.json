@@ -1,8 +1,0 @@
-{
-  "questionId": "1616",
-  "titleSlug": "minimum-difference-between-largest-and-smallest-value-in-three-moves",
-  "title": "Minimum Difference Between Largest and Smallest Value in Three Moves",
-  "exampleTestcases": "[5,3,2,4]\n[1,5,0,10,14]\n[3,100,20]",
-  "sampleTestCase": "[5,3,2,4]",
-  "metaData": "{\n  \"name\": \"minDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

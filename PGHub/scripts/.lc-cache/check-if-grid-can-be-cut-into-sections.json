@@ -1,0 +1,8 @@
+{
+  "questionId": "3657",
+  "titleSlug": "check-if-grid-can-be-cut-into-sections",
+  "title": "Check if Grid can be Cut into Sections",
+  "exampleTestcases": "5\n[[1,0,5,2],[0,2,2,4],[3,2,5,3],[0,4,4,5]]\n4\n[[0,0,1,1],[2,0,3,4],[0,2,2,3],[3,0,4,3]]\n4\n[[0,2,2,4],[1,0,3,2],[2,2,3,4],[3,0,4,2],[3,2,4,4]]",
+  "sampleTestCase": "5\n[[1,0,5,2],[0,2,2,4],[3,2,5,3],[0,4,4,5]]",
+  "metaData": "{\n  \"name\": \"checkValidCuts\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"rectangles\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2031",
-  "titleSlug": "egg-drop-with-2-eggs-and-n-floors",
-  "title": "Egg Drop With 2 Eggs and N Floors",
-  "exampleTestcases": "2\n100",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"twoEggDrop\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

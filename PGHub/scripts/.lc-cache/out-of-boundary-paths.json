@@ -1,0 +1,8 @@
+{
+  "questionId": "576",
+  "titleSlug": "out-of-boundary-paths",
+  "title": "Out of Boundary Paths",
+  "exampleTestcases": "2\n2\n2\n0\n0\n1\n3\n3\n0\n1",
+  "sampleTestCase": "2\n2\n2\n0\n0",
+  "metaData": "{\n  \"name\": \"findPaths\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"maxMove\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"startRow\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"startColumn\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

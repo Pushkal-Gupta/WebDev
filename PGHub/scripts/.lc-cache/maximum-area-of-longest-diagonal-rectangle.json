@@ -1,0 +1,8 @@
+{
+  "questionId": "3251",
+  "titleSlug": "maximum-area-of-longest-diagonal-rectangle",
+  "title": "Maximum Area of Longest Diagonal Rectangle",
+  "exampleTestcases": "[[9,3],[8,6]]\n[[3,4],[4,3]]",
+  "sampleTestCase": "[[9,3],[8,6]]",
+  "metaData": "{\n  \"name\": \"areaOfMaxDiagonal\",\n  \"params\": [\n    {\n      \"name\": \"dimensions\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "657",
+  "titleSlug": "robot-return-to-origin",
+  "title": "Robot Return to Origin",
+  "exampleTestcases": "\"UD\"\n\"LL\"",
+  "sampleTestCase": "\"UD\"",
+  "metaData": "{\r\n  \"name\": \"judgeCircle\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"moves\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

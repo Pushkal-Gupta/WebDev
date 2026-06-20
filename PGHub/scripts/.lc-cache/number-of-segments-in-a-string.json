@@ -1,0 +1,8 @@
+{
+  "questionId": "434",
+  "titleSlug": "number-of-segments-in-a-string",
+  "title": "Number of Segments in a String",
+  "exampleTestcases": "\"Hello, my name is John\"\n\"Hello\"",
+  "sampleTestCase": "\"Hello, my name is John\"",
+  "metaData": "{\r\n  \"name\": \"countSegments\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

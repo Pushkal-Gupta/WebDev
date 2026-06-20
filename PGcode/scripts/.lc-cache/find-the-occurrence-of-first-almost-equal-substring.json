@@ -1,8 +1,0 @@
-{
-  "questionId": "3580",
-  "titleSlug": "find-the-occurrence-of-first-almost-equal-substring",
-  "title": "Find the Occurrence of First Almost Equal Substring",
-  "exampleTestcases": "\"abcdefg\"\n\"bcdffg\"\n\"ababbababa\"\n\"bacaba\"\n\"abcd\"\n\"dba\"\n\"dde\"\n\"d\"",
-  "sampleTestCase": "\"abcdefg\"\n\"bcdffg\"",
-  "metaData": "{\n  \"name\": \"minStartingIndex\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"pattern\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

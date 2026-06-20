@@ -1,8 +1,0 @@
-{
-  "questionId": "1803",
-  "titleSlug": "average-waiting-time",
-  "title": "Average Waiting Time",
-  "exampleTestcases": "[[1,2],[2,5],[4,3]]\n[[5,2],[5,4],[10,3],[20,1]]",
-  "sampleTestCase": "[[1,2],[2,5],[4,3]]",
-  "metaData": "{\n  \"name\": \"averageWaitingTime\",\n  \"params\": [\n    {\n      \"name\": \"customers\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
-}

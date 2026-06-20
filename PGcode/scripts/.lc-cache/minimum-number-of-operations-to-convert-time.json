@@ -1,8 +1,0 @@
-{
-  "questionId": "2345",
-  "titleSlug": "minimum-number-of-operations-to-convert-time",
-  "title": "Minimum Number of Operations to Convert Time",
-  "exampleTestcases": "\"02:30\"\n\"04:35\"\n\"11:00\"\n\"11:01\"",
-  "sampleTestCase": "\"02:30\"\n\"04:35\"",
-  "metaData": "{\n  \"name\": \"convertTime\",\n  \"params\": [\n    {\n      \"name\": \"current\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"correct\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
-}

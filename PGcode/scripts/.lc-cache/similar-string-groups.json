@@ -1,8 +1,0 @@
-{
-  "questionId": "869",
-  "titleSlug": "similar-string-groups",
-  "title": "Similar String Groups",
-  "exampleTestcases": "[\"tars\",\"rats\",\"arts\",\"star\"]\n[\"omv\",\"ovm\"]",
-  "sampleTestCase": "[\"tars\",\"rats\",\"arts\",\"star\"]",
-  "metaData": "{\n  \"name\": \"numSimilarGroups\",\n  \"params\": [\n    {\n      \"name\": \"strs\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

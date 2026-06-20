@@ -1,0 +1,8 @@
+{
+  "questionId": "649",
+  "titleSlug": "dota2-senate",
+  "title": "Dota2 Senate",
+  "exampleTestcases": "\"RD\"\n\"RDD\"",
+  "sampleTestCase": "\"RD\"",
+  "metaData": "{\r\n  \"name\": \"predictPartyVictory\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"senate\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
+}

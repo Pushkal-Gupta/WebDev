@@ -1,8 +1,0 @@
-{
-  "questionId": "3266",
-  "titleSlug": "find-longest-special-substring-that-occurs-thrice-ii",
-  "title": "Find Longest Special Substring That Occurs Thrice II",
-  "exampleTestcases": "\"aaaa\"\n\"abcdef\"\n\"abcaba\"",
-  "sampleTestCase": "\"aaaa\"",
-  "metaData": "{\n  \"name\": \"maximumLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

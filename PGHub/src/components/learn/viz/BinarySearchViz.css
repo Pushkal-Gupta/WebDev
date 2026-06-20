@@ -1,0 +1,333 @@
+/* Binary search step-through visualization.
+   Standalone — does not depend on AlgoVisualizer.css tokens. */
+
+.bsv {
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 10px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  font-family: var(--sans);
+  color: var(--text-main);
+}
+
+.bsv-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  border-bottom: 1px dashed var(--border);
+  padding-bottom: 0.85rem;
+}
+.bsv-title {
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0;
+}
+.bsv-step-counter {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.bsv-step-counter strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+/* ── Controls row ─────────────────────────────── */
+.bsv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.bsv-input-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.65rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.bsv-input-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+.bsv-input {
+  width: 70px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-main);
+  padding: 0.1rem 0.2rem;
+}
+.bsv-input:focus { color: var(--accent); }
+
+.bsv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.95rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s ease-out, border-color 0.2s ease-out, background 0.2s ease-out, transform 0.18s ease-out;
+}
+.bsv-btn:hover:not(:disabled) {
+  color: var(--text-main);
+  border-color: var(--accent);
+  background: var(--hover-box);
+  transform: translateY(-1px);
+}
+.bsv-btn:active:not(:disabled) { transform: translateY(0); }
+.bsv-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.bsv-btn-primary {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.bsv-btn-primary:hover:not(:disabled) {
+  background: rgba(var(--accent-rgb), 0.12);
+}
+.bsv-btn-danger:hover:not(:disabled) {
+  color: var(--hard);
+  border-color: var(--hard);
+  background: transparent;
+}
+
+/* ── SVG stage ───────────────────────────────── */
+.bsv-stage-wrap {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 0.5rem;
+}
+.bsv-stage {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* SVG element styles */
+.bsv-cell-rect {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: fill 0.35s ease-out, stroke 0.35s ease-out, stroke-width 0.35s ease-out;
+}
+.bsv-cell-rect.is-window {
+  fill: var(--bg);
+  stroke: var(--accent);
+}
+.bsv-cell-rect.is-mid {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.bsv-cell-rect.is-found {
+  fill: var(--easy-bg);
+  stroke: var(--easy);
+  stroke-width: 2.5;
+}
+.bsv-cell-rect.is-eliminated {
+  fill: transparent;
+  stroke: var(--border);
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+}
+
+.bsv-cell-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+  dominant-baseline: middle;
+  transition: fill 0.35s ease-out, opacity 0.35s ease-out;
+}
+.bsv-cell-value.is-mid { fill: var(--accent); }
+.bsv-cell-value.is-found { fill: var(--easy); }
+.bsv-cell-value.is-eliminated {
+  fill: var(--text-dim);
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.bsv-cell-idx {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+/* Pointer labels above cells */
+.bsv-ptr {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-out;
+}
+.bsv-ptr-arrow {
+  stroke-width: 2;
+  fill: none;
+}
+.bsv-ptr-text {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: middle;
+  letter-spacing: 0.05em;
+}
+.bsv-ptr-lo .bsv-ptr-arrow,
+.bsv-ptr-lo .bsv-ptr-tick { stroke: var(--hue-sky); fill: var(--hue-sky); }
+.bsv-ptr-lo .bsv-ptr-text { fill: var(--hue-sky); }
+
+.bsv-ptr-hi .bsv-ptr-arrow,
+.bsv-ptr-hi .bsv-ptr-tick { stroke: var(--hue-pink); fill: var(--hue-pink); }
+.bsv-ptr-hi .bsv-ptr-text { fill: var(--hue-pink); }
+
+.bsv-ptr-mid .bsv-ptr-arrow,
+.bsv-ptr-mid .bsv-ptr-tick { stroke: var(--accent); fill: var(--accent); }
+.bsv-ptr-mid .bsv-ptr-text { fill: var(--accent); }
+
+/* Target indicator */
+.bsv-target-line {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text-dim);
+}
+.bsv-target-line tspan.k { fill: var(--accent); font-weight: 700; }
+
+/* ── Narration / inequality panel ─────────────── */
+.bsv-narration {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.7rem;
+}
+@media (min-width: 720px) {
+  .bsv-narration { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+
+.bsv-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.bsv-card-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.bsv-card-body {
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  color: var(--text-main);
+}
+.bsv-ineq {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+  word-break: break-all;
+}
+.bsv-ineq .op { color: var(--accent); padding: 0 0.2em; }
+.bsv-ineq .lhs, .bsv-ineq .rhs { color: var(--text-main); }
+.bsv-ineq.is-found { color: var(--easy); }
+.bsv-ineq.is-empty { color: var(--text-dim); font-style: italic; }
+
+/* ── Status banner ───────────────────────────── */
+.bsv-status {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+}
+.bsv-status.is-found {
+  color: var(--easy);
+  border-color: var(--easy);
+  background: var(--easy-bg);
+}
+.bsv-status.is-missing {
+  color: var(--hard);
+  border-color: var(--hard);
+  background: var(--hard-bg);
+}
+.bsv-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ── Legend ──────────────────────────────────── */
+.bsv-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.1rem;
+  padding-top: 0.4rem;
+  border-top: 1px dashed var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+}
+.bsv-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.bsv-legend-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  border: 1.5px solid currentColor;
+}
+.bsv-legend-swatch.lo { color: var(--hue-sky); }
+.bsv-legend-swatch.hi { color: var(--hue-pink); }
+.bsv-legend-swatch.mid { color: var(--accent); background: rgba(var(--accent-rgb), 0.2); }
+.bsv-legend-swatch.found { color: var(--easy); background: var(--easy-bg); }
+.bsv-legend-swatch.gone { color: var(--text-dim); border-style: dashed; opacity: 0.7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bsv-cell-rect,
+  .bsv-cell-value,
+  .bsv-ptr,
+  .bsv-btn { transition: none; }
+}

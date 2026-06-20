@@ -1,0 +1,8 @@
+{
+  "questionId": "3731",
+  "titleSlug": "sum-of-variable-length-subarrays",
+  "title": "Sum of Variable Length Subarrays",
+  "exampleTestcases": "[2,3,1]\n[3,1,1,2]",
+  "sampleTestCase": "[2,3,1]",
+  "metaData": "{\n  \"name\": \"subarraySum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "798",
-  "titleSlug": "transform-to-chessboard",
-  "title": "Transform to Chessboard",
-  "exampleTestcases": "[[0,1,1,0],[0,1,1,0],[1,0,0,1],[1,0,0,1]]\n[[0,1],[1,0]]\n[[1,0],[1,0]]",
-  "sampleTestCase": "[[0,1,1,0],[0,1,1,0],[1,0,0,1],[1,0,0,1]]",
-  "metaData": "{\r\n  \"name\": \"movesToChessboard\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"board\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

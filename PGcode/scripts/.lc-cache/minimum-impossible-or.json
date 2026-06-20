@@ -1,8 +1,0 @@
-{
-  "questionId": "2705",
-  "titleSlug": "minimum-impossible-or",
-  "title": "Minimum Impossible OR",
-  "exampleTestcases": "[2,1]\n[5,3,2]",
-  "sampleTestCase": "[2,1]",
-  "metaData": "{\n  \"name\": \"minImpossibleOR\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

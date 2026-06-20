@@ -1,0 +1,8 @@
+{
+  "questionId": "4035",
+  "titleSlug": "maximum-partition-factor",
+  "title": "Maximum Partition Factor",
+  "exampleTestcases": "[[0,0],[0,2],[2,0],[2,2]]\n[[0,0],[0,1],[10,0]]",
+  "sampleTestCase": "[[0,0],[0,2],[2,0],[2,2]]",
+  "metaData": "{\n  \"name\": \"maxPartitionFactor\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

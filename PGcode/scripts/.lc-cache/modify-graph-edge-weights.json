@@ -1,8 +1,0 @@
-{
-  "questionId": "2803",
-  "titleSlug": "modify-graph-edge-weights",
-  "title": "Modify Graph Edge Weights",
-  "exampleTestcases": "5\n[[4,1,-1],[2,0,-1],[0,3,-1],[4,3,-1]]\n0\n1\n5\n3\n[[0,1,-1],[0,2,5]]\n0\n2\n6\n4\n[[1,0,4],[1,2,3],[2,3,5],[0,3,-1]]\n0\n2\n6",
-  "sampleTestCase": "5\n[[4,1,-1],[2,0,-1],[0,3,-1],[4,3,-1]]\n0\n1\n5",
-  "metaData": "{\n  \"name\": \"modifiedGraphEdges\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"source\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"destination\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2444",
-  "titleSlug": "longest-ideal-subsequence",
-  "title": "Longest Ideal Subsequence",
-  "exampleTestcases": "\"acfgbd\"\n2\n\"abcd\"\n3",
-  "sampleTestCase": "\"acfgbd\"\n2",
-  "metaData": "{\n  \"name\": \"longestIdealString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

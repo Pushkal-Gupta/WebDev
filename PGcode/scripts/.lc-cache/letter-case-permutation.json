@@ -1,8 +1,0 @@
-{
-  "questionId": "800",
-  "titleSlug": "letter-case-permutation",
-  "title": "Letter Case Permutation",
-  "exampleTestcases": "\"a1b2\"\n\"3z4\"",
-  "sampleTestCase": "\"a1b2\"",
-  "metaData": "{\n  \"name\": \"letterCasePermutation\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

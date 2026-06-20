@@ -1,8 +1,0 @@
-{
-  "questionId": "3904",
-  "titleSlug": "minimum-adjacent-swaps-to-alternate-parity",
-  "title": "Minimum Adjacent Swaps to Alternate Parity",
-  "exampleTestcases": "[2,4,6,5,7]\n[2,4,5,7]\n[1,2,3]\n[4,5,6,8]",
-  "sampleTestCase": "[2,4,6,5,7]",
-  "metaData": "{\n  \"name\": \"minSwaps\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

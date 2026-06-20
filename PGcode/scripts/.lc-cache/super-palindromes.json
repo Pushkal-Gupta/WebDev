@@ -1,8 +1,0 @@
-{
-  "questionId": "942",
-  "titleSlug": "super-palindromes",
-  "title": "Super Palindromes",
-  "exampleTestcases": "\"4\"\n\"1000\"\n\"1\"\n\"2\"",
-  "sampleTestCase": "\"4\"\n\"1000\"",
-  "metaData": "{\n  \"name\": \"superpalindromesInRange\",\n  \"params\": [\n    {\n      \"name\": \"left\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"right\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "176",
+  "titleSlug": "second-highest-salary",
+  "title": "Second Highest Salary",
+  "exampleTestcases": "{\"headers\":{\"Employee\":[\"id\",\"salary\"]},\"rows\":{\"Employee\":[[1,100],[2,200],[3,300]]}}\n{\"headers\":{\"Employee\":[\"id\",\"salary\"]},\"rows\":{\"Employee\":[[1,100]]}}",
+  "sampleTestCase": "{\"headers\":{\"Employee\":[\"id\",\"salary\"]},\"rows\":{\"Employee\":[[1,100],[2,200],[3,300]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Employee (id int, salary int)\"], \"mssql\": [\"Create table Employee (id int, salary int)\"], \"oraclesql\": [\"Create table Employee (id int, salary int)\"], \"database\": true, \"name\": \"second_highest_salary\", \"pythondata\": [\"Employee = pd.DataFrame([], columns=['id', 'salary']).astype({'id':'int64', 'salary':'int64'})\"], \"manual\": false, \"postgresql\": [\"Create table If Not Exists Employee (id int, salary int)\"], \"database_schema\": {\"Employee\": {\"id\": \"INT\", \"salary\": \"INT\"}}}"
+}

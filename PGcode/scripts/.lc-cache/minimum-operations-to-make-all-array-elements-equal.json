@@ -1,8 +1,0 @@
-{
-  "questionId": "2718",
-  "titleSlug": "minimum-operations-to-make-all-array-elements-equal",
-  "title": "Minimum Operations to Make All Array Elements Equal",
-  "exampleTestcases": "[3,1,6,8]\n[1,5]\n[2,9,6,3]\n[10]",
-  "sampleTestCase": "[3,1,6,8]\n[1,5]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<long>\"\n  }\n}"
-}

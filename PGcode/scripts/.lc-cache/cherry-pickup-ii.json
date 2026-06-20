@@ -1,8 +1,0 @@
-{
-  "questionId": "1559",
-  "titleSlug": "cherry-pickup-ii",
-  "title": "Cherry Pickup II",
-  "exampleTestcases": "[[3,1,1],[2,5,1],[1,5,5],[2,1,1]]\n[[1,0,0,0,0,0,1],[2,0,0,0,0,3,0],[2,0,9,0,0,0,0],[0,3,0,5,4,0,0],[1,0,2,3,0,0,6]]",
-  "sampleTestCase": "[[3,1,1],[2,5,1],[1,5,5],[2,1,1]]",
-  "metaData": "{\n  \"name\": \"cherryPickup\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

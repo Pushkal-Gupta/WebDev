@@ -1,0 +1,8 @@
+{
+  "questionId": "962",
+  "titleSlug": "flip-string-to-monotone-increasing",
+  "title": "Flip String to Monotone Increasing",
+  "exampleTestcases": "\"00110\"\n\"010110\"\n\"00011000\"",
+  "sampleTestCase": "\"00110\"",
+  "metaData": "{\n  \"name\": \"minFlipsMonoIncr\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

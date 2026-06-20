@@ -1,8 +1,0 @@
-{
-  "questionId": "2119",
-  "titleSlug": "minimum-number-of-operations-to-make-array-continuous",
-  "title": "Minimum Number of Operations to Make Array Continuous",
-  "exampleTestcases": "[4,2,5,3]\n[1,2,3,5,6]\n[1,10,100,1000]",
-  "sampleTestCase": "[4,2,5,3]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

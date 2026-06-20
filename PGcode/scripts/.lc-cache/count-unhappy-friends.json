@@ -1,8 +1,0 @@
-{
-  "questionId": "1705",
-  "titleSlug": "count-unhappy-friends",
-  "title": "Count Unhappy Friends",
-  "exampleTestcases": "4\n[[1,2,3],[3,2,0],[3,1,0],[1,2,0]]\n[[0,1],[2,3]]\n2\n[[1],[0]]\n[[1,0]]\n4\n[[1,3,2],[2,3,0],[1,3,0],[0,2,1]]\n[[1,3],[0,2]]",
-  "sampleTestCase": "4\n[[1,2,3],[3,2,0],[3,1,0],[1,2,0]]\n[[0,1],[2,3]]",
-  "metaData": "{\n  \"name\": \"unhappyFriends\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"preferences\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"pairs\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

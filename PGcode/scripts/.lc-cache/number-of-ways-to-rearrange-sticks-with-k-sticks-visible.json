@@ -1,8 +1,0 @@
-{
-  "questionId": "1996",
-  "titleSlug": "number-of-ways-to-rearrange-sticks-with-k-sticks-visible",
-  "title": "Number of Ways to Rearrange Sticks With K Sticks Visible",
-  "exampleTestcases": "3\n2\n5\n5\n20\n11",
-  "sampleTestCase": "3\n2",
-  "metaData": "{\n  \"name\": \"rearrangeSticks\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

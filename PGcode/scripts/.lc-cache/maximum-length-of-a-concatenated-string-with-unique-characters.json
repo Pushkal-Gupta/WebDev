@@ -1,8 +1,0 @@
-{
-  "questionId": "1360",
-  "titleSlug": "maximum-length-of-a-concatenated-string-with-unique-characters",
-  "title": "Maximum Length of a Concatenated String with Unique Characters",
-  "exampleTestcases": "[\"un\",\"iq\",\"ue\"]\n[\"cha\",\"r\",\"act\",\"ers\"]\n[\"abcdefghijklmnopqrstuvwxyz\"]",
-  "sampleTestCase": "[\"un\",\"iq\",\"ue\"]",
-  "metaData": "{\n  \"name\": \"maxLength\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"list<string>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

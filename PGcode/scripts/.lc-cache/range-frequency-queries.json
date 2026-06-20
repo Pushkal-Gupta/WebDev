@@ -1,8 +1,0 @@
-{
-  "questionId": "1294",
-  "titleSlug": "range-frequency-queries",
-  "title": "Range Frequency Queries",
-  "exampleTestcases": "[\"RangeFreqQuery\",\"query\",\"query\"]\n[[[12,33,4,56,22,2,34,33,22,12,34,56]],[1,2,4],[0,11,33]]",
-  "sampleTestCase": "[\"RangeFreqQuery\",\"query\",\"query\"]\n[[[12,33,4,56,22,2,34,33,22,12,34,56]],[1,2,4],[0,11,33]]",
-  "metaData": "{\n  \"classname\": \"RangeFreqQuery\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[]\",\n        \"name\": \"arr\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"left\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"right\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"value\"\n        }\n      ],\n      \"name\": \"query\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

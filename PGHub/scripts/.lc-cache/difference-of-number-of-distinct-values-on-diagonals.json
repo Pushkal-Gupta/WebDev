@@ -1,0 +1,8 @@
+{
+  "questionId": "2801",
+  "titleSlug": "difference-of-number-of-distinct-values-on-diagonals",
+  "title": "Difference of Number of Distinct Values on Diagonals",
+  "exampleTestcases": "[[1,2,3],[3,1,5],[3,2,1]]\n[[1]]",
+  "sampleTestCase": "[[1,2,3],[3,1,5],[3,2,1]]",
+  "metaData": "{\n  \"name\": \"differenceOfDistinctValues\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
+}

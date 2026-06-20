@@ -1,8 +1,0 @@
-{
-  "questionId": "3628",
-  "titleSlug": "find-minimum-time-to-reach-last-room-ii",
-  "title": "Find Minimum Time to Reach Last Room II",
-  "exampleTestcases": "[[0,4],[4,4]]\n[[0,0,0,0],[0,0,0,0]]\n[[0,1],[1,2]]",
-  "sampleTestCase": "[[0,4],[4,4]]",
-  "metaData": "{\n  \"name\": \"minTimeToReach\",\n  \"params\": [\n    {\n      \"name\": \"moveTime\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

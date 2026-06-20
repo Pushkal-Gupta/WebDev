@@ -1,8 +1,0 @@
-{
-  "questionId": "2800",
-  "titleSlug": "minimum-string-length-after-removing-substrings",
-  "title": "Minimum String Length After Removing Substrings",
-  "exampleTestcases": "\"ABFCACDB\"\n\"ACBBD\"",
-  "sampleTestCase": "\"ABFCACDB\"",
-  "metaData": "{\n  \"name\": \"minLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

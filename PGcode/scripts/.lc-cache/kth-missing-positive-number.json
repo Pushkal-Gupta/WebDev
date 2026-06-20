@@ -1,8 +1,0 @@
-{
-  "questionId": "1646",
-  "titleSlug": "kth-missing-positive-number",
-  "title": "Kth Missing Positive Number",
-  "exampleTestcases": "[2,3,4,7,11]\n5\n[1,2,3,4]\n2",
-  "sampleTestCase": "[2,3,4,7,11]\n5",
-  "metaData": "{\n  \"name\": \"findKthPositive\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

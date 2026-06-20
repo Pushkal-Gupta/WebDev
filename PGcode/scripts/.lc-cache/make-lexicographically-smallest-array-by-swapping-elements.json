@@ -1,8 +1,0 @@
-{
-  "questionId": "3219",
-  "titleSlug": "make-lexicographically-smallest-array-by-swapping-elements",
-  "title": "Make Lexicographically Smallest Array by Swapping Elements",
-  "exampleTestcases": "[1,5,3,9,8]\n2\n[1,7,6,18,2,1]\n3\n[1,7,28,19,10]\n3",
-  "sampleTestCase": "[1,5,3,9,8]\n2",
-  "metaData": "{\n  \"name\": \"lexicographicallySmallestArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

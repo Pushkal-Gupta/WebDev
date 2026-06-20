@@ -1,8 +1,0 @@
-{
-  "questionId": "2665",
-  "titleSlug": "minimum-time-to-repair-cars",
-  "title": "Minimum Time to Repair Cars",
-  "exampleTestcases": "[4,2,3,1]\n10\n[5,1,8]\n6",
-  "sampleTestCase": "[4,2,3,1]\n10",
-  "metaData": "{\n  \"name\": \"repairCars\",\n  \"params\": [\n    {\n      \"name\": \"ranks\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cars\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

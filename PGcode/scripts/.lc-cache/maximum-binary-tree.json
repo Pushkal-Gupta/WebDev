@@ -1,8 +1,0 @@
-{
-  "questionId": "654",
-  "titleSlug": "maximum-binary-tree",
-  "title": "Maximum Binary Tree",
-  "exampleTestcases": "[3,2,1,6,0,5]\n[3,2,1]",
-  "sampleTestCase": "[3,2,1,6,0,5]",
-  "metaData": "{\r\n  \"name\": \"constructMaximumBinaryTree\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"TreeNode\",\r\n    \"dealloc\": true\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1114",
-  "titleSlug": "binary-search-tree-to-greater-sum-tree",
-  "title": "Binary Search Tree to Greater Sum Tree",
-  "exampleTestcases": "[4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]\n[0,null,1]",
-  "sampleTestCase": "[4,1,6,0,2,5,7,null,null,null,3,null,null,null,8]",
-  "metaData": "{\r\n  \"name\": \"bstToGst\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"TreeNode\"\r\n  }\r\n}\r\n"
-}

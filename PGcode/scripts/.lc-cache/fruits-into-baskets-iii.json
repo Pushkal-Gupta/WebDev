@@ -1,8 +1,0 @@
-{
-  "questionId": "3791",
-  "titleSlug": "fruits-into-baskets-iii",
-  "title": "Fruits Into Baskets III",
-  "exampleTestcases": "[4,2,5]\n[3,5,4]\n[3,6,1]\n[6,4,7]",
-  "sampleTestCase": "[4,2,5]\n[3,5,4]",
-  "metaData": "{\n  \"name\": \"numOfUnplacedFruits\",\n  \"params\": [\n    {\n      \"name\": \"fruits\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"baskets\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

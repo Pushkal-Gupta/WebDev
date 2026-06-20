@@ -1,8 +1,0 @@
-{
-  "questionId": "2343",
-  "titleSlug": "count-unguarded-cells-in-the-grid",
-  "title": "Count Unguarded Cells in the Grid",
-  "exampleTestcases": "4\n6\n[[0,0],[1,1],[2,3]]\n[[0,1],[2,2],[1,4]]\n3\n3\n[[1,1]]\n[[0,1],[1,0],[2,1],[1,2]]",
-  "sampleTestCase": "4\n6\n[[0,0],[1,1],[2,3]]\n[[0,1],[2,2],[1,4]]",
-  "metaData": "{\n  \"name\": \"countUnguarded\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"guards\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"walls\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

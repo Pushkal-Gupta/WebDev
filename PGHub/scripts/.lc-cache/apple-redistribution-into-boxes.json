@@ -1,0 +1,8 @@
+{
+  "questionId": "3334",
+  "titleSlug": "apple-redistribution-into-boxes",
+  "title": "Apple Redistribution into Boxes",
+  "exampleTestcases": "[1,3,2]\n[4,3,1,5,2]\n[5,5,5]\n[2,4,2,7]",
+  "sampleTestCase": "[1,3,2]\n[4,3,1,5,2]",
+  "metaData": "{\n  \"name\": \"minimumBoxes\",\n  \"params\": [\n    {\n      \"name\": \"apple\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"capacity\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

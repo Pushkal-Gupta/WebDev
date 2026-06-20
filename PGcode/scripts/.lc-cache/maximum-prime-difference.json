@@ -1,8 +1,0 @@
-{
-  "questionId": "3373",
-  "titleSlug": "maximum-prime-difference",
-  "title": "Maximum Prime Difference",
-  "exampleTestcases": "[4,2,9,5,3]\n[4,8,2,8]",
-  "sampleTestCase": "[4,2,9,5,3]",
-  "metaData": "{\n  \"name\": \"maximumPrimeDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2558",
-  "titleSlug": "minimum-number-of-operations-to-sort-a-binary-tree-by-level",
-  "title": "Minimum Number of Operations to Sort a Binary Tree by Level",
-  "exampleTestcases": "[1,4,3,7,6,8,5,null,null,null,null,9,null,10]\n[1,3,2,7,6,5,4]\n[1,2,3,4,5,6]",
-  "sampleTestCase": "[1,4,3,7,6,8,5,null,null,null,null,9,null,10]",
-  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "10",
-  "titleSlug": "regular-expression-matching",
-  "title": "Regular Expression Matching",
-  "exampleTestcases": "\"aa\"\n\"a\"\n\"aa\"\n\"a*\"\n\"ab\"\n\".*\"",
-  "sampleTestCase": "\"aa\"\n\"a\"",
-  "metaData": "{ \r\n  \"name\": \"isMatch\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"p\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

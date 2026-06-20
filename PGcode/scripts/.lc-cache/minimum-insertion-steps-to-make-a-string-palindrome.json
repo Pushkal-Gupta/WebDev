@@ -1,8 +1,0 @@
-{
-  "questionId": "1437",
-  "titleSlug": "minimum-insertion-steps-to-make-a-string-palindrome",
-  "title": "Minimum Insertion Steps to Make a String Palindrome",
-  "exampleTestcases": "\"zzazz\"\n\"mbadm\"\n\"leetcode\"",
-  "sampleTestCase": "\"zzazz\"",
-  "metaData": "{\n  \"name\": \"minInsertions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

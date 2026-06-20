@@ -1,8 +1,0 @@
-{
-  "questionId": "2521",
-  "titleSlug": "paths-in-matrix-whose-sum-is-divisible-by-k",
-  "title": "Paths in Matrix Whose Sum Is Divisible by K",
-  "exampleTestcases": "[[5,2,4],[3,0,5],[0,7,2]]\n3\n[[0,0]]\n5\n[[7,3,4,9],[2,3,6,2],[2,3,7,0]]\n1",
-  "sampleTestCase": "[[5,2,4],[3,0,5],[0,7,2]]\n3",
-  "metaData": "{\n  \"name\": \"numberOfPaths\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

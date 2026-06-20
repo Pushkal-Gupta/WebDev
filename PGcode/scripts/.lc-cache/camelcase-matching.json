@@ -1,8 +1,0 @@
-{
-  "questionId": "1080",
-  "titleSlug": "camelcase-matching",
-  "title": "Camelcase Matching",
-  "exampleTestcases": "[\"FooBar\",\"FooBarTest\",\"FootBall\",\"FrameBuffer\",\"ForceFeedBack\"]\n\"FB\"\n[\"FooBar\",\"FooBarTest\",\"FootBall\",\"FrameBuffer\",\"ForceFeedBack\"]\n\"FoBa\"\n[\"FooBar\",\"FooBarTest\",\"FootBall\",\"FrameBuffer\",\"ForceFeedBack\"]\n\"FoBaT\"",
-  "sampleTestCase": "[\"FooBar\",\"FooBarTest\",\"FootBall\",\"FrameBuffer\",\"ForceFeedBack\"]\n\"FB\"",
-  "metaData": "{\n  \"name\": \"camelMatch\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"name\": \"pattern\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\"\n  },\n  \"manual\": false\n}"
-}

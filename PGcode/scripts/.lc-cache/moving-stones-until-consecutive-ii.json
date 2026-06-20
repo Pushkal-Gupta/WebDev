@@ -1,8 +1,0 @@
-{
-  "questionId": "1113",
-  "titleSlug": "moving-stones-until-consecutive-ii",
-  "title": "Moving Stones Until Consecutive II",
-  "exampleTestcases": "[7,4,9]\n[6,5,4,3,10]",
-  "sampleTestCase": "[7,4,9]",
-  "metaData": "{\n  \"name\": \"numMovesStonesII\",\n  \"params\": [\n    {\n      \"name\": \"stones\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}\n"
-}

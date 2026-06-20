@@ -1,8 +1,0 @@
-{
-  "questionId": "638",
-  "titleSlug": "shopping-offers",
-  "title": "Shopping Offers",
-  "exampleTestcases": "[2,5]\n[[3,0,5],[1,2,10]]\n[3,2]\n[2,3,4]\n[[1,1,0,4],[2,2,1,9]]\n[1,2,1]",
-  "sampleTestCase": "[2,5]\n[[3,0,5],[1,2,10]]\n[3,2]",
-  "metaData": "{\r\n  \"name\": \"shoppingOffers\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"price\",\r\n      \"type\": \"list<integer>\"\r\n    },\r\n    {\r\n      \"name\": \"special\",\r\n      \"type\": \"list<list<integer>>\"\r\n    },\r\n    {\r\n      \"name\": \"needs\",\r\n      \"type\": \"list<integer>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

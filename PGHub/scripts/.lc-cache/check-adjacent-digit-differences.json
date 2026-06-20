@@ -1,0 +1,8 @@
+{
+  "questionId": "4305",
+  "titleSlug": "check-adjacent-digit-differences",
+  "title": "Check Adjacent Digit Differences",
+  "exampleTestcases": "\"132\"\n\"129\"",
+  "sampleTestCase": "\"132\"",
+  "metaData": "{\n  \"name\": \"isAdjacentDiffAtMostTwo\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

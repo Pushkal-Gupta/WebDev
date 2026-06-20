@@ -1,0 +1,8 @@
+{
+  "questionId": "2802",
+  "titleSlug": "find-the-punishment-number-of-an-integer",
+  "title": "Find the Punishment Number of an Integer",
+  "exampleTestcases": "10\n37",
+  "sampleTestCase": "10",
+  "metaData": "{\n  \"name\": \"punishmentNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

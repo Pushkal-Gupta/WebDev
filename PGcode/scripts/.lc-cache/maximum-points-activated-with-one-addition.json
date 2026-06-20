@@ -1,8 +1,0 @@
-{
-  "questionId": "4249",
-  "titleSlug": "maximum-points-activated-with-one-addition",
-  "title": "Maximum Points Activated with One Addition",
-  "exampleTestcases": "[[1,1],[1,2],[2,2]]\n[[2,2],[1,1],[3,3]]\n[[2,3],[2,2],[1,1],[4,5]]",
-  "sampleTestCase": "[[1,1],[1,2],[2,2]]",
-  "metaData": "{\n  \"name\": \"maxActivated\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

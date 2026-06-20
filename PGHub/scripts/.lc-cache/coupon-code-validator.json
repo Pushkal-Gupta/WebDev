@@ -1,0 +1,8 @@
+{
+  "questionId": "3934",
+  "titleSlug": "coupon-code-validator",
+  "title": "Coupon Code Validator",
+  "exampleTestcases": "[\"SAVE20\",\"\",\"PHARMA5\",\"SAVE@20\"]\n[\"restaurant\",\"grocery\",\"pharmacy\",\"restaurant\"]\n[true,true,true,true]\n[\"GROCERY15\",\"ELECTRONICS_50\",\"DISCOUNT10\"]\n[\"grocery\",\"electronics\",\"invalid\"]\n[false,true,true]",
+  "sampleTestCase": "[\"SAVE20\",\"\",\"PHARMA5\",\"SAVE@20\"]\n[\"restaurant\",\"grocery\",\"pharmacy\",\"restaurant\"]\n[true,true,true,true]",
+  "metaData": "{\n  \"name\": \"validateCoupons\",\n  \"params\": [\n    {\n      \"name\": \"code\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"businessLine\"\n    },\n    {\n      \"type\": \"boolean[]\",\n      \"name\": \"isActive\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  },\n  \"manual\": false\n}"
+}

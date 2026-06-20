@@ -1,8 +1,0 @@
-{
-  "questionId": "1585",
-  "titleSlug": "the-kth-factor-of-n",
-  "title": "The kth Factor of n",
-  "exampleTestcases": "12\n3\n7\n2\n4\n4",
-  "sampleTestCase": "12\n3",
-  "metaData": "{\n  \"name\": \"kthFactor\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

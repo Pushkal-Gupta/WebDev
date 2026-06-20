@@ -1,8 +1,0 @@
-{
-  "questionId": "1447",
-  "titleSlug": "jump-game-iv",
-  "title": "Jump Game IV",
-  "exampleTestcases": "[100,-23,-23,404,100,23,23,23,3,404]\n[7]\n[7,6,9,6,9,6,9,7]",
-  "sampleTestCase": "[100,-23,-23,404,100,23,23,23,3,404]",
-  "metaData": "{\n  \"name\": \"minJumps\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

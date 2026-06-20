@@ -1,8 +1,0 @@
-{
-  "questionId": "2093",
-  "titleSlug": "check-if-string-is-a-prefix-of-array",
-  "title": "Check If String Is a Prefix of Array",
-  "exampleTestcases": "\"iloveleetcode\"\n[\"i\",\"love\",\"leetcode\",\"apples\"]\n\"iloveleetcode\"\n[\"apples\",\"i\",\"love\",\"leetcode\"]",
-  "sampleTestCase": "\"iloveleetcode\"\n[\"i\",\"love\",\"leetcode\",\"apples\"]",
-  "metaData": "{\n  \"name\": \"isPrefixString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"words\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2857",
-  "titleSlug": "total-distance-traveled",
-  "title": "Total Distance Traveled",
-  "exampleTestcases": "5\n10\n1\n2",
-  "sampleTestCase": "5\n10",
-  "metaData": "{\n  \"name\": \"distanceTraveled\",\n  \"params\": [\n    {\n      \"name\": \"mainTank\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"additionalTank\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

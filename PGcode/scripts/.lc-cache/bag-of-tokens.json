@@ -1,8 +1,0 @@
-{
-  "questionId": "985",
-  "titleSlug": "bag-of-tokens",
-  "title": "Bag of Tokens",
-  "exampleTestcases": "[100]\n50\n[200,100]\n150\n[100,200,300,400]\n200",
-  "sampleTestCase": "[100]\n50",
-  "metaData": "{\n  \"name\": \"bagOfTokensScore\",\n  \"params\": [\n    {\n      \"name\": \"tokens\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"power\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

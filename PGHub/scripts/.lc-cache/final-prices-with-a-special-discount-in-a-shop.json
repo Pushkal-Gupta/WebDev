@@ -1,0 +1,8 @@
+{
+  "questionId": "1570",
+  "titleSlug": "final-prices-with-a-special-discount-in-a-shop",
+  "title": "Final Prices With a Special Discount in a Shop",
+  "exampleTestcases": "[8,4,6,2,3]\n[1,2,3,4,5]\n[10,1,1,6]",
+  "sampleTestCase": "[8,4,6,2,3]",
+  "metaData": "{\n  \"name\": \"finalPrices\",\n  \"params\": [\n    {\n      \"name\": \"prices\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "585",
-  "titleSlug": "investments-in-2016",
-  "title": "Investments in 2016",
-  "exampleTestcases": "{\"headers\":{\"Insurance\":[\"pid\",\"tiv_2015\",\"tiv_2016\",\"lat\",\"lon\"]},\"rows\":{\"Insurance\":[[1,10,5,10,10],[2,20,20,20,20],[3,10,30,20,20],[4,10,40,40,40]]}}",
-  "sampleTestCase": "{\"headers\":{\"Insurance\":[\"pid\",\"tiv_2015\",\"tiv_2016\",\"lat\",\"lon\"]},\"rows\":{\"Insurance\":[[1,10,5,10,10],[2,20,20,20,20],[3,10,30,20,20],[4,10,40,40,40]]}}",
-  "metaData": "{\"mysql\": [\"Create Table If Not Exists Insurance (pid int, tiv_2015 float, tiv_2016 float, lat float, lon float)\"], \"mssql\": [\"Create Table Insurance (pid int, tiv_2015 float, tiv_2016 float, lat float, lon float)\"], \"oraclesql\": [\"Create Table Insurance (pid int, tiv_2015 float, tiv_2016 float, lat float, lon float)\"], \"database\": true, \"name\": \"find_investments\", \"pythondata\": [\"Insurance = pd.DataFrame([], columns=['pid', 'tiv_2015', 'tiv_2016', 'lat', 'lon']).astype({'pid':'Int64', 'tiv_2015':'Float64', 'tiv_2016':'Float64', 'lat':'Float64', 'lon':'Float64'})\"], \"postgresql\": [\"\\nCreate Table If Not Exists Insurance (pid int, tiv_2015 float, tiv_2016 float, lat float, lon float)\"], \"database_schema\": {\"Insurance\": {\"pid\": \"INT\", \"tiv_2015\": \"FLOAT\", \"tiv_2016\": \"FLOAT\", \"lat\": \"FLOAT\", \"lon\": \"FLOAT\"}}}"
-}

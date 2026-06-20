@@ -1,8 +1,0 @@
-{
-  "questionId": "4303",
-  "titleSlug": "count-k-th-roots-in-a-range",
-  "title": "Count K-th Roots in a Range",
-  "exampleTestcases": "1\n9\n3\n8\n30\n2",
-  "sampleTestCase": "1\n9\n3",
-  "metaData": "{\n  \"name\": \"countKthRoots\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"l\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2831",
-  "titleSlug": "number-of-beautiful-pairs",
-  "title": "Number of Beautiful Pairs",
-  "exampleTestcases": "[2,5,1,4]\n[11,21,12]",
-  "sampleTestCase": "[2,5,1,4]",
-  "metaData": "{\n  \"name\": \"countBeautifulPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

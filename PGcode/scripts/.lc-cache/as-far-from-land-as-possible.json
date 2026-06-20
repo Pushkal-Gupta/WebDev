@@ -1,8 +1,0 @@
-{
-  "questionId": "1117",
-  "titleSlug": "as-far-from-land-as-possible",
-  "title": "As Far from Land as Possible",
-  "exampleTestcases": "[[1,0,1],[0,0,0],[1,0,1]]\n[[1,0,0],[0,0,0],[0,0,0]]",
-  "sampleTestCase": "[[1,0,1],[0,0,0],[1,0,1]]",
-  "metaData": "{\r\n  \"name\": \"maxDistance\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "935",
-  "titleSlug": "orderly-queue",
-  "title": "Orderly Queue",
-  "exampleTestcases": "\"cba\"\n1\n\"baaca\"\n3",
-  "sampleTestCase": "\"cba\"\n1",
-  "metaData": "{\n  \"name\": \"orderlyQueue\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

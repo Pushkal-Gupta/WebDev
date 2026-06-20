@@ -1,8 +1,0 @@
-{
-  "questionId": "575",
-  "titleSlug": "distribute-candies",
-  "title": "Distribute Candies",
-  "exampleTestcases": "[1,1,2,2,3,3]\n[1,1,2,3]\n[6,6,6,6]",
-  "sampleTestCase": "[1,1,2,2,3,3]",
-  "metaData": "{\n  \"name\": \"distributeCandies\",\n  \"params\": [\n    {\n      \"name\": \"candyType\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

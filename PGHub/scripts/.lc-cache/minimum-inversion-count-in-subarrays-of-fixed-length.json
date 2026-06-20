@@ -1,0 +1,8 @@
+{
+  "questionId": "4145",
+  "titleSlug": "minimum-inversion-count-in-subarrays-of-fixed-length",
+  "title": "Minimum Inversion Count in Subarrays of Fixed Length",
+  "exampleTestcases": "[3,1,2,5,4]\n3\n[5,3,2,1]\n4\n[2,1]\n1",
+  "sampleTestCase": "[3,1,2,5,4]\n3",
+  "metaData": "{\n  \"name\": \"minInversionCount\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3579",
-  "titleSlug": "maximum-possible-number-by-binary-concatenation",
-  "title": "Maximum Possible Number by Binary Concatenation",
-  "exampleTestcases": "[1,2,3]\n[2,8,16]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"maxGoodNumber\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

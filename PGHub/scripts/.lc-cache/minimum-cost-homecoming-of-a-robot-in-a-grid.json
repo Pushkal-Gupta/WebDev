@@ -1,0 +1,8 @@
+{
+  "questionId": "2192",
+  "titleSlug": "minimum-cost-homecoming-of-a-robot-in-a-grid",
+  "title": "Minimum Cost Homecoming of a Robot in a Grid",
+  "exampleTestcases": "[1,0]\n[2,3]\n[5,4,3]\n[8,2,6,7]\n[0,0]\n[0,0]\n[5]\n[26]",
+  "sampleTestCase": "[1,0]\n[2,3]\n[5,4,3]\n[8,2,6,7]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"startPos\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"homePos\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"rowCosts\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"colCosts\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

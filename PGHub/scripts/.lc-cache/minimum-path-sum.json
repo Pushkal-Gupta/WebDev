@@ -1,0 +1,8 @@
+{
+  "questionId": "64",
+  "titleSlug": "minimum-path-sum",
+  "title": "Minimum Path Sum",
+  "exampleTestcases": "[[1,3,1],[1,5,1],[4,2,1]]\n[[1,2,3],[4,5,6]]",
+  "sampleTestCase": "[[1,3,1],[1,5,1],[4,2,1]]",
+  "metaData": "{\r\n  \"name\": \"minPathSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

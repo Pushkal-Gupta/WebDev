@@ -1,8 +1,0 @@
-{
-  "questionId": "2747",
-  "titleSlug": "apply-transform-over-each-element-in-array",
-  "title": "Apply Transform Over Each Element in Array",
-  "exampleTestcases": "function plusone(n) { return n + 1; }\n[1,2,3]\nfunction plusI(n, i) { return n + i; }\n[1,2,3]\nfunction constant(n, i) { return 42; }\n[10,20,30]",
-  "sampleTestCase": "function plusone(n) { return n + 1; }\n[1,2,3]",
-  "metaData": "{\n  \"name\": \"map\",\n  \"params\": [\n    {\n      \"name\": \"fn\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arr\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ]\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2051",
+  "titleSlug": "longest-common-subpath",
+  "title": "Longest Common Subpath",
+  "exampleTestcases": "5\n[[0,1,2,3,4],[2,3,4],[4,0,1,2,3]]\n3\n[[0],[1],[2]]\n5\n[[0,1,2,3,4],[4,3,2,1,0]]",
+  "sampleTestCase": "5\n[[0,1,2,3,4],[2,3,4],[4,0,1,2,3]]",
+  "metaData": "{\n  \"name\": \"longestCommonSubpath\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"paths\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

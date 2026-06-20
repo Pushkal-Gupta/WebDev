@@ -1,8 +1,0 @@
-{
-  "questionId": "629",
-  "titleSlug": "k-inverse-pairs-array",
-  "title": "K Inverse Pairs Array",
-  "exampleTestcases": "3\n0\n3\n1",
-  "sampleTestCase": "3\n0",
-  "metaData": "{\r\n  \"name\": \"kInversePairs\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

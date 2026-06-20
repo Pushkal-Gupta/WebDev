@@ -1,8 +1,0 @@
-{
-  "questionId": "312",
-  "titleSlug": "burst-balloons",
-  "title": "Burst Balloons",
-  "exampleTestcases": "[3,1,5,8]\n[1,5]",
-  "sampleTestCase": "[3,1,5,8]",
-  "metaData": "{\n  \"name\": \"maxCoins\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

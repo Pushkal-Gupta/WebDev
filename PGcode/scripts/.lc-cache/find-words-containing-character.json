@@ -1,8 +1,0 @@
-{
-  "questionId": "3194",
-  "titleSlug": "find-words-containing-character",
-  "title": "Find Words Containing Character",
-  "exampleTestcases": "[\"leet\",\"code\"]\n\"e\"\n[\"abc\",\"bcd\",\"aaaa\",\"cbc\"]\n\"a\"\n[\"abc\",\"bcd\",\"aaaa\",\"cbc\"]\n\"z\"",
-  "sampleTestCase": "[\"leet\",\"code\"]\n\"e\"",
-  "metaData": "{\n  \"name\": \"findWordsContaining\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

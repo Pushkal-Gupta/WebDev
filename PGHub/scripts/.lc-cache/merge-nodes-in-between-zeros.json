@@ -1,0 +1,8 @@
+{
+  "questionId": "2299",
+  "titleSlug": "merge-nodes-in-between-zeros",
+  "title": "Merge Nodes in Between Zeros",
+  "exampleTestcases": "[0,3,1,0,4,5,2,0]\n[0,1,0,3,0,2,2,0]",
+  "sampleTestCase": "[0,3,1,0,4,5,2,0]",
+  "metaData": "{\n  \"name\": \"mergeNodes\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
+}

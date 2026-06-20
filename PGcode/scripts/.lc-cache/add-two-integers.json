@@ -1,8 +1,0 @@
-{
-  "questionId": "2383",
-  "titleSlug": "add-two-integers",
-  "title": "Add Two Integers",
-  "exampleTestcases": "12\n5\n-10\n4",
-  "sampleTestCase": "12\n5",
-  "metaData": "{\n  \"name\": \"sum\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

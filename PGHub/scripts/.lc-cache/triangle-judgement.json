@@ -1,0 +1,8 @@
+{
+  "questionId": "610",
+  "titleSlug": "triangle-judgement",
+  "title": "Triangle Judgement",
+  "exampleTestcases": "{\"headers\":{\"Triangle\":[\"x\",\"y\",\"z\"]},\"rows\":{\"Triangle\":[[13,15,30],[10,20,15]]}}",
+  "sampleTestCase": "{\"headers\":{\"Triangle\":[\"x\",\"y\",\"z\"]},\"rows\":{\"Triangle\":[[13,15,30],[10,20,15]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Triangle (x int, y int, z int)\"], \"mssql\": [\"Create table Triangle (x int, y int, z int)\"], \"oraclesql\": [\"Create table Triangle (x int, y int, z int)\"], \"database\": true, \"name\": \"triangle_judgement\", \"pythondata\": [\"Triangle = pd.DataFrame([], columns=['x', 'y', 'z']).astype({'x':'Int64', 'y':'Int64', 'z':'Int64'})\"], \"postgresql\": [\"Create table If Not Exists Triangle (x int, y int, z int)\"], \"database_schema\": {\"Triangle\": {\"x\": \"INT\", \"y\": \"INT\", \"z\": \"INT\"}}}"
+}

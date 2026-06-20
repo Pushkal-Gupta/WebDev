@@ -1,8 +1,0 @@
-{
-  "questionId": "3682",
-  "titleSlug": "count-the-number-of-arrays-with-k-matching-adjacent-elements",
-  "title": "Count the Number of Arrays with K Matching Adjacent Elements",
-  "exampleTestcases": "3\n2\n1\n4\n2\n2\n5\n2\n0",
-  "sampleTestCase": "3\n2\n1",
-  "metaData": "{\n  \"name\": \"countGoodArrays\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

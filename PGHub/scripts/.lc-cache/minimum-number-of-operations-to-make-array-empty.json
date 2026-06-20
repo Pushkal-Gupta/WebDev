@@ -1,0 +1,8 @@
+{
+  "questionId": "3094",
+  "titleSlug": "minimum-number-of-operations-to-make-array-empty",
+  "title": "Minimum Number of Operations to Make Array Empty",
+  "exampleTestcases": "[2,3,3,2,2,4,2,3,4]\n[2,1,2,2,3,3]",
+  "sampleTestCase": "[2,3,3,2,2,4,2,3,4]",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

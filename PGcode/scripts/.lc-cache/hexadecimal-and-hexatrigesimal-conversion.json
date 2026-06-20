@@ -1,8 +1,0 @@
-{
-  "questionId": "3912",
-  "titleSlug": "hexadecimal-and-hexatrigesimal-conversion",
-  "title": "Hexadecimal and Hexatrigesimal Conversion",
-  "exampleTestcases": "13\n36",
-  "sampleTestCase": "13",
-  "metaData": "{\n  \"name\": \"concatHex36\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

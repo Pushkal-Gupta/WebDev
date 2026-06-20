@@ -1,8 +1,0 @@
-{
-  "questionId": "1877",
-  "titleSlug": "find-followers-count",
-  "title": "Find Followers Count",
-  "exampleTestcases": "{\"headers\":{\"Followers\":[\"user_id\",\"follower_id\"]},\"rows\":{\"Followers\":[[\"0\",\"1\"],[\"1\",\"0\"],[\"2\",\"0\"],[\"2\",\"1\"]]}}",
-  "sampleTestCase": "{\"headers\":{\"Followers\":[\"user_id\",\"follower_id\"]},\"rows\":{\"Followers\":[[\"0\",\"1\"],[\"1\",\"0\"],[\"2\",\"0\"],[\"2\",\"1\"]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Followers(user_id int, follower_id int)\"], \"mssql\": [\"Create table Followers(user_id int, follower_id int)\"], \"oraclesql\": [\"Create table Followers(user_id int, follower_id int)\"], \"database\": true, \"name\": \"count_followers\", \"pythondata\": [\"Followers = pd.DataFrame([], columns=['user_id', 'follower_id']).astype({'user_id':'Int64', 'follower_id':'Int64'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Followers(user_id int, follower_id int)\"], \"database_schema\": {\"Followers\": {\"user_id\": \"INT\", \"follower_id\": \"INT\"}}}"
-}

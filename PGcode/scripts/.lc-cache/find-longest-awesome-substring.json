@@ -1,8 +1,0 @@
-{
-  "questionId": "1668",
-  "titleSlug": "find-longest-awesome-substring",
-  "title": "Find Longest Awesome Substring",
-  "exampleTestcases": "\"3242415\"\n\"12345678\"\n\"213123\"",
-  "sampleTestCase": "\"3242415\"",
-  "metaData": "{\n  \"name\": \"longestAwesome\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

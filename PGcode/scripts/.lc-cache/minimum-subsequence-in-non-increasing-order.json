@@ -1,8 +1,0 @@
-{
-  "questionId": "1519",
-  "titleSlug": "minimum-subsequence-in-non-increasing-order",
-  "title": "Minimum Subsequence in Non-Increasing Order",
-  "exampleTestcases": "[4,3,10,9,8]\n[4,4,7,6,7]",
-  "sampleTestCase": "[4,3,10,9,8]",
-  "metaData": "{\n  \"name\": \"minSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

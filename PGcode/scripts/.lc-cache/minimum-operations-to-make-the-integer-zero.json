@@ -1,8 +1,0 @@
-{
-  "questionId": "2837",
-  "titleSlug": "minimum-operations-to-make-the-integer-zero",
-  "title": "Minimum Operations to Make the Integer Zero",
-  "exampleTestcases": "3\n-2\n5\n7",
-  "sampleTestCase": "3\n-2",
-  "metaData": "{\n  \"name\": \"makeTheIntegerZero\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

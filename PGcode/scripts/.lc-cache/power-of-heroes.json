@@ -1,8 +1,0 @@
-{
-  "questionId": "2784",
-  "titleSlug": "power-of-heroes",
-  "title": "Power of Heroes",
-  "exampleTestcases": "[2,1,4]\n[1,1,1]",
-  "sampleTestCase": "[2,1,4]",
-  "metaData": "{\n  \"name\": \"sumOfPower\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

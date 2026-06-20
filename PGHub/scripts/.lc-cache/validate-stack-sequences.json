@@ -1,0 +1,8 @@
+{
+  "questionId": "983",
+  "titleSlug": "validate-stack-sequences",
+  "title": "Validate Stack Sequences",
+  "exampleTestcases": "[1,2,3,4,5]\n[4,5,3,2,1]\n[1,2,3,4,5]\n[4,3,5,1,2]",
+  "sampleTestCase": "[1,2,3,4,5]\n[4,5,3,2,1]",
+  "metaData": "{\r\n  \"name\": \"validateStackSequences\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"pushed\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"popped\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

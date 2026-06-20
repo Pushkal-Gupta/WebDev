@@ -1,8 +1,0 @@
-{
-  "questionId": "1507",
-  "titleSlug": "check-if-there-is-a-valid-path-in-a-grid",
-  "title": "Check if There is a Valid Path in a Grid",
-  "exampleTestcases": "[[2,4,3],[6,5,2]]\n[[1,2,1],[1,2,1]]\n[[1,1,2]]",
-  "sampleTestCase": "[[2,4,3],[6,5,2]]",
-  "metaData": "{\n  \"name\": \"hasValidPath\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1711",
-  "titleSlug": "find-valid-matrix-given-row-and-column-sums",
-  "title": "Find Valid Matrix Given Row and Column Sums",
-  "exampleTestcases": "[3,8]\n[4,7]\n[5,7,10]\n[8,6,8]",
-  "sampleTestCase": "[3,8]\n[4,7]",
-  "metaData": "{\n  \"name\": \"restoreMatrix\",\n  \"params\": [\n    {\n      \"name\": \"rowSum\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"colSum\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

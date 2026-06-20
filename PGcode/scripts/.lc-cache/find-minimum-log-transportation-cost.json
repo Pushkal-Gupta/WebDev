@@ -1,8 +1,0 @@
-{
-  "questionId": "3879",
-  "titleSlug": "find-minimum-log-transportation-cost",
-  "title": "Find Minimum Log Transportation Cost",
-  "exampleTestcases": "6\n5\n5\n4\n4\n6",
-  "sampleTestCase": "6\n5\n5",
-  "metaData": "{\n  \"name\": \"minCuttingCost\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

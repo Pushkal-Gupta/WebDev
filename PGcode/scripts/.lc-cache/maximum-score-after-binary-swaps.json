@@ -1,8 +1,0 @@
-{
-  "questionId": "4130",
-  "titleSlug": "maximum-score-after-binary-swaps",
-  "title": "Maximum Score After Binary Swaps",
-  "exampleTestcases": "[2,1,5,2,3]\n\"01010\"\n[4,7,2,9]\n\"0000\"",
-  "sampleTestCase": "[2,1,5,2,3]\n\"01010\"",
-  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

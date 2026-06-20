@@ -1,8 +1,0 @@
-{
-  "questionId": "2150",
-  "titleSlug": "kth-smallest-product-of-two-sorted-arrays",
-  "title": "Kth Smallest Product of Two Sorted Arrays",
-  "exampleTestcases": "[2,5]\n[3,4]\n2\n[-4,-2,0,3]\n[2,4]\n6\n[-2,-1,0,1,2]\n[-3,-1,2,4,5]\n3",
-  "sampleTestCase": "[2,5]\n[3,4]\n2",
-  "metaData": "{\n  \"name\": \"kthSmallestProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

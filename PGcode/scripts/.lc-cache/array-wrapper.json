@@ -1,8 +1,0 @@
-{
-  "questionId": "2805",
-  "titleSlug": "array-wrapper",
-  "title": "Array Wrapper",
-  "exampleTestcases": "[[1,2],[3,4]]\n\"Add\"\n[[23,98,42,70]]\n\"String\"\n[[],[]]\n\"Add\"",
-  "sampleTestCase": "[[1,2],[3,4]]\n\"Add\"",
-  "metaData": "{\n  \"name\": \"ArrayWrapper\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"operation\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

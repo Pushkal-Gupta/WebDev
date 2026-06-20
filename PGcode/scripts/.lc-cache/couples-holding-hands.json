@@ -1,8 +1,0 @@
-{
-  "questionId": "770",
-  "titleSlug": "couples-holding-hands",
-  "title": "Couples Holding Hands",
-  "exampleTestcases": "[0,2,1,3]\n[3,2,0,1]",
-  "sampleTestCase": "[0,2,1,3]",
-  "metaData": "{\r\n  \"name\": \"minSwapsCouples\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"row\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

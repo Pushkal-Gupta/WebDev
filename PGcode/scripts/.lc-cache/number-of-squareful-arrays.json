@@ -1,8 +1,0 @@
-{
-  "questionId": "1038",
-  "titleSlug": "number-of-squareful-arrays",
-  "title": "Number of Squareful Arrays",
-  "exampleTestcases": "[1,17,8]\n[2,2,2]",
-  "sampleTestCase": "[1,17,8]",
-  "metaData": "{\n  \"name\": \"numSquarefulPerms\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

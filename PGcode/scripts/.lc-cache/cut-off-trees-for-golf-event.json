@@ -1,8 +1,0 @@
-{
-  "questionId": "675",
-  "titleSlug": "cut-off-trees-for-golf-event",
-  "title": "Cut Off Trees for Golf Event",
-  "exampleTestcases": "[[1,2,3],[0,0,4],[7,6,5]]\n[[1,2,3],[0,0,0],[7,6,5]]\n[[2,3,4],[0,0,5],[8,7,6]]",
-  "sampleTestCase": "[[1,2,3],[0,0,4],[7,6,5]]",
-  "metaData": "{\n  \"name\": \"cutOffTree\",\n  \"params\": [\n    {\n      \"name\": \"forest\",\n      \"type\": \"list<list<integer>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
-}

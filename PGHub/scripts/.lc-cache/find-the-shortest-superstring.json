@@ -1,0 +1,8 @@
+{
+  "questionId": "980",
+  "titleSlug": "find-the-shortest-superstring",
+  "title": "Find the Shortest Superstring",
+  "exampleTestcases": "[\"alex\",\"loves\",\"leetcode\"]\n[\"catg\",\"ctaagt\",\"gcta\",\"ttca\",\"atgcatc\"]",
+  "sampleTestCase": "[\"alex\",\"loves\",\"leetcode\"]",
+  "metaData": "{\n  \"name\": \"shortestSuperstring\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

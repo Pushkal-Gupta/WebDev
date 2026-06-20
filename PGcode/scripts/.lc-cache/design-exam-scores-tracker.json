@@ -1,8 +1,0 @@
-{
-  "questionId": "4059",
-  "titleSlug": "design-exam-scores-tracker",
-  "title": "Design Exam Scores Tracker",
-  "exampleTestcases": "[\"ExamTracker\",\"record\",\"totalScore\",\"record\",\"totalScore\",\"totalScore\",\"totalScore\",\"totalScore\"]\n[[],[1,98],[1,1],[5,99],[1,3],[1,5],[3,4],[2,5]]",
-  "sampleTestCase": "[\"ExamTracker\",\"record\",\"totalScore\",\"record\",\"totalScore\",\"totalScore\",\"totalScore\",\"totalScore\"]\n[[],[1,98],[1,1],[5,99],[1,3],[1,5],[3,4],[2,5]]",
-  "metaData": "{\n  \"classname\": \"ExamTracker\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"time\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"score\"\n        }\n      ],\n      \"name\": \"record\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"startTime\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"endTime\"\n        }\n      ],\n      \"name\": \"totalScore\",\n      \"return\": {\n        \"type\": \"long\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

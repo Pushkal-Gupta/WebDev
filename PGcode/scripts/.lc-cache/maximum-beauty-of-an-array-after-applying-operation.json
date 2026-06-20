@@ -1,8 +1,0 @@
-{
-  "questionId": "2891",
-  "titleSlug": "maximum-beauty-of-an-array-after-applying-operation",
-  "title": "Maximum Beauty of an Array After Applying Operation",
-  "exampleTestcases": "[4,6,1,2]\n2\n[1,1,1,1]\n10",
-  "sampleTestCase": "[4,6,1,2]\n2",
-  "metaData": "{\n  \"name\": \"maximumBeauty\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

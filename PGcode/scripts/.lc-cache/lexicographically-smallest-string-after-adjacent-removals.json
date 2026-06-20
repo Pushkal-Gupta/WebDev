@@ -1,8 +1,0 @@
-{
-  "questionId": "3867",
-  "titleSlug": "lexicographically-smallest-string-after-adjacent-removals",
-  "title": "Lexicographically Smallest String After Adjacent Removals",
-  "exampleTestcases": "\"abc\"\n\"bcda\"\n\"zdce\"",
-  "sampleTestCase": "\"abc\"",
-  "metaData": "{\n  \"name\": \"lexicographicallySmallestString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

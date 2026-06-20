@@ -1,8 +1,0 @@
-{
-  "questionId": "901",
-  "titleSlug": "advantage-shuffle",
-  "title": "Advantage Shuffle",
-  "exampleTestcases": "[2,7,11,15]\n[1,10,4,11]\n[12,24,8,32]\n[13,25,32,11]",
-  "sampleTestCase": "[2,7,11,15]\n[1,10,4,11]",
-  "metaData": "{\n  \"name\": \"advantageCount\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"nums2\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

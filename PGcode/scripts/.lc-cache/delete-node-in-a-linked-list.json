@@ -1,8 +1,0 @@
-{
-  "questionId": "237",
-  "titleSlug": "delete-node-in-a-linked-list",
-  "title": "Delete Node in a Linked List",
-  "exampleTestcases": "[4,5,1,9]\n5\n[4,5,1,9]\n1",
-  "sampleTestCase": "[4,5,1,9]\n5",
-  "metaData": "{\n  \"name\": \"deleteNode\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    },\n    {\n      \"name\": \"node\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"void\"\n  },\n  \"output\": {\n    \"paramindex\": 0\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"c\",\n    \"csharp\",\n    \"javascript\",\n    \"ruby\",\n    \"swift\",\n    \"golang\",\n    \"python3\",\n    \"scala\",\n    \"kotlin\",\n    \"php\",\n    \"typescript\"\n  ]\n}"
-}

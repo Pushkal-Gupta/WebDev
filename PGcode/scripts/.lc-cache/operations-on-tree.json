@@ -1,8 +1,0 @@
-{
-  "questionId": "2104",
-  "titleSlug": "operations-on-tree",
-  "title": "Operations on Tree",
-  "exampleTestcases": "[\"LockingTree\",\"lock\",\"unlock\",\"unlock\",\"lock\",\"upgrade\",\"lock\"]\n[[[-1,0,0,1,1,2,2]],[2,2],[2,3],[2,2],[4,5],[0,1],[0,1]]",
-  "sampleTestCase": "[\"LockingTree\",\"lock\",\"unlock\",\"unlock\",\"lock\",\"upgrade\",\"lock\"]\n[[[-1,0,0,1,1,2,2]],[2,2],[2,3],[2,2],[4,5],[0,1],[0,1]]",
-  "metaData": "{\n  \"classname\": \"LockingTree\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[]\",\n        \"name\": \"parent\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"num\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"user\"\n        }\n      ],\n      \"name\": \"lock\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"num\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"user\"\n        }\n      ],\n      \"name\": \"unlock\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"num\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"user\"\n        }\n      ],\n      \"name\": \"upgrade\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

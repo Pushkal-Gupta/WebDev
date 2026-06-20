@@ -1,8 +1,0 @@
-{
-  "questionId": "474",
-  "titleSlug": "ones-and-zeroes",
-  "title": "Ones and Zeroes",
-  "exampleTestcases": "[\"10\",\"0001\",\"111001\",\"1\",\"0\"]\n5\n3\n[\"10\",\"0\",\"1\"]\n1\n1",
-  "sampleTestCase": "[\"10\",\"0001\",\"111001\",\"1\",\"0\"]\n5\n3",
-  "metaData": "{\n  \"name\": \"findMaxForm\",\n  \"params\": [\n    {\n      \"name\": \"strs\",\n      \"type\": \"string[]\"\n    },\n    {\n        \"name\": \"m\",\n        \"type\": \"integer\"\n    },\n    {\n        \"name\": \"n\",\n        \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
-}

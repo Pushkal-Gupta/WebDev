@@ -1,8 +1,0 @@
-{
-  "questionId": "3998",
-  "titleSlug": "minimum-operations-to-equalize-array",
-  "title": "Minimum Operations to Equalize Array",
-  "exampleTestcases": "[1,2]\n[5,5,5]",
-  "sampleTestCase": "[1,2]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

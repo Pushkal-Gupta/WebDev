@@ -1,8 +1,0 @@
-{
-  "questionId": "1956",
-  "titleSlug": "maximum-element-after-decreasing-and-rearranging",
-  "title": "Maximum Element After Decreasing and Rearranging",
-  "exampleTestcases": "[2,2,1,2,1]\n[100,1,1000]\n[1,2,3,4,5]",
-  "sampleTestCase": "[2,2,1,2,1]",
-  "metaData": "{\n  \"name\": \"maximumElementAfterDecrementingAndRearranging\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

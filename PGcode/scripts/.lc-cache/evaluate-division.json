@@ -1,8 +1,0 @@
-{
-  "questionId": "399",
-  "titleSlug": "evaluate-division",
-  "title": "Evaluate Division",
-  "exampleTestcases": "[[\"a\",\"b\"],[\"b\",\"c\"]]\n[2.0,3.0]\n[[\"a\",\"c\"],[\"b\",\"a\"],[\"a\",\"e\"],[\"a\",\"a\"],[\"x\",\"x\"]]\n[[\"a\",\"b\"],[\"b\",\"c\"],[\"bc\",\"cd\"]]\n[1.5,2.5,5.0]\n[[\"a\",\"c\"],[\"c\",\"b\"],[\"bc\",\"cd\"],[\"cd\",\"bc\"]]\n[[\"a\",\"b\"]]\n[0.5]\n[[\"a\",\"b\"],[\"b\",\"a\"],[\"a\",\"c\"],[\"x\",\"y\"]]",
-  "sampleTestCase": "[[\"a\",\"b\"],[\"b\",\"c\"]]\n[2.0,3.0]\n[[\"a\",\"c\"],[\"b\",\"a\"],[\"a\",\"e\"],[\"a\",\"a\"],[\"x\",\"x\"]]",
-  "metaData": "{\r\n  \"name\": \"calcEquation\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"equations\",\r\n      \"type\": \"list<list<string>>\"\r\n    },\r\n    {\r\n      \"name\": \"values\",\r\n      \"type\": \"double[]\"\r\n    },\r\n    {\r\n        \"name\": \"queries\",\r\n        \"type\": \"list<list<string>>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"double[]\"\r\n  }\r\n}"
-}

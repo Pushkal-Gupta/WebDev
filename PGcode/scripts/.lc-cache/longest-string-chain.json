@@ -1,8 +1,0 @@
-{
-  "questionId": "1129",
-  "titleSlug": "longest-string-chain",
-  "title": "Longest String Chain",
-  "exampleTestcases": "[\"a\",\"b\",\"ba\",\"bca\",\"bda\",\"bdca\"]\n[\"xbc\",\"pcxbcf\",\"xb\",\"cxbc\",\"pcxbc\"]\n[\"abcd\",\"dbqca\"]",
-  "sampleTestCase": "[\"a\",\"b\",\"ba\",\"bca\",\"bda\",\"bdca\"]",
-  "metaData": "{\r\n  \"name\": \"longestStrChain\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

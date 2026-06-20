@@ -1,8 +1,0 @@
-{
-  "questionId": "4097",
-  "titleSlug": "minimum-removals-to-achieve-target-xor",
-  "title": "Minimum Removals to Achieve Target XOR",
-  "exampleTestcases": "[1,2,3]\n2\n[2,4]\n1\n[7]\n7",
-  "sampleTestCase": "[1,2,3]\n2",
-  "metaData": "{\n  \"name\": \"minRemovals\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

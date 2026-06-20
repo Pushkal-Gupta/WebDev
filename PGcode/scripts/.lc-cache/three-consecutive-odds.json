@@ -1,8 +1,0 @@
-{
-  "questionId": "1293",
-  "titleSlug": "three-consecutive-odds",
-  "title": "Three Consecutive Odds",
-  "exampleTestcases": "[2,6,4,1]\n[1,2,34,3,4,5,7,23,12]",
-  "sampleTestCase": "[2,6,4,1]",
-  "metaData": "{\n  \"name\": \"threeConsecutiveOdds\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

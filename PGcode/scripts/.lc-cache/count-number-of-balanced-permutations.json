@@ -1,8 +1,0 @@
-{
-  "questionId": "3637",
-  "titleSlug": "count-number-of-balanced-permutations",
-  "title": "Count Number of Balanced Permutations",
-  "exampleTestcases": "\"123\"\n\"112\"\n\"12345\"",
-  "sampleTestCase": "\"123\"",
-  "metaData": "{\n  \"name\": \"countBalancedPermutations\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

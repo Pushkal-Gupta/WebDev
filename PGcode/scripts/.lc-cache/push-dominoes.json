@@ -1,8 +1,0 @@
-{
-  "questionId": "868",
-  "titleSlug": "push-dominoes",
-  "title": "Push Dominoes",
-  "exampleTestcases": "\"RR.L\"\n\".L.R...LR..L..\"",
-  "sampleTestCase": "\"RR.L\"",
-  "metaData": "{\r\n  \"name\": \"pushDominoes\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"dominoes\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
-}

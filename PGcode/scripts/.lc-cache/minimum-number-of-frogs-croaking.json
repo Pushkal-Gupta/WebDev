@@ -1,8 +1,0 @@
-{
-  "questionId": "1534",
-  "titleSlug": "minimum-number-of-frogs-croaking",
-  "title": "Minimum Number of Frogs Croaking",
-  "exampleTestcases": "\"croakcroak\"\n\"crcoakroak\"\n\"croakcrook\"",
-  "sampleTestCase": "\"croakcroak\"",
-  "metaData": "{\n  \"name\": \"minNumberOfFrogs\",\n  \"params\": [\n    {\n      \"name\": \"croakOfFrogs\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

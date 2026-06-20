@@ -1,8 +1,0 @@
-{
-  "questionId": "1442",
-  "titleSlug": "number-of-operations-to-make-network-connected",
-  "title": "Number of Operations to Make Network Connected",
-  "exampleTestcases": "4\n[[0,1],[0,2],[1,2]]\n6\n[[0,1],[0,2],[0,3],[1,2],[1,3]]\n6\n[[0,1],[0,2],[0,3],[1,2]]",
-  "sampleTestCase": "4\n[[0,1],[0,2],[1,2]]",
-  "metaData": "{\n  \"name\": \"makeConnected\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"connections\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

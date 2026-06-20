@@ -1,8 +1,0 @@
-{
-  "questionId": "3201",
-  "titleSlug": "distribute-candies-among-children-ii",
-  "title": "Distribute Candies Among Children II",
-  "exampleTestcases": "5\n2\n3\n3",
-  "sampleTestCase": "5\n2",
-  "metaData": "{\n  \"name\": \"distributeCandies\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

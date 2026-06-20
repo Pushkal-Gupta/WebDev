@@ -1,0 +1,8 @@
+{
+  "questionId": "3732",
+  "titleSlug": "calculate-score-after-performing-instructions",
+  "title": "Calculate Score After Performing Instructions",
+  "exampleTestcases": "[\"jump\",\"add\",\"add\",\"jump\",\"add\",\"jump\"]\n[2,1,3,1,-2,-3]\n[\"jump\",\"add\",\"add\"]\n[3,1,1]\n[\"jump\"]\n[0]",
+  "sampleTestCase": "[\"jump\",\"add\",\"add\",\"jump\",\"add\",\"jump\"]\n[2,1,3,1,-2,-3]",
+  "metaData": "{\n  \"name\": \"calculateScore\",\n  \"params\": [\n    {\n      \"name\": \"instructions\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"values\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1873",
-  "titleSlug": "longest-nice-substring",
-  "title": "Longest Nice Substring",
-  "exampleTestcases": "\"YazaAay\"\n\"Bb\"\n\"c\"",
-  "sampleTestCase": "\"YazaAay\"",
-  "metaData": "{\n  \"name\": \"longestNiceSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

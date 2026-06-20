@@ -1,8 +1,0 @@
-{
-  "questionId": "2606",
-  "titleSlug": "difference-between-ones-and-zeros-in-row-and-column",
-  "title": "Difference Between Ones and Zeros in Row and Column",
-  "exampleTestcases": "[[0,1,1],[1,0,1],[0,0,1]]\n[[1,1,1],[1,1,1]]",
-  "sampleTestCase": "[[0,1,1],[1,0,1],[0,0,1]]",
-  "metaData": "{\n  \"name\": \"onesMinusZeros\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

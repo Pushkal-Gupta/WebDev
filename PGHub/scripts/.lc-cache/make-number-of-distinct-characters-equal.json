@@ -1,0 +1,8 @@
+{
+  "questionId": "2615",
+  "titleSlug": "make-number-of-distinct-characters-equal",
+  "title": "Make Number of Distinct Characters Equal",
+  "exampleTestcases": "\"ac\"\n\"b\"\n\"abcc\"\n\"aab\"\n\"abcde\"\n\"fghij\"",
+  "sampleTestCase": "\"ac\"\n\"b\"",
+  "metaData": "{\n  \"name\": \"isItPossible\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

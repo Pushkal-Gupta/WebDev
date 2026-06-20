@@ -1,8 +1,0 @@
-{
-  "questionId": "2163",
-  "titleSlug": "kth-distinct-string-in-an-array",
-  "title": "Kth Distinct String in an Array",
-  "exampleTestcases": "[\"d\",\"b\",\"c\",\"b\",\"c\",\"a\"]\n2\n[\"aaa\",\"aa\",\"a\"]\n1\n[\"a\",\"b\",\"a\"]\n3",
-  "sampleTestCase": "[\"d\",\"b\",\"c\",\"b\",\"c\",\"a\"]\n2",
-  "metaData": "{\n  \"name\": \"kthDistinct\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "202",
-  "titleSlug": "happy-number",
-  "title": "Happy Number",
-  "exampleTestcases": "19\n2",
-  "sampleTestCase": "19",
-  "metaData": "{\r\n  \"name\": \"isHappy\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

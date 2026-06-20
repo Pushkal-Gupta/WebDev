@@ -1,8 +1,0 @@
-{
-  "questionId": "3587",
-  "titleSlug": "maximum-points-tourist-can-earn",
-  "title": "Maximum Points Tourist Can Earn",
-  "exampleTestcases": "2\n1\n[[2,3]]\n[[0,2],[1,0]]\n3\n2\n[[3,4,2],[2,1,2]]\n[[0,2,1],[2,0,4],[3,2,0]]",
-  "sampleTestCase": "2\n1\n[[2,3]]\n[[0,2],[1,0]]",
-  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"stayScore\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"travelScore\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1353",
-  "titleSlug": "find-resultant-array-after-removing-anagrams",
-  "title": "Find Resultant Array After Removing Anagrams",
-  "exampleTestcases": "[\"abba\",\"baba\",\"bbaa\",\"cd\",\"cd\"]\n[\"a\",\"b\",\"c\",\"d\",\"e\"]",
-  "sampleTestCase": "[\"abba\",\"baba\",\"bbaa\",\"cd\",\"cd\"]",
-  "metaData": "{\n  \"name\": \"removeAnagrams\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

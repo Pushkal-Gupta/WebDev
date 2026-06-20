@@ -1,8 +1,0 @@
-{
-  "questionId": "2018",
-  "titleSlug": "minimum-space-wasted-from-packaging",
-  "title": "Minimum Space Wasted From Packaging",
-  "exampleTestcases": "[2,3,5]\n[[4,8],[2,8]]\n[2,3,5]\n[[1,4],[2,3],[3,4]]\n[3,5,8,10,11,12]\n[[12],[11,9],[10,5,14]]",
-  "sampleTestCase": "[2,3,5]\n[[4,8],[2,8]]",
-  "metaData": "{\n  \"name\": \"minWastedSpace\",\n  \"params\": [\n    {\n      \"name\": \"packages\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"boxes\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

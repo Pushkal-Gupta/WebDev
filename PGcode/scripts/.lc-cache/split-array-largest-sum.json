@@ -1,8 +1,0 @@
-{
-  "questionId": "410",
-  "titleSlug": "split-array-largest-sum",
-  "title": "Split Array Largest Sum",
-  "exampleTestcases": "[7,2,5,10,8]\n2\n[1,2,3,4,5]\n2",
-  "sampleTestCase": "[7,2,5,10,8]\n2",
-  "metaData": "{\n  \"name\": \"splitArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

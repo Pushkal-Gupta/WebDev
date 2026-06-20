@@ -1,8 +1,0 @@
-{
-  "questionId": "1691",
-  "titleSlug": "minimum-number-of-days-to-disconnect-island",
-  "title": "Minimum Number of Days to Disconnect Island",
-  "exampleTestcases": "[[0,1,1,0],[0,1,1,0],[0,0,0,0]]\n[[1,1]]",
-  "sampleTestCase": "[[0,1,1,0],[0,1,1,0],[0,0,0,0]]",
-  "metaData": "{\n  \"name\": \"minDays\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

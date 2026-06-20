@@ -1,8 +1,0 @@
-{
-  "questionId": "3600",
-  "titleSlug": "find-the-k-th-character-in-string-game-i",
-  "title": "Find the K-th Character in String Game I",
-  "exampleTestcases": "5\n10",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"kthCharacter\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character\"\n  }\n}"
-}

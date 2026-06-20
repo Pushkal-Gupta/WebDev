@@ -1,8 +1,0 @@
-{
-  "questionId": "1003",
-  "titleSlug": "minimum-area-rectangle-ii",
-  "title": "Minimum Area Rectangle II",
-  "exampleTestcases": "[[1,2],[2,1],[1,0],[0,1]]\n[[0,1],[2,1],[1,1],[1,0],[2,0]]\n[[0,3],[1,2],[3,1],[1,3],[2,1]]",
-  "sampleTestCase": "[[1,2],[2,1],[1,0],[0,1]]",
-  "metaData": "{\r\n  \"name\": \"minAreaFreeRect\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"points\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"double\"\r\n  }\r\n}\r\n"
-}

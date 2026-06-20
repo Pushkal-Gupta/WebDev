@@ -1,0 +1,8 @@
+{
+  "questionId": "1316",
+  "titleSlug": "fizz-buzz-multithreaded",
+  "title": "Fizz Buzz Multithreaded",
+  "exampleTestcases": "15\n5",
+  "sampleTestCase": "15",
+  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"java\",\n    \"cpp\",\n    \"python3\",\n    \"python\",\n    \"csharp\",\n    \"c\"\n  ]\n}"
+}

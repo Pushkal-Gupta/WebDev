@@ -1,8 +1,0 @@
-{
-  "questionId": "3491",
-  "titleSlug": "find-the-maximum-length-of-valid-subsequence-ii",
-  "title": "Find the Maximum Length of Valid Subsequence II",
-  "exampleTestcases": "[1,2,3,4,5]\n2\n[1,4,2,3,1,4]\n3",
-  "sampleTestCase": "[1,2,3,4,5]\n2",
-  "metaData": "{\n  \"name\": \"maximumLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

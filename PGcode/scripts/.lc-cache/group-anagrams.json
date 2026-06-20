@@ -1,8 +1,0 @@
-{
-  "questionId": "49",
-  "titleSlug": "group-anagrams",
-  "title": "Group Anagrams",
-  "exampleTestcases": "[\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]\n[\"\"]\n[\"a\"]",
-  "sampleTestCase": "[\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
-  "metaData": "{\r\n  \"name\": \"groupAnagrams\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"strs\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<string>>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

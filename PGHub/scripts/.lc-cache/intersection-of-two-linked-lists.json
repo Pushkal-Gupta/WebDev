@@ -1,0 +1,8 @@
+{
+  "questionId": "160",
+  "titleSlug": "intersection-of-two-linked-lists",
+  "title": "Intersection of Two Linked Lists",
+  "exampleTestcases": "8\n[4,1,8,4,5]\n[5,6,1,8,4,5]\n2\n3\n2\n[1,9,1,2,4]\n[3,2,4]\n3\n1\n0\n[2,6,4]\n[1,5]\n3\n2",
+  "sampleTestCase": "8\n[4,1,8,4,5]\n[5,6,1,8,4,5]\n2\n3",
+  "metaData": "{\n  \"name\": \"getIntersectionNode\",\n  \"params\": [\n    {\n      \"name\": \"intersectVal\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"listA\",\n      \"type\": \"ListNode\"\n    },\n    {\n      \"name\": \"listB\",\n      \"type\": \"ListNode\"\n    },\n    {\n      \"name\": \"skipA\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"skipB\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"c\",\n    \"csharp\",\n    \"javascript\",\n    \"golang\",\n    \"python3\",\n    \"swift\",\n    \"ruby\",\n    \"kotlin\",\n    \"scala\",\n    \"php\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

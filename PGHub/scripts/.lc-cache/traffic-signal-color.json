@@ -1,0 +1,8 @@
+{
+  "questionId": "4275",
+  "titleSlug": "traffic-signal-color",
+  "title": "Traffic Signal Color",
+  "exampleTestcases": "60\n5",
+  "sampleTestCase": "60",
+  "metaData": "{\n  \"name\": \"trafficSignal\",\n  \"params\": [\n    {\n      \"name\": \"timer\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3298",
+  "titleSlug": "maximize-consecutive-elements-in-an-array-after-modification",
+  "title": "Maximize Consecutive Elements in an Array After Modification",
+  "exampleTestcases": "[2,1,5,1,1]\n[1,4,7,10]",
+  "sampleTestCase": "[2,1,5,1,1]",
+  "metaData": "{\n  \"name\": \"maxSelectedElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

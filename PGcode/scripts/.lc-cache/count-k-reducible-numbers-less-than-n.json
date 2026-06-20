@@ -1,8 +1,0 @@
-{
-  "questionId": "3631",
-  "titleSlug": "count-k-reducible-numbers-less-than-n",
-  "title": "Count K-Reducible Numbers Less Than N",
-  "exampleTestcases": "\"111\"\n1\n\"1000\"\n2\n\"1\"\n3",
-  "sampleTestCase": "\"111\"\n1",
-  "metaData": "{\n  \"name\": \"countKReducibleNumbers\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

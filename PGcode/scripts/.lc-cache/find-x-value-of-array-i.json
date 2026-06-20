@@ -1,8 +1,0 @@
-{
-  "questionId": "3831",
-  "titleSlug": "find-x-value-of-array-i",
-  "title": "Find X Value of Array I",
-  "exampleTestcases": "[1,2,3,4,5]\n3\n[1,2,4,8,16,32]\n4\n[1,1,2,1,1]\n2",
-  "sampleTestCase": "[1,2,3,4,5]\n3",
-  "metaData": "{\n  \"name\": \"resultArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

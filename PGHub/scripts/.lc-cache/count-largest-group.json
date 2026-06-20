@@ -1,0 +1,8 @@
+{
+  "questionId": "1500",
+  "titleSlug": "count-largest-group",
+  "title": "Count Largest Group",
+  "exampleTestcases": "13\n2",
+  "sampleTestCase": "13",
+  "metaData": "{\n  \"name\": \"countLargestGroup\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

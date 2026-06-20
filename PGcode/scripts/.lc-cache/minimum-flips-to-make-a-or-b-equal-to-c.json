@@ -1,8 +1,0 @@
-{
-  "questionId": "1441",
-  "titleSlug": "minimum-flips-to-make-a-or-b-equal-to-c",
-  "title": "Minimum Flips to Make a OR b Equal to c",
-  "exampleTestcases": "2\n6\n5\n4\n2\n7\n1\n2\n3",
-  "sampleTestCase": "2\n6\n5",
-  "metaData": "{\n  \"name\": \"minFlips\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"c\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

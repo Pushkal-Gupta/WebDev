@@ -1,8 +1,0 @@
-{
-  "questionId": "3406",
-  "titleSlug": "find-all-possible-stable-binary-arrays-i",
-  "title": "Find All Possible Stable Binary Arrays I",
-  "exampleTestcases": "1\n1\n2\n1\n2\n1\n3\n3\n2",
-  "sampleTestCase": "1\n1\n2",
-  "metaData": "{\n  \"name\": \"numberOfStableArrays\",\n  \"params\": [\n    {\n      \"name\": \"zero\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"one\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

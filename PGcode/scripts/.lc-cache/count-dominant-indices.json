@@ -1,8 +1,0 @@
-{
-  "questionId": "4214",
-  "titleSlug": "count-dominant-indices",
-  "title": "Count Dominant Indices",
-  "exampleTestcases": "[5,4,3]\n[4,1,2]",
-  "sampleTestCase": "[5,4,3]",
-  "metaData": "{\n  \"name\": \"dominantIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "835",
-  "titleSlug": "linked-list-components",
-  "title": "Linked List Components",
-  "exampleTestcases": "[0,1,2,3]\n[0,1,3]\n[0,1,2,3,4]\n[0,3,1,4]",
-  "sampleTestCase": "[0,1,2,3]\n[0,1,3]",
-  "metaData": "{\n  \"name\": \"numComponents\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    },\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

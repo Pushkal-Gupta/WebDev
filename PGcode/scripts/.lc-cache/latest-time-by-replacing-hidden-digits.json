@@ -1,8 +1,0 @@
-{
-  "questionId": "1858",
-  "titleSlug": "latest-time-by-replacing-hidden-digits",
-  "title": "Latest Time by Replacing Hidden Digits",
-  "exampleTestcases": "\"2?:?0\"\n\"0?:3?\"\n\"1?:22\"",
-  "sampleTestCase": "\"2?:?0\"",
-  "metaData": "{\n  \"name\": \"maximumTime\",\n  \"params\": [\n    {\n      \"name\": \"time\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

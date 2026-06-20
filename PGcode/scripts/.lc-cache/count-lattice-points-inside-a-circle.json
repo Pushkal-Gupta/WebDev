@@ -1,8 +1,0 @@
-{
-  "questionId": "2332",
-  "titleSlug": "count-lattice-points-inside-a-circle",
-  "title": "Count Lattice Points Inside a Circle",
-  "exampleTestcases": "[[2,2,1]]\n[[2,2,2],[3,4,1]]",
-  "sampleTestCase": "[[2,2,1]]",
-  "metaData": "{\n  \"name\": \"countLatticePoints\",\n  \"params\": [\n    {\n      \"name\": \"circles\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

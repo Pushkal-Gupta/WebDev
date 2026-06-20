@@ -1,0 +1,8 @@
+{
+  "questionId": "2038",
+  "titleSlug": "nearest-exit-from-entrance-in-maze",
+  "title": "Nearest Exit from Entrance in Maze",
+  "exampleTestcases": "[[\"+\",\"+\",\".\",\"+\"],[\".\",\".\",\".\",\"+\"],[\"+\",\"+\",\"+\",\".\"]]\n[1,2]\n[[\"+\",\"+\",\"+\"],[\".\",\".\",\".\"],[\"+\",\"+\",\"+\"]]\n[1,0]\n[[\".\",\"+\"]]\n[0,0]",
+  "sampleTestCase": "[[\"+\",\"+\",\".\",\"+\"],[\".\",\".\",\".\",\"+\"],[\"+\",\"+\",\"+\",\".\"]]\n[1,2]",
+  "metaData": "{\n  \"name\": \"nearestExit\",\n  \"params\": [\n    {\n      \"name\": \"maze\",\n      \"type\": \"character[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"entrance\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

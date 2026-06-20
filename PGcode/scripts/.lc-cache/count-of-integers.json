@@ -1,8 +1,0 @@
-{
-  "questionId": "2757",
-  "titleSlug": "count-of-integers",
-  "title": "Count of Integers",
-  "exampleTestcases": "\"1\"\n\"12\"\n1\n8\n\"1\"\n\"5\"\n1\n5",
-  "sampleTestCase": "\"1\"\n\"12\"\n1\n8",
-  "metaData": "{\n  \"name\": \"count\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"num2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"min_sum\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"max_sum\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

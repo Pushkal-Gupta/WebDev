@@ -1,0 +1,8 @@
+{
+  "questionId": "670",
+  "titleSlug": "maximum-swap",
+  "title": "Maximum Swap",
+  "exampleTestcases": "2736\n9973",
+  "sampleTestCase": "2736",
+  "metaData": "{\r\n  \"name\": \"maximumSwap\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

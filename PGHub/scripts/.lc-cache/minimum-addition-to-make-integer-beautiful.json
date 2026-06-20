@@ -1,0 +1,8 @@
+{
+  "questionId": "2544",
+  "titleSlug": "minimum-addition-to-make-integer-beautiful",
+  "title": "Minimum Addition to Make Integer Beautiful",
+  "exampleTestcases": "16\n6\n467\n6\n1\n1",
+  "sampleTestCase": "16\n6",
+  "metaData": "{\n  \"name\": \"makeIntegerBeautiful\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

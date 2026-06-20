@@ -1,0 +1,8 @@
+{
+  "questionId": "3074",
+  "titleSlug": "select-data",
+  "title": "Select Data",
+  "exampleTestcases": "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[101,\"Ulysses\",13],[53,\"William\",10],[128,\"Henry\",6],[3,\"Henry\",11]]}}",
+  "sampleTestCase": "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"students\":[[101,\"Ulysses\",13],[53,\"William\",10],[128,\"Henry\",6],[3,\"Henry\",11]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"students = pd.DataFrame([], columns=['student_id', 'name', 'age']).astype({'student_id':'Int64', 'name':'object', 'age':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"selectData\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

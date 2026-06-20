@@ -1,8 +1,0 @@
-{
-  "questionId": "3211",
-  "titleSlug": "find-maximum-non-decreasing-array-length",
-  "title": "Find Maximum Non-decreasing Array Length",
-  "exampleTestcases": "[5,2,2]\n[1,2,3,4]\n[4,3,2,6]",
-  "sampleTestCase": "[5,2,2]",
-  "metaData": "{\n  \"name\": \"findMaximumLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

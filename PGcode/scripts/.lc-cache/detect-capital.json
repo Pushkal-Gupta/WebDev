@@ -1,8 +1,0 @@
-{
-  "questionId": "520",
-  "titleSlug": "detect-capital",
-  "title": "Detect Capital",
-  "exampleTestcases": "\"USA\"\n\"FlaG\"",
-  "sampleTestCase": "\"USA\"",
-  "metaData": "{\r\n  \"name\": \"detectCapitalUse\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"word\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

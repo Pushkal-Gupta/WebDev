@@ -1,8 +1,0 @@
-{
-  "questionId": "1475",
-  "titleSlug": "maximum-sum-bst-in-binary-tree",
-  "title": "Maximum Sum BST in Binary Tree",
-  "exampleTestcases": "[1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]\n[4,3,null,1,2]\n[-4,-2,-5]",
-  "sampleTestCase": "[1,4,3,2,4,2,5,null,null,null,null,null,null,4,6]",
-  "metaData": "{\n  \"name\": \"maxSumBST\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

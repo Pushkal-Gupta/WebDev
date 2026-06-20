@@ -1,8 +1,0 @@
-{
-  "questionId": "2796",
-  "titleSlug": "allow-one-function-call",
-  "title": "Allow One Function Call",
-  "exampleTestcases": "(a,b,c) => (a + b + c)\n[[1,2,3],[2,3,6]]\n(a,b,c) => (a * b * c)\n[[5,7,4],[2,3,6],[4,6,8]]",
-  "sampleTestCase": "(a,b,c) => (a + b + c)\n[[1,2,3],[2,3,6]]",
-  "metaData": "{\n  \"name\": \"once\",\n  \"params\": [\n    {\n      \"name\": \"fn\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"calls\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

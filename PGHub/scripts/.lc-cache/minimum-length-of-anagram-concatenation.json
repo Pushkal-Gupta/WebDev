@@ -1,0 +1,8 @@
+{
+  "questionId": "3395",
+  "titleSlug": "minimum-length-of-anagram-concatenation",
+  "title": "Minimum Length of Anagram Concatenation",
+  "exampleTestcases": "\"abba\"\n\"cdef\"\n\"abcbcacabbaccba\"",
+  "sampleTestCase": "\"abba\"",
+  "metaData": "{\n  \"name\": \"minAnagramLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

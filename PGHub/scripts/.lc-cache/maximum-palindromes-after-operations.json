@@ -1,0 +1,8 @@
+{
+  "questionId": "3317",
+  "titleSlug": "maximum-palindromes-after-operations",
+  "title": "Maximum Palindromes After Operations",
+  "exampleTestcases": "[\"abbb\",\"ba\",\"aa\"]\n[\"abc\",\"ab\"]\n[\"cd\",\"ef\",\"a\"]",
+  "sampleTestCase": "[\"abbb\",\"ba\",\"aa\"]",
+  "metaData": "{\n  \"name\": \"maxPalindromesAfterOperations\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

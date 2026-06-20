@@ -1,8 +1,0 @@
-{
-  "questionId": "839",
-  "titleSlug": "short-encoding-of-words",
-  "title": "Short Encoding of Words",
-  "exampleTestcases": "[\"time\",\"me\",\"bell\"]\n[\"t\"]",
-  "sampleTestCase": "[\"time\",\"me\",\"bell\"]",
-  "metaData": "{\r\n  \"name\": \"minimumLengthEncoding\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

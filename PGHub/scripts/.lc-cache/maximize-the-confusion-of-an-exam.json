@@ -1,0 +1,8 @@
+{
+  "questionId": "2134",
+  "titleSlug": "maximize-the-confusion-of-an-exam",
+  "title": "Maximize the Confusion of an Exam",
+  "exampleTestcases": "\"TTFF\"\n2\n\"TFFT\"\n1\n\"TTFTTFTT\"\n1",
+  "sampleTestCase": "\"TTFF\"\n2",
+  "metaData": "{\n  \"name\": \"maxConsecutiveAnswers\",\n  \"params\": [\n    {\n      \"name\": \"answerKey\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3649",
-  "titleSlug": "minimum-time-to-break-locks-i",
-  "title": "Minimum Time to Break Locks I",
-  "exampleTestcases": "[3,4,1]\n1\n[2,5,4]\n2",
-  "sampleTestCase": "[3,4,1]\n1",
-  "metaData": "{\n  \"name\": \"findMinimumTime\",\n  \"params\": [\n    {\n      \"name\": \"strength\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

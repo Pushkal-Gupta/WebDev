@@ -1,8 +1,0 @@
-{
-  "questionId": "1746",
-  "titleSlug": "largest-substring-between-two-equal-characters",
-  "title": "Largest Substring Between Two Equal Characters",
-  "exampleTestcases": "\"aa\"\n\"abca\"\n\"cbzxy\"",
-  "sampleTestCase": "\"aa\"",
-  "metaData": "{\n  \"name\": \"maxLengthBetweenEqualCharacters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

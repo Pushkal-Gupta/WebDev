@@ -1,8 +1,0 @@
-{
-  "questionId": "2207",
-  "titleSlug": "sequentially-ordinal-rank-tracker",
-  "title": "Sequentially Ordinal Rank Tracker",
-  "exampleTestcases": "[\"SORTracker\",\"add\",\"add\",\"get\",\"add\",\"get\",\"add\",\"get\",\"add\",\"get\",\"add\",\"get\",\"get\"]\n[[],[\"bradford\",2],[\"branford\",3],[],[\"alps\",2],[],[\"orland\",2],[],[\"orlando\",3],[],[\"alpine\",2],[],[]]",
-  "sampleTestCase": "[\"SORTracker\",\"add\",\"add\",\"get\",\"add\",\"get\",\"add\",\"get\",\"add\",\"get\",\"add\",\"get\",\"get\"]\n[[],[\"bradford\",2],[\"branford\",3],[],[\"alps\",2],[],[\"orland\",2],[],[\"orlando\",3],[],[\"alpine\",2],[],[]]",
-  "metaData": "{\n  \"classname\": \"SORTracker\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"name\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"score\"\n        }\n      ],\n      \"name\": \"add\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"name\": \"get\",\n      \"return\": {\n        \"type\": \"string\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

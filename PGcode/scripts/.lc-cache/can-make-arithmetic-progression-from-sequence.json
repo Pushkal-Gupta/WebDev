@@ -1,8 +1,0 @@
-{
-  "questionId": "1626",
-  "titleSlug": "can-make-arithmetic-progression-from-sequence",
-  "title": "Can Make Arithmetic Progression From Sequence",
-  "exampleTestcases": "[3,5,1]\n[1,2,4]",
-  "sampleTestCase": "[3,5,1]",
-  "metaData": "{\n  \"name\": \"canMakeArithmeticProgression\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2202",
-  "titleSlug": "sum-of-k-mirror-numbers",
-  "title": "Sum of k-Mirror Numbers",
-  "exampleTestcases": "2\n5\n3\n7\n7\n17",
-  "sampleTestCase": "2\n5",
-  "metaData": "{\n  \"name\": \"kMirror\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3765",
-  "titleSlug": "minimum-cost-to-divide-array-into-subarrays",
-  "title": "Minimum Cost to Divide Array Into Subarrays",
-  "exampleTestcases": "[3,1,4]\n[4,6,6]\n1\n[4,8,5,1,14,2,2,12,1]\n[7,2,8,4,2,2,1,1,2]\n7",
-  "sampleTestCase": "[3,1,4]\n[4,6,6]\n1",
-  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"cost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

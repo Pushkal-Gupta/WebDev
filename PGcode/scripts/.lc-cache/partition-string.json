@@ -1,8 +1,0 @@
-{
-  "questionId": "3905",
-  "titleSlug": "partition-string",
-  "title": "Partition String ",
-  "exampleTestcases": "\"abbccccd\"\n\"aaaa\"",
-  "sampleTestCase": "\"abbccccd\"",
-  "metaData": "{\n  \"name\": \"partitionString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

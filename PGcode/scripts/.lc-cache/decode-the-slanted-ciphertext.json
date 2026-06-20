@@ -1,8 +1,0 @@
-{
-  "questionId": "2197",
-  "titleSlug": "decode-the-slanted-ciphertext",
-  "title": "Decode the Slanted Ciphertext",
-  "exampleTestcases": "\"ch   ie   pr\"\n3\n\"iveo    eed   l te   olc\"\n4\n\"coding\"\n1",
-  "sampleTestCase": "\"ch   ie   pr\"\n3",
-  "metaData": "{\n  \"name\": \"decodeCiphertext\",\n  \"params\": [\n    {\n      \"name\": \"encodedText\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"rows\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

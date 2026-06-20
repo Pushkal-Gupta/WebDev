@@ -1,0 +1,8 @@
+{
+  "questionId": "3655",
+  "titleSlug": "digit-operations-to-make-two-integers-equal",
+  "title": "Digit Operations to Make Two Integers Equal",
+  "exampleTestcases": "10\n12\n4\n8\n6\n2",
+  "sampleTestCase": "10\n12",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

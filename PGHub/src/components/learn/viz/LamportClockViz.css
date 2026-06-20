@@ -1,0 +1,384 @@
+.lcv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.lcv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.lcv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.lcv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.lcv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lcv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lcv-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.76rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.lcv-mode:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--hard);
+}
+.lcv-mode.is-on {
+  background: rgba(var(--accent-rgb), 0.12);
+  border-color: var(--hard);
+  color: var(--hard);
+}
+.lcv-mode:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lcv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lcv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.lcv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lcv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.lcv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.lcv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.lcv-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.lcv-speed-range {
+  width: 100px;
+  accent-color: var(--accent);
+}
+.lcv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.lcv-spacer {
+  flex: 1 1 auto;
+}
+
+.lcv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.lcv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.lcv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.lcv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* timelines */
+.lcv-axis {
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.lcv-proc-chip {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+
+.lcv-proc-name {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.lcv-proc-clock {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--accent);
+  text-anchor: start;
+}
+
+.lcv-ic {
+  color: var(--text-dim);
+}
+
+/* message arrows */
+.lcv-msg {
+  stroke: var(--text-dim);
+  stroke-width: 2;
+  stroke-dasharray: 6 5;
+  opacity: 0.7;
+  transition: stroke 0.2s, opacity 0.2s, stroke-width 0.2s;
+}
+.lcv-msg.is-hot {
+  stroke: var(--hue-sky);
+  stroke-width: 3;
+  stroke-dasharray: none;
+  opacity: 1;
+}
+.lcv-ah-msg {
+  fill: var(--text-dim);
+}
+
+/* concurrent-pair spotlight */
+.lcv-conc {
+  fill: none;
+  stroke: var(--hard);
+  stroke-width: 2.6;
+  stroke-dasharray: 7 5;
+}
+.lcv-ah-conc {
+  fill: var(--hard);
+}
+
+/* event nodes */
+.lcv-event-ts-bg {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1;
+  opacity: 0.9;
+}
+
+.lcv-event-ts {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.lcv-event-dot {
+  fill: var(--surface);
+  stroke: var(--text-dim);
+  stroke-width: 2;
+  transition: r 0.15s, stroke 0.15s, stroke-width 0.15s, fill 0.15s;
+}
+.lcv-event-loc .lcv-event-dot { stroke: var(--hue-mint); }
+.lcv-event-snd .lcv-event-dot { stroke: var(--hue-sky); }
+.lcv-event-rcv .lcv-event-dot { stroke: var(--hue-pink); }
+
+.lcv-event.is-active .lcv-event-dot {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--accent);
+  stroke-width: 3;
+}
+.lcv-event.is-conc .lcv-event-dot {
+  fill: rgba(var(--accent-rgb), 0.16);
+  stroke: var(--hard);
+  stroke-width: 3.2;
+}
+.lcv-event.is-conc .lcv-event-ts {
+  fill: var(--hard);
+}
+
+.lcv-event-kind {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.lcv-event-id {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.lcv-event-tag {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--hard);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.lcv-hint {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+}
+
+/* metrics */
+.lcv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.lcv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.lcv-metric-wide {
+  grid-column: 1 / -1;
+}
+.lcv-metric-conc {
+  border-left: 3px solid var(--hard);
+}
+
+.lcv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.lcv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.lcv-metric-order {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-main);
+  word-break: break-word;
+}
+.lcv-metric-value.is-conc {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--hard);
+}
+
+/* narration */
+.lcv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.lcv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.lcv-kind-local { color: var(--hue-mint); }
+.lcv-kind-send { color: var(--hue-sky); }
+.lcv-kind-recv { color: var(--hue-pink); }
+
+.lcv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lcv-btn,
+  .lcv-mode,
+  .lcv-msg,
+  .lcv-event-dot {
+    transition: none;
+  }
+}

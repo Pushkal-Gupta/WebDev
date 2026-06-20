@@ -1,8 +1,0 @@
-{
-  "questionId": "2337",
-  "titleSlug": "remove-digit-from-number-to-maximize-result",
-  "title": "Remove Digit From Number to Maximize Result",
-  "exampleTestcases": "\"123\"\n\"3\"\n\"1231\"\n\"1\"\n\"551\"\n\"5\"",
-  "sampleTestCase": "\"123\"\n\"3\"",
-  "metaData": "{\n  \"name\": \"removeDigit\",\n  \"params\": [\n    {\n      \"name\": \"number\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"digit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

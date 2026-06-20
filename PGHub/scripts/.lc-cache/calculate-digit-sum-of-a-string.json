@@ -1,0 +1,8 @@
+{
+  "questionId": "2361",
+  "titleSlug": "calculate-digit-sum-of-a-string",
+  "title": "Calculate Digit Sum of a String",
+  "exampleTestcases": "\"11111222223\"\n3\n\"00000000\"\n3",
+  "sampleTestCase": "\"11111222223\"\n3",
+  "metaData": "{\n  \"name\": \"digitSum\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

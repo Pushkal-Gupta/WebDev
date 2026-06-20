@@ -1,8 +1,0 @@
-{
-  "questionId": "939",
-  "titleSlug": "valid-permutations-for-di-sequence",
-  "title": "Valid Permutations for DI Sequence",
-  "exampleTestcases": "\"DID\"\n\"D\"",
-  "sampleTestCase": "\"DID\"",
-  "metaData": "{\n  \"name\": \"numPermsDISequence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

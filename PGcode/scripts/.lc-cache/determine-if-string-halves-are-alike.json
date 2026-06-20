@@ -1,8 +1,0 @@
-{
-  "questionId": "1823",
-  "titleSlug": "determine-if-string-halves-are-alike",
-  "title": "Determine if String Halves Are Alike",
-  "exampleTestcases": "\"book\"\n\"textbook\"",
-  "sampleTestCase": "\"book\"",
-  "metaData": "{\n  \"name\": \"halvesAreAlike\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3382",
+  "titleSlug": "find-the-number-of-subarrays-where-boundary-elements-are-maximum",
+  "title": "Find the Number of Subarrays Where Boundary Elements Are Maximum",
+  "exampleTestcases": "[1,4,3,3,2]\n[3,3,3]\n[1]",
+  "sampleTestCase": "[1,4,3,3,2]",
+  "metaData": "{\n  \"name\": \"numberOfSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

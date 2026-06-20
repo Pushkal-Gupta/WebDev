@@ -1,8 +1,0 @@
-{
-  "questionId": "1727",
-  "titleSlug": "cat-and-mouse-ii",
-  "title": "Cat and Mouse II",
-  "exampleTestcases": "[\"####F\",\"#C...\",\"M....\"]\n1\n2\n[\"M.C...F\"]\n1\n4\n[\"M.C...F\"]\n1\n3",
-  "sampleTestCase": "[\"####F\",\"#C...\",\"M....\"]\n1\n2",
-  "metaData": "{\n  \"name\": \"canMouseWin\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"catJump\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"mouseJump\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

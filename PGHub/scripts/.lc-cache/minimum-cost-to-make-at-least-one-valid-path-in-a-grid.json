@@ -1,0 +1,8 @@
+{
+  "questionId": "1485",
+  "titleSlug": "minimum-cost-to-make-at-least-one-valid-path-in-a-grid",
+  "title": "Minimum Cost to Make at Least One Valid Path in a Grid",
+  "exampleTestcases": "[[1,1,1,1],[2,2,2,2],[1,1,1,1],[2,2,2,2]]\n[[1,1,3],[3,2,2],[1,1,4]]\n[[1,2],[4,3]]",
+  "sampleTestCase": "[[1,1,1,1],[2,2,2,2],[1,1,1,1],[2,2,2,2]]",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

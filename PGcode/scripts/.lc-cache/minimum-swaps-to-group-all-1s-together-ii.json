@@ -1,8 +1,0 @@
-{
-  "questionId": "2255",
-  "titleSlug": "minimum-swaps-to-group-all-1s-together-ii",
-  "title": "Minimum Swaps to Group All 1's Together II",
-  "exampleTestcases": "[0,1,0,1,1,0,0]\n[0,1,1,1,0,0,1,1,0]\n[1,1,0,0,1]",
-  "sampleTestCase": "[0,1,0,1,1,0,0]",
-  "metaData": "{\n  \"name\": \"minSwaps\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

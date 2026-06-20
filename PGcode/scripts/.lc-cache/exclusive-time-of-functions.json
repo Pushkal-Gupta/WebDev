@@ -1,8 +1,0 @@
-{
-  "questionId": "636",
-  "titleSlug": "exclusive-time-of-functions",
-  "title": "Exclusive Time of Functions",
-  "exampleTestcases": "2\n[\"0:start:0\",\"1:start:2\",\"1:end:5\",\"0:end:6\"]\n1\n[\"0:start:0\",\"0:start:2\",\"0:end:5\",\"0:start:6\",\"0:end:6\",\"0:end:7\"]\n2\n[\"0:start:0\",\"0:start:2\",\"0:end:5\",\"1:start:6\",\"1:end:6\",\"0:end:7\"]",
-  "sampleTestCase": "2\n[\"0:start:0\",\"1:start:2\",\"1:end:5\",\"0:end:6\"]",
-  "metaData": "{\r\n  \"name\": \"exclusiveTime\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"logs\",\r\n      \"type\": \"list<string>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
-}

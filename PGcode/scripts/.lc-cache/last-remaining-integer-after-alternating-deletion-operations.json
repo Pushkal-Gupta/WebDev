@@ -1,8 +1,0 @@
-{
-  "questionId": "4164",
-  "titleSlug": "last-remaining-integer-after-alternating-deletion-operations",
-  "title": "Last Remaining Integer After Alternating Deletion Operations",
-  "exampleTestcases": "8\n5\n1",
-  "sampleTestCase": "8",
-  "metaData": "{\n  \"name\": \"lastInteger\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

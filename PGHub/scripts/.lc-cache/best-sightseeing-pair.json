@@ -1,0 +1,8 @@
+{
+  "questionId": "1063",
+  "titleSlug": "best-sightseeing-pair",
+  "title": "Best Sightseeing Pair",
+  "exampleTestcases": "[8,1,5,2,6]\n[1,2]",
+  "sampleTestCase": "[8,1,5,2,6]",
+  "metaData": "{\n  \"name\": \"maxScoreSightseeingPair\",\n  \"params\": [\n    {\n      \"name\": \"values\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

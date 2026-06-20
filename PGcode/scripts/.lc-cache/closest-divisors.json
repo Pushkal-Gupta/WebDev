@@ -1,8 +1,0 @@
-{
-  "questionId": "1276",
-  "titleSlug": "closest-divisors",
-  "title": "Closest Divisors",
-  "exampleTestcases": "8\n123\n999",
-  "sampleTestCase": "8",
-  "metaData": "{\n  \"name\": \"closestDivisors\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  },\n  \"manual\": false\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4023",
-  "titleSlug": "count-binary-palindromic-numbers",
-  "title": "Count Binary Palindromic Numbers",
-  "exampleTestcases": "9\n0",
-  "sampleTestCase": "9",
-  "metaData": "{\n  \"name\": \"countBinaryPalindromes\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

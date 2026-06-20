@@ -1,8 +1,0 @@
-{
-  "questionId": "2661",
-  "titleSlug": "smallest-missing-non-negative-integer-after-operations",
-  "title": "Smallest Missing Non-negative Integer After Operations",
-  "exampleTestcases": "[1,-10,7,13,6,8]\n5\n[1,-10,7,13,6,8]\n7",
-  "sampleTestCase": "[1,-10,7,13,6,8]\n5",
-  "metaData": "{\n  \"name\": \"findSmallestInteger\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"value\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

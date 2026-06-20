@@ -1,8 +1,0 @@
-{
-  "questionId": "3197",
-  "titleSlug": "maximum-strong-pair-xor-ii",
-  "title": "Maximum Strong Pair XOR II",
-  "exampleTestcases": "[1,2,3,4,5]\n[10,100]\n[500,520,2500,3000]",
-  "sampleTestCase": "[1,2,3,4,5]",
-  "metaData": "{\n  \"name\": \"maximumStrongPairXor\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

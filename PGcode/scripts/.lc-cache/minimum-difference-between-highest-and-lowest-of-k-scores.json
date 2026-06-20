@@ -1,8 +1,0 @@
-{
-  "questionId": "2112",
-  "titleSlug": "minimum-difference-between-highest-and-lowest-of-k-scores",
-  "title": "Minimum Difference Between Highest and Lowest of K Scores",
-  "exampleTestcases": "[90]\n1\n[9,4,1,7]\n2",
-  "sampleTestCase": "[90]\n1",
-  "metaData": "{\n  \"name\": \"minimumDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

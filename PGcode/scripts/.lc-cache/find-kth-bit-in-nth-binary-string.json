@@ -1,8 +1,0 @@
-{
-  "questionId": "1667",
-  "titleSlug": "find-kth-bit-in-nth-binary-string",
-  "title": "Find Kth Bit in Nth Binary String",
-  "exampleTestcases": "3\n1\n4\n11",
-  "sampleTestCase": "3\n1",
-  "metaData": "{\n  \"name\": \"findKthBit\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character\"\n  }\n}"
-}

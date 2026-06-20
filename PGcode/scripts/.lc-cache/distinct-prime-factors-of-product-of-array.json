@@ -1,8 +1,0 @@
-{
-  "questionId": "2609",
-  "titleSlug": "distinct-prime-factors-of-product-of-array",
-  "title": "Distinct Prime Factors of Product of Array",
-  "exampleTestcases": "[2,4,3,7,10,6]\n[2,4,8,16]",
-  "sampleTestCase": "[2,4,3,7,10,6]",
-  "metaData": "{\n  \"name\": \"distinctPrimeFactors\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

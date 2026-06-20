@@ -1,8 +1,0 @@
-{
-  "questionId": "606",
-  "titleSlug": "construct-string-from-binary-tree",
-  "title": "Construct String from Binary Tree",
-  "exampleTestcases": "[1,2,3,4]\n[1,2,3,null,4]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\n  \"name\": \"tree2str\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

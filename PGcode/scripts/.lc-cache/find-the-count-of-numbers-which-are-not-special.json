@@ -1,8 +1,0 @@
-{
-  "questionId": "3507",
-  "titleSlug": "find-the-count-of-numbers-which-are-not-special",
-  "title": "Find the Count of Numbers Which Are Not Special",
-  "exampleTestcases": "5\n7\n4\n16",
-  "sampleTestCase": "5\n7",
-  "metaData": "{\n  \"name\": \"nonSpecialCount\",\n  \"params\": [\n    {\n      \"name\": \"l\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

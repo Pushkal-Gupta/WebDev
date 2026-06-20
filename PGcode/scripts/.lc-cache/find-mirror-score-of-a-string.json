@@ -1,8 +1,0 @@
-{
-  "questionId": "3634",
-  "titleSlug": "find-mirror-score-of-a-string",
-  "title": "Find Mirror Score of a String",
-  "exampleTestcases": "\"aczzx\"\n\"abcdef\"",
-  "sampleTestCase": "\"aczzx\"",
-  "metaData": "{\n  \"name\": \"calculateScore\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

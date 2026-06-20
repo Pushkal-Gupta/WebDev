@@ -1,8 +1,0 @@
-{
-  "questionId": "4240",
-  "titleSlug": "find-the-smallest-balanced-index",
-  "title": "Find the Smallest Balanced Index",
-  "exampleTestcases": "[2,1,2]\n[2,8,2,2,5]\n[1]",
-  "sampleTestCase": "[2,1,2]",
-  "metaData": "{\n  \"name\": \"smallestBalancedIndex\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

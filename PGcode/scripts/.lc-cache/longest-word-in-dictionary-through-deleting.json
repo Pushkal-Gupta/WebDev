@@ -1,8 +1,0 @@
-{
-  "questionId": "524",
-  "titleSlug": "longest-word-in-dictionary-through-deleting",
-  "title": "Longest Word in Dictionary through Deleting",
-  "exampleTestcases": "\"abpcplea\"\n[\"ale\",\"apple\",\"monkey\",\"plea\"]\n\"abpcplea\"\n[\"a\",\"b\",\"c\"]",
-  "sampleTestCase": "\"abpcplea\"\n[\"ale\",\"apple\",\"monkey\",\"plea\"]",
-  "metaData": "{\n  \"name\": \"findLongestWord\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"dictionary\",\n      \"type\": \"list<string>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

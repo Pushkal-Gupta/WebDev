@@ -1,8 +1,0 @@
-{
-  "questionId": "477",
-  "titleSlug": "total-hamming-distance",
-  "title": "Total Hamming Distance",
-  "exampleTestcases": "[4,14,2]\n[4,14,4]",
-  "sampleTestCase": "[4,14,2]",
-  "metaData": "{\r\n  \"name\": \"totalHammingDistance\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

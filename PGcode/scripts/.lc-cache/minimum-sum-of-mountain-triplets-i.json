@@ -1,8 +1,0 @@
-{
-  "questionId": "3176",
-  "titleSlug": "minimum-sum-of-mountain-triplets-i",
-  "title": "Minimum Sum of Mountain Triplets I",
-  "exampleTestcases": "[8,6,1,5,3]\n[5,4,8,7,10,2]\n[6,5,4,3,4,5]",
-  "sampleTestCase": "[8,6,1,5,3]",
-  "metaData": "{\n  \"name\": \"minimumSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

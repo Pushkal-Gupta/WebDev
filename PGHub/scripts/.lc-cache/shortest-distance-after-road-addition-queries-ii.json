@@ -1,0 +1,8 @@
+{
+  "questionId": "3514",
+  "titleSlug": "shortest-distance-after-road-addition-queries-ii",
+  "title": "Shortest Distance After Road Addition Queries II",
+  "exampleTestcases": "5\n[[2,4],[0,2],[0,4]]\n4\n[[0,3],[0,2]]",
+  "sampleTestCase": "5\n[[2,4],[0,2],[0,4]]",
+  "metaData": "{\n  \"name\": \"shortestDistanceAfterQueries\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

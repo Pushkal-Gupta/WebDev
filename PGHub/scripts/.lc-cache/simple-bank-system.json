@@ -1,0 +1,8 @@
+{
+  "questionId": "2169",
+  "titleSlug": "simple-bank-system",
+  "title": "Simple Bank System",
+  "exampleTestcases": "[\"Bank\",\"withdraw\",\"transfer\",\"deposit\",\"transfer\",\"withdraw\"]\n[[[10,100,20,50,30]],[3,10],[5,1,20],[5,20],[3,4,15],[10,50]]",
+  "sampleTestCase": "[\"Bank\",\"withdraw\",\"transfer\",\"deposit\",\"transfer\",\"withdraw\"]\n[[[10,100,20,50,30]],[3,10],[5,1,20],[5,20],[3,4,15],[10,50]]",
+  "metaData": "{\n  \"classname\": \"Bank\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"long[]\",\n        \"name\": \"balance\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"account1\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"account2\"\n        },\n        {\n          \"type\": \"long\",\n          \"name\": \"money\"\n        }\n      ],\n      \"name\": \"transfer\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"account\"\n        },\n        {\n          \"type\": \"long\",\n          \"name\": \"money\"\n        }\n      ],\n      \"name\": \"deposit\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"account\"\n        },\n        {\n          \"type\": \"long\",\n          \"name\": \"money\"\n        }\n      ],\n      \"name\": \"withdraw\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
+}

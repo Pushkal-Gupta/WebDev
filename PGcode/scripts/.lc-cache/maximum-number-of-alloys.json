@@ -1,8 +1,0 @@
-{
-  "questionId": "3095",
-  "titleSlug": "maximum-number-of-alloys",
-  "title": "Maximum Number of Alloys",
-  "exampleTestcases": "3\n2\n15\n[[1,1,1],[1,1,10]]\n[0,0,0]\n[1,2,3]\n3\n2\n15\n[[1,1,1],[1,1,10]]\n[0,0,100]\n[1,2,3]\n2\n3\n10\n[[2,1],[1,2],[1,1]]\n[1,1]\n[5,5]",
-  "sampleTestCase": "3\n2\n15\n[[1,1,1],[1,1,10]]\n[0,0,0]\n[1,2,3]",
-  "metaData": "{\n  \"name\": \"maxNumberOfAlloys\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"budget\"\n    },\n    {\n      \"type\": \"list<list<integer>>\",\n      \"name\": \"composition\"\n    },\n    {\n      \"type\": \"list<integer>\",\n      \"name\": \"stock\"\n    },\n    {\n      \"type\": \"list<integer>\",\n      \"name\": \"cost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4032",
-  "titleSlug": "longest-strictly-increasing-subsequence-with-non-zero-bitwise-and",
-  "title": "Longest Strictly Increasing Subsequence With Non-Zero Bitwise AND",
-  "exampleTestcases": "[5,4,7]\n[2,3,6]\n[0,1]",
-  "sampleTestCase": "[5,4,7]",
-  "metaData": "{\n  \"name\": \"longestSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1800",
-  "titleSlug": "concatenation-of-consecutive-binary-numbers",
-  "title": "Concatenation of Consecutive Binary Numbers",
-  "exampleTestcases": "1\n3\n12",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"concatenatedBinary\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2342",
-  "titleSlug": "minimum-average-difference",
-  "title": "Minimum Average Difference",
-  "exampleTestcases": "[2,5,3,9,5,3]\n[0]",
-  "sampleTestCase": "[2,5,3,9,5,3]",
-  "metaData": "{\n  \"name\": \"minimumAverageDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

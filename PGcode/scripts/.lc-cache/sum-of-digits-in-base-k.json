@@ -1,8 +1,0 @@
-{
-  "questionId": "1965",
-  "titleSlug": "sum-of-digits-in-base-k",
-  "title": "Sum of Digits in Base K",
-  "exampleTestcases": "34\n6\n10\n10",
-  "sampleTestCase": "34\n6",
-  "metaData": "{\n  \"name\": \"sumBase\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

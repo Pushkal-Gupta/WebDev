@@ -1,8 +1,0 @@
-{
-  "questionId": "1548",
-  "titleSlug": "check-if-all-1s-are-at-least-length-k-places-away",
-  "title": "Check If All 1's Are at Least Length K Places Away",
-  "exampleTestcases": "[1,0,0,0,1,0,0,1]\n2\n[1,0,0,1,0,1]\n2",
-  "sampleTestCase": "[1,0,0,0,1,0,0,1]\n2",
-  "metaData": "{\n  \"name\": \"kLengthApart\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

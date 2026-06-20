@@ -1,8 +1,0 @@
-{
-  "questionId": "3351",
-  "titleSlug": "maximize-happiness-of-selected-children",
-  "title": "Maximize Happiness of Selected Children",
-  "exampleTestcases": "[1,2,3]\n2\n[1,1,1,1]\n2\n[2,3,4,5]\n1",
-  "sampleTestCase": "[1,2,3]\n2",
-  "metaData": "{\n  \"name\": \"maximumHappinessSum\",\n  \"params\": [\n    {\n      \"name\": \"happiness\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2595",
+  "titleSlug": "smallest-value-after-replacing-with-sum-of-prime-factors",
+  "title": "Smallest Value After Replacing With Sum of Prime Factors",
+  "exampleTestcases": "15\n3",
+  "sampleTestCase": "15",
+  "metaData": "{\n  \"name\": \"smallestValue\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

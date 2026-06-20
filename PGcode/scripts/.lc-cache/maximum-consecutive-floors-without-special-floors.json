@@ -1,8 +1,0 @@
-{
-  "questionId": "2355",
-  "titleSlug": "maximum-consecutive-floors-without-special-floors",
-  "title": "Maximum Consecutive Floors Without Special Floors",
-  "exampleTestcases": "2\n9\n[4,6]\n6\n8\n[7,6,8]",
-  "sampleTestCase": "2\n9\n[4,6]",
-  "metaData": "{\n  \"name\": \"maxConsecutive\",\n  \"params\": [\n    {\n      \"name\": \"bottom\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"top\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"special\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "329",
-  "titleSlug": "longest-increasing-path-in-a-matrix",
-  "title": "Longest Increasing Path in a Matrix",
-  "exampleTestcases": "[[9,9,4],[6,6,8],[2,1,1]]\n[[3,4,5],[3,2,6],[2,2,1]]\n[[1]]",
-  "sampleTestCase": "[[9,9,4],[6,6,8],[2,1,1]]",
-  "metaData": "{\r\n  \"name\": \"longestIncreasingPath\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"matrix\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

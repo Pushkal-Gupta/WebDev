@@ -1,8 +1,0 @@
-{
-  "questionId": "924",
-  "titleSlug": "fair-candy-swap",
-  "title": "Fair Candy Swap",
-  "exampleTestcases": "[1,1]\n[2,2]\n[1,2]\n[2,3]\n[2]\n[1,3]",
-  "sampleTestCase": "[1,1]\n[2,2]",
-  "metaData": "{\n  \"name\": \"fairCandySwap\",\n  \"params\": [\n    {\n      \"name\": \"aliceSizes\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"bobSizes\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

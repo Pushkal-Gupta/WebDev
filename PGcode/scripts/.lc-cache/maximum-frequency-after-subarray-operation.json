@@ -1,8 +1,0 @@
-{
-  "questionId": "3751",
-  "titleSlug": "maximum-frequency-after-subarray-operation",
-  "title": "Maximum Frequency After Subarray Operation",
-  "exampleTestcases": "[1,2,3,4,5,6]\n1\n[10,2,3,4,5,5,4,3,2,2]\n10",
-  "sampleTestCase": "[1,2,3,4,5,6]\n1",
-  "metaData": "{\n  \"name\": \"maxFrequency\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

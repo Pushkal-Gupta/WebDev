@@ -1,0 +1,8 @@
+{
+  "questionId": "2645",
+  "titleSlug": "pass-the-pillow",
+  "title": "Pass the Pillow",
+  "exampleTestcases": "4\n5\n3\n2",
+  "sampleTestCase": "4\n5",
+  "metaData": "{\n  \"name\": \"passThePillow\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"time\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

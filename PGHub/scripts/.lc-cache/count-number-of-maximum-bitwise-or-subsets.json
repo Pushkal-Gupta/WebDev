@@ -1,0 +1,8 @@
+{
+  "questionId": "2170",
+  "titleSlug": "count-number-of-maximum-bitwise-or-subsets",
+  "title": "Count Number of Maximum Bitwise-OR Subsets",
+  "exampleTestcases": "[3,1]\n[2,2,2]\n[3,2,1,5]",
+  "sampleTestCase": "[3,1]",
+  "metaData": "{\n  \"name\": \"countMaxOrSubsets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

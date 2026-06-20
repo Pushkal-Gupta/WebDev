@@ -1,8 +1,0 @@
-{
-  "questionId": "3919",
-  "titleSlug": "network-recovery-pathways",
-  "title": "Network Recovery Pathways",
-  "exampleTestcases": "[[0,1,5],[1,3,10],[0,2,3],[2,3,4]]\n[true,true,true,true]\n10\n[[0,1,7],[1,4,5],[0,2,6],[2,3,6],[3,4,2],[2,4,6]]\n[true,true,true,false,true]\n12",
-  "sampleTestCase": "[[0,1,5],[1,3,10],[0,2,3],[2,3,4]]\n[true,true,true,true]\n10",
-  "metaData": "{\n  \"name\": \"findMaxPathScore\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"boolean[]\",\n      \"name\": \"online\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "131",
-  "titleSlug": "palindrome-partitioning",
-  "title": "Palindrome Partitioning",
-  "exampleTestcases": "\"aab\"\n\"a\"",
-  "sampleTestCase": "\"aab\"",
-  "metaData": "{\r\n  \"name\": \"partition\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<string>>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

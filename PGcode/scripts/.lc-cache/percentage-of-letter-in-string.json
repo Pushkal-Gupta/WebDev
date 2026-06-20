@@ -1,8 +1,0 @@
-{
-  "questionId": "2365",
-  "titleSlug": "percentage-of-letter-in-string",
-  "title": "Percentage of Letter in String",
-  "exampleTestcases": "\"foobar\"\n\"o\"\n\"jjjj\"\n\"k\"",
-  "sampleTestCase": "\"foobar\"\n\"o\"",
-  "metaData": "{\n  \"name\": \"percentageLetter\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"letter\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

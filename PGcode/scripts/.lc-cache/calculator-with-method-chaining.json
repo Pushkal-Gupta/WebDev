@@ -1,8 +1,0 @@
-{
-  "questionId": "2863",
-  "titleSlug": "calculator-with-method-chaining",
-  "title": "Calculator with Method Chaining",
-  "exampleTestcases": "[\"Calculator\", \"add\", \"subtract\", \"getResult\"]\n[10, 5, 7]\n[\"Calculator\", \"multiply\", \"power\", \"getResult\"]\n[2, 5, 2]\n[\"Calculator\", \"divide\", \"getResult\"]\n[20, 0]",
-  "sampleTestCase": "[\"Calculator\", \"add\", \"subtract\", \"getResult\"]\n[10, 5, 7]",
-  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"actions\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"double[]\",\n      \"name\": \"values\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"typescript\",\n    \"javascript\"\n  ],\n  \"manual\": true\n}"
-}

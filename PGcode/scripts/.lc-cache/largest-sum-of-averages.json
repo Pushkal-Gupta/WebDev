@@ -1,8 +1,0 @@
-{
-  "questionId": "831",
-  "titleSlug": "largest-sum-of-averages",
-  "title": "Largest Sum of Averages",
-  "exampleTestcases": "[9,1,2,3,9]\n3\n[1,2,3,4,5,6,7]\n4",
-  "sampleTestCase": "[9,1,2,3,9]\n3",
-  "metaData": "{\n  \"name\": \"largestSumOfAverages\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
-}

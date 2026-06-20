@@ -1,8 +1,0 @@
-{
-  "questionId": "1289",
-  "titleSlug": "day-of-the-week",
-  "title": "Day of the Week",
-  "exampleTestcases": "31\n8\n2019\n18\n7\n1999\n15\n8\n1993",
-  "sampleTestCase": "31\n8\n2019",
-  "metaData": "{\n  \"name\": \"dayOfTheWeek\",\n  \"params\": [\n    {\n      \"name\": \"day\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"month\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"year\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

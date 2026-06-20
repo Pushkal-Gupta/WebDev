@@ -1,8 +1,0 @@
-{
-  "questionId": "2155",
-  "titleSlug": "find-missing-observations",
-  "title": "Find Missing Observations",
-  "exampleTestcases": "[3,2,4,3]\n4\n2\n[1,5,6]\n3\n4\n[1,2,3,4]\n6\n4",
-  "sampleTestCase": "[3,2,4,3]\n4\n2",
-  "metaData": "{\n  \"name\": \"missingRolls\",\n  \"params\": [\n    {\n      \"name\": \"rolls\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"mean\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

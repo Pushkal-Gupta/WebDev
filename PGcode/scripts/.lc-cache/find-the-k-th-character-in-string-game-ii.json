@@ -1,8 +1,0 @@
-{
-  "questionId": "3601",
-  "titleSlug": "find-the-k-th-character-in-string-game-ii",
-  "title": "Find the K-th Character in String Game II",
-  "exampleTestcases": "5\n[0,0,0]\n10\n[0,1,0,1]",
-  "sampleTestCase": "5\n[0,0,0]",
-  "metaData": "{\n  \"name\": \"kthCharacter\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"operations\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character\"\n  }\n}"
-}

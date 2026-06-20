@@ -1,0 +1,8 @@
+{
+  "questionId": "4068",
+  "titleSlug": "sum-of-elements-with-frequency-divisible-by-k",
+  "title": "Sum of Elements With Frequency Divisible by K",
+  "exampleTestcases": "[1,2,2,3,3,3,3,4]\n2\n[1,2,3,4,5]\n2\n[4,4,4,1,2,3]\n3",
+  "sampleTestCase": "[1,2,2,3,3,3,3,4]\n2",
+  "metaData": "{\n  \"name\": \"sumDivisibleByK\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

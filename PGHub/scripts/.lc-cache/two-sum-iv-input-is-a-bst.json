@@ -1,0 +1,8 @@
+{
+  "questionId": "653",
+  "titleSlug": "two-sum-iv-input-is-a-bst",
+  "title": "Two Sum IV - Input is a BST",
+  "exampleTestcases": "[5,3,6,2,4,null,7]\n9\n[5,3,6,2,4,null,7]\n28",
+  "sampleTestCase": "[5,3,6,2,4,null,7]\n9",
+  "metaData": "{\n  \"name\": \"findTarget\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "238",
-  "titleSlug": "product-of-array-except-self",
-  "title": "Product of Array Except Self",
-  "exampleTestcases": "[1,2,3,4]\n[-1,1,0,-3,3]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\r\n  \"name\": \"productExceptSelf\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
-}

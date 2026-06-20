@@ -1,8 +1,0 @@
-{
-  "questionId": "1642",
-  "titleSlug": "water-bottles",
-  "title": "Water Bottles",
-  "exampleTestcases": "9\n3\n15\n4",
-  "sampleTestCase": "9\n3",
-  "metaData": "{\n  \"name\": \"numWaterBottles\",\n  \"params\": [\n    {\n      \"name\": \"numBottles\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numExchange\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

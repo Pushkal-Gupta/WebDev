@@ -1,8 +1,0 @@
-{
-  "questionId": "3337",
-  "titleSlug": "count-substrings-starting-and-ending-with-given-character",
-  "title": "Count Substrings Starting and Ending with Given Character",
-  "exampleTestcases": "\"abada\"\n\"a\"\n\"zzz\"\n\"z\"",
-  "sampleTestCase": "\"abada\"\n\"a\"",
-  "metaData": "{\n  \"name\": \"countSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"c\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "910",
+  "titleSlug": "nth-magical-number",
+  "title": "Nth Magical Number",
+  "exampleTestcases": "1\n2\n3\n4\n2\n3",
+  "sampleTestCase": "1\n2\n3",
+  "metaData": "{\n  \"name\": \"nthMagicalNumber\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"b\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

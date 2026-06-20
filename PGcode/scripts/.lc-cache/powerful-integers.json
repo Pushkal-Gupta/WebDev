@@ -1,8 +1,0 @@
-{
-  "questionId": "1010",
-  "titleSlug": "powerful-integers",
-  "title": "Powerful Integers",
-  "exampleTestcases": "2\n3\n10\n3\n5\n15",
-  "sampleTestCase": "2\n3\n10",
-  "metaData": "{\r\n  \"name\": \"powerfulIntegers\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"y\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"bound\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}\r\n"
-}

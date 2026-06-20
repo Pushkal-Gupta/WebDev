@@ -1,0 +1,8 @@
+{
+  "questionId": "2734",
+  "titleSlug": "array-prototype-last",
+  "title": "Array Prototype Last",
+  "exampleTestcases": "[null, {}, 3]\n[]",
+  "sampleTestCase": "[null, {}, 3]",
+  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

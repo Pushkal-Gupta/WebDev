@@ -1,0 +1,8 @@
+{
+  "questionId": "1359",
+  "titleSlug": "circular-permutation-in-binary-representation",
+  "title": "Circular Permutation in Binary Representation",
+  "exampleTestcases": "2\n3\n3\n2",
+  "sampleTestCase": "2\n3",
+  "metaData": "{\n  \"name\": \"circularPermutation\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"start\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

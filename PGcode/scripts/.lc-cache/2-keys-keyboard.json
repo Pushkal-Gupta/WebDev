@@ -1,8 +1,0 @@
-{
-  "questionId": "650",
-  "titleSlug": "2-keys-keyboard",
-  "title": "2 Keys Keyboard",
-  "exampleTestcases": "3\n1",
-  "sampleTestCase": "3",
-  "metaData": "{\r\n  \"name\": \"minSteps\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

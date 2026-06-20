@@ -1,8 +1,0 @@
-{
-  "questionId": "2324",
-  "titleSlug": "find-triangular-sum-of-an-array",
-  "title": "Find Triangular Sum of an Array",
-  "exampleTestcases": "[1,2,3,4,5]\n[5]",
-  "sampleTestCase": "[1,2,3,4,5]",
-  "metaData": "{\n  \"name\": \"triangularSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

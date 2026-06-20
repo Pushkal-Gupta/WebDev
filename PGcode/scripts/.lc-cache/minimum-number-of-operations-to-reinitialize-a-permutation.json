@@ -1,8 +1,0 @@
-{
-  "questionId": "1935",
-  "titleSlug": "minimum-number-of-operations-to-reinitialize-a-permutation",
-  "title": "Minimum Number of Operations to Reinitialize a Permutation",
-  "exampleTestcases": "2\n4\n6",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"reinitializePermutation\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

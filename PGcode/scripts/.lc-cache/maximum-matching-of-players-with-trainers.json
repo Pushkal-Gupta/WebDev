@@ -1,8 +1,0 @@
-{
-  "questionId": "2497",
-  "titleSlug": "maximum-matching-of-players-with-trainers",
-  "title": "Maximum Matching of Players With Trainers",
-  "exampleTestcases": "[4,7,9]\n[8,2,5,8]\n[1,1,1]\n[10]",
-  "sampleTestCase": "[4,7,9]\n[8,2,5,8]",
-  "metaData": "{\n  \"name\": \"matchPlayersAndTrainers\",\n  \"params\": [\n    {\n      \"name\": \"players\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"trainers\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

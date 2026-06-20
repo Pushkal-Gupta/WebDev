@@ -1,8 +1,0 @@
-{
-  "questionId": "600",
-  "titleSlug": "non-negative-integers-without-consecutive-ones",
-  "title": "Non-negative Integers without Consecutive Ones",
-  "exampleTestcases": "5\n1\n2",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"findIntegers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

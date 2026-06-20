@@ -1,8 +1,0 @@
-{
-  "questionId": "2263",
-  "titleSlug": "maximum-running-time-of-n-computers",
-  "title": "Maximum Running Time of N Computers",
-  "exampleTestcases": "2\n[3,3,3]\n2\n[1,1,1,1]",
-  "sampleTestCase": "2\n[3,3,3]",
-  "metaData": "{\n  \"name\": \"maxRunTime\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"batteries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

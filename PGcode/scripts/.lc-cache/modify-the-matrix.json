@@ -1,8 +1,0 @@
-{
-  "questionId": "3330",
-  "titleSlug": "modify-the-matrix",
-  "title": "Modify the Matrix",
-  "exampleTestcases": "[[1,2,-1],[4,-1,6],[7,8,9]]\n[[3,-1],[5,2]]",
-  "sampleTestCase": "[[1,2,-1],[4,-1,6],[7,8,9]]",
-  "metaData": "{\n  \"name\": \"modifiedMatrix\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

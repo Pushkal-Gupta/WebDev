@@ -1,8 +1,0 @@
-{
-  "questionId": "2873",
-  "titleSlug": "prime-pairs-with-target-sum",
-  "title": "Prime Pairs With Target Sum",
-  "exampleTestcases": "10\n2",
-  "sampleTestCase": "10",
-  "metaData": "{\n  \"name\": \"findPrimePairs\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

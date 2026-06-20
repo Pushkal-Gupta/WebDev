@@ -1,8 +1,0 @@
-{
-  "questionId": "2122",
-  "titleSlug": "count-special-quadruplets",
-  "title": "Count Special Quadruplets",
-  "exampleTestcases": "[1,2,3,6]\n[3,3,6,4,5]\n[1,1,1,3,5]",
-  "sampleTestCase": "[1,2,3,6]",
-  "metaData": "{\n  \"name\": \"countQuadruplets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

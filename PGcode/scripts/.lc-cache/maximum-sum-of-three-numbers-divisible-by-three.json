@@ -1,8 +1,0 @@
-{
-  "questionId": "4160",
-  "titleSlug": "maximum-sum-of-three-numbers-divisible-by-three",
-  "title": "Maximum Sum of Three Numbers Divisible by Three",
-  "exampleTestcases": "[4,2,3,1]\n[2,1,5]",
-  "sampleTestCase": "[4,2,3,1]",
-  "metaData": "{\n  \"name\": \"maximumSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

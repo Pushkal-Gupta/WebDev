@@ -1,0 +1,8 @@
+{
+  "questionId": "1451",
+  "titleSlug": "minimum-number-of-taps-to-open-to-water-a-garden",
+  "title": "Minimum Number of Taps to Open to Water a Garden",
+  "exampleTestcases": "5\n[3,4,1,1,0,0]\n3\n[0,0,0,0]",
+  "sampleTestCase": "5\n[3,4,1,1,0,0]",
+  "metaData": "{\n  \"name\": \"minTaps\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"ranges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

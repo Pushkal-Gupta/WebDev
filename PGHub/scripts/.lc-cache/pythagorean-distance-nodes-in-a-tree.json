@@ -1,0 +1,8 @@
+{
+  "questionId": "4180",
+  "titleSlug": "pythagorean-distance-nodes-in-a-tree",
+  "title": "Pythagorean Distance Nodes in a Tree",
+  "exampleTestcases": "4\n[[0,1],[0,2],[0,3]]\n1\n2\n3\n4\n[[0,1],[1,2],[2,3]]\n0\n3\n2\n4\n[[0,1],[1,2],[1,3]]\n1\n3\n0",
+  "sampleTestCase": "4\n[[0,1],[0,2],[0,3]]\n1\n2\n3",
+  "metaData": "{\n  \"name\": \"specialNodes\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"z\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

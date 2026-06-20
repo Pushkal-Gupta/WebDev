@@ -1,0 +1,8 @@
+{
+  "questionId": "596",
+  "titleSlug": "classes-with-at-least-5-students",
+  "title": "Classes With at Least 5 Students",
+  "exampleTestcases": "{\"headers\": {\"Courses\": [\"student\", \"class\"]}, \"rows\": {\"Courses\": [[\"A\", \"Math\"], [\"B\", \"English\"], [\"C\", \"Math\"], [\"D\", \"Biology\"], [\"E\", \"Math\"], [\"F\", \"Computer\"], [\"G\", \"Math\"], [\"H\", \"Math\"], [\"I\", \"Math\"]]}}",
+  "sampleTestCase": "{\"headers\": {\"Courses\": [\"student\", \"class\"]}, \"rows\": {\"Courses\": [[\"A\", \"Math\"], [\"B\", \"English\"], [\"C\", \"Math\"], [\"D\", \"Biology\"], [\"E\", \"Math\"], [\"F\", \"Computer\"], [\"G\", \"Math\"], [\"H\", \"Math\"], [\"I\", \"Math\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Courses (student varchar(255), class varchar(255))\"], \"mssql\": [\"Create table Courses (student varchar(255), class varchar(255))\"], \"oraclesql\": [\"Create table Courses (student varchar(255), class varchar(255))\"], \"database\": true, \"name\": \"find_classes\", \"pythondata\": [\"Courses = pd.DataFrame([], columns=['student', 'class']).astype({'student':'object', 'class':'object'})\"], \"postgresql\": [\"Create table If Not Exists Courses (student varchar(255), class varchar(255))\"], \"database_schema\": {\"Courses\": {\"student\": \"VARCHAR(255)\", \"class\": \"VARCHAR(255)\"}}}"
+}

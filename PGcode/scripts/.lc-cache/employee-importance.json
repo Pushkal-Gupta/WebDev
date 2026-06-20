@@ -1,8 +1,0 @@
-{
-  "questionId": "690",
-  "titleSlug": "employee-importance",
-  "title": "Employee Importance",
-  "exampleTestcases": "[[1,5,[2,3]],[2,3,[]],[3,3,[]]]\n1\n[[1,2,[5]],[5,-3,[]]]\n5",
-  "sampleTestCase": "[[1,5,[2,3]],[2,3,[]],[3,3,[]]]\n1",
-  "metaData": "{\n  \"name\": \"getImportance\",\n  \"params\": [\n    {\n      \"name\": \"employees\",\n      \"type\": \"list<string>\"\n    },\n    {\n      \"name\": \"id\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"ruby\",\n    \"python3\",\n    \"kotlin\",\n    \"scala\",\n    \"csharp\",\n    \"javascript\",\n    \"swift\",\n    \"golang\",\n    \"php\",\n    \"typescript\"\n  ],\n  \"manual\": true,\n  \"typescriptCustomType\":\"class Employee {\\n    id: number;\\n    importance: number;\\n    subordinates: number[];\\n    constructor(id: number, importance: number, subordinates: number[]) {\\n        this.id = (id === undefined) ? 0 : id;\\n        this.importance = (importance === undefined) ? 0 : importance;\\n        this.subordinates = (subordinates === undefined) ? [] : subordinates;\\n    }\\n}\"\n  \n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1720",
-  "titleSlug": "crawler-log-folder",
-  "title": "Crawler Log Folder",
-  "exampleTestcases": "[\"d1/\",\"d2/\",\"../\",\"d21/\",\"./\"]\n[\"d1/\",\"d2/\",\"./\",\"d3/\",\"../\",\"d31/\"]\n[\"d1/\",\"../\",\"../\",\"../\"]",
-  "sampleTestCase": "[\"d1/\",\"d2/\",\"../\",\"d21/\",\"./\"]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"logs\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

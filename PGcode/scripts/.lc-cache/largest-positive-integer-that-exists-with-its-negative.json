@@ -1,8 +1,0 @@
-{
-  "questionId": "2524",
-  "titleSlug": "largest-positive-integer-that-exists-with-its-negative",
-  "title": "Largest Positive Integer That Exists With Its Negative",
-  "exampleTestcases": "[-1,2,-3,3]\n[-1,10,6,7,-7,1]\n[-10,8,6,7,-2,-3]",
-  "sampleTestCase": "[-1,2,-3,3]",
-  "metaData": "{\n  \"name\": \"findMaxK\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

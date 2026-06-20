@@ -1,8 +1,0 @@
-{
-  "questionId": "3068",
-  "titleSlug": "rename-columns",
-  "title": "Rename Columns",
-  "exampleTestcases": "{\"headers\":{\"students\":[\"id\",\"first\",\"last\",\"age\"]},\"rows\":{\"employees\":[],\"students\":[[1,\"Mason\",\"King\",6],[2,\"Ava\",\"Wright\",7],[3,\"Taylor\",\"Hall\",16],[4,\"Georgia\",\"Thompson\",18],[5,\"Thomas\",\"Moore\",10]]}}",
-  "sampleTestCase": "{\"headers\":{\"students\":[\"id\",\"first\",\"last\",\"age\"]},\"rows\":{\"employees\":[],\"students\":[[1,\"Mason\",\"King\",6],[2,\"Ava\",\"Wright\",7],[3,\"Taylor\",\"Hall\",16],[4,\"Georgia\",\"Thompson\",18],[5,\"Thomas\",\"Moore\",10]]}}",
-  "metaData": "{\n  \"pythondata\": [\n    \"students = pd.DataFrame([], columns=['id', 'first', 'last', 'age']).astype({'id':'Int64', 'first':'object', 'last':'object', 'age':'Int64'})\\n\"\n  ],\n  \"database\": true,\n  \"name\": \"renameColumns\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
-}

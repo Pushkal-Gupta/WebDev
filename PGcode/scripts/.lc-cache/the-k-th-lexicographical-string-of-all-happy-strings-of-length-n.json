@@ -1,8 +1,0 @@
-{
-  "questionId": "1516",
-  "titleSlug": "the-k-th-lexicographical-string-of-all-happy-strings-of-length-n",
-  "title": "The k-th Lexicographical String of All Happy Strings of Length n",
-  "exampleTestcases": "1\n3\n1\n4\n3\n9",
-  "sampleTestCase": "1\n3",
-  "metaData": "{\n  \"name\": \"getHappyString\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

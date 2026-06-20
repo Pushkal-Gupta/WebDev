@@ -1,8 +1,0 @@
-{
-  "questionId": "2344",
-  "titleSlug": "escape-the-spreading-fire",
-  "title": "Escape the Spreading Fire",
-  "exampleTestcases": "[[0,2,0,0,0,0,0],[0,0,0,2,2,1,0],[0,2,0,0,1,2,0],[0,0,2,2,2,0,2],[0,0,0,0,0,0,0]]\n[[0,0,0,0],[0,1,2,0],[0,2,0,0]]\n[[0,0,0],[2,2,0],[1,2,0]]",
-  "sampleTestCase": "[[0,2,0,0,0,0,0],[0,0,0,2,2,1,0],[0,2,0,0,1,2,0],[0,0,2,2,2,0,2],[0,0,0,0,0,0,0]]",
-  "metaData": "{\n  \"name\": \"maximumMinutes\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

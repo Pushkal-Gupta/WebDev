@@ -1,8 +1,0 @@
-{
-  "questionId": "452",
-  "titleSlug": "minimum-number-of-arrows-to-burst-balloons",
-  "title": "Minimum Number of Arrows to Burst Balloons",
-  "exampleTestcases": "[[10,16],[2,8],[1,6],[7,12]]\n[[1,2],[3,4],[5,6],[7,8]]\n[[1,2],[2,3],[3,4],[4,5]]",
-  "sampleTestCase": "[[10,16],[2,8],[1,6],[7,12]]",
-  "metaData": "{\r\n  \"name\": \"findMinArrowShots\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"points\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

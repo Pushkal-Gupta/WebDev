@@ -1,8 +1,0 @@
-{
-  "questionId": "4286",
-  "titleSlug": "valid-digit-number",
-  "title": "Valid Digit Number",
-  "exampleTestcases": "101\n0\n232\n2\n5\n1",
-  "sampleTestCase": "101\n0",
-  "metaData": "{\n  \"name\": \"validDigit\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3354",
-  "titleSlug": "replace-question-marks-in-string-to-minimize-its-value",
-  "title": "Replace Question Marks in String to Minimize Its Value",
-  "exampleTestcases": "\"???\"\n\"a?a?\"",
-  "sampleTestCase": "\"???\"",
-  "metaData": "{\n  \"name\": \"minimizeStringValue\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

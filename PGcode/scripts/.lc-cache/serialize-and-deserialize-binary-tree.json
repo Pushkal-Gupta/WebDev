@@ -1,8 +1,0 @@
-{
-  "questionId": "297",
-  "titleSlug": "serialize-and-deserialize-binary-tree",
-  "title": "Serialize and Deserialize Binary Tree",
-  "exampleTestcases": "[1,2,3,null,null,4,5]\n[]",
-  "sampleTestCase": "[1,2,3,null,null,4,5]",
-  "metaData": "{\n  \"name\": \"Codec\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"manual\": true\n}"
-}

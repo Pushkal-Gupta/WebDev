@@ -1,8 +1,0 @@
-{
-  "questionId": "3024",
-  "titleSlug": "string-transformation",
-  "title": "String Transformation",
-  "exampleTestcases": "\"abcd\"\n\"cdab\"\n2\n\"ababab\"\n\"ababab\"\n1",
-  "sampleTestCase": "\"abcd\"\n\"cdab\"\n2",
-  "metaData": "{\n  \"name\": \"numberOfWays\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

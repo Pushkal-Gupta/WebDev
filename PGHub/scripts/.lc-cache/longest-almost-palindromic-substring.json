@@ -1,0 +1,8 @@
+{
+  "questionId": "4221",
+  "titleSlug": "longest-almost-palindromic-substring",
+  "title": "Longest Almost-Palindromic Substring",
+  "exampleTestcases": "\"abca\"\n\"abba\"\n\"zzabba\"",
+  "sampleTestCase": "\"abca\"",
+  "metaData": "{\n  \"name\": \"almostPalindromic\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

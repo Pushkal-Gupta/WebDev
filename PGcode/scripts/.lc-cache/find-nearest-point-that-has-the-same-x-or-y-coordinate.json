@@ -1,8 +1,0 @@
-{
-  "questionId": "1888",
-  "titleSlug": "find-nearest-point-that-has-the-same-x-or-y-coordinate",
-  "title": "Find Nearest Point That Has the Same X or Y Coordinate",
-  "exampleTestcases": "3\n4\n[[1,2],[3,1],[2,4],[2,3],[4,4]]\n3\n4\n[[3,4]]\n3\n4\n[[2,3]]",
-  "sampleTestCase": "3\n4\n[[1,2],[3,1],[2,4],[2,3],[4,4]]",
-  "metaData": "{\n  \"name\": \"nearestValidPoint\",\n  \"params\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"points\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

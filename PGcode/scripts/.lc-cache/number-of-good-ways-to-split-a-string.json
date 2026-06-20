@@ -1,8 +1,0 @@
-{
-  "questionId": "1632",
-  "titleSlug": "number-of-good-ways-to-split-a-string",
-  "title": "Number of Good Ways to Split a String",
-  "exampleTestcases": "\"aacaba\"\n\"abcd\"",
-  "sampleTestCase": "\"aacaba\"",
-  "metaData": "{\n  \"name\": \"numSplits\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

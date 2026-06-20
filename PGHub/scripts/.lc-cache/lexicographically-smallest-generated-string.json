@@ -1,0 +1,8 @@
+{
+  "questionId": "3770",
+  "titleSlug": "lexicographically-smallest-generated-string",
+  "title": "Lexicographically Smallest Generated String",
+  "exampleTestcases": "\"TFTF\"\n\"ab\"\n\"TFTF\"\n\"abc\"\n\"F\"\n\"d\"",
+  "sampleTestCase": "\"TFTF\"\n\"ab\"",
+  "metaData": "{\n  \"name\": \"generateString\",\n  \"params\": [\n    {\n      \"name\": \"str1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"str2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

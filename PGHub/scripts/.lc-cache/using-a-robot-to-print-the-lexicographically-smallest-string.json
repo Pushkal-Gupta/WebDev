@@ -1,0 +1,8 @@
+{
+  "questionId": "2520",
+  "titleSlug": "using-a-robot-to-print-the-lexicographically-smallest-string",
+  "title": "Using a Robot to Print the Lexicographically Smallest String",
+  "exampleTestcases": "\"zza\"\n\"bac\"\n\"bdda\"",
+  "sampleTestCase": "\"zza\"",
+  "metaData": "{\n  \"name\": \"robotWithString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

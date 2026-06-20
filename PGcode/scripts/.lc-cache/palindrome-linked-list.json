@@ -1,8 +1,0 @@
-{
-  "questionId": "234",
-  "titleSlug": "palindrome-linked-list",
-  "title": "Palindrome Linked List",
-  "exampleTestcases": "[1,2,2,1]\n[1,2]",
-  "sampleTestCase": "[1,2,2,1]",
-  "metaData": "{ \r\n  \"name\": \"isPalindrome\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"head\",\r\n      \"type\": \"ListNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "87",
-  "titleSlug": "scramble-string",
-  "title": "Scramble String",
-  "exampleTestcases": "\"great\"\n\"rgeat\"\n\"abcde\"\n\"caebd\"\n\"a\"\n\"a\"",
-  "sampleTestCase": "\"great\"\n\"rgeat\"",
-  "metaData": "{ \r\n  \"name\": \"isScramble\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s1\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"s2\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

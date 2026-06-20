@@ -1,8 +1,0 @@
-{
-  "questionId": "2387",
-  "titleSlug": "partition-array-such-that-maximum-difference-is-k",
-  "title": "Partition Array Such That Maximum Difference Is K",
-  "exampleTestcases": "[3,6,1,2,5]\n2\n[1,2,3]\n1\n[2,2,4,5]\n0",
-  "sampleTestCase": "[3,6,1,2,5]\n2",
-  "metaData": "{\n  \"name\": \"partitionArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

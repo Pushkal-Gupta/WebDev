@@ -1,8 +1,0 @@
-{
-  "questionId": "4139",
-  "titleSlug": "minimum-absolute-distance-between-mirror-pairs",
-  "title": "Minimum Absolute Distance Between Mirror Pairs",
-  "exampleTestcases": "[12,21,45,33,54]\n[120,21]\n[21,120]",
-  "sampleTestCase": "[12,21,45,33,54]",
-  "metaData": "{\n  \"name\": \"minMirrorPairDistance\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

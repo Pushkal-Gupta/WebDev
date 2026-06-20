@@ -1,0 +1,8 @@
+{
+  "questionId": "501",
+  "titleSlug": "find-mode-in-binary-search-tree",
+  "title": "Find Mode in Binary Search Tree",
+  "exampleTestcases": "[1,null,2,2]\n[0]",
+  "sampleTestCase": "[1,null,2,2]",
+  "metaData": "{\r\n  \"name\": \"findMode\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}"
+}

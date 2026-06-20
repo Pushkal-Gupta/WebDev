@@ -1,0 +1,8 @@
+{
+  "questionId": "1818",
+  "titleSlug": "maximum-score-from-removing-substrings",
+  "title": "Maximum Score From Removing Substrings",
+  "exampleTestcases": "\"cdbcbbaaabab\"\n4\n5\n\"aabbaaxybbaabb\"\n5\n4",
+  "sampleTestCase": "\"cdbcbbaaabab\"\n4\n5",
+  "metaData": "{\n  \"name\": \"maximumGain\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

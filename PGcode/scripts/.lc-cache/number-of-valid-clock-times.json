@@ -1,8 +1,0 @@
-{
-  "questionId": "2528",
-  "titleSlug": "number-of-valid-clock-times",
-  "title": "Number of Valid Clock Times",
-  "exampleTestcases": "\"?5:00\"\n\"0?:0?\"\n\"??:??\"",
-  "sampleTestCase": "\"?5:00\"",
-  "metaData": "{\n  \"name\": \"countTime\",\n  \"params\": [\n    {\n      \"name\": \"time\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

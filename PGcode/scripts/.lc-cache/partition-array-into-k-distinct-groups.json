@@ -1,8 +1,0 @@
-{
-  "questionId": "3979",
-  "titleSlug": "partition-array-into-k-distinct-groups",
-  "title": "Partition Array Into K-Distinct Groups",
-  "exampleTestcases": "[1,2,3,4]\n2\n[3,5,2,2]\n2\n[1,5,2,3]\n3",
-  "sampleTestCase": "[1,2,3,4]\n2",
-  "metaData": "{\n  \"name\": \"partitionArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

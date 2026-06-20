@@ -1,0 +1,8 @@
+{
+  "questionId": "3811",
+  "titleSlug": "reverse-degree-of-a-string",
+  "title": "Reverse Degree of a String",
+  "exampleTestcases": "\"abc\"\n\"zaza\"",
+  "sampleTestCase": "\"abc\"",
+  "metaData": "{\n  \"name\": \"reverseDegree\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

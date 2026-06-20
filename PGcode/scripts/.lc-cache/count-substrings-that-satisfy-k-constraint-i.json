@@ -1,8 +1,0 @@
-{
-  "questionId": "3543",
-  "titleSlug": "count-substrings-that-satisfy-k-constraint-i",
-  "title": "Count Substrings That Satisfy K-Constraint I",
-  "exampleTestcases": "\"10101\"\n1\n\"1010101\"\n2\n\"11111\"\n1",
-  "sampleTestCase": "\"10101\"\n1",
-  "metaData": "{\n  \"name\": \"countKConstraintSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3396",
-  "titleSlug": "valid-word",
-  "title": "Valid Word",
-  "exampleTestcases": "\"234Adas\"\n\"b3\"\n\"a3$e\"",
-  "sampleTestCase": "\"234Adas\"",
-  "metaData": "{\n  \"name\": \"isValid\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

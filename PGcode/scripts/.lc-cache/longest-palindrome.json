@@ -1,8 +1,0 @@
-{
-  "questionId": "409",
-  "titleSlug": "longest-palindrome",
-  "title": "Longest Palindrome",
-  "exampleTestcases": "\"abccccdd\"\n\"a\"",
-  "sampleTestCase": "\"abccccdd\"",
-  "metaData": "{ \r\n  \"name\": \"longestPalindrome\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

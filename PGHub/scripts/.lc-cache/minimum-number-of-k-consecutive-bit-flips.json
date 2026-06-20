@@ -1,0 +1,8 @@
+{
+  "questionId": "1037",
+  "titleSlug": "minimum-number-of-k-consecutive-bit-flips",
+  "title": "Minimum Number of K Consecutive Bit Flips",
+  "exampleTestcases": "[0,1,0]\n1\n[1,1,0]\n2\n[0,0,0,1,0,1,1,0]\n3",
+  "sampleTestCase": "[0,1,0]\n1",
+  "metaData": "{\n  \"name\": \"minKBitFlips\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

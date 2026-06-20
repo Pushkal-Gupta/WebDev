@@ -1,8 +1,0 @@
-{
-  "questionId": "3680",
-  "titleSlug": "count-connected-components-in-lcm-graph",
-  "title": "Count Connected Components in LCM Graph",
-  "exampleTestcases": "[2,4,8,3,9]\n5\n[2,4,8,3,9,12]\n10",
-  "sampleTestCase": "[2,4,8,3,9]\n5",
-  "metaData": "{\n  \"name\": \"countComponents\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"threshold\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

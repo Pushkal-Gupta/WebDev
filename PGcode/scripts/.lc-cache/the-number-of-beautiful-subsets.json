@@ -1,8 +1,0 @@
-{
-  "questionId": "2696",
-  "titleSlug": "the-number-of-beautiful-subsets",
-  "title": "The Number of Beautiful Subsets",
-  "exampleTestcases": "[2,4,6]\n2\n[1]\n1",
-  "sampleTestCase": "[2,4,6]\n2",
-  "metaData": "{\n  \"name\": \"beautifulSubsets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

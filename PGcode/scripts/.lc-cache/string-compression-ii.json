@@ -1,8 +1,0 @@
-{
-  "questionId": "1637",
-  "titleSlug": "string-compression-ii",
-  "title": "String Compression II",
-  "exampleTestcases": "\"aaabcccd\"\n2\n\"aabbaa\"\n2\n\"aaaaaaaaaaa\"\n0",
-  "sampleTestCase": "\"aaabcccd\"\n2",
-  "metaData": "{\n  \"name\": \"getLengthOfOptimalCompression\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

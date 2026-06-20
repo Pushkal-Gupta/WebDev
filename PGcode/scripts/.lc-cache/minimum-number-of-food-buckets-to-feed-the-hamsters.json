@@ -1,8 +1,0 @@
-{
-  "questionId": "2191",
-  "titleSlug": "minimum-number-of-food-buckets-to-feed-the-hamsters",
-  "title": "Minimum Number of Food Buckets to Feed the Hamsters",
-  "exampleTestcases": "\"H..H\"\n\".H.H.\"\n\".HHH.\"",
-  "sampleTestCase": "\"H..H\"",
-  "metaData": "{\n  \"name\": \"minimumBuckets\",\n  \"params\": [\n    {\n      \"name\": \"hamsters\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

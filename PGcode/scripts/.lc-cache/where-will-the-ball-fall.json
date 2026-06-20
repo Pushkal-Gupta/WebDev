@@ -1,8 +1,0 @@
-{
-  "questionId": "1324",
-  "titleSlug": "where-will-the-ball-fall",
-  "title": "Where Will the Ball Fall",
-  "exampleTestcases": "[[1,1,1,-1,-1],[1,1,1,-1,-1],[-1,-1,-1,1,1],[1,1,1,1,-1],[-1,-1,-1,-1,-1]]\n[[-1]]\n[[1,1,1,1,1,1],[-1,-1,-1,-1,-1,-1],[1,1,1,1,1,1],[-1,-1,-1,-1,-1,-1]]",
-  "sampleTestCase": "[[1,1,1,-1,-1],[1,1,1,-1,-1],[-1,-1,-1,1,1],[1,1,1,1,-1],[-1,-1,-1,-1,-1]]",
-  "metaData": "{\n  \"name\": \"findBall\",\n  \"params\": [\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"grid\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

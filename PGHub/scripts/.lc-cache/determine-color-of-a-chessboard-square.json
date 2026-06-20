@@ -1,0 +1,8 @@
+{
+  "questionId": "1920",
+  "titleSlug": "determine-color-of-a-chessboard-square",
+  "title": "Determine Color of a Chessboard Square",
+  "exampleTestcases": "\"a1\"\n\"h3\"\n\"c7\"",
+  "sampleTestCase": "\"a1\"",
+  "metaData": "{\n  \"name\": \"squareIsWhite\",\n  \"params\": [\n    {\n      \"name\": \"coordinates\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

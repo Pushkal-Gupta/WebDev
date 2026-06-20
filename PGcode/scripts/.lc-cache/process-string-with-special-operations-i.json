@@ -1,8 +1,0 @@
-{
-  "questionId": "3931",
-  "titleSlug": "process-string-with-special-operations-i",
-  "title": "Process String with Special Operations I",
-  "exampleTestcases": "\"a#b%*\"\n\"z*#\"",
-  "sampleTestCase": "\"a#b%*\"",
-  "metaData": "{\n  \"name\": \"processStr\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

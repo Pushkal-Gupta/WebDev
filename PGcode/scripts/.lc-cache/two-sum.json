@@ -1,8 +1,0 @@
-{
-  "questionId": "1",
-  "titleSlug": "two-sum",
-  "title": "Two Sum",
-  "exampleTestcases": "[2,7,11,15]\n9\n[3,2,4]\n6\n[3,3]\n6",
-  "sampleTestCase": "[2,7,11,15]\n9",
-  "metaData": "{\n  \"name\": \"twoSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\",\n    \"size\": 2\n  },\n  \"manual\": false\n}"
-}

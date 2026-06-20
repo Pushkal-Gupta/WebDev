@@ -1,8 +1,0 @@
-{
-  "questionId": "1971",
-  "titleSlug": "incremental-memory-leak",
-  "title": "Incremental Memory Leak",
-  "exampleTestcases": "2\n2\n8\n11",
-  "sampleTestCase": "2\n2",
-  "metaData": "{\n  \"name\": \"memLeak\",\n  \"params\": [\n    {\n      \"name\": \"memory1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"memory2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

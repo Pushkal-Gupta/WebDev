@@ -1,0 +1,8 @@
+{
+  "questionId": "1732",
+  "titleSlug": "minimum-one-bit-operations-to-make-integers-zero",
+  "title": "Minimum One Bit Operations to Make Integers Zero",
+  "exampleTestcases": "3\n6",
+  "sampleTestCase": "3",
+  "metaData": "{\n  \"name\": \"minimumOneBitOperations\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

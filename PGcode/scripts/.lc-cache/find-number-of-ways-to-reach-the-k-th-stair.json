@@ -1,8 +1,0 @@
-{
-  "questionId": "3414",
-  "titleSlug": "find-number-of-ways-to-reach-the-k-th-stair",
-  "title": "Find Number of Ways to Reach the K-th Stair",
-  "exampleTestcases": "0\n1",
-  "sampleTestCase": "0",
-  "metaData": "{\n  \"name\": \"waysToReachStair\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

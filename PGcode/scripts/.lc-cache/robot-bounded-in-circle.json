@@ -1,8 +1,0 @@
-{
-  "questionId": "1119",
-  "titleSlug": "robot-bounded-in-circle",
-  "title": "Robot Bounded In Circle",
-  "exampleTestcases": "\"GGLLGG\"\n\"GG\"\n\"GL\"",
-  "sampleTestCase": "\"GGLLGG\"",
-  "metaData": "{\n  \"name\": \"isRobotBounded\",\n  \"params\": [\n    {\n      \"name\": \"instructions\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}\n"
-}

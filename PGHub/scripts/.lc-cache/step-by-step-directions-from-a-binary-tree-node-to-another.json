@@ -1,0 +1,8 @@
+{
+  "questionId": "2217",
+  "titleSlug": "step-by-step-directions-from-a-binary-tree-node-to-another",
+  "title": "Step-By-Step Directions From a Binary Tree Node to Another",
+  "exampleTestcases": "[5,1,2,3,null,6,4]\n3\n6\n[2,1]\n2\n1",
+  "sampleTestCase": "[5,1,2,3,null,6,4]\n3\n6",
+  "metaData": "{\n  \"name\": \"getDirections\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"startValue\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"destValue\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1058",
-  "titleSlug": "lexicographically-smallest-equivalent-string",
-  "title": "Lexicographically Smallest Equivalent String",
-  "exampleTestcases": "\"parker\"\n\"morris\"\n\"parser\"\n\"hello\"\n\"world\"\n\"hold\"\n\"leetcode\"\n\"programs\"\n\"sourcecode\"",
-  "sampleTestCase": "\"parker\"\n\"morris\"\n\"parser\"",
-  "metaData": "{\n  \"name\": \"smallestEquivalentString\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"s2\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"baseStr\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

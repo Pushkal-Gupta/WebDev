@@ -1,0 +1,8 @@
+{
+  "questionId": "766",
+  "titleSlug": "flatten-a-multilevel-doubly-linked-list",
+  "title": "Flatten a Multilevel Doubly Linked List",
+  "exampleTestcases": "[1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12]\n[1,2,null,3]\n[]",
+  "sampleTestCase": "[1,2,3,4,5,6,null,null,null,7,8,9,10,null,null,11,12]",
+  "metaData": "{\n  \"name\": \"flatten\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"csharp\",\n    \"javascript\",\n    \"python3\",\n    \"kotlin\",\n    \"ruby\",\n    \"scala\",\n    \"golang\",\n    \"swift\",\n    \"php\",\n    \"typescript\"\n  ],\n  \"manual\": true, \"typescriptCustomType\" : \"class _Node {\\n    val: number\\n    prev: _Node | null\\n    next: _Node | null\\n    child: _Node | null\\n    \\n    constructor(val?: number, prev? : _Node, next? : _Node, child? : _Node) {\\n        this.val = (val===undefined ? 0 : val);\\n        this.prev = (prev===undefined ? null : prev);\\n        this.next = (next===undefined ? null : next);\\n        this.child = (child===undefined ? null : child);\\n    }\\n}\\n\"\n\n}"
+}

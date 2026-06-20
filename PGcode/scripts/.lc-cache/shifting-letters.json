@@ -1,8 +1,0 @@
-{
-  "questionId": "878",
-  "titleSlug": "shifting-letters",
-  "title": "Shifting Letters",
-  "exampleTestcases": "\"abc\"\n[3,5,9]\n\"aaa\"\n[1,2,3]",
-  "sampleTestCase": "\"abc\"\n[3,5,9]",
-  "metaData": "{\n  \"name\": \"shiftingLetters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"shifts\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

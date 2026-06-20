@@ -1,8 +1,0 @@
-{
-  "questionId": "2414",
-  "titleSlug": "move-pieces-to-obtain-a-string",
-  "title": "Move Pieces to Obtain a String",
-  "exampleTestcases": "\"_L__R__R_\"\n\"L______RR\"\n\"R_L_\"\n\"__LR\"\n\"_R\"\n\"R_\"",
-  "sampleTestCase": "\"_L__R__R_\"\n\"L______RR\"",
-  "metaData": "{\n  \"name\": \"canChange\",\n  \"params\": [\n    {\n      \"name\": \"start\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

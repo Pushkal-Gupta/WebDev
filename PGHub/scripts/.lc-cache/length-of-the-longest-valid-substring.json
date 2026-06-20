@@ -1,0 +1,8 @@
+{
+  "questionId": "2884",
+  "titleSlug": "length-of-the-longest-valid-substring",
+  "title": "Length of the Longest Valid Substring",
+  "exampleTestcases": "\"cbaaaabc\"\n[\"aaa\",\"cb\"]\n\"leetcode\"\n[\"de\",\"le\",\"e\"]",
+  "sampleTestCase": "\"cbaaaabc\"\n[\"aaa\",\"cb\"]",
+  "metaData": "{\n  \"name\": \"longestValidSubstring\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"list<string>\",\n      \"name\": \"forbidden\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

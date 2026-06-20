@@ -1,0 +1,8 @@
+{
+  "questionId": "4266",
+  "titleSlug": "angles-of-a-triangle",
+  "title": "Angles of a Triangle",
+  "exampleTestcases": "[3,4,5]\n[2,4,2]",
+  "sampleTestCase": "[3,4,5]",
+  "metaData": "{\n  \"name\": \"internalAngles\",\n  \"params\": [\n    {\n      \"name\": \"sides\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double[]\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1611",
-  "titleSlug": "making-file-names-unique",
-  "title": "Making File Names Unique",
-  "exampleTestcases": "[\"pes\",\"fifa\",\"gta\",\"pes(2019)\"]\n[\"gta\",\"gta(1)\",\"gta\",\"avalon\"]\n[\"onepiece\",\"onepiece(1)\",\"onepiece(2)\",\"onepiece(3)\",\"onepiece\"]",
-  "sampleTestCase": "[\"pes\",\"fifa\",\"gta\",\"pes(2019)\"]",
-  "metaData": "{\n  \"name\": \"getFolderNames\",\n  \"params\": [\n    {\n      \"name\": \"names\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
-}

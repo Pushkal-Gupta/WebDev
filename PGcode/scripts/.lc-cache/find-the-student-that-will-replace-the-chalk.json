@@ -1,8 +1,0 @@
-{
-  "questionId": "2006",
-  "titleSlug": "find-the-student-that-will-replace-the-chalk",
-  "title": "Find the Student that Will Replace the Chalk",
-  "exampleTestcases": "[5,1,5]\n22\n[3,4,1,2]\n25",
-  "sampleTestCase": "[5,1,5]\n22",
-  "metaData": "{\n  \"name\": \"chalkReplacer\",\n  \"params\": [\n    {\n      \"name\": \"chalk\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

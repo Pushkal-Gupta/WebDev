@@ -1,8 +1,0 @@
-{
-  "questionId": "2402",
-  "titleSlug": "maximum-xor-after-operations",
-  "title": "Maximum XOR After Operations ",
-  "exampleTestcases": "[3,2,4,6]\n[1,2,3,9,2]",
-  "sampleTestCase": "[3,2,4,6]",
-  "metaData": "{\n  \"name\": \"maximumXOR\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

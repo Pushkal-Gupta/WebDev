@@ -1,0 +1,8 @@
+{
+  "questionId": "2867",
+  "titleSlug": "ways-to-split-array-into-good-subarrays",
+  "title": "Ways to Split Array Into Good Subarrays",
+  "exampleTestcases": "[0,1,0,0,1]\n[0,1,0]",
+  "sampleTestCase": "[0,1,0,0,1]",
+  "metaData": "{\n  \"name\": \"numberOfGoodSubarraySplits\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

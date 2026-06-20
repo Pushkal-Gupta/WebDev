@@ -1,8 +1,0 @@
-{
-  "questionId": "2001",
-  "titleSlug": "jump-game-vii",
-  "title": "Jump Game VII",
-  "exampleTestcases": "\"011010\"\n2\n3\n\"01101110\"\n2\n3",
-  "sampleTestCase": "\"011010\"\n2\n3",
-  "metaData": "{\n  \"name\": \"canReach\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"minJump\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxJump\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

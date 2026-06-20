@@ -1,8 +1,0 @@
-{
-  "questionId": "827",
-  "titleSlug": "expressive-words",
-  "title": "Expressive Words",
-  "exampleTestcases": "\"heeellooo\"\n[\"hello\", \"hi\", \"helo\"]\n\"zzzzzyyyyy\"\n[\"zzyy\",\"zy\",\"zyy\"]",
-  "sampleTestCase": "\"heeellooo\"\n[\"hello\", \"hi\", \"helo\"]",
-  "metaData": "{\n  \"name\": \"expressiveWords\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

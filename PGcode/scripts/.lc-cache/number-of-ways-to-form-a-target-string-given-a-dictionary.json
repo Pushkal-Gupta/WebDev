@@ -1,8 +1,0 @@
-{
-  "questionId": "1744",
-  "titleSlug": "number-of-ways-to-form-a-target-string-given-a-dictionary",
-  "title": "Number of Ways to Form a Target String Given a Dictionary",
-  "exampleTestcases": "[\"acca\",\"bbbb\",\"caca\"]\n\"aba\"\n[\"abba\",\"baab\"]\n\"bab\"",
-  "sampleTestCase": "[\"acca\",\"bbbb\",\"caca\"]\n\"aba\"",
-  "metaData": "{\n  \"name\": \"numWays\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

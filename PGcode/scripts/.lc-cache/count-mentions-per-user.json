@@ -1,8 +1,0 @@
-{
-  "questionId": "3721",
-  "titleSlug": "count-mentions-per-user",
-  "title": "Count Mentions Per User",
-  "exampleTestcases": "2\n[[\"MESSAGE\",\"10\",\"id1 id0\"],[\"OFFLINE\",\"11\",\"0\"],[\"MESSAGE\",\"71\",\"HERE\"]]\n2\n[[\"MESSAGE\",\"10\",\"id1 id0\"],[\"OFFLINE\",\"11\",\"0\"],[\"MESSAGE\",\"12\",\"ALL\"]]\n2\n[[\"OFFLINE\",\"10\",\"0\"],[\"MESSAGE\",\"12\",\"HERE\"]]",
-  "sampleTestCase": "2\n[[\"MESSAGE\",\"10\",\"id1 id0\"],[\"OFFLINE\",\"11\",\"0\"],[\"MESSAGE\",\"71\",\"HERE\"]]",
-  "metaData": "{\n  \"name\": \"countMentions\",\n  \"params\": [\n    {\n      \"name\": \"numberOfUsers\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"list<list<string>>\",\n      \"name\": \"events\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

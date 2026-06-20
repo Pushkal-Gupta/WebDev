@@ -1,8 +1,0 @@
-{
-  "questionId": "3031",
-  "titleSlug": "construct-product-matrix",
-  "title": "Construct Product Matrix",
-  "exampleTestcases": "[[1,2],[3,4]]\n[[12345],[2],[1]]",
-  "sampleTestCase": "[[1,2],[3,4]]",
-  "metaData": "{\n  \"name\": \"constructProductMatrix\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"c\",\n    \"csharp\",\n    \"javascript\",\n    \"ruby\",\n    \"swift\",\n    \"golang\",\n    \"python3\",\n    \"scala\",\n    \"kotlin\",\n    \"rust\",\n    \"php\",\n    \"typescript\",\n    \"racket\",\n    \"erlang\",\n    \"elixir\",\n    \"dart\"\n  ]\n}"
-}

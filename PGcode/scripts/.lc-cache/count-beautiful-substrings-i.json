@@ -1,8 +1,0 @@
-{
-  "questionId": "3210",
-  "titleSlug": "count-beautiful-substrings-i",
-  "title": "Count Beautiful Substrings I",
-  "exampleTestcases": "\"baeyh\"\n2\n\"abba\"\n1\n\"bcdf\"\n1",
-  "sampleTestCase": "\"baeyh\"\n2",
-  "metaData": "{\n  \"name\": \"beautifulSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

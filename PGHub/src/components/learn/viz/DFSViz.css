@@ -1,0 +1,342 @@
+.dfsviz {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  font-family: var(--sans);
+  color: var(--text-main);
+}
+
+.dfsviz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.dfsviz-title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dfsviz-title-main {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+.dfsviz-title-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.dfsviz-start {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.dfsviz-select {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.dfsviz-select:focus { outline: none; border-color: var(--accent); }
+
+/* Canvas */
+.dfsviz-canvas {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+}
+.dfsviz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 380px;
+}
+
+/* Edges */
+.dfsviz-edge {
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: stroke 0.25s ease, stroke-width 0.25s ease;
+}
+.dfsviz-edge-idle { stroke: var(--border); }
+.dfsviz-edge-tree {
+  stroke: var(--easy);
+  stroke-width: 3.5;
+}
+.dfsviz-edge-inspecting {
+  stroke: var(--accent);
+  stroke-width: 3.5;
+  stroke-dasharray: 6 4;
+  animation: dfsviz-dash 1.2s linear infinite;
+}
+
+@keyframes dfsviz-dash {
+  to { stroke-dashoffset: -20; }
+}
+
+/* Nodes */
+.dfsviz-node-disc {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 2;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+.dfsviz-node-label {
+  fill: var(--text-main);
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.dfsviz-node-unvisited .dfsviz-node-disc {
+  fill: var(--surface);
+  stroke: var(--text-dim);
+  opacity: 0.85;
+}
+.dfsviz-node-unvisited .dfsviz-node-label {
+  fill: var(--text-dim);
+}
+
+.dfsviz-node-stack .dfsviz-node-disc {
+  fill: var(--hover-box);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+.dfsviz-node-stack .dfsviz-node-label {
+  fill: var(--accent);
+}
+
+.dfsviz-node-current .dfsviz-node-disc {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.dfsviz-node-current .dfsviz-node-label {
+  fill: var(--bg);
+}
+.dfsviz-node-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.55;
+  animation: dfsviz-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes dfsviz-pulse {
+  0%   { transform: scale(0.95); opacity: 0.55; }
+  50%  { transform: scale(1.1);  opacity: 0.15; }
+  100% { transform: scale(0.95); opacity: 0.55; }
+}
+.dfsviz-node-ring { transform-origin: center; transform-box: fill-box; }
+
+.dfsviz-node-visited .dfsviz-node-disc {
+  fill: var(--easy);
+  stroke: var(--easy);
+}
+.dfsviz-node-visited .dfsviz-node-label {
+  fill: var(--bg);
+}
+
+/* Caption */
+.dfsviz-caption {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  padding: 8px 12px;
+  border-radius: 6px;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+}
+
+/* Stack row */
+.dfsviz-stack-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.dfsviz-stack-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 70px;
+}
+.dfsviz-stack-label-main {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.dfsviz-stack-label-sub {
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.dfsviz-stack-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  min-height: 28px;
+  align-items: center;
+}
+.dfsviz-chip {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 10px;
+  min-width: 26px;
+  text-align: center;
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+.dfsviz-chip-top {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+.dfsviz-stack-empty {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* Meters */
+.dfsviz-meters {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.dfsviz-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.dfsviz-meter-key {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.dfsviz-meter-val {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+/* Controls */
+.dfsviz-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dfsviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--text-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+.dfsviz-btn:hover:not(:disabled) {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.dfsviz-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.dfsviz-btn-primary {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.dfsviz-btn-primary:hover:not(:disabled) {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+  filter: brightness(1.08);
+}
+
+/* Legend */
+.dfsviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+  font-size: 12px;
+  color: var(--text-dim);
+}
+.dfsviz-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.dfsviz-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+}
+.dfsviz-swatch-unvisited { background: var(--surface); border-color: var(--text-dim); }
+.dfsviz-swatch-stack { background: var(--hover-box); border-color: var(--accent); }
+.dfsviz-swatch-current { background: var(--accent); border-color: var(--accent); }
+.dfsviz-swatch-visited { background: var(--easy); border-color: var(--easy); }
+.dfsviz-swatch-line {
+  display: inline-block;
+  width: 18px;
+  height: 0;
+  border-top: 3px solid var(--easy);
+}
+
+.dfsviz-arrow-tree { fill: var(--easy); }
+
+@media (max-width: 640px) {
+  .dfsviz-meters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dfsviz-stack-row { flex-direction: column; align-items: flex-start; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dfsviz-edge-inspecting { animation: none; stroke-dasharray: none; }
+  .dfsviz-node-ring { animation: none; }
+}

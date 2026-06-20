@@ -1,8 +1,0 @@
-{
-  "questionId": "3152",
-  "titleSlug": "maximum-value-of-an-ordered-triplet-ii",
-  "title": "Maximum Value of an Ordered Triplet II",
-  "exampleTestcases": "[12,6,1,2,7]\n[1,10,3,4,19]\n[1,2,3]",
-  "sampleTestCase": "[12,6,1,2,7]",
-  "metaData": "{\n  \"name\": \"maximumTripletValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

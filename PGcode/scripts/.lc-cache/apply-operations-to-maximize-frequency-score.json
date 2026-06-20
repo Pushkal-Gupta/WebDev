@@ -1,8 +1,0 @@
-{
-  "questionId": "3196",
-  "titleSlug": "apply-operations-to-maximize-frequency-score",
-  "title": "Apply Operations to Maximize Frequency Score",
-  "exampleTestcases": "[1,2,6,4]\n3\n[1,4,4,2,4]\n0",
-  "sampleTestCase": "[1,2,6,4]\n3",
-  "metaData": "{\n  \"name\": \"maxFrequencyScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

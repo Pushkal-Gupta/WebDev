@@ -1,8 +1,0 @@
-{
-  "questionId": "1692",
-  "titleSlug": "number-of-ways-to-reorder-array-to-get-same-bst",
-  "title": "Number of Ways to Reorder Array to Get Same BST",
-  "exampleTestcases": "[2,1,3]\n[3,4,5,1,2]\n[1,2,3]",
-  "sampleTestCase": "[2,1,3]",
-  "metaData": "{\n  \"name\": \"numOfWays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

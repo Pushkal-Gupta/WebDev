@@ -1,8 +1,0 @@
-{
-  "questionId": "3799",
-  "titleSlug": "unique-3-digit-even-numbers",
-  "title": "Unique 3-Digit Even Numbers",
-  "exampleTestcases": "[1,2,3,4]\n[0,2,2]\n[6,6,6]\n[1,3,5]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\n  \"name\": \"totalNumbers\",\n  \"params\": [\n    {\n      \"name\": \"digits\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

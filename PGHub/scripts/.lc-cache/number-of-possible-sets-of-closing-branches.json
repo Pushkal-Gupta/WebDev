@@ -1,0 +1,8 @@
+{
+  "questionId": "3217",
+  "titleSlug": "number-of-possible-sets-of-closing-branches",
+  "title": "Number of Possible Sets of Closing Branches",
+  "exampleTestcases": "3\n5\n[[0,1,2],[1,2,10],[0,2,10]]\n3\n5\n[[0,1,20],[0,1,10],[1,2,2],[0,2,2]]\n1\n10\n[]",
+  "sampleTestCase": "3\n5\n[[0,1,2],[1,2,10],[0,2,10]]",
+  "metaData": "{\n  \"name\": \"numberOfSets\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxDistance\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"roads\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

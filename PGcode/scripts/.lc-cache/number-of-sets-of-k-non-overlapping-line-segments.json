@@ -1,8 +1,0 @@
-{
-  "questionId": "1725",
-  "titleSlug": "number-of-sets-of-k-non-overlapping-line-segments",
-  "title": "Number of Sets of K Non-Overlapping Line Segments",
-  "exampleTestcases": "4\n2\n3\n1\n30\n7",
-  "sampleTestCase": "4\n2",
-  "metaData": "{\n  \"name\": \"numberOfSets\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
-}

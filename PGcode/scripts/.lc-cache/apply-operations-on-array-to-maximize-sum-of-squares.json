@@ -1,8 +1,0 @@
-{
-  "questionId": "3153",
-  "titleSlug": "apply-operations-on-array-to-maximize-sum-of-squares",
-  "title": "Apply Operations on Array to Maximize Sum of Squares",
-  "exampleTestcases": "[2,6,5,8]\n2\n[4,5,4,7]\n3",
-  "sampleTestCase": "[2,6,5,8]\n2",
-  "metaData": "{\n  \"name\": \"maxSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

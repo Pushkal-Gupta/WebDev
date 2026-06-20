@@ -1,8 +1,0 @@
-{
-  "questionId": "253",
-  "titleSlug": "meeting-rooms-ii",
-  "title": "Meeting Rooms II",
-  "exampleTestcases": "[[0,30],[5,10],[15,20]]\n[[7,10],[2,4]]",
-  "sampleTestCase": "[[0,30],[5,10],[15,20]]",
-  "metaData": "{\r\n  \"name\": \"minMeetingRooms\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"intervals\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "154",
-  "titleSlug": "find-minimum-in-rotated-sorted-array-ii",
-  "title": "Find Minimum in Rotated Sorted Array II",
-  "exampleTestcases": "[1,3,5]\n[2,2,2,0,1]",
-  "sampleTestCase": "[1,3,5]",
-  "metaData": "{\r\n  \"name\": \"findMin\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

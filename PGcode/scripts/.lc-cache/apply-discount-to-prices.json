@@ -1,8 +1,0 @@
-{
-  "questionId": "2373",
-  "titleSlug": "apply-discount-to-prices",
-  "title": "Apply Discount to Prices",
-  "exampleTestcases": "\"there are $1 $2 and 5$ candies in the shop\"\n50\n\"1 2 $3 4 $5 $6 7 8$ $9 $10$\"\n100",
-  "sampleTestCase": "\"there are $1 $2 and 5$ candies in the shop\"\n50",
-  "metaData": "{\n  \"name\": \"discountPrices\",\n  \"params\": [\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"discount\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

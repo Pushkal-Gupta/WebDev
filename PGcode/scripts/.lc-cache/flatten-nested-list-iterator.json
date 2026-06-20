@@ -1,8 +1,0 @@
-{
-  "questionId": "341",
-  "titleSlug": "flatten-nested-list-iterator",
-  "title": "Flatten Nested List Iterator",
-  "exampleTestcases": "[[1,1],2,[1,1]]\n[1,[4,[6]]]",
-  "sampleTestCase": "[[1,1],2,[1,1]]",
-  "metaData": "{\n  \"name\": \"\",\n  \"params\": [\n    {\n      \"name\": \"nestedList\",\n      \"type\": \"list<NestedInteger>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true\n}"
-}

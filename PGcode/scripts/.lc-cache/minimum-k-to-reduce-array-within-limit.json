@@ -1,8 +1,0 @@
-{
-  "questionId": "4176",
-  "titleSlug": "minimum-k-to-reduce-array-within-limit",
-  "title": "Minimum K to Reduce Array Within Limit",
-  "exampleTestcases": "[3,7,5]\n[1]",
-  "sampleTestCase": "[3,7,5]",
-  "metaData": "{\n  \"name\": \"minimumK\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

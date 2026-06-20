@@ -1,8 +1,0 @@
-{
-  "questionId": "2870",
-  "titleSlug": "longest-alternating-subarray",
-  "title": "Longest Alternating Subarray",
-  "exampleTestcases": "[2,3,4,3,4]\n[4,5,6]",
-  "sampleTestCase": "[2,3,4,3,4]",
-  "metaData": "{\n  \"name\": \"alternatingSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1312",
-  "titleSlug": "count-artifacts-that-can-be-extracted",
-  "title": "Count Artifacts That Can Be Extracted",
-  "exampleTestcases": "2\n[[0,0,0,0],[0,1,1,1]]\n[[0,0],[0,1]]\n2\n[[0,0,0,0],[0,1,1,1]]\n[[0,0],[0,1],[1,1]]",
-  "sampleTestCase": "2\n[[0,0,0,0],[0,1,1,1]]\n[[0,0],[0,1]]",
-  "metaData": "{\n  \"name\": \"digArtifacts\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"artifacts\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"dig\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

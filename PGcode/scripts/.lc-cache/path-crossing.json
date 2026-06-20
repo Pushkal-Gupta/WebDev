@@ -1,8 +1,0 @@
-{
-  "questionId": "1619",
-  "titleSlug": "path-crossing",
-  "title": "Path Crossing",
-  "exampleTestcases": "\"NES\"\n\"NESWW\"",
-  "sampleTestCase": "\"NES\"",
-  "metaData": "{\n  \"name\": \"isPathCrossing\",\n  \"params\": [\n    {\n      \"name\": \"path\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2767",
-  "titleSlug": "maximum-sum-with-exactly-k-elements",
-  "title": "Maximum Sum With Exactly K Elements ",
-  "exampleTestcases": "[1,2,3,4,5]\n3\n[5,5,5]\n2",
-  "sampleTestCase": "[1,2,3,4,5]\n3",
-  "metaData": "{\n  \"name\": \"maximizeSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

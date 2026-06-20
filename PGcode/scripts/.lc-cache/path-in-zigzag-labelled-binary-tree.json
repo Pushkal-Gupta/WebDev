@@ -1,8 +1,0 @@
-{
-  "questionId": "1194",
-  "titleSlug": "path-in-zigzag-labelled-binary-tree",
-  "title": "Path In Zigzag Labelled Binary Tree",
-  "exampleTestcases": "14\n26",
-  "sampleTestCase": "14",
-  "metaData": "{\n  \"name\": \"pathInZigZagTree\",\n  \"params\": [\n    {\n      \"name\": \"label\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

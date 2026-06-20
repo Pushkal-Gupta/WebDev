@@ -1,8 +1,0 @@
-{
-  "questionId": "1281",
-  "titleSlug": "can-make-palindrome-from-substring",
-  "title": "Can Make Palindrome from Substring",
-  "exampleTestcases": "\"abcda\"\n[[3,3,0],[1,2,0],[0,3,1],[0,3,2],[0,4,1]]\n\"lyb\"\n[[0,1,0],[2,2,1]]",
-  "sampleTestCase": "\"abcda\"\n[[3,3,0],[1,2,0],[0,3,1],[0,3,2],[0,4,1]]",
-  "metaData": "{\n  \"name\": \"canMakePaliQueries\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<boolean>\"\n  },\n  \"manual\": false\n}"
-}

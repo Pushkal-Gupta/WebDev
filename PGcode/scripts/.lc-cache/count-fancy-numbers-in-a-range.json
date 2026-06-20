@@ -1,8 +1,0 @@
-{
-  "questionId": "4159",
-  "titleSlug": "count-fancy-numbers-in-a-range",
-  "title": "Count Fancy Numbers in a Range",
-  "exampleTestcases": "8\n10\n12340\n12341\n123456788\n123456788",
-  "sampleTestCase": "8\n10",
-  "metaData": "{\n  \"name\": \"countFancy\",\n  \"params\": [\n    {\n      \"name\": \"l\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

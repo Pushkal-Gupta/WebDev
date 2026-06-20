@@ -1,0 +1,68 @@
+import React from 'react';
+import { Handle, Position } from 'reactflow';
+import { usePrefetch } from '../lib/queries';
+import { primaryTopicLabel } from '../lib/topicLabel';
+import './TopicNode.css';
+
+const topicMetadata = {
+  'arrays': { num: '01' },
+  'strings': { num: '02' },
+  'stack': { num: '03' },
+  'queue': { num: '04' },
+  'linkedlist': { num: '05' },
+  'trees': { num: '06' },
+  'recursion': { num: '07' },
+  'two-pointers': { num: '08' },
+  'binary-search': { num: '09' },
+  'sliding-window': { num: '10' },
+  'graphs': { num: '11' },
+  'tries': { num: '12' },
+  'heap': { num: '13' },
+  'dp': { num: '14', star: true },
+  'backtracking': { num: '15', star: true },
+  'greedy': { num: '16' },
+  'intervals': { num: '17' },
+  '2d-dp': { num: '18' },
+  'advanced-graphs': { num: '19' },
+  'math': { num: '20' },
+  'bit-manipulation': { num: '21' },
+  'geometry': { num: '22' }
+};
+
+export default function TopicNode({ data }) {
+  const mainTitle = primaryTopicLabel(data.label);
+  const meta = topicMetadata[data.id] || { num: '??' };
+  const { prefetchTopicProblems } = usePrefetch();
+
+  const { total = 0, completed = 0 } = data.progress || {};
+  const progressPercent = total > 0 ? (completed / total) * 100 : 0;
+
+  return (
+    <div
+      className="topic-node-container"
+      id={`node-${data.id}`}
+      onMouseEnter={() => prefetchTopicProblems(data.id)}
+    >
+      <Handle type="target" position={Position.Top} className="handle" />
+      
+      <div className="topic-node-content">
+        <div className="topic-node-header">
+           <span className="topic-node-num">{meta.num}</span>
+           {meta.star && <span className="topic-node-star">★</span>}
+        </div>
+        <span className="topic-node-title">{mainTitle}</span>
+        
+        <div className="topic-node-footer">
+          <div className="topic-node-stats">
+            {completed} / {total}
+          </div>
+          <div className="topic-node-progress-bar">
+            <div className="topic-node-progress-fill" style={{ width: `${progressPercent}%` }} />
+          </div>
+        </div>
+      </div>
+
+      <Handle type="source" position={Position.Bottom} className="handle" />
+    </div>
+  );
+}

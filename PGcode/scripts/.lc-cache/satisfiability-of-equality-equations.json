@@ -1,8 +1,0 @@
-{
-  "questionId": "1032",
-  "titleSlug": "satisfiability-of-equality-equations",
-  "title": "Satisfiability of Equality Equations",
-  "exampleTestcases": "[\"a==b\",\"b!=a\"]\n[\"b==a\",\"a==b\"]",
-  "sampleTestCase": "[\"a==b\",\"b!=a\"]",
-  "metaData": "{\r\n  \"name\": \"equationsPossible\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"equations\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

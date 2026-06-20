@@ -1,8 +1,0 @@
-{
-  "questionId": "1244",
-  "titleSlug": "distinct-echo-substrings",
-  "title": "Distinct Echo Substrings",
-  "exampleTestcases": "\"abcabcabc\"\n\"leetcodeleetcode\"",
-  "sampleTestCase": "\"abcabcabc\"",
-  "metaData": "{\n  \"name\": \"distinctEchoSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

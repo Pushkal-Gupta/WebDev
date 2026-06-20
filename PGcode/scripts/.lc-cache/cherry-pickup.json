@@ -1,8 +1,0 @@
-{
-  "questionId": "741",
-  "titleSlug": "cherry-pickup",
-  "title": "Cherry Pickup",
-  "exampleTestcases": "[[0,1,-1],[1,0,-1],[1,1,1]]\n[[1,1,-1],[1,-1,1],[-1,1,1]]",
-  "sampleTestCase": "[[0,1,-1],[1,0,-1],[1,1,1]]",
-  "metaData": "{\r\n  \"name\": \"cherryPickup\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

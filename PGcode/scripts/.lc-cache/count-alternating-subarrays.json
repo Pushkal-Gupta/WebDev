@@ -1,8 +1,0 @@
-{
-  "questionId": "3374",
-  "titleSlug": "count-alternating-subarrays",
-  "title": "Count Alternating Subarrays",
-  "exampleTestcases": "[0,1,1,1]\n[1,0,1,0]",
-  "sampleTestCase": "[0,1,1,1]",
-  "metaData": "{\n  \"name\": \"countAlternatingSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

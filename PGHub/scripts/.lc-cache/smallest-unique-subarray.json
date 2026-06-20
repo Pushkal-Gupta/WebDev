@@ -1,0 +1,8 @@
+{
+  "questionId": "4105",
+  "titleSlug": "smallest-unique-subarray",
+  "title": "Smallest Unique Subarray",
+  "exampleTestcases": "[3,3,3]\n[2,1,2,3,3]\n[1,1,2,2,1]",
+  "sampleTestCase": "[3,3,3]",
+  "metaData": "{\n  \"name\": \"smallestUniqueSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "268",
-  "titleSlug": "missing-number",
-  "title": "Missing Number",
-  "exampleTestcases": "[3,0,1]\n[0,1]\n[9,6,4,2,3,5,7,0,1]",
-  "sampleTestCase": "[3,0,1]",
-  "metaData": "{\r\n  \"name\": \"missingNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

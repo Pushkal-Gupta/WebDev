@@ -1,8 +1,0 @@
-{
-  "questionId": "1892",
-  "titleSlug": "find-total-time-spent-by-each-employee",
-  "title": "Find Total Time Spent by Each Employee",
-  "exampleTestcases": "{\"headers\":{\"Employees\":[\"emp_id\",\"event_day\",\"in_time\",\"out_time\"]},\"rows\":{\"Employees\":[[\"1\",\"2020-11-28\",\"4\",\"32\"],[\"1\",\"2020-11-28\",\"55\",\"200\"],[\"1\",\"2020-12-3\",\"1\",\"42\"],[\"2\",\"2020-11-28\",\"3\",\"33\"],[\"2\",\"2020-12-9\",\"47\",\"74\"]]}}",
-  "sampleTestCase": "{\"headers\":{\"Employees\":[\"emp_id\",\"event_day\",\"in_time\",\"out_time\"]},\"rows\":{\"Employees\":[[\"1\",\"2020-11-28\",\"4\",\"32\"],[\"1\",\"2020-11-28\",\"55\",\"200\"],[\"1\",\"2020-12-3\",\"1\",\"42\"],[\"2\",\"2020-11-28\",\"3\",\"33\"],[\"2\",\"2020-12-9\",\"47\",\"74\"]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Employees(emp_id int, event_day date, in_time int, out_time int)\"], \"mssql\": [\"Create table Employees(emp_id int, event_day date, in_time int, out_time int)\"], \"oraclesql\": [\"Create table Employees(emp_id int, event_day date, in_time int, out_time int)\", \"ALTER SESSION SET nls_date_format='YYYY-MM-DD'\"], \"database\": true, \"name\": \"total_time\", \"pythondata\": [\"Employees = pd.DataFrame([], columns=['emp_id', 'event_day', 'in_time', 'out_time']).astype({'emp_id':'Int64', 'event_day':'datetime64[ns]', 'in_time':'Int64', 'out_time':'Int64'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Employees(emp_id int, event_day date, in_time int, out_time int)\"], \"database_schema\": {\"Employees\": {\"emp_id\": \"INT\", \"event_day\": \"DATE\", \"in_time\": \"INT\", \"out_time\": \"INT\"}}}"
-}

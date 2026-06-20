@@ -1,8 +1,0 @@
-{
-  "questionId": "468",
-  "titleSlug": "validate-ip-address",
-  "title": "Validate IP Address",
-  "exampleTestcases": "\"172.16.254.1\"\n\"2001:0db8:85a3:0:0:8A2E:0370:7334\"\n\"256.256.256.256\"",
-  "sampleTestCase": "\"172.16.254.1\"",
-  "metaData": "{\n  \"name\": \"validIPAddress\",\n  \"params\": [\n    {\n      \"name\": \"queryIP\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

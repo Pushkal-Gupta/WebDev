@@ -1,8 +1,0 @@
-{
-  "questionId": "3956",
-  "titleSlug": "trionic-array-ii",
-  "title": "Trionic Array II",
-  "exampleTestcases": "[0,-2,-1,-3,0,2,-1]\n[1,4,2,7]",
-  "sampleTestCase": "[0,-2,-1,-3,0,2,-1]",
-  "metaData": "{\n  \"name\": \"maxSumTrionic\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

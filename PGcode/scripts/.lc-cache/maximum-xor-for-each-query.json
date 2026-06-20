@@ -1,8 +1,0 @@
-{
-  "questionId": "1940",
-  "titleSlug": "maximum-xor-for-each-query",
-  "title": "Maximum XOR for Each Query",
-  "exampleTestcases": "[0,1,1,3]\n2\n[2,3,4,7]\n3\n[0,1,2,2,5,7]\n3",
-  "sampleTestCase": "[0,1,1,3]\n2",
-  "metaData": "{\n  \"name\": \"getMaximumXor\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maximumBit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

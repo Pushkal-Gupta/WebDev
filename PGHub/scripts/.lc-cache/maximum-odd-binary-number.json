@@ -1,0 +1,8 @@
+{
+  "questionId": "3055",
+  "titleSlug": "maximum-odd-binary-number",
+  "title": "Maximum Odd Binary Number",
+  "exampleTestcases": "\"010\"\n\"0101\"",
+  "sampleTestCase": "\"010\"",
+  "metaData": "{\n  \"name\": \"maximumOddBinaryNumber\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

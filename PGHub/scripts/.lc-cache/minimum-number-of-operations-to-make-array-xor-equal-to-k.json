@@ -1,0 +1,8 @@
+{
+  "questionId": "3249",
+  "titleSlug": "minimum-number-of-operations-to-make-array-xor-equal-to-k",
+  "title": "Minimum Number of Operations to Make Array XOR Equal to K",
+  "exampleTestcases": "[2,1,3,4]\n1\n[2,0,2,0]\n0",
+  "sampleTestCase": "[2,1,3,4]\n1",
+  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

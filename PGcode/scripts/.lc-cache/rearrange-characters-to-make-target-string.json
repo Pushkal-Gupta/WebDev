@@ -1,8 +1,0 @@
-{
-  "questionId": "2372",
-  "titleSlug": "rearrange-characters-to-make-target-string",
-  "title": "Rearrange Characters to Make Target String",
-  "exampleTestcases": "\"ilovecodingonleetcode\"\n\"code\"\n\"abcba\"\n\"abc\"\n\"abbaccaddaeea\"\n\"aaaaa\"",
-  "sampleTestCase": "\"ilovecodingonleetcode\"\n\"code\"",
-  "metaData": "{\n  \"name\": \"rearrangeCharacters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

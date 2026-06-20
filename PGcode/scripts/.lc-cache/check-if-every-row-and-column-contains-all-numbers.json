@@ -1,8 +1,0 @@
-{
-  "questionId": "2254",
-  "titleSlug": "check-if-every-row-and-column-contains-all-numbers",
-  "title": "Check if Every Row and Column Contains All Numbers",
-  "exampleTestcases": "[[1,2,3],[3,1,2],[2,3,1]]\n[[1,1,1],[1,2,3],[1,2,3]]",
-  "sampleTestCase": "[[1,2,3],[3,1,2],[2,3,1]]",
-  "metaData": "{\n  \"name\": \"checkValid\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

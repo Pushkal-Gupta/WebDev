@@ -1,8 +1,0 @@
-{
-  "questionId": "1844",
-  "titleSlug": "maximum-number-of-balls-in-a-box",
-  "title": "Maximum Number of Balls in a Box",
-  "exampleTestcases": "1\n10\n5\n15\n19\n28",
-  "sampleTestCase": "1\n10",
-  "metaData": "{\n  \"name\": \"countBalls\",\n  \"params\": [\n    {\n      \"name\": \"lowLimit\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"highLimit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

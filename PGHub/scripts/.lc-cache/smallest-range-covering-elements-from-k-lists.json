@@ -1,0 +1,8 @@
+{
+  "questionId": "632",
+  "titleSlug": "smallest-range-covering-elements-from-k-lists",
+  "title": "Smallest Range Covering Elements from K Lists",
+  "exampleTestcases": "[[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]\n[[1,2,3],[1,2,3],[1,2,3]]",
+  "sampleTestCase": "[[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]",
+  "metaData": "{\r\n  \"name\": \"smallestRange\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"list<list<integer>>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer[]\"\r\n  }\r\n}\r\n"
+}

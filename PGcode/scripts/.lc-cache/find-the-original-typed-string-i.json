@@ -1,8 +1,0 @@
-{
-  "questionId": "3617",
-  "titleSlug": "find-the-original-typed-string-i",
-  "title": "Find the Original Typed String I",
-  "exampleTestcases": "\"abbcccc\"\n\"abcd\"\n\"aaaa\"",
-  "sampleTestCase": "\"abbcccc\"",
-  "metaData": "{\n  \"name\": \"possibleStringCount\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

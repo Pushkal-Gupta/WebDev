@@ -1,8 +1,0 @@
-{
-  "questionId": "4084",
-  "titleSlug": "maximize-sum-of-squares-of-digits",
-  "title": "Maximize Sum of Squares of Digits",
-  "exampleTestcases": "2\n3\n2\n17\n1\n10",
-  "sampleTestCase": "2\n3",
-  "metaData": "{\n  \"name\": \"maxSumOfSquares\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"sum\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3376",
-  "titleSlug": "longest-common-suffix-queries",
-  "title": "Longest Common Suffix Queries",
-  "exampleTestcases": "[\"abcd\",\"bcd\",\"xbcd\"]\n[\"cd\",\"bcd\",\"xyz\"]\n[\"abcdefgh\",\"poiuygh\",\"ghghgh\"]\n[\"gh\",\"acbfgh\",\"acbfegh\"]",
-  "sampleTestCase": "[\"abcd\",\"bcd\",\"xbcd\"]\n[\"cd\",\"bcd\",\"xyz\"]",
-  "metaData": "{\n  \"name\": \"stringIndices\",\n  \"params\": [\n    {\n      \"name\": \"wordsContainer\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"wordsQuery\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

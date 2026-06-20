@@ -1,8 +1,0 @@
-{
-  "questionId": "2364",
-  "titleSlug": "longest-path-with-different-adjacent-characters",
-  "title": "Longest Path With Different Adjacent Characters",
-  "exampleTestcases": "[-1,0,0,1,1,2]\n\"abacbe\"\n[-1,0,0,0]\n\"aabc\"",
-  "sampleTestCase": "[-1,0,0,1,1,2]\n\"abacbe\"",
-  "metaData": "{\n  \"name\": \"longestPath\",\n  \"params\": [\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"parent\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

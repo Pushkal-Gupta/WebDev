@@ -1,8 +1,0 @@
-{
-  "questionId": "1708",
-  "titleSlug": "design-parking-system",
-  "title": "Design Parking System",
-  "exampleTestcases": "[\"ParkingSystem\",\"addCar\",\"addCar\",\"addCar\",\"addCar\"]\n[[1,1,0],[1],[2],[3],[1]]",
-  "sampleTestCase": "[\"ParkingSystem\",\"addCar\",\"addCar\",\"addCar\",\"addCar\"]\n[[1,1,0],[1],[2],[3],[1]]",
-  "metaData": "{\n  \"classname\": \"ParkingSystem\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"name\": \"big\",\n        \"type\": \"integer\"\n      },\n      {\n        \"name\": \"medium\",\n        \"type\": \"integer\"\n      },\n      {\n        \"name\": \"small\",\n        \"type\": \"integer\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"carType\"\n        }\n      ],\n      \"name\": \"addCar\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

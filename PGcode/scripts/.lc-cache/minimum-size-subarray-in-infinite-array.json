@@ -1,8 +1,0 @@
-{
-  "questionId": "3141",
-  "titleSlug": "minimum-size-subarray-in-infinite-array",
-  "title": "Minimum Size Subarray in Infinite Array",
-  "exampleTestcases": "[1,2,3]\n5\n[1,1,1,2,3]\n4\n[2,4,6,8]\n3",
-  "sampleTestCase": "[1,2,3]\n5",
-  "metaData": "{\n  \"name\": \"minSizeSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

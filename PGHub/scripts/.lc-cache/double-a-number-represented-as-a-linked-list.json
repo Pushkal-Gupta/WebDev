@@ -1,0 +1,8 @@
+{
+  "questionId": "2871",
+  "titleSlug": "double-a-number-represented-as-a-linked-list",
+  "title": "Double a Number Represented as a Linked List",
+  "exampleTestcases": "[1,8,9]\n[9,9,9]",
+  "sampleTestCase": "[1,8,9]",
+  "metaData": "{\n  \"name\": \"doubleIt\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
+}

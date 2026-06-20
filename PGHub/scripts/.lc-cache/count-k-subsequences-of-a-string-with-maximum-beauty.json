@@ -1,0 +1,8 @@
+{
+  "questionId": "3057",
+  "titleSlug": "count-k-subsequences-of-a-string-with-maximum-beauty",
+  "title": "Count K-Subsequences of a String With Maximum Beauty",
+  "exampleTestcases": "\"bcca\"\n2\n\"abbcd\"\n4",
+  "sampleTestCase": "\"bcca\"\n2",
+  "metaData": "{\n  \"name\": \"countKSubsequencesWithMaxBeauty\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

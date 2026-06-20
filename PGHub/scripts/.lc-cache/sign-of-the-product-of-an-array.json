@@ -1,0 +1,8 @@
+{
+  "questionId": "1950",
+  "titleSlug": "sign-of-the-product-of-an-array",
+  "title": "Sign of the Product of an Array",
+  "exampleTestcases": "[-1,-2,-3,-4,3,2,1]\n[1,5,0,2,-3]\n[-1,1,-1,1,-1]",
+  "sampleTestCase": "[-1,-2,-3,-4,3,2,1]",
+  "metaData": "{\n  \"name\": \"arraySign\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

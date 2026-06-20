@@ -1,8 +1,0 @@
-{
-  "questionId": "948",
-  "titleSlug": "sort-an-array",
-  "title": "Sort an Array",
-  "exampleTestcases": "[5,2,3,1]\n[5,1,1,2,0,0]",
-  "sampleTestCase": "[5,2,3,1]",
-  "metaData": "{\n  \"name\": \"sortArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

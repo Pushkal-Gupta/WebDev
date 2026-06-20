@@ -1,8 +1,0 @@
-{
-  "questionId": "537",
-  "titleSlug": "complex-number-multiplication",
-  "title": "Complex Number Multiplication",
-  "exampleTestcases": "\"1+1i\"\n\"1+1i\"\n\"1+-1i\"\n\"1+-1i\"",
-  "sampleTestCase": "\"1+1i\"\n\"1+1i\"",
-  "metaData": "{\n  \"name\": \"complexNumberMultiply\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"num2\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

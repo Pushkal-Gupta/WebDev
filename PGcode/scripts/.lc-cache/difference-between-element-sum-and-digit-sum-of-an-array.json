@@ -1,8 +1,0 @@
-{
-  "questionId": "2624",
-  "titleSlug": "difference-between-element-sum-and-digit-sum-of-an-array",
-  "title": "Difference Between Element Sum and Digit Sum of an Array",
-  "exampleTestcases": "[1,15,6,3]\n[1,2,3,4]",
-  "sampleTestCase": "[1,15,6,3]",
-  "metaData": "{\n  \"name\": \"differenceOfSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

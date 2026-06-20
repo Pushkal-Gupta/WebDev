@@ -1,8 +1,0 @@
-{
-  "questionId": "1013",
-  "titleSlug": "fibonacci-number",
-  "title": "Fibonacci Number",
-  "exampleTestcases": "2\n3\n4",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"fib\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

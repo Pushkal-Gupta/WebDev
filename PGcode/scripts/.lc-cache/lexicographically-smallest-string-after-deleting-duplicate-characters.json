@@ -1,8 +1,0 @@
-{
-  "questionId": "4086",
-  "titleSlug": "lexicographically-smallest-string-after-deleting-duplicate-characters",
-  "title": "Lexicographically Smallest String After Deleting Duplicate Characters",
-  "exampleTestcases": "\"aaccb\"\n\"z\"",
-  "sampleTestCase": "\"aaccb\"",
-  "metaData": "{\n  \"name\": \"lexSmallestAfterDeletion\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

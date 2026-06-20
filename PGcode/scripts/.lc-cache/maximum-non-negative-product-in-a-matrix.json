@@ -1,8 +1,0 @@
-{
-  "questionId": "1716",
-  "titleSlug": "maximum-non-negative-product-in-a-matrix",
-  "title": "Maximum Non Negative Product in a Matrix",
-  "exampleTestcases": "[[-1,-2,-3],[-2,-3,-3],[-3,-3,-2]]\n[[1,-2,1],[1,-2,1],[3,-4,1]]\n[[1,3],[0,-4]]",
-  "sampleTestCase": "[[-1,-2,-3],[-2,-3,-3],[-3,-3,-2]]",
-  "metaData": "{\n  \"name\": \"maxProductPath\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

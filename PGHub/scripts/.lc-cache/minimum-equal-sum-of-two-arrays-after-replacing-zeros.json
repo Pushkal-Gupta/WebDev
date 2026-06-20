@@ -1,0 +1,8 @@
+{
+  "questionId": "3171",
+  "titleSlug": "minimum-equal-sum-of-two-arrays-after-replacing-zeros",
+  "title": "Minimum Equal Sum of Two Arrays After Replacing Zeros",
+  "exampleTestcases": "[3,2,0,1,0]\n[6,5,0]\n[2,0,2,0]\n[1,4]",
+  "sampleTestCase": "[3,2,0,1,0]\n[6,5,0]",
+  "metaData": "{\n  \"name\": \"minSum\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

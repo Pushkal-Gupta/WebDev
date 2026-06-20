@@ -1,8 +1,0 @@
-{
-  "questionId": "3270",
-  "titleSlug": "minimum-moves-to-capture-the-queen",
-  "title": "Minimum Moves to Capture The Queen",
-  "exampleTestcases": "1\n1\n8\n8\n2\n3\n5\n3\n3\n4\n5\n2",
-  "sampleTestCase": "1\n1\n8\n8\n2\n3",
-  "metaData": "{\n  \"name\": \"minMovesToCaptureTheQueen\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"c\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"d\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"e\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"f\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

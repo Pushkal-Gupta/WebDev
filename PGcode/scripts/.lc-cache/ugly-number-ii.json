@@ -1,8 +1,0 @@
-{
-  "questionId": "264",
-  "titleSlug": "ugly-number-ii",
-  "title": "Ugly Number II",
-  "exampleTestcases": "10\n1",
-  "sampleTestCase": "10",
-  "metaData": "{\r\n  \"name\": \"nthUglyNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

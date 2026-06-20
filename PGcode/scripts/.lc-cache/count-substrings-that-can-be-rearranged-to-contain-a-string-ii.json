@@ -1,8 +1,0 @@
-{
-  "questionId": "3572",
-  "titleSlug": "count-substrings-that-can-be-rearranged-to-contain-a-string-ii",
-  "title": "Count Substrings That Can Be Rearranged to Contain a String II",
-  "exampleTestcases": "\"bcca\"\n\"abc\"\n\"abcabc\"\n\"abc\"\n\"abcabc\"\n\"aaabc\"",
-  "sampleTestCase": "\"bcca\"\n\"abc\"",
-  "metaData": "{\n  \"name\": \"validSubstringCount\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

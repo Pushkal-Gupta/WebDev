@@ -1,8 +1,0 @@
-{
-  "questionId": "2547",
-  "titleSlug": "odd-string-difference",
-  "title": "Odd String Difference",
-  "exampleTestcases": "[\"adc\",\"wzy\",\"abc\"]\n[\"aaa\",\"bob\",\"ccc\",\"ddd\"]",
-  "sampleTestCase": "[\"adc\",\"wzy\",\"abc\"]",
-  "metaData": "{\n  \"name\": \"oddString\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

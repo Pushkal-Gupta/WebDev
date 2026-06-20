@@ -1,8 +1,0 @@
-{
-  "questionId": "2099",
-  "titleSlug": "number-of-strings-that-appear-as-substrings-in-word",
-  "title": "Number of Strings That Appear as Substrings in Word",
-  "exampleTestcases": "[\"a\",\"abc\",\"bc\",\"d\"]\n\"abc\"\n[\"a\",\"b\",\"c\"]\n\"aaaaabbbbb\"\n[\"a\",\"a\",\"a\"]\n\"ab\"",
-  "sampleTestCase": "[\"a\",\"abc\",\"bc\",\"d\"]\n\"abc\"",
-  "metaData": "{\n  \"name\": \"numOfStrings\",\n  \"params\": [\n    {\n      \"name\": \"patterns\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

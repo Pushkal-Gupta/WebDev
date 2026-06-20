@@ -1,8 +1,0 @@
-{
-  "questionId": "686",
-  "titleSlug": "repeated-string-match",
-  "title": "Repeated String Match",
-  "exampleTestcases": "\"abcd\"\n\"cdabcdab\"\n\"a\"\n\"aa\"",
-  "sampleTestCase": "\"abcd\"\n\"cdabcdab\"",
-  "metaData": "{\n  \"name\": \"repeatedStringMatch\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"b\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2650",
+  "titleSlug": "split-with-minimum-sum",
+  "title": "Split With Minimum Sum",
+  "exampleTestcases": "4325\n687",
+  "sampleTestCase": "4325",
+  "metaData": "{\n  \"name\": \"splitNum\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "467",
+  "titleSlug": "unique-substrings-in-wraparound-string",
+  "title": "Unique Substrings in Wraparound String",
+  "exampleTestcases": "\"a\"\n\"cac\"\n\"zab\"",
+  "sampleTestCase": "\"a\"",
+  "metaData": "{\n  \"name\": \"findSubstringInWraproundString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

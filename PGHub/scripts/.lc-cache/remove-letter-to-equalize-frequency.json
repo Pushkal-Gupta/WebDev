@@ -1,0 +1,8 @@
+{
+  "questionId": "2532",
+  "titleSlug": "remove-letter-to-equalize-frequency",
+  "title": "Remove Letter To Equalize Frequency",
+  "exampleTestcases": "\"abcc\"\n\"aazz\"",
+  "sampleTestCase": "\"abcc\"",
+  "metaData": "{\n  \"name\": \"equalFrequency\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

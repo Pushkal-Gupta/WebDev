@@ -1,8 +1,0 @@
-{
-  "questionId": "3314",
-  "titleSlug": "most-frequent-prime",
-  "title": "Most Frequent Prime",
-  "exampleTestcases": "[[1,1],[9,9],[1,1]]\n[[7]]\n[[9,7,8],[4,6,5],[2,8,6]]",
-  "sampleTestCase": "[[1,1],[9,9],[1,1]]",
-  "metaData": "{\n  \"name\": \"mostFrequentPrime\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

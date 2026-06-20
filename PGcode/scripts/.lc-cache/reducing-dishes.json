@@ -1,8 +1,0 @@
-{
-  "questionId": "1503",
-  "titleSlug": "reducing-dishes",
-  "title": "Reducing Dishes",
-  "exampleTestcases": "[-1,-8,0,5,-7]\n[4,3,2]\n[-1,-4,-5]",
-  "sampleTestCase": "[-1,-8,0,5,-7]",
-  "metaData": "{\n  \"name\": \"maxSatisfaction\",\n  \"params\": [\n    {\n      \"name\": \"satisfaction\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

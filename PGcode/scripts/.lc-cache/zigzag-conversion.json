@@ -1,8 +1,0 @@
-{
-  "questionId": "6",
-  "titleSlug": "zigzag-conversion",
-  "title": "Zigzag Conversion",
-  "exampleTestcases": "\"PAYPALISHIRING\"\n3\n\"PAYPALISHIRING\"\n4\n\"A\"\n1",
-  "sampleTestCase": "\"PAYPALISHIRING\"\n3",
-  "metaData": "{\r\n  \"name\": \"convert\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"numRows\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

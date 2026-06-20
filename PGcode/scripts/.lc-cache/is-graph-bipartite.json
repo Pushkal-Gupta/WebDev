@@ -1,8 +1,0 @@
-{
-  "questionId": "801",
-  "titleSlug": "is-graph-bipartite",
-  "title": "Is Graph Bipartite?",
-  "exampleTestcases": "[[1,2,3],[0,2],[0,1,3],[0,2]]\n[[1,3],[0,2],[1,3],[0,2]]",
-  "sampleTestCase": "[[1,2,3],[0,2],[0,1,3],[0,2]]",
-  "metaData": "{\r\n  \"name\": \"isBipartite\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"graph\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

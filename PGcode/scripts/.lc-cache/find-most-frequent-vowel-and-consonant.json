@@ -1,8 +1,0 @@
-{
-  "questionId": "3872",
-  "titleSlug": "find-most-frequent-vowel-and-consonant",
-  "title": "Find Most Frequent Vowel and Consonant",
-  "exampleTestcases": "\"successes\"\n\"aeiaeia\"",
-  "sampleTestCase": "\"successes\"",
-  "metaData": "{\n  \"name\": \"maxFreqSum\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

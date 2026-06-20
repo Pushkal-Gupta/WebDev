@@ -1,0 +1,8 @@
+{
+  "questionId": "2798",
+  "titleSlug": "chunk-array",
+  "title": "Chunk Array",
+  "exampleTestcases": "[1,2,3,4,5]\n1\n[1,9,6,3,2]\n3\n[8,5,3,2,6]\n6\n[]\n1",
+  "sampleTestCase": "[1,2,3,4,5]\n1",
+  "metaData": "{\n  \"name\": \"chunkify\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"size\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3242",
-  "titleSlug": "count-elements-with-maximum-frequency",
-  "title": "Count Elements With Maximum Frequency",
-  "exampleTestcases": "[1,2,2,3,1,4]\n[1,2,3,4,5]",
-  "sampleTestCase": "[1,2,2,3,1,4]",
-  "metaData": "{\n  \"name\": \"maxFrequencyElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

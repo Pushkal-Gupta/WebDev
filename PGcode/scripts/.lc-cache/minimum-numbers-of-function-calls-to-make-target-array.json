@@ -1,8 +1,0 @@
-{
-  "questionId": "1662",
-  "titleSlug": "minimum-numbers-of-function-calls-to-make-target-array",
-  "title": "Minimum Numbers of Function Calls to Make Target Array",
-  "exampleTestcases": "[1,5]\n[2,2]\n[4,2,5]",
-  "sampleTestCase": "[1,5]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

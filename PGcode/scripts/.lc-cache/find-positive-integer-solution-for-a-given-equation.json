@@ -1,8 +1,0 @@
-{
-  "questionId": "1358",
-  "titleSlug": "find-positive-integer-solution-for-a-given-equation",
-  "title": "Find Positive Integer Solution for a Given Equation",
-  "exampleTestcases": "1\n5\n2\n5",
-  "sampleTestCase": "1\n5",
-  "metaData": "{\n  \"name\": \"findSolution\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"z\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  },\n  \"manual\": true,\n\"typescriptCustomType\" : \"class CustomFunction {\\n    num: number;\\n    constructor(x: number) {\\n        this.num = x;\\n    }\\n\\n    f(x: number, y: number): number {\\n        switch (this.num) {\\n            case 1 : return x + y;\\n            case 2 : return x * y;\\n            case 3 : return x * x + y;\\n            case 4 : return x + y * y;\\n            case 5 : return x * x + y * y;\\n            case 6 : return (x + y) * (x + y);\\n            case 7 : return x * x * x + y * y * y;\\n            case 8 : return x * x * y;\\n            case 9 : return x * y * y;\\n        }\\n        return 0;\\n    }\\n};\"\n}"
-}

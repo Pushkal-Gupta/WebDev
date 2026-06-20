@@ -1,8 +1,0 @@
-{
-  "questionId": "3476",
-  "titleSlug": "find-minimum-operations-to-make-all-elements-divisible-by-three",
-  "title": "Find Minimum Operations to Make All Elements Divisible by Three",
-  "exampleTestcases": "[1,2,3,4]\n[3,6,9]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\n  \"name\": \"minimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

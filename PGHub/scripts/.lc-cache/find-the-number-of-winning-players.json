@@ -1,0 +1,8 @@
+{
+  "questionId": "3519",
+  "titleSlug": "find-the-number-of-winning-players",
+  "title": "Find the Number of Winning Players",
+  "exampleTestcases": "4\n[[0,0],[1,0],[1,0],[2,1],[2,1],[2,0]]\n5\n[[1,1],[1,2],[1,3],[1,4]]\n5\n[[1,1],[2,4],[2,4],[2,4]]",
+  "sampleTestCase": "4\n[[0,0],[1,0],[1,0],[2,1],[2,1],[2,0]]",
+  "metaData": "{\n  \"name\": \"winningPlayerCount\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"pick\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

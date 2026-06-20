@@ -1,0 +1,8 @@
+{
+  "questionId": "464",
+  "titleSlug": "can-i-win",
+  "title": "Can I Win",
+  "exampleTestcases": "10\n11\n10\n0\n10\n1",
+  "sampleTestCase": "10\n11",
+  "metaData": "{\r\n  \"name\": \"canIWin\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"maxChoosableInteger\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"desiredTotal\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3933",
-  "titleSlug": "minimum-jumps-to-reach-end-via-prime-teleportation",
-  "title": "Minimum Jumps to Reach End via Prime Teleportation",
-  "exampleTestcases": "[1,2,4,6]\n[2,3,4,7,9]\n[4,6,5,8]",
-  "sampleTestCase": "[1,2,4,6]",
-  "metaData": "{\n  \"name\": \"minJumps\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1232",
-  "titleSlug": "sum-of-mutated-array-closest-to-target",
-  "title": "Sum of Mutated Array Closest to Target",
-  "exampleTestcases": "[4,9,3]\n10\n[2,3,5]\n10\n[60864,25176,27249,21296,20204]\n56803",
-  "sampleTestCase": "[4,9,3]\n10",
-  "metaData": "{\n  \"name\": \"findBestValue\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

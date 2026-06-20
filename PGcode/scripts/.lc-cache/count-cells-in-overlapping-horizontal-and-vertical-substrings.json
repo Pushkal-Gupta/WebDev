@@ -1,8 +1,0 @@
-{
-  "questionId": "3821",
-  "titleSlug": "count-cells-in-overlapping-horizontal-and-vertical-substrings",
-  "title": "Count Cells in Overlapping Horizontal and Vertical Substrings",
-  "exampleTestcases": "[[\"a\",\"a\",\"c\",\"c\"],[\"b\",\"b\",\"b\",\"c\"],[\"a\",\"a\",\"b\",\"a\"],[\"c\",\"a\",\"a\",\"c\"],[\"a\",\"a\",\"b\",\"a\"]]\n\"abaca\"\n[[\"c\",\"a\",\"a\",\"a\"],[\"a\",\"a\",\"b\",\"a\"],[\"b\",\"b\",\"a\",\"a\"],[\"a\",\"a\",\"b\",\"a\"]]\n\"aba\"\n[[\"a\"]]\n\"a\"",
-  "sampleTestCase": "[[\"a\",\"a\",\"c\",\"c\"],[\"b\",\"b\",\"b\",\"c\"],[\"a\",\"a\",\"b\",\"a\"],[\"c\",\"a\",\"a\",\"c\"],[\"a\",\"a\",\"b\",\"a\"]]\n\"abaca\"",
-  "metaData": "{\n  \"name\": \"countCells\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"character[][]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"pattern\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

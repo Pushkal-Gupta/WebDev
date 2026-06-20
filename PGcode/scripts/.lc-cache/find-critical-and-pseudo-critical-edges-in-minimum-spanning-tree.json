@@ -1,8 +1,0 @@
-{
-  "questionId": "1613",
-  "titleSlug": "find-critical-and-pseudo-critical-edges-in-minimum-spanning-tree",
-  "title": "Find Critical and Pseudo-Critical Edges in Minimum Spanning Tree",
-  "exampleTestcases": "5\n[[0,1,1],[1,2,1],[2,3,2],[0,3,2],[0,4,3],[3,4,3],[1,4,6]]\n4\n[[0,1,1],[1,2,1],[2,3,1],[0,3,1]]",
-  "sampleTestCase": "5\n[[0,1,1],[1,2,1],[2,3,2],[0,3,2],[0,4,3],[3,4,3],[1,4,6]]",
-  "metaData": "{\n  \"name\": \"findCriticalAndPseudoCriticalEdges\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

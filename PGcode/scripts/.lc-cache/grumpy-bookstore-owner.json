@@ -1,8 +1,0 @@
-{
-  "questionId": "1138",
-  "titleSlug": "grumpy-bookstore-owner",
-  "title": "Grumpy Bookstore Owner",
-  "exampleTestcases": "[1,0,1,2,1,1,7,5]\n[0,1,0,1,0,1,0,1]\n3\n[1]\n[0]\n1",
-  "sampleTestCase": "[1,0,1,2,1,1,7,5]\n[0,1,0,1,0,1,0,1]\n3",
-  "metaData": "{\n  \"name\": \"maxSatisfied\",\n  \"params\": [\n    {\n      \"name\": \"customers\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"grumpy\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"minutes\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

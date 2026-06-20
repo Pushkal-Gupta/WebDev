@@ -1,8 +1,0 @@
-{
-  "questionId": "2893",
-  "titleSlug": "visit-array-positions-to-maximize-score",
-  "title": "Visit Array Positions to Maximize Score",
-  "exampleTestcases": "[2,3,6,1,9,2]\n5\n[2,4,6,8]\n3",
-  "sampleTestCase": "[2,3,6,1,9,2]\n5",
-  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

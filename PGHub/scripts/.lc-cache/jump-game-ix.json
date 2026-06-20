@@ -1,0 +1,8 @@
+{
+  "questionId": "3981",
+  "titleSlug": "jump-game-ix",
+  "title": "Jump Game IX",
+  "exampleTestcases": "[2,1,3]\n[2,3,1]",
+  "sampleTestCase": "[2,1,3]",
+  "metaData": "{\n  \"name\": \"maxValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

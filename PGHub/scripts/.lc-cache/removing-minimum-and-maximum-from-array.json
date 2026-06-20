@@ -1,0 +1,8 @@
+{
+  "questionId": "2212",
+  "titleSlug": "removing-minimum-and-maximum-from-array",
+  "title": "Removing Minimum and Maximum From Array",
+  "exampleTestcases": "[2,10,7,5,4,1,8,6]\n[0,-4,19,1,8,-2,-3,5]\n[101]",
+  "sampleTestCase": "[2,10,7,5,4,1,8,6]",
+  "metaData": "{\n  \"name\": \"minimumDeletions\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2541",
+  "titleSlug": "sum-of-number-and-its-reverse",
+  "title": "Sum of Number and Its Reverse",
+  "exampleTestcases": "443\n63\n181",
+  "sampleTestCase": "443",
+  "metaData": "{\n  \"name\": \"sumOfNumberAndReverse\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

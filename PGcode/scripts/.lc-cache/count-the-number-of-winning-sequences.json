@@ -1,8 +1,0 @@
-{
-  "questionId": "3588",
-  "titleSlug": "count-the-number-of-winning-sequences",
-  "title": "Count The Number of Winning Sequences",
-  "exampleTestcases": "\"FFF\"\n\"FWEFW\"",
-  "sampleTestCase": "\"FFF\"",
-  "metaData": "{\n  \"name\": \"countWinningSequences\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

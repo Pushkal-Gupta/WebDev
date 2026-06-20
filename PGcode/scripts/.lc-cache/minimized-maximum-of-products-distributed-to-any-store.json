@@ -1,8 +1,0 @@
-{
-  "questionId": "2188",
-  "titleSlug": "minimized-maximum-of-products-distributed-to-any-store",
-  "title": "Minimized Maximum of Products Distributed to Any Store",
-  "exampleTestcases": "6\n[11,6]\n7\n[15,10,10]\n1\n[100000]",
-  "sampleTestCase": "6\n[11,6]",
-  "metaData": "{\n  \"name\": \"minimizedMaximum\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"quantities\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

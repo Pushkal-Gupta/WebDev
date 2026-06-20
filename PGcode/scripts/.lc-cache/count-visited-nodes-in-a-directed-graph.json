@@ -1,8 +1,0 @@
-{
-  "questionId": "3140",
-  "titleSlug": "count-visited-nodes-in-a-directed-graph",
-  "title": "Count Visited Nodes in a Directed Graph",
-  "exampleTestcases": "[1,2,0,0]\n[1,2,3,4,0]",
-  "sampleTestCase": "[1,2,0,0]",
-  "metaData": "{\n  \"name\": \"countVisitedNodes\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3944",
-  "titleSlug": "minimum-time-to-activate-string",
-  "title": "Minimum Time to Activate String",
-  "exampleTestcases": "\"abc\"\n[1,0,2]\n2\n\"cat\"\n[0,2,1]\n6\n\"xy\"\n[0,1]\n4",
-  "sampleTestCase": "\"abc\"\n[1,0,2]\n2",
-  "metaData": "{\n  \"name\": \"minTime\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"order\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

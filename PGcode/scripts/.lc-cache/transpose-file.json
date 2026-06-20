@@ -1,8 +1,0 @@
-{
-  "questionId": "194",
-  "titleSlug": "transpose-file",
-  "title": "Transpose File",
-  "exampleTestcases": "a",
-  "sampleTestCase": "a",
-  "metaData": "{\n  \"shell\": true,\n  \"manual\": true\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1229",
-  "titleSlug": "shortest-path-with-alternating-colors",
-  "title": "Shortest Path with Alternating Colors",
-  "exampleTestcases": "3\n[[0,1],[1,2]]\n[]\n3\n[[0,1]]\n[[2,1]]",
-  "sampleTestCase": "3\n[[0,1],[1,2]]\n[]",
-  "metaData": "{\n  \"name\": \"shortestAlternatingPaths\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"redEdges\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"blueEdges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

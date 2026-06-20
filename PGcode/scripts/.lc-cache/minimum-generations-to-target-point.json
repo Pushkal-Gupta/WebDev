@@ -1,8 +1,0 @@
-{
-  "questionId": "4133",
-  "titleSlug": "minimum-generations-to-target-point",
-  "title": "Minimum Generations to Target Point",
-  "exampleTestcases": "[[0,0,0],[6,6,6]]\n[3,3,3]\n[[0,0,0],[5,5,5]]\n[1,1,1]\n[[0,0,0],[2,2,2],[3,3,3]]\n[2,2,2]\n[[1,2,3]]\n[5,5,5]",
-  "sampleTestCase": "[[0,0,0],[6,6,6]]\n[3,3,3]",
-  "metaData": "{\n  \"name\": \"minGenerations\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

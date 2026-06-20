@@ -1,8 +1,0 @@
-{
-  "questionId": "3928",
-  "titleSlug": "split-and-merge-array-transformation",
-  "title": "Split and Merge Array Transformation",
-  "exampleTestcases": "[3,1,2]\n[1,2,3]\n[1,1,2,3,4,5]\n[5,4,3,2,1,1]",
-  "sampleTestCase": "[3,1,2]\n[1,2,3]",
-  "metaData": "{\n  \"name\": \"minSplitMerge\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

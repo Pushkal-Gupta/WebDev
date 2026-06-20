@@ -1,0 +1,419 @@
+.kmp-viz {
+  --kmp-pad: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  padding: var(--kmp-pad);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin: 0.8rem 0;
+  font-family: var(--serif);
+  color: var(--text-main);
+}
+
+.kmp-viz-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px dashed var(--border);
+}
+
+.kmp-viz-title {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.kmp-viz-sub {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 64ch;
+}
+
+.kmp-viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.kmp-viz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 240px;
+  min-width: 0;
+}
+
+.kmp-viz-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.kmp-viz-input {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.45rem 0.6rem;
+  outline: none;
+  letter-spacing: 0.08em;
+  transition: border-color 0.18s ease-out, box-shadow 0.18s ease-out;
+}
+
+.kmp-viz-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+
+.kmp-viz-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+
+.kmp-viz-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.7rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.kmp-viz-metric-accent {
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+
+.kmp-viz-metric-label {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+
+.kmp-viz-metric-value {
+  font-family: var(--mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+}
+
+.kmp-viz-metric-accent .kmp-viz-metric-value {
+  color: var(--accent);
+}
+
+.kmp-viz-metric-dim {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+}
+
+.kmp-viz-stage {
+  width: 100%;
+  padding: 0.5rem 0.25rem 0.25rem;
+}
+
+.kmp-viz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.kmp-viz-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  fill: var(--text-dim);
+}
+
+.kmp-viz-row-label-lps {
+  fill: var(--text-dim);
+}
+
+.kmp-viz-cell-rect {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: fill 0.25s ease-out, stroke 0.25s ease-out;
+}
+
+.kmp-viz-cell-value {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 600;
+  fill: var(--text-main);
+  transition: fill 0.25s ease-out;
+}
+
+.kmp-viz-cell-index {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+}
+
+.kmp-viz-cell.kmp-current .kmp-viz-cell-rect {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--accent);
+  stroke-width: 1.8;
+}
+
+.kmp-viz-cell.kmp-current .kmp-viz-cell-value {
+  fill: var(--accent);
+}
+
+.kmp-viz-cell.kmp-matched .kmp-viz-cell-rect {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: var(--easy);
+}
+
+.kmp-viz-cell.kmp-matched .kmp-viz-cell-value {
+  fill: var(--easy);
+}
+
+.kmp-viz-cell.kmp-match-start .kmp-viz-cell-rect {
+  fill: rgba(var(--accent-rgb), 0.2);
+  stroke: var(--easy);
+  stroke-width: 2;
+}
+
+.kmp-viz-pcell {
+  transition: transform 0.4s cubic-bezier(0.45, 0.05, 0.25, 1);
+}
+
+.kmp-viz-pcell-rect {
+  fill: var(--surface);
+  stroke: var(--border);
+}
+
+.kmp-viz-pcell.kmp-current-j .kmp-viz-pcell-rect {
+  fill: rgba(var(--accent-rgb), 0.22);
+  stroke: var(--hue-violet, var(--accent));
+  stroke-width: 1.8;
+}
+
+.kmp-viz-pcell.kmp-current-j .kmp-viz-cell-value {
+  fill: var(--hue-violet, var(--accent));
+}
+
+.kmp-viz-pcell.kmp-pmatched .kmp-viz-pcell-rect {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: var(--easy);
+}
+
+.kmp-viz-pcell.kmp-pmatched .kmp-viz-cell-value {
+  fill: var(--easy);
+}
+
+.kmp-viz-pointer-line {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+}
+
+.kmp-viz-pointer-line-j {
+  stroke: var(--hue-violet, var(--accent));
+}
+
+.kmp-viz-pointer-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--accent);
+}
+
+.kmp-viz-pointer-label-j {
+  fill: var(--hue-violet, var(--accent));
+}
+
+.kmp-viz-lps-rect {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1.2;
+  transition: fill 0.25s ease-out, stroke 0.25s ease-out;
+}
+
+.kmp-viz-lps-value {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text-dim);
+  transition: fill 0.25s ease-out;
+}
+
+.kmp-viz-lps-cell.kmp-lps-used .kmp-viz-lps-rect {
+  fill: rgba(var(--accent-rgb), 0.18);
+  stroke: var(--warning, var(--accent));
+  stroke-width: 1.8;
+}
+
+.kmp-viz-lps-cell.kmp-lps-used .kmp-viz-lps-value {
+  fill: var(--warning, var(--accent));
+}
+
+.kmp-viz-narration {
+  font-family: var(--mono);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.7rem 0.95rem;
+  min-height: 1.5rem;
+  transition: border-color 0.2s ease-out;
+}
+
+.kmp-viz-narration.kmp-narr-match {
+  border-left-color: var(--easy);
+  color: var(--text-main);
+}
+
+.kmp-viz-narration.kmp-narr-mismatch {
+  border-left-color: var(--hard, var(--warning));
+  color: var(--text-main);
+}
+
+.kmp-viz-narration.kmp-narr-found {
+  border-left-color: var(--easy);
+  color: var(--text-main);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+
+.kmp-viz-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+}
+
+.kmp-viz-result-success {
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid var(--easy);
+}
+
+.kmp-viz-result-empty {
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.kmp-viz-result-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--easy);
+}
+
+.kmp-viz-result-empty .kmp-viz-result-label {
+  color: var(--text-dim);
+}
+
+.kmp-viz-result-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.kmp-viz-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  justify-content: flex-end;
+}
+
+.kmp-viz-btn {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  transition: color 0.18s ease-out, border-color 0.18s ease-out, background 0.18s ease-out, transform 0.12s ease-out;
+}
+
+.kmp-viz-btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--hover-box);
+}
+
+.kmp-viz-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.kmp-viz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.kmp-viz-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.kmp-viz-btn-primary:hover:not(:disabled) {
+  background: var(--accent);
+  color: var(--bg);
+  filter: brightness(1.08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kmp-viz-cell-rect,
+  .kmp-viz-cell-value,
+  .kmp-viz-pcell,
+  .kmp-viz-lps-rect,
+  .kmp-viz-lps-value,
+  .kmp-viz-btn,
+  .kmp-viz-narration {
+    transition: none;
+  }
+}
+
+@media (max-width: 720px) {
+  .kmp-viz {
+    padding: 1rem;
+  }
+  .kmp-viz-actions {
+    justify-content: stretch;
+  }
+  .kmp-viz-btn {
+    flex: 1 1 calc(33.333% - 0.4rem);
+  }
+}

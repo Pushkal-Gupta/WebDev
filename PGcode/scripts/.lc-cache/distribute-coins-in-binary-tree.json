@@ -1,8 +1,0 @@
-{
-  "questionId": "1021",
-  "titleSlug": "distribute-coins-in-binary-tree",
-  "title": "Distribute Coins in Binary Tree",
-  "exampleTestcases": "[3,0,0]\n[0,3,0]",
-  "sampleTestCase": "[3,0,0]",
-  "metaData": "{\r\n  \"name\": \"distributeCoins\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

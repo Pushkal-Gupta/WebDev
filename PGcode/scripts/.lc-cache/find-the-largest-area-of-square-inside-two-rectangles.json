@@ -1,8 +1,0 @@
-{
-  "questionId": "3325",
-  "titleSlug": "find-the-largest-area-of-square-inside-two-rectangles",
-  "title": "Find the Largest Area of Square Inside Two Rectangles",
-  "exampleTestcases": "[[1,1],[2,2],[3,1]]\n[[3,3],[4,4],[6,6]]\n[[1,1],[1,3],[1,5]]\n[[5,5],[5,7],[5,9]]\n[[1,1],[2,2],[1,2]]\n[[3,3],[4,4],[3,4]]\n[[1,1],[3,3],[3,1]]\n[[2,2],[4,4],[4,2]]",
-  "sampleTestCase": "[[1,1],[2,2],[3,1]]\n[[3,3],[4,4],[6,6]]",
-  "metaData": "{\n  \"name\": \"largestSquareArea\",\n  \"params\": [\n    {\n      \"name\": \"bottomLeft\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"topRight\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

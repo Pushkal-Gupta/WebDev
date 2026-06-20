@@ -1,8 +1,0 @@
-{
-  "questionId": "1706",
-  "titleSlug": "min-cost-to-connect-all-points",
-  "title": "Min Cost to Connect All Points",
-  "exampleTestcases": "[[0,0],[2,2],[3,10],[5,2],[7,0]]\n[[3,12],[-2,5],[-4,1]]",
-  "sampleTestCase": "[[0,0],[2,2],[3,10],[5,2],[7,0]]",
-  "metaData": "{\n  \"name\": \"minCostConnectPoints\",\n  \"params\": [\n    {\n      \"name\": \"points\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

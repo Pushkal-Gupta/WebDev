@@ -1,8 +1,0 @@
-{
-  "questionId": "1426",
-  "titleSlug": "find-n-unique-integers-sum-up-to-zero",
-  "title": "Find N Unique Integers Sum up to Zero",
-  "exampleTestcases": "5\n3\n1",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"sumZero\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

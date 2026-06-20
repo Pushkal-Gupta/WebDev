@@ -1,8 +1,0 @@
-{
-  "questionId": "969",
-  "titleSlug": "number-of-recent-calls",
-  "title": "Number of Recent Calls",
-  "exampleTestcases": "[\"RecentCounter\",\"ping\",\"ping\",\"ping\",\"ping\"]\n[[],[1],[100],[3001],[3002]]",
-  "sampleTestCase": "[\"RecentCounter\",\"ping\",\"ping\",\"ping\",\"ping\"]\n[[],[1],[100],[3001],[3002]]",
-  "metaData": "{\r\n    \"classname\": \"RecentCounter\",\r\n    \"maxbytesperline\": 200000,\r\n    \"constructor\": {\r\n        \"params\": [\r\n        ]\r\n    },\r\n    \"methods\": [\r\n        {\r\n            \"name\" : \"ping\",\r\n            \"params\": [\r\n                {\r\n                    \"name\": \"t\",\r\n                    \"type\": \"integer\"\r\n                }\r\n            ],\r\n            \"return\": {\r\n                \"type\": \"integer\"\r\n            }\r\n        }\r\n    ],\r\n    \"systemdesign\": true,\r\n    \"params\": [\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        },\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        }\r\n    ],\r\n    \"return\": {\r\n        \"type\": \"list<String>\",\r\n        \"dealloc\": true\r\n    }\r\n}"
-}

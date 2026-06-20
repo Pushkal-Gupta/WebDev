@@ -1,8 +1,0 @@
-{
-  "questionId": "390",
-  "titleSlug": "elimination-game",
-  "title": "Elimination Game",
-  "exampleTestcases": "9\n1",
-  "sampleTestCase": "9",
-  "metaData": "{\r\n  \"name\": \"lastRemaining\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

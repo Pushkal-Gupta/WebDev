@@ -1,8 +1,0 @@
-{
-  "questionId": "2625",
-  "titleSlug": "increment-submatrices-by-one",
-  "title": "Increment Submatrices by One",
-  "exampleTestcases": "3\n[[1,1,2,2],[0,0,1,1]]\n2\n[[0,0,1,1]]",
-  "sampleTestCase": "3\n[[1,1,2,2],[0,0,1,1]]",
-  "metaData": "{\n  \"name\": \"rangeAddQueries\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3380",
-  "titleSlug": "shortest-subarray-with-or-at-least-k-ii",
-  "title": "Shortest Subarray With OR at Least K II",
-  "exampleTestcases": "[1,2,3]\n2\n[2,1,8]\n10\n[1,2]\n0",
-  "sampleTestCase": "[1,2,3]\n2",
-  "metaData": "{\n  \"name\": \"minimumSubarrayLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

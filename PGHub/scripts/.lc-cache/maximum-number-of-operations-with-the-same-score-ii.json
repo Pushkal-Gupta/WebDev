@@ -1,0 +1,8 @@
+{
+  "questionId": "3318",
+  "titleSlug": "maximum-number-of-operations-with-the-same-score-ii",
+  "title": "Maximum Number of Operations With the Same Score II",
+  "exampleTestcases": "[3,2,1,2,3,4]\n[3,2,6,1,4]",
+  "sampleTestCase": "[3,2,1,2,3,4]",
+  "metaData": "{\n  \"name\": \"maxOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

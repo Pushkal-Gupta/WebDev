@@ -1,0 +1,8 @@
+{
+  "questionId": "3557",
+  "titleSlug": "minimum-number-of-valid-strings-to-form-target-ii",
+  "title": "Minimum Number of Valid Strings to Form Target II",
+  "exampleTestcases": "[\"abc\",\"aaaaa\",\"bcdef\"]\n\"aabcdabc\"\n[\"abababab\",\"ab\"]\n\"ababaababa\"\n[\"abcdef\"]\n\"xyz\"",
+  "sampleTestCase": "[\"abc\",\"aaaaa\",\"bcdef\"]\n\"aabcdabc\"",
+  "metaData": "{\n  \"name\": \"minValidStrings\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

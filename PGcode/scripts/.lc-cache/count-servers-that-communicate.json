@@ -1,8 +1,0 @@
-{
-  "questionId": "1396",
-  "titleSlug": "count-servers-that-communicate",
-  "title": "Count Servers that Communicate",
-  "exampleTestcases": "[[1,0],[0,1]]\n[[1,0],[1,1]]\n[[1,1,0,0],[0,0,1,0],[0,0,1,0],[0,0,0,1]]",
-  "sampleTestCase": "[[1,0],[0,1]]",
-  "metaData": "{\n  \"name\": \"countServers\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

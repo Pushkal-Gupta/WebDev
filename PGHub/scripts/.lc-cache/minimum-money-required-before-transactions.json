@@ -1,0 +1,8 @@
+{
+  "questionId": "2499",
+  "titleSlug": "minimum-money-required-before-transactions",
+  "title": "Minimum Money Required Before Transactions",
+  "exampleTestcases": "[[2,1],[5,0],[4,2]]\n[[3,0],[0,3]]",
+  "sampleTestCase": "[[2,1],[5,0],[4,2]]",
+  "metaData": "{\n  \"name\": \"minimumMoney\",\n  \"params\": [\n    {\n      \"name\": \"transactions\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

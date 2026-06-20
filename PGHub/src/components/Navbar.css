@@ -1,0 +1,184 @@
+/* ── Header (matches blog) ── */
+.pg-header {
+  padding: 1.2rem 0;
+  padding-top: calc(1.2rem + env(safe-area-inset-top));
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 900;
+  transition: background var(--t), border-color var(--t);
+}
+
+.pg-wrap {
+  width: 94%;
+  max-width: var(--container-w);
+  margin: 0 auto;
+}
+
+.nav-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Brand Link ── */
+.brand-link {
+  text-decoration: none;
+  font-family: var(--serif);
+  font-size: 1.3rem;
+  color: var(--text-main);
+  transition: color var(--t);
+  position: relative;
+  cursor: pointer;
+  font-weight: 600;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.brand-link .brand-text {
+  display: inline-flex;
+  gap: 0.4rem;
+  align-items: baseline;
+}
+
+.brand-suffix {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.brand-link::before {
+  content: "\2190";
+  position: absolute;
+  left: -25px;
+  color: var(--accent);
+  opacity: 0;
+  transition: all var(--t);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.brand-link:hover {
+  color: var(--accent);
+}
+
+.brand-link:hover .brand-suffix {
+  color: var(--text-main);
+}
+
+.brand-link:hover::before {
+  opacity: 1;
+  left: -20px;
+}
+
+/* ── Header Right ── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* ── Toggle (blog-identical) ── */
+.toggle-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  user-select: none;
+  /* Render as button without browser chrome */
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+}
+
+.toggle-wrap:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.toggle-label {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.switch-base {
+  width: 30px;
+  height: 15px;
+  background: var(--border);
+  border-radius: 15px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background var(--t);
+}
+
+.switch-base::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  transition: transform var(--t), background var(--t);
+}
+
+[data-theme-mode="dark"] .switch-base {
+  background: var(--accent);
+}
+
+[data-theme-mode="dark"] .switch-base::after {
+  transform: translateX(15px);
+  background: var(--bg);
+}
+
+/* ── Auth Button ── */
+.auth-btn {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  background: none;
+  padding: 0.4rem 0.8rem;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: background var(--t), color var(--t);
+  white-space: nowrap;
+}
+
+.auth-btn:hover {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .toggle-label {
+    display: none;
+  }
+
+  .brand-link {
+    font-size: 1rem;
+  }
+
+  .pg-header {
+    padding: 0.8rem 0;
+  }
+}

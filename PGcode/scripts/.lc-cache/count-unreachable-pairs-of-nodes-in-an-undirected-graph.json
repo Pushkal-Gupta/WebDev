@@ -1,8 +1,0 @@
-{
-  "questionId": "2403",
-  "titleSlug": "count-unreachable-pairs-of-nodes-in-an-undirected-graph",
-  "title": "Count Unreachable Pairs of Nodes in an Undirected Graph",
-  "exampleTestcases": "3\n[[0,1],[0,2],[1,2]]\n7\n[[0,2],[0,5],[2,4],[1,6],[5,4]]",
-  "sampleTestCase": "3\n[[0,1],[0,2],[1,2]]",
-  "metaData": "{\n  \"name\": \"countPairs\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

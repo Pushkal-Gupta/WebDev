@@ -1,8 +1,0 @@
-{
-  "questionId": "1876",
-  "titleSlug": "map-of-highest-peak",
-  "title": "Map of Highest Peak",
-  "exampleTestcases": "[[0,1],[0,0]]\n[[0,0,1],[1,0,0],[0,0,0]]",
-  "sampleTestCase": "[[0,1],[0,0]]",
-  "metaData": "{\n  \"name\": \"highestPeak\",\n  \"params\": [\n    {\n      \"name\": \"isWater\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

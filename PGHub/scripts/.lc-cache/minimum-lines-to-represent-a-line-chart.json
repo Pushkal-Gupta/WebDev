@@ -1,0 +1,8 @@
+{
+  "questionId": "2367",
+  "titleSlug": "minimum-lines-to-represent-a-line-chart",
+  "title": "Minimum Lines to Represent a Line Chart",
+  "exampleTestcases": "[[1,7],[2,6],[3,5],[4,4],[5,4],[6,3],[7,2],[8,1]]\n[[3,4],[1,2],[7,8],[2,3]]",
+  "sampleTestCase": "[[1,7],[2,6],[3,5],[4,4],[5,4],[6,3],[7,2],[8,1]]",
+  "metaData": "{\n  \"name\": \"minimumLines\",\n  \"params\": [\n    {\n      \"name\": \"stockPrices\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

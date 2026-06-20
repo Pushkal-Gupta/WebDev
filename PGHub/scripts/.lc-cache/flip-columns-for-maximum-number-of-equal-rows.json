@@ -1,0 +1,8 @@
+{
+  "questionId": "1147",
+  "titleSlug": "flip-columns-for-maximum-number-of-equal-rows",
+  "title": "Flip Columns For Maximum Number of Equal Rows",
+  "exampleTestcases": "[[0,1],[1,1]]\n[[0,1],[1,0]]\n[[0,0,0],[0,0,1],[1,1,0]]",
+  "sampleTestCase": "[[0,1],[1,1]]",
+  "metaData": "{\n  \"name\": \"maxEqualRowsAfterFlips\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
+}

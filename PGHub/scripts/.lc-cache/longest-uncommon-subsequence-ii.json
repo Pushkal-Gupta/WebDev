@@ -1,0 +1,8 @@
+{
+  "questionId": "522",
+  "titleSlug": "longest-uncommon-subsequence-ii",
+  "title": "Longest Uncommon Subsequence II",
+  "exampleTestcases": "[\"aba\",\"cdc\",\"eae\"]\n[\"aaa\",\"aaa\",\"aa\"]",
+  "sampleTestCase": "[\"aba\",\"cdc\",\"eae\"]",
+  "metaData": "{\r\n  \"name\": \"findLUSlength\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"strs\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

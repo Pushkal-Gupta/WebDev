@@ -1,8 +1,0 @@
-{
-  "questionId": "2510",
-  "titleSlug": "maximum-deletions-on-a-string",
-  "title": "Maximum Deletions on a String",
-  "exampleTestcases": "\"abcabcdabc\"\n\"aaabaab\"\n\"aaaaa\"",
-  "sampleTestCase": "\"abcabcdabc\"",
-  "metaData": "{\n  \"name\": \"deleteString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

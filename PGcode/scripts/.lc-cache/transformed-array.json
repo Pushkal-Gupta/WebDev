@@ -1,8 +1,0 @@
-{
-  "questionId": "3651",
-  "titleSlug": "transformed-array",
-  "title": "Transformed Array",
-  "exampleTestcases": "[3,-2,1,1]\n[-1,4,-1]",
-  "sampleTestCase": "[3,-2,1,1]",
-  "metaData": "{\n  \"name\": \"constructTransformedArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

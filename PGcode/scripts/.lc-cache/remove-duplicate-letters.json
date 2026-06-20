@@ -1,8 +1,0 @@
-{
-  "questionId": "316",
-  "titleSlug": "remove-duplicate-letters",
-  "title": "Remove Duplicate Letters",
-  "exampleTestcases": "\"bcabc\"\n\"cbacdcbc\"",
-  "sampleTestCase": "\"bcabc\"",
-  "metaData": "{ \r\n  \"name\": \"removeDuplicateLetters\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}"
-}

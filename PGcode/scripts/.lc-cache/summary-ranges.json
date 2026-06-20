@@ -1,8 +1,0 @@
-{
-  "questionId": "228",
-  "titleSlug": "summary-ranges",
-  "title": "Summary Ranges",
-  "exampleTestcases": "[0,1,2,4,5,7]\n[0,2,3,4,6,8,9]",
-  "sampleTestCase": "[0,1,2,4,5,7]",
-  "metaData": "{\r\n  \"name\": \"summaryRanges\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
-}

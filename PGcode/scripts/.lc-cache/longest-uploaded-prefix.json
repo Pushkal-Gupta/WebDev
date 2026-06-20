@@ -1,8 +1,0 @@
-{
-  "questionId": "2512",
-  "titleSlug": "longest-uploaded-prefix",
-  "title": "Longest Uploaded Prefix",
-  "exampleTestcases": "[\"LUPrefix\",\"upload\",\"longest\",\"upload\",\"longest\",\"upload\",\"longest\"]\n[[4],[3],[],[1],[],[2],[]]",
-  "sampleTestCase": "[\"LUPrefix\",\"upload\",\"longest\",\"upload\",\"longest\",\"upload\",\"longest\"]\n[[4],[3],[],[1],[],[2],[]]",
-  "metaData": "{\n  \"classname\": \"LUPrefix\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"video\"\n        }\n      ],\n      \"name\": \"upload\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"integer\"\n      },\n      \"name\": \"longest\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

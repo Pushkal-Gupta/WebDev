@@ -1,8 +1,0 @@
-{
-  "questionId": "2542",
-  "titleSlug": "average-value-of-even-numbers-that-are-divisible-by-three",
-  "title": "Average Value of Even Numbers That Are Divisible by Three",
-  "exampleTestcases": "[1,3,6,10,12,15]\n[1,2,4,7,10]",
-  "sampleTestCase": "[1,3,6,10,12,15]",
-  "metaData": "{\n  \"name\": \"averageValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1707",
-  "titleSlug": "check-if-string-is-transformable-with-substring-sort-operations",
-  "title": "Check If String Is Transformable With Substring Sort Operations",
-  "exampleTestcases": "\"84532\"\n\"34852\"\n\"34521\"\n\"23415\"\n\"12345\"\n\"12435\"",
-  "sampleTestCase": "\"84532\"\n\"34852\"",
-  "metaData": "{\n  \"name\": \"isTransformable\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

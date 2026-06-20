@@ -1,8 +1,0 @@
-{
-  "questionId": "3091",
-  "titleSlug": "count-of-sub-multisets-with-bounded-sum",
-  "title": "Count of Sub-Multisets With Bounded Sum",
-  "exampleTestcases": "[1,2,2,3]\n6\n6\n[2,1,4,2,7]\n1\n5\n[1,2,1,3,5,2]\n3\n5",
-  "sampleTestCase": "[1,2,2,3]\n6\n6",
-  "metaData": "{\n  \"name\": \"countSubMultisets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"l\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

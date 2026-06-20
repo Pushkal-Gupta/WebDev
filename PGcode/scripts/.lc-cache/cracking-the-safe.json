@@ -1,8 +1,0 @@
-{
-  "questionId": "754",
-  "titleSlug": "cracking-the-safe",
-  "title": "Cracking the Safe",
-  "exampleTestcases": "1\n2\n2\n2",
-  "sampleTestCase": "1\n2",
-  "metaData": "{\r\n  \"name\": \"crackSafe\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2755",
-  "titleSlug": "extra-characters-in-a-string",
-  "title": "Extra Characters in a String",
-  "exampleTestcases": "\"leetscode\"\n[\"leet\",\"code\",\"leetcode\"]\n\"sayhelloworld\"\n[\"hello\",\"world\"]",
-  "sampleTestCase": "\"leetscode\"\n[\"leet\",\"code\",\"leetcode\"]",
-  "metaData": "{\n  \"name\": \"minExtraChar\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"dictionary\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

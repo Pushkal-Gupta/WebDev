@@ -1,8 +1,0 @@
-{
-  "questionId": "4194",
-  "titleSlug": "count-monobit-integers",
-  "title": "Count Monobit Integers",
-  "exampleTestcases": "1\n4",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"countMonobit\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

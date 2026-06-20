@@ -1,8 +1,0 @@
-{
-  "questionId": "3892",
-  "titleSlug": "best-time-to-buy-and-sell-stock-v",
-  "title": "Best Time to Buy and Sell Stock V",
-  "exampleTestcases": "[1,7,9,8,2]\n2\n[12,16,19,19,8,1,19,13,9]\n3",
-  "sampleTestCase": "[1,7,9,8,2]\n2",
-  "metaData": "{\n  \"name\": \"maximumProfit\",\n  \"params\": [\n    {\n      \"name\": \"prices\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

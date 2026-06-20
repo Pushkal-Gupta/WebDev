@@ -1,0 +1,8 @@
+{
+  "questionId": "2882",
+  "titleSlug": "ways-to-express-an-integer-as-sum-of-powers",
+  "title": "Ways to Express an Integer as Sum of Powers",
+  "exampleTestcases": "10\n2\n4\n1",
+  "sampleTestCase": "10\n2",
+  "metaData": "{\n  \"name\": \"numberOfWays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

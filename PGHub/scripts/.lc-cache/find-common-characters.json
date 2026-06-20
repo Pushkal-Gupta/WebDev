@@ -1,0 +1,8 @@
+{
+  "questionId": "1044",
+  "titleSlug": "find-common-characters",
+  "title": "Find Common Characters",
+  "exampleTestcases": "[\"bella\",\"label\",\"roller\"]\n[\"cool\",\"lock\",\"cook\"]",
+  "sampleTestCase": "[\"bella\",\"label\",\"roller\"]",
+  "metaData": "{\n  \"name\": \"commonChars\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

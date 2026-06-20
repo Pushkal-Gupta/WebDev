@@ -1,8 +1,0 @@
-{
-  "questionId": "3244",
-  "titleSlug": "minimize-length-of-array-using-operations",
-  "title": "Minimize Length of Array Using Operations",
-  "exampleTestcases": "[1,4,3,1]\n[5,5,5,10,5]\n[2,3,4]",
-  "sampleTestCase": "[1,4,3,1]",
-  "metaData": "{\n  \"name\": \"minimumArrayLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "2877",
+  "titleSlug": "shortest-string-that-contains-three-strings",
+  "title": "Shortest String That Contains Three Strings",
+  "exampleTestcases": "\"abc\"\n\"bca\"\n\"aaa\"\n\"ab\"\n\"ba\"\n\"aba\"",
+  "sampleTestCase": "\"abc\"\n\"bca\"\n\"aaa\"",
+  "metaData": "{\n  \"name\": \"minimumString\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"c\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"manual\": false\n}"
+}

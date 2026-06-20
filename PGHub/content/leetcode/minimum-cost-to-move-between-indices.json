@@ -1,0 +1,118 @@
+{
+  "slug": "minimum-cost-to-move-between-indices",
+  "leetcode_id": "4291",
+  "title": "Minimum Cost to Move Between Indices",
+  "difficulty": "Medium",
+  "tags": [],
+  "description_html": "<p>You are given an integer array <code>nums</code> where <code>nums</code> is <strong><span data-keyword=\"strictly-increasing-array\">strictly increasing</span></strong>.</p>\n\n<p>For each index <code>x</code>, let <code>closest(x)</code> be the <strong>adjacent</strong> index <code>y</code> such that <code>abs(nums[x] - nums[y])</code> is <strong>minimized</strong>. If both <strong>adjacent</strong> indices exist and give the same difference, choose the <strong>smaller</strong> index.</p>\n\n<p>From any index <code>x</code>, you can move in two ways:</p>\n\n<ul>\n\t<li>To any index <code>y</code> with cost <code>abs(nums[x] - nums[y])</code>, or</li>\n\t<li>To <code>closest(x)</code> with cost 1.</li>\n</ul>\n\n<p>You are also given a 2D integer array <code>queries</code>, where each <code>queries[i] = [l<sub>i</sub>, r<sub>i</sub>]</code>.</p>\n\n<p>For each query, calculate the <strong>minimum total cost</strong> to move from index <code>l<sub>i</sub></code> to index <code>r<sub>i</sub></code>.</p>\n\n<p>Return an integer array <code>ans</code>, where <code>ans[i]</code> is the answer for the <code>i<sup>th</sup></code> query.</p>\n\n<p>The <strong>absolute difference</strong> between two values <code>x</code> and <code>y</code> is defined as <code>abs(x - y)</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [-5,-2,3], queries = [[0,2],[2,0],[1,2]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[6,2,5]</span></p>\n\n<p><strong>Explanation:</strong>​​​​​​​​​​​​​​​​​​​​</p>\n\n<ul>\n\t<li>The closest indices are <code>[1, 0, 1]</code> respectively.</li>\n\t<li>For <code>[0, 2]</code>, the path <code>0 &rarr; 1 &rarr; 2</code> uses a closest move from index 0 to 1 with cost 1 and a move from index 1 to 2 with cost <code>|-2 - 3| = 5</code>, giving total <code>1 + 5 = 6</code>.</li>\n\t<li>For <code>[2, 0]</code>, the path <code>2 &rarr; 1 &rarr; 0</code> uses two closest moves from index 2 to 1 and from index 1 to 0, each with cost 1, giving total 2.</li>\n\t<li>For <code>[1, 2]</code>, the direct move from index 1 to index 2 has cost <code>|-2 - 3| = 5</code>, which is optimal.</li>\n</ul>\n\n<p>Thus, <code>ans = [6, 2, 5]</code>.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [0,2,3,9], queries = [[3,0],[1,2],[2,0]]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[4,1,3]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<ul>\n\t<li>The closest indices are <code>[1, 2, 1, 2]</code> respectively.</li>\n\t<li>For <code>[3, 0]</code>, the path <code>3 &rarr; 2 &rarr; 1 &rarr; 0</code> uses closest moves from index 3 to 2 and from 2 to 1, each with cost 1, and a move from 1 to 0 with cost <code>|2 - 0| = 2</code>, giving total <code>1 + 1 + 2 = 4</code>.</li>\n\t<li>For <code>[1, 2]</code>, the closest move from index 1 to 2 has cost 1.</li>\n\t<li>For <code>[2, 0]</code>, the path <code>2 &rarr; 1 &rarr; 0</code> uses a closest move from index 2 to 1 with cost 1 and a move from 1 to 0 with cost <code>|2 - 0| = 2</code>, giving total <code>1 + 2 = 3</code>.</li>\n</ul>\n\n<p>Thus, <code>ans = [4, 1, 3]</code>.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>2 &lt;= nums.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>-10<sup>9</sup> &lt;= nums[i] &lt;= 10<sup>9</sup></code></li>\n\t<li><code>nums</code> is strictly increasing</li>\n\t<li><code>1 &lt;= queries.length &lt;= 10<sup>5</sup></code></li>\n\t<li><code>queries[i] = [l<sub>i</sub>, r<sub>i</sub>]</code>​​​​​​​</li>\n\t<li><code>0 &lt;= l<sub>i</sub>, r<sub>i</sub> &lt; nums.length</code></li>\n</ul>\n",
+  "hints": [
+    "Following <code>closest(x)</code> forms directed chains. If the chain moves toward the target index, you can consider walking along it with cost 1 per step.",
+    "Precompute prefix sums of these costs in both directions.",
+    "For each query, compare the cost of walking along closest edges vs making a direct jump."
+  ],
+  "sample_test_cases": [
+    "[-5,-2,3]",
+    "[[0,2],[2,0],[1,2]]",
+    "[0,2,3,9]",
+    "[[3,0],[1,2],[2,0]]"
+  ],
+  "content_signature": "-6x4wj",
+  "fetched_at": "2026-05-30T07:38:11.451Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<int> minCost(vector<int>& nums, vector<vector<int>>& queries) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int[] minCost(int[] nums, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def minCost(self, nums: list[int], queries: list[list[int]]) -> list[int]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def minCost(self, nums, queries):\n        \"\"\"\n        :type nums: List[int]\n        :type queries: List[List[int]]\n        :rtype: List[int]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number[][]} queries\n * @return {number[]}\n */\nvar minCost = function(nums, queries) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function minCost(nums: number[], queries: number[][]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int[] MinCost(int[] nums, int[][] queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\nint* minCost(int* nums, int numsSize, int** queries, int queriesSize, int* queriesColSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func minCost(nums []int, queries [][]int) []int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun minCost(nums: IntArray, queries: Array<IntArray>): IntArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func minCost(_ nums: [Int], _ queries: [[Int]]) -> [Int] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn min_cost(nums: Vec<i32>, queries: Vec<Vec<i32>>) -> Vec<i32> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer[][]} queries\n# @return {Integer[]}\ndef min_cost(nums, queries)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer[][] $queries\n     * @return Integer[]\n     */\n    function minCost($nums, $queries) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<int> minCost(List<int> nums, List<List<int>> queries) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def minCost(nums: Array[Int], queries: Array[Array[Int]]): Array[Int] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec min_cost(nums :: [integer], queries :: [[integer]]) :: [integer]\n  def min_cost(nums, queries) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec min_cost(Nums :: [integer()], Queries :: [[integer()]]) -> [integer()].\nmin_cost(Nums, Queries) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (min-cost nums queries)\n  (-> (listof exact-integer?) (listof (listof exact-integer?)) (listof exact-integer?))\n  )"
+    }
+  ]
+}

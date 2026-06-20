@@ -1,8 +1,0 @@
-{
-  "questionId": "2475",
-  "titleSlug": "largest-palindromic-number",
-  "title": "Largest Palindromic Number",
-  "exampleTestcases": "\"444947137\"\n\"00009\"",
-  "sampleTestCase": "\"444947137\"",
-  "metaData": "{\n  \"name\": \"largestPalindromic\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

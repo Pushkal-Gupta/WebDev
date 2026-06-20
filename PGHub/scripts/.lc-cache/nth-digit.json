@@ -1,0 +1,8 @@
+{
+  "questionId": "400",
+  "titleSlug": "nth-digit",
+  "title": "Nth Digit",
+  "exampleTestcases": "3\n11",
+  "sampleTestCase": "3",
+  "metaData": "{\r\n  \"name\": \"findNthDigit\",\r\n  \"params\": [\r\n    {\r\n        \"name\": \"n\",\r\n        \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

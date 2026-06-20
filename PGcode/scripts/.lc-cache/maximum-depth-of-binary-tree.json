@@ -1,8 +1,0 @@
-{
-  "questionId": "104",
-  "titleSlug": "maximum-depth-of-binary-tree",
-  "title": "Maximum Depth of Binary Tree",
-  "exampleTestcases": "[3,9,20,null,null,15,7]\n[1,null,2]",
-  "sampleTestCase": "[3,9,20,null,null,15,7]",
-  "metaData": "{\r\n  \"name\": \"maxDepth\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

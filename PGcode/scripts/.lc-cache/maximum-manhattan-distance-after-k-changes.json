@@ -1,8 +1,0 @@
-{
-  "questionId": "3754",
-  "titleSlug": "maximum-manhattan-distance-after-k-changes",
-  "title": "Maximum Manhattan Distance After K Changes",
-  "exampleTestcases": "\"NWSE\"\n1\n\"NSWWEW\"\n3",
-  "sampleTestCase": "\"NWSE\"\n1",
-  "metaData": "{\n  \"name\": \"maxDistance\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "593",
-  "titleSlug": "valid-square",
-  "title": "Valid Square",
-  "exampleTestcases": "[0,0]\n[1,1]\n[1,0]\n[0,1]\n[0,0]\n[1,1]\n[1,0]\n[0,12]\n[1,0]\n[-1,0]\n[0,1]\n[0,-1]",
-  "sampleTestCase": "[0,0]\n[1,1]\n[1,0]\n[0,1]",
-  "metaData": "{\r\n  \"name\": \"validSquare\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"p1\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"p2\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"p3\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"p4\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

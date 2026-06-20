@@ -1,0 +1,8 @@
+{
+  "questionId": "774",
+  "titleSlug": "maximum-depth-of-n-ary-tree",
+  "title": "Maximum Depth of N-ary Tree",
+  "exampleTestcases": "[1,null,3,2,4,null,5,6]\n[1,null,2,3,4,5,null,null,6,7,null,8,null,9,10,null,null,11,null,12,null,13,null,null,14]",
+  "sampleTestCase": "[1,null,3,2,4,null,5,6]",
+  "metaData": "{\n  \"name\": \"maxDepth\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"csharp\",\n    \"javascript\",\n    \"python3\",\n    \"golang\",\n    \"ruby\",\n    \"c\",\n    \"kotlin\",\n    \"scala\",\n    \"php\",\n    \"swift\",\n    \"typescript\"\n  ],\n  \"manual\": true, \n\"typescriptCustomType\" : \"class _Node {\\n    val: number\\n    children: _Node[]\\n\\n    constructor(val?: number, children?: _Node[]) {\\n        this.val = (val===undefined ? 0 : val)\\n        this.children = (children===undefined ? [] : children)\\n    }\\n}\"\n}"
+}

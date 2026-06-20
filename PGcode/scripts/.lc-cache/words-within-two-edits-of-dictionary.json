@@ -1,8 +1,0 @@
-{
-  "questionId": "2550",
-  "titleSlug": "words-within-two-edits-of-dictionary",
-  "title": "Words Within Two Edits of Dictionary",
-  "exampleTestcases": "[\"word\",\"note\",\"ants\",\"wood\"]\n[\"wood\",\"joke\",\"moat\"]\n[\"yes\"]\n[\"not\"]",
-  "sampleTestCase": "[\"word\",\"note\",\"ants\",\"wood\"]\n[\"wood\",\"joke\",\"moat\"]",
-  "metaData": "{\n  \"name\": \"twoEditWords\",\n  \"params\": [\n    {\n      \"name\": \"queries\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"dictionary\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

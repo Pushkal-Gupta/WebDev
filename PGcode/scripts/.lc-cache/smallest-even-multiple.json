@@ -1,8 +1,0 @@
-{
-  "questionId": "2491",
-  "titleSlug": "smallest-even-multiple",
-  "title": "Smallest Even Multiple",
-  "exampleTestcases": "5\n6",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"smallestEvenMultiple\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "356",
+  "titleSlug": "line-reflection",
+  "title": "Line Reflection",
+  "exampleTestcases": "[[1,1],[-1,1]]\n[[1,1],[-1,-1]]",
+  "sampleTestCase": "[[1,1],[-1,1]]",
+  "metaData": "{\r\n  \"name\": \"isReflected\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"points\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

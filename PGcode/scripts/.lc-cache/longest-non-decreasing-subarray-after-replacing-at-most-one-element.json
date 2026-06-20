@@ -1,8 +1,0 @@
-{
-  "questionId": "4098",
-  "titleSlug": "longest-non-decreasing-subarray-after-replacing-at-most-one-element",
-  "title": "Longest Non-Decreasing Subarray After Replacing at Most One Element",
-  "exampleTestcases": "[1,2,3,1,2]\n[2,2,2,2,2]",
-  "sampleTestCase": "[1,2,3,1,2]",
-  "metaData": "{\n  \"name\": \"longestSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

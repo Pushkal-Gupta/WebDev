@@ -1,8 +1,0 @@
-{
-  "questionId": "834",
-  "titleSlug": "ambiguous-coordinates",
-  "title": "Ambiguous Coordinates",
-  "exampleTestcases": "\"(123)\"\n\"(0123)\"\n\"(00011)\"",
-  "sampleTestCase": "\"(123)\"",
-  "metaData": "{\n  \"name\": \"ambiguousCoordinates\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
-}

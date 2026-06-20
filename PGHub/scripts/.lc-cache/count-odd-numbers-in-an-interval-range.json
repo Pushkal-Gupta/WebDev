@@ -1,0 +1,8 @@
+{
+  "questionId": "1630",
+  "titleSlug": "count-odd-numbers-in-an-interval-range",
+  "title": "Count Odd Numbers in an Interval Range",
+  "exampleTestcases": "3\n7\n8\n10",
+  "sampleTestCase": "3\n7",
+  "metaData": "{\n  \"name\": \"countOdds\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"high\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

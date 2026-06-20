@@ -1,8 +1,0 @@
-{
-  "questionId": "2567",
-  "titleSlug": "closest-nodes-queries-in-a-binary-search-tree",
-  "title": "Closest Nodes Queries in a Binary Search Tree",
-  "exampleTestcases": "[6,2,13,1,4,9,15,null,null,null,null,null,null,14]\n[2,5,16]\n[4,null,9]\n[3]",
-  "sampleTestCase": "[6,2,13,1,4,9,15,null,null,null,null,null,null,14]\n[2,5,16]",
-  "metaData": "{\n  \"name\": \"closestNodes\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    },\n    {\n      \"type\": \"list<integer>\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

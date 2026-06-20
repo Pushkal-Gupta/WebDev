@@ -1,8 +1,0 @@
-{
-  "questionId": "4135",
-  "titleSlug": "concatenate-non-zero-digits-and-multiply-by-sum-i",
-  "title": "Concatenate Non-Zero Digits and Multiply by Sum I",
-  "exampleTestcases": "10203004\n1000",
-  "sampleTestCase": "10203004",
-  "metaData": "{\n  \"name\": \"sumAndMultiply\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

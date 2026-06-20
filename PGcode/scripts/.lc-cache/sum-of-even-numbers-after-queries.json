@@ -1,8 +1,0 @@
-{
-  "questionId": "1027",
-  "titleSlug": "sum-of-even-numbers-after-queries",
-  "title": "Sum of Even Numbers After Queries",
-  "exampleTestcases": "[1,2,3,4]\n[[1,0],[-3,1],[-4,0],[2,3]]\n[1]\n[[4,0]]",
-  "sampleTestCase": "[1,2,3,4]\n[[1,0],[-3,1],[-4,0],[2,3]]",
-  "metaData": "{\n  \"name\": \"sumEvenAfterQueries\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"queries\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1571",
-  "titleSlug": "allocate-mailboxes",
-  "title": "Allocate Mailboxes",
-  "exampleTestcases": "[1,4,8,10,20]\n3\n[2,3,5,12,18]\n2",
-  "sampleTestCase": "[1,4,8,10,20]\n3",
-  "metaData": "{\n  \"name\": \"minDistance\",\n  \"params\": [\n    {\n      \"name\": \"houses\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

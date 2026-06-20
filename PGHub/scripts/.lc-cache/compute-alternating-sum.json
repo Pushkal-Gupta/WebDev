@@ -1,0 +1,8 @@
+{
+  "questionId": "4058",
+  "titleSlug": "compute-alternating-sum",
+  "title": "Compute Alternating Sum",
+  "exampleTestcases": "[1,3,5,7]\n[100]",
+  "sampleTestCase": "[1,3,5,7]",
+  "metaData": "{\n  \"name\": \"alternatingSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

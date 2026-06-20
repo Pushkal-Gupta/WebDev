@@ -1,8 +1,0 @@
-{
-  "questionId": "3720",
-  "titleSlug": "minimize-the-maximum-edge-weight-of-graph",
-  "title": "Minimize the Maximum Edge Weight of Graph",
-  "exampleTestcases": "5\n[[1,0,1],[2,0,2],[3,0,1],[4,3,1],[2,1,1]]\n2\n5\n[[0,1,1],[0,2,2],[0,3,1],[0,4,1],[1,2,1],[1,4,1]]\n1\n5\n[[1,2,1],[1,3,3],[1,4,5],[2,3,2],[3,4,2],[4,0,1]]\n1\n5\n[[1,2,1],[1,3,3],[1,4,5],[2,3,2],[4,0,1]]\n1",
-  "sampleTestCase": "5\n[[1,0,1],[2,0,2],[3,0,1],[4,3,1],[2,1,1]]\n2",
-  "metaData": "{\n  \"name\": \"minMaxWeight\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"threshold\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

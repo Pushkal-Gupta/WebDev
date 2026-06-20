@@ -1,8 +1,0 @@
-{
-  "questionId": "134",
-  "titleSlug": "gas-station",
-  "title": "Gas Station",
-  "exampleTestcases": "[1,2,3,4,5]\n[3,4,5,1,2]\n[2,3,4]\n[3,4,3]",
-  "sampleTestCase": "[1,2,3,4,5]\n[3,4,5,1,2]",
-  "metaData": "{\r\n  \"name\": \"canCompleteCircuit\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"gas\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"cost\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

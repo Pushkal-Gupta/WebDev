@@ -1,0 +1,8 @@
+{
+  "questionId": "875",
+  "titleSlug": "longest-mountain-in-array",
+  "title": "Longest Mountain in Array",
+  "exampleTestcases": "[2,1,4,7,3,2,5]\n[2,2,2]",
+  "sampleTestCase": "[2,1,4,7,3,2,5]",
+  "metaData": "{\n  \"name\": \"longestMountain\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

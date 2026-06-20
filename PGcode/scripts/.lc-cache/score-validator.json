@@ -1,8 +1,0 @@
-{
-  "questionId": "4281",
-  "titleSlug": "score-validator",
-  "title": "Score Validator",
-  "exampleTestcases": "[\"1\",\"4\",\"W\",\"6\",\"WD\"]\n[\"WD\",\"NB\",\"0\",\"4\",\"4\"]\n[\"W\",\"W\",\"W\",\"W\",\"W\",\"W\",\"W\",\"W\",\"W\",\"W\",\"W\"]",
-  "sampleTestCase": "[\"1\",\"4\",\"W\",\"6\",\"WD\"]",
-  "metaData": "{\n  \"name\": \"scoreValidator\",\n  \"params\": [\n    {\n      \"name\": \"events\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

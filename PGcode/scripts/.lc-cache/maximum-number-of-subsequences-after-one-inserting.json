@@ -1,8 +1,0 @@
-{
-  "questionId": "3948",
-  "titleSlug": "maximum-number-of-subsequences-after-one-inserting",
-  "title": "Maximum Number of Subsequences After One Inserting",
-  "exampleTestcases": "\"LMCT\"\n\"LCCT\"\n\"L\"",
-  "sampleTestCase": "\"LMCT\"",
-  "metaData": "{\n  \"name\": \"numOfSubsequences\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

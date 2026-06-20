@@ -1,8 +1,0 @@
-{
-  "questionId": "2589",
-  "titleSlug": "maximum-value-of-a-string-in-an-array",
-  "title": "Maximum Value of a String in an Array",
-  "exampleTestcases": "[\"alic3\",\"bob\",\"3\",\"4\",\"00000\"]\n[\"1\",\"01\",\"001\",\"0001\"]",
-  "sampleTestCase": "[\"alic3\",\"bob\",\"3\",\"4\",\"00000\"]",
-  "metaData": "{\n  \"name\": \"maximumValue\",\n  \"params\": [\n    {\n      \"name\": \"strs\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

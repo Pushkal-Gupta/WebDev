@@ -1,8 +1,0 @@
-{
-  "questionId": "2914",
-  "titleSlug": "find-the-safest-path-in-a-grid",
-  "title": "Find the Safest Path in a Grid",
-  "exampleTestcases": "[[1,0,0],[0,0,0],[0,0,1]]\n[[0,0,1],[0,0,0],[0,0,0]]\n[[0,0,0,1],[0,0,0,0],[0,0,0,0],[1,0,0,0]]",
-  "sampleTestCase": "[[1,0,0],[0,0,0],[0,0,1]]",
-  "metaData": "{\n  \"name\": \"maximumSafenessFactor\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"list<list<integer>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

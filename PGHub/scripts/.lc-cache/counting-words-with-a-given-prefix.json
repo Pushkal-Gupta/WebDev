@@ -1,0 +1,8 @@
+{
+  "questionId": "2292",
+  "titleSlug": "counting-words-with-a-given-prefix",
+  "title": "Counting Words With a Given Prefix",
+  "exampleTestcases": "[\"pay\",\"attention\",\"practice\",\"attend\"]\n\"at\"\n[\"leetcode\",\"win\",\"loops\",\"success\"]\n\"code\"",
+  "sampleTestCase": "[\"pay\",\"attention\",\"practice\",\"attend\"]\n\"at\"",
+  "metaData": "{\n  \"name\": \"prefixCount\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"pref\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

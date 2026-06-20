@@ -1,0 +1,181 @@
+.arch-diagram {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+
+.arch-diagram-title {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-main);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.arch-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  overflow: visible;
+}
+
+/* ---- hue tokens (gradient stops use these) -------------------------- */
+
+.arch-grad-top { stop-opacity: 1; }
+.arch-grad-bot { stop-opacity: 1; }
+
+.hue-accent.arch-grad-top { stop-color: color-mix(in srgb, var(--accent) 44%, var(--surface)); }
+.hue-accent.arch-grad-bot { stop-color: color-mix(in srgb, var(--accent) 22%, var(--surface)); }
+.hue-sky.arch-grad-top    { stop-color: color-mix(in srgb, var(--hue-sky) 44%, var(--surface)); }
+.hue-sky.arch-grad-bot    { stop-color: color-mix(in srgb, var(--hue-sky) 22%, var(--surface)); }
+.hue-violet.arch-grad-top { stop-color: color-mix(in srgb, var(--hue-violet) 44%, var(--surface)); }
+.hue-violet.arch-grad-bot { stop-color: color-mix(in srgb, var(--hue-violet) 22%, var(--surface)); }
+.hue-pink.arch-grad-top   { stop-color: color-mix(in srgb, var(--hue-pink) 44%, var(--surface)); }
+.hue-pink.arch-grad-bot   { stop-color: color-mix(in srgb, var(--hue-pink) 22%, var(--surface)); }
+.hue-mint.arch-grad-top   { stop-color: color-mix(in srgb, var(--hue-mint) 44%, var(--surface)); }
+.hue-mint.arch-grad-bot   { stop-color: color-mix(in srgb, var(--hue-mint) 22%, var(--surface)); }
+
+/* ---- nodes ---------------------------------------------------------- */
+
+.arch-node { --node-hue: var(--accent); }
+.arch-node.hue-violet { --node-hue: var(--hue-violet); }
+.arch-node.hue-sky    { --node-hue: var(--hue-sky); }
+.arch-node.hue-pink   { --node-hue: var(--hue-pink); }
+.arch-node.hue-mint   { --node-hue: var(--hue-mint); }
+.arch-node.hue-accent { --node-hue: var(--accent); }
+
+.arch-node-box {
+  stroke: color-mix(in srgb, var(--node-hue) 78%, var(--border));
+  stroke-width: 1.8;
+  transition: stroke 0.2s ease, transform 0.2s ease;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.arch-node-accent {
+  fill: var(--node-hue);
+  opacity: 1;
+}
+
+.arch-node-label {
+  fill: var(--text-main);
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+.arch-node-sub {
+  fill: color-mix(in srgb, var(--text-main) 65%, var(--text-dim));
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+.arch-node-tag {
+  fill: color-mix(in srgb, var(--node-hue) 78%, var(--text-main));
+  font-family: var(--mono);
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 1;
+  pointer-events: none;
+}
+
+.arch-node-glow {
+  fill: color-mix(in srgb, var(--node-hue) 40%, transparent);
+}
+
+.arch-node.is-hot .arch-node-box {
+  stroke: var(--node-hue);
+  stroke-width: 2.4;
+}
+
+.arch-node.is-hot .arch-node-label { fill: var(--text-main); font-weight: 700; }
+.arch-node.is-hot .arch-node-sub { fill: color-mix(in srgb, var(--text-main) 70%, var(--text-dim)); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .arch-node.is-hot .arch-node-box { animation: arch-pop 0.28s ease; }
+  .arch-node-glow { animation: arch-glow 1.8s ease-in-out infinite; }
+  @keyframes arch-pop {
+    0% { transform: scale(0.985); }
+    60% { transform: scale(1.02); }
+    100% { transform: scale(1.012); }
+  }
+  @keyframes arch-glow {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 0.9; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arch-node.is-hot .arch-node-box,
+  .arch-node-glow { transition: none; animation: none; }
+}
+
+/* ---- trunk edges ---------------------------------------------------- */
+
+.arch-edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
+  stroke-width: 2.2;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.arch-edge.is-hot {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+
+.arch-arrow-head { fill: color-mix(in srgb, var(--text-main) 60%, var(--text-dim)); }
+.arch-arrow-head.is-skip { fill: var(--hue-mint); }
+
+/* ---- skip / residual connections ----------------------------------- */
+
+.arch-skip-path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--hue-mint) 88%, var(--text-main));
+  stroke-width: 2.1;
+  stroke-dasharray: 6 4;
+  transition: stroke 0.2s ease, stroke-width 0.2s ease;
+}
+
+.arch-skip.is-hot .arch-skip-path {
+  stroke: var(--hue-mint);
+  stroke-width: 2.4;
+  stroke-dasharray: none;
+}
+
+.arch-skip-label {
+  fill: var(--hue-mint);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  opacity: 0.9;
+}
+
+/* ---- xN stack brackets ---------------------------------------------- */
+
+.arch-bracket-path {
+  stroke: color-mix(in srgb, var(--accent) 82%, var(--text-main));
+  stroke-width: 2.1;
+  transition: stroke 0.2s ease;
+}
+
+.arch-bracket.is-hot .arch-bracket-path { stroke: var(--accent); stroke-width: 2.2; }
+
+.arch-bracket-label {
+  fill: var(--accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "914",
+  "titleSlug": "random-point-in-non-overlapping-rectangles",
+  "title": "Random Point in Non-overlapping Rectangles",
+  "exampleTestcases": "[\"Solution\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\"]\n[[[[-2,-2,1,1],[2,2,4,6]]],[],[],[],[],[]]",
+  "sampleTestCase": "[\"Solution\",\"pick\",\"pick\",\"pick\",\"pick\",\"pick\"]\n[[[[-2,-2,1,1],[2,2,4,6]]],[],[],[],[],[]]",
+  "metaData": "{\r\n    \"classname\": \"Solution\",\r\n    \"maxbytesperline\": 200000,\r\n    \"constructor\": {\r\n        \"params\": [\r\n            {\r\n                \"name\": \"rects\",\r\n                \"type\": \"integer[][]\"\r\n            },\r\n            {\r\n                \"type\": \"integer\",\r\n                \"name\": \"rectsSize\",\r\n                \"lang\": \"c\",\r\n                \"value\": \"size_1\"\r\n            }\r\n        ]\r\n    },\r\n    \"methods\": [\r\n        {\r\n            \"name\" : \"pick\",\r\n            \"params\": [\r\n            ],\r\n            \"return\": {\r\n                \"type\": \"integer[]\"\r\n            }\r\n        }\r\n    ],\r\n    \"systemdesign\": true,\r\n    \"params\": [\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        },\r\n        {\r\n            \"name\": \"inputs\",\r\n            \"type\": \"integer[]\"\r\n        }\r\n    ],\r\n    \"return\": {\r\n        \"type\": \"list<String>\",\r\n        \"dealloc\": true\r\n    }\r\n}"
+}

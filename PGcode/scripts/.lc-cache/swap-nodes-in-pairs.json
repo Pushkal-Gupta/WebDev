@@ -1,8 +1,0 @@
-{
-  "questionId": "24",
-  "titleSlug": "swap-nodes-in-pairs",
-  "title": "Swap Nodes in Pairs",
-  "exampleTestcases": "[1,2,3,4]\n[]\n[1]\n[1,2,3]",
-  "sampleTestCase": "[1,2,3,4]",
-  "metaData": "{\r\n  \"name\": \"swapPairs\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"head\",\r\n      \"type\": \"ListNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"ListNode\"\r\n  }\r\n}"
-}

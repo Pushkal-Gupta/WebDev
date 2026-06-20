@@ -1,8 +1,0 @@
-{
-  "questionId": "991",
-  "titleSlug": "array-of-doubled-pairs",
-  "title": "Array of Doubled Pairs",
-  "exampleTestcases": "[3,1,3,6]\n[2,1,2,6]\n[4,-2,2,-4]",
-  "sampleTestCase": "[3,1,3,6]",
-  "metaData": "{\n  \"name\": \"canReorderDoubled\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1050",
-  "titleSlug": "construct-binary-search-tree-from-preorder-traversal",
-  "title": "Construct Binary Search Tree from Preorder Traversal",
-  "exampleTestcases": "[8,5,1,7,10,12]\n[1,3]",
-  "sampleTestCase": "[8,5,1,7,10,12]",
-  "metaData": "{\r\n  \"name\": \"bstFromPreorder\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"preorder\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"TreeNode\"\r\n  }\r\n}\r\n"
-}

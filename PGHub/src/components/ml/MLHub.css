@@ -1,0 +1,534 @@
+.mlhub {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  max-width: var(--container-w, 1200px);
+  width: 94%;
+  margin: 0 auto;
+  padding: 1.4rem 0 2rem;
+  font-family: var(--mono);
+  overflow-x: hidden;
+}
+
+.ml-lesson {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+}
+
+.mlhub-hero {
+  margin-bottom: 1.2rem;
+}
+
+.mlhub-sub-link {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+.mlhub-sub-link:hover { text-decoration: underline; }
+
+.mlhub-eyebrow {
+  display: inline-block;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(var(--accent-rgb, 0,255,245), 0.08);
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+
+.mlhub-title {
+  font-family: var(--serif);
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.35rem;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+  line-height: 1.1;
+}
+
+.mlhub-sub {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  max-width: 76ch;
+  margin: 0;
+}
+
+.mlhub-stats {
+  display: flex;
+  gap: 2.5rem;
+  padding-top: 0.5rem;
+}
+
+.mlhub-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.mlhub-stat-n {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.mlhub-stat-l {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 0.2rem;
+}
+
+.mlhub-pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.mlhub-pillars-auto {
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: start;
+}
+
+.mlhub-pillars-3 {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.mlhub-pillars-2 {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+@media (max-width: 560px) {
+  .mlhub-pillars,
+  .mlhub-pillars-3,
+  .mlhub-pillars-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mlhub-hero-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--accent);
+  margin-bottom: 0.55rem;
+}
+
+.mlhub-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: 0.6rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.mlhub-group-chip-more {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+a.mlhub-pillar-group {
+  text-decoration: none;
+  color: var(--text-main);
+  display: flex;
+  cursor: pointer;
+}
+
+.mlhub-pillar-group {
+  position: relative;
+  overflow: hidden;
+  padding: 1.1rem 1.15rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.mlhub-pillar-group:hover {
+  border-color: var(--accent);
+}
+
+/* Left accent stripe in the brand accent. */
+.mlhub-pillar-stripe {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+/* Radial-gradient flourish that brightens on hover (ForgeThumb motif). */
+.mlhub-pillar-flourish {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 96px;
+  height: 64px;
+  opacity: 0.22;
+  pointer-events: none;
+  transition: opacity var(--t), transform var(--t);
+}
+
+.mlhub-pillar-group:hover .mlhub-pillar-flourish {
+  opacity: 0.4;
+  transform: scale(1.05);
+}
+
+.mlhub-pillar-iconbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  color: var(--accent);
+  background:
+    radial-gradient(120% 120% at 30% 10%, color-mix(in srgb, var(--accent) 22%, transparent) 0%, transparent 70%),
+    var(--hover-box);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+
+.mlhub-pillar-arrow {
+  color: var(--text-dim);
+  transition: color var(--t), transform var(--t);
+}
+
+.mlhub-pillar-group:hover .mlhub-pillar-arrow {
+  color: var(--accent);
+  transform: translateX(3px);
+}
+
+.mlhub-pillar-group .mlhub-pillar-head {
+  margin-bottom: 0.55rem;
+  align-items: center;
+}
+
+.mlhub-pillar-group .mlhub-pillar-title {
+  font-size: 1.05rem;
+  margin: 0 0 0.3rem;
+}
+
+.mlhub-pillar-group .mlhub-pillar-summary {
+  font-size: 0.74rem;
+  line-height: 1.5;
+  margin: 0 0 0.7rem;
+}
+
+.mlhub-pillar-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: auto;
+}
+
+.mlhub-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  font-family: var(--mono);
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  padding: 0.28rem 0.55rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--hover-box);
+  color: var(--text-dim);
+}
+
+.mlhub-chip svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Lesson card — colorful thumbnail banner on top, body cleanly below. */
+a.mlhub-lesson-card {
+  text-decoration: none;
+  color: var(--text-main);
+}
+
+.mlhub-pillar.mlhub-lesson-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  min-height: 212px;
+}
+
+.mlhub-lesson-card:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+/* Accent stripe stays scoped to the body so it never paints over the thumb. */
+.mlhub-lesson-card .mlhub-pillar-stripe {
+  inset: 110px auto 0 0;
+}
+
+.mlhub-lesson-thumb {
+  position: relative;
+  flex: 0 0 110px;
+  height: 110px;
+  min-height: 110px;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.mlhub-lesson-thumb > * {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transition: transform var(--t);
+}
+
+.mlhub-lesson-card:hover .mlhub-lesson-thumb > * {
+  transform: scale(1.04);
+}
+
+.mlhub-lesson-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 0.9rem 1rem 0.95rem;
+  flex: 1 1 auto;
+}
+
+.mlhub-lesson-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.15rem;
+}
+
+/* Smaller iconbox seated inside the body — never straddles the thumb seam. */
+.mlhub-lesson-card .mlhub-pillar-iconbox {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.mlhub-lesson-card .mlhub-pillar-iconbox svg {
+  width: 15px;
+  height: 15px;
+}
+
+.mlhub-lesson-title {
+  font-family: var(--serif);
+  font-size: 1.04rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.mlhub-lesson-summary {
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.mlhub-lesson-card .mlhub-pillar-chips {
+  margin-top: auto;
+  padding-top: 0.5rem;
+}
+
+.mlhub-pillar-group .mlhub-pillar-items {
+  margin: 0 0 0.6rem;
+  gap: 0.2rem;
+}
+
+.mlhub-pillar-group .mlhub-pillar-items li {
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.mlhub-group-modules {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: auto;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--border);
+}
+
+.mlhub-group-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.66rem;
+  font-weight: 600;
+  font-family: var(--mono);
+  padding: 0.3rem 0.55rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--text-main);
+  text-decoration: none;
+  transition: border-color var(--t), background var(--t), color var(--t);
+}
+
+.mlhub-group-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--hover-box);
+}
+
+.mlhub-pillar {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.3rem 1.25rem 1.2rem;
+  text-decoration: none;
+  color: var(--text-main);
+  transition: border-color var(--t), transform var(--t), box-shadow var(--t);
+}
+
+.mlhub-pillar:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.24);
+}
+
+.mlhub-pillar-group .mlhub-pillar-head,
+.mlhub-pillar-group .mlhub-pillar-title,
+.mlhub-pillar-group .mlhub-pillar-summary,
+.mlhub-pillar-group .mlhub-pillar-chips {
+  position: relative;
+  z-index: 1;
+}
+
+.mlhub-pillar-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.mlhub-pillar-status {
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--hover-box);
+  padding: 0.22rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 700;
+}
+
+.mlhub-pillar-title {
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin: 0 0 0.55rem;
+}
+
+.mlhub-pillar-summary {
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin: 0 0 0.85rem;
+}
+
+.mlhub-pillar-items {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.mlhub-pillar-items li {
+  font-size: 0.74rem;
+  color: var(--text-main);
+  padding-left: 0.9rem;
+  position: relative;
+}
+
+.mlhub-pillar-items li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.6;
+}
+
+.mlhub-pillar-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-top: auto;
+}
+
+.mlhub-promise {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.6rem 1.6rem 1.4rem;
+}
+
+.mlhub-promise h2 {
+  font-family: var(--serif);
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin: 0 0 0.9rem;
+  color: var(--text-main);
+}
+
+.mlhub-promise ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.mlhub-promise li {
+  font-size: 0.86rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+}
+
+.mlhub-promise li strong {
+  color: var(--text-main);
+  font-weight: 700;
+}

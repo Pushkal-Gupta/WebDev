@@ -1,8 +1,0 @@
-{
-  "questionId": "89",
-  "titleSlug": "gray-code",
-  "title": "Gray Code",
-  "exampleTestcases": "2\n1",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"grayCode\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

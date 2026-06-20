@@ -1,8 +1,0 @@
-{
-  "questionId": "3235",
-  "titleSlug": "minimum-cost-to-convert-string-i",
-  "title": "Minimum Cost to Convert String I",
-  "exampleTestcases": "\"abcd\"\n\"acbe\"\n[\"a\",\"b\",\"c\",\"c\",\"e\",\"d\"]\n[\"b\",\"c\",\"b\",\"e\",\"b\",\"e\"]\n[2,5,5,1,2,20]\n\"aaaa\"\n\"bbbb\"\n[\"a\",\"c\"]\n[\"c\",\"b\"]\n[1,2]\n\"abcd\"\n\"abce\"\n[\"a\"]\n[\"e\"]\n[10000]",
-  "sampleTestCase": "\"abcd\"\n\"acbe\"\n[\"a\",\"b\",\"c\",\"c\",\"e\",\"d\"]\n[\"b\",\"c\",\"b\",\"e\",\"b\",\"e\"]\n[2,5,5,1,2,20]",
-  "metaData": "{\n  \"name\": \"minimumCost\",\n  \"params\": [\n    {\n      \"name\": \"source\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"target\"\n    },\n    {\n      \"type\": \"character[]\",\n      \"name\": \"original\"\n    },\n    {\n      \"type\": \"character[]\",\n      \"name\": \"changed\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"cost\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

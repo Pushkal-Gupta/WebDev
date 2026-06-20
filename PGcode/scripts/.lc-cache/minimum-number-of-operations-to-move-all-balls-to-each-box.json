@@ -1,8 +1,0 @@
-{
-  "questionId": "1895",
-  "titleSlug": "minimum-number-of-operations-to-move-all-balls-to-each-box",
-  "title": "Minimum Number of Operations to Move All Balls to Each Box",
-  "exampleTestcases": "\"110\"\n\"001011\"",
-  "sampleTestCase": "\"110\"",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"boxes\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2677",
-  "titleSlug": "cousins-in-binary-tree-ii",
-  "title": "Cousins in Binary Tree II",
-  "exampleTestcases": "[5,4,9,1,10,null,7]\n[3,1,2]",
-  "sampleTestCase": "[5,4,9,1,10,null,7]",
-  "metaData": "{\n  \"name\": \"replaceValueInTree\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  }\n}"
-}

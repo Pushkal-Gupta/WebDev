@@ -1,0 +1,8 @@
+{
+  "questionId": "2659",
+  "titleSlug": "number-of-even-and-odd-bits",
+  "title": "Number of Even and Odd Bits",
+  "exampleTestcases": "50\n2",
+  "sampleTestCase": "50",
+  "metaData": "{\n  \"name\": \"evenOddBit\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

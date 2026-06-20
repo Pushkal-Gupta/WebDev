@@ -1,8 +1,0 @@
-{
-  "questionId": "2845",
-  "titleSlug": "find-the-value-of-the-partition",
-  "title": "Find the Value of the Partition",
-  "exampleTestcases": "[1,3,2,4]\n[100,1,10]",
-  "sampleTestCase": "[1,3,2,4]",
-  "metaData": "{\n  \"name\": \"findValueOfPartition\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

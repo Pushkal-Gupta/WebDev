@@ -1,8 +1,0 @@
-{
-  "questionId": "3353",
-  "titleSlug": "existence-of-a-substring-in-a-string-and-its-reverse",
-  "title": "Existence of a Substring in a String and Its Reverse",
-  "exampleTestcases": "\"leetcode\"\n\"abcba\"\n\"abcd\"",
-  "sampleTestCase": "\"leetcode\"",
-  "metaData": "{\n  \"name\": \"isSubstringPresent\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

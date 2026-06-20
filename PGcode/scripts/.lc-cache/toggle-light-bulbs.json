@@ -1,8 +1,0 @@
-{
-  "questionId": "4212",
-  "titleSlug": "toggle-light-bulbs",
-  "title": "Toggle Light Bulbs",
-  "exampleTestcases": "[10,30,20,10]\n[100,100]",
-  "sampleTestCase": "[10,30,20,10]",
-  "metaData": "{\n  \"name\": \"toggleLightBulbs\",\n  \"params\": [\n    {\n      \"name\": \"bulbs\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

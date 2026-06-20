@@ -1,0 +1,8 @@
+{
+  "questionId": "2349",
+  "titleSlug": "check-if-there-is-a-valid-parentheses-string-path",
+  "title": " Check if There Is a Valid Parentheses String Path",
+  "exampleTestcases": "[[\"(\",\"(\",\"(\"],[\")\",\"(\",\")\"],[\"(\",\"(\",\")\"],[\"(\",\"(\",\")\"]]\n[[\")\",\")\"],[\"(\",\"(\"]]",
+  "sampleTestCase": "[[\"(\",\"(\",\"(\"],[\")\",\"(\",\")\"],[\"(\",\"(\",\")\"],[\"(\",\"(\",\")\"]]",
+  "metaData": "{\n  \"name\": \"hasValidPath\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"character[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

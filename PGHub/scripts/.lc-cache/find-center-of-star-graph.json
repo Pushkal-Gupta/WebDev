@@ -1,0 +1,8 @@
+{
+  "questionId": "1916",
+  "titleSlug": "find-center-of-star-graph",
+  "title": "Find Center of Star Graph",
+  "exampleTestcases": "[[1,2],[2,3],[4,2]]\n[[1,2],[5,1],[1,3],[1,4]]",
+  "sampleTestCase": "[[1,2],[2,3],[4,2]]",
+  "metaData": "{\n  \"name\": \"findCenter\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

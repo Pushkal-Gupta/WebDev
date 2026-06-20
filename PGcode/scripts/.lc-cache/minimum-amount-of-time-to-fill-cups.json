@@ -1,8 +1,0 @@
-{
-  "questionId": "2412",
-  "titleSlug": "minimum-amount-of-time-to-fill-cups",
-  "title": "Minimum Amount of Time to Fill Cups",
-  "exampleTestcases": "[1,4,2]\n[5,4,4]\n[5,0,0]",
-  "sampleTestCase": "[1,4,2]",
-  "metaData": "{\n  \"name\": \"fillCups\",\n  \"params\": [\n    {\n      \"name\": \"amount\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

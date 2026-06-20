@@ -1,0 +1,8 @@
+{
+  "questionId": "367",
+  "titleSlug": "valid-perfect-square",
+  "title": "Valid Perfect Square",
+  "exampleTestcases": "16\n14",
+  "sampleTestCase": "16",
+  "metaData": "{\r\n  \"name\": \"isPerfectSquare\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

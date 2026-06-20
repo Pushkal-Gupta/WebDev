@@ -1,8 +1,0 @@
-{
-  "questionId": "3893",
-  "titleSlug": "generate-tag-for-video-caption",
-  "title": "Generate Tag for Video Caption",
-  "exampleTestcases": "\"Leetcode daily streak achieved\"\n\"can I Go There\"\n\"hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh\"",
-  "sampleTestCase": "\"Leetcode daily streak achieved\"",
-  "metaData": "{\n  \"name\": \"generateTag\",\n  \"params\": [\n    {\n      \"name\": \"caption\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

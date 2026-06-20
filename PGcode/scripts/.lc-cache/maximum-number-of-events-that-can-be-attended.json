@@ -1,8 +1,0 @@
-{
-  "questionId": "1478",
-  "titleSlug": "maximum-number-of-events-that-can-be-attended",
-  "title": "Maximum Number of Events That Can Be Attended",
-  "exampleTestcases": "[[1,2],[2,3],[3,4]]\n[[1,2],[2,3],[3,4],[1,2]]",
-  "sampleTestCase": "[[1,2],[2,3],[3,4]]",
-  "metaData": "{\n  \"name\": \"maxEvents\",\n  \"params\": [\n    {\n      \"name\": \"events\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

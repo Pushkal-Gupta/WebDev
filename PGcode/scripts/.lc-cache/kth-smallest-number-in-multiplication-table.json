@@ -1,8 +1,0 @@
-{
-  "questionId": "668",
-  "titleSlug": "kth-smallest-number-in-multiplication-table",
-  "title": "Kth Smallest Number in Multiplication Table",
-  "exampleTestcases": "3\n3\n5\n2\n3\n6",
-  "sampleTestCase": "3\n3\n5",
-  "metaData": "{\r\n  \"name\": \"findKthNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"m\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

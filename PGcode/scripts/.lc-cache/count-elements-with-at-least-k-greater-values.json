@@ -1,8 +1,0 @@
-{
-  "questionId": "4141",
-  "titleSlug": "count-elements-with-at-least-k-greater-values",
-  "title": "Count Elements With at Least K Greater Values",
-  "exampleTestcases": "[3,1,2]\n1\n[5,5,5]\n2",
-  "sampleTestCase": "[3,1,2]\n1",
-  "metaData": "{\n  \"name\": \"countElements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

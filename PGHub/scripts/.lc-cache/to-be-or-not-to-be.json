@@ -1,0 +1,8 @@
+{
+  "questionId": "2813",
+  "titleSlug": "to-be-or-not-to-be",
+  "title": "To Be Or Not To Be",
+  "exampleTestcases": "() => expect(5).toBe(5)\n() => expect(5).toBe(null)\n() => expect(5).notToBe(null)",
+  "sampleTestCase": "() => expect(5).toBe(5)",
+  "metaData": "{\n  \"name\": \"expect\",\n  \"params\": [\n    {\n      \"name\": \"func\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true,\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ]\n}"
+}

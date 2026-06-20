@@ -1,0 +1,8 @@
+{
+  "questionId": "332",
+  "titleSlug": "reconstruct-itinerary",
+  "title": "Reconstruct Itinerary",
+  "exampleTestcases": "[[\"MUC\",\"LHR\"],[\"JFK\",\"MUC\"],[\"SFO\",\"SJC\"],[\"LHR\",\"SFO\"]]\n[[\"JFK\",\"SFO\"],[\"JFK\",\"ATL\"],[\"SFO\",\"ATL\"],[\"ATL\",\"JFK\"],[\"ATL\",\"SFO\"]]",
+  "sampleTestCase": "[[\"MUC\",\"LHR\"],[\"JFK\",\"MUC\"],[\"SFO\",\"SJC\"],[\"LHR\",\"SFO\"]]",
+  "metaData": "{\r\n  \"name\": \"findItinerary\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"tickets\",\r\n      \"type\": \"list<list<string>>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
+}

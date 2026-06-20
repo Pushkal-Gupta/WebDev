@@ -1,8 +1,0 @@
-{
-  "questionId": "3371",
-  "titleSlug": "harshad-number",
-  "title": "Harshad Number",
-  "exampleTestcases": "18\n23",
-  "sampleTestCase": "18",
-  "metaData": "{\n  \"name\": \"sumOfTheDigitsOfHarshadNumber\",\n  \"params\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

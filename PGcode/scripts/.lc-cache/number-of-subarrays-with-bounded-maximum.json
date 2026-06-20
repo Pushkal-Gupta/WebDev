@@ -1,8 +1,0 @@
-{
-  "questionId": "811",
-  "titleSlug": "number-of-subarrays-with-bounded-maximum",
-  "title": "Number of Subarrays with Bounded Maximum",
-  "exampleTestcases": "[2,1,4,3]\n2\n3\n[2,9,2,5,6]\n2\n8",
-  "sampleTestCase": "[2,1,4,3]\n2\n3",
-  "metaData": "{\n  \"name\": \"numSubarrayBoundedMax\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"left\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"right\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

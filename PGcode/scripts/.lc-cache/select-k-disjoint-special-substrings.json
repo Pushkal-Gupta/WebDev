@@ -1,8 +1,0 @@
-{
-  "questionId": "3771",
-  "titleSlug": "select-k-disjoint-special-substrings",
-  "title": "Select K Disjoint Special Substrings",
-  "exampleTestcases": "\"abcdbaefab\"\n2\n\"cdefdc\"\n3\n\"abeabe\"\n0",
-  "sampleTestCase": "\"abcdbaefab\"\n2",
-  "metaData": "{\n  \"name\": \"maxSubstringLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

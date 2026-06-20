@@ -1,8 +1,0 @@
-{
-  "questionId": "3455",
-  "titleSlug": "minimum-length-of-string-after-operations",
-  "title": "Minimum Length of String After Operations",
-  "exampleTestcases": "\"abaacbcbb\"\n\"aa\"",
-  "sampleTestCase": "\"abaacbcbb\"",
-  "metaData": "{\n  \"name\": \"minimumLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

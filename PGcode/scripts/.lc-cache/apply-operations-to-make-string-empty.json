@@ -1,8 +1,0 @@
-{
-  "questionId": "3308",
-  "titleSlug": "apply-operations-to-make-string-empty",
-  "title": "Apply Operations to Make String Empty",
-  "exampleTestcases": "\"aabcbbca\"\n\"abcd\"",
-  "sampleTestCase": "\"aabcbbca\"",
-  "metaData": "{\n  \"name\": \"lastNonEmptyString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

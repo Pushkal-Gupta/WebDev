@@ -1,8 +1,0 @@
-{
-  "questionId": "2825",
-  "titleSlug": "minimize-string-length",
-  "title": "Minimize String Length",
-  "exampleTestcases": "\"aaabc\"\n\"cbbd\"\n\"baadccab\"",
-  "sampleTestCase": "\"aaabc\"",
-  "metaData": "{\n  \"name\": \"minimizedStringLength\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

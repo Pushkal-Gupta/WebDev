@@ -1,0 +1,8 @@
+{
+  "questionId": "982",
+  "titleSlug": "minimum-increment-to-make-array-unique",
+  "title": "Minimum Increment to Make Array Unique",
+  "exampleTestcases": "[1,2,2]\n[3,2,1,2,1,7]",
+  "sampleTestCase": "[1,2,2]",
+  "metaData": "{\n  \"name\": \"minIncrementForUnique\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

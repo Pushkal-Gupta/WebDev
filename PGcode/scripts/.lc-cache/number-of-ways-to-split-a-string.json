@@ -1,8 +1,0 @@
-{
-  "questionId": "1678",
-  "titleSlug": "number-of-ways-to-split-a-string",
-  "title": "Number of Ways to Split a String",
-  "exampleTestcases": "\"10101\"\n\"1001\"\n\"0000\"",
-  "sampleTestCase": "\"10101\"",
-  "metaData": "{\n  \"name\": \"numWays\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

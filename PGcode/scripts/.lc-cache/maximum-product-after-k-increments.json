@@ -1,8 +1,0 @@
-{
-  "questionId": "2329",
-  "titleSlug": "maximum-product-after-k-increments",
-  "title": "Maximum Product After K Increments",
-  "exampleTestcases": "[0,4]\n5\n[6,3,3,2]\n2",
-  "sampleTestCase": "[0,4]\n5",
-  "metaData": "{\n  \"name\": \"maximumProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

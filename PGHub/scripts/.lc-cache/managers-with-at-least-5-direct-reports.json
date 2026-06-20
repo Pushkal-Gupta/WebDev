@@ -1,0 +1,8 @@
+{
+  "questionId": "570",
+  "titleSlug": "managers-with-at-least-5-direct-reports",
+  "title": "Managers with at Least 5 Direct Reports",
+  "exampleTestcases": "{\"headers\": {\"Employee\": [\"id\", \"name\", \"department\", \"managerId\"]}, \"rows\": {\"Employee\": [[101, \"John\", \"A\", null],[102, \"Dan\", \"A\", 101], [103, \"James\", \"A\", 101], [104, \"Amy\", \"A\", 101], [105, \"Anne\", \"A\", 101], [106, \"Ron\", \"B\", 101]]}}",
+  "sampleTestCase": "{\"headers\": {\"Employee\": [\"id\", \"name\", \"department\", \"managerId\"]}, \"rows\": {\"Employee\": [[101, \"John\", \"A\", null],[102, \"Dan\", \"A\", 101], [103, \"James\", \"A\", 101], [104, \"Amy\", \"A\", 101], [105, \"Anne\", \"A\", 101], [106, \"Ron\", \"B\", 101]]}}",
+  "metaData": "{\"mysql\": [\"Create table If Not Exists Employee (id int, name varchar(255), department varchar(255), managerId int)\"], \"mssql\": [\"Create table Employee (id int, name varchar(255), department varchar(255), managerId int)\"], \"oraclesql\": [\"Create table Employee (id int, name varchar(255), department varchar(255), managerId int)\"], \"database\": true, \"name\": \"find_managers\", \"pythondata\": [\"Employee = pd.DataFrame([], columns=['id', 'name', 'department', 'managerId']).astype({'id':'Int64', 'name':'object', 'department':'object', 'managerId':'Int64'})\"], \"manual\": false, \"postgresql\": [\"\\nCreate table If Not Exists Employee (id int, name varchar(255), department varchar(255), managerId int)\"], \"database_schema\": {\"Employee\": {\"id\": \"INT\", \"name\": \"VARCHAR(255)\", \"department\": \"VARCHAR(255)\", \"managerId\": \"INT\"}}}"
+}

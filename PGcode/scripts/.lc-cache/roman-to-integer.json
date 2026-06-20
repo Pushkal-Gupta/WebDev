@@ -1,8 +1,0 @@
-{
-  "questionId": "13",
-  "titleSlug": "roman-to-integer",
-  "title": "Roman to Integer",
-  "exampleTestcases": "\"III\"\n\"LVIII\"\n\"MCMXCIV\"",
-  "sampleTestCase": "\"III\"",
-  "metaData": "{ \r\n  \"name\": \"romanToInt\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

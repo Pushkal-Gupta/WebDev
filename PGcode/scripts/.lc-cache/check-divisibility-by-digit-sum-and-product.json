@@ -1,8 +1,0 @@
-{
-  "questionId": "3918",
-  "titleSlug": "check-divisibility-by-digit-sum-and-product",
-  "title": "Check Divisibility by Digit Sum and Product",
-  "exampleTestcases": "99\n23",
-  "sampleTestCase": "99",
-  "metaData": "{\n  \"name\": \"checkDivisibility\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

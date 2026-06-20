@@ -1,8 +1,0 @@
-{
-  "questionId": "2017",
-  "titleSlug": "minimum-number-of-flips-to-make-the-binary-string-alternating",
-  "title": "Minimum Number of Flips to Make the Binary String Alternating",
-  "exampleTestcases": "\"111000\"\n\"010\"\n\"1110\"",
-  "sampleTestCase": "\"111000\"",
-  "metaData": "{\n  \"name\": \"minFlips\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

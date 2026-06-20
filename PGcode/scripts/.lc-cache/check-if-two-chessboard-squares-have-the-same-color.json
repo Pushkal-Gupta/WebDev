@@ -1,8 +1,0 @@
-{
-  "questionId": "3553",
-  "titleSlug": "check-if-two-chessboard-squares-have-the-same-color",
-  "title": "Check if Two Chessboard Squares Have the Same Color",
-  "exampleTestcases": "\"a1\"\n\"c3\"\n\"a1\"\n\"h3\"",
-  "sampleTestCase": "\"a1\"\n\"c3\"",
-  "metaData": "{\n  \"name\": \"checkTwoChessboards\",\n  \"params\": [\n    {\n      \"name\": \"coordinate1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"coordinate2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

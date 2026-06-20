@@ -1,0 +1,123 @@
+{
+  "slug": "best-team-with-no-conflicts",
+  "leetcode_id": "1748",
+  "title": "Best Team With No Conflicts",
+  "difficulty": "Medium",
+  "tags": [
+    "array",
+    "dynamic-programming",
+    "sorting"
+  ],
+  "description_html": "<p>You are the manager of a basketball team. For the upcoming tournament, you want to choose the team with the highest overall score. The score of the team is the <strong>sum</strong> of scores of all the players in the team.</p>\n\n<p>However, the basketball team is not allowed to have <strong>conflicts</strong>. A <strong>conflict</strong> exists if a younger player has a <strong>strictly higher</strong> score than an older player. A conflict does <strong>not</strong> occur between players of the same age.</p>\n\n<p>Given two lists, <code>scores</code> and <code>ages</code>, where each <code>scores[i]</code> and <code>ages[i]</code> represents the score and age of the <code>i<sup>th</sup></code> player, respectively, return <em>the highest overall score of all possible basketball teams</em>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<pre>\n<strong>Input:</strong> scores = [1,3,5,10,15], ages = [1,2,3,4,5]\n<strong>Output:</strong> 34\n<strong>Explanation:</strong>&nbsp;You can choose all the players.\n</pre>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<pre>\n<strong>Input:</strong> scores = [4,5,6,5], ages = [2,1,2,1]\n<strong>Output:</strong> 16\n<strong>Explanation:</strong>&nbsp;It is best to choose the last 3 players. Notice that you are allowed to choose multiple people of the same age.\n</pre>\n\n<p><strong class=\"example\">Example 3:</strong></p>\n\n<pre>\n<strong>Input:</strong> scores = [1,2,3,5], ages = [8,9,10,1]\n<strong>Output:</strong> 6\n<strong>Explanation:</strong>&nbsp;It is best to choose the first 3 players. \n</pre>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= scores.length, ages.length &lt;= 1000</code></li>\n\t<li><code>scores.length == ages.length</code></li>\n\t<li><code>1 &lt;= scores[i] &lt;= 10<sup>6</sup></code></li>\n\t<li><code>1 &lt;= ages[i] &lt;= 1000</code></li>\n</ul>\n",
+  "hints": [
+    "First, sort players by age and break ties by their score. You can now consider the players from left to right.",
+    "If you choose to include a player, you must only choose players with at least that score later on."
+  ],
+  "sample_test_cases": [
+    "[1,3,5,10,15]",
+    "[1,2,3,4,5]",
+    "[4,5,6,5]",
+    "[2,1,2,1]",
+    "[1,2,3,5]",
+    "[8,9,10,1]"
+  ],
+  "content_signature": "-6fdu78",
+  "fetched_at": "2026-05-30T06:41:47.941Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int bestTeamScore(vector<int>& scores, vector<int>& ages) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int bestTeamScore(int[] scores, int[] ages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def bestTeamScore(self, scores: List[int], ages: List[int]) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def bestTeamScore(self, scores, ages):\n        \"\"\"\n        :type scores: List[int]\n        :type ages: List[int]\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} scores\n * @param {number[]} ages\n * @return {number}\n */\nvar bestTeamScore = function(scores, ages) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function bestTeamScore(scores: number[], ages: number[]): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int BestTeamScore(int[] scores, int[] ages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int bestTeamScore(int* scores, int scoresSize, int* ages, int agesSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func bestTeamScore(scores []int, ages []int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun bestTeamScore(scores: IntArray, ages: IntArray): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func bestTeamScore(_ scores: [Int], _ ages: [Int]) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn best_team_score(scores: Vec<i32>, ages: Vec<i32>) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} scores\n# @param {Integer[]} ages\n# @return {Integer}\ndef best_team_score(scores, ages)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $scores\n     * @param Integer[] $ages\n     * @return Integer\n     */\n    function bestTeamScore($scores, $ages) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int bestTeamScore(List<int> scores, List<int> ages) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def bestTeamScore(scores: Array[Int], ages: Array[Int]): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec best_team_score(scores :: [integer], ages :: [integer]) :: integer\n  def best_team_score(scores, ages) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec best_team_score(Scores :: [integer()], Ages :: [integer()]) -> integer().\nbest_team_score(Scores, Ages) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (best-team-score scores ages)\n  (-> (listof exact-integer?) (listof exact-integer?) exact-integer?)\n  )"
+    }
+  ]
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2731",
-  "titleSlug": "memoize",
-  "title": "Memoize",
-  "exampleTestcases": "\"sum\"\n[\"call\",\"call\",\"getCallCount\",\"call\",\"getCallCount\"]\n[[2,2],[2,2],[],[1,2],[]]\n\"factorial\"\n[\"call\",\"call\",\"call\",\"getCallCount\",\"call\",\"getCallCount\"]\n[[2],[3],[2],[],[3],[]]\n\"fib\"\n[\"call\",\"getCallCount\"]\n[[5],[]]",
-  "sampleTestCase": "\"sum\"\n[\"call\",\"call\",\"getCallCount\",\"call\",\"getCallCount\"]\n[[2,2],[2,2],[],[1,2],[]]",
-  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"fnName\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"actions\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"values\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

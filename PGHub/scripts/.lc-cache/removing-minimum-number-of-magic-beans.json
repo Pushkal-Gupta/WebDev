@@ -1,0 +1,8 @@
+{
+  "questionId": "2290",
+  "titleSlug": "removing-minimum-number-of-magic-beans",
+  "title": "Removing Minimum Number of Magic Beans",
+  "exampleTestcases": "[4,1,6,5]\n[2,10,3,2]",
+  "sampleTestCase": "[4,1,6,5]",
+  "metaData": "{\n  \"name\": \"minimumRemoval\",\n  \"params\": [\n    {\n      \"name\": \"beans\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

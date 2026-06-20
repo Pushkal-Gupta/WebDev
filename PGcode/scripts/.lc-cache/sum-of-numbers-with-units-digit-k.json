@@ -1,8 +1,0 @@
-{
-  "questionId": "1334",
-  "titleSlug": "sum-of-numbers-with-units-digit-k",
-  "title": "Sum of Numbers With Units Digit K",
-  "exampleTestcases": "58\n9\n37\n2\n0\n7",
-  "sampleTestCase": "58\n9",
-  "metaData": "{\n  \"name\": \"minimumNumbers\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

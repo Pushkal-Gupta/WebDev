@@ -1,0 +1,123 @@
+.forge-shd {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  width: 94%;
+  max-width: var(--container-w, 1200px);
+  margin: 0 auto;
+  padding: 1.2rem 0 3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.forge-shd-crumb {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  margin-bottom: 0.9rem;
+  flex-wrap: wrap;
+}
+.forge-shd-crumb-link { color: var(--accent); text-decoration: none; }
+.forge-shd-crumb-link:hover { text-decoration: underline; }
+.forge-shd-crumb-cur { color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.forge-shd-header { margin-bottom: 1.4rem; }
+.forge-shd-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--serif);
+  font-size: 1.9rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+  margin-bottom: 0.4rem;
+}
+.forge-shd-title-icon { color: var(--accent); flex-shrink: 0; }
+.forge-shd-blurb {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  max-width: 760px;
+}
+
+.forge-shd-grid {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+.forge-shd-section {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  padding: 1.1rem 1.25rem 1.2rem;
+}
+.forge-shd-sec-head {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin: 0 0 0.9rem;
+  padding-bottom: 0.55rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.forge-shd-items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+.forge-shd-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+.forge-shd-item-label {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--text-main);
+  font-weight: 600;
+}
+
+.forge-shd-code {
+  margin: 0;
+  padding: 0.7rem 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+  max-width: 100%;
+}
+.forge-shd-code code {
+  font-family: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .forge-shd-grid { grid-template-columns: 1fr; }
+  .forge-shd-title { font-size: 1.6rem; }
+  .forge-shd-code { font-size: 0.7rem; }
+}

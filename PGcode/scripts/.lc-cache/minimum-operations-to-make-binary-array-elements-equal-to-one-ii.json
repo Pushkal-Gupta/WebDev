@@ -1,8 +1,0 @@
-{
-  "questionId": "3477",
-  "titleSlug": "minimum-operations-to-make-binary-array-elements-equal-to-one-ii",
-  "title": "Minimum Operations to Make Binary Array Elements Equal to One II",
-  "exampleTestcases": "[0,1,1,0,1]\n[1,0,0,0]",
-  "sampleTestCase": "[0,1,1,0,1]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1064",
+  "titleSlug": "smallest-integer-divisible-by-k",
+  "title": "Smallest Integer Divisible by K",
+  "exampleTestcases": "1\n2\n3",
+  "sampleTestCase": "1",
+  "metaData": "{\n  \"name\": \"smallestRepunitDivByK\",\n  \"params\": [\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

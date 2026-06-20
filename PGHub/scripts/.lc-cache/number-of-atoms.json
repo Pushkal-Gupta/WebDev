@@ -1,0 +1,8 @@
+{
+  "questionId": "726",
+  "titleSlug": "number-of-atoms",
+  "title": "Number of Atoms",
+  "exampleTestcases": "\"H2O\"\n\"Mg(OH)2\"\n\"K4(ON(SO3)2)2\"",
+  "sampleTestCase": "\"H2O\"",
+  "metaData": "{\r\n  \"name\": \"countOfAtoms\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"formula\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
+}

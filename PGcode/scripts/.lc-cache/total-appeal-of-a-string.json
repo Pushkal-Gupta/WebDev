@@ -1,8 +1,0 @@
-{
-  "questionId": "2340",
-  "titleSlug": "total-appeal-of-a-string",
-  "title": "Total Appeal of A String",
-  "exampleTestcases": "\"abbca\"\n\"code\"",
-  "sampleTestCase": "\"abbca\"",
-  "metaData": "{\n  \"name\": \"appealSum\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

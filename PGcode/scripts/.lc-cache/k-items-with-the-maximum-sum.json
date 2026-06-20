@@ -1,8 +1,0 @@
-{
-  "questionId": "2715",
-  "titleSlug": "k-items-with-the-maximum-sum",
-  "title": "K Items With the Maximum Sum",
-  "exampleTestcases": "3\n2\n0\n2\n3\n2\n0\n4",
-  "sampleTestCase": "3\n2\n0\n2",
-  "metaData": "{\n  \"name\": \"kItemsWithMaximumSum\",\n  \"params\": [\n    {\n      \"name\": \"numOnes\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numZeros\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numNegOnes\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

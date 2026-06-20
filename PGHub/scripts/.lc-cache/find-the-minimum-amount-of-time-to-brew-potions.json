@@ -1,0 +1,8 @@
+{
+  "questionId": "3794",
+  "titleSlug": "find-the-minimum-amount-of-time-to-brew-potions",
+  "title": "Find the Minimum Amount of Time to Brew Potions",
+  "exampleTestcases": "[1,5,2,4]\n[5,1,4,2]\n[1,1,1]\n[1,1,1]\n[1,2,3,4]\n[1,2]",
+  "sampleTestCase": "[1,5,2,4]\n[5,1,4,2]",
+  "metaData": "{\n  \"name\": \"minTime\",\n  \"params\": [\n    {\n      \"name\": \"skill\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"mana\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

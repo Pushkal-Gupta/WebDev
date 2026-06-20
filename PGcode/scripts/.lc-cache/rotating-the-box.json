@@ -1,8 +1,0 @@
-{
-  "questionId": "1972",
-  "titleSlug": "rotating-the-box",
-  "title": "Rotating the Box",
-  "exampleTestcases": "[[\"#\",\".\",\"#\"]]\n[[\"#\",\".\",\"*\",\".\"],[\"#\",\"#\",\"*\",\".\"]]\n[[\"#\",\"#\",\"*\",\".\",\"*\",\".\"],[\"#\",\"#\",\"#\",\"*\",\".\",\".\"],[\"#\",\"#\",\"#\",\".\",\"#\",\".\"]]",
-  "sampleTestCase": "[[\"#\",\".\",\"#\"]]",
-  "metaData": "{\n  \"name\": \"rotateTheBox\",\n  \"params\": [\n    {\n      \"name\": \"boxGrid\",\n      \"type\": \"character[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character[][]\"\n  }\n}"
-}

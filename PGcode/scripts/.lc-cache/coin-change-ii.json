@@ -1,8 +1,0 @@
-{
-  "questionId": "518",
-  "titleSlug": "coin-change-ii",
-  "title": "Coin Change II",
-  "exampleTestcases": "5\n[1,2,5]\n3\n[2]\n10\n[10]",
-  "sampleTestCase": "5\n[1,2,5]",
-  "metaData": "{\r\n  \"name\": \"change\",\r\n  \"params\": [\r\n    {\r\n        \"name\": \"amount\",\r\n        \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"coins\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

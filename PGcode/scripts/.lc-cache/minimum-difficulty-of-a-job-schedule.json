@@ -1,8 +1,0 @@
-{
-  "questionId": "1457",
-  "titleSlug": "minimum-difficulty-of-a-job-schedule",
-  "title": "Minimum Difficulty of a Job Schedule",
-  "exampleTestcases": "[6,5,4,3,2,1]\n2\n[9,9,9]\n4\n[1,1,1]\n3",
-  "sampleTestCase": "[6,5,4,3,2,1]\n2",
-  "metaData": "{\n  \"name\": \"minDifficulty\",\n  \"params\": [\n    {\n      \"name\": \"jobDifficulty\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"d\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1946",
+  "titleSlug": "minimum-absolute-sum-difference",
+  "title": "Minimum Absolute Sum Difference",
+  "exampleTestcases": "[1,7,5]\n[2,3,5]\n[2,4,6,8,10]\n[2,4,6,8,10]\n[1,10,4,4,2,7]\n[9,3,5,1,7,4]",
+  "sampleTestCase": "[1,7,5]\n[2,3,5]",
+  "metaData": "{\n  \"name\": \"minAbsoluteSumDiff\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

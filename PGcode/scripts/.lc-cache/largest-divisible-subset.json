@@ -1,8 +1,0 @@
-{
-  "questionId": "368",
-  "titleSlug": "largest-divisible-subset",
-  "title": "Largest Divisible Subset",
-  "exampleTestcases": "[1,2,3]\n[1,2,4,8]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"largestDivisibleSubset\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

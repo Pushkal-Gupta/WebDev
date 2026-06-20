@@ -1,8 +1,0 @@
-{
-  "questionId": "2278",
-  "titleSlug": "find-three-consecutive-integers-that-sum-to-a-given-number",
-  "title": "Find Three Consecutive Integers That Sum to a Given Number",
-  "exampleTestcases": "33\n4",
-  "sampleTestCase": "33",
-  "metaData": "{\n  \"name\": \"sumOfThree\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"long\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

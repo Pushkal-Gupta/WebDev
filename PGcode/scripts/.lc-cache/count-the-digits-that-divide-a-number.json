@@ -1,8 +1,0 @@
-{
-  "questionId": "2608",
-  "titleSlug": "count-the-digits-that-divide-a-number",
-  "title": "Count the Digits That Divide a Number",
-  "exampleTestcases": "7\n121\n1248",
-  "sampleTestCase": "7",
-  "metaData": "{\n  \"name\": \"countDigits\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

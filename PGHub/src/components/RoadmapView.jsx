@@ -1,0 +1,248 @@
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+  ReactFlow,
+  Background,
+  Controls,
+  applyNodeChanges,
+  applyEdgeChanges,
+  MarkerType
+} from 'reactflow';
+import 'reactflow/dist/style.css';
+import { useTopics, useRoadmapEdges, useProblemsCompact, useUserProgress, filterByRoadmap } from '../lib/queries';
+import TopicModal from './TopicModal';
+import TopicNode from './TopicNode';
+import SidePanel from './SidePanel';
+
+// Original 7-tier layout (horizontal levels preserved, nodes shifted within levels for clean arrows)
+const rigidGrid = {
+  // Tier 1: Foundation (Y: 0)
+  'arrays': { x: 300, y: 0 },
+  'strings': { x: 700, y: 0 },
+
+  // Tier 2: Linear Structures (Y: 300)
+  'stack': { x: 100, y: 300 },
+  'queue': { x: 500, y: 300 },
+  'linkedlist': { x: 900, y: 300 },
+
+  // Tier 3: Pattern Discovery (Y: 600)
+  'two-pointers': { x: 100, y: 600 },
+  'binary-search': { x: 550, y: 600 },
+  'sliding-window': { x: 900, y: 600 },
+
+  // Tier 4: Hierarchical Systems (Y: 900)
+  'trees': { x: 0, y: 900 },
+  'tries': { x: 350, y: 900 },
+  'graphs': { x: 700, y: 900 },
+  'heap': { x: 1050, y: 900 },
+
+  // Tier 5: Recursive Optimization (Y: 1200)
+  'recursion': { x: -100, y: 1200 },
+  'dp': { x: 200, y: 1200 },
+  'backtracking': { x: 500, y: 1200 },
+  'greedy': { x: 800, y: 1200 },
+  'intervals': { x: 1100, y: 1200 },
+
+  // Tier 6: Expert Design (Y: 1500)
+  '2d-dp': { x: 300, y: 1500 },
+  'advanced-graphs': { x: 700, y: 1500 },
+
+  // Tier 7: Mathematical Synthesis (Y: 1800)
+  'math': { x: 100, y: 1800 },
+  'bit-manipulation': { x: 500, y: 1800 },
+  'geometry': { x: 900, y: 1800 }
+};
+
+const sideLabels = [
+  { id: 'lbl-1', label: 'FOUNDATION', y: 35 },
+  { id: 'lbl-2', label: 'LINEAR STRUCTURES', y: 335 },
+  { id: 'lbl-3', label: 'PATTERN DISCOVERY', y: 635 },
+  { id: 'lbl-4', label: 'HIERARCHICAL SYSTEMS', y: 935 },
+  { id: 'lbl-5', label: 'RECURSIVE OPTIMIZATION', y: 1235 },
+  { id: 'lbl-6', label: 'EXPERT DESIGN', y: 1535 },
+  { id: 'lbl-7', label: 'MATHEMATICAL SYNTHESIS', y: 1835 }
+];
+
+const tierGroups = {
+  1: ['arrays', 'strings'],
+  2: ['stack', 'queue', 'linkedlist'],
+  3: ['two-pointers', 'binary-search', 'sliding-window'],
+  4: ['trees', 'tries', 'graphs', 'heap'],
+  5: ['recursion', 'dp', 'backtracking', 'greedy', 'intervals'],
+  6: ['2d-dp', 'advanced-graphs'],
+  7: ['math', 'bit-manipulation', 'geometry']
+};
+
+export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
+  const [selectedTopic, setSelectedTopic] = useState(null);
+
+  const { data: topicsData } = useTopics();
+  const { data: edgesData } = useRoadmapEdges();
+  const { data: problemsData } = useProblemsCompact();
+  const { data: progressBundle } = useUserProgress(session?.user?.id);
+
+  const nodeTypes = useMemo(() => ({
+    custom: TopicNode,
+    sectionHeader: ({ data }) => (
+      <div className="brand" style={{
+        fontSize: '32px',
+        fontWeight: '900',
+        color: 'var(--text-main)',
+        letterSpacing: '2px',
+        opacity: 0.9,
+        textTransform: 'uppercase',
+        textAlign: 'left',
+        width: '450px'
+      }}>
+        {data.label}
+      </div>
+    )
+  }), []);
+
+  const { nodes: baseNodes, edges: baseEdges } = useMemo(() => {
+    const filteredProblems = filterByRoadmap(problemsData, roadmapMode);
+
+    const progressMap = {};
+    filteredProblems.forEach(p => {
+      if (!progressMap[p.topic_id]) progressMap[p.topic_id] = { total: 0, completed: 0 };
+      progressMap[p.topic_id].total++;
+    });
+
+    const completedSet = new Set(
+      (progressBundle?.rows || [])
+        .filter(r => r.is_completed)
+        .map(r => r.problem_id)
+    );
+    filteredProblems.forEach(p => {
+      if (completedSet.has(p.id) && progressMap[p.topic_id]) {
+        progressMap[p.topic_id].completed++;
+      }
+    });
+
+    if (!topicsData || topicsData.length === 0) return { nodes: [], edges: [] };
+
+    const filteredTopics = topicsData.filter(t => t.id !== 'first-order');
+
+    const dbNodes = filteredTopics.map(t => ({
+      id: t.id,
+      type: 'custom',
+      position: rigidGrid[t.id] || { x: 0, y: 0 },
+      data: {
+        label: t.id === 'geometry' ? 'Geometry' : t.name,
+        id: t.id,
+        progress: progressMap[t.id] || { total: 0, completed: 0 }
+      }
+    }));
+
+    const headerNodes = sideLabels.map(lbl => ({
+      id: lbl.id,
+      type: 'sectionHeader',
+      position: { x: -500, y: lbl.y },
+      data: { label: lbl.label },
+      draggable: false,
+      selectable: false
+    }));
+
+    const dbEdges = (edgesData || [])
+      .filter(e => {
+        const sPos = rigidGrid[e.source];
+        const tPos = rigidGrid[e.target];
+        if (!sPos || !tPos || sPos.y >= tPos.y) return false;
+        if (e.source === 'linkedlist' && e.target === 'trees') return false;
+        return true;
+      })
+      .map((e, idx) => ({
+        id: `edge-${idx}`,
+        source: e.source,
+        target: e.target,
+        type: 'default',
+        animated: false,
+        style: { stroke: 'var(--text-dim)', strokeWidth: 1.5, opacity: 0.35 },
+        markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--text-dim)' }
+      }));
+
+    for (let t = 2; t <= 7; t++) {
+      const currentTierNodes = tierGroups[t];
+      const parentTierNodes = tierGroups[t - 1];
+      if (!currentTierNodes || !parentTierNodes) continue;
+
+      currentTierNodes.forEach(childId => {
+        if (filteredTopics.some(ft => ft.id === childId) && !dbEdges.some(e => e.target === childId)) {
+          let closestParent = parentTierNodes[0];
+          let minDistance = Infinity;
+          parentTierNodes.forEach(parentId => {
+            const dist = Math.abs((rigidGrid[parentId]?.x || 0) - (rigidGrid[childId]?.x || 0));
+            if (dist < minDistance) { minDistance = dist; closestParent = parentId; }
+          });
+          dbEdges.push({
+            id: `auto-edge-${closestParent}-${childId}`,
+            source: closestParent,
+            target: childId,
+            type: 'default',
+            style: { stroke: 'var(--text-dim)', strokeWidth: 1.5, opacity: 0.2 },
+            markerEnd: { type: MarkerType.ArrowClosed, color: 'var(--text-dim)' }
+          });
+        }
+      });
+    }
+
+    return { nodes: [...headerNodes, ...dbNodes], edges: dbEdges };
+  }, [topicsData, edgesData, problemsData, progressBundle, roadmapMode]);
+
+  // Local copies allow ReactFlow's drag/select callbacks to update positions/selection.
+  // baseNodes/baseEdges are derived; we sync into local state whenever they change.
+  const [nodes, setNodes] = useState(baseNodes);
+  const [edges, setEdges] = useState(baseEdges);
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    setNodes(baseNodes);
+    setEdges(baseEdges);
+  }, [baseNodes, baseEdges]);
+  /* eslint-enable react-hooks/set-state-in-effect */
+
+  const onNodesChange = useCallback(
+    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
+    []
+  );
+
+  const onEdgesChange = useCallback(
+    (changes) => setEdges((eds) => applyEdgeChanges(changes, eds)),
+    []
+  );
+
+  const onNodeClick = (event, node) => {
+    if (node.type === 'custom') setSelectedTopic(node);
+  };
+
+  return (
+    <div style={{ width: '100%', height: 'calc(100vh - 100px)', background: 'var(--bg)', display: 'flex', flexDirection: 'row' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onNodeClick={onNodeClick}
+        fitView
+        attributionPosition="bottom-right"
+        minZoom={0.1}
+      >
+        <Background color="var(--border)" gap={24} size={1} />
+        <Controls />
+      </ReactFlow>
+
+      </div>
+
+      <SidePanel session={session} roadmapMode={roadmapMode} setRoadmapMode={setRoadmapMode} />
+
+      {selectedTopic && (
+        <TopicModal
+          topic={selectedTopic}
+          onClose={() => setSelectedTopic(null)}
+          roadmapMode={roadmapMode}
+          session={session}
+        />
+      )}
+    </div>
+  );
+}

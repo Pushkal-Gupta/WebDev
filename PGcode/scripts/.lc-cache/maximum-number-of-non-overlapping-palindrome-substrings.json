@@ -1,8 +1,0 @@
-{
-  "questionId": "2559",
-  "titleSlug": "maximum-number-of-non-overlapping-palindrome-substrings",
-  "title": "Maximum Number of Non-overlapping Palindrome Substrings",
-  "exampleTestcases": "\"abaccdbbd\"\n3\n\"adbcda\"\n2",
-  "sampleTestCase": "\"abaccdbbd\"\n3",
-  "metaData": "{\n  \"name\": \"maxPalindromes\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

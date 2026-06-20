@@ -1,8 +1,0 @@
-{
-  "questionId": "3018",
-  "titleSlug": "make-string-a-subsequence-using-cyclic-increments",
-  "title": "Make String a Subsequence Using Cyclic Increments",
-  "exampleTestcases": "\"abc\"\n\"ad\"\n\"zc\"\n\"ad\"\n\"ab\"\n\"d\"",
-  "sampleTestCase": "\"abc\"\n\"ad\"",
-  "metaData": "{\n  \"name\": \"canMakeSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"str1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"str2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

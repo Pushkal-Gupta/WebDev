@@ -1,8 +1,0 @@
-{
-  "questionId": "1817",
-  "titleSlug": "calculate-money-in-leetcode-bank",
-  "title": "Calculate Money in Leetcode Bank",
-  "exampleTestcases": "4\n10\n20",
-  "sampleTestCase": "4",
-  "metaData": "{\n  \"name\": \"totalMoney\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

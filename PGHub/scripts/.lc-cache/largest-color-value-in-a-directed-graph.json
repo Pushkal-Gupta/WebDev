@@ -1,0 +1,8 @@
+{
+  "questionId": "1986",
+  "titleSlug": "largest-color-value-in-a-directed-graph",
+  "title": "Largest Color Value in a Directed Graph",
+  "exampleTestcases": "\"abaca\"\n[[0,1],[0,2],[2,3],[3,4]]\n\"a\"\n[[0,0]]",
+  "sampleTestCase": "\"abaca\"\n[[0,1],[0,2],[2,3],[3,4]]",
+  "metaData": "{\n  \"name\": \"largestPathValue\",\n  \"params\": [\n    {\n      \"name\": \"colors\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

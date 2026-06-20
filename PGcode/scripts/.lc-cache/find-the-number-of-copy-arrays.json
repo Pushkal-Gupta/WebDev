@@ -1,8 +1,0 @@
-{
-  "questionId": "3785",
-  "titleSlug": "find-the-number-of-copy-arrays",
-  "title": "Find the Number of Copy Arrays",
-  "exampleTestcases": "[1,2,3,4]\n[[1,2],[2,3],[3,4],[4,5]]\n[1,2,3,4]\n[[1,10],[2,9],[3,8],[4,7]]\n[1,2,1,2]\n[[1,1],[2,3],[3,3],[2,3]]",
-  "sampleTestCase": "[1,2,3,4]\n[[1,2],[2,3],[3,4],[4,5]]",
-  "metaData": "{\n  \"name\": \"countArrays\",\n  \"params\": [\n    {\n      \"name\": \"original\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"bounds\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

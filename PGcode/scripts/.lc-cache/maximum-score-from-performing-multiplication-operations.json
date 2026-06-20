@@ -1,8 +1,0 @@
-{
-  "questionId": "1896",
-  "titleSlug": "maximum-score-from-performing-multiplication-operations",
-  "title": "Maximum Score from Performing Multiplication Operations",
-  "exampleTestcases": "[1,2,3]\n[3,2,1]\n[-5,-3,-3,-2,7,1]\n[-10,-5,3,4,6]",
-  "sampleTestCase": "[1,2,3]\n[3,2,1]",
-  "metaData": "{\n  \"name\": \"maximumScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"multipliers\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

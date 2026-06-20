@@ -1,1 +1,0 @@
-function s(r){return(r||"").toLowerCase().replace(/[^a-z0-9]+/g,"")}function a(r,e,t,u){var n;if(e==="all")return!0;if(e==="theory")return r.kind==="theory"||r.kind==="topic";if(e==="problems")return r.kind==="problem";if(e==="unsolved"){if(r.kind!=="problem")return!1;const o=t.get(s(r.label));return o?!((n=u[o.id])!=null&&n.is_completed):!1}return!0}export{s as n,a as p};

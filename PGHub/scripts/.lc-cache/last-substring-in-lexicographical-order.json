@@ -1,0 +1,8 @@
+{
+  "questionId": "1133",
+  "titleSlug": "last-substring-in-lexicographical-order",
+  "title": "Last Substring in Lexicographical Order",
+  "exampleTestcases": "\"abab\"\n\"leetcode\"",
+  "sampleTestCase": "\"abab\"",
+  "metaData": "{\n  \"name\": \"lastSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}\n"
+}

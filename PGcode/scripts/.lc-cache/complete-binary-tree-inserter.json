@@ -1,8 +1,0 @@
-{
-  "questionId": "955",
-  "titleSlug": "complete-binary-tree-inserter",
-  "title": "Complete Binary Tree Inserter",
-  "exampleTestcases": "[\"CBTInserter\",\"insert\",\"insert\",\"get_root\"]\n[[[1,2]],[3],[4],[]]",
-  "sampleTestCase": "[\"CBTInserter\",\"insert\",\"insert\",\"get_root\"]\n[[[1,2]],[3],[4],[]]",
-  "metaData": "{\n  \"classname\": \"CBTInserter\",\n  \"maxbytesperline\": 200000,\n  \"constructor\": {\n    \"params\": [\n      {\n        \"name\": \"root\",\n        \"type\": \"TreeNode\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"name\": \"insert\",\n      \"params\": [\n        {\n          \"name\": \"val\",\n          \"type\": \"integer\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"name\": \"get_root\",\n      \"params\": [],\n      \"return\": {\n        \"type\": \"TreeNode\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<String>\",\n    \"dealloc\": true\n  }\n}"
-}

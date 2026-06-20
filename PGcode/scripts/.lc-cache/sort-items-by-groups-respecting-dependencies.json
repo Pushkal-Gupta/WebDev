@@ -1,8 +1,0 @@
-{
-  "questionId": "1309",
-  "titleSlug": "sort-items-by-groups-respecting-dependencies",
-  "title": "Sort Items by Groups Respecting Dependencies",
-  "exampleTestcases": "8\n2\n[-1,-1,1,0,0,1,0,-1]\n[[],[6],[5],[6],[3,6],[],[],[]]\n8\n2\n[-1,-1,1,0,0,1,0,-1]\n[[],[6],[5],[6],[3],[],[4],[]]",
-  "sampleTestCase": "8\n2\n[-1,-1,1,0,0,1,0,-1]\n[[],[6],[5],[6],[3,6],[],[],[]]",
-  "metaData": "{\n  \"name\": \"sortItems\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"group\"\n    },\n    {\n      \"type\": \"list<list<integer>>\",\n      \"name\": \"beforeItems\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

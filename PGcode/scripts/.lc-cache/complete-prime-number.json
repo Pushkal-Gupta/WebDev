@@ -1,8 +1,0 @@
-{
-  "questionId": "4100",
-  "titleSlug": "complete-prime-number",
-  "title": "Complete Prime Number",
-  "exampleTestcases": "23\n39\n7",
-  "sampleTestCase": "23",
-  "metaData": "{\n  \"name\": \"completePrime\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

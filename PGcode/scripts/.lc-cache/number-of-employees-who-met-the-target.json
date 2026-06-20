@@ -1,8 +1,0 @@
-{
-  "questionId": "2876",
-  "titleSlug": "number-of-employees-who-met-the-target",
-  "title": "Number of Employees Who Met the Target",
-  "exampleTestcases": "[0,1,2,3,4]\n2\n[5,1,4,2,2]\n6",
-  "sampleTestCase": "[0,1,2,3,4]\n2",
-  "metaData": "{\n  \"name\": \"numberOfEmployeesWhoMetTarget\",\n  \"params\": [\n    {\n      \"name\": \"hours\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

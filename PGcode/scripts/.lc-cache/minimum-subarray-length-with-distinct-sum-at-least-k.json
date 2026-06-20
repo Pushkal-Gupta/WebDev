@@ -1,8 +1,0 @@
-{
-  "questionId": "4152",
-  "titleSlug": "minimum-subarray-length-with-distinct-sum-at-least-k",
-  "title": "Minimum Subarray Length With Distinct Sum At Least K",
-  "exampleTestcases": "[2,2,3,1]\n4\n[3,2,3,4]\n5\n[5,5,4]\n5",
-  "sampleTestCase": "[2,2,3,1]\n4",
-  "metaData": "{\n  \"name\": \"minLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

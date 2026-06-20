@@ -1,0 +1,8 @@
+{
+  "questionId": "2135",
+  "titleSlug": "maximum-number-of-ways-to-partition-an-array",
+  "title": "Maximum Number of Ways to Partition an Array",
+  "exampleTestcases": "[2,-1,2]\n3\n[0,0,0]\n1\n[22,4,-25,-20,-15,15,-16,7,19,-10,0,-13,-14]\n-33",
+  "sampleTestCase": "[2,-1,2]\n3",
+  "metaData": "{\n  \"name\": \"waysToPartition\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

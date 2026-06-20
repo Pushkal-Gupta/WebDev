@@ -1,8 +1,0 @@
-{
-  "questionId": "118",
-  "titleSlug": "pascals-triangle",
-  "title": "Pascal's Triangle",
-  "exampleTestcases": "5\n1",
-  "sampleTestCase": "5",
-  "metaData": "{\r\n  \"name\": \"generate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"numRows\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\",\r\n    \"dealloc\": true,\r\n    \"rowsize\": \"param_1\"\r\n  }\r\n}"
-}

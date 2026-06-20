@@ -1,0 +1,8 @@
+{
+  "questionId": "2955",
+  "titleSlug": "account-balance-after-rounded-purchase",
+  "title": "Account Balance After Rounded Purchase",
+  "exampleTestcases": "9\n15\n10",
+  "sampleTestCase": "9",
+  "metaData": "{\n  \"name\": \"accountBalanceAfterPurchase\",\n  \"params\": [\n    {\n      \"name\": \"purchaseAmount\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"cpp\",\n    \"java\",\n    \"python\",\n    \"c\",\n    \"csharp\",\n    \"javascript\",\n    \"ruby\",\n    \"swift\",\n    \"golang\",\n    \"python3\",\n    \"scala\",\n    \"kotlin\",\n    \"rust\",\n    \"php\",\n    \"typescript\",\n    \"racket\",\n    \"erlang\",\n    \"elixir\",\n    \"dart\"\n  ]\n}"
+}

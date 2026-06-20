@@ -1,8 +1,0 @@
-{
-  "questionId": "1849",
-  "titleSlug": "maximum-absolute-sum-of-any-subarray",
-  "title": "Maximum Absolute Sum of Any Subarray",
-  "exampleTestcases": "[1,-3,2,3,-4]\n[2,-5,1,-4,3,-2]",
-  "sampleTestCase": "[1,-3,2,3,-4]",
-  "metaData": "{\n  \"name\": \"maxAbsoluteSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

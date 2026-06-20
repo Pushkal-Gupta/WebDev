@@ -1,8 +1,0 @@
-{
-  "questionId": "1486",
-  "titleSlug": "find-the-distance-value-between-two-arrays",
-  "title": "Find the Distance Value Between Two Arrays",
-  "exampleTestcases": "[4,5,8]\n[10,9,1,8]\n2\n[1,4,2,3]\n[-4,-3,6,10,20,30]\n3\n[2,1,100,3]\n[-5,-2,10,-3,7]\n6",
-  "sampleTestCase": "[4,5,8]\n[10,9,1,8]\n2",
-  "metaData": "{\n  \"name\": \"findTheDistanceValue\",\n  \"params\": [\n    {\n      \"name\": \"arr1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"arr2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"d\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

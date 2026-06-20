@@ -1,8 +1,0 @@
-{
-  "questionId": "2921",
-  "titleSlug": "count-stepping-numbers-in-range",
-  "title": "Count Stepping Numbers in Range",
-  "exampleTestcases": "\"1\"\n\"11\"\n\"90\"\n\"101\"",
-  "sampleTestCase": "\"1\"\n\"11\"",
-  "metaData": "{\n  \"name\": \"countSteppingNumbers\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"high\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

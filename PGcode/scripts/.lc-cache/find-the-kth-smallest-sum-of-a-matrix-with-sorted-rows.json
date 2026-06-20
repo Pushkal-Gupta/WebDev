@@ -1,8 +1,0 @@
-{
-  "questionId": "1550",
-  "titleSlug": "find-the-kth-smallest-sum-of-a-matrix-with-sorted-rows",
-  "title": "Find the Kth Smallest Sum of a Matrix With Sorted Rows",
-  "exampleTestcases": "[[1,3,11],[2,4,6]]\n5\n[[1,3,11],[2,4,6]]\n9\n[[1,10,10],[1,4,5],[2,3,6]]\n7",
-  "sampleTestCase": "[[1,3,11],[2,4,6]]\n5",
-  "metaData": "{\n  \"name\": \"kthSmallest\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

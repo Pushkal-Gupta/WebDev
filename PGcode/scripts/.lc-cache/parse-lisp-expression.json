@@ -1,8 +1,0 @@
-{
-  "questionId": "736",
-  "titleSlug": "parse-lisp-expression",
-  "title": "Parse Lisp Expression",
-  "exampleTestcases": "\"(let x 2 (mult x (let x 3 y 4 (add x y))))\"\n\"(let x 3 x 2 x)\"\n\"(let x 1 y 2 x (add x y) (add x y))\"",
-  "sampleTestCase": "\"(let x 2 (mult x (let x 3 y 4 (add x y))))\"",
-  "metaData": "{\r\n  \"name\": \"evaluate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"expression\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

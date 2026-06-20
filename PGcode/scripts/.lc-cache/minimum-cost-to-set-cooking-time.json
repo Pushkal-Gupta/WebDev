@@ -1,8 +1,0 @@
-{
-  "questionId": "2266",
-  "titleSlug": "minimum-cost-to-set-cooking-time",
-  "title": "Minimum Cost to Set Cooking Time",
-  "exampleTestcases": "1\n2\n1\n600\n0\n1\n2\n76",
-  "sampleTestCase": "1\n2\n1\n600",
-  "metaData": "{\n  \"name\": \"minCostSetTime\",\n  \"params\": [\n    {\n      \"name\": \"startAt\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"moveCost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"pushCost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"targetSeconds\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

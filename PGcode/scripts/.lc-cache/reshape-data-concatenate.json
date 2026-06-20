@@ -1,8 +1,0 @@
-{
-  "questionId": "3064",
-  "titleSlug": "reshape-data-concatenate",
-  "title": "Reshape Data: Concatenate",
-  "exampleTestcases": "{\"headers\":{\"df1\":[\"student_id\",\"name\",\"age\"],\"df2\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"df1\":[[1,\"Mason\",8],[2,\"Ava\",6],[3,\"Taylor\",15],[4,\"Georgia\",17]],\"df2\":[[5,\"Leo\",7],[6,\"Alex\",7]]}}",
-  "sampleTestCase": "{\"headers\":{\"df1\":[\"student_id\",\"name\",\"age\"],\"df2\":[\"student_id\",\"name\",\"age\"]},\"rows\":{\"df1\":[[1,\"Mason\",8],[2,\"Ava\",6],[3,\"Taylor\",15],[4,\"Georgia\",17]],\"df2\":[[5,\"Leo\",7],[6,\"Alex\",7]]}}",
-  "metaData": "{\n  \"pythondata\": [\n    \"df1 = pd.DataFrame([], columns=['student_id', 'name', 'age']).astype({'student_id':'Int64', 'name':'object', 'age':'Int64'})\",\n    \"df2 = pd.DataFrame([], columns=['student_id', 'name', 'age']).astype({'student_id':'Int64', 'name':'object', 'age':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"concatenateTables\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
-}

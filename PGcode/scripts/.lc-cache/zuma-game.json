@@ -1,8 +1,0 @@
-{
-  "questionId": "488",
-  "titleSlug": "zuma-game",
-  "title": "Zuma Game",
-  "exampleTestcases": "\"WRRBBW\"\n\"RB\"\n\"WWRRBBWW\"\n\"WRBRW\"\n\"G\"\n\"GGGGG\"",
-  "sampleTestCase": "\"WRRBBW\"\n\"RB\"",
-  "metaData": "{\n  \"name\": \"findMinStep\",\n  \"params\": [\n    {\n      \"name\": \"board\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"hand\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}\n"
-}

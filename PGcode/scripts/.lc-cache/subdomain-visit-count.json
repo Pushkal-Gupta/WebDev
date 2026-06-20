@@ -1,8 +1,0 @@
-{
-  "questionId": "829",
-  "titleSlug": "subdomain-visit-count",
-  "title": "Subdomain Visit Count",
-  "exampleTestcases": "[\"9001 discuss.leetcode.com\"]\n[\"900 google.mail.com\", \"50 yahoo.com\", \"1 intel.mail.com\", \"5 wiki.org\"]",
-  "sampleTestCase": "[\"9001 discuss.leetcode.com\"]",
-  "metaData": "{\r\n  \"name\": \"subdomainVisits\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"cpdomains\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2334",
-  "titleSlug": "number-of-flowers-in-full-bloom",
-  "title": "Number of Flowers in Full Bloom",
-  "exampleTestcases": "[[1,6],[3,7],[9,12],[4,13]]\n[2,3,7,11]\n[[1,10],[3,3]]\n[3,3,2]",
-  "sampleTestCase": "[[1,6],[3,7],[9,12],[4,13]]\n[2,3,7,11]",
-  "metaData": "{\n  \"name\": \"fullBloomFlowers\",\n  \"params\": [\n    {\n      \"name\": \"flowers\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"people\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

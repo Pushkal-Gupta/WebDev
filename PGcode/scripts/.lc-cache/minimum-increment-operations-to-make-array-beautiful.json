@@ -1,8 +1,0 @@
-{
-  "questionId": "3178",
-  "titleSlug": "minimum-increment-operations-to-make-array-beautiful",
-  "title": "Minimum Increment Operations to Make Array Beautiful",
-  "exampleTestcases": "[2,3,0,0,2]\n4\n[0,1,3,3]\n5\n[1,1,2]\n1",
-  "sampleTestCase": "[2,3,0,0,2]\n4",
-  "metaData": "{\n  \"name\": \"minIncrementOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

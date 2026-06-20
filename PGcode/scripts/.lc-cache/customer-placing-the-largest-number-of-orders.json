@@ -1,8 +1,0 @@
-{
-  "questionId": "586",
-  "titleSlug": "customer-placing-the-largest-number-of-orders",
-  "title": "Customer Placing the Largest Number of Orders",
-  "exampleTestcases": "{\"headers\":{\"orders\":[\"order_number\",\"customer_number\"]},\"rows\":{\"orders\":[[1,1],[2,2],[3,3],[4,3]]}}",
-  "sampleTestCase": "{\"headers\":{\"orders\":[\"order_number\",\"customer_number\"]},\"rows\":{\"orders\":[[1,1],[2,2],[3,3],[4,3]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists orders (order_number int, customer_number int)\"], \"mssql\": [\"Create table orders (order_number int, customer_number int)\"], \"oraclesql\": [\"Create table orders (order_number int, customer_number int)\"], \"database\": true, \"name\": \"largest_orders\", \"pythondata\": [\"orders = pd.DataFrame([], columns=['order_number', 'customer_number']).astype({'order_number':'Int64', 'customer_number':'Int64'})\"], \"postgresql\": [\"Create table If Not Exists orders (order_number int, customer_number int)\"], \"database_schema\": {\"orders\": {\"order_number\": \"INT\", \"customer_number\": \"INT\"}}}"
-}

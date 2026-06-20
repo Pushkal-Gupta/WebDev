@@ -1,8 +1,0 @@
-{
-  "questionId": "3413",
-  "titleSlug": "find-the-first-player-to-win-k-games-in-a-row",
-  "title": "Find The First Player to win K Games in a Row",
-  "exampleTestcases": "[4,2,6,3,9]\n2\n[2,5,4]\n3",
-  "sampleTestCase": "[4,2,6,3,9]\n2",
-  "metaData": "{\n  \"name\": \"findWinningPlayer\",\n  \"params\": [\n    {\n      \"name\": \"skills\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

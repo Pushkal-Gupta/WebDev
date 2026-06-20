@@ -1,0 +1,8 @@
+{
+  "questionId": "3568",
+  "titleSlug": "find-the-key-of-the-numbers",
+  "title": "Find the Key of the Numbers",
+  "exampleTestcases": "1\n10\n1000\n987\n879\n798\n1\n2\n3",
+  "sampleTestCase": "1\n10\n1000",
+  "metaData": "{\n  \"name\": \"generateKey\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num3\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

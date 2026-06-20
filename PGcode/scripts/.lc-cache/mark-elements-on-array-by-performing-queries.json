@@ -1,8 +1,0 @@
-{
-  "questionId": "3306",
-  "titleSlug": "mark-elements-on-array-by-performing-queries",
-  "title": "Mark Elements on Array by Performing Queries",
-  "exampleTestcases": "[1,2,2,1,2,3,1]\n[[1,2],[3,3],[4,2]]\n[1,4,2,3]\n[[0,1]]",
-  "sampleTestCase": "[1,2,2,1,2,3,1]\n[[1,2],[3,3],[4,2]]",
-  "metaData": "{\n  \"name\": \"unmarkedSumArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

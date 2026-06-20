@@ -1,8 +1,0 @@
-{
-  "questionId": "1445",
-  "titleSlug": "number-of-sub-arrays-of-size-k-and-average-greater-than-or-equal-to-threshold",
-  "title": "Number of Sub-arrays of Size K and Average Greater than or Equal to Threshold",
-  "exampleTestcases": "[2,2,2,2,5,5,5,8]\n3\n4\n[11,13,17,23,29,31,7,5,2,3]\n3\n5",
-  "sampleTestCase": "[2,2,2,2,5,5,5,8]\n3\n4",
-  "metaData": "{\n  \"name\": \"numOfSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"threshold\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

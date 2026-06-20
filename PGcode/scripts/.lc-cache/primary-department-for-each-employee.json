@@ -1,8 +1,0 @@
-{
-  "questionId": "1942",
-  "titleSlug": "primary-department-for-each-employee",
-  "title": "Primary Department for Each Employee",
-  "exampleTestcases": "{\"headers\":{\"Employee\":[\"employee_id\",\"department_id\",\"primary_flag\"]},\"rows\":{\"Employee\":[[\"1\",\"1\",\"N\"],[\"2\",\"1\",\"Y\"],[\"2\",\"2\",\"N\"],[\"3\",\"3\",\"N\"],[\"4\",\"2\",\"N\"],[\"4\",\"3\",\"Y\"],[\"4\",\"4\",\"N\"]]}}",
-  "sampleTestCase": "{\"headers\":{\"Employee\":[\"employee_id\",\"department_id\",\"primary_flag\"]},\"rows\":{\"Employee\":[[\"1\",\"1\",\"N\"],[\"2\",\"1\",\"Y\"],[\"2\",\"2\",\"N\"],[\"3\",\"3\",\"N\"],[\"4\",\"2\",\"N\"],[\"4\",\"3\",\"Y\"],[\"4\",\"4\",\"N\"]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Employee (employee_id int, department_id int, primary_flag ENUM('Y','N'))\"], \"mssql\": [\"Create table Employee (employee_id int, department_id int, primary_flag varchar(1) not null check(primary_flag in ('Y', 'N')))\"], \"oraclesql\": [\"Create table Employee (employee_id int, department_id int, primary_flag varchar(1) not null check(primary_flag in ('Y', 'N')))\"], \"database\": true, \"name\": \"find_primary_department\", \"pythondata\": [\"Employee = pd.DataFrame([], columns=['employee_id', 'department_id', 'primary_flag']).astype({'employee_id':'Int64', 'department_id':'Int64', 'primary_flag':'object'})\"], \"postgresql\": [\"Create table If Not Exists Employee (employee_id int, department_id int, primary_flag VARCHAR(30) CHECK (primary_flag IN ('Y','N')))\\n\"], \"manual\": false, \"database_schema\": {\"Employee\": {\"employee_id\": \"INT\", \"department_id\": \"INT\", \"primary_flag\": \"ENUM('Y', 'N')\"}}}"
-}

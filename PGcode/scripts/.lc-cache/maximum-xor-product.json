@@ -1,8 +1,0 @@
-{
-  "questionId": "3192",
-  "titleSlug": "maximum-xor-product",
-  "title": "Maximum Xor Product",
-  "exampleTestcases": "12\n5\n4\n6\n7\n5\n1\n6\n3",
-  "sampleTestCase": "12\n5\n4",
-  "metaData": "{\n  \"name\": \"maximumXorProduct\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"b\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1906",
-  "titleSlug": "maximize-score-after-n-operations",
-  "title": "Maximize Score After N Operations",
-  "exampleTestcases": "[1,2]\n[3,4,6,8]\n[1,2,3,4,5,6]",
-  "sampleTestCase": "[1,2]",
-  "metaData": "{\n  \"name\": \"maxScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

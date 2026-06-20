@@ -1,0 +1,8 @@
+{
+  "questionId": "1414",
+  "titleSlug": "shortest-path-in-a-grid-with-obstacles-elimination",
+  "title": "Shortest Path in a Grid with Obstacles Elimination",
+  "exampleTestcases": "[[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]]\n1\n[[0,1,1],[1,1,1],[1,0,0]]\n1",
+  "sampleTestCase": "[[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]]\n1",
+  "metaData": "{\n  \"name\": \"shortestPath\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

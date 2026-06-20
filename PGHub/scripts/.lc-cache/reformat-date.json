@@ -1,0 +1,8 @@
+{
+  "questionId": "1283",
+  "titleSlug": "reformat-date",
+  "title": "Reformat Date",
+  "exampleTestcases": "\"20th Oct 2052\"\n\"6th Jun 1933\"\n\"26th May 1960\"",
+  "sampleTestCase": "\"20th Oct 2052\"",
+  "metaData": "{\n  \"name\": \"reformatDate\",\n  \"params\": [\n    {\n      \"name\": \"date\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"manual\": false\n}"
+}

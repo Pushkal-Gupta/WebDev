@@ -1,8 +1,0 @@
-{
-  "questionId": "2673",
-  "titleSlug": "maximize-win-from-two-segments",
-  "title": "Maximize Win From Two Segments",
-  "exampleTestcases": "[1,1,2,2,3,3,5]\n2\n[1,2,3,4]\n0",
-  "sampleTestCase": "[1,1,2,2,3,3,5]\n2",
-  "metaData": "{\n  \"name\": \"maximizeWin\",\n  \"params\": [\n    {\n      \"name\": \"prizePositions\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

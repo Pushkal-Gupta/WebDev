@@ -1,8 +1,0 @@
-{
-  "questionId": "2010",
-  "titleSlug": "check-if-word-equals-summation-of-two-words",
-  "title": "Check if Word Equals Summation of Two Words",
-  "exampleTestcases": "\"acb\"\n\"cba\"\n\"cdb\"\n\"aaa\"\n\"a\"\n\"aab\"\n\"aaa\"\n\"a\"\n\"aaaa\"",
-  "sampleTestCase": "\"acb\"\n\"cba\"\n\"cdb\"",
-  "metaData": "{\n  \"name\": \"isSumEqual\",\n  \"params\": [\n    {\n      \"name\": \"firstWord\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"secondWord\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"targetWord\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

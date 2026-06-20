@@ -1,8 +1,0 @@
-{
-  "questionId": "895",
-  "titleSlug": "shortest-path-to-get-all-keys",
-  "title": "Shortest Path to Get All Keys",
-  "exampleTestcases": "[\"@.a..\",\"###.#\",\"b.A.B\"]\n[\"@..aA\",\"..B#.\",\"....b\"]\n[\"@Aa\"]",
-  "sampleTestCase": "[\"@.a..\",\"###.#\",\"b.A.B\"]",
-  "metaData": "{\r\n  \"name\": \"shortestPathAllKeys\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

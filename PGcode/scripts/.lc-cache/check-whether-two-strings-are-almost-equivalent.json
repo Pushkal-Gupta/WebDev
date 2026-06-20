@@ -1,8 +1,0 @@
-{
-  "questionId": "2177",
-  "titleSlug": "check-whether-two-strings-are-almost-equivalent",
-  "title": "Check Whether Two Strings are Almost Equivalent",
-  "exampleTestcases": "\"aaaa\"\n\"bccb\"\n\"abcdeef\"\n\"abaaacc\"\n\"cccddabba\"\n\"babababab\"",
-  "sampleTestCase": "\"aaaa\"\n\"bccb\"",
-  "metaData": "{\n  \"name\": \"checkAlmostEquivalent\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

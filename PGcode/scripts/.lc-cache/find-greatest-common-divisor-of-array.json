@@ -1,8 +1,0 @@
-{
-  "questionId": "2106",
-  "titleSlug": "find-greatest-common-divisor-of-array",
-  "title": "Find Greatest Common Divisor of Array",
-  "exampleTestcases": "[2,5,6,9,10]\n[7,5,6,8,3]\n[3,3]",
-  "sampleTestCase": "[2,5,6,9,10]",
-  "metaData": "{\n  \"name\": \"findGCD\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

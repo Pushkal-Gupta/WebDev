@@ -1,8 +1,0 @@
-{
-  "questionId": "2081",
-  "titleSlug": "minimum-total-space-wasted-with-k-resizing-operations",
-  "title": "Minimum Total Space Wasted With K Resizing Operations",
-  "exampleTestcases": "[10,20]\n0\n[10,20,30]\n1\n[10,20,15,30,20]\n2",
-  "sampleTestCase": "[10,20]\n0",
-  "metaData": "{\n  \"name\": \"minSpaceWastedKResizing\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

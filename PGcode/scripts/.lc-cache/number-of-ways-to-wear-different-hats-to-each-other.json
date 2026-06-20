@@ -1,8 +1,0 @@
-{
-  "questionId": "1531",
-  "titleSlug": "number-of-ways-to-wear-different-hats-to-each-other",
-  "title": "Number of Ways to Wear Different Hats to Each Other",
-  "exampleTestcases": "[[3,4],[4,5],[5]]\n[[3,5,1],[3,5]]\n[[1,2,3,4],[1,2,3,4],[1,2,3,4],[1,2,3,4]]",
-  "sampleTestCase": "[[3,4],[4,5],[5]]",
-  "metaData": "{\n  \"name\": \"numberWays\",\n  \"params\": [\n    {\n      \"name\": \"hats\",\n      \"type\": \"list<list<integer>>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

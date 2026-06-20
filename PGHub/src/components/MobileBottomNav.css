@@ -1,0 +1,107 @@
+.mbn {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mbn {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    background: color-mix(in srgb, var(--surface) 82%, transparent);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.35);
+    z-index: 800;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  @supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
+    .mbn {
+      background: color-mix(in srgb, var(--surface) 65%, transparent);
+      -webkit-backdrop-filter: saturate(140%) blur(12px);
+      backdrop-filter: saturate(140%) blur(12px);
+    }
+  }
+
+  /* Keep route containers clear of the bottom nav. */
+  .pg-playground,
+  .pd-container,
+  .rmx-container,
+  .comp-container,
+  .learn-container,
+  .web-sandbox,
+  .sql-pg,
+  .adm-container,
+  .ml-container,
+  .ph-container,
+  .ctx-container,
+  .pl-container,
+  .rq-container {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  }
+}
+
+.mbn-link {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.22rem;
+  padding: 0.6rem 0.3rem 0.55rem;
+  text-decoration: none;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  transition: color var(--t), background var(--t), transform var(--t);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mbn-link .mbn-indicator {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scaleX(0);
+  width: 28px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--accent);
+  transform-origin: center;
+  transition: transform var(--t), opacity var(--t);
+  opacity: 0;
+}
+
+.mbn-link .mbn-label {
+  font-size: 0.62rem;
+  line-height: 1;
+}
+
+.mbn-link svg {
+  transition: transform var(--t);
+}
+
+.mbn-link:hover {
+  color: var(--text-main);
+  background: var(--hover-box);
+}
+
+.mbn-link:active svg {
+  transform: scale(0.92);
+}
+
+.mbn-link.active {
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.mbn-link.active .mbn-indicator {
+  transform: translateX(-50%) scaleX(1);
+  opacity: 1;
+}

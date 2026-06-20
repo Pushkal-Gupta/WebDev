@@ -1,8 +1,0 @@
-{
-  "questionId": "78",
-  "titleSlug": "subsets",
-  "title": "Subsets",
-  "exampleTestcases": "[1,2,3]\n[0]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\r\n  \"name\": \"subsets\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

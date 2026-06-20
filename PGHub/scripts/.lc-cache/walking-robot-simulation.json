@@ -1,0 +1,8 @@
+{
+  "questionId": "906",
+  "titleSlug": "walking-robot-simulation",
+  "title": "Walking Robot Simulation",
+  "exampleTestcases": "[4,-1,3]\n[]\n[4,-1,4,-2,4]\n[[2,4]]\n[6,-1,-1,6]\n[[0,0]]",
+  "sampleTestCase": "[4,-1,3]\n[]",
+  "metaData": "{\r\n  \"name\": \"robotSim\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"commands\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"obstacles\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

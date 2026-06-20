@@ -1,8 +1,0 @@
-{
-  "questionId": "4124",
-  "titleSlug": "count-good-integers-on-a-grid-path",
-  "title": "Count Good Integers on a Grid Path",
-  "exampleTestcases": "8\n10\n\"DDDRRR\"\n123456789\n123456790\n\"DDRRDR\"\n1288561398769758\n1288561398769758\n\"RRRDDD\"",
-  "sampleTestCase": "8\n10\n\"DDDRRR\"",
-  "metaData": "{\n  \"name\": \"countGoodIntegersOnPath\",\n  \"params\": [\n    {\n      \"name\": \"l\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"r\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"directions\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

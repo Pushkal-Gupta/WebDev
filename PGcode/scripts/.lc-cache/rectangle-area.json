@@ -1,8 +1,0 @@
-{
-  "questionId": "223",
-  "titleSlug": "rectangle-area",
-  "title": "Rectangle Area",
-  "exampleTestcases": "-3\n0\n3\n4\n0\n-1\n9\n2\n-2\n-2\n2\n2\n-2\n-2\n2\n2",
-  "sampleTestCase": "-3\n0\n3\n4\n0\n-1\n9\n2",
-  "metaData": "{\n  \"name\": \"computeArea\",\n  \"params\": [\n    {\n      \"name\": \"ax1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"ay1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"ax2\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"ay2\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"bx1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"by1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"bx2\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"by2\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

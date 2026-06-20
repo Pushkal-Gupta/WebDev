@@ -1,8 +1,0 @@
-{
-  "questionId": "2048",
-  "titleSlug": "build-array-from-permutation",
-  "title": "Build Array from Permutation",
-  "exampleTestcases": "[0,2,1,5,3,4]\n[5,0,1,2,3,4]",
-  "sampleTestCase": "[0,2,1,5,3,4]",
-  "metaData": "{\n  \"name\": \"buildArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

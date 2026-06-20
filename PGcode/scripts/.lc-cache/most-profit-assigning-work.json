@@ -1,8 +1,0 @@
-{
-  "questionId": "853",
-  "titleSlug": "most-profit-assigning-work",
-  "title": "Most Profit Assigning Work",
-  "exampleTestcases": "[2,4,6,8,10]\n[10,20,30,40,50]\n[4,5,6,7]\n[85,47,57]\n[24,66,99]\n[40,25,25]",
-  "sampleTestCase": "[2,4,6,8,10]\n[10,20,30,40,50]\n[4,5,6,7]",
-  "metaData": "{\r\n  \"name\": \"maxProfitAssignment\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"difficulty\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"profit\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"worker\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1212",
-  "titleSlug": "sequential-digits",
-  "title": "Sequential Digits",
-  "exampleTestcases": "100\n300\n1000\n13000",
-  "sampleTestCase": "100\n300",
-  "metaData": "{\n  \"name\": \"sequentialDigits\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"high\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

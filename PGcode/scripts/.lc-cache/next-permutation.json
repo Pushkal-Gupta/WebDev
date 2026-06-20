@@ -1,8 +1,0 @@
-{
-  "questionId": "31",
-  "titleSlug": "next-permutation",
-  "title": "Next Permutation",
-  "exampleTestcases": "[1,2,3]\n[3,2,1]\n[1,1,5]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\r\n  \"name\": \"nextPermutation\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"void\"\r\n  },\r\n  \"output\": {\r\n    \"paramindex\": 0\r\n  }\r\n}"
-}

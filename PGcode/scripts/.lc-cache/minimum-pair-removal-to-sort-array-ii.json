@@ -1,8 +1,0 @@
-{
-  "questionId": "3772",
-  "titleSlug": "minimum-pair-removal-to-sort-array-ii",
-  "title": "Minimum Pair Removal to Sort Array II",
-  "exampleTestcases": "[5,2,3,1]\n[1,2,2]",
-  "sampleTestCase": "[5,2,3,1]",
-  "metaData": "{\n  \"name\": \"minimumPairRemoval\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

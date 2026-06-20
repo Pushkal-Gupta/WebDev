@@ -1,8 +1,0 @@
-{
-  "questionId": "3416",
-  "titleSlug": "sum-of-digit-differences-of-all-pairs",
-  "title": "Sum of Digit Differences of All Pairs",
-  "exampleTestcases": "[13,23,12]\n[10,10,10,10]",
-  "sampleTestCase": "[13,23,12]",
-  "metaData": "{\n  \"name\": \"sumDigitDifferences\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

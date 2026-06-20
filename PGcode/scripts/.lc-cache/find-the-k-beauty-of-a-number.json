@@ -1,8 +1,0 @@
-{
-  "questionId": "1430",
-  "titleSlug": "find-the-k-beauty-of-a-number",
-  "title": "Find the K-Beauty of a Number",
-  "exampleTestcases": "240\n2\n430043\n2",
-  "sampleTestCase": "240\n2",
-  "metaData": "{\n  \"name\": \"divisorSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

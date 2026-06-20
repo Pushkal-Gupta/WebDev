@@ -1,8 +1,0 @@
-{
-  "questionId": "4000",
-  "titleSlug": "count-bowl-subarrays",
-  "title": "Count Bowl Subarrays",
-  "exampleTestcases": "[2,5,3,1,4]\n[5,1,2,3,4]\n[1000000000,999999999,999999998]",
-  "sampleTestCase": "[2,5,3,1,4]",
-  "metaData": "{\n  \"name\": \"bowlSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

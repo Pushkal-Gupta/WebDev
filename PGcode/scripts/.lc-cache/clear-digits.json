@@ -1,8 +1,0 @@
-{
-  "questionId": "3447",
-  "titleSlug": "clear-digits",
-  "title": "Clear Digits",
-  "exampleTestcases": "\"abc\"\n\"cb34\"",
-  "sampleTestCase": "\"abc\"",
-  "metaData": "{\n  \"name\": \"clearDigits\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

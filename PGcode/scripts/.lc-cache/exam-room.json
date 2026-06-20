@@ -1,8 +1,0 @@
-{
-  "questionId": "885",
-  "titleSlug": "exam-room",
-  "title": "Exam Room",
-  "exampleTestcases": "[\"ExamRoom\",\"seat\",\"seat\",\"seat\",\"seat\",\"leave\",\"seat\"]\n[[10],[],[],[],[],[4],[]]",
-  "sampleTestCase": "[\"ExamRoom\",\"seat\",\"seat\",\"seat\",\"seat\",\"leave\",\"seat\"]\n[[10],[],[],[],[],[4],[]]",
-  "metaData": "{\n  \"classname\": \"ExamRoom\",\n  \"maxbytesperline\": 200000,\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"name\": \"seat\",\n      \"params\": [],\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"name\": \"leave\",\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"p\"\n        }\n      ],\n      \"return\": {\n        \"type\": \"void\"\n      }\n    }\n  ],\n  \"systemdesign\": true,\n  \"params\": [\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"inputs\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<String>\",\n    \"dealloc\": true\n  }\n}"
-}

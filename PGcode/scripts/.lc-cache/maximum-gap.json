@@ -1,8 +1,0 @@
-{
-  "questionId": "164",
-  "titleSlug": "maximum-gap",
-  "title": "Maximum Gap",
-  "exampleTestcases": "[3,6,9,1]\n[10]",
-  "sampleTestCase": "[3,6,9,1]",
-  "metaData": "{\r\n  \"name\": \"maximumGap\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2504",
-  "titleSlug": "find-all-good-indices",
-  "title": "Find All Good Indices",
-  "exampleTestcases": "[2,1,1,1,3,4,1]\n2\n[2,1,1,2]\n2",
-  "sampleTestCase": "[2,1,1,1,3,4,1]\n2",
-  "metaData": "{\n  \"name\": \"goodIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

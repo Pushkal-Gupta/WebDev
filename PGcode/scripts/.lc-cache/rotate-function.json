@@ -1,8 +1,0 @@
-{
-  "questionId": "396",
-  "titleSlug": "rotate-function",
-  "title": "Rotate Function",
-  "exampleTestcases": "[4,3,2,6]\n[100]",
-  "sampleTestCase": "[4,3,2,6]",
-  "metaData": "{\n  \"name\": \"maxRotateFunction\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

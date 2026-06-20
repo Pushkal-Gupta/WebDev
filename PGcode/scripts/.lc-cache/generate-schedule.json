@@ -1,8 +1,0 @@
-{
-  "questionId": "3991",
-  "titleSlug": "generate-schedule",
-  "title": "Generate Schedule",
-  "exampleTestcases": "3\n5",
-  "sampleTestCase": "3",
-  "metaData": "{\n  \"name\": \"generateSchedule\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[][]\"\n  }\n}"
-}

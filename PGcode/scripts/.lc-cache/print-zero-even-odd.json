@@ -1,8 +1,0 @@
-{
-  "questionId": "1216",
-  "titleSlug": "print-zero-even-odd",
-  "title": "Print Zero Even Odd",
-  "exampleTestcases": "2\n5",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"printZeroEvenOdd\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"java\",\n    \"python\",\n    \"python3\",\n    \"cpp\",\n    \"c\",\n    \"csharp\",\n    \"golang\",\n    \"rust\"\n  ],\n  \"manual\": true\n}"
-}

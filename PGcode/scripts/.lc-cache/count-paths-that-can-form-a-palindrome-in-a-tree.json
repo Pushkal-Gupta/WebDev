@@ -1,8 +1,0 @@
-{
-  "questionId": "2905",
-  "titleSlug": "count-paths-that-can-form-a-palindrome-in-a-tree",
-  "title": "Count Paths That Can Form a Palindrome in a Tree",
-  "exampleTestcases": "[-1,0,0,1,1,2]\n\"acaabc\"\n[-1,0,0,0,0]\n\"aaaaa\"",
-  "sampleTestCase": "[-1,0,0,1,1,2]\n\"acaabc\"",
-  "metaData": "{\n  \"name\": \"countPalindromePaths\",\n  \"params\": [\n    {\n      \"name\": \"parent\",\n      \"type\": \"list<integer>\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

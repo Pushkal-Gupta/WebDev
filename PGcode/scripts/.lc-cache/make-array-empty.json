@@ -1,8 +1,0 @@
-{
-  "questionId": "2765",
-  "titleSlug": "make-array-empty",
-  "title": "Make Array Empty",
-  "exampleTestcases": "[3,4,-1]\n[1,2,4,3]\n[1,2,3]",
-  "sampleTestCase": "[3,4,-1]",
-  "metaData": "{\n  \"name\": \"countOperationsToEmptyArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

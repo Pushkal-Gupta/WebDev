@@ -1,0 +1,8 @@
+{
+  "questionId": "1326",
+  "titleSlug": "sum-of-floored-pairs",
+  "title": "Sum of Floored Pairs",
+  "exampleTestcases": "[2,5,9]\n[7,7,7,7,7,7,7]",
+  "sampleTestCase": "[2,5,9]",
+  "metaData": "{\n  \"name\": \"sumOfFlooredPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

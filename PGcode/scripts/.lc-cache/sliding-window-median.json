@@ -1,8 +1,0 @@
-{
-  "questionId": "480",
-  "titleSlug": "sliding-window-median",
-  "title": "Sliding Window Median",
-  "exampleTestcases": "[1,3,-1,-3,5,3,6,7]\n3\n[1,2,3,4,2,3,1,4,2]\n3",
-  "sampleTestCase": "[1,3,-1,-3,5,3,6,7]\n3",
-  "metaData": "{ \n  \"name\": \"medianSlidingWindow\",\n  \"params\": [\n    { \n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double[]\"\n  }\n}"
-}

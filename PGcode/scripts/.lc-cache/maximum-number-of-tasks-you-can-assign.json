@@ -1,8 +1,0 @@
-{
-  "questionId": "2180",
-  "titleSlug": "maximum-number-of-tasks-you-can-assign",
-  "title": "Maximum Number of Tasks You Can Assign",
-  "exampleTestcases": "[3,2,1]\n[0,3,3]\n1\n1\n[5,4]\n[0,0,0]\n1\n5\n[10,15,30]\n[0,10,10,10,10]\n3\n10",
-  "sampleTestCase": "[3,2,1]\n[0,3,3]\n1\n1",
-  "metaData": "{\n  \"name\": \"maxTaskAssign\",\n  \"params\": [\n    {\n      \"name\": \"tasks\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"workers\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"pills\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"strength\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2008",
-  "titleSlug": "minimum-cost-to-change-the-final-value-of-expression",
-  "title": "Minimum Cost to Change the Final Value of Expression",
-  "exampleTestcases": "\"1&(0|1)\"\n\"(0&0)&(0&0&0)\"\n\"(0|(1|0&1))\"",
-  "sampleTestCase": "\"1&(0|1)\"",
-  "metaData": "{\n  \"name\": \"minOperationsToFlip\",\n  \"params\": [\n    {\n      \"name\": \"expression\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "925",
-  "titleSlug": "construct-binary-tree-from-preorder-and-postorder-traversal",
-  "title": "Construct Binary Tree from Preorder and Postorder Traversal",
-  "exampleTestcases": "[1,2,4,5,3,6,7]\n[4,5,2,6,7,3,1]\n[1]\n[1]",
-  "sampleTestCase": "[1,2,4,5,3,6,7]\n[4,5,2,6,7,3,1]",
-  "metaData": "{\n  \"name\": \"constructFromPrePost\",\n  \"params\": [\n    {\n      \"name\": \"preorder\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"postorder\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  }\n}"
-}

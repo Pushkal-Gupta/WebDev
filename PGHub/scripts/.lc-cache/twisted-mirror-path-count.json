@@ -1,0 +1,8 @@
+{
+  "questionId": "3938",
+  "titleSlug": "twisted-mirror-path-count",
+  "title": "Twisted Mirror Path Count",
+  "exampleTestcases": "[[0,1,0],[0,0,1],[1,0,0]]\n[[0,0],[0,0]]\n[[0,1,1],[1,1,0]]",
+  "sampleTestCase": "[[0,1,0],[0,0,1],[1,0,0]]",
+  "metaData": "{\n  \"name\": \"uniquePaths\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3856",
-  "titleSlug": "maximum-weighted-k-edge-path",
-  "title": "Maximum Weighted K-Edge Path",
-  "exampleTestcases": "3\n[[0,1,1],[1,2,2]]\n2\n4\n3\n[[0,1,2],[0,2,3]]\n1\n3\n3\n[[0,1,6],[1,2,8]]\n1\n6",
-  "sampleTestCase": "3\n[[0,1,1],[1,2,2]]\n2\n4",
-  "metaData": "{\n  \"name\": \"maxWeight\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

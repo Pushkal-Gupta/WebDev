@@ -1,8 +1,0 @@
-{
-  "questionId": "171",
-  "titleSlug": "excel-sheet-column-number",
-  "title": "Excel Sheet Column Number",
-  "exampleTestcases": "\"A\"\n\"AB\"\n\"ZY\"",
-  "sampleTestCase": "\"A\"",
-  "metaData": "{\n  \"name\": \"titleToNumber\",\n  \"params\": [\n    {\n      \"name\": \"columnTitle\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

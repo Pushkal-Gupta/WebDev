@@ -1,0 +1,8 @@
+{
+  "questionId": "3648",
+  "titleSlug": "find-the-maximum-number-of-fruits-collected",
+  "title": "Find the Maximum Number of Fruits Collected",
+  "exampleTestcases": "[[1,2,3,4],[5,6,8,7],[9,10,11,12],[13,14,15,16]]\n[[1,1],[1,1]]",
+  "sampleTestCase": "[[1,2,3,4],[5,6,8,7],[9,10,11,12],[13,14,15,16]]",
+  "metaData": "{\n  \"name\": \"maxCollectedFruits\",\n  \"params\": [\n    {\n      \"name\": \"fruits\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

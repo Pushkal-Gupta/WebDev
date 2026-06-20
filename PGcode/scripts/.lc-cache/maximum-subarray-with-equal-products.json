@@ -1,8 +1,0 @@
-{
-  "questionId": "3702",
-  "titleSlug": "maximum-subarray-with-equal-products",
-  "title": "Maximum Subarray With Equal Products",
-  "exampleTestcases": "[1,2,1,2,1,1,1]\n[2,3,4,5,6]\n[1,2,3,1,4,5,1]",
-  "sampleTestCase": "[1,2,1,2,1,1,1]",
-  "metaData": "{\n  \"name\": \"maxLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

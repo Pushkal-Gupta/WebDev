@@ -1,8 +1,0 @@
-{
-  "questionId": "3903",
-  "titleSlug": "inverse-coin-change",
-  "title": "Inverse Coin Change",
-  "exampleTestcases": "[0,1,0,2,0,3,0,4,0,5]\n[1,2,2,3,4]\n[1,2,3,4,15]",
-  "sampleTestCase": "[0,1,0,2,0,3,0,4,0,5]",
-  "metaData": "{\n  \"name\": \"findCoins\",\n  \"params\": [\n    {\n      \"name\": \"numWays\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

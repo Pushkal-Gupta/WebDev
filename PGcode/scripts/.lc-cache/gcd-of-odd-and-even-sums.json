@@ -1,8 +1,0 @@
-{
-  "questionId": "3995",
-  "titleSlug": "gcd-of-odd-and-even-sums",
-  "title": "GCD of Odd and Even Sums",
-  "exampleTestcases": "4\n5",
-  "sampleTestCase": "4",
-  "metaData": "{\n  \"name\": \"gcdOfOddEvenSums\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

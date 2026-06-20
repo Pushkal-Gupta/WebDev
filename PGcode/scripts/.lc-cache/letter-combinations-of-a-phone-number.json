@@ -1,8 +1,0 @@
-{
-  "questionId": "17",
-  "titleSlug": "letter-combinations-of-a-phone-number",
-  "title": "Letter Combinations of a Phone Number",
-  "exampleTestcases": "\"23\"\n\"2\"",
-  "sampleTestCase": "\"23\"",
-  "metaData": "{ \r\n  \"name\": \"letterCombinations\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"digits\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<string>\"\r\n  }\r\n}"
-}

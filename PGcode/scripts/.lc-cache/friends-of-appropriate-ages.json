@@ -1,8 +1,0 @@
-{
-  "questionId": "852",
-  "titleSlug": "friends-of-appropriate-ages",
-  "title": "Friends Of Appropriate Ages",
-  "exampleTestcases": "[16,16]\n[16,17,18]\n[20,30,100,110,120]",
-  "sampleTestCase": "[16,16]",
-  "metaData": "{\r\n  \"name\": \"numFriendRequests\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"ages\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "943",
-  "titleSlug": "sum-of-subarray-minimums",
-  "title": "Sum of Subarray Minimums",
-  "exampleTestcases": "[3,1,2,4]\n[50]",
-  "sampleTestCase": "[3,1,2,4]",
-  "metaData": "{\n  \"name\": \"sumSubarrayMins\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

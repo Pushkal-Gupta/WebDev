@@ -1,8 +1,0 @@
-{
-  "questionId": "4263",
-  "titleSlug": "minimum-operations-to-achieve-at-least-k-peaks",
-  "title": "Minimum Operations to Achieve At Least K Peaks",
-  "exampleTestcases": "[2,1,2]\n1\n[4,5,3,6]\n2\n[3,7,3]\n2",
-  "sampleTestCase": "[2,1,2]\n1",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

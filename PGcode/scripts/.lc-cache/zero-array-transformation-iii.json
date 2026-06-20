@@ -1,8 +1,0 @@
-{
-  "questionId": "3647",
-  "titleSlug": "zero-array-transformation-iii",
-  "title": "Zero Array Transformation III",
-  "exampleTestcases": "[2,0,2]\n[[0,2],[0,2],[1,1]]\n[1,1,1,1]\n[[1,3],[0,2],[1,3],[1,2]]\n[1,2,3,4]\n[[0,3]]",
-  "sampleTestCase": "[2,0,2]\n[[0,2],[0,2],[1,1]]",
-  "metaData": "{\n  \"name\": \"maxRemoval\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

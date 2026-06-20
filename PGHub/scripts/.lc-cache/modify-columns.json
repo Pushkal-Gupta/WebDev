@@ -1,0 +1,8 @@
+{
+  "questionId": "3067",
+  "titleSlug": "modify-columns",
+  "title": "Modify Columns",
+  "exampleTestcases": "{\"headers\":{\"employees\":[\"name\",\"salary\"]},\"rows\":{\"employees\":[[\"Jack\",19666],[\"Piper\",74754],[\"Mia\",62509],[\"Ulysses\",54866]]}}",
+  "sampleTestCase": "{\"headers\":{\"employees\":[\"name\",\"salary\"]},\"rows\":{\"employees\":[[\"Jack\",19666],[\"Piper\",74754],[\"Mia\",62509],[\"Ulysses\",54866]]}}",
+  "metaData": "{\n  \"pythondata\": [\n    \"employees = pd.DataFrame([], columns=['name', 'salary']).astype({'name':'object', 'salary':'Int64'})\"\n  ],\n  \"database\": true,\n  \"name\": \"modifySalaryColumn\",\n  \"languages\": [\n    \"pythondata\"\n  ]\n}"
+}

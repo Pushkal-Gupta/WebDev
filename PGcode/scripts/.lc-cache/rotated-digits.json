@@ -1,8 +1,0 @@
-{
-  "questionId": "804",
-  "titleSlug": "rotated-digits",
-  "title": "Rotated Digits",
-  "exampleTestcases": "10\n1\n2",
-  "sampleTestCase": "10",
-  "metaData": "{\n  \"name\": \"rotatedDigits\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

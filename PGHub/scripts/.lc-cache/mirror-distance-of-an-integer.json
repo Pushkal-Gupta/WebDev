@@ -1,0 +1,8 @@
+{
+  "questionId": "4168",
+  "titleSlug": "mirror-distance-of-an-integer",
+  "title": "Mirror Distance of an Integer",
+  "exampleTestcases": "25\n10\n7",
+  "sampleTestCase": "25",
+  "metaData": "{\n  \"name\": \"mirrorDistance\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1424",
-  "titleSlug": "maximum-candies-you-can-get-from-boxes",
-  "title": "Maximum Candies You Can Get from Boxes",
-  "exampleTestcases": "[1,0,1,0]\n[7,5,4,100]\n[[],[],[1],[]]\n[[1,2],[3],[],[]]\n[0]\n[1,0,0,0,0,0]\n[1,1,1,1,1,1]\n[[1,2,3,4,5],[],[],[],[],[]]\n[[1,2,3,4,5],[],[],[],[],[]]\n[0]",
-  "sampleTestCase": "[1,0,1,0]\n[7,5,4,100]\n[[],[],[1],[]]\n[[1,2],[3],[],[]]\n[0]",
-  "metaData": "{\n  \"name\": \"maxCandies\",\n  \"params\": [\n    {\n      \"name\": \"status\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"candies\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"keys\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"containedBoxes\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"initialBoxes\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

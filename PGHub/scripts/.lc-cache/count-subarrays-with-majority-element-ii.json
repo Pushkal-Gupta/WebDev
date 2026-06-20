@@ -1,0 +1,8 @@
+{
+  "questionId": "4075",
+  "titleSlug": "count-subarrays-with-majority-element-ii",
+  "title": "Count Subarrays With Majority Element II",
+  "exampleTestcases": "[1,2,2,3]\n2\n[1,1,1,1]\n1\n[1,2,3]\n4",
+  "sampleTestCase": "[1,2,2,3]\n2",
+  "metaData": "{\n  \"name\": \"countMajoritySubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

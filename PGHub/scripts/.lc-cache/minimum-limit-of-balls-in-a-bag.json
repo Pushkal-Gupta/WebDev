@@ -1,0 +1,8 @@
+{
+  "questionId": "1886",
+  "titleSlug": "minimum-limit-of-balls-in-a-bag",
+  "title": "Minimum Limit of Balls in a Bag",
+  "exampleTestcases": "[9]\n2\n[2,4,8,2]\n4",
+  "sampleTestCase": "[9]\n2",
+  "metaData": "{\n  \"name\": \"minimumSize\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxOperations\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

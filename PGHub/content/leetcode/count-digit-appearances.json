@@ -1,0 +1,116 @@
+{
+  "slug": "count-digit-appearances",
+  "leetcode_id": "4280",
+  "title": "Count Digit Appearances",
+  "difficulty": "Medium",
+  "tags": [],
+  "description_html": "<p>You are given an integer array <code>nums</code> and an integer <code>digit</code>.</p>\n\n<p>Return the total number of times <code>digit</code> appears in the decimal representation of all elements in <code>nums</code>.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [12,54,32,22], digit = 2</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">4</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The digit 2 appears once in 12 and 32, and twice in 22. Thus, the total number of times digit 2 appears is 4.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">nums = [1,34,7], digit = 9</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">0</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>The digit 9 does not appear in the decimal representation of any element in <code>nums</code>, so the total number of times digit 9 appears is 0.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>1 &lt;= nums.length &lt;= 1000</code></li>\n\t<li><code>1 &lt;= nums[i] &lt;= 10<sup>6</sup>​​​​​​​</code></li>\n\t<li><code>0 &lt;= digit &lt;= 9</code></li>\n</ul>\n",
+  "hints": [
+    "Parse and simulate as described"
+  ],
+  "sample_test_cases": [
+    "[12,54,32,22]",
+    "2",
+    "[1,34,7]",
+    "9"
+  ],
+  "content_signature": "-jwjtu1",
+  "fetched_at": "2026-05-30T07:21:08.594Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    int countDigitOccurrences(vector<int>& nums, int digit) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public int countDigitOccurrences(int[] nums, int digit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def countDigitOccurrences(self, nums: list[int], digit: int) -> int:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def countDigitOccurrences(self, nums, digit):\n        \"\"\"\n        :type nums: List[int]\n        :type digit: int\n        :rtype: int\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} nums\n * @param {number} digit\n * @return {number}\n */\nvar countDigitOccurrences = function(nums, digit) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function countDigitOccurrences(nums: number[], digit: number): number {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public int CountDigitOccurrences(int[] nums, int digit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "int countDigitOccurrences(int* nums, int numsSize, int digit) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func countDigitOccurrences(nums []int, digit int) int {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun countDigitOccurrences(nums: IntArray, digit: Int): Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func countDigitOccurrences(_ nums: [Int], _ digit: Int) -> Int {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn count_digit_occurrences(nums: Vec<i32>, digit: i32) -> i32 {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} nums\n# @param {Integer} digit\n# @return {Integer}\ndef count_digit_occurrences(nums, digit)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $nums\n     * @param Integer $digit\n     * @return Integer\n     */\n    function countDigitOccurrences($nums, $digit) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  int countDigitOccurrences(List<int> nums, int digit) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def countDigitOccurrences(nums: Array[Int], digit: Int): Int = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec count_digit_occurrences(nums :: [integer], digit :: integer) :: integer\n  def count_digit_occurrences(nums, digit) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec count_digit_occurrences(Nums :: [integer()], Digit :: integer()) -> integer().\ncount_digit_occurrences(Nums, Digit) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (count-digit-occurrences nums digit)\n  (-> (listof exact-integer?) exact-integer? exact-integer?)\n  )"
+    }
+  ]
+}

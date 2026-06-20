@@ -1,8 +1,0 @@
-{
-  "questionId": "1122",
-  "titleSlug": "longest-duplicate-substring",
-  "title": "Longest Duplicate Substring",
-  "exampleTestcases": "\"banana\"\n\"abcd\"",
-  "sampleTestCase": "\"banana\"",
-  "metaData": "{\n  \"name\": \"longestDupSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

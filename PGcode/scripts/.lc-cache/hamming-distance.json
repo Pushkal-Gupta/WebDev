@@ -1,8 +1,0 @@
-{
-  "questionId": "461",
-  "titleSlug": "hamming-distance",
-  "title": "Hamming Distance",
-  "exampleTestcases": "1\n4\n3\n1",
-  "sampleTestCase": "1\n4",
-  "metaData": "{\r\n  \"name\": \"hammingDistance\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"x\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"y\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

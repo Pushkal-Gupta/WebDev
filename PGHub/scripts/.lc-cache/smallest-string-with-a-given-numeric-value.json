@@ -1,0 +1,8 @@
+{
+  "questionId": "1782",
+  "titleSlug": "smallest-string-with-a-given-numeric-value",
+  "title": "Smallest String With A Given Numeric Value",
+  "exampleTestcases": "3\n27\n5\n73",
+  "sampleTestCase": "3\n27",
+  "metaData": "{\n  \"name\": \"getSmallestString\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

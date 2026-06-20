@@ -1,8 +1,0 @@
-{
-  "questionId": "1267",
-  "titleSlug": "remove-zero-sum-consecutive-nodes-from-linked-list",
-  "title": "Remove Zero Sum Consecutive Nodes from Linked List",
-  "exampleTestcases": "[1,2,-3,3,1]\n[1,2,3,-3,4]\n[1,2,3,-3,-2]",
-  "sampleTestCase": "[1,2,-3,3,1]",
-  "metaData": "{\n  \"name\": \"removeZeroSumSublists\",\n  \"params\": [\n    {\n      \"name\": \"head\",\n      \"type\": \"ListNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"ListNode\"\n  }\n}"
-}

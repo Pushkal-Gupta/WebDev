@@ -1,8 +1,0 @@
-{
-  "questionId": "2437",
-  "titleSlug": "maximum-number-of-groups-entering-a-competition",
-  "title": "Maximum Number of Groups Entering a Competition",
-  "exampleTestcases": "[10,6,12,7,3,5]\n[8,8]",
-  "sampleTestCase": "[10,6,12,7,3,5]",
-  "metaData": "{\n  \"name\": \"maximumGroups\",\n  \"params\": [\n    {\n      \"name\": \"grades\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

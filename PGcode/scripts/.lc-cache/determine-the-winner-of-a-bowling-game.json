@@ -1,8 +1,0 @@
-{
-  "questionId": "2684",
-  "titleSlug": "determine-the-winner-of-a-bowling-game",
-  "title": "Determine the Winner of a Bowling Game",
-  "exampleTestcases": "[5,10,3,2]\n[6,5,7,3]\n[3,5,7,6]\n[8,10,10,2]\n[2,3]\n[4,1]\n[1,1,1,10,10,10,10]\n[10,10,10,10,1,1,1]",
-  "sampleTestCase": "[5,10,3,2]\n[6,5,7,3]",
-  "metaData": "{\n  \"name\": \"isWinner\",\n  \"params\": [\n    {\n      \"name\": \"player1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"player2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

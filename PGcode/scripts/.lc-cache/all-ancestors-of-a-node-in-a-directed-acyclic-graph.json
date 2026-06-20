@@ -1,8 +1,0 @@
-{
-  "questionId": "1431",
-  "titleSlug": "all-ancestors-of-a-node-in-a-directed-acyclic-graph",
-  "title": "All Ancestors of a Node in a Directed Acyclic Graph",
-  "exampleTestcases": "8\n[[0,3],[0,4],[1,3],[2,4],[2,7],[3,5],[3,6],[3,7],[4,6]]\n5\n[[0,1],[0,2],[0,3],[0,4],[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]",
-  "sampleTestCase": "8\n[[0,3],[0,4],[1,3],[2,4],[2,7],[3,5],[3,6],[3,7],[4,6]]",
-  "metaData": "{\n  \"name\": \"getAncestors\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3445",
-  "titleSlug": "lexicographically-minimum-string-after-removing-stars",
-  "title": "Lexicographically Minimum String After Removing Stars",
-  "exampleTestcases": "\"aaba*\"\n\"abc\"",
-  "sampleTestCase": "\"aaba*\"",
-  "metaData": "{\n  \"name\": \"clearStars\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

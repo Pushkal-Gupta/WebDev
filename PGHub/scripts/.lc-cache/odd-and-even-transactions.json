@@ -1,0 +1,8 @@
+{
+  "questionId": "3530",
+  "titleSlug": "odd-and-even-transactions",
+  "title": "Odd and Even Transactions",
+  "exampleTestcases": "{\"headers\":{\"transactions\":[\"transaction_id\",\"amount\",\"transaction_date\"]},\"rows\":{\"transactions\":[[1,150,\"2024-07-01\"],[2,200,\"2024-07-01\"],[3,75,\"2024-07-01\"],[4,300,\"2024-07-02\"],[5,50,\"2024-07-02\"],[6,120,\"2024-07-03\"]]}}",
+  "sampleTestCase": "{\"headers\":{\"transactions\":[\"transaction_id\",\"amount\",\"transaction_date\"]},\"rows\":{\"transactions\":[[1,150,\"2024-07-01\"],[2,200,\"2024-07-01\"],[3,75,\"2024-07-01\"],[4,300,\"2024-07-02\"],[5,50,\"2024-07-02\"],[6,120,\"2024-07-03\"]]}}",
+  "metaData": "{\"mysql\": [\"Create table if not exists transactions ( transaction_id int, amount int, transaction_date date)\"], \"mssql\": [\"Create table transactions ( transaction_id int, amount int, transaction_date date)\"], \"oraclesql\": [\"Create table  transactions ( transaction_id int, amount int, transaction_date date)\", \"ALTER SESSION SET nls_date_format='YYYY-MM-DD'\"], \"database\": true, \"name\": \"sum_daily_odd_even\", \"postgresql\": [\"CREATE TABLE IF NOT EXISTS transactions (\\n  transaction_id int,\\n  amount int,\\n  transaction_date date\\n);\\n\"], \"pythondata\": [\"transactions = pd.DataFrame(\\n    columns=[\\\"transaction_id\\\", \\\"amount\\\", \\\"transaction_date\\\"],\\n    dtype={\\n        \\\"transaction_id\\\": \\\"int\\\",\\n        \\\"amount\\\": \\\"int\\\",\\n        \\\"transaction_date\\\": \\\"datetime64[ns]\\\",\\n    },\\n)\\n\"], \"database_schema\": {\"transactions\": {\"transaction_id\": \"INT\", \"amount\": \"INT\", \"transaction_date\": \"DATE\"}}}"
+}

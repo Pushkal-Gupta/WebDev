@@ -1,8 +1,0 @@
-{
-  "questionId": "1145",
-  "titleSlug": "number-of-submatrices-that-sum-to-target",
-  "title": "Number of Submatrices That Sum to Target",
-  "exampleTestcases": "[[0,1,0],[1,1,1],[0,1,0]]\n0\n[[1,-1],[-1,1]]\n0\n[[904]]\n0",
-  "sampleTestCase": "[[0,1,0],[1,1,1],[0,1,0]]\n0",
-  "metaData": "{\n  \"name\": \"numSubmatrixSumTarget\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"name\": \"target\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
-}

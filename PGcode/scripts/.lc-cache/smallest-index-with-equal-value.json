@@ -1,8 +1,0 @@
-{
-  "questionId": "2181",
-  "titleSlug": "smallest-index-with-equal-value",
-  "title": "Smallest Index With Equal Value",
-  "exampleTestcases": "[0,1,2]\n[4,3,2,1]\n[1,2,3,4,5,6,7,8,9,0]",
-  "sampleTestCase": "[0,1,2]",
-  "metaData": "{\n  \"name\": \"smallestEqual\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

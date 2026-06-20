@@ -1,8 +1,0 @@
-{
-  "questionId": "3150",
-  "titleSlug": "shortest-and-lexicographically-smallest-beautiful-string",
-  "title": "Shortest and Lexicographically Smallest Beautiful String",
-  "exampleTestcases": "\"100011001\"\n3\n\"1011\"\n2\n\"000\"\n1",
-  "sampleTestCase": "\"100011001\"\n3",
-  "metaData": "{\n  \"name\": \"shortestBeautifulSubstring\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

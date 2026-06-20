@@ -1,0 +1,8 @@
+{
+  "questionId": "2386",
+  "titleSlug": "min-max-game",
+  "title": "Min Max Game",
+  "exampleTestcases": "[1,3,5,2,4,8,2,2]\n[3]",
+  "sampleTestCase": "[1,3,5,2,4,8,2,2]",
+  "metaData": "{\n  \"name\": \"minMaxGame\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

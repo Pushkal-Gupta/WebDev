@@ -1,8 +1,0 @@
-{
-  "questionId": "899",
-  "titleSlug": "binary-gap",
-  "title": "Binary Gap",
-  "exampleTestcases": "22\n8\n5",
-  "sampleTestCase": "22",
-  "metaData": "{\n  \"name\": \"binaryGap\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

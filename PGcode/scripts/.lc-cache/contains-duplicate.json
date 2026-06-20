@@ -1,8 +1,0 @@
-{
-  "questionId": "217",
-  "titleSlug": "contains-duplicate",
-  "title": "Contains Duplicate",
-  "exampleTestcases": "[1,2,3,1]\n[1,2,3,4]\n[1,1,1,3,3,4,3,2,4,2]",
-  "sampleTestCase": "[1,2,3,1]",
-  "metaData": "{\r\n  \"name\": \"containsDuplicate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

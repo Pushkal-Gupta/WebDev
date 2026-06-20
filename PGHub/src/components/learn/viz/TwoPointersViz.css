@@ -1,0 +1,337 @@
+.tp-viz {
+  --tp-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  padding: 1.4rem 1.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--tp-radius);
+  font-family: var(--serif);
+  color: var(--text-main);
+}
+
+.tp-viz-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.tp-viz-title {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  margin: 0;
+}
+
+.tp-viz-subtitle {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.tp-viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.tp-viz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.tp-viz-field-target {
+  flex: 0 1 140px;
+}
+
+.tp-viz-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.tp-viz-input {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.65rem;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.tp-viz-input:focus {
+  border-color: var(--accent);
+}
+
+.tp-viz-apply {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: filter 0.18s ease, transform 0.18s ease;
+}
+
+.tp-viz-apply:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.tp-viz-error {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--hard);
+  padding: 0.5rem 0.75rem;
+  background: rgba(var(--accent-rgb, 255, 99, 99), 0.08);
+  border: 1px solid var(--hard);
+  border-radius: 6px;
+}
+
+.tp-viz-stage {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+}
+
+.tp-viz-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.tp-cell-rect {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: fill 0.32s ease, stroke 0.32s ease, stroke-width 0.32s ease;
+}
+
+.tp-cell-value {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 600;
+  fill: var(--text-main);
+  transition: fill 0.32s ease;
+}
+
+.tp-cell-index {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  fill: var(--text-dim);
+}
+
+.tp-cell-left .tp-cell-rect,
+.tp-cell-right .tp-cell-rect {
+  fill: var(--hover-box);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.tp-cell-meet .tp-cell-rect {
+  fill: var(--hover-box);
+  stroke: var(--accent);
+  stroke-width: 2.4;
+}
+
+.tp-cell-found .tp-cell-rect {
+  fill: rgba(46, 196, 139, 0.18);
+  stroke: var(--easy);
+  stroke-width: 2.4;
+}
+
+.tp-cell-found .tp-cell-value {
+  fill: var(--easy);
+}
+
+.tp-pointer-line {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+  transition: x1 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              x2 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tp-pointer-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--accent);
+  transition: x 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.tp-pointer {
+  transition: opacity 0.25s ease;
+}
+
+.tp-found-line {
+  stroke: var(--easy);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.tp-found-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--easy);
+}
+
+.tp-viz-readout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.85rem 0.95rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.tp-viz-readout-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem 0.85rem;
+}
+
+.tp-viz-readout-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.tp-viz-readout-value {
+  font-family: var(--mono);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 1.5ch;
+}
+
+.tp-mono { font-family: var(--mono); }
+
+.tp-viz-status {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  padding: 0.55rem 0.7rem;
+  border-radius: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  word-break: break-word;
+}
+
+.tp-viz-status-found {
+  border-color: var(--easy);
+  color: var(--easy);
+}
+
+.tp-viz-status-none {
+  border-color: var(--hard);
+  color: var(--hard);
+}
+
+.tp-viz-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.tp-viz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+.tp-viz-btn:hover:not(:disabled) {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--hover-box);
+  transform: translateY(-1px);
+}
+
+.tp-viz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.tp-viz-btn-primary {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.tp-viz-btn-primary:hover:not(:disabled) {
+  color: var(--bg);
+  filter: brightness(1.08);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tp-cell-rect,
+  .tp-cell-value,
+  .tp-pointer-line,
+  .tp-pointer-label {
+    transition: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .tp-viz {
+    padding: 1rem 1rem;
+  }
+  .tp-viz-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .tp-viz-apply {
+    align-self: flex-start;
+  }
+}

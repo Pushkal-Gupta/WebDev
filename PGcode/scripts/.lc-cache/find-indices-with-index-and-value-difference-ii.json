@@ -1,8 +1,0 @@
-{
-  "questionId": "3170",
-  "titleSlug": "find-indices-with-index-and-value-difference-ii",
-  "title": "Find Indices With Index and Value Difference II",
-  "exampleTestcases": "[5,1,4,1]\n2\n4\n[2,1]\n0\n0\n[1,2,3]\n2\n4",
-  "sampleTestCase": "[5,1,4,1]\n2\n4",
-  "metaData": "{\n  \"name\": \"findIndices\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"indexDifference\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"valueDifference\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

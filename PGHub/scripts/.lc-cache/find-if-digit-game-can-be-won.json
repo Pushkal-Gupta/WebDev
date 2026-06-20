@@ -1,0 +1,8 @@
+{
+  "questionId": "3515",
+  "titleSlug": "find-if-digit-game-can-be-won",
+  "title": "Find if Digit Game Can Be Won",
+  "exampleTestcases": "[1,2,3,4,10]\n[1,2,3,4,5,14]\n[5,5,5,25]",
+  "sampleTestCase": "[1,2,3,4,10]",
+  "metaData": "{\n  \"name\": \"canAliceWin\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

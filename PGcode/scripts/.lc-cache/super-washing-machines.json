@@ -1,8 +1,0 @@
-{
-  "questionId": "517",
-  "titleSlug": "super-washing-machines",
-  "title": "Super Washing Machines",
-  "exampleTestcases": "[1,0,5]\n[0,3,0]\n[0,2,0]",
-  "sampleTestCase": "[1,0,5]",
-  "metaData": "{\r\n  \"name\": \"findMinMoves\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"machines\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

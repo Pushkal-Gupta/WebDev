@@ -1,0 +1,8 @@
+{
+  "questionId": "3683",
+  "titleSlug": "find-the-lexicographically-largest-string-from-the-box-i",
+  "title": "Find the Lexicographically Largest String From the Box I",
+  "exampleTestcases": "\"dbca\"\n2\n\"gggg\"\n4",
+  "sampleTestCase": "\"dbca\"\n2",
+  "metaData": "{\n  \"name\": \"answerString\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"word\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"numFriends\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

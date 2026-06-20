@@ -1,8 +1,0 @@
-{
-  "questionId": "2057",
-  "titleSlug": "count-salary-categories",
-  "title": "Count Salary Categories",
-  "exampleTestcases": "{\"headers\":{\"Accounts\":[\"account_id\",\"income\"]},\"rows\":{\"Accounts\":[[3,108939],[2,12747],[8,87709],[6,91796]]}}",
-  "sampleTestCase": "{\"headers\":{\"Accounts\":[\"account_id\",\"income\"]},\"rows\":{\"Accounts\":[[3,108939],[2,12747],[8,87709],[6,91796]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Accounts (account_id int, income int)\"], \"mssql\": [\"Create table Accounts (account_id int, income int)\"], \"oraclesql\": [\"Create table Accounts (account_id int, income int)\"], \"database\": true, \"name\": \"count_salary_categories\", \"pythondata\": [\"Accounts = pd.DataFrame([], columns=['account_id', 'income']).astype({'account_id':'Int64', 'income':'Int64'})\"], \"postgresql\": [\"Create table If Not Exists Accounts (account_id int, income int)\"], \"database_schema\": {\"Accounts\": {\"account_id\": \"INT\", \"income\": \"INT\"}}}"
-}

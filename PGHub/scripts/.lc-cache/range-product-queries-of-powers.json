@@ -1,0 +1,8 @@
+{
+  "questionId": "2529",
+  "titleSlug": "range-product-queries-of-powers",
+  "title": "Range Product Queries of Powers",
+  "exampleTestcases": "15\n[[0,1],[2,2],[0,3]]\n2\n[[0,0]]",
+  "sampleTestCase": "15\n[[0,1],[2,2],[0,3]]",
+  "metaData": "{\n  \"name\": \"productQueries\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

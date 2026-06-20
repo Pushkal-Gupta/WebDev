@@ -1,8 +1,0 @@
-{
-  "questionId": "1566",
-  "titleSlug": "check-if-a-word-occurs-as-a-prefix-of-any-word-in-a-sentence",
-  "title": "Check If a Word Occurs As a Prefix of Any Word in a Sentence",
-  "exampleTestcases": "\"i love eating burger\"\n\"burg\"\n\"this problem is an easy problem\"\n\"pro\"\n\"i am tired\"\n\"you\"",
-  "sampleTestCase": "\"i love eating burger\"\n\"burg\"",
-  "metaData": "{\n  \"name\": \"isPrefixOfWord\",\n  \"params\": [\n    {\n      \"name\": \"sentence\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"searchWord\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

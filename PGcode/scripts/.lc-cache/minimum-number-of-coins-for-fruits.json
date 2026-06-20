@@ -1,8 +1,0 @@
-{
-  "questionId": "3209",
-  "titleSlug": "minimum-number-of-coins-for-fruits",
-  "title": "Minimum Number of Coins for Fruits",
-  "exampleTestcases": "[3,1,2]\n[1,10,1,1]\n[26,18,6,12,49,7,45,45]",
-  "sampleTestCase": "[3,1,2]",
-  "metaData": "{\n  \"name\": \"minimumCoins\",\n  \"params\": [\n    {\n      \"name\": \"prices\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

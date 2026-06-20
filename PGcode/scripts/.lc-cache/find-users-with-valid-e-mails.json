@@ -1,8 +1,0 @@
-{
-  "questionId": "1664",
-  "titleSlug": "find-users-with-valid-e-mails",
-  "title": "Find Users With Valid E-Mails",
-  "exampleTestcases": "{\"headers\":{\"Users\":[\"user_id\",\"name\",\"mail\"]},\"rows\":{\"Users\":[[1,\"Winston\",\"winston@leetcode.com\"],[2,\"Jonathan\",\"jonathanisgreat\"],[3,\"Annabelle\",\"bella-@leetcode.com\"],[4,\"Sally\",\"sally.come@leetcode.com\"],[5,\"Marwan\",\"quarz#2020@leetcode.com\"],[6,\"David\",\"david69@gmail.com\"],[7,\"Shapiro\",\".shapo@leetcode.com\"]]}}",
-  "sampleTestCase": "{\"headers\":{\"Users\":[\"user_id\",\"name\",\"mail\"]},\"rows\":{\"Users\":[[1,\"Winston\",\"winston@leetcode.com\"],[2,\"Jonathan\",\"jonathanisgreat\"],[3,\"Annabelle\",\"bella-@leetcode.com\"],[4,\"Sally\",\"sally.come@leetcode.com\"],[5,\"Marwan\",\"quarz#2020@leetcode.com\"],[6,\"David\",\"david69@gmail.com\"],[7,\"Shapiro\",\".shapo@leetcode.com\"]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Users (user_id int, name varchar(30), mail varchar(50))\"], \"mssql\": [\"Create table Users (user_id int, name varchar(30), mail varchar(50))\"], \"oraclesql\": [\"Create table Users (user_id int, name varchar(30), mail varchar(50))\"], \"database\": true, \"name\": \"valid_emails\", \"pythondata\": [\"Users = pd.DataFrame([], columns=['user_id', 'name', 'mail']).astype({'user_id':'int64', 'name':'object', 'mail':'object'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Users (user_id int, name varchar(30), mail varchar(50))\"], \"database_schema\": {\"Users\": {\"user_id\": \"INT\", \"name\": \"VARCHAR(30)\", \"mail\": \"VARCHAR(50)\"}}}"
-}

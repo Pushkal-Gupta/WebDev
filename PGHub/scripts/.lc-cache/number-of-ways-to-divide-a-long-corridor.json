@@ -1,0 +1,8 @@
+{
+  "questionId": "2251",
+  "titleSlug": "number-of-ways-to-divide-a-long-corridor",
+  "title": "Number of Ways to Divide a Long Corridor",
+  "exampleTestcases": "\"SSPPSPS\"\n\"PPSPSP\"\n\"S\"",
+  "sampleTestCase": "\"SSPPSPS\"",
+  "metaData": "{\n  \"name\": \"numberOfWays\",\n  \"params\": [\n    {\n      \"name\": \"corridor\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

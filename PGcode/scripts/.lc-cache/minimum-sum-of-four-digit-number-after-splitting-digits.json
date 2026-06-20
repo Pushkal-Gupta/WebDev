@@ -1,8 +1,0 @@
-{
-  "questionId": "2264",
-  "titleSlug": "minimum-sum-of-four-digit-number-after-splitting-digits",
-  "title": "Minimum Sum of Four Digit Number After Splitting Digits",
-  "exampleTestcases": "2932\n4009",
-  "sampleTestCase": "2932",
-  "metaData": "{\n  \"name\": \"minimumSum\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

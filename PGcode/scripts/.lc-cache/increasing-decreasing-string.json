@@ -1,8 +1,0 @@
-{
-  "questionId": "1472",
-  "titleSlug": "increasing-decreasing-string",
-  "title": "Increasing Decreasing String",
-  "exampleTestcases": "\"aaaabbbbcccc\"\n\"rat\"",
-  "sampleTestCase": "\"aaaabbbbcccc\"",
-  "metaData": "{\n  \"name\": \"sortString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "18",
-  "titleSlug": "4sum",
-  "title": "4Sum",
-  "exampleTestcases": "[1,0,-1,0,-2,2]\n0\n[2,2,2,2,2]\n8",
-  "sampleTestCase": "[1,0,-1,0,-2,2]\n0",
-  "metaData": "{\r\n  \"name\": \"fourSum\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<list<integer>>\",\r\n    \"colsize\": 4,\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

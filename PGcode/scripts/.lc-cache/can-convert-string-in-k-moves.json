@@ -1,8 +1,0 @@
-{
-  "questionId": "1647",
-  "titleSlug": "can-convert-string-in-k-moves",
-  "title": "Can Convert String in K Moves",
-  "exampleTestcases": "\"input\"\n\"ouput\"\n9\n\"abc\"\n\"bcd\"\n10\n\"aab\"\n\"bbb\"\n27",
-  "sampleTestCase": "\"input\"\n\"ouput\"\n9",
-  "metaData": "{\n  \"name\": \"canConvertString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

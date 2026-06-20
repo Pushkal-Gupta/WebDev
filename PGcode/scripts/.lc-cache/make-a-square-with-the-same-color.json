@@ -1,8 +1,0 @@
-{
-  "questionId": "3398",
-  "titleSlug": "make-a-square-with-the-same-color",
-  "title": "Make a Square with the Same Color",
-  "exampleTestcases": "[[\"B\",\"W\",\"B\"],[\"B\",\"W\",\"W\"],[\"B\",\"W\",\"B\"]]\n[[\"B\",\"W\",\"B\"],[\"W\",\"B\",\"W\"],[\"B\",\"W\",\"B\"]]\n[[\"B\",\"W\",\"B\"],[\"B\",\"W\",\"W\"],[\"B\",\"W\",\"W\"]]",
-  "sampleTestCase": "[[\"B\",\"W\",\"B\"],[\"B\",\"W\",\"W\"],[\"B\",\"W\",\"B\"]]",
-  "metaData": "{\n  \"name\": \"canMakeSquare\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"character[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

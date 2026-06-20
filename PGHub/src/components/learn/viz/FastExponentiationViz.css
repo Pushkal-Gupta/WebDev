@@ -1,0 +1,41 @@
+.fex { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.fex-head { display: flex; flex-direction: column; gap: 0.25rem; }
+.fex-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.fex-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.45; margin: 0; }
+
+.fex-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem; }
+.fex-buttons { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.fex-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.fex-btn:hover { border-color: var(--accent); color: var(--accent); }
+.fex-btn:disabled { opacity: 0.45; cursor: default; }
+.fex-btn-primary { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+.fex-btn-shuffle:hover { border-color: var(--hue-pink); color: var(--hue-pink); }
+.fex-speed { display: flex; align-items: center; gap: 0.45rem; font-size: 0.7rem; color: var(--text-dim); }
+.fex-speed-range { accent-color: var(--accent); }
+.fex-speed-val { font-weight: 600; color: var(--accent); }
+.fex-stepcount { font-size: 0.72rem; color: var(--text-dim); }
+.fex-stepcount strong { color: var(--accent); }
+
+.fex-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.6rem; }
+.fex-svg { width: 100%; height: auto; display: block; }
+.fex-eqn { fill: var(--text-dim); font-size: 0.85rem; }
+.fex-bit { text-anchor: middle; font-size: 1.3rem; font-weight: 700; }
+.fex-place { text-anchor: middle; fill: var(--text-dim); font-size: 0.64rem; }
+
+.fex-readouts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+.fex-metric { border: 1px solid var(--border); border-radius: 9px; background: var(--surface); padding: 0.55rem 0.7rem; display: flex; flex-direction: column; gap: 0.15rem; }
+.fex-metric-label { font-size: 0.64rem; color: var(--text-dim); }
+.fex-metric-val { font-size: 1.02rem; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; }
+.fex-result { color: var(--accent); }
+
+.fex-trace { border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px; background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.fex-trace-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.fex-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .fex-readouts { grid-template-columns: 1fr; } }

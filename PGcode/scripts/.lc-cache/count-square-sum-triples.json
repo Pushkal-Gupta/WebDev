@@ -1,8 +1,0 @@
-{
-  "questionId": "2037",
-  "titleSlug": "count-square-sum-triples",
-  "title": "Count Square Sum Triples",
-  "exampleTestcases": "5\n10",
-  "sampleTestCase": "5",
-  "metaData": "{\n  \"name\": \"countTriples\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

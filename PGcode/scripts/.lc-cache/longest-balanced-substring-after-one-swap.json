@@ -1,8 +1,0 @@
-{
-  "questionId": "4265",
-  "titleSlug": "longest-balanced-substring-after-one-swap",
-  "title": "Longest Balanced Substring After One Swap",
-  "exampleTestcases": "\"100001\"\n\"111\"",
-  "sampleTestCase": "\"100001\"",
-  "metaData": "{\n  \"name\": \"longestBalanced\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

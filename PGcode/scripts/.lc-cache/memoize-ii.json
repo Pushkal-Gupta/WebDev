@@ -1,8 +1,0 @@
-{
-  "questionId": "2744",
-  "titleSlug": "memoize-ii",
-  "title": "Memoize II",
-  "exampleTestcases": "() => [[2,2],[2,2],[1,2]]\nfunction (a, b) { return a + b; }\n() => [[{},{}],[{},{}],[{},{}]]\nfunction (a, b) { return ({...a, ...b}); }\n() => { const o = {}; return [[o,o],[o,o],[o,o]]; }\nfunction (a, b) { return ({...a, ...b}); }",
-  "sampleTestCase": "() => [[2,2],[2,2],[1,2]]\nfunction (a, b) { return a + b; }",
-  "metaData": "{\n  \"name\": \"memoize\",\n  \"params\": [\n    {\n      \"name\": \"getInputs\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"fn\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

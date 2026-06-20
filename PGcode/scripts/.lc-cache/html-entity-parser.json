@@ -1,8 +1,0 @@
-{
-  "questionId": "1526",
-  "titleSlug": "html-entity-parser",
-  "title": "HTML Entity Parser",
-  "exampleTestcases": "\"&amp; is an HTML entity but &ambassador; is not.\"\n\"and I quote: &quot;...&quot;\"",
-  "sampleTestCase": "\"&amp; is an HTML entity but &ambassador; is not.\"",
-  "metaData": "{\n  \"name\": \"entityParser\",\n  \"params\": [\n    {\n      \"name\": \"text\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

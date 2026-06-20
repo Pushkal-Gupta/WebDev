@@ -1,8 +1,0 @@
-{
-  "questionId": "419",
-  "titleSlug": "battleships-in-a-board",
-  "title": "Battleships in a Board",
-  "exampleTestcases": "[[\"X\",\".\",\".\",\"X\"],[\".\",\".\",\".\",\"X\"],[\".\",\".\",\".\",\"X\"]]\n[[\".\"]]",
-  "sampleTestCase": "[[\"X\",\".\",\".\",\"X\"],[\".\",\".\",\".\",\"X\"],[\".\",\".\",\".\",\"X\"]]",
-  "metaData": "{\r\n  \"name\": \"countBattleships\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"board\",\r\n      \"type\": \"character[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

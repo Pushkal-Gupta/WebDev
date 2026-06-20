@@ -1,8 +1,0 @@
-{
-  "questionId": "5",
-  "titleSlug": "longest-palindromic-substring",
-  "title": "Longest Palindromic Substring",
-  "exampleTestcases": "\"babad\"\n\"cbbd\"",
-  "sampleTestCase": "\"babad\"",
-  "metaData": "{ \n  \"name\": \"longestPalindrome\",\n  \"params\": [\n    { \n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "730",
-  "titleSlug": "count-different-palindromic-subsequences",
-  "title": "Count Different Palindromic Subsequences",
-  "exampleTestcases": "\"bccb\"\n\"abcdabcdabcdabcdabcdabcdabcdabcddcbadcbadcbadcbadcbadcbadcbadcba\"",
-  "sampleTestCase": "\"bccb\"",
-  "metaData": "{\n  \"name\": \"countPalindromicSubsequences\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3871",
-  "titleSlug": "minimum-deletions-for-at-most-k-distinct-characters",
-  "title": "Minimum Deletions for At Most K Distinct Characters",
-  "exampleTestcases": "\"abc\"\n2\n\"aabb\"\n2\n\"yyyzz\"\n1",
-  "sampleTestCase": "\"abc\"\n2",
-  "metaData": "{\n  \"name\": \"minDeletion\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

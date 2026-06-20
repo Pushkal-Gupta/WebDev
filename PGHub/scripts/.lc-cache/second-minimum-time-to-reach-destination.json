@@ -1,0 +1,8 @@
+{
+  "questionId": "2171",
+  "titleSlug": "second-minimum-time-to-reach-destination",
+  "title": "Second Minimum Time to Reach Destination",
+  "exampleTestcases": "5\n[[1,2],[1,3],[1,4],[3,4],[4,5]]\n3\n5\n2\n[[1,2]]\n3\n2",
+  "sampleTestCase": "5\n[[1,2],[1,3],[1,4],[3,4],[4,5]]\n3\n5",
+  "metaData": "{\n  \"name\": \"secondMinimum\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"time\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"change\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

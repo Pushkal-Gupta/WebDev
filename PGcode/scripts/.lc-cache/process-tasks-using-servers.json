@@ -1,8 +1,0 @@
-{
-  "questionId": "2012",
-  "titleSlug": "process-tasks-using-servers",
-  "title": "Process Tasks Using Servers",
-  "exampleTestcases": "[3,3,2]\n[1,2,3,2,1,2]\n[5,1,4,3,2]\n[2,1,2,4,5,2,1]",
-  "sampleTestCase": "[3,3,2]\n[1,2,3,2,1,2]",
-  "metaData": "{\n  \"name\": \"assignTasks\",\n  \"params\": [\n    {\n      \"name\": \"servers\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"tasks\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

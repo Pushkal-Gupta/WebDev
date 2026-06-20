@@ -1,0 +1,8 @@
+{
+  "questionId": "2231",
+  "titleSlug": "find-first-palindromic-string-in-the-array",
+  "title": "Find First Palindromic String in the Array",
+  "exampleTestcases": "[\"abc\",\"car\",\"ada\",\"racecar\",\"cool\"]\n[\"notapalindrome\",\"racecar\"]\n[\"def\",\"ghi\"]",
+  "sampleTestCase": "[\"abc\",\"car\",\"ada\",\"racecar\",\"cool\"]",
+  "metaData": "{\n  \"name\": \"firstPalindrome\",\n  \"params\": [\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

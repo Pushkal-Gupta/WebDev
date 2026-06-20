@@ -1,8 +1,0 @@
-{
-  "questionId": "2116",
-  "titleSlug": "count-number-of-pairs-with-absolute-difference-k",
-  "title": "Count Number of Pairs With Absolute Difference K",
-  "exampleTestcases": "[1,2,2,1]\n1\n[1,3]\n3\n[3,2,1,5,4]\n2",
-  "sampleTestCase": "[1,2,2,1]\n1",
-  "metaData": "{\n  \"name\": \"countKDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

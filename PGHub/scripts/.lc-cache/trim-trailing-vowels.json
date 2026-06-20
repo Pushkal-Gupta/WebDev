@@ -1,0 +1,8 @@
+{
+  "questionId": "4229",
+  "titleSlug": "trim-trailing-vowels",
+  "title": "Trim Trailing Vowels",
+  "exampleTestcases": "\"idea\"\n\"day\"\n\"aeiou\"",
+  "sampleTestCase": "\"idea\"",
+  "metaData": "{\n  \"name\": \"trimTrailingVowels\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

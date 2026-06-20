@@ -1,0 +1,8 @@
+{
+  "questionId": "1553",
+  "titleSlug": "count-triplets-that-can-form-two-arrays-of-equal-xor",
+  "title": "Count Triplets That Can Form Two Arrays of Equal XOR",
+  "exampleTestcases": "[2,3,1,6,7]\n[1,1,1,1,1]",
+  "sampleTestCase": "[2,3,1,6,7]",
+  "metaData": "{\n  \"name\": \"countTriplets\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

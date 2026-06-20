@@ -1,8 +1,0 @@
-{
-  "questionId": "2470",
-  "titleSlug": "removing-stars-from-a-string",
-  "title": "Removing Stars From a String",
-  "exampleTestcases": "\"leet**cod*e\"\n\"erase*****\"",
-  "sampleTestCase": "\"leet**cod*e\"",
-  "metaData": "{\n  \"name\": \"removeStars\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4079",
-  "titleSlug": "maximum-capacity-within-budget",
-  "title": "Maximum Capacity Within Budget",
-  "exampleTestcases": "[4,8,5,3]\n[1,5,2,7]\n8\n[3,5,7,4]\n[2,4,3,6]\n7\n[2,2,2]\n[3,5,4]\n5",
-  "sampleTestCase": "[4,8,5,3]\n[1,5,2,7]\n8",
-  "metaData": "{\n  \"name\": \"maxCapacity\",\n  \"params\": [\n    {\n      \"name\": \"costs\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"capacity\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"budget\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

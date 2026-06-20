@@ -1,8 +1,0 @@
-{
-  "questionId": "2084",
-  "titleSlug": "maximum-number-of-weeks-for-which-you-can-work",
-  "title": "Maximum Number of Weeks for Which You Can Work",
-  "exampleTestcases": "[1,2,3]\n[5,2,1]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"numberOfWeeks\",\n  \"params\": [\n    {\n      \"name\": \"milestones\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

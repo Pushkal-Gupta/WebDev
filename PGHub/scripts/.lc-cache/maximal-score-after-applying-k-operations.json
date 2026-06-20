@@ -1,0 +1,8 @@
+{
+  "questionId": "2616",
+  "titleSlug": "maximal-score-after-applying-k-operations",
+  "title": "Maximal Score After Applying K Operations",
+  "exampleTestcases": "[10,10,10,10,10]\n5\n[1,10,3,3,3]\n3",
+  "sampleTestCase": "[10,10,10,10,10]\n5",
+  "metaData": "{\n  \"name\": \"maxKelements\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4252",
-  "titleSlug": "first-unique-even-element",
-  "title": "First Unique Even Element",
-  "exampleTestcases": "[3,4,2,5,4,6]\n[4,4]",
-  "sampleTestCase": "[3,4,2,5,4,6]",
-  "metaData": "{\n  \"name\": \"firstUniqueEven\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

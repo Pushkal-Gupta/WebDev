@@ -1,8 +1,0 @@
-{
-  "questionId": "1222",
-  "titleSlug": "remove-covered-intervals",
-  "title": "Remove Covered Intervals",
-  "exampleTestcases": "[[1,4],[3,6],[2,8]]\n[[1,4],[2,3]]",
-  "sampleTestCase": "[[1,4],[3,6],[2,8]]",
-  "metaData": "{\n  \"name\": \"removeCoveredIntervals\",\n  \"params\": [\n    {\n      \"name\": \"intervals\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "463",
+  "titleSlug": "island-perimeter",
+  "title": "Island Perimeter",
+  "exampleTestcases": "[[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]\n[[1]]\n[[1,0]]",
+  "sampleTestCase": "[[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]",
+  "metaData": "{\r\n  \"name\": \"islandPerimeter\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"grid\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n    \r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

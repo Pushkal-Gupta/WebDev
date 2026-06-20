@@ -1,0 +1,8 @@
+{
+  "questionId": "2288",
+  "titleSlug": "count-operations-to-obtain-zero",
+  "title": "Count Operations to Obtain Zero",
+  "exampleTestcases": "2\n3\n10\n10",
+  "sampleTestCase": "2\n3",
+  "metaData": "{\n  \"name\": \"countOperations\",\n  \"params\": [\n    {\n      \"name\": \"num1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"num2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

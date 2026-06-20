@@ -1,8 +1,0 @@
-{
-  "questionId": "3104",
-  "titleSlug": "happy-students",
-  "title": "Happy Students",
-  "exampleTestcases": "[1,1]\n[6,0,3,3,6,7,2,7]",
-  "sampleTestCase": "[1,1]",
-  "metaData": "{\n  \"name\": \"countWays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"list<integer>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

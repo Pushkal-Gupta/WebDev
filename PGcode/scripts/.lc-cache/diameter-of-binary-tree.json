@@ -1,8 +1,0 @@
-{
-  "questionId": "543",
-  "titleSlug": "diameter-of-binary-tree",
-  "title": "Diameter of Binary Tree",
-  "exampleTestcases": "[1,2,3,4,5]\n[1,2]",
-  "sampleTestCase": "[1,2,3,4,5]",
-  "metaData": "{\r\n  \"name\": \"diameterOfBinaryTree\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

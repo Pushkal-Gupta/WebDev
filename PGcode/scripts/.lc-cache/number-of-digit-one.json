@@ -1,8 +1,0 @@
-{
-  "questionId": "233",
-  "titleSlug": "number-of-digit-one",
-  "title": "Number of Digit One",
-  "exampleTestcases": "13\n0",
-  "sampleTestCase": "13",
-  "metaData": "{\r\n  \"name\": \"countDigitOne\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

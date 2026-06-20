@@ -1,8 +1,0 @@
-{
-  "questionId": "3394",
-  "titleSlug": "minimum-array-end",
-  "title": "Minimum Array End",
-  "exampleTestcases": "3\n4\n2\n7",
-  "sampleTestCase": "3\n4",
-  "metaData": "{\n  \"name\": \"minEnd\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"x\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

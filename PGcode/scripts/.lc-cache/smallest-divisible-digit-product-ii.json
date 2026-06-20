@@ -1,8 +1,0 @@
-{
-  "questionId": "3635",
-  "titleSlug": "smallest-divisible-digit-product-ii",
-  "title": "Smallest Divisible Digit Product II",
-  "exampleTestcases": "\"1234\"\n256\n\"12355\"\n50\n\"11111\"\n26",
-  "sampleTestCase": "\"1234\"\n256",
-  "metaData": "{\n  \"name\": \"smallestNumber\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

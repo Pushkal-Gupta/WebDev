@@ -1,8 +1,0 @@
-{
-  "questionId": "4114",
-  "titleSlug": "incremental-even-weighted-cycle-queries",
-  "title": "Incremental Even-Weighted Cycle Queries",
-  "exampleTestcases": "3\n[[0,1,1],[1,2,1],[0,2,1]]\n3\n[[0,1,1],[1,2,1],[0,2,0]]",
-  "sampleTestCase": "3\n[[0,1,1],[1,2,1],[0,2,1]]",
-  "metaData": "{\n  \"name\": \"numberOfEdgesAdded\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

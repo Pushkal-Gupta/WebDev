@@ -1,8 +1,0 @@
-{
-  "questionId": "3438",
-  "titleSlug": "peaks-in-array",
-  "title": "Peaks in Array",
-  "exampleTestcases": "[3,1,4,2,5]\n[[2,3,4],[1,0,4]]\n[4,1,4,2,1,5]\n[[2,2,4],[1,0,2],[1,0,4]]",
-  "sampleTestCase": "[3,1,4,2,5]\n[[2,3,4],[1,0,4]]",
-  "metaData": "{\n  \"name\": \"countOfPeaks\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1386",
-  "titleSlug": "shift-2d-grid",
-  "title": "Shift 2D Grid",
-  "exampleTestcases": "[[1,2,3],[4,5,6],[7,8,9]]\n1\n[[3,8,1,9],[19,7,2,5],[4,6,11,10],[12,0,21,13]]\n4\n[[1,2,3],[4,5,6],[7,8,9]]\n9",
-  "sampleTestCase": "[[1,2,3],[4,5,6],[7,8,9]]\n1",
-  "metaData": "{\n  \"name\": \"shiftGrid\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  }\n}"
-}

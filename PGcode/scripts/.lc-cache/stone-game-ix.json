@@ -1,8 +1,0 @@
-{
-  "questionId": "2156",
-  "titleSlug": "stone-game-ix",
-  "title": "Stone Game IX",
-  "exampleTestcases": "[2,1]\n[2]\n[5,1,2,4,3]",
-  "sampleTestCase": "[2,1]",
-  "metaData": "{\n  \"name\": \"stoneGameIX\",\n  \"params\": [\n    {\n      \"name\": \"stones\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

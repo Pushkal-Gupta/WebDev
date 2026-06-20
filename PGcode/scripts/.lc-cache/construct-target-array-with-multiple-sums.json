@@ -1,8 +1,0 @@
-{
-  "questionId": "1479",
-  "titleSlug": "construct-target-array-with-multiple-sums",
-  "title": "Construct Target Array With Multiple Sums",
-  "exampleTestcases": "[9,3,5]\n[1,1,1,2]\n[8,5]",
-  "sampleTestCase": "[9,3,5]",
-  "metaData": "{\n  \"name\": \"isPossible\",\n  \"params\": [\n    {\n      \"name\": \"target\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

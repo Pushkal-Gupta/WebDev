@@ -1,8 +1,0 @@
-{
-  "questionId": "963",
-  "titleSlug": "three-equal-parts",
-  "title": "Three Equal Parts",
-  "exampleTestcases": "[1,0,1,0,1]\n[1,1,0,1,1]\n[1,1,0,0,1]",
-  "sampleTestCase": "[1,0,1,0,1]",
-  "metaData": "{\n  \"name\": \"threeEqualParts\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3297",
+  "titleSlug": "minimum-time-to-revert-word-to-initial-state-i",
+  "title": "Minimum Time to Revert Word to Initial State I",
+  "exampleTestcases": "\"abacaba\"\n3\n\"abacaba\"\n4\n\"abcbabcd\"\n2",
+  "sampleTestCase": "\"abacaba\"\n3",
+  "metaData": "{\n  \"name\": \"minimumTimeToInitialState\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

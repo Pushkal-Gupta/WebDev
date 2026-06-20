@@ -1,8 +1,0 @@
-{
-  "questionId": "457",
-  "titleSlug": "circular-array-loop",
-  "title": "Circular Array Loop",
-  "exampleTestcases": "[2,-1,1,2,2]\n[-1,-2,-3,-4,-5,6]\n[1,-1,5,1,4]",
-  "sampleTestCase": "[2,-1,1,2,2]",
-  "metaData": "{\r\n  \"name\": \"circularArrayLoop\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1135",
-  "titleSlug": "customers-who-bought-all-products",
-  "title": "Customers Who Bought All Products",
-  "exampleTestcases": "{\"headers\":{\"Customer\":[\"customer_id\",\"product_key\"],\"Product\":[\"product_key\"]},\"rows\":{\"Customer\":[[1,5],[2,6],[3,5],[3,6],[1,6]],\"Product\":[[5],[6]]}}",
-  "sampleTestCase": "{\"headers\":{\"Customer\":[\"customer_id\",\"product_key\"],\"Product\":[\"product_key\"]},\"rows\":{\"Customer\":[[1,5],[2,6],[3,5],[3,6],[1,6]],\"Product\":[[5],[6]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Customer (customer_id int, product_key int)\", \"Create table Product (product_key int)\"], \"mssql\": [\"Create table Customer (customer_id int, product_key int)\", \"Create table Product (product_key int)\"], \"oraclesql\": [\"Create table Customer (customer_id int, product_key int)\", \"Create table Product (product_key int)\"], \"database\": true, \"name\": \"find_customers\", \"pythondata\": [\"Customer = pd.DataFrame([], columns=['customer_id', 'product_key']).astype({'customer_id':'Int64', 'product_key':'Int64'})\", \"Product = pd.DataFrame([], columns=['product_key']).astype({'product_key':'Int64'})\"], \"postgresql\": [\"Create table If Not Exists Customer (customer_id int, product_key int)\\n\", \"Create table Product (product_key int)\"], \"database_schema\": {\"Customer\": {\"customer_id\": \"INT\", \"product_key\": \"INT\"}, \"Product\": {\"product_key\": \"INT\"}}}"
-}

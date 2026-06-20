@@ -1,8 +1,0 @@
-{
-  "questionId": "3881",
-  "titleSlug": "minimize-maximum-component-cost",
-  "title": "Minimize Maximum Component Cost",
-  "exampleTestcases": "5\n[[0,1,4],[1,2,3],[1,3,2],[3,4,6]]\n2\n4\n[[0,1,5],[1,2,5],[2,3,5]]\n1",
-  "sampleTestCase": "5\n[[0,1,4],[1,2,3],[1,3,2],[3,4,6]]\n2",
-  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

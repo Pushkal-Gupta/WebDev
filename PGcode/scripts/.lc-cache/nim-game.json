@@ -1,8 +1,0 @@
-{
-  "questionId": "292",
-  "titleSlug": "nim-game",
-  "title": "Nim Game",
-  "exampleTestcases": "4\n1\n2",
-  "sampleTestCase": "4",
-  "metaData": "{\r\n  \"name\": \"canWinNim\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

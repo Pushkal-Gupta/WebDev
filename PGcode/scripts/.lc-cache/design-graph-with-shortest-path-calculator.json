@@ -1,8 +1,0 @@
-{
-  "questionId": "2678",
-  "titleSlug": "design-graph-with-shortest-path-calculator",
-  "title": "Design Graph With Shortest Path Calculator",
-  "exampleTestcases": "[\"Graph\",\"shortestPath\",\"shortestPath\",\"addEdge\",\"shortestPath\"]\n[[4,[[0,2,5],[0,1,2],[1,2,1],[3,0,3]]],[3,2],[0,3],[[1,3,4]],[0,3]]",
-  "sampleTestCase": "[\"Graph\",\"shortestPath\",\"shortestPath\",\"addEdge\",\"shortestPath\"]\n[[4,[[0,2,5],[0,1,2],[1,2,1],[3,0,3]]],[3,2],[0,3],[[1,3,4]],[0,3]]",
-  "metaData": "{\n  \"classname\": \"Graph\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      },\n      {\n        \"name\": \"edges\",\n        \"type\": \"integer[][]\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer[]\",\n          \"name\": \"edge\"\n        }\n      ],\n      \"name\": \"addEdge\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"node1\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"node2\"\n        }\n      ],\n      \"name\": \"shortestPath\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

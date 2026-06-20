@@ -1,8 +1,0 @@
-{
-  "questionId": "4039",
-  "titleSlug": "compute-decimal-representation",
-  "title": "Compute Decimal Representation",
-  "exampleTestcases": "537\n102\n6",
-  "sampleTestCase": "537",
-  "metaData": "{\n  \"name\": \"decimalRepresentation\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3493",
-  "titleSlug": "maximum-number-of-operations-to-move-ones-to-the-end",
-  "title": "Maximum Number of Operations to Move Ones to the End",
-  "exampleTestcases": "\"1001101\"\n\"00111\"",
-  "sampleTestCase": "\"1001101\"",
-  "metaData": "{\n  \"name\": \"maxOperations\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

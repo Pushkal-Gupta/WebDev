@@ -1,8 +1,0 @@
-{
-  "questionId": "504",
-  "titleSlug": "base-7",
-  "title": "Base 7",
-  "exampleTestcases": "100\n-7",
-  "sampleTestCase": "100",
-  "metaData": "{\r\n  \"name\": \"convertToBase7\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"num\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
-}

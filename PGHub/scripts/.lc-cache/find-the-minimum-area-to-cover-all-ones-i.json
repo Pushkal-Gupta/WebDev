@@ -1,0 +1,8 @@
+{
+  "questionId": "3461",
+  "titleSlug": "find-the-minimum-area-to-cover-all-ones-i",
+  "title": "Find the Minimum Area to Cover All Ones I",
+  "exampleTestcases": "[[0,1,0],[1,0,1]]\n[[0,0],[1,0]]",
+  "sampleTestCase": "[[0,1,0],[1,0,1]]",
+  "metaData": "{\n  \"name\": \"minimumArea\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

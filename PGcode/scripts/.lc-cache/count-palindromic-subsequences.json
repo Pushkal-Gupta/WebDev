@@ -1,8 +1,0 @@
-{
-  "questionId": "2577",
-  "titleSlug": "count-palindromic-subsequences",
-  "title": "Count Palindromic Subsequences",
-  "exampleTestcases": "\"103301\"\n\"0000000\"\n\"9999900000\"",
-  "sampleTestCase": "\"103301\"",
-  "metaData": "{\n  \"name\": \"countPalindromes\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2130",
-  "titleSlug": "maximum-product-of-the-length-of-two-palindromic-subsequences",
-  "title": "Maximum Product of the Length of Two Palindromic Subsequences",
-  "exampleTestcases": "\"leetcodecom\"\n\"bb\"\n\"accbcaxxcxx\"",
-  "sampleTestCase": "\"leetcodecom\"",
-  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
-}

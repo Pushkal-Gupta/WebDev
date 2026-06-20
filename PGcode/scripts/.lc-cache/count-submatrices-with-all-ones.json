@@ -1,8 +1,0 @@
-{
-  "questionId": "1628",
-  "titleSlug": "count-submatrices-with-all-ones",
-  "title": "Count Submatrices With All Ones",
-  "exampleTestcases": "[[1,0,1],[1,1,0],[1,1,0]]\n[[0,1,1,0],[0,1,1,1],[1,1,1,0]]",
-  "sampleTestCase": "[[1,0,1],[1,1,0],[1,1,0]]",
-  "metaData": "{\n  \"name\": \"numSubmat\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

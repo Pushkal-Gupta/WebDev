@@ -1,8 +1,0 @@
-{
-  "questionId": "3866",
-  "titleSlug": "minimum-steps-to-convert-string-with-operations",
-  "title": "Minimum Steps to Convert String with Operations",
-  "exampleTestcases": "\"abcdf\"\n\"dacbe\"\n\"abceded\"\n\"baecfef\"\n\"abcdef\"\n\"fedabc\"",
-  "sampleTestCase": "\"abcdf\"\n\"dacbe\"",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

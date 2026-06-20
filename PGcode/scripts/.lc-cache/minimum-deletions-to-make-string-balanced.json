@@ -1,8 +1,0 @@
-{
-  "questionId": "1756",
-  "titleSlug": "minimum-deletions-to-make-string-balanced",
-  "title": "Minimum Deletions to Make String Balanced",
-  "exampleTestcases": "\"aababbab\"\n\"bbaaaaabb\"",
-  "sampleTestCase": "\"aababbab\"",
-  "metaData": "{\n  \"name\": \"minimumDeletions\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

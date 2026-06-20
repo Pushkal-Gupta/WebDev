@@ -1,0 +1,8 @@
+{
+  "questionId": "4048",
+  "titleSlug": "minimum-time-to-complete-all-deliveries",
+  "title": "Minimum Time to Complete All Deliveries",
+  "exampleTestcases": "[3,1]\n[2,3]\n[1,3]\n[2,2]\n[2,1]\n[3,4]",
+  "sampleTestCase": "[3,1]\n[2,3]",
+  "metaData": "{\n  \"name\": \"minimumTime\",\n  \"params\": [\n    {\n      \"name\": \"d\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

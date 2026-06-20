@@ -1,8 +1,0 @@
-{
-  "questionId": "3962",
-  "titleSlug": "number-of-zigzag-arrays-i",
-  "title": "Number of ZigZag Arrays I",
-  "exampleTestcases": "3\n4\n5\n3\n1\n3",
-  "sampleTestCase": "3\n4\n5",
-  "metaData": "{\n  \"name\": \"zigZagArrays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"l\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"r\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,23 @@
+{
+  "slug": "change-data-type",
+  "leetcode_id": "3069",
+  "title": "Change Data Type",
+  "difficulty": "Easy",
+  "tags": [],
+  "description_html": "<pre>\nDataFrame <code>students</code>\n+-------------+--------+\n| Column Name | Type   |\n+-------------+--------+\n| student_id  | int    |\n| name        | object |\n| age         | int    |\n| grade       | float  |\n+-------------+--------+\n</pre>\n\n<p>Write a solution to correct the errors:</p>\n\n<p>The <code>grade</code> column is stored as floats,&nbsp;convert it to integers.</p>\n\n<p>The result format is in the following example.</p>\n\n<p>&nbsp;</p>\n<pre>\n<strong class=\"example\">Example 1:</strong>\n<strong>Input:\n</strong>DataFrame students:\n+------------+------+-----+-------+\n| student_id | name | age | grade |\n+------------+------+-----+-------+\n| 1          | Ava  | 6   | 73.0  |\n| 2          | Kate | 15  | 87.0  |\n+------------+------+-----+-------+\n<strong>Output:\n</strong>+------------+------+-----+-------+\n| student_id | name | age | grade |\n+------------+------+-----+-------+\n| 1          | Ava  | 6   | 73    |\n| 2          | Kate | 15  | 87    |\n+------------+------+-----+-------+\n<strong>Explanation:</strong> \nThe data types of the column grade is converted to int.</pre>\n",
+  "hints": [
+    "Consider using a build-in function in pandas library with a dictionary to convert the datatype of columns as specified."
+  ],
+  "sample_test_cases": [
+    "{\"headers\":{\"students\":[\"student_id\",\"name\",\"age\",\"grade\"]},\"rows\":{\"students\":[[1,\"Ava\",6,73.0],[2,\"Kate\",15,87.0]]}}"
+  ],
+  "content_signature": "rtlism",
+  "fetched_at": "2026-05-30T07:07:54.814Z",
+  "code_snippets": [
+    {
+      "lang": "Pandas",
+      "langSlug": "pythondata",
+      "code": "import pandas as pd\n\ndef changeDatatype(students: pd.DataFrame) -> pd.DataFrame:\n    "
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "4024",
+  "titleSlug": "minimum-cost-to-split-into-ones",
+  "title": "Minimum Cost to Split into Ones",
+  "exampleTestcases": "3\n4",
+  "sampleTestCase": "3",
+  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

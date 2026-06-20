@@ -1,0 +1,8 @@
+{
+  "questionId": "2526",
+  "titleSlug": "longest-increasing-subsequence-ii",
+  "title": "Longest Increasing Subsequence II",
+  "exampleTestcases": "[4,2,1,4,3,4,5,8,15]\n3\n[7,4,5,1,8,12,4,7]\n5\n[1,5]\n1",
+  "sampleTestCase": "[4,2,1,4,3,4,5,8,15]\n3",
+  "metaData": "{\n  \"name\": \"lengthOfLIS\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

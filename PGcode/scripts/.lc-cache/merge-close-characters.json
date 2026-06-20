@@ -1,8 +1,0 @@
-{
-  "questionId": "4013",
-  "titleSlug": "merge-close-characters",
-  "title": "Merge Close Characters",
-  "exampleTestcases": "\"abca\"\n3\n\"aabca\"\n2\n\"yybyzybz\"\n2",
-  "sampleTestCase": "\"abca\"\n3",
-  "metaData": "{\n  \"name\": \"mergeCharacters\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

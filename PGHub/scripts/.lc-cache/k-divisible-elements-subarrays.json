@@ -1,0 +1,8 @@
+{
+  "questionId": "2339",
+  "titleSlug": "k-divisible-elements-subarrays",
+  "title": "K Divisible Elements Subarrays",
+  "exampleTestcases": "[2,3,3,2,2]\n2\n2\n[1,2,3,4]\n4\n1",
+  "sampleTestCase": "[2,3,3,2,2]\n2\n2",
+  "metaData": "{\n  \"name\": \"countDistinct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"p\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

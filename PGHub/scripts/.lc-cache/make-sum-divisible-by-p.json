@@ -1,0 +1,8 @@
+{
+  "questionId": "1694",
+  "titleSlug": "make-sum-divisible-by-p",
+  "title": "Make Sum Divisible by P",
+  "exampleTestcases": "[3,1,4,2]\n6\n[6,3,5,2]\n9\n[1,2,3]\n3",
+  "sampleTestCase": "[3,1,4,2]\n6",
+  "metaData": "{\n  \"name\": \"minSubarray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"p\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

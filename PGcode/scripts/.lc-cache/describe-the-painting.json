@@ -1,8 +1,0 @@
-{
-  "questionId": "2055",
-  "titleSlug": "describe-the-painting",
-  "title": "Describe the Painting",
-  "exampleTestcases": "[[1,4,5],[4,7,7],[1,7,9]]\n[[1,7,9],[6,8,15],[8,10,7]]\n[[1,4,5],[1,4,7],[4,7,1],[4,7,11]]",
-  "sampleTestCase": "[[1,4,5],[4,7,7],[1,7,9]]",
-  "metaData": "{\n  \"name\": \"splitPainting\",\n  \"params\": [\n    {\n      \"name\": \"segments\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<long>>\"\n  }\n}"
-}

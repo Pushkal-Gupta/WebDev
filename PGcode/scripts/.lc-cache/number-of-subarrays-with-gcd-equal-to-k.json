@@ -1,8 +1,0 @@
-{
-  "questionId": "2546",
-  "titleSlug": "number-of-subarrays-with-gcd-equal-to-k",
-  "title": "Number of Subarrays With GCD Equal to K",
-  "exampleTestcases": "[9,3,1,2,6,3]\n3\n[4]\n7",
-  "sampleTestCase": "[9,3,1,2,6,3]\n3",
-  "metaData": "{\n  \"name\": \"subarrayGCD\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

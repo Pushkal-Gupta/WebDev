@@ -1,0 +1,8 @@
+{
+  "questionId": "1520",
+  "titleSlug": "number-of-steps-to-reduce-a-number-in-binary-representation-to-one",
+  "title": "Number of Steps to Reduce a Number in Binary Representation to One",
+  "exampleTestcases": "\"1101\"\n\"10\"\n\"1\"",
+  "sampleTestCase": "\"1101\"",
+  "metaData": "{\n  \"name\": \"numSteps\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

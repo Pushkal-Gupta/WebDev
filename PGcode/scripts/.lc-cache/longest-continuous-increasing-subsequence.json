@@ -1,8 +1,0 @@
-{
-  "questionId": "674",
-  "titleSlug": "longest-continuous-increasing-subsequence",
-  "title": "Longest Continuous Increasing Subsequence",
-  "exampleTestcases": "[1,3,5,4,7]\n[2,2,2,2,2]",
-  "sampleTestCase": "[1,3,5,4,7]",
-  "metaData": "{\r\n  \"name\": \"findLengthOfLCIS\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

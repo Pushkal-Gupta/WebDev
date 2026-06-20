@@ -1,8 +1,0 @@
-{
-  "questionId": "3431",
-  "titleSlug": "find-the-minimum-cost-array-permutation",
-  "title": "Find the Minimum Cost Array Permutation",
-  "exampleTestcases": "[1,0,2]\n[0,2,1]",
-  "sampleTestCase": "[1,0,2]",
-  "metaData": "{\n  \"name\": \"findPermutation\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

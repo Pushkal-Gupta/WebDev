@@ -1,0 +1,8 @@
+{
+  "questionId": "907",
+  "titleSlug": "koko-eating-bananas",
+  "title": "Koko Eating Bananas",
+  "exampleTestcases": "[3,6,7,11]\n8\n[30,11,23,4,20]\n5\n[30,11,23,4,20]\n6",
+  "sampleTestCase": "[3,6,7,11]\n8",
+  "metaData": "{\n  \"name\": \"minEatingSpeed\",\n  \"params\": [\n    {\n      \"name\": \"piles\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"h\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

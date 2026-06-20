@@ -1,8 +1,0 @@
-{
-  "questionId": "4179",
-  "titleSlug": "largest-even-number",
-  "title": "Largest Even Number",
-  "exampleTestcases": "\"1112\"\n\"221\"\n\"1\"",
-  "sampleTestCase": "\"1112\"",
-  "metaData": "{\n  \"name\": \"largestEven\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

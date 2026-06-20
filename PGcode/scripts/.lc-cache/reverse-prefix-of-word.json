@@ -1,8 +1,0 @@
-{
-  "questionId": "2128",
-  "titleSlug": "reverse-prefix-of-word",
-  "title": "Reverse Prefix of Word",
-  "exampleTestcases": "\"abcdefd\"\n\"d\"\n\"xyxzxe\"\n\"z\"\n\"abcd\"\n\"z\"",
-  "sampleTestCase": "\"abcdefd\"\n\"d\"",
-  "metaData": "{\n  \"name\": \"reversePrefix\",\n  \"params\": [\n    {\n      \"name\": \"word\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"ch\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1348",
-  "titleSlug": "maximum-score-of-spliced-array",
-  "title": "Maximum Score Of Spliced Array",
-  "exampleTestcases": "[60,60,60]\n[10,90,10]\n[20,40,20,70,30]\n[50,20,50,40,20]\n[7,11,13]\n[1,1,1]",
-  "sampleTestCase": "[60,60,60]\n[10,90,10]",
-  "metaData": "{\n  \"name\": \"maximumsSplicedArray\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

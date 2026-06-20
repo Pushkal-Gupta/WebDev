@@ -1,0 +1,8 @@
+{
+  "questionId": "886",
+  "titleSlug": "score-of-parentheses",
+  "title": "Score of Parentheses",
+  "exampleTestcases": "\"()\"\n\"(())\"\n\"()()\"",
+  "sampleTestCase": "\"()\"",
+  "metaData": "{\n  \"name\": \"scoreOfParentheses\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

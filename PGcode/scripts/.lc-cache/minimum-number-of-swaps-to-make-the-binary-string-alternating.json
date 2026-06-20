@@ -1,8 +1,0 @@
-{
-  "questionId": "1994",
-  "titleSlug": "minimum-number-of-swaps-to-make-the-binary-string-alternating",
-  "title": "Minimum Number of Swaps to Make the Binary String Alternating",
-  "exampleTestcases": "\"111000\"\n\"010\"\n\"1110\"",
-  "sampleTestCase": "\"111000\"",
-  "metaData": "{\n  \"name\": \"minSwaps\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

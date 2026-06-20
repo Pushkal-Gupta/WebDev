@@ -1,8 +1,0 @@
-{
-  "questionId": "1093",
-  "titleSlug": "recover-a-tree-from-preorder-traversal",
-  "title": "Recover a Tree From Preorder Traversal",
-  "exampleTestcases": "\"1-2--3--4-5--6--7\"\n\"1-2--3---4-5--6---7\"\n\"1-401--349---90--88\"",
-  "sampleTestCase": "\"1-2--3--4-5--6--7\"",
-  "metaData": "{\n  \"name\": \"recoverFromPreorder\",\n  \"params\": [\n    {\n      \"name\": \"traversal\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  }\n}"
-}

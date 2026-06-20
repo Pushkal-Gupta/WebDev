@@ -1,0 +1,8 @@
+{
+  "questionId": "1454",
+  "titleSlug": "remove-palindromic-subsequences",
+  "title": "Remove Palindromic Subsequences",
+  "exampleTestcases": "\"ababa\"\n\"abb\"\n\"baabb\"",
+  "sampleTestCase": "\"ababa\"",
+  "metaData": "{\n  \"name\": \"removePalindromeSub\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

@@ -1,0 +1,8 @@
+{
+  "questionId": "3802",
+  "titleSlug": "largest-local-values-in-a-matrix-ii",
+  "title": "Largest Local Values in a Matrix II",
+  "exampleTestcases": "[[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,2,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]]\n[[1,2],[3,4]]\n[[1,0,1],[0,1,0],[1,0,1]]",
+  "sampleTestCase": "[[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,2,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0],[0,0,0,0,0,0,0]]",
+  "metaData": "{\n  \"name\": \"countLocalMaximums\",\n  \"params\": [\n    {\n      \"name\": \"matrix\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

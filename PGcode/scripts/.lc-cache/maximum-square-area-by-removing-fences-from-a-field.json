@@ -1,8 +1,0 @@
-{
-  "questionId": "3250",
-  "titleSlug": "maximum-square-area-by-removing-fences-from-a-field",
-  "title": "Maximum Square Area by Removing Fences From a Field",
-  "exampleTestcases": "4\n3\n[2,3]\n[2]\n6\n7\n[2]\n[4]",
-  "sampleTestCase": "4\n3\n[2,3]\n[2]",
-  "metaData": "{\n  \"name\": \"maximizeSquareArea\",\n  \"params\": [\n    {\n      \"name\": \"m\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"hFences\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"vFences\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

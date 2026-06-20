@@ -1,8 +1,0 @@
-{
-  "questionId": "782",
-  "titleSlug": "jewels-and-stones",
-  "title": "Jewels and Stones",
-  "exampleTestcases": "\"aA\"\n\"aAAbbbb\"\n\"z\"\n\"ZZ\"",
-  "sampleTestCase": "\"aA\"\n\"aAAbbbb\"",
-  "metaData": "{\n  \"name\": \"numJewelsInStones\",\n  \"params\": [\n    {\n      \"name\": \"jewels\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"stones\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

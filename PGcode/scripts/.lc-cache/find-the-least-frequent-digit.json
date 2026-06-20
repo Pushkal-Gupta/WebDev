@@ -1,8 +1,0 @@
-{
-  "questionId": "3994",
-  "titleSlug": "find-the-least-frequent-digit",
-  "title": "Find The Least Frequent Digit",
-  "exampleTestcases": "1553322\n723344511",
-  "sampleTestCase": "1553322",
-  "metaData": "{\n  \"name\": \"getLeastFrequentDigit\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

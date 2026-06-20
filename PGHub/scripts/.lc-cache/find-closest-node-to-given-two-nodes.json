@@ -1,0 +1,8 @@
+{
+  "questionId": "2438",
+  "titleSlug": "find-closest-node-to-given-two-nodes",
+  "title": "Find Closest Node to Given Two Nodes",
+  "exampleTestcases": "[2,2,3,-1]\n0\n1\n[1,2,-1]\n0\n2",
+  "sampleTestCase": "[2,2,3,-1]\n0\n1",
+  "metaData": "{\n  \"name\": \"closestMeetingNode\",\n  \"params\": [\n    {\n      \"name\": \"edges\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"node1\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"node2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

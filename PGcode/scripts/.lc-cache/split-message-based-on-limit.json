@@ -1,8 +1,0 @@
-{
-  "questionId": "2563",
-  "titleSlug": "split-message-based-on-limit",
-  "title": "Split Message Based on Limit",
-  "exampleTestcases": "\"this is really a very awesome message\"\n9\n\"short message\"\n15",
-  "sampleTestCase": "\"this is really a very awesome message\"\n9",
-  "metaData": "{\n  \"name\": \"splitMessage\",\n  \"params\": [\n    {\n      \"name\": \"message\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"limit\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
-}

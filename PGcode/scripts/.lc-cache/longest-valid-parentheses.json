@@ -1,8 +1,0 @@
-{
-  "questionId": "32",
-  "titleSlug": "longest-valid-parentheses",
-  "title": "Longest Valid Parentheses",
-  "exampleTestcases": "\"(()\"\n\")()())\"\n\"\"",
-  "sampleTestCase": "\"(()\"",
-  "metaData": "{ \r\n  \"name\": \"longestValidParentheses\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

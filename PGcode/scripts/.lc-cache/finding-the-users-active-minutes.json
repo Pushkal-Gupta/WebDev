@@ -1,8 +1,0 @@
-{
-  "questionId": "1945",
-  "titleSlug": "finding-the-users-active-minutes",
-  "title": "Finding the Users Active Minutes",
-  "exampleTestcases": "[[0,5],[1,2],[0,2],[0,5],[1,3]]\n5\n[[1,1],[2,2],[2,3]]\n4",
-  "sampleTestCase": "[[0,5],[1,2],[0,2],[0,5],[1,3]]\n5",
-  "metaData": "{\n  \"name\": \"findingUsersActiveMinutes\",\n  \"params\": [\n    {\n      \"name\": \"logs\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

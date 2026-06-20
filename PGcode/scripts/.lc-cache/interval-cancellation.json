@@ -1,8 +1,0 @@
-{
-  "questionId": "2862",
-  "titleSlug": "interval-cancellation",
-  "title": "Interval Cancellation",
-  "exampleTestcases": "(x) => x * 2\n[4]\n35\n190\n(x1, x2) => (x1 * x2)\n[2,5]\n30\n165\n(x1, x2, x3) => (x1 + x2 + x3)\n[5,1,3]\n50\n180",
-  "sampleTestCase": "(x) => x * 2\n[4]\n35\n190",
-  "metaData": "{\n  \"name\": \"cancellable\",\n  \"params\": [\n    {\n      \"name\": \"fn\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"args\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"t\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"cancelTimeMs\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

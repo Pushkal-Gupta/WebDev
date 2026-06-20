@@ -1,0 +1,8 @@
+{
+  "questionId": "3164",
+  "titleSlug": "last-visited-integers",
+  "title": "Last Visited Integers",
+  "exampleTestcases": "[1,2,-1,-1,-1]\n[1,-1,2,-1,-1]",
+  "sampleTestCase": "[1,2,-1,-1,-1]",
+  "metaData": "{\n  \"name\": \"lastVisitedIntegers\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4157",
-  "titleSlug": "reverse-words-with-same-vowel-count",
-  "title": "Reverse Words With Same Vowel Count",
-  "exampleTestcases": "\"cat and mice\"\n\"book is nice\"\n\"banana healthy\"",
-  "sampleTestCase": "\"cat and mice\"",
-  "metaData": "{\n  \"name\": \"reverseWords\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

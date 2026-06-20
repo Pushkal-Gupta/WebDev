@@ -1,0 +1,8 @@
+{
+  "questionId": "4189",
+  "titleSlug": "find-nth-smallest-integer-with-k-one-bits",
+  "title": "Find Nth Smallest Integer With K One Bits",
+  "exampleTestcases": "4\n2\n3\n1",
+  "sampleTestCase": "4\n2",
+  "metaData": "{\n  \"name\": \"nthSmallest\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"long\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

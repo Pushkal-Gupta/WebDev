@@ -1,8 +1,0 @@
-{
-  "questionId": "1322",
-  "titleSlug": "minimum-moves-to-reach-target-with-rotations",
-  "title": "Minimum Moves to Reach Target with Rotations",
-  "exampleTestcases": "[[0,0,0,0,0,1],[1,1,0,0,1,0],[0,0,0,0,1,1],[0,0,1,0,1,0],[0,1,1,0,0,0],[0,1,1,0,0,0]]\r\n[[0,0,1,1,1,1],[0,0,0,0,1,1],[1,1,0,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,1],[1,1,1,0,0,0]]\r",
-  "sampleTestCase": "[[0,0,0,0,0,1],[1,1,0,0,1,0],[0,0,0,0,1,1],[0,0,1,0,1,0],[0,1,1,0,0,0],[0,1,1,0,0,0]]\r",
-  "metaData": "{\n  \"name\": \"minimumMoves\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

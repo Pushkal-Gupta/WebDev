@@ -1,8 +1,0 @@
-{
-  "questionId": "1184",
-  "titleSlug": "car-pooling",
-  "title": "Car Pooling",
-  "exampleTestcases": "[[2,1,5],[3,3,7]]\n4\n[[2,1,5],[3,3,7]]\n5",
-  "sampleTestCase": "[[2,1,5],[3,3,7]]\n4",
-  "metaData": "{\r\n  \"name\": \"carPooling\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"trips\",\r\n      \"type\": \"integer[][]\"\r\n    },\r\n    {\r\n      \"name\": \"capacity\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

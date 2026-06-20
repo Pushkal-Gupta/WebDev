@@ -1,8 +1,0 @@
-{
-  "questionId": "749",
-  "titleSlug": "shortest-completing-word",
-  "title": "Shortest Completing Word",
-  "exampleTestcases": "\"1s3 PSt\"\n[\"step\",\"steps\",\"stripe\",\"stepple\"]\n\"1s3 456\"\n[\"looks\",\"pest\",\"stew\",\"show\"]",
-  "sampleTestCase": "\"1s3 PSt\"\n[\"step\",\"steps\",\"stripe\",\"stepple\"]",
-  "metaData": "{\r\n  \"name\": \"shortestCompletingWord\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"licensePlate\",\r\n      \"type\": \"string\"\r\n    },\r\n    {\r\n      \"name\": \"words\",\r\n      \"type\": \"string[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"string\"\r\n  }\r\n}\r\n"
-}

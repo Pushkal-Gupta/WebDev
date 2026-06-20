@@ -1,8 +1,0 @@
-{
-  "questionId": "1966",
-  "titleSlug": "frequency-of-the-most-frequent-element",
-  "title": "Frequency of the Most Frequent Element",
-  "exampleTestcases": "[1,2,4]\n5\n[1,4,8,13]\n5\n[3,9,6]\n2",
-  "sampleTestCase": "[1,2,4]\n5",
-  "metaData": "{\n  \"name\": \"maxFrequency\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "824",
-  "titleSlug": "number-of-lines-to-write-string",
-  "title": "Number of Lines To Write String",
-  "exampleTestcases": "[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]\n\"abcdefghijklmnopqrstuvwxyz\"\n[4,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]\n\"bbbcccdddaaa\"",
-  "sampleTestCase": "[10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10,10]\n\"abcdefghijklmnopqrstuvwxyz\"",
-  "metaData": "{\n  \"name\": \"numberOfLines\",\n  \"params\": [\n    {\n      \"name\": \"widths\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

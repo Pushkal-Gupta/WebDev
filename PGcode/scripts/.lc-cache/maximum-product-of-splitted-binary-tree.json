@@ -1,8 +1,0 @@
-{
-  "questionId": "1465",
-  "titleSlug": "maximum-product-of-splitted-binary-tree",
-  "title": "Maximum Product of Splitted Binary Tree",
-  "exampleTestcases": "[1,2,3,4,5,6]\n[1,null,2,3,4,null,null,5,6]",
-  "sampleTestCase": "[1,2,3,4,5,6]",
-  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"root\",\n      \"type\": \"TreeNode\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

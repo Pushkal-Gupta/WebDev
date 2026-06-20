@@ -1,8 +1,0 @@
-{
-  "questionId": "2379",
-  "titleSlug": "maximum-total-importance-of-roads",
-  "title": "Maximum Total Importance of Roads",
-  "exampleTestcases": "5\n[[0,1],[1,2],[2,3],[0,2],[1,3],[2,4]]\n5\n[[0,3],[2,4],[1,3]]",
-  "sampleTestCase": "5\n[[0,1],[1,2],[2,3],[0,2],[1,3],[2,4]]",
-  "metaData": "{\n  \"name\": \"maximumImportance\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"roads\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

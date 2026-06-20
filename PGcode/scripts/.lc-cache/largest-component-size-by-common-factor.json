@@ -1,8 +1,0 @@
-{
-  "questionId": "989",
-  "titleSlug": "largest-component-size-by-common-factor",
-  "title": "Largest Component Size by Common Factor",
-  "exampleTestcases": "[4,6,15,35]\n[20,50,9,63]\n[2,3,6,7,4,12,21,39]",
-  "sampleTestCase": "[4,6,15,35]",
-  "metaData": "{\n  \"name\": \"largestComponentSize\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

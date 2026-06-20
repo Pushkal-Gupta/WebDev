@@ -1,8 +1,0 @@
-{
-  "questionId": "279",
-  "titleSlug": "perfect-squares",
-  "title": "Perfect Squares",
-  "exampleTestcases": "12\n13",
-  "sampleTestCase": "12",
-  "metaData": "{\n  \"name\": \"numSquares\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

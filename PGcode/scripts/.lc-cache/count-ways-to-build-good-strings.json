@@ -1,8 +1,0 @@
-{
-  "questionId": "2562",
-  "titleSlug": "count-ways-to-build-good-strings",
-  "title": "Count Ways To Build Good Strings",
-  "exampleTestcases": "3\n3\n1\n1\n2\n3\n1\n2",
-  "sampleTestCase": "3\n3\n1\n1",
-  "metaData": "{\n  \"name\": \"countGoodStrings\",\n  \"params\": [\n    {\n      \"name\": \"low\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"high\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"zero\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"one\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

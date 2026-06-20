@@ -1,0 +1,116 @@
+{
+  "slug": "angles-of-a-triangle",
+  "leetcode_id": "4266",
+  "title": "Angles of a Triangle",
+  "difficulty": "Medium",
+  "tags": [],
+  "description_html": "<p>You are given a positive integer array <code>sides</code> of length 3.</p>\n\n<p>Determine if there exists a triangle with <strong>positive</strong> area whose three side lengths are given by the elements of <code>sides</code>.</p>\n\n<p>If such a triangle exists, return an array of three floating-point numbers representing its internal angles (in <strong>degrees</strong>), <strong>sorted</strong> in <strong>non-decreasing</strong> order. Otherwise, return an empty array.</p>\n\n<p>Answers within <code>10<sup>-5</sup></code> of the actual answer will be accepted.</p>\n\n<p>&nbsp;</p>\n<p><strong class=\"example\">Example 1:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">sides = [3,4,5]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[36.86990,53.13010,90.00000]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>You can form a right-angled triangle with side lengths 3, 4, and 5. The internal angles of this triangle are approximately 36.869897646, 53.130102354, and 90 degrees respectively.</p>\n</div>\n\n<p><strong class=\"example\">Example 2:</strong></p>\n\n<div class=\"example-block\">\n<p><strong>Input:</strong> <span class=\"example-io\">sides = [2,4,2]</span></p>\n\n<p><strong>Output:</strong> <span class=\"example-io\">[]</span></p>\n\n<p><strong>Explanation:</strong></p>\n\n<p>You cannot form a triangle with positive area using side lengths 2, 4, and 2.</p>\n</div>\n\n<p>&nbsp;</p>\n<p><strong>Constraints:</strong></p>\n\n<ul>\n\t<li><code>sides.length == 3</code></li>\n\t<li><code>1 &lt;= sides[i] &lt;= 1000</code></li>\n</ul>\n",
+  "hints": [
+    "Sort the sides first, then check the triangle inequality: after sorting, it is enough to verify <code>a + b > c</code>.",
+    "If valid, use the law of cosines to compute each angle in radians, then convert to degrees.",
+    "Sort the three angles before returning; if the triangle is invalid, return an empty array."
+  ],
+  "sample_test_cases": [
+    "[3,4,5]",
+    "[2,4,2]"
+  ],
+  "content_signature": "-y5heiv",
+  "fetched_at": "2026-05-30T06:40:23.087Z",
+  "code_snippets": [
+    {
+      "lang": "C++",
+      "langSlug": "cpp",
+      "code": "class Solution {\npublic:\n    vector<double> internalAngles(vector<int>& sides) {\n        \n    }\n};"
+    },
+    {
+      "lang": "Java",
+      "langSlug": "java",
+      "code": "class Solution {\n    public double[] internalAngles(int[] sides) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Python3",
+      "langSlug": "python3",
+      "code": "class Solution:\n    def internalAngles(self, sides: list[int]) -> list[float]:\n        "
+    },
+    {
+      "lang": "Python",
+      "langSlug": "python",
+      "code": "class Solution(object):\n    def internalAngles(self, sides):\n        \"\"\"\n        :type sides: List[int]\n        :rtype: List[float]\n        \"\"\"\n        "
+    },
+    {
+      "lang": "JavaScript",
+      "langSlug": "javascript",
+      "code": "/**\n * @param {number[]} sides\n * @return {number[]}\n */\nvar internalAngles = function(sides) {\n    \n};"
+    },
+    {
+      "lang": "TypeScript",
+      "langSlug": "typescript",
+      "code": "function internalAngles(sides: number[]): number[] {\n    \n};"
+    },
+    {
+      "lang": "C#",
+      "langSlug": "csharp",
+      "code": "public class Solution {\n    public double[] InternalAngles(int[] sides) {\n        \n    }\n}"
+    },
+    {
+      "lang": "C",
+      "langSlug": "c",
+      "code": "/**\n * Note: The returned array must be malloced, assume caller calls free().\n */\ndouble* internalAngles(int* sides, int sidesSize, int* returnSize) {\n    \n}"
+    },
+    {
+      "lang": "Go",
+      "langSlug": "golang",
+      "code": "func internalAngles(sides []int) []float64 {\n    \n}"
+    },
+    {
+      "lang": "Kotlin",
+      "langSlug": "kotlin",
+      "code": "class Solution {\n    fun internalAngles(sides: IntArray): DoubleArray {\n        \n    }\n}"
+    },
+    {
+      "lang": "Swift",
+      "langSlug": "swift",
+      "code": "class Solution {\n    func internalAngles(_ sides: [Int]) -> [Double] {\n        \n    }\n}"
+    },
+    {
+      "lang": "Rust",
+      "langSlug": "rust",
+      "code": "impl Solution {\n    pub fn internal_angles(sides: Vec<i32>) -> Vec<f64> {\n        \n    }\n}"
+    },
+    {
+      "lang": "Ruby",
+      "langSlug": "ruby",
+      "code": "# @param {Integer[]} sides\n# @return {Float[]}\ndef internal_angles(sides)\n    \nend"
+    },
+    {
+      "lang": "PHP",
+      "langSlug": "php",
+      "code": "class Solution {\n\n    /**\n     * @param Integer[] $sides\n     * @return Float[]\n     */\n    function internalAngles($sides) {\n        \n    }\n}"
+    },
+    {
+      "lang": "Dart",
+      "langSlug": "dart",
+      "code": "class Solution {\n  List<double> internalAngles(List<int> sides) {\n    \n  }\n}"
+    },
+    {
+      "lang": "Scala",
+      "langSlug": "scala",
+      "code": "object Solution {\n    def internalAngles(sides: Array[Int]): Array[Double] = {\n        \n    }\n}"
+    },
+    {
+      "lang": "Elixir",
+      "langSlug": "elixir",
+      "code": "defmodule Solution do\n  @spec internal_angles(sides :: [integer]) :: [float]\n  def internal_angles(sides) do\n    \n  end\nend"
+    },
+    {
+      "lang": "Erlang",
+      "langSlug": "erlang",
+      "code": "-spec internal_angles(Sides :: [integer()]) -> [float()].\ninternal_angles(Sides) ->\n  ."
+    },
+    {
+      "lang": "Racket",
+      "langSlug": "racket",
+      "code": "(define/contract (internal-angles sides)\n  (-> (listof exact-integer?) (listof flonum?))\n  )"
+    }
+  ]
+}

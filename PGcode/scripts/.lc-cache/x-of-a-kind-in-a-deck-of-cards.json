@@ -1,8 +1,0 @@
-{
-  "questionId": "950",
-  "titleSlug": "x-of-a-kind-in-a-deck-of-cards",
-  "title": "X of a Kind in a Deck of Cards",
-  "exampleTestcases": "[1,2,3,4,4,3,2,1]\n[1,1,1,2,2,2,3,3]",
-  "sampleTestCase": "[1,2,3,4,4,3,2,1]",
-  "metaData": "{\n  \"name\": \"hasGroupsSizeX\",\n  \"params\": [\n    {\n      \"name\": \"deck\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}\n"
-}

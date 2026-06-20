@@ -1,8 +1,0 @@
-{
-  "questionId": "2794",
-  "titleSlug": "maximum-number-of-moves-in-a-grid",
-  "title": "Maximum Number of Moves in a Grid",
-  "exampleTestcases": "[[2,4,3,5],[5,4,9,3],[3,4,2,11],[10,9,13,15]]\n[[3,2,4],[2,1,9],[1,1,7]]",
-  "sampleTestCase": "[[2,4,3,5],[5,4,9,3],[3,4,2,11],[10,9,13,15]]",
-  "metaData": "{\n  \"name\": \"maxMoves\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

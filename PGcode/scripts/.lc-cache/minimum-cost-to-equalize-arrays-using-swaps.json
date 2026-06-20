@@ -1,8 +1,0 @@
-{
-  "questionId": "4253",
-  "titleSlug": "minimum-cost-to-equalize-arrays-using-swaps",
-  "title": "Minimum Cost to Equalize Arrays Using Swaps",
-  "exampleTestcases": "[10,20]\n[20,10]\n[10,10]\n[20,20]\n[10,20]\n[30,40]",
-  "sampleTestCase": "[10,20]\n[20,10]",
-  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "414",
+  "titleSlug": "third-maximum-number",
+  "title": "Third Maximum Number",
+  "exampleTestcases": "[3,2,1]\n[1,2]\n[2,2,3,1]",
+  "sampleTestCase": "[3,2,1]",
+  "metaData": "{\r\n  \"name\": \"thirdMax\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

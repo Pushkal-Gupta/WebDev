@@ -1,8 +1,0 @@
-{
-  "questionId": "4021",
-  "titleSlug": "distinct-points-reachable-after-substring-removal",
-  "title": "Distinct Points Reachable After Substring Removal",
-  "exampleTestcases": "\"LUL\"\n1\n\"UDLR\"\n4\n\"UU\"\n1",
-  "sampleTestCase": "\"LUL\"\n1",
-  "metaData": "{\n  \"name\": \"distinctPoints\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

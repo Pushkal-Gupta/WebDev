@@ -1,0 +1,336 @@
+.cmv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.cmv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.cmv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.cmv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.cmv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cmv-modes {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.cmv-algos {
+  margin-left: 0;
+}
+
+.cmv-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.7rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.cmv-mode:hover {
+  color: var(--text-main);
+}
+.cmv-mode.is-on {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.cmv-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.cmv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cmv-range {
+  width: 90px;
+  accent-color: var(--accent);
+}
+
+.cmv-slider-val {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 2.4em;
+  text-align: right;
+}
+
+.cmv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cmv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.cmv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cmv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.cmv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.cmv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.cmv-spacer {
+  flex: 1 1 auto;
+}
+
+.cmv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.cmv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.cmv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cmv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.cmv-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.cmv-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+}
+.cmv-cell.is-emitted {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke: var(--border);
+}
+.cmv-cell.is-src {
+  fill: rgba(var(--accent-rgb), 0.1);
+  stroke: var(--hue-sky);
+  stroke-width: 2;
+}
+.cmv-cell.is-match {
+  fill: rgba(var(--accent-rgb), 0.28);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.cmv-cell-text {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.cmv-cell-idx {
+  font-family: var(--mono);
+  font-size: 9px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.cmv-arrow {
+  fill: none;
+  stroke: var(--hue-sky);
+  stroke-width: 2;
+}
+
+.cmv-arrow-head {
+  fill: var(--hue-sky);
+  stroke: none;
+}
+
+.cmv-arrow-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--hue-sky);
+}
+
+.cmv-bar-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+}
+
+.cmv-bar {
+  transition: width 0.25s ease, opacity 0.2s ease;
+}
+.cmv-bar-orig {
+  fill: var(--text-dim);
+  opacity: 0.55;
+}
+.cmv-bar-gzip {
+  fill: var(--hue-pink);
+  opacity: 0.55;
+}
+.cmv-bar-brotli {
+  fill: var(--hue-mint);
+  opacity: 0.55;
+}
+.cmv-bar.is-on {
+  opacity: 1;
+}
+
+.cmv-bar-val {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.cmv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.6rem;
+}
+
+.cmv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.cmv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cmv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.cmv-metric-value.is-good { color: var(--easy); }
+.cmv-metric-value.is-ref { color: var(--hue-sky); }
+.cmv-metric-value.is-lit { color: var(--text-main); }
+
+.cmv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.cmv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.cmv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cmv-btn,
+  .cmv-mode,
+  .cmv-cell,
+  .cmv-bar {
+    transition: none;
+  }
+}

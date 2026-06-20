@@ -1,8 +1,0 @@
-{
-  "questionId": "2323",
-  "titleSlug": "minimum-bit-flips-to-convert-number",
-  "title": "Minimum Bit Flips to Convert Number",
-  "exampleTestcases": "10\n7\n3\n4",
-  "sampleTestCase": "10\n7",
-  "metaData": "{\n  \"name\": \"minBitFlips\",\n  \"params\": [\n    {\n      \"name\": \"start\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"goal\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

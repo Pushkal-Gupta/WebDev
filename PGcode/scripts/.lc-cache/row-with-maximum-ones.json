@@ -1,8 +1,0 @@
-{
-  "questionId": "2737",
-  "titleSlug": "row-with-maximum-ones",
-  "title": "Row With Maximum Ones",
-  "exampleTestcases": "[[0,1],[1,0]]\n[[0,0,0],[0,1,1]]\n[[0,0],[1,1],[0,0]]",
-  "sampleTestCase": "[[0,1],[1,0]]",
-  "metaData": "{\n  \"name\": \"rowAndMaximumOnes\",\n  \"params\": [\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"mat\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2060",
-  "titleSlug": "merge-bsts-to-create-single-bst",
-  "title": "Merge BSTs to Create Single BST",
-  "exampleTestcases": "[[2,1],[3,2,5],[5,4]]\n[[5,3,8],[3,2,6]]\n[[5,4],[3]]",
-  "sampleTestCase": "[[2,1],[3,2,5],[5,4]]",
-  "metaData": "{\n  \"name\": \"canMerge\",\n  \"params\": [\n    {\n      \"name\": \"trees\",\n      \"type\": \"list<TreeNode>\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"TreeNode\"\n  },\n  \"manual\": true\n}"
-}

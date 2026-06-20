@@ -1,8 +1,0 @@
-{
-  "questionId": "2850",
-  "titleSlug": "construct-the-longest-new-string",
-  "title": "Construct the Longest New String",
-  "exampleTestcases": "2\n5\n1\n3\n2\n2",
-  "sampleTestCase": "2\n5\n1",
-  "metaData": "{\n  \"name\": \"longestString\",\n  \"params\": [\n    {\n      \"name\": \"x\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"y\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"z\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

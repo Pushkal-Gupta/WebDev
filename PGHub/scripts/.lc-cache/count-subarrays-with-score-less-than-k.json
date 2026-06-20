@@ -1,0 +1,8 @@
+{
+  "questionId": "2394",
+  "titleSlug": "count-subarrays-with-score-less-than-k",
+  "title": "Count Subarrays With Score Less Than K",
+  "exampleTestcases": "[2,1,4,3,5]\n10\n[1,1,1]\n5",
+  "sampleTestCase": "[2,1,4,3,5]\n10",
+  "metaData": "{\n  \"name\": \"countSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "526",
-  "titleSlug": "beautiful-arrangement",
-  "title": "Beautiful Arrangement",
-  "exampleTestcases": "2\n1",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"countArrangement\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

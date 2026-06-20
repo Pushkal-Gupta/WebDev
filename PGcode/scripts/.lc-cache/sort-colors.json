@@ -1,8 +1,0 @@
-{
-  "questionId": "75",
-  "titleSlug": "sort-colors",
-  "title": "Sort Colors",
-  "exampleTestcases": "[2,0,2,1,1,0]\n[2,0,1]",
-  "sampleTestCase": "[2,0,2,1,1,0]",
-  "metaData": "{\n  \"name\": \"sortColors\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"void\"\n  },\n  \"output\": {\n    \"paramindex\": 0\n  },\n  \"manual\": false\n}"
-}

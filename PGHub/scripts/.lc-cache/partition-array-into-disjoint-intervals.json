@@ -1,0 +1,8 @@
+{
+  "questionId": "951",
+  "titleSlug": "partition-array-into-disjoint-intervals",
+  "title": "Partition Array into Disjoint Intervals",
+  "exampleTestcases": "[5,0,3,8,6]\n[1,1,1,0,6,12]",
+  "sampleTestCase": "[5,0,3,8,6]",
+  "metaData": "{\n  \"name\": \"partitionDisjoint\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

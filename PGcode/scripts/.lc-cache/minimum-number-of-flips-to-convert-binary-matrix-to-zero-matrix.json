@@ -1,8 +1,0 @@
-{
-  "questionId": "1409",
-  "titleSlug": "minimum-number-of-flips-to-convert-binary-matrix-to-zero-matrix",
-  "title": "Minimum Number of Flips to Convert Binary Matrix to Zero Matrix",
-  "exampleTestcases": "[[0,0],[0,1]]\n[[0]]\n[[1,0,0],[1,0,0]]",
-  "sampleTestCase": "[[0,0],[0,1]]",
-  "metaData": "{\n  \"name\": \"minFlips\",\n  \"params\": [\n    {\n      \"name\": \"mat\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

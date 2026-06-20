@@ -1,8 +1,0 @@
-{
-  "questionId": "29",
-  "titleSlug": "divide-two-integers",
-  "title": "Divide Two Integers",
-  "exampleTestcases": "10\n3\n7\n-3",
-  "sampleTestCase": "10\n3",
-  "metaData": "{\r\n  \"name\": \"divide\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"dividend\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"divisor\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

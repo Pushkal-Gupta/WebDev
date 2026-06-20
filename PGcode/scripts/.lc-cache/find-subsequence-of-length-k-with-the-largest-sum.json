@@ -1,8 +1,0 @@
-{
-  "questionId": "2204",
-  "titleSlug": "find-subsequence-of-length-k-with-the-largest-sum",
-  "title": "Find Subsequence of Length K With the Largest Sum",
-  "exampleTestcases": "[2,1,3,3]\n2\n[-1,-2,3,4]\n3\n[3,4,3,3]\n2",
-  "sampleTestCase": "[2,1,3,3]\n2",
-  "metaData": "{\n  \"name\": \"maxSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

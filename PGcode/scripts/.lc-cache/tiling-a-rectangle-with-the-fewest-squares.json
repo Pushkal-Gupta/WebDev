@@ -1,8 +1,0 @@
-{
-  "questionId": "1361",
-  "titleSlug": "tiling-a-rectangle-with-the-fewest-squares",
-  "title": "Tiling a Rectangle with the Fewest Squares",
-  "exampleTestcases": "2\n3\n5\n8\n11\n13",
-  "sampleTestCase": "2\n3",
-  "metaData": "{\n  \"name\": \"tilingRectangle\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

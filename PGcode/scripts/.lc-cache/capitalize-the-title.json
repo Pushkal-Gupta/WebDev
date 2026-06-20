@@ -1,8 +1,0 @@
-{
-  "questionId": "2235",
-  "titleSlug": "capitalize-the-title",
-  "title": "Capitalize the Title",
-  "exampleTestcases": "\"capiTalIze tHe titLe\"\n\"First leTTeR of EACH Word\"\n\"i lOve leetcode\"",
-  "sampleTestCase": "\"capiTalIze tHe titLe\"",
-  "metaData": "{\n  \"name\": \"capitalizeTitle\",\n  \"params\": [\n    {\n      \"name\": \"title\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

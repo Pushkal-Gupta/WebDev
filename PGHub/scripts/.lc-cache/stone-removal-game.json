@@ -1,0 +1,8 @@
+{
+  "questionId": "3625",
+  "titleSlug": "stone-removal-game",
+  "title": "Stone Removal Game",
+  "exampleTestcases": "12\n1",
+  "sampleTestCase": "12",
+  "metaData": "{\n  \"name\": \"canAliceWin\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

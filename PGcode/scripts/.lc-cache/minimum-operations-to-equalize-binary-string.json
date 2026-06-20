@@ -1,8 +1,0 @@
-{
-  "questionId": "3983",
-  "titleSlug": "minimum-operations-to-equalize-binary-string",
-  "title": "Minimum Operations to Equalize Binary String",
-  "exampleTestcases": "\"110\"\n1\n\"0101\"\n3\n\"101\"\n2",
-  "sampleTestCase": "\"110\"\n1",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

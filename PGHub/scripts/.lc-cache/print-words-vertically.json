@@ -1,0 +1,8 @@
+{
+  "questionId": "1449",
+  "titleSlug": "print-words-vertically",
+  "title": "Print Words Vertically",
+  "exampleTestcases": "\"HOW ARE YOU\"\n\"TO BE OR NOT TO BE\"\n\"CONTEST IS COMING\"",
+  "sampleTestCase": "\"HOW ARE YOU\"",
+  "metaData": "{\n  \"name\": \"printVertically\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<string>\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "189",
-  "titleSlug": "rotate-array",
-  "title": "Rotate Array",
-  "exampleTestcases": "[1,2,3,4,5,6,7]\n3\n[-1,-100,3,99]\n2",
-  "sampleTestCase": "[1,2,3,4,5,6,7]\n3",
-  "metaData": "{\r\n  \"name\": \"rotate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"k\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"void\"\r\n  },\r\n  \"output\": {\r\n    \"paramindex\": 0\r\n  }\r\n}"
-}

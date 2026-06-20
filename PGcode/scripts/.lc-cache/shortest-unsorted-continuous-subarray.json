@@ -1,8 +1,0 @@
-{
-  "questionId": "581",
-  "titleSlug": "shortest-unsorted-continuous-subarray",
-  "title": "Shortest Unsorted Continuous Subarray",
-  "exampleTestcases": "[2,6,4,8,10,9,15]\n[1,2,3,4]\n[1]",
-  "sampleTestCase": "[2,6,4,8,10,9,15]",
-  "metaData": "{\r\n  \"name\": \"findUnsortedSubarray\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

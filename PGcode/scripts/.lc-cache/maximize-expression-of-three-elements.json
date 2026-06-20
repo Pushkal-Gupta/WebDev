@@ -1,8 +1,0 @@
-{
-  "questionId": "4112",
-  "titleSlug": "maximize-expression-of-three-elements",
-  "title": "Maximize Expression of Three Elements",
-  "exampleTestcases": "[1,4,2,5]\n[-2,0,5,-2,4]",
-  "sampleTestCase": "[1,4,2,5]",
-  "metaData": "{\n  \"name\": \"maximizeExpressionOfThree\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

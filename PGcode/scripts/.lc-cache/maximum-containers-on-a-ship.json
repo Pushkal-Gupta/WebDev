@@ -1,8 +1,0 @@
-{
-  "questionId": "3817",
-  "titleSlug": "maximum-containers-on-a-ship",
-  "title": "Maximum Containers on a Ship",
-  "exampleTestcases": "2\n3\n15\n3\n5\n20",
-  "sampleTestCase": "2\n3\n15",
-  "metaData": "{\n  \"name\": \"maxContainers\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"w\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"maxWeight\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1781",
-  "titleSlug": "check-if-two-string-arrays-are-equivalent",
-  "title": "Check If Two String Arrays are Equivalent",
-  "exampleTestcases": "[\"ab\", \"c\"]\n[\"a\", \"bc\"]\n[\"a\", \"cb\"]\n[\"ab\", \"c\"]\n[\"abc\", \"d\", \"defg\"]\n[\"abcddefg\"]",
-  "sampleTestCase": "[\"ab\", \"c\"]\n[\"a\", \"bc\"]",
-  "metaData": "{\n  \"name\": \"arrayStringsAreEqual\",\n  \"params\": [\n    {\n      \"name\": \"word1\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"word2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

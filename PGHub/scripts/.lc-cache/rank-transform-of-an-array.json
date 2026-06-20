@@ -1,0 +1,8 @@
+{
+  "questionId": "1256",
+  "titleSlug": "rank-transform-of-an-array",
+  "title": "Rank Transform of an Array",
+  "exampleTestcases": "[40,10,20,30]\n[100,100,100]\n[37,12,28,9,100,56,80,5,12]",
+  "sampleTestCase": "[40,10,20,30]",
+  "metaData": "{\n  \"name\": \"arrayRankTransform\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

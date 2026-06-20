@@ -1,8 +1,0 @@
-{
-  "questionId": "447",
-  "titleSlug": "number-of-boomerangs",
-  "title": "Number of Boomerangs",
-  "exampleTestcases": "[[0,0],[1,0],[2,0]]\n[[1,1],[2,2],[3,3]]\n[[1,1]]",
-  "sampleTestCase": "[[0,0],[1,0],[2,0]]",
-  "metaData": "{\r\n  \"name\": \"numberOfBoomerangs\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"points\",\r\n      \"type\": \"integer[][]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

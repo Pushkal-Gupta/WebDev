@@ -1,8 +1,0 @@
-{
-  "questionId": "4151",
-  "titleSlug": "maximum-subgraph-score-in-a-tree",
-  "title": "Maximum Subgraph Score in a Tree",
-  "exampleTestcases": "3\n[[0,1],[1,2]]\n[1,0,1]\n5\n[[1,0],[1,2],[1,3],[3,4]]\n[0,1,0,1,1]\n2\n[[0,1]]\n[0,0]",
-  "sampleTestCase": "3\n[[0,1],[1,2]]\n[1,0,1]",
-  "metaData": "{\n  \"name\": \"maxSubgraphScore\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"edges\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"good\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

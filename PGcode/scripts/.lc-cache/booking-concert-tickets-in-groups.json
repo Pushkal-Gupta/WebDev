@@ -1,8 +1,0 @@
-{
-  "questionId": "2380",
-  "titleSlug": "booking-concert-tickets-in-groups",
-  "title": "Booking Concert Tickets in Groups",
-  "exampleTestcases": "[\"BookMyShow\",\"gather\",\"gather\",\"scatter\",\"scatter\"]\n[[2,5],[4,0],[2,0],[5,1],[5,1]]",
-  "sampleTestCase": "[\"BookMyShow\",\"gather\",\"gather\",\"scatter\",\"scatter\"]\n[[2,5],[4,0],[2,0],[5,1],[5,1]]",
-  "metaData": "{\n  \"classname\": \"BookMyShow\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"n\"\n      },\n      {\n        \"type\": \"integer\",\n        \"name\": \"m\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"maxRow\"\n        }\n      ],\n      \"name\": \"gather\",\n      \"return\": {\n        \"type\": \"integer[]\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"maxRow\"\n        }\n      ],\n      \"name\": \"scatter\",\n      \"return\": {\n        \"type\": \"boolean\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

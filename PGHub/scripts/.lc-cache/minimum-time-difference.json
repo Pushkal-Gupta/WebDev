@@ -1,0 +1,8 @@
+{
+  "questionId": "539",
+  "titleSlug": "minimum-time-difference",
+  "title": "Minimum Time Difference",
+  "exampleTestcases": "[\"23:59\",\"00:00\"]\n[\"00:00\",\"23:59\",\"00:00\"]",
+  "sampleTestCase": "[\"23:59\",\"00:00\"]",
+  "metaData": "{\r\n  \"name\": \"findMinDifference\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"timePoints\",\r\n      \"type\": \"list<string>\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
+}

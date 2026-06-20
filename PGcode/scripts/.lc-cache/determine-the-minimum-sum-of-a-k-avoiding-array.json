@@ -1,8 +1,0 @@
-{
-  "questionId": "2811",
-  "titleSlug": "determine-the-minimum-sum-of-a-k-avoiding-array",
-  "title": "Determine the Minimum Sum of a k-avoiding Array",
-  "exampleTestcases": "5\n4\n2\n6",
-  "sampleTestCase": "5\n4",
-  "metaData": "{\n  \"name\": \"minimumSum\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

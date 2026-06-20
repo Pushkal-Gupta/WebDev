@@ -1,8 +1,0 @@
-{
-  "questionId": "998",
-  "titleSlug": "check-completeness-of-a-binary-tree",
-  "title": "Check Completeness of a Binary Tree",
-  "exampleTestcases": "[1,2,3,4,5,6]\n[1,2,3,4,5,null,7]",
-  "sampleTestCase": "[1,2,3,4,5,6]",
-  "metaData": "{\r\n  \"name\": \"isCompleteTree\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"root\",\r\n      \"type\": \"TreeNode\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}\r\n"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "808",
-  "titleSlug": "number-of-matching-subsequences",
-  "title": "Number of Matching Subsequences",
-  "exampleTestcases": "\"abcde\"\n[\"a\",\"bb\",\"acd\",\"ace\"]\n\"dsahjpjauf\"\n[\"ahjpjau\",\"ja\",\"ahbwzgqnuk\",\"tnmlanowax\"]",
-  "sampleTestCase": "\"abcde\"\n[\"a\",\"bb\",\"acd\",\"ace\"]",
-  "metaData": "{\n  \"name\": \"numMatchingSubseq\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"words\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

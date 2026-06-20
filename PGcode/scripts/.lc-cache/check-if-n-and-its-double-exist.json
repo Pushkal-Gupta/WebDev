@@ -1,8 +1,0 @@
-{
-  "questionId": "1468",
-  "titleSlug": "check-if-n-and-its-double-exist",
-  "title": "Check If N and Its Double Exist",
-  "exampleTestcases": "[10,2,5,3]\n[3,1,7,11]",
-  "sampleTestCase": "[10,2,5,3]",
-  "metaData": "{\n  \"name\": \"checkIfExist\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1070",
-  "titleSlug": "convert-to-base-2",
-  "title": "Convert to Base -2",
-  "exampleTestcases": "2\n3\n4",
-  "sampleTestCase": "2",
-  "metaData": "{\n  \"name\": \"baseNeg2\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

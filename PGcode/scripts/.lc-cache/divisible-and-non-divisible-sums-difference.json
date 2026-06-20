@@ -1,8 +1,0 @@
-{
-  "questionId": "3172",
-  "titleSlug": "divisible-and-non-divisible-sums-difference",
-  "title": "Divisible and Non-divisible Sums Difference",
-  "exampleTestcases": "10\n3\n5\n6\n5\n1",
-  "sampleTestCase": "10\n3",
-  "metaData": "{\n  \"name\": \"differenceOfSums\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

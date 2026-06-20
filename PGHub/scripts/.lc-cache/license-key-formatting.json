@@ -1,0 +1,8 @@
+{
+  "questionId": "482",
+  "titleSlug": "license-key-formatting",
+  "title": "License Key Formatting",
+  "exampleTestcases": "\"5F3Z-2e-9-w\"\n4\n\"2-5g-3-J\"\n2",
+  "sampleTestCase": "\"5F3Z-2e-9-w\"\n4",
+  "metaData": "{\n  \"name\": \"licenseKeyFormatting\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

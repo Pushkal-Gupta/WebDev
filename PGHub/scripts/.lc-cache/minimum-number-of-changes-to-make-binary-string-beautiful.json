@@ -1,0 +1,8 @@
+{
+  "questionId": "3174",
+  "titleSlug": "minimum-number-of-changes-to-make-binary-string-beautiful",
+  "title": "Minimum Number of Changes to Make Binary String Beautiful",
+  "exampleTestcases": "\"1001\"\n\"10\"\n\"0000\"",
+  "sampleTestCase": "\"1001\"",
+  "metaData": "{\n  \"name\": \"minChanges\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

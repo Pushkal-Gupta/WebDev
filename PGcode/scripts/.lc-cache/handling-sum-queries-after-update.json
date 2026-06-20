@@ -1,8 +1,0 @@
-{
-  "questionId": "2703",
-  "titleSlug": "handling-sum-queries-after-update",
-  "title": "Handling Sum Queries After Update",
-  "exampleTestcases": "[1,0,1]\n[0,0,0]\n[[1,1,1],[2,1,0],[3,0,0]]\n[1]\n[5]\n[[2,0,0],[3,0,0]]",
-  "sampleTestCase": "[1,0,1]\n[0,0,0]\n[[1,1,1],[2,1,0],[3,0,0]]",
-  "metaData": "{\n  \"name\": \"handleQuery\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"queries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

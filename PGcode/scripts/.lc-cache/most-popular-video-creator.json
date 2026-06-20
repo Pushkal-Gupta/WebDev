@@ -1,8 +1,0 @@
-{
-  "questionId": "2543",
-  "titleSlug": "most-popular-video-creator",
-  "title": "Most Popular Video Creator",
-  "exampleTestcases": "[\"alice\",\"bob\",\"alice\",\"chris\"]\n[\"one\",\"two\",\"three\",\"four\"]\n[5,10,5,4]\n[\"alice\",\"alice\",\"alice\"]\n[\"a\",\"b\",\"c\"]\n[1,2,2]",
-  "sampleTestCase": "[\"alice\",\"bob\",\"alice\",\"chris\"]\n[\"one\",\"two\",\"three\",\"four\"]\n[5,10,5,4]",
-  "metaData": "{\n  \"name\": \"mostPopularCreator\",\n  \"params\": [\n    {\n      \"name\": \"creators\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"string[]\",\n      \"name\": \"ids\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"views\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<string>>\"\n  }\n}"
-}

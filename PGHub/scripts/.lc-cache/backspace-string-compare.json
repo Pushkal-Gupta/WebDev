@@ -1,0 +1,8 @@
+{
+  "questionId": "874",
+  "titleSlug": "backspace-string-compare",
+  "title": "Backspace String Compare",
+  "exampleTestcases": "\"ab#c\"\n\"ad#c\"\n\"ab##\"\n\"c#d#\"\n\"a#c\"\n\"b\"",
+  "sampleTestCase": "\"ab#c\"\n\"ad#c\"",
+  "metaData": "{\n  \"name\": \"backspaceCompare\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"name\": \"t\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
+}

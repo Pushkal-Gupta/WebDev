@@ -1,8 +1,0 @@
-{
-  "questionId": "3080",
-  "titleSlug": "split-array-into-maximum-number-of-subarrays",
-  "title": "Split Array Into Maximum Number of Subarrays",
-  "exampleTestcases": "[1,0,2,0,1,2]\n[5,7,1,3]",
-  "sampleTestCase": "[1,0,2,0,1,2]",
-  "metaData": "{\n  \"name\": \"maxSubarrays\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

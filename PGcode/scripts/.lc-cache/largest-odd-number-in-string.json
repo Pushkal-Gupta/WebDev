@@ -1,8 +1,0 @@
-{
-  "questionId": "2032",
-  "titleSlug": "largest-odd-number-in-string",
-  "title": "Largest Odd Number in String",
-  "exampleTestcases": "\"52\"\n\"4206\"\n\"35427\"",
-  "sampleTestCase": "\"52\"",
-  "metaData": "{\n  \"name\": \"largestOddNumber\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "3922",
-  "titleSlug": "minimum-moves-to-reach-target-in-grid",
-  "title": "Minimum Moves to Reach Target in Grid",
-  "exampleTestcases": "1\n2\n5\n4\n0\n1\n2\n3\n1\n1\n2\n2",
-  "sampleTestCase": "1\n2\n5\n4",
-  "metaData": "{\n  \"name\": \"minMoves\",\n  \"params\": [\n    {\n      \"name\": \"sx\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"sy\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"tx\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"ty\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

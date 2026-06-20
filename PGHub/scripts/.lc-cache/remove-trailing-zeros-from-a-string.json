@@ -1,0 +1,8 @@
+{
+  "questionId": "2819",
+  "titleSlug": "remove-trailing-zeros-from-a-string",
+  "title": "Remove Trailing Zeros From a String",
+  "exampleTestcases": "\"51230100\"\n\"123\"",
+  "sampleTestCase": "\"51230100\"",
+  "metaData": "{\n  \"name\": \"removeTrailingZeros\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2397",
-  "titleSlug": "count-number-of-ways-to-place-houses",
-  "title": "Count Number of Ways to Place Houses",
-  "exampleTestcases": "1\n2",
-  "sampleTestCase": "1",
-  "metaData": "{\n  \"name\": \"countHousePlacements\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

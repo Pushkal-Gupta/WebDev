@@ -1,0 +1,8 @@
+{
+  "questionId": "2571",
+  "titleSlug": "find-the-pivot-integer",
+  "title": "Find the Pivot Integer",
+  "exampleTestcases": "8\n1\n4",
+  "sampleTestCase": "8",
+  "metaData": "{\n  \"name\": \"pivotInteger\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

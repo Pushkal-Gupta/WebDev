@@ -1,8 +1,0 @@
-{
-  "questionId": "4158",
-  "titleSlug": "absolute-difference-between-maximum-and-minimum-k-elements",
-  "title": "Absolute Difference Between Maximum and Minimum K Elements",
-  "exampleTestcases": "[5,2,2,4]\n2\n[100]\n1",
-  "sampleTestCase": "[5,2,2,4]\n2",
-  "metaData": "{\n  \"name\": \"absDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

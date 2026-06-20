@@ -1,8 +1,0 @@
-{
-  "questionId": "1944",
-  "titleSlug": "truncate-sentence",
-  "title": "Truncate Sentence",
-  "exampleTestcases": "\"Hello how are you Contestant\"\n4\n\"What is the solution to this problem\"\n4\n\"chopper is not a tanuki\"\n5",
-  "sampleTestCase": "\"Hello how are you Contestant\"\n4",
-  "metaData": "{\n  \"name\": \"truncateSentence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

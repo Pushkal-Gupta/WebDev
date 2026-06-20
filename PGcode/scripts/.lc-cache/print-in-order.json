@@ -1,8 +1,0 @@
-{
-  "questionId": "1203",
-  "titleSlug": "print-in-order",
-  "title": "Print in Order",
-  "exampleTestcases": "[1,2,3]\n[1,3,2]",
-  "sampleTestCase": "[1,2,3]",
-  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"java\",\n    \"cpp\",\n    \"python\",\n    \"python3\",\n    \"c\",\n    \"csharp\",\n    \"golang\",\n    \"rust\"\n  ],\n  \"manual\": true\n}"
-}

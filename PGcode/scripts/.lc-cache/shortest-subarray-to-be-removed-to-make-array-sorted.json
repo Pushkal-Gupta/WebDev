@@ -1,8 +1,0 @@
-{
-  "questionId": "1679",
-  "titleSlug": "shortest-subarray-to-be-removed-to-make-array-sorted",
-  "title": "Shortest Subarray to be Removed to Make Array Sorted",
-  "exampleTestcases": "[1,2,3,10,4,2,3,5]\n[5,4,3,2,1]\n[1,2,3]",
-  "sampleTestCase": "[1,2,3,10,4,2,3,5]",
-  "metaData": "{\n  \"name\": \"findLengthOfShortestSubarray\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

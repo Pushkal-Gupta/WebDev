@@ -1,8 +1,0 @@
-{
-  "questionId": "3939",
-  "titleSlug": "process-string-with-special-operations-ii",
-  "title": "Process String with Special Operations II",
-  "exampleTestcases": "\"a#b%*\"\n1\n\"cd%#*#\"\n3\n\"z*#\"\n0",
-  "sampleTestCase": "\"a#b%*\"\n1",
-  "metaData": "{\n  \"name\": \"processStr\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"character\"\n  }\n}"
-}

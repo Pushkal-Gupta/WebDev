@@ -1,8 +1,0 @@
-{
-  "questionId": "750",
-  "titleSlug": "contain-virus",
-  "title": "Contain Virus",
-  "exampleTestcases": "[[0,1,0,0,0,0,0,1],[0,1,0,0,0,0,0,1],[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0]]\n[[1,1,1],[1,0,1],[1,1,1]]\n[[1,1,1,0,0,0,0,0,0],[1,0,1,0,1,1,1,1,1],[1,1,1,0,0,0,0,0,0]]",
-  "sampleTestCase": "[[0,1,0,0,0,0,0,1],[0,1,0,0,0,0,0,1],[0,0,0,0,0,0,0,1],[0,0,0,0,0,0,0,0]]",
-  "metaData": "{\n  \"name\": \"containVirus\",\n  \"params\": [\n    {\n      \"name\": \"isInfected\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

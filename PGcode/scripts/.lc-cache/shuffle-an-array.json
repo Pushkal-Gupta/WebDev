@@ -1,8 +1,0 @@
-{
-  "questionId": "384",
-  "titleSlug": "shuffle-an-array",
-  "title": "Shuffle an Array",
-  "exampleTestcases": "[\"Solution\",\"shuffle\",\"reset\",\"shuffle\"]\n[[[1,2,3]],[],[],[]]",
-  "sampleTestCase": "[\"Solution\",\"shuffle\",\"reset\",\"shuffle\"]\n[[[1,2,3]],[],[],[]]",
-  "metaData": "{\n  \"classname\": \"Solution\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer[]\",\n        \"name\": \"nums\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [],\n      \"name\": \"reset\",\n      \"return\": {\n        \"type\": \"integer[]\"\n      }\n    },\n    {\n      \"params\": [],\n      \"return\": {\n        \"type\": \"integer[]\"\n      },\n      \"name\": \"shuffle\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

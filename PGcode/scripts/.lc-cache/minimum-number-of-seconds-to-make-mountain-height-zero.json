@@ -1,8 +1,0 @@
-{
-  "questionId": "3496",
-  "titleSlug": "minimum-number-of-seconds-to-make-mountain-height-zero",
-  "title": "Minimum Number of Seconds to Make Mountain Height Zero",
-  "exampleTestcases": "4\n[2,1,1]\n10\n[3,2,2,4]\n5\n[1]",
-  "sampleTestCase": "4\n[2,1,1]",
-  "metaData": "{\n  \"name\": \"minNumberOfSeconds\",\n  \"params\": [\n    {\n      \"name\": \"mountainHeight\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"workerTimes\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

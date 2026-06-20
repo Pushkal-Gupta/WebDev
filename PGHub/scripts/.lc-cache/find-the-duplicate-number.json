@@ -1,0 +1,8 @@
+{
+  "questionId": "287",
+  "titleSlug": "find-the-duplicate-number",
+  "title": "Find the Duplicate Number",
+  "exampleTestcases": "[1,3,4,2,2]\n[3,1,3,4,2]\n[3,3,3,3,3]",
+  "sampleTestCase": "[1,3,4,2,2]",
+  "metaData": "{\r\n  \"name\": \"findDuplicate\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1508",
-  "titleSlug": "longest-happy-prefix",
-  "title": "Longest Happy Prefix",
-  "exampleTestcases": "\"level\"\n\"ababab\"",
-  "sampleTestCase": "\"level\"",
-  "metaData": "{\n  \"name\": \"longestPrefix\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4292",
-  "titleSlug": "compare-sums-of-bitonic-parts",
-  "title": "Compare Sums of Bitonic Parts",
-  "exampleTestcases": "[1,3,2,1]\n[2,4,5,2]\n[1,2,4,3]",
-  "sampleTestCase": "[1,3,2,1]",
-  "metaData": "{\n  \"name\": \"compareBitonicSums\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

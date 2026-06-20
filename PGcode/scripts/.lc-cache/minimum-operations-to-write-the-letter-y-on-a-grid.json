@@ -1,8 +1,0 @@
-{
-  "questionId": "3335",
-  "titleSlug": "minimum-operations-to-write-the-letter-y-on-a-grid",
-  "title": "Minimum Operations to Write the Letter Y on a Grid",
-  "exampleTestcases": "[[1,2,2],[1,1,0],[0,1,0]]\n[[0,1,0,1,0],[2,1,0,1,2],[2,2,2,0,1],[2,2,2,2,2],[2,1,2,2,2]]",
-  "sampleTestCase": "[[1,2,2],[1,1,0],[0,1,0]]",
-  "metaData": "{\n  \"name\": \"minimumOperationsToWriteY\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

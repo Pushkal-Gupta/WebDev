@@ -1,8 +1,0 @@
-{
-  "questionId": "1286",
-  "titleSlug": "constrained-subsequence-sum",
-  "title": "Constrained Subsequence Sum",
-  "exampleTestcases": "[10,2,-10,5,20]\n2\n[-1,-2,-3]\n1\n[10,-2,-10,-5,20]\n2",
-  "sampleTestCase": "[10,2,-10,5,20]\n2",
-  "metaData": "{\n  \"name\": \"constrainedSubsetSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

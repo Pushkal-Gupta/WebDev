@@ -1,8 +1,0 @@
-{
-  "questionId": "1574",
-  "titleSlug": "maximum-product-of-two-elements-in-an-array",
-  "title": "Maximum Product of Two Elements in an Array",
-  "exampleTestcases": "[3,4,5,2]\n[1,5,4,5]\n[3,7]",
-  "sampleTestCase": "[3,4,5,2]",
-  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

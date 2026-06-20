@@ -1,0 +1,8 @@
+{
+  "questionId": "911",
+  "titleSlug": "profitable-schemes",
+  "title": "Profitable Schemes",
+  "exampleTestcases": "5\n3\n[2,2]\n[2,3]\n10\n5\n[2,3,5]\n[6,7,8]",
+  "sampleTestCase": "5\n3\n[2,2]\n[2,3]",
+  "metaData": "{\n  \"name\": \"profitableSchemes\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"minProfit\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"group\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"profit\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

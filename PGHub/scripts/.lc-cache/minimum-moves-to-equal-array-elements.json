@@ -1,0 +1,8 @@
+{
+  "questionId": "453",
+  "titleSlug": "minimum-moves-to-equal-array-elements",
+  "title": "Minimum Moves to Equal Array Elements",
+  "exampleTestcases": "[1,2,3]\n[1,1,1]",
+  "sampleTestCase": "[1,2,3]",
+  "metaData": "{\r\n  \"name\": \"minMoves\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

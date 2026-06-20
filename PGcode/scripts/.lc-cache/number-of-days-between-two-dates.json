@@ -1,8 +1,0 @@
-{
-  "questionId": "1274",
-  "titleSlug": "number-of-days-between-two-dates",
-  "title": "Number of Days Between Two Dates",
-  "exampleTestcases": "\"2019-06-29\"\n\"2019-06-30\"\n\"2020-01-15\"\n\"2019-12-31\"",
-  "sampleTestCase": "\"2019-06-29\"\n\"2019-06-30\"",
-  "metaData": "{\n  \"name\": \"daysBetweenDates\",\n  \"params\": [\n    {\n      \"name\": \"date1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"date2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

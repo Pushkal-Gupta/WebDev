@@ -1,8 +1,0 @@
-{
-  "questionId": "3346",
-  "titleSlug": "lexicographically-smallest-string-after-operations-with-constraint",
-  "title": "Lexicographically Smallest String After Operations With Constraint",
-  "exampleTestcases": "\"zbbz\"\n3\n\"xaxcd\"\n4\n\"lol\"\n0",
-  "sampleTestCase": "\"zbbz\"\n3",
-  "metaData": "{\n  \"name\": \"getSmallestString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

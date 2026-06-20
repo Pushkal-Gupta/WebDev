@@ -1,8 +1,0 @@
-{
-  "questionId": "1905",
-  "titleSlug": "design-authentication-manager",
-  "title": "Design Authentication Manager",
-  "exampleTestcases": "[\"AuthenticationManager\",\"renew\",\"generate\",\"countUnexpiredTokens\",\"generate\",\"renew\",\"renew\",\"countUnexpiredTokens\"]\n[[5],[\"aaa\",1],[\"aaa\",2],[6],[\"bbb\",7],[\"aaa\",8],[\"bbb\",10],[15]]",
-  "sampleTestCase": "[\"AuthenticationManager\",\"renew\",\"generate\",\"countUnexpiredTokens\",\"generate\",\"renew\",\"renew\",\"countUnexpiredTokens\"]\n[[5],[\"aaa\",1],[\"aaa\",2],[6],[\"bbb\",7],[\"aaa\",8],[\"bbb\",10],[15]]",
-  "metaData": "{\n  \"classname\": \"AuthenticationManager\",\n  \"constructor\": {\n    \"params\": [\n      {\n        \"type\": \"integer\",\n        \"name\": \"timeToLive\"\n      }\n    ]\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"tokenId\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"currentTime\"\n        }\n      ],\n      \"name\": \"generate\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"tokenId\"\n        },\n        {\n          \"type\": \"integer\",\n          \"name\": \"currentTime\"\n        }\n      ],\n      \"name\": \"renew\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"currentTime\"\n        }\n      ],\n      \"name\": \"countUnexpiredTokens\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

@@ -1,0 +1,170 @@
+.fov {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.fov-head { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.fov-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.fov-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.fov-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.fov-slider { display: flex; align-items: center; gap: 0.6rem; flex: 1 1 220px; }
+
+.fov-input-label {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 6.5em;
+}
+
+.fov-range { flex: 1 1 auto; accent-color: var(--accent); cursor: pointer; }
+
+.fov-slider-val {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  min-width: 2.8em;
+  text-align: right;
+}
+
+.fov-spacer { flex: 1 1 auto; }
+
+.fov-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.8rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.fov-toggle:hover { background: var(--hover-box); border-color: var(--accent); }
+.fov-toggle.is-on {
+  background: rgba(var(--accent-rgb), 0.16);
+  color: var(--text-main);
+  border-color: var(--accent);
+}
+
+.fov-stage {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.fov-svg { width: 100%; height: auto; display: block; }
+
+.fov-axis-label, .fov-foot {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+}
+
+.fov-req { fill: rgba(var(--accent-rgb), 0.16); stroke: var(--accent); stroke-width: 1.6; }
+.fov-req-glyph { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: var(--accent); }
+
+.fov-edge { stroke: var(--border); stroke-width: 1.4; }
+.fov-w-label { font-family: var(--mono); font-size: 11px; fill: var(--text-dim); }
+
+.fov-bar { fill: var(--hue-sky); stroke: var(--hue-sky); }
+.fov-bar.is-slow { fill: var(--warning); stroke: var(--warning); }
+.fov-bar.is-replaced { fill: var(--border); stroke: var(--border); opacity: 0.55; }
+.fov-bar-hedged { fill: var(--easy); stroke: var(--easy); }
+.fov-bar-val { font-family: var(--mono); font-size: 10px; font-weight: 700; fill: var(--text-main); }
+.fov-cutoff { stroke: var(--hard); stroke-width: 1.4; stroke-dasharray: 3 3; }
+
+.fov-agg-axis { stroke: var(--accent); stroke-width: 1.4; stroke-dasharray: 4 3; opacity: 0.7; }
+.fov-agg-label { font-family: var(--mono); font-size: 10px; fill: var(--accent); }
+
+.fov-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.fov-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.fov-metric-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.fov-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.fov-metric-value.is-warn { color: var(--warning); }
+.fov-metric-value.is-ok { color: var(--easy); }
+
+.fov-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.fov-narration-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.fov-narration-body { font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); }
+
+@media (prefers-reduced-motion: reduce) {
+  .fov-toggle { transition: none; }
+}

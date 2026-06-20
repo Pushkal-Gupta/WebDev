@@ -1,8 +1,0 @@
-{
-  "questionId": "4044",
-  "titleSlug": "maximum-bitwise-xor-after-rearrangement",
-  "title": "Maximum Bitwise XOR After Rearrangement",
-  "exampleTestcases": "\"101\"\n\"011\"\n\"0110\"\n\"1110\"\n\"0101\"\n\"1001\"",
-  "sampleTestCase": "\"101\"\n\"011\"",
-  "metaData": "{\n  \"name\": \"maximumXor\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"t\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "4264",
-  "titleSlug": "first-matching-character-from-both-ends",
-  "title": "First Matching Character From Both Ends",
-  "exampleTestcases": "\"abcacbd\"\n\"abc\"\n\"abcdab\"",
-  "sampleTestCase": "\"abcacbd\"",
-  "metaData": "{\n  \"name\": \"firstMatchingIndex\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

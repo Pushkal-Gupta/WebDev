@@ -1,8 +1,0 @@
-{
-  "questionId": "2392",
-  "titleSlug": "successful-pairs-of-spells-and-potions",
-  "title": "Successful Pairs of Spells and Potions",
-  "exampleTestcases": "[5,1,3]\n[1,2,3,4,5]\n7\n[3,1,2]\n[8,5,8]\n16",
-  "sampleTestCase": "[5,1,3]\n[1,2,3,4,5]\n7",
-  "metaData": "{\n  \"name\": \"successfulPairs\",\n  \"params\": [\n    {\n      \"name\": \"spells\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"potions\"\n    },\n    {\n      \"type\": \"long\",\n      \"name\": \"success\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

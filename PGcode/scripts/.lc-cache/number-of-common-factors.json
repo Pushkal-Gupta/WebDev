@@ -1,8 +1,0 @@
-{
-  "questionId": "2507",
-  "titleSlug": "number-of-common-factors",
-  "title": "Number of Common Factors",
-  "exampleTestcases": "12\n6\n25\n30",
-  "sampleTestCase": "12\n6",
-  "metaData": "{\n  \"name\": \"commonFactors\",\n  \"params\": [\n    {\n      \"name\": \"a\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"b\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

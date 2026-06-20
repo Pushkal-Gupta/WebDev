@@ -1,8 +1,0 @@
-{
-  "questionId": "4255",
-  "titleSlug": "minimum-absolute-difference-between-two-values",
-  "title": "Minimum Absolute Difference Between Two Values",
-  "exampleTestcases": "[1,0,0,2,0,1]\n[1,0,1,0]",
-  "sampleTestCase": "[1,0,0,2,0,1]",
-  "metaData": "{\n  \"name\": \"minAbsoluteDifference\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

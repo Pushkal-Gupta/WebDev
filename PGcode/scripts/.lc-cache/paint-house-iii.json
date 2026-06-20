@@ -1,8 +1,0 @@
-{
-  "questionId": "1583",
-  "titleSlug": "paint-house-iii",
-  "title": "Paint House III",
-  "exampleTestcases": "[0,0,0,0,0]\n[[1,10],[10,1],[10,1],[1,10],[5,1]]\n5\n2\n3\n[0,2,1,2,0]\n[[1,10],[10,1],[10,1],[1,10],[5,1]]\n5\n2\n3\n[3,1,2,3]\n[[1,1,1],[1,1,1],[1,1,1],[1,1,1]]\n4\n3\n3",
-  "sampleTestCase": "[0,0,0,0,0]\n[[1,10],[10,1],[10,1],[1,10],[5,1]]\n5\n2\n3",
-  "metaData": "{\n  \"name\": \"minCost\",\n  \"params\": [\n    {\n      \"name\": \"houses\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"cost\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"target\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

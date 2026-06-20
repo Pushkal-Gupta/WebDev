@@ -1,0 +1,8 @@
+{
+  "questionId": "3764",
+  "titleSlug": "maximum-sum-with-at-most-k-elements",
+  "title": "Maximum Sum With at Most K Elements",
+  "exampleTestcases": "[[1,2],[3,4]]\n[1,2]\n2\n[[5,3,7],[8,2,6]]\n[2,2]\n3",
+  "sampleTestCase": "[[1,2],[3,4]]\n[1,2]\n2",
+  "metaData": "{\n  \"name\": \"maxSum\",\n  \"params\": [\n    {\n      \"name\": \"grid\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"limits\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2219",
-  "titleSlug": "maximum-number-of-words-found-in-sentences",
-  "title": "Maximum Number of Words Found in Sentences",
-  "exampleTestcases": "[\"alice and bob love leetcode\",\"i think so too\",\"this is great thanks very much\"]\n[\"please wait\",\"continue to fight\",\"continue to win\"]",
-  "sampleTestCase": "[\"alice and bob love leetcode\",\"i think so too\",\"this is great thanks very much\"]",
-  "metaData": "{\n  \"name\": \"mostWordsFound\",\n  \"params\": [\n    {\n      \"name\": \"sentences\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

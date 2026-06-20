@@ -1,8 +1,0 @@
-{
-  "questionId": "2820",
-  "titleSlug": "return-length-of-arguments-passed",
-  "title": "Return Length of Arguments Passed",
-  "exampleTestcases": "[5]\n[{},null,\"3\"]",
-  "sampleTestCase": "[5]",
-  "metaData": "{\n  \"name\": \"argumentsLength\",\n  \"params\": [\n    {\n      \"type\": \"string\",\n      \"name\": \"args\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2086",
-  "titleSlug": "count-number-of-special-subsequences",
-  "title": "Count Number of Special Subsequences",
-  "exampleTestcases": "[0,1,2,2]\n[2,2,0,0]\n[0,1,2,0,1,2]",
-  "sampleTestCase": "[0,1,2,2]",
-  "metaData": "{\n  \"name\": \"countSpecialSubsequences\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": false\n}"
-}

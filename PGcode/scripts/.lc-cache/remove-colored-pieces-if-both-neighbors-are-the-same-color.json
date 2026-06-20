@@ -1,8 +1,0 @@
-{
-  "questionId": "2149",
-  "titleSlug": "remove-colored-pieces-if-both-neighbors-are-the-same-color",
-  "title": "Remove Colored Pieces if Both Neighbors are the Same Color",
-  "exampleTestcases": "\"AAABABB\"\n\"AA\"\n\"ABBBBBBBAAA\"",
-  "sampleTestCase": "\"AAABABB\"",
-  "metaData": "{\n  \"name\": \"winnerOfGame\",\n  \"params\": [\n    {\n      \"name\": \"colors\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

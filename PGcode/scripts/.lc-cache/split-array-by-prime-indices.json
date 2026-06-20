@@ -1,8 +1,0 @@
-{
-  "questionId": "3936",
-  "titleSlug": "split-array-by-prime-indices",
-  "title": "Split Array by Prime Indices",
-  "exampleTestcases": "[2,3,4]\n[-1,5,7,0]",
-  "sampleTestCase": "[2,3,4]",
-  "metaData": "{\n  \"name\": \"splitArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

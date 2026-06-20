@@ -1,0 +1,8 @@
+{
+  "questionId": "897",
+  "titleSlug": "prime-palindrome",
+  "title": "Prime Palindrome",
+  "exampleTestcases": "6\n8\n13",
+  "sampleTestCase": "6",
+  "metaData": "{\n  \"name\": \"primePalindrome\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

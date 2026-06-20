@@ -1,0 +1,8 @@
+{
+  "questionId": "278",
+  "titleSlug": "first-bad-version",
+  "title": "First Bad Version",
+  "exampleTestcases": "5\n4\n1\n1",
+  "sampleTestCase": "5\n4",
+  "metaData": "{\n  \"name\": \"firstBadVersion\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"name\": \"bad\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"manual\": true\n}"
+}

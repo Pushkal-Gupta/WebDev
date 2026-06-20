@@ -1,8 +1,0 @@
-{
-  "questionId": "4247",
-  "titleSlug": "minimum-capacity-box",
-  "title": "Minimum Capacity Box",
-  "exampleTestcases": "[1,5,3,7]\n3\n[3,5,4,3]\n2\n[4]\n5",
-  "sampleTestCase": "[1,5,3,7]\n3",
-  "metaData": "{\n  \"name\": \"minimumIndex\",\n  \"params\": [\n    {\n      \"name\": \"capacity\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"itemSize\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

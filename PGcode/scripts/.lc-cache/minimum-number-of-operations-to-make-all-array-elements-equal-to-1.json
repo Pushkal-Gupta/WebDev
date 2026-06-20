@@ -1,8 +1,0 @@
-{
-  "questionId": "2753",
-  "titleSlug": "minimum-number-of-operations-to-make-all-array-elements-equal-to-1",
-  "title": "Minimum Number of Operations to Make All Array Elements Equal to 1",
-  "exampleTestcases": "[2,6,3,4]\n[2,10,6,14]",
-  "sampleTestCase": "[2,6,3,4]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

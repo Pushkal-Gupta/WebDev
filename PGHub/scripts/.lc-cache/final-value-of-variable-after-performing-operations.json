@@ -1,0 +1,8 @@
+{
+  "questionId": "2137",
+  "titleSlug": "final-value-of-variable-after-performing-operations",
+  "title": "Final Value of Variable After Performing Operations",
+  "exampleTestcases": "[\"--X\",\"X++\",\"X++\"]\n[\"++X\",\"++X\",\"X++\"]\n[\"X++\",\"++X\",\"--X\",\"X--\"]",
+  "sampleTestCase": "[\"--X\",\"X++\",\"X++\"]",
+  "metaData": "{\n  \"name\": \"finalValueAfterOperations\",\n  \"params\": [\n    {\n      \"name\": \"operations\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

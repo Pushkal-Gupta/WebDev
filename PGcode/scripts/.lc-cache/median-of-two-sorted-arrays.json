@@ -1,8 +1,0 @@
-{
-  "questionId": "4",
-  "titleSlug": "median-of-two-sorted-arrays",
-  "title": "Median of Two Sorted Arrays",
-  "exampleTestcases": "[1,3]\n[2]\n[1,2]\n[3,4]",
-  "sampleTestCase": "[1,3]\n[2]",
-  "metaData": "{\r\n  \"name\": \"findMedianSortedArrays\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums1\",\r\n      \"type\": \"integer[]\"\r\n    },\r\n    {\r\n      \"name\": \"nums2\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"double\"\r\n  }\r\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "1580",
+  "titleSlug": "shuffle-the-array",
+  "title": "Shuffle the Array",
+  "exampleTestcases": "[2,5,1,3,4,7]\n3\n[1,2,3,4,4,3,2,1]\n4\n[1,1,2,2]\n2",
+  "sampleTestCase": "[2,5,1,3,4,7]\n3",
+  "metaData": "{\n  \"name\": \"shuffle\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1031",
-  "titleSlug": "add-to-array-form-of-integer",
-  "title": "Add to Array-Form of Integer",
-  "exampleTestcases": "[1,2,0,0]\n34\n[2,7,4]\n181\n[2,1,5]\n806",
-  "sampleTestCase": "[1,2,0,0]\n34",
-  "metaData": "{\n  \"name\": \"addToArrayForm\",\n  \"params\": [\n    {\n      \"name\": \"num\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<integer>\"\n  }\n}"
-}

@@ -1,0 +1,8 @@
+{
+  "questionId": "128",
+  "titleSlug": "longest-consecutive-sequence",
+  "title": "Longest Consecutive Sequence",
+  "exampleTestcases": "[100,4,200,1,3,2]\n[0,3,7,2,5,8,4,6,0,1]\n[1,0,1,2]",
+  "sampleTestCase": "[100,4,200,1,3,2]",
+  "metaData": "{\r\n  \"name\": \"longestConsecutive\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"nums\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
+}

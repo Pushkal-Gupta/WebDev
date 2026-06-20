@@ -1,8 +1,0 @@
-{
-  "questionId": "3534",
-  "titleSlug": "count-almost-equal-pairs-i",
-  "title": "Count Almost Equal Pairs I",
-  "exampleTestcases": "[3,12,30,17,21]\n[1,1,1,1,1]\n[123,231]",
-  "sampleTestCase": "[3,12,30,17,21]",
-  "metaData": "{\n  \"name\": \"countPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

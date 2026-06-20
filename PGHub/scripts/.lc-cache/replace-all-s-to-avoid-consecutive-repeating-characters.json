@@ -1,0 +1,8 @@
+{
+  "questionId": "1698",
+  "titleSlug": "replace-all-s-to-avoid-consecutive-repeating-characters",
+  "title": "Replace All ?'s to Avoid Consecutive Repeating Characters",
+  "exampleTestcases": "\"?zs\"\n\"ubv?w\"",
+  "sampleTestCase": "\"?zs\"",
+  "metaData": "{\n  \"name\": \"modifyString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  },\n  \"manual\": false\n}"
+}

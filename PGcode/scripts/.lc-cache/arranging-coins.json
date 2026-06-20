@@ -1,8 +1,0 @@
-{
-  "questionId": "441",
-  "titleSlug": "arranging-coins",
-  "title": "Arranging Coins",
-  "exampleTestcases": "5\n8",
-  "sampleTestCase": "5",
-  "metaData": "{\r\n  \"name\": \"arrangeCoins\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"n\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}"
-}

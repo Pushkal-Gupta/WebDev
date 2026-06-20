@@ -1,0 +1,8 @@
+{
+  "questionId": "2530",
+  "titleSlug": "minimize-maximum-of-array",
+  "title": "Minimize Maximum of Array",
+  "exampleTestcases": "[3,7,1,6]\n[10,1]",
+  "sampleTestCase": "[3,7,1,6]",
+  "metaData": "{\n  \"name\": \"minimizeArrayValue\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

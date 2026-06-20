@@ -1,0 +1,8 @@
+{
+  "questionId": "529",
+  "titleSlug": "minesweeper",
+  "title": "Minesweeper",
+  "exampleTestcases": "[[\"E\",\"E\",\"E\",\"E\",\"E\"],[\"E\",\"E\",\"M\",\"E\",\"E\"],[\"E\",\"E\",\"E\",\"E\",\"E\"],[\"E\",\"E\",\"E\",\"E\",\"E\"]]\n[3,0]\n[[\"B\",\"1\",\"E\",\"1\",\"B\"],[\"B\",\"1\",\"M\",\"1\",\"B\"],[\"B\",\"1\",\"1\",\"1\",\"B\"],[\"B\",\"B\",\"B\",\"B\",\"B\"]]\n[1,2]",
+  "sampleTestCase": "[[\"E\",\"E\",\"E\",\"E\",\"E\"],[\"E\",\"E\",\"M\",\"E\",\"E\"],[\"E\",\"E\",\"E\",\"E\",\"E\"],[\"E\",\"E\",\"E\",\"E\",\"E\"]]\n[3,0]",
+  "metaData": "{\r\n  \"name\": \"updateBoard\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"board\",\r\n      \"type\": \"character[][]\"\r\n    },\r\n    {\r\n        \"name\":\"click\",\r\n        \"type\":\"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"character[][]\"\r\n  }\r\n}\r\n"
+}

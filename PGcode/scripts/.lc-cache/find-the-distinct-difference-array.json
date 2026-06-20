@@ -1,8 +1,0 @@
-{
-  "questionId": "2777",
-  "titleSlug": "find-the-distinct-difference-array",
-  "title": "Find the Distinct Difference Array",
-  "exampleTestcases": "[1,2,3,4,5]\n[3,2,3,4,2]",
-  "sampleTestCase": "[1,2,3,4,5]",
-  "metaData": "{\n  \"name\": \"distinctDifferenceArray\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

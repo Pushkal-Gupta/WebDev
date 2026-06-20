@@ -1,0 +1,8 @@
+{
+  "questionId": "3207",
+  "titleSlug": "make-three-strings-equal",
+  "title": "Make Three Strings Equal",
+  "exampleTestcases": "\"abc\"\n\"abb\"\n\"ab\"\n\"dac\"\n\"bac\"\n\"cac\"",
+  "sampleTestCase": "\"abc\"\n\"abb\"\n\"ab\"",
+  "metaData": "{\n  \"name\": \"findMinimumOperations\",\n  \"params\": [\n    {\n      \"name\": \"s1\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s2\"\n    },\n    {\n      \"type\": \"string\",\n      \"name\": \"s3\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

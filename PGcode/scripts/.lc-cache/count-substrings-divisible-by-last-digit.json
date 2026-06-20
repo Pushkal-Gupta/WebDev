@@ -1,8 +1,0 @@
-{
-  "questionId": "3696",
-  "titleSlug": "count-substrings-divisible-by-last-digit",
-  "title": "Count Substrings Divisible By Last Digit",
-  "exampleTestcases": "\"12936\"\n\"5701283\"\n\"1010101010\"",
-  "sampleTestCase": "\"12936\"",
-  "metaData": "{\n  \"name\": \"countSubstrings\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

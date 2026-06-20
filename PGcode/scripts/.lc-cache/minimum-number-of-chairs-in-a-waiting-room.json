@@ -1,8 +1,0 @@
-{
-  "questionId": "3426",
-  "titleSlug": "minimum-number-of-chairs-in-a-waiting-room",
-  "title": "Minimum Number of Chairs in a Waiting Room",
-  "exampleTestcases": "\"EEEEEEE\"\n\"ELELEEL\"\n\"ELEELEELLL\"",
-  "sampleTestCase": "\"EEEEEEE\"",
-  "metaData": "{\n  \"name\": \"minimumChairs\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

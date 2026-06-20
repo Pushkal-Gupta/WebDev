@@ -1,8 +1,0 @@
-{
-  "questionId": "2869",
-  "titleSlug": "longest-non-decreasing-subarray-from-two-arrays",
-  "title": "Longest Non-decreasing Subarray From Two Arrays",
-  "exampleTestcases": "[2,3,1]\n[1,2,1]\n[1,3,2,1]\n[2,2,3,4]\n[1,1]\n[2,2]",
-  "sampleTestCase": "[2,3,1]\n[1,2,1]",
-  "metaData": "{\n  \"name\": \"maxNonDecreasingLength\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"nums2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

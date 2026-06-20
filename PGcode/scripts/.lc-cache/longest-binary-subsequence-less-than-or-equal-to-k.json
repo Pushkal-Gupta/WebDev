@@ -1,8 +1,0 @@
-{
-  "questionId": "2395",
-  "titleSlug": "longest-binary-subsequence-less-than-or-equal-to-k",
-  "title": "Longest Binary Subsequence Less Than or Equal to K",
-  "exampleTestcases": "\"1001010\"\n5\n\"00101001\"\n1",
-  "sampleTestCase": "\"1001010\"\n5",
-  "metaData": "{\n  \"name\": \"longestSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

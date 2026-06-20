@@ -1,0 +1,8 @@
+{
+  "questionId": "3896",
+  "titleSlug": "minimum-time-to-transport-all-individuals",
+  "title": "Minimum Time to Transport All Individuals",
+  "exampleTestcases": "1\n1\n2\n[5]\n[1.0,1.3]\n3\n2\n3\n[2,5,8]\n[1.0,1.5,0.75]\n2\n1\n2\n[10,10]\n[2.0,2.0]",
+  "sampleTestCase": "1\n1\n2\n[5]\n[1.0,1.3]",
+  "metaData": "{\n  \"name\": \"minTime\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"time\"\n    },\n    {\n      \"type\": \"double[]\",\n      \"name\": \"mul\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
+}

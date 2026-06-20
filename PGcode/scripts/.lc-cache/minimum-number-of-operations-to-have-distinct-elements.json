@@ -1,8 +1,0 @@
-{
-  "questionId": "4162",
-  "titleSlug": "minimum-number-of-operations-to-have-distinct-elements",
-  "title": "Minimum Number of Operations to Have Distinct Elements",
-  "exampleTestcases": "[3,8,3,6,5,8]\n[2,2]\n[4,3,5,1,2]",
-  "sampleTestCase": "[3,8,3,6,5,8]",
-  "metaData": "{\n  \"name\": \"minOperations\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2481",
-  "titleSlug": "strictly-palindromic-number",
-  "title": "Strictly Palindromic Number",
-  "exampleTestcases": "9\n4",
-  "sampleTestCase": "9",
-  "metaData": "{\n  \"name\": \"isStrictlyPalindromic\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

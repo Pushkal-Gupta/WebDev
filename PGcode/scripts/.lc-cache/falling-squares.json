@@ -1,8 +1,0 @@
-{
-  "questionId": "699",
-  "titleSlug": "falling-squares",
-  "title": "Falling Squares",
-  "exampleTestcases": "[[1,2],[2,3],[6,1]]\n[[100,100],[200,100]]",
-  "sampleTestCase": "[[1,2],[2,3],[6,1]]",
-  "metaData": "{\r\n  \"name\": \"fallingSquares\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"positions\",\r\n      \"type\": \"integer[][]\",\r\n      \"dealloc\": false\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\",\r\n    \"dealloc\": true\r\n  }\r\n}"
-}

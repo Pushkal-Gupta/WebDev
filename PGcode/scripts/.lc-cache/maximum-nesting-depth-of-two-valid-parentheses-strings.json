@@ -1,8 +1,0 @@
-{
-  "questionId": "1208",
-  "titleSlug": "maximum-nesting-depth-of-two-valid-parentheses-strings",
-  "title": "Maximum Nesting Depth of Two Valid Parentheses Strings",
-  "exampleTestcases": "\"(()())\"\n\"()(())()\"",
-  "sampleTestCase": "\"(()())\"",
-  "metaData": "{\n  \"name\": \"maxDepthAfterSplit\",\n  \"params\": [\n    {\n      \"name\": \"seq\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

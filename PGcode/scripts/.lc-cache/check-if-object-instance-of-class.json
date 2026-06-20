@@ -1,8 +1,0 @@
-{
-  "questionId": "2758",
-  "titleSlug": "check-if-object-instance-of-class",
-  "title": "Check if Object Instance of Class",
-  "exampleTestcases": "() => checkIfInstanceOf(new Date(), Date)\n() => { class Animal {}; class Dog extends Animal {}; return checkIfInstanceOf(new Dog(), Animal); }\n() => checkIfInstanceOf(Date, Date)\n() => checkIfInstanceOf(5, Number)",
-  "sampleTestCase": "() => checkIfInstanceOf(new Date(), Date)",
-  "metaData": "{\n  \"name\": \"checkIfInstance\",\n  \"params\": [\n    {\n      \"name\": \"func\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"javascript\",\n    \"typescript\"\n  ],\n  \"manual\": true\n}"
-}

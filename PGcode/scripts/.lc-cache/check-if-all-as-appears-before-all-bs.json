@@ -1,8 +1,0 @@
-{
-  "questionId": "2243",
-  "titleSlug": "check-if-all-as-appears-before-all-bs",
-  "title": "Check if All A's Appears Before All B's",
-  "exampleTestcases": "\"aaabbb\"\n\"abab\"\n\"bbb\"",
-  "sampleTestCase": "\"aaabbb\"",
-  "metaData": "{\n  \"name\": \"checkString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  }\n}"
-}

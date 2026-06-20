@@ -1,8 +1,0 @@
-{
-  "questionId": "1000",
-  "titleSlug": "delete-columns-to-make-sorted-iii",
-  "title": "Delete Columns to Make Sorted III",
-  "exampleTestcases": "[\"babca\",\"bbazb\"]\n[\"edcba\"]\n[\"ghi\",\"def\",\"abc\"]",
-  "sampleTestCase": "[\"babca\",\"bbazb\"]",
-  "metaData": "{\n  \"name\": \"minDeletionSize\",\n  \"params\": [\n    {\n      \"name\": \"strs\",\n      \"type\": \"string[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1917",
-  "titleSlug": "maximum-average-pass-ratio",
-  "title": "Maximum Average Pass Ratio",
-  "exampleTestcases": "[[1,2],[3,5],[2,2]]\n2\n[[2,4],[3,9],[4,5],[2,10]]\n4",
-  "sampleTestCase": "[[1,2],[3,5],[2,2]]\n2",
-  "metaData": "{\n  \"name\": \"maxAverageRatio\",\n  \"params\": [\n    {\n      \"name\": \"classes\",\n      \"type\": \"integer[][]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"extraStudents\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"double\"\n  }\n}"
-}

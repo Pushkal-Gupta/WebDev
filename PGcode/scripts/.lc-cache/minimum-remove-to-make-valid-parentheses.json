@@ -1,8 +1,0 @@
-{
-  "questionId": "1371",
-  "titleSlug": "minimum-remove-to-make-valid-parentheses",
-  "title": "Minimum Remove to Make Valid Parentheses",
-  "exampleTestcases": "\"lee(t(c)o)de)\"\n\"a)b(c)d\"\n\"))((\"",
-  "sampleTestCase": "\"lee(t(c)o)de)\"",
-  "metaData": "{\n  \"name\": \"minRemoveToMakeValid\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string\"\n  }\n}"
-}

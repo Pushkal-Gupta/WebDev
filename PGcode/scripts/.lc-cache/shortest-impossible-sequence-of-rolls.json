@@ -1,8 +1,0 @@
-{
-  "questionId": "2435",
-  "titleSlug": "shortest-impossible-sequence-of-rolls",
-  "title": "Shortest Impossible Sequence of Rolls",
-  "exampleTestcases": "[4,2,1,2,3,3,2,4,1]\n4\n[1,1,2,2]\n2\n[1,1,3,2,2,2,3,3]\n4",
-  "sampleTestCase": "[4,2,1,2,3,3,2,4,1]\n4",
-  "metaData": "{\n  \"name\": \"shortestSequence\",\n  \"params\": [\n    {\n      \"name\": \"rolls\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

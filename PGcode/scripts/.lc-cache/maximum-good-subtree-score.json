@@ -1,8 +1,0 @@
-{
-  "questionId": "3875",
-  "titleSlug": "maximum-good-subtree-score",
-  "title": "Maximum Good Subtree Score",
-  "exampleTestcases": "[2,3]\n[-1,0]\n[1,5,2]\n[-1,0,0]\n[34,1,2]\n[-1,0,1]\n[3,22,5]\n[-1,0,1]",
-  "sampleTestCase": "[2,3]\n[-1,0]",
-  "metaData": "{\n  \"name\": \"goodSubtreeSum\",\n  \"params\": [\n    {\n      \"name\": \"vals\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"par\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

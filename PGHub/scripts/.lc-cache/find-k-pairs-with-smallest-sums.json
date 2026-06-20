@@ -1,0 +1,8 @@
+{
+  "questionId": "373",
+  "titleSlug": "find-k-pairs-with-smallest-sums",
+  "title": "Find K Pairs with Smallest Sums",
+  "exampleTestcases": "[1,7,11]\n[2,4,6]\n3\n[1,1,2]\n[1,2,3]\n2",
+  "sampleTestCase": "[1,7,11]\n[2,4,6]\n3",
+  "metaData": "{\n  \"name\": \"kSmallestPairs\",\n  \"params\": [\n    {\n      \"name\": \"nums1\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"nums2\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"name\": \"k\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"list<list<integer>>\"\n  },\n  \"manual\": false\n}"
+}

@@ -1,8 +1,0 @@
-{
-  "questionId": "1510",
-  "titleSlug": "find-lucky-integer-in-an-array",
-  "title": "Find Lucky Integer in an Array",
-  "exampleTestcases": "[2,2,3,4]\n[1,2,2,3,3,3]\n[2,2,2,3,3]",
-  "sampleTestCase": "[2,2,3,4]",
-  "metaData": "{\n  \"name\": \"findLucky\",\n  \"params\": [\n    {\n      \"name\": \"arr\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

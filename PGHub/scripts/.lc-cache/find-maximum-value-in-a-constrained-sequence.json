@@ -1,0 +1,8 @@
+{
+  "questionId": "3807",
+  "titleSlug": "find-maximum-value-in-a-constrained-sequence",
+  "title": "Find Maximum Value in a Constrained Sequence",
+  "exampleTestcases": "10\n[[3,1],[8,1]]\n[2,2,3,1,4,5,1,1,2]\n8\n[[3,2]]\n[3,5,2,4,2,3,1]",
+  "sampleTestCase": "10\n[[3,1],[8,1]]\n[2,2,3,1,4,5,1,1,2]",
+  "metaData": "{\n  \"name\": \"findMaxVal\",\n  \"params\": [\n    {\n      \"type\": \"integer\",\n      \"name\": \"n\"\n    },\n    {\n      \"type\": \"integer[][]\",\n      \"name\": \"restrictions\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"diff\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

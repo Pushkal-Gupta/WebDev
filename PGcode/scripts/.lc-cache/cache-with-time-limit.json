@@ -1,8 +1,0 @@
-{
-  "questionId": "2762",
-  "titleSlug": "cache-with-time-limit",
-  "title": "Cache With Time Limit",
-  "exampleTestcases": "[\"TimeLimitedCache\", \"set\", \"get\", \"count\", \"get\"]\n[[], [1, 42, 100], [1], [], [1]]\n[0, 0, 50, 50, 150]\n[\"TimeLimitedCache\", \"set\", \"set\", \"get\", \"get\", \"get\", \"count\"]\n[[], [1, 42, 50], [1, 50, 100], [1], [1], [1], []]\n[0, 0, 40, 50, 120, 200, 250]",
-  "sampleTestCase": "[\"TimeLimitedCache\", \"set\", \"get\", \"count\", \"get\"]\n[[], [1, 42, 100], [1], [], [1]]\n[0, 0, 50, 50, 150]",
-  "metaData": "{\n  \"name\": \"foobar\",\n  \"params\": [\n    {\n      \"name\": \"actions\",\n      \"type\": \"string[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"values\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"timeDelays\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  },\n  \"languages\": [\n    \"typescript\",\n    \"javascript\"\n  ],\n  \"manual\": true\n}"
-}

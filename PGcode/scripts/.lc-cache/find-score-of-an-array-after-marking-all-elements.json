@@ -1,8 +1,0 @@
-{
-  "questionId": "2695",
-  "titleSlug": "find-score-of-an-array-after-marking-all-elements",
-  "title": "Find Score of an Array After Marking All Elements",
-  "exampleTestcases": "[2,1,3,4,5,2]\n[2,3,5,1,3,2]",
-  "sampleTestCase": "[2,1,3,4,5,2]",
-  "metaData": "{\n  \"name\": \"findScore\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

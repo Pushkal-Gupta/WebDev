@@ -1,8 +1,0 @@
-{
-  "questionId": "4199",
-  "titleSlug": "minimum-prefix-removal-to-make-array-strictly-increasing",
-  "title": "Minimum Prefix Removal to Make Array Strictly Increasing",
-  "exampleTestcases": "[1,-1,2,3,3,4,5]\n[4,3,-2,-5]\n[1,2,3,4]",
-  "sampleTestCase": "[1,-1,2,3,3,4,5]",
-  "metaData": "{\n  \"name\": \"minimumPrefixLength\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

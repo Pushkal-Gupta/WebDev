@@ -1,8 +1,0 @@
-{
-  "questionId": "3915",
-  "titleSlug": "maximum-product-of-two-integers-with-no-common-bits",
-  "title": "Maximum Product of Two Integers With No Common Bits",
-  "exampleTestcases": "[1,2,3,4,5,6,7]\n[5,6,4]\n[64,8,32]",
-  "sampleTestCase": "[1,2,3,4,5,6,7]",
-  "metaData": "{\n  \"name\": \"maxProduct\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

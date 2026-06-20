@@ -1,8 +1,0 @@
-{
-  "questionId": "2389",
-  "titleSlug": "design-a-text-editor",
-  "title": "Design a Text Editor",
-  "exampleTestcases": "[\"TextEditor\",\"addText\",\"deleteText\",\"addText\",\"cursorRight\",\"cursorLeft\",\"deleteText\",\"cursorLeft\",\"cursorRight\"]\n[[],[\"leetcode\"],[4],[\"practice\"],[3],[8],[10],[2],[6]]",
-  "sampleTestCase": "[\"TextEditor\",\"addText\",\"deleteText\",\"addText\",\"cursorRight\",\"cursorLeft\",\"deleteText\",\"cursorLeft\",\"cursorRight\"]\n[[],[\"leetcode\"],[4],[\"practice\"],[3],[8],[10],[2],[6]]",
-  "metaData": "{\n  \"classname\": \"TextEditor\",\n  \"constructor\": {\n    \"params\": []\n  },\n  \"methods\": [\n    {\n      \"params\": [\n        {\n          \"type\": \"string\",\n          \"name\": \"text\"\n        }\n      ],\n      \"name\": \"addText\",\n      \"return\": {\n        \"type\": \"void\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        }\n      ],\n      \"name\": \"deleteText\",\n      \"return\": {\n        \"type\": \"integer\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        }\n      ],\n      \"name\": \"cursorLeft\",\n      \"return\": {\n        \"type\": \"string\"\n      }\n    },\n    {\n      \"params\": [\n        {\n          \"type\": \"integer\",\n          \"name\": \"k\"\n        }\n      ],\n      \"name\": \"cursorRight\",\n      \"return\": {\n        \"type\": \"string\"\n      }\n    }\n  ],\n  \"return\": {\n    \"type\": \"boolean\"\n  },\n  \"systemdesign\": true\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2260",
-  "titleSlug": "divide-a-string-into-groups-of-size-k",
-  "title": "Divide a String Into Groups of Size k",
-  "exampleTestcases": "\"abcdefghi\"\n3\n\"x\"\n\"abcdefghij\"\n3\n\"x\"",
-  "sampleTestCase": "\"abcdefghi\"\n3\n\"x\"",
-  "metaData": "{\n  \"name\": \"divideString\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"character\",\n      \"name\": \"fill\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"string[]\"\n  }\n}"
-}

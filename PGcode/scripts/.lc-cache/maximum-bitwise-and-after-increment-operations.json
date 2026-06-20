@@ -1,8 +1,0 @@
-{
-  "questionId": "4154",
-  "titleSlug": "maximum-bitwise-and-after-increment-operations",
-  "title": "Maximum Bitwise AND After Increment Operations",
-  "exampleTestcases": "[3,1,2]\n8\n2\n[1,2,8,4]\n7\n3\n[1,1]\n3\n2",
-  "sampleTestCase": "[3,1,2]\n8\n2",
-  "metaData": "{\n  \"name\": \"maximumAND\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"m\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

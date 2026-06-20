@@ -1,8 +1,0 @@
-{
-  "questionId": "1278",
-  "titleSlug": "product-price-at-a-given-date",
-  "title": "Product Price at a Given Date",
-  "exampleTestcases": "{\"headers\":{\"Products\":[\"product_id\",\"new_price\",\"change_date\"]},\"rows\":{\"Products\":[[1,20,\"2019-08-14\"],[2,50,\"2019-08-14\"],[1,30,\"2019-08-15\"],[1,35,\"2019-08-16\"],[2,65,\"2019-08-17\"],[3,20,\"2019-08-18\"]]}}",
-  "sampleTestCase": "{\"headers\":{\"Products\":[\"product_id\",\"new_price\",\"change_date\"]},\"rows\":{\"Products\":[[1,20,\"2019-08-14\"],[2,50,\"2019-08-14\"],[1,30,\"2019-08-15\"],[1,35,\"2019-08-16\"],[2,65,\"2019-08-17\"],[3,20,\"2019-08-18\"]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Products (product_id int, new_price int, change_date date)\"], \"mssql\": [\"Create table Products (product_id int, new_price int, change_date date)\"], \"oraclesql\": [\"Create table Products (product_id int, new_price int, change_date date)\", \"ALTER SESSION SET nls_date_format='YYYY-MM-DD'\"], \"database\": true, \"name\": \"price_at_given_date\", \"pythondata\": [\"Products = pd.DataFrame([], columns=['product_id', 'new_price', 'change_date']).astype({'product_id':'Int64', 'new_price':'Int64', 'change_date':'datetime64[ns]'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Products (product_id int, new_price int, change_date date)\"], \"database_schema\": {\"Products\": {\"product_id\": \"INT\", \"new_price\": \"INT\", \"change_date\": \"DATE\"}}}"
-}

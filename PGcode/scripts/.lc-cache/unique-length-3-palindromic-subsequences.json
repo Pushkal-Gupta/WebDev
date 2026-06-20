@@ -1,8 +1,0 @@
-{
-  "questionId": "2059",
-  "titleSlug": "unique-length-3-palindromic-subsequences",
-  "title": "Unique Length-3 Palindromic Subsequences",
-  "exampleTestcases": "\"aabca\"\n\"adc\"\n\"bbcbaba\"",
-  "sampleTestCase": "\"aabca\"",
-  "metaData": "{\n  \"name\": \"countPalindromicSubsequence\",\n  \"params\": [\n    {\n      \"name\": \"s\",\n      \"type\": \"string\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

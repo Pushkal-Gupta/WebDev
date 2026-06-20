@@ -1,8 +1,0 @@
-{
-  "questionId": "392",
-  "titleSlug": "is-subsequence",
-  "title": "Is Subsequence",
-  "exampleTestcases": "\"abc\"\n\"ahbgdc\"\n\"axc\"\n\"ahbgdc\"",
-  "sampleTestCase": "\"abc\"\n\"ahbgdc\"",
-  "metaData": "{ \r\n  \"name\": \"isSubsequence\",\r\n  \"params\": [\r\n    { \r\n      \"name\": \"s\",\r\n      \"type\": \"string\"\r\n    },\r\n    { \r\n      \"name\": \"t\",\r\n      \"type\": \"string\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
-}

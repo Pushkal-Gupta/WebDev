@@ -1,8 +1,0 @@
-{
-  "questionId": "2305",
-  "titleSlug": "append-k-integers-with-minimal-sum",
-  "title": "Append K Integers With Minimal Sum",
-  "exampleTestcases": "[1,4,25,10,25]\n2\n[5,6]\n6",
-  "sampleTestCase": "[1,4,25,10,25]\n2",
-  "metaData": "{\n  \"name\": \"minimalKSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"k\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

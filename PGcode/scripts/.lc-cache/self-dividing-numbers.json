@@ -1,8 +1,0 @@
-{
-  "questionId": "728",
-  "titleSlug": "self-dividing-numbers",
-  "title": "Self Dividing Numbers",
-  "exampleTestcases": "1\n22\n47\n85",
-  "sampleTestCase": "1\n22",
-  "metaData": "{\r\n  \"name\": \"selfDividingNumbers\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"left\",\r\n      \"type\": \"integer\"\r\n    },\r\n    {\r\n      \"name\": \"right\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"list<integer>\"\r\n  }\r\n}\r\n"
-}

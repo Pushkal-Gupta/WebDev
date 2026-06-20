@@ -1,0 +1,477 @@
+.tsviz {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0.7rem 0;
+}
+
+.tsviz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.tsviz-title {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.tsviz-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.tsviz-toggle input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tsviz-toggle-track {
+  position: relative;
+  display: inline-block;
+  width: 32px;
+  height: 18px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  transition: background 0.2s ease-out, border-color 0.2s ease-out;
+}
+
+.tsviz-toggle-thumb {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: 14px;
+  height: 14px;
+  background: var(--text-dim);
+  border-radius: 50%;
+  transition: transform 0.2s ease-out, background 0.2s ease-out;
+}
+
+.tsviz-toggle input:checked + .tsviz-toggle-track {
+  background: rgba(var(--accent-rgb), 0.18);
+  border-color: var(--warning, var(--hard));
+}
+
+.tsviz-toggle input:checked + .tsviz-toggle-track .tsviz-toggle-thumb {
+  transform: translateX(14px);
+  background: var(--warning, var(--hard));
+}
+
+.tsviz-toggle input:focus-visible + .tsviz-toggle-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.tsviz-toggle-label {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-main);
+}
+
+.tsviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.tsviz-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.tsviz-dot {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  display: inline-block;
+}
+
+.tsviz-dot-idle    { background: var(--surface); border-color: var(--border); }
+.tsviz-dot-queued  { background: var(--surface); border-color: var(--hue-sky); }
+.tsviz-dot-current { background: var(--accent); border-color: var(--accent); }
+.tsviz-dot-settled { background: rgba(var(--accent-rgb), 0.18); border-color: var(--easy); }
+
+.tsviz-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 0.85rem;
+  background: rgba(var(--accent-rgb), 0.06);
+  border: 1px solid var(--hard);
+  border-left: 4px solid var(--hard);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--hard);
+  letter-spacing: 0.04em;
+  animation: tsviz-banner-in 0.32s ease-out;
+}
+
+@keyframes tsviz-banner-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tsviz-stage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.tsviz-svg {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 700 / 340;
+  display: block;
+}
+
+.tsviz-edge {
+  stroke: var(--border);
+  stroke-width: 1.6;
+  fill: none;
+  transition: stroke 0.3s ease-out, stroke-width 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.tsviz-edge-idle    { stroke: var(--border); }
+.tsviz-edge-relaxed { stroke: var(--easy); stroke-width: 2.2; opacity: 0.85; }
+.tsviz-edge-flash {
+  stroke: var(--accent);
+  stroke-width: 3;
+  animation: tsviz-edge-flash 0.7s ease-out;
+}
+
+@keyframes tsviz-edge-flash {
+  0%   { stroke-width: 1.6; opacity: 0.4; }
+  35%  { stroke-width: 4;   opacity: 1; }
+  100% { stroke-width: 3;   opacity: 1; }
+}
+
+.tsviz-arrowhead-idle    { fill: var(--border); }
+.tsviz-arrowhead-relaxed { fill: var(--easy); }
+.tsviz-arrowhead-flash   { fill: var(--accent); }
+
+.tsviz-node { outline: none; }
+
+.tsviz-node-circle {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.8;
+  transition: fill 0.3s ease-out, stroke 0.3s ease-out, stroke-width 0.3s ease-out;
+}
+
+.tsviz-node-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-main);
+  pointer-events: none;
+  user-select: none;
+  transition: fill 0.3s ease-out;
+}
+
+.tsviz-node-indeg {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 600;
+  fill: var(--text-dim);
+  pointer-events: none;
+  user-select: none;
+  letter-spacing: 0.04em;
+  transition: fill 0.3s ease-out;
+}
+
+.tsviz-node-idle    .tsviz-node-circle { fill: var(--surface); stroke: var(--border); }
+.tsviz-node-queued  .tsviz-node-circle { fill: var(--surface); stroke: var(--hue-sky); stroke-width: 2.4; }
+.tsviz-node-current .tsviz-node-circle { fill: var(--accent); stroke: var(--accent); }
+.tsviz-node-current .tsviz-node-label  { fill: var(--bg); }
+.tsviz-node-current .tsviz-node-indeg  { fill: var(--bg); opacity: 0.85; }
+.tsviz-node-settled .tsviz-node-circle { fill: rgba(var(--accent-rgb), 0.18); stroke: var(--easy); stroke-width: 2.2; }
+.tsviz-node-stuck   .tsviz-node-circle { fill: var(--surface); stroke: var(--hard); stroke-width: 2.6; }
+.tsviz-node-stuck   .tsviz-node-label  { fill: var(--hard); }
+
+.tsviz-node-ring {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2;
+  opacity: 0.8;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tsviz-ring-pulse 1.4s ease-in-out infinite;
+}
+
+.tsviz-node-pulse {
+  fill: var(--hue-sky);
+  opacity: 0.15;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: tsviz-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes tsviz-ring-pulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(1.08); }
+}
+
+@keyframes tsviz-pulse {
+  0%, 100% { opacity: 0.15; }
+  50%      { opacity: 0.32; }
+}
+
+.tsviz-status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.tsviz-status-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.tsviz-status-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.tsviz-status-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.tsviz-muted {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.tsviz-queue,
+.tsviz-result {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.tsviz-queue-label,
+.tsviz-result-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.tsviz-queue-chips,
+.tsviz-result-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+}
+
+.tsviz-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 30px;
+  padding: 0.25rem 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 999px;
+  animation: tsviz-chip-in 0.22s ease-out;
+}
+
+.tsviz-chip-queue {
+  color: var(--hue-sky);
+  background: rgba(var(--accent-rgb), 0.06);
+  border: 1px solid var(--hue-sky);
+}
+
+.tsviz-chip-head {
+  color: var(--accent);
+  background: var(--hover-box);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent) inset;
+}
+
+.tsviz-chip-result {
+  color: var(--easy);
+  background: rgba(var(--accent-rgb), 0.08);
+  border: 1px solid var(--easy);
+  padding-left: 0.3rem;
+}
+
+.tsviz-chip-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 0.32rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--easy);
+  border-radius: 999px;
+}
+
+@keyframes tsviz-chip-in {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.tsviz-caption {
+  font-family: var(--mono);
+  font-size: 0.88rem;
+  color: var(--text-main);
+  background: var(--hover-box);
+  border-left: 3px solid var(--accent);
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  line-height: 1.6;
+  margin: 0;
+  animation: tsviz-caption-in 0.28s ease-out;
+}
+
+@keyframes tsviz-caption-in {
+  from { opacity: 0; transform: translateX(-4px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.tsviz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+
+.tsviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.9rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.2s ease-out, color 0.2s ease-out, background 0.2s ease-out, transform 0.15s ease-out, filter 0.2s ease-out;
+}
+
+.tsviz-btn-secondary {
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.tsviz-btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.tsviz-btn-primary {
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+.tsviz-btn-primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.tsviz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
+}
+
+@media (max-width: 600px) {
+  .tsviz { padding: 1rem; }
+  .tsviz-title { font-size: 0.95rem; }
+  .tsviz-btn { padding: 0.45rem 0.7rem; font-size: 0.72rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsviz-node-ring,
+  .tsviz-node-pulse,
+  .tsviz-chip,
+  .tsviz-caption,
+  .tsviz-banner,
+  .tsviz-edge-flash { animation: none !important; }
+  .tsviz-edge,
+  .tsviz-node-circle,
+  .tsviz-node-label,
+  .tsviz-node-indeg,
+  .tsviz-toggle-track,
+  .tsviz-toggle-thumb,
+  .tsviz-btn { transition: none !important; }
+  .tsviz-btn-secondary:hover,
+  .tsviz-btn-primary:hover { transform: none !important; }
+}

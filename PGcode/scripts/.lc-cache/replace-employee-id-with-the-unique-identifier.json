@@ -1,8 +1,0 @@
-{
-  "questionId": "1509",
-  "titleSlug": "replace-employee-id-with-the-unique-identifier",
-  "title": "Replace Employee ID With The Unique Identifier",
-  "exampleTestcases": "{\"headers\":{\"Employees\":[\"id\",\"name\"],\"EmployeeUNI\":[\"id\",\"unique_id\"]},\"rows\":{\"Employees\":[[1,\"Alice\"],[7,\"Bob\"],[11,\"Meir\"],[90,\"Winston\"],[3,\"Jonathan\"]],\"EmployeeUNI\":[[3,1],[11,2],[90,3]]}}",
-  "sampleTestCase": "{\"headers\":{\"Employees\":[\"id\",\"name\"],\"EmployeeUNI\":[\"id\",\"unique_id\"]},\"rows\":{\"Employees\":[[1,\"Alice\"],[7,\"Bob\"],[11,\"Meir\"],[90,\"Winston\"],[3,\"Jonathan\"]],\"EmployeeUNI\":[[3,1],[11,2],[90,3]]}}",
-  "metaData": "{\"mysql\": [\"Create table If Not Exists Employees (id int, name varchar(20))\", \"Create table If Not Exists EmployeeUNI (id int, unique_id int)\"], \"mssql\": [\"Create table Employees (id int, name varchar(20))\", \"Create table EmployeeUNI (id int, unique_id int)\"], \"oraclesql\": [\"Create table Employees (id int, name varchar(20))\", \"Create table EmployeeUNI (id int, unique_id int)\"], \"database\": true, \"name\": \"replace_employee_id\", \"pythondata\": [\"Employees = pd.DataFrame([], columns=['id', 'name']).astype({'id':'int64', 'name':'object'})\", \"EmployeeUNI = pd.DataFrame([], columns=['id', 'unique_id']).astype({'id':'int64', 'unique_id':'int64'})\"], \"postgresql\": [\"\\nCreate table If Not Exists Employees (id int, name varchar(20))\\n\", \"Create table If Not Exists EmployeeUNI (id int, unique_id int)\"], \"database_schema\": {\"Employees\": {\"id\": \"INT\", \"name\": \"VARCHAR(20)\"}, \"EmployeeUNI\": {\"id\": \"INT\", \"unique_id\": \"INT\"}}}"
-}

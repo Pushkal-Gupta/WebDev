@@ -1,8 +1,0 @@
-{
-  "questionId": "1676",
-  "titleSlug": "minimum-number-of-days-to-eat-n-oranges",
-  "title": "Minimum Number of Days to Eat N Oranges",
-  "exampleTestcases": "10\n6",
-  "sampleTestCase": "10",
-  "metaData": "{\n  \"name\": \"minDays\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "755",
-  "titleSlug": "reach-a-number",
-  "title": "Reach a Number",
-  "exampleTestcases": "2\n3",
-  "sampleTestCase": "2",
-  "metaData": "{\r\n  \"name\": \"reachNumber\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"target\",\r\n      \"type\": \"integer\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"integer\"\r\n  }\r\n}\r\n"
-}

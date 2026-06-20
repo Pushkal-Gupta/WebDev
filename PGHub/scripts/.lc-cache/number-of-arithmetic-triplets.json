@@ -1,0 +1,8 @@
+{
+  "questionId": "2442",
+  "titleSlug": "number-of-arithmetic-triplets",
+  "title": "Number of Arithmetic Triplets",
+  "exampleTestcases": "[0,1,4,6,7,10]\n3\n[4,5,6,7,8,9]\n2",
+  "sampleTestCase": "[0,1,4,6,7,10]\n3",
+  "metaData": "{\n  \"name\": \"arithmeticTriplets\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"diff\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
+}

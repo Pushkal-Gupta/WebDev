@@ -1,0 +1,8 @@
+{
+  "questionId": "393",
+  "titleSlug": "utf-8-validation",
+  "title": "UTF-8 Validation",
+  "exampleTestcases": "[197,130,1]\n[235,140,4]",
+  "sampleTestCase": "[197,130,1]",
+  "metaData": "{\r\n  \"name\": \"validUtf8\",\r\n  \"params\": [\r\n    {\r\n      \"name\": \"data\",\r\n      \"type\": \"integer[]\"\r\n    }\r\n  ],\r\n  \"return\": {\r\n    \"type\": \"boolean\"\r\n  }\r\n}"
+}

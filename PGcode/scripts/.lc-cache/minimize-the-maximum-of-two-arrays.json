@@ -1,8 +1,0 @@
-{
-  "questionId": "2628",
-  "titleSlug": "minimize-the-maximum-of-two-arrays",
-  "title": "Minimize the Maximum of Two Arrays",
-  "exampleTestcases": "2\n7\n1\n3\n3\n5\n2\n1\n2\n4\n8\n2",
-  "sampleTestCase": "2\n7\n1\n3",
-  "metaData": "{\n  \"name\": \"minimizeSet\",\n  \"params\": [\n    {\n      \"name\": \"divisor1\",\n      \"type\": \"integer\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"divisor2\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"uniqueCnt1\"\n    },\n    {\n      \"type\": \"integer\",\n      \"name\": \"uniqueCnt2\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}

@@ -1,8 +1,0 @@
-{
-  "questionId": "2466",
-  "titleSlug": "maximum-segment-sum-after-removals",
-  "title": "Maximum Segment Sum After Removals",
-  "exampleTestcases": "[1,2,5,6,1]\n[0,3,2,4,1]\n[3,2,11,1]\n[3,2,1,0]",
-  "sampleTestCase": "[1,2,5,6,1]\n[0,3,2,4,1]",
-  "metaData": "{\n  \"name\": \"maximumSegmentSum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    },\n    {\n      \"type\": \"integer[]\",\n      \"name\": \"removeQueries\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long[]\"\n  }\n}"
-}

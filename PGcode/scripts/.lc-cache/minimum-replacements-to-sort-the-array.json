@@ -1,8 +1,0 @@
-{
-  "questionId": "2450",
-  "titleSlug": "minimum-replacements-to-sort-the-array",
-  "title": "Minimum Replacements to Sort the Array",
-  "exampleTestcases": "[3,9,3]\n[1,2,3,4,5]",
-  "sampleTestCase": "[3,9,3]",
-  "metaData": "{\n  \"name\": \"minimumReplacement\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

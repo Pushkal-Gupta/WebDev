@@ -1,8 +1,0 @@
-{
-  "questionId": "1019",
-  "titleSlug": "squares-of-a-sorted-array",
-  "title": "Squares of a Sorted Array",
-  "exampleTestcases": "[-4,-1,0,3,10]\n[-7,-3,2,3,11]",
-  "sampleTestCase": "[-4,-1,0,3,10]",
-  "metaData": "{\n  \"name\": \"sortedSquares\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer[]\"\n  }\n}"
-}

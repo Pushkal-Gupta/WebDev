@@ -1,8 +1,0 @@
-{
-  "questionId": "4301",
-  "titleSlug": "minimize-array-sum-using-divisible-replacements",
-  "title": "Minimize Array Sum Using Divisible Replacements",
-  "exampleTestcases": "[3,6,2]\n[4,2,8,3]\n[7,5,9]",
-  "sampleTestCase": "[3,6,2]",
-  "metaData": "{\n  \"name\": \"minArraySum\",\n  \"params\": [\n    {\n      \"name\": \"nums\",\n      \"type\": \"integer[]\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"long\"\n  }\n}"
-}

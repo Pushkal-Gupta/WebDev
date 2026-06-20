@@ -1,8 +1,0 @@
-{
-  "questionId": "2630",
-  "titleSlug": "alternating-digit-sum",
-  "title": "Alternating Digit Sum",
-  "exampleTestcases": "521\n111\n886996",
-  "sampleTestCase": "521",
-  "metaData": "{\n  \"name\": \"alternateDigitSum\",\n  \"params\": [\n    {\n      \"name\": \"n\",\n      \"type\": \"integer\"\n    }\n  ],\n  \"return\": {\n    \"type\": \"integer\"\n  }\n}"
-}
