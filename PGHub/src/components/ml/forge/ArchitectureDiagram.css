@@ -93,6 +93,17 @@
   fill: color-mix(in srgb, var(--node-hue) 40%, transparent);
 }
 
+/* ambient sequential-activation sweep: a soft hue wash that lights each block
+   in order top→bottom, so the eye follows the forward pass. Idle by default;
+   driven only inside the no-preference motion block below. */
+.arch-node-sweep {
+  fill: var(--node-hue);
+  opacity: 0;
+  pointer-events: none;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 .arch-node.is-hot .arch-node-box {
   stroke: var(--node-hue);
   stroke-width: 2.4;
@@ -134,6 +145,19 @@
   stroke-width: 2.6;
 }
 
+/* downward-flowing data pulse — a short bright dash that travels top→bottom
+   along each trunk edge. The base edge stays static beneath it. */
+.arch-edge-flow {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  /* one short dash (the "packet") + a long gap = the rest of the edge */
+  stroke-dasharray: 13 220;
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+
 .arch-arrow-head { fill: color-mix(in srgb, var(--text-main) 60%, var(--text-dim)); }
 .arch-arrow-head.is-skip { fill: var(--hue-mint); }
 
@@ -151,6 +175,16 @@
   stroke: var(--hue-mint);
   stroke-width: 2.4;
   stroke-dasharray: none;
+}
+
+/* flowing residual data — a bright travelling segment on the skip curve */
+.arch-skip-flow {
+  stroke: var(--hue-mint);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-dasharray: 11 200;
+  stroke-dashoffset: 0;
+  opacity: 0;
 }
 
 .arch-skip-label {
@@ -178,4 +212,67 @@
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.04em;
+}
+
+/* ==== ambient flow animation (data flowing DOWN the stack) ============= *
+ * All new motion lives behind no-preference and is fully disabled under   *
+ * reduce. Nothing here changes layout geometry — only opacity / dash /    *
+ * a sub-pixel scale, so there is no reflow and no horizontal overflow.    */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* 1. Trunk pulse: a short bright dash travels each edge top→bottom.
+        Decreasing stroke-dashoffset moves the dash toward the path end
+        (downward, since the line is drawn top→bottom). Edges fire in
+        sequence via a per-edge delay so the packet hands off down the
+        column, reading as one continuous forward pass. */
+  .arch-edge-flow {
+    animation: arch-trunk-flow 1.9s linear infinite;
+    animation-delay: calc(var(--edge-i, 0) * 0.34s);
+  }
+
+  /* 2. Sequential block activation: each block lights in index order,
+        staggered by --node-i, looping so the highlight sweeps top→bottom. */
+  .arch-node-sweep {
+    animation: arch-block-pulse 2.6s ease-in-out infinite;
+    animation-delay: calc(var(--node-i, 0) * 0.26s);
+  }
+
+  /* 3. Skip / residual flow: matching travelling dash on the curve. */
+  .arch-skip-flow {
+    animation: arch-skip-flow 2.2s linear infinite;
+    animation-delay: calc(var(--skip-i, 0) * 0.5s);
+  }
+
+  /* 4. A hovered block is THE focus: kill the ambient sweep on it (and on
+        its connected edges where possible) so is-hot clearly wins. */
+  .arch-node.is-hot .arch-node-sweep { animation: none; opacity: 0; }
+
+  @keyframes arch-trunk-flow {
+    0%   { opacity: 0; stroke-dashoffset: 233; }
+    12%  { opacity: 0.95; }
+    80%  { opacity: 0.95; }
+    100% { opacity: 0; stroke-dashoffset: 0; }
+  }
+
+  @keyframes arch-skip-flow {
+    0%   { opacity: 0; stroke-dashoffset: 211; }
+    15%  { opacity: 0.85; }
+    78%  { opacity: 0.85; }
+    100% { opacity: 0; stroke-dashoffset: 0; }
+  }
+
+  @keyframes arch-block-pulse {
+    0%, 70%, 100% { opacity: 0; transform: scale(1); }
+    18%           { opacity: 0.16; transform: scale(1.004); }
+    34%           { opacity: 0.05; transform: scale(1); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arch-edge-flow,
+  .arch-skip-flow,
+  .arch-node-sweep {
+    animation: none !important;
+    opacity: 0 !important;
+  }
 }

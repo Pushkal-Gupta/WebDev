@@ -190,7 +190,22 @@ export default function BPETrainingTraceViz() {
       const charW = Math.max(14, 8 * tok.length + 8);
       const isJustMerged = frame.lastMerge && tok === frame.lastMerge.merged;
       tokens.push(
-        <g key={`${i}-${tok}`} style={{ transition }}>
+        <g
+          key={`${i}-${tok}`}
+          className={isJustMerged && !reducedMotion ? 'bpett-fresh' : undefined}
+          style={{ transition, transformOrigin: `${x + charW / 2}px ${baseY}px`, transformBox: 'fill-box' }}
+        >
+          {isJustMerged && (
+            <rect
+              x={x - 3} y={baseY - 14} width={charW + 6} height={28}
+              rx={7}
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth={1}
+              opacity={reducedMotion ? 0.4 : 0.7}
+              className={reducedMotion ? undefined : 'bpett-halo'}
+            />
+          )}
           <rect
             x={x} y={baseY - 11} width={charW} height={22}
             rx={5}

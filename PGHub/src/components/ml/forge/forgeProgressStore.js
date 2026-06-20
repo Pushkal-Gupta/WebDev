@@ -129,21 +129,44 @@ export function computeStats(allProblems = []) {
     counts[key] = (counts[key] || 0) + 1;
   });
 
-  // Heatmap: last 26 weeks ending today, oldest first, week-by-week columns.
+  // Heatmap: last 52 weeks (a rolling year) ending today, oldest first, laid
+  // out week-by-week as columns. We snap the window to a Sunday start so each
+  // column is a clean calendar week — this makes the weekday rail (Mon/Wed/Fri)
+  // and the month labels along the top line up with their week columns.
+  const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const today = startOfDay(new Date());
-  const weeks = 26;
-  const totalDays = weeks * 7;
+  const weeks = 52;
+
+  // First cell = the Sunday of the week (weeks-1) weeks before this week.
+  const gridStart = new Date(today);
+  gridStart.setDate(today.getDate() - today.getDay() - (weeks - 1) * 7);
+
   const heatmap = [];
-  for (let i = totalDays - 1; i >= 0; i -= 1) {
-    const d = new Date(today);
-    d.setDate(today.getDate() - i);
-    const key = dayKey(d);
-    const count = counts[key] || 0;
-    let level = 0;
-    if (count >= 1) level = 1;
-    if (count >= 2) level = 2;
-    if (count >= 4) level = 3;
-    heatmap.push({ date: key, count, level });
+  // monthLabels: one entry per week column. label is set only on the first
+  // column whose Sunday falls in a new month, so the JSX can render a sparse
+  // month header row aligned to the grid columns.
+  const monthLabels = [];
+  let prevMonth = -1;
+  for (let w = 0; w < weeks; w += 1) {
+    const colStart = new Date(gridStart);
+    colStart.setDate(gridStart.getDate() + w * 7);
+    const m = colStart.getMonth();
+    monthLabels.push({ week: w, label: m !== prevMonth ? MONTH_NAMES[m] : '' });
+    prevMonth = m;
+
+    for (let day = 0; day < 7; day += 1) {
+      const d = new Date(colStart);
+      d.setDate(colStart.getDate() + day);
+      // Days after today (the trailing edge of the current week) are blank.
+      const future = d.getTime() > today.getTime();
+      const key = dayKey(d);
+      const count = future ? 0 : (counts[key] || 0);
+      let level = 0;
+      if (count >= 1) level = 1;
+      if (count >= 2) level = 2;
+      if (count >= 4) level = 3;
+      heatmap.push({ date: key, count, level, future });
+    }
   }
 
   // Streaks: consecutive days that have at least one solve.
@@ -185,6 +208,8 @@ export function computeStats(allProblems = []) {
     byDiff,
     recent,
     heatmap,
+    monthLabels,
+    weeks,
     currentStreak,
     bestStreak,
     totalSubmissions,

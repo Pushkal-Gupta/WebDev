@@ -1,7 +1,6 @@
-/* The route shell isn't a flex column, so anchor the fill to the viewport
-   (mirrors the prior viewport-height behaviour) while keeping the flex pattern. */
+/* Route scrolls via its OWN container — fixed height + overflow-y, never
+   min-height (which clips with no scroll under the overflow:hidden #root). */
 .comp-container {
-  flex: 1 1 auto;
   display: flex;
   flex-direction: column;
   width: 94%;
@@ -10,7 +9,7 @@
   padding: 1.5rem 0 3rem;
   overflow-y: auto;
   overflow-x: hidden;
-  min-height: calc(100vh - 104px);
+  height: calc(100vh - 100px);
 }
 
 /* Sections region grows to fill remaining height so the page never bottoms out
@@ -18,6 +17,12 @@
 .comp-sections {
   flex: 1 1 auto;
   min-height: 0;
+}
+
+/* Group members grid fills remaining height (avoids an empty bottom band). */
+.comp-group-members {
+  flex: 1 1 auto;
+  align-content: start;
 }
 
 .comp-header {
@@ -95,9 +100,10 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  height: 100%;
   padding: 1rem 1.1rem;
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--surface);
   text-decoration: none;
   color: inherit;
@@ -206,6 +212,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-top: auto;
   font-family: var(--mono);
   font-size: 0.6rem;
   color: var(--text-dim);

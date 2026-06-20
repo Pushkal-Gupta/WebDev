@@ -21,14 +21,14 @@ const MOTIF_RULES = [
   [/\bbfs\b|\bdfs\b|breadth|depth.?first|advanced.?graph|shortest.?path|dijkstra|\bmst\b|union.?find|topolog|graph/i, 'network'],
   [/binary.?search|search/i, 'scatter'],
   [/geometr|\bgeo\b|coordinate|convex/i, 'field'],
-  [/linked.?list/i, 'field'],
+  [/linked.?list/i, 'chain'],
   [/\bstack\b|monotonic/i, 'bars'],
   [/\bqueue\b|deque/i, 'cuda'],
   [/greedy|schedul/i, 'bars'],
   [/sort/i, 'distribution'],
   [/math|number.?theory|arithmetic|combinatoric|modul/i, 'rings'],
   [/string|substring|palindrome|matching|anagram/i, 'heat'],
-  [/hash|hashmap|hash.?table|\bmap\b|\bset\b/i, 'grid'],
+  [/hash|hashmap|hash.?table|\bmap\b|\bset\b/i, 'heat'],
   [/array|matrix|two.?sum/i, 'grid'],
 ];
 

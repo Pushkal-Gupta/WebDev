@@ -93,22 +93,11 @@ export default function KaggleCompetitions() {
     [],
   );
 
-  const stats = useMemo(() => {
-    const total = KAGGLE_COMPETITIONS.reduce((a, c) => a + c.prizeValue, 0);
-    const soonest = Math.min(...KAGGLE_COMPETITIONS.map((c) => c.daysLeft));
-    return { count: KAGGLE_COMPETITIONS.length, pool: total, soonest };
-  }, []);
-
   return (
     <div className="kg-page">
       <header className="kg-head">
         <h1 className="kg-title"><Brain size={24} /> ML Competitions</h1>
         <p className="kg-sub">Live data-science and machine-learning contests — sorted by deadline, prize, or field, with prize pools at a glance.</p>
-        <div className="kg-stats">
-          <span><strong>{stats.count}</strong> open</span>
-          <span><strong>${(stats.pool / 1000).toFixed(0)}k</strong> total prizes</span>
-          <span>next deadline <strong>{stats.soonest}d</strong></span>
-        </div>
       </header>
 
       <section className="kg-dash">

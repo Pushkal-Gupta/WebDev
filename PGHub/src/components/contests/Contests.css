@@ -24,6 +24,12 @@
   letter-spacing: -0.01em;
   margin-bottom: 0.4rem;
 }
+.ctx-brand {
+  color: var(--text-dim);
+  font-size: 0.6em;
+  font-weight: 600;
+  opacity: 0.55;
+}
 
 .ctx-sub {
   font-size: 0.85rem;
@@ -1659,24 +1665,6 @@
 }
 
 /* How-it-works disclosure */
-.lca-disc-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.2rem 0;
-}
-.lca-disc-btn:hover { color: var(--text-main); }
-.lca-disc-chev { transition: transform var(--t); }
-.lca-disc-btn.open .lca-disc-chev { transform: rotate(180deg); }
 .lca-disc-body {
   margin-top: 0.7rem;
   border: 1px solid var(--border);
@@ -1713,7 +1701,7 @@
   .lca-qhead-num { grid-column: 4; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lca-disc-chev, .lca-spark-line, .lca-spark-now, .lca-spark-after, .lca-qbar-fill, .lca-pctl-fill, .lca-pctl-marker, .lca-slider input[type='range']::-webkit-slider-thumb { transition: none; }
+  .lca-spark-line, .lca-spark-now, .lca-spark-after, .lca-qbar-fill, .lca-pctl-fill, .lca-pctl-marker, .lca-slider input[type='range']::-webkit-slider-thumb { transition: none; }
 }
 
 /* ── Contest-detail view tabs + live rankings table ─────────────────────── */

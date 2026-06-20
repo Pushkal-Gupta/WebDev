@@ -113,14 +113,14 @@ export default function ConferencesSection() {
               <span className="lnch-chip"><MapPin size={11} /> {c.where}</span>
               {c.tags.map((t) => <span key={t} className="lnch-chip tag"><Tag size={10} /> {t}</span>)}
             </div>
-            {c.url && (
-              <div className="lnch-card-foot">
-                <span className="lnch-meta"><CalendarDays size={12} /> {c.when.replace('Annual · ', '')}</span>
+            <div className="lnch-card-foot">
+              <span className="lnch-meta"><CalendarDays size={12} /> {c.when.replace('Annual · ', '')}</span>
+              {c.url && (
                 <a className="lnch-cta" href={c.url} target="_blank" rel="noreferrer">
                   View <ExternalLink size={12} />
                 </a>
-              </div>
-            )}
+              )}
+            </div>
           </article>
         ))}
       </div>

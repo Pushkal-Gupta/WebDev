@@ -163,7 +163,10 @@ export default function Achievements({ session, roadmapMode = '500', compact = f
             <span className="vault-crumbs-current">Achievements</span>
           </nav>
           <div className="ach-header-titlebar">
-            <h3 className="ach-title">Achievements</h3>
+            <div className="ach-titlebar-text">
+              <h1 className="ach-title">Achievements</h1>
+              <p className="ach-sub">Badges and milestones you unlock as you solve, build streaks, and explore.</p>
+            </div>
             <span className="ach-count">{earnedCount} / {totalCount} earned · {pct}%</span>
           </div>
 

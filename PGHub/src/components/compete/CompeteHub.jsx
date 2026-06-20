@@ -171,7 +171,7 @@ export default function CompeteHub() {
   return (
     <div className="compete-hub">
       <header className="compete-hero">
-        <h1 className="compete-title"><Swords size={26} /> <span style={{ color: 'var(--text-dim)', fontSize: '0.62em', opacity: 0.6, fontWeight: 600 }}>PG</span>Battle</h1>
+        <h1 className="compete-title"><Swords size={26} /> <span className="compete-pg">PG</span>Battle</h1>
         <p className="compete-sub">
           Look up any coder, track every contest across the judges, predict your rating, and jump to the next round, hackathon, or conference.
         </p>

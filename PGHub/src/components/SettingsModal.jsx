@@ -320,6 +320,12 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   useEffect(() => { setLocalPreferredLang(preferredLang || 'python'); }, [preferredLang]);
 
   useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  useEffect(() => {
     if (!session?.user) return;
     const loadProfile = async () => {
       const { data } = await supabase

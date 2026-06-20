@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Info, Lightbulb, Clock, Gauge, ListTree } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -7,6 +7,17 @@ import { getLesson, getPillar } from '../../content/mlContent';
 
 function katexHtml(tex, displayMode = false) {
   return katex.renderToString(tex, { throwOnError: false, displayMode, output: 'html' });
+}
+
+/* Where to send the user "back to" when they arrived from another hub.
+   Entry links pass ?from=vault | ?from=forge; default falls back to the ML root. */
+const FROM_TARGETS = {
+  vault: { to: '/vault', label: 'Vault' },
+  forge: { to: '/ml', label: 'PGForge' },
+};
+function resolveFrom(search, fallback = { to: '/ml', label: 'ML-DL-AI' }) {
+  const key = new URLSearchParams(search).get('from');
+  return FROM_TARGETS[key] || fallback;
 }
 import VectorPlayground from './viz/VectorPlayground';
 import VectorAdditionViz from './viz/VectorAdditionViz';
@@ -200,7 +211,7 @@ import AdamMomentsViz from './viz/AdamMomentsViz';
 import ActivationExplorerViz from './viz/ActivationExplorerViz';
 import LossDescentExplorerViz from './viz/LossDescentExplorerViz';
 import GaussianExplorerViz from './viz/GaussianExplorerViz';
-import RunnableCodeBlock from './RunnableCodeBlock';
+import RunnableCodePanel from '../RunnableCodePanel';
 import ConvKernelExplorerViz from './viz/ConvKernelExplorerViz';
 import MultiHeadAttentionExplorerViz from './viz/MultiHeadAttentionExplorerViz';
 import CrossEntropyExplorerViz from './viz/CrossEntropyExplorerViz';
@@ -507,7 +518,7 @@ function renderFigure(section) {
     case 'viz': return <VizBlock section={section} />;
     case 'ascii': return <AsciiBlock section={section} />;
     case 'math': return <MathBlock section={section} />;
-    case 'code': return <RunnableCodeBlock section={section} />;
+    case 'code': return <RunnableCodePanel code={section.body || ''} lang={section.language} title={section.heading} />;
     case 'callout': return <Callout section={section} />;
     default: return null;
   }
@@ -515,8 +526,17 @@ function renderFigure(section) {
 
 export default function MLLesson() {
   const { pillarSlug, lessonSlug } = useParams();
+  const location = useLocation();
   const lesson = getLesson(pillarSlug, lessonSlug);
   const pillar = getPillar(pillarSlug);
+  const scrollRef = useRef(null);
+  const back = resolveFrom(location.search);
+
+  // Reset scroll to top whenever the lesson changes so off-screen viz observers
+  // re-trigger naturally — fixes the "Loading visualization…" stuck state on back-nav.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0 });
+  }, [lessonSlug, pillarSlug]);
 
   const rows = useMemo(() => lesson ? groupRows(lesson.sections) : [], [lesson]);
 
@@ -537,9 +557,9 @@ export default function MLLesson() {
   if (!lesson) {
     return (
       <div className="ml-lesson">
-        <Link to={pillar ? `/ml/${pillarSlug}` : '/ml'} className="learn-crumb">
+        <Link to={pillar ? `/ml/${pillarSlug}${location.search}` : back.to} className="learn-crumb">
           <ArrowLeft size={13} />
-          <span>{pillar ? pillar.title : 'ML-DL-AI'}</span>
+          <span>{pillar ? pillar.title : back.label}</span>
         </Link>
         <h1 className="ml-lesson-title">Not found</h1>
         <p className="ml-lesson-sub">No lesson "{lessonSlug}" in {pillar?.title || pillarSlug}.</p>
@@ -548,10 +568,10 @@ export default function MLLesson() {
   }
 
   return (
-    <div className="ml-lesson">
-      <Link to={`/ml/${pillarSlug}`} className="learn-crumb">
+    <div className="ml-lesson" ref={scrollRef}>
+      <Link to={back.to} className="learn-crumb">
         <ArrowLeft size={13} />
-        <span>ML-DL-AI</span>
+        <span>{back.label}</span>
         <span className="learn-crumb-sep">/</span>
         <span>{pillar.title}</span>
         <span className="learn-crumb-sep">/</span>
@@ -630,7 +650,7 @@ export default function MLLesson() {
       {(prev || next) && (
         <nav className="ml-lesson-nav" aria-label="Lesson navigation">
           {prev ? (
-            <Link to={`/ml/${pillarSlug}/${prev.slug}`} className="ml-lesson-navcard ml-lesson-navcard-prev">
+            <Link to={`/ml/${pillarSlug}/${prev.slug}${location.search}`} className="ml-lesson-navcard ml-lesson-navcard-prev">
               <ArrowLeft size={15} className="ml-lesson-navicon" />
               <span className="ml-lesson-navtext">
                 <span className="ml-lesson-navdir">Previous</span>
@@ -639,7 +659,7 @@ export default function MLLesson() {
             </Link>
           ) : <span className="ml-lesson-navspacer" aria-hidden="true" />}
           {next ? (
-            <Link to={`/ml/${pillarSlug}/${next.slug}`} className="ml-lesson-navcard ml-lesson-navcard-next">
+            <Link to={`/ml/${pillarSlug}/${next.slug}${location.search}`} className="ml-lesson-navcard ml-lesson-navcard-next">
               <span className="ml-lesson-navtext">
                 <span className="ml-lesson-navdir">Next</span>
                 <span className="ml-lesson-navtitle">{next.title}</span>

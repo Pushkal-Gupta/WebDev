@@ -163,6 +163,9 @@
 .lcc-list {
   display: flex;
   flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-content: flex-start;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: clip;

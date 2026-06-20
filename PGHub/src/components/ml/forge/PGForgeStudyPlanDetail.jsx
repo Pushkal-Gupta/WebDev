@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ChevronRight, Clock, ListChecks, ArrowRight,
+  ChevronRight, Clock, ListChecks, ArrowRight, ArrowLeft,
   BookOpen, Code2, FileText, Sigma, Hammer,
 } from 'lucide-react';
 import { getStudyPlan } from './pgForgeStudyPlansData';
@@ -39,7 +39,7 @@ export default function PGForgeStudyPlanDetail() {
         </nav>
         <div className="forge-spd-empty">
           <p>That study plan does not exist.</p>
-          <Link to="/ml/study-plans" className="forge-spd-back">Back to all plans</Link>
+          <Link to="/ml/study-plans" className="forge-spd-back"><ArrowLeft size={14} /> Back to all plans</Link>
         </div>
       </div>
     );

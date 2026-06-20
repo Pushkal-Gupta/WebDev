@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { TrendingUp, TrendingDown, ChevronDown, MousePointerClick } from 'lucide-react';
+import { TrendingUp, TrendingDown, MousePointerClick } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import './Contests.css';
@@ -118,7 +118,6 @@ export default function LeetCodeAnalytics() {
   const [rating, setRating] = useState(1750);
   const [rank, setRank] = useState(820);
   const [played, setPlayed] = useState(12);
-  const [showMath, setShowMath] = useState(false);
 
   const result = useMemo(
     () => predictDelta({
@@ -232,18 +231,10 @@ export default function LeetCodeAnalytics() {
         </div>
       </section>
 
-      {/* How it works — disclosure */}
+      {/* How it works — rendered open at the page tail */}
       <section className="lca-section">
-        <button
-          className={`lca-disc-btn${showMath ? ' open' : ''}`}
-          onClick={() => setShowMath(v => !v)}
-          aria-expanded={showMath}
-        >
-          <ChevronDown size={14} className="lca-disc-chev" />
-          How it works
-        </button>
-        {showMath && (
-          <div className="lca-disc-body">
+        <h2 className="lca-section-title">How it works</h2>
+        <div className="lca-disc-body">
             <p>
               Each contestant has an Elo rating. The logistic seed estimates where you
               should rank against the field; the geometric mean of that seed and your
@@ -256,8 +247,7 @@ export default function LeetCodeAnalytics() {
               <TexBlock tex={String.raw`m_i = \sqrt{E_i \cdot \mathrm{rank}_i}`} />
               <TexBlock tex={String.raw`R_{\text{new}} = R_i + f(k)\,\bigl(\mathrm{ratingForRank}(m_i) - R_i\bigr)`} />
             </div>
-          </div>
-        )}
+        </div>
       </section>
     </div>
   );

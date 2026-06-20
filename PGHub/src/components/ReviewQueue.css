@@ -14,6 +14,8 @@
 /* ── Header ── */
 .rq-header {
   margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
 }
 
 .rq-badge { background: var(--hue-sky); }
@@ -28,9 +30,10 @@
 
 .rq-title {
   font-family: var(--serif);
-  font-size: 1.6rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-main);
+  letter-spacing: -0.01em;
 }
 
 .rq-badge {
@@ -195,9 +198,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.8rem;
   padding: 4rem 1rem;
   text-align: center;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 .rq-done-icon {

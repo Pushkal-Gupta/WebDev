@@ -1,5 +1,5 @@
-import React, { useMemo, useState } from 'react';
-import { Thermometer, Hash, Eye } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Thermometer, Hash, Eye, Play, Pause } from 'lucide-react';
 import './MLViz.css';
 
 const TOKEN_POOL = ['the', 'cat', 'sat', 'on', 'mat', 'and', 'purred', 'softly', 'while', 'dawn', 'rose', 'slow'];
@@ -60,10 +60,29 @@ function clamp01(x) {
   return Math.max(0, Math.min(1, x));
 }
 
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const sync = () => setReduced(mq.matches);
+    sync();
+    mq.addEventListener?.('change', sync);
+    return () => mq.removeEventListener?.('change', sync);
+  }, []);
+  return reduced;
+}
+
 export default function AttentionHeatmapViz() {
   const [n, setN] = useState(8);
   const [T, setT] = useState(1.0);
   const [hover, setHover] = useState(null);
+  const [scanRow, setScanRow] = useState(-1); // animated playhead row, -1 = idle
+  const [playing, setPlaying] = useState(false);
+  const reduced = useReducedMotion();
+  const rafRef = useRef(null);
+  const accRef = useRef(0);
+  const lastRef = useRef(null);
 
   const { tokens, scores, weights, entropies } = useMemo(() => {
     const localRng = mulberry32(SEED);
@@ -80,6 +99,37 @@ export default function AttentionHeatmapViz() {
     const ent = w.map((row) => entropy(row));
     return { tokens: toks, scores: sc, weights: w, entropies: ent };
   }, [n, T]);
+
+  // Auto-scan: advance the playhead query row at ~1.4 rows/sec, looping.
+  useEffect(() => {
+    if (!playing || reduced) {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastRef.current = null;
+      /* eslint-disable react-hooks/set-state-in-effect */
+      if (reduced) setPlaying(false);
+      /* eslint-enable react-hooks/set-state-in-effect */
+      return undefined;
+    }
+    const PERIOD = 0.7; // seconds per row
+    const tick = (now) => {
+      if (lastRef.current == null) lastRef.current = now;
+      const dt = (now - lastRef.current) / 1000;
+      lastRef.current = now;
+      accRef.current += dt;
+      if (accRef.current >= PERIOD) {
+        accRef.current = 0;
+        setScanRow((r) => (r + 1) % n);
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+      lastRef.current = null;
+    };
+  }, [playing, reduced, n]);
 
   // raw score range for color scaling
   const allScores = scores.flat();
@@ -112,11 +162,32 @@ export default function AttentionHeatmapViz() {
     return { fill: 'var(--accent)', opacity: 0.1 + 0.85 * a };
   }
 
+  // Effective focus row: hover wins, else the animated scan row.
+  const focusRow = hover ? hover.i : (playing ? scanRow : -1);
   const hoverI = hover ? hover.i : null;
   const hoverJ = hover ? hover.j : null;
 
   const tokenSpan = (W - 100) / Math.max(1, n);
   const tokenY = tokenRowY;
+
+  // best key for the focused query row (for live readout)
+  const focusInfo = useMemo(() => {
+    if (focusRow < 0 || focusRow >= n) return null;
+    const row = weights[focusRow];
+    let bestJ = 0;
+    for (let j = 1; j < row.length; j++) if (row[j] > row[bestJ]) bestJ = j;
+    return { bestJ, weight: row[bestJ], h: entropies[focusRow] };
+  }, [focusRow, weights, entropies, n]);
+
+  const togglePlay = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+    setScanRow((r) => (r < 0 || r >= n ? 0 : r));
+    setHover(null);
+    setPlaying(true);
+  };
 
   return (
     <div className="mlviz-wrap">
@@ -141,13 +212,12 @@ export default function AttentionHeatmapViz() {
             TOKENS
           </text>
           {tokens.map((tok, i) => {
-            const x = 50 + i * tokenSpan;
-            const highlight = hoverI === i || hoverJ === i;
-            const tag = hoverI === i ? 'query' : hoverJ === i ? 'key' : '';
+            const highlight = focusRow === i || hoverJ === i;
+            const tag = focusRow === i ? 'query' : hoverJ === i ? 'key' : '';
             return (
               <g key={i}>
                 <rect
-                  x={x + 2}
+                  x={50 + i * tokenSpan + 2}
                   y={tokenY}
                   width={tokenSpan - 4}
                   height={tokenH}
@@ -156,9 +226,10 @@ export default function AttentionHeatmapViz() {
                   opacity={highlight ? 0.85 : 0.6}
                   stroke="var(--border)"
                   strokeWidth="1"
+                  style={{ transition: reduced ? 'none' : 'fill 0.2s ease, opacity 0.2s ease' }}
                 />
                 <text
-                  x={x + tokenSpan / 2}
+                  x={50 + i * tokenSpan + tokenSpan / 2}
                   y={tokenY + 15}
                   fontSize="10"
                   textAnchor="middle"
@@ -170,7 +241,7 @@ export default function AttentionHeatmapViz() {
                 </text>
                 {tag && (
                   <text
-                    x={x + tokenSpan / 2}
+                    x={50 + i * tokenSpan + tokenSpan / 2}
                     y={tokenY + tokenH + 11}
                     fontSize="8.5"
                     textAnchor="middle"
@@ -212,10 +283,12 @@ export default function AttentionHeatmapViz() {
               const x = leftMatX + j * cell;
               const y = matrixTop + i * cell;
               const isHover = hoverI === i && hoverJ === j;
+              const inFocusRow = focusRow === i;
+              const dim = focusRow >= 0 && !inFocusRow;
               const c = rawCell(v);
               return (
                 <g key={`s-${i}-${j}`}>
-                  {isHover && (
+                  {(isHover || (inFocusRow && Math.abs(v) > sAbs * 0.5)) && (
                     <rect
                       x={x}
                       y={y}
@@ -235,12 +308,12 @@ export default function AttentionHeatmapViz() {
                     height={cell - 0.5}
                     rx={Math.min(3, cell * 0.18)}
                     fill={c.fill}
-                    fillOpacity={c.opacity}
-                    stroke={isHover ? 'var(--accent)' : 'transparent'}
-                    strokeWidth={isHover ? 1.5 : 0}
-                    onMouseEnter={() => setHover({ i, j })}
+                    fillOpacity={dim ? c.opacity * 0.35 : c.opacity}
+                    stroke={isHover || inFocusRow ? 'var(--accent)' : 'transparent'}
+                    strokeWidth={isHover ? 1.5 : inFocusRow ? 0.8 : 0}
+                    onMouseEnter={() => { setPlaying(false); setHover({ i, j }); }}
                     onMouseLeave={() => setHover(null)}
-                    style={{ cursor: 'pointer', transition: 'fill-opacity 0.12s ease' }}
+                    style={{ cursor: 'pointer', transition: reduced ? 'none' : 'fill-opacity 0.18s ease' }}
                   />
                 </g>
               );
@@ -288,10 +361,12 @@ export default function AttentionHeatmapViz() {
               const x = rightMatX + j * cell;
               const y = matrixTop + i * cell;
               const isHover = hoverI === i && hoverJ === j;
+              const inFocusRow = focusRow === i;
+              const dim = focusRow >= 0 && !inFocusRow;
               const c = probCell(p);
               return (
                 <g key={`w-${i}-${j}`}>
-                  {isHover && (
+                  {(isHover || (inFocusRow && p > 0.3)) && (
                     <rect
                       x={x}
                       y={y}
@@ -311,12 +386,12 @@ export default function AttentionHeatmapViz() {
                     height={cell - 0.5}
                     rx={Math.min(3, cell * 0.18)}
                     fill={c.fill}
-                    fillOpacity={c.opacity}
-                    stroke={isHover ? 'var(--accent)' : 'transparent'}
-                    strokeWidth={isHover ? 1.5 : 0}
-                    onMouseEnter={() => setHover({ i, j })}
+                    fillOpacity={dim ? c.opacity * 0.35 : c.opacity}
+                    stroke={isHover || inFocusRow ? 'var(--accent)' : 'transparent'}
+                    strokeWidth={isHover ? 1.5 : inFocusRow ? 0.8 : 0}
+                    onMouseEnter={() => { setPlaying(false); setHover({ i, j }); }}
                     onMouseLeave={() => setHover(null)}
-                    style={{ cursor: 'pointer', transition: 'fill-opacity 0.12s ease' }}
+                    style={{ cursor: 'pointer', transition: reduced ? 'none' : 'fill-opacity 0.18s ease' }}
                   />
                 </g>
               );
@@ -352,7 +427,7 @@ export default function AttentionHeatmapViz() {
             const y = matrixTop + i * cell + cell / 2;
             const maxH = Math.log(n);
             const norm = clamp01(h / maxH);
-            const isHover = hoverI === i;
+            const inFocusRow = focusRow === i;
             return (
               <g key={`h-${i}`}>
                 <rect
@@ -362,7 +437,7 @@ export default function AttentionHeatmapViz() {
                   height={cell - 4}
                   rx="3"
                   fill="var(--bg)"
-                  stroke={isHover ? 'var(--accent)' : 'var(--border)'}
+                  stroke={inFocusRow ? 'var(--accent)' : 'var(--border)'}
                   strokeWidth="1"
                   opacity="0.55"
                 />
@@ -374,16 +449,16 @@ export default function AttentionHeatmapViz() {
                   rx="2"
                   fill="url(#ah-entbar)"
                   opacity={0.6 + 0.35 * norm}
-                  style={{ transition: 'width 0.18s ease' }}
+                  style={{ transition: reduced ? 'none' : 'width 0.25s ease' }}
                 />
                 <text
                   x={W / 2}
                   y={y + 3}
                   fontSize={Math.min(9, cell - 4)}
-                  fill={isHover ? 'var(--accent)' : 'var(--text-main)'}
+                  fill={inFocusRow ? 'var(--accent)' : 'var(--text-main)'}
                   fontFamily="var(--mono)"
                   textAnchor="middle"
-                  fontWeight={isHover ? 700 : 500}
+                  fontWeight={inFocusRow ? 700 : 500}
                 >
                   {h.toFixed(2)}
                 </text>
@@ -394,6 +469,19 @@ export default function AttentionHeatmapViz() {
       </div>
 
       <div className="mlviz-readout">
+        <div className="mlviz-row mlviz-btn-row" style={{ paddingBottom: '0.2rem' }}>
+          <button type="button" className="mlviz-btn mlviz-btn-primary" onClick={togglePlay}>
+            {playing ? <Pause size={13} /> : <Play size={13} />}
+            <span>{playing ? 'Pause scan' : 'Scan queries'}</span>
+          </button>
+          {focusInfo && (
+            <span className="mlviz-sub" style={{ marginLeft: 'auto' }}>
+              query <strong style={{ color: 'var(--accent)' }}>{tokens[focusRow]}</strong>
+              {' '}→ <strong style={{ color: 'var(--accent)' }}>{tokens[focusInfo.bestJ]}</strong>
+              {' '}({focusInfo.weight.toFixed(2)}) · H={focusInfo.h.toFixed(2)}
+            </span>
+          )}
+        </div>
         <div className="mlviz-row mlviz-controls">
           <label className="mlviz-slider">
             <span className="mlviz-slider-label">
@@ -451,7 +539,7 @@ export default function AttentionHeatmapViz() {
           <span className="mlviz-sub">low H = focused · high H = diffuse · max = ln({n})</span>
         </div>
         <div className="mlviz-hint">
-          hover any cell to highlight its query (row) and key (column) token above
+          press Scan to sweep each query row · or hover any cell to highlight its query (row) and key (column) token
         </div>
       </div>
     </div>

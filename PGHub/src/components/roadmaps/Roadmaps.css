@@ -1,9 +1,12 @@
 .rmx-container {
+  display: flex;
+  flex-direction: column;
   width: 94%;
-  max-width: 1100px;
+  max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
   overflow-y: auto;
+  overflow-x: hidden;
   height: calc(100vh - 100px);
 }
 
@@ -53,6 +56,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
+  height: 100%;
   padding: 1.1rem 1.2rem;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -137,6 +141,7 @@
   display: flex;
   align-items: center;
   gap: 0.55rem;
+  margin-top: auto;
   font-family: var(--mono);
   font-size: 0.62rem;
   color: var(--text-dim);

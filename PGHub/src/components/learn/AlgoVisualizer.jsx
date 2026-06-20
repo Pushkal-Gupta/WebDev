@@ -272,24 +272,40 @@ export default function AlgoVisualizer({
 
       {frame && !customErr && (
         <>
-          <div className="viz-stage">
-            <div key={`${tabIdx}-${safeIdx}`} className="viz-stage-frame">
-              {render(frame, safeIdx)}
+          <div className="viz-workspace">
+            <div className="viz-canvas-col">
+              <div className="viz-stage">
+                <div key={`${tabIdx}-${safeIdx}`} className="viz-stage-frame">
+                  {render(frame, safeIdx)}
+                </div>
+              </div>
+              {activeFrames.length > 0 && (
+                <div className="viz-progress-bar" aria-hidden="true">
+                  <div
+                    className="viz-progress-bar-fill"
+                    style={{ width: `${((safeIdx + 1) / activeFrames.length) * 100}%` }}
+                  />
+                </div>
+              )}
             </div>
+            <aside className="viz-explain" aria-live="polite">
+              <div className="viz-explain-head">
+                <span className="viz-explain-kicker">Step</span>
+                <span className="viz-explain-count">
+                  <strong>{safeIdx + 1}</strong> / {activeFrames.length}
+                </span>
+              </div>
+              {frame.caption ? (
+                <p key={`cap-${tabIdx}-${safeIdx}`} className="viz-explain-body">
+                  {frame.caption}
+                </p>
+              ) : (
+                <p className="viz-explain-body viz-explain-empty">
+                  Step through the animation to follow each operation.
+                </p>
+              )}
+            </aside>
           </div>
-          {activeFrames.length > 0 && (
-            <div className="viz-progress-bar" aria-hidden="true">
-              <div
-                className="viz-progress-bar-fill"
-                style={{ width: `${((safeIdx + 1) / activeFrames.length) * 100}%` }}
-              />
-            </div>
-          )}
-          {frame.caption && (
-            <p key={`cap-${tabIdx}-${safeIdx}`} className="viz-caption">
-              {frame.caption}
-            </p>
-          )}
         </>
       )}
 
@@ -389,7 +405,11 @@ export default function AlgoVisualizer({
 //   subRow?: { values: (string|number)[], label?: string }   // parallel row (p[] for Manacher, etc.)
 //   arcs?: [{ center: number, radius: number, color?: 'accent'|'mint'|'sky'|'pink'|'violet' }]
 // }
-function PointerLabels({ pointers, count, cellWidth, gap }) {
+// Rows align by sharing one CSS grid: `repeat(count, 1fr)`. Every cell is an
+// equal fraction of the available width, so the whole array shrinks to fit the
+// container (no fixed px width => no horizontal scrollbar) and pointers / arcs /
+// sub-rows stay perfectly in column with the bars or cells above/below them.
+function PointerLabels({ pointers, count, gap }) {
   if (!pointers || count === 0) return null;
   // Stack identical-cell labels vertically so they don't overlap.
   const byIdx = {};
@@ -401,11 +421,14 @@ function PointerLabels({ pointers, count, cellWidth, gap }) {
   });
   if (Object.keys(byIdx).length === 0) return null;
   return (
-    <div className="viz-pointer-row" style={{ gap: `${gap}px` }}>
+    <div
+      className="viz-pointer-row"
+      style={{ display: 'grid', gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`, gap: `${gap}px` }}
+    >
       {Array.from({ length: count }).map((_, idx) => {
         const labels = byIdx[idx];
         return (
-          <div key={idx} className="viz-pointer-slot" style={{ width: `${cellWidth}px` }}>
+          <div key={idx} className="viz-pointer-slot">
             {labels && (
               <div className="viz-pointer-stack">
                 {labels.map((label, li) => (
@@ -437,16 +460,19 @@ function StatChip({ chip }) {
   );
 }
 
-function PalindromeArcs({ arcs, count, cellWidth, gap }) {
+function PalindromeArcs({ arcs, count }) {
   if (!arcs || !arcs.length || count === 0) return null;
-  const totalW = count * cellWidth + Math.max(0, count - 1) * gap;
+  // Internal coordinate space: unit cell = 100 wide. CSS width:100% scales the
+  // whole layer down to match the array row above it; no px overflow possible.
+  const cellWidth = 100;
+  const totalW = count * cellWidth;
   const height = 30;
-  const cx = (idx) => idx * (cellWidth + gap) + cellWidth / 2;
+  const cx = (idx) => idx * cellWidth + cellWidth / 2;
   return (
     <svg
       className="viz-arc-layer"
       viewBox={`0 0 ${totalW} ${height}`}
-      width={totalW}
+      width="100%"
       height={height}
       aria-hidden="true"
       preserveAspectRatio="none"
@@ -475,14 +501,17 @@ function PalindromeArcs({ arcs, count, cellWidth, gap }) {
   );
 }
 
-function SubRow({ subRow, count, cellWidth, gap }) {
+function SubRow({ subRow, count, gap }) {
   if (!subRow || !Array.isArray(subRow.values) || count === 0) return null;
   return (
     <div className="viz-subrow-wrap">
       {subRow.label && <span className="viz-subrow-label">{subRow.label}</span>}
-      <div className="viz-subrow" style={{ gap: `${gap}px` }}>
+      <div
+        className="viz-subrow"
+        style={{ display: 'grid', gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`, gap: `${gap}px`, width: '100%' }}
+      >
         {Array.from({ length: count }).map((_, idx) => (
-          <div key={idx} className="viz-subrow-cell" style={{ width: `${cellWidth}px` }}>
+          <div key={idx} className="viz-subrow-cell">
             {subRow.values[idx] ?? ''}
           </div>
         ))}
@@ -499,21 +528,22 @@ export function ArrayBarRenderer({ frame }) {
   const numeric = arr.length > 0 && arr.every(v => typeof v === 'number' && Number.isFinite(v));
   if (numeric) {
     const max = Math.max(1, ...arr.map(v => Math.abs(v)));
-    const cellWidth = 52; const gap = 8;
+    const gap = 8;
+    const cols = `repeat(${arr.length}, minmax(0, 1fr))`;
     return (
       <div className="viz-array-block">
         <StatChip chip={frame.chip} />
-        <PointerLabels pointers={frame.pointers} count={arr.length} cellWidth={cellWidth} gap={gap} />
-        <div className="viz-array" style={{ gap: `${gap}px` }}>
+        <PointerLabels pointers={frame.pointers} count={arr.length} gap={gap} />
+        <div className="viz-array" style={{ display: 'grid', gridTemplateColumns: cols, gap: `${gap}px` }}>
           {arr.map((v, idx) => {
             const role = frame.highlights?.[idx];
             const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
-            const height = Math.max(8, Math.round((Math.abs(v) / max) * 140));
+            const heightPct = Math.max(6, Math.round((Math.abs(v) / max) * 100));
             return (
               <div
                 key={idx}
                 className={`viz-bar ${role ? 'viz-bar-' + role : ''} ${eliminated ? 'viz-bar-eliminated' : ''}`}
-                style={{ height: `${height}px`, width: `${cellWidth}px` }}
+                style={{ height: `${heightPct}%` }}
                 title={`arr[${idx}] = ${v}`}
               >
                 <span className="viz-bar-value">{v}</span>
@@ -522,17 +552,18 @@ export function ArrayBarRenderer({ frame }) {
             );
           })}
         </div>
-        <PalindromeArcs arcs={frame.arcs} count={arr.length} cellWidth={cellWidth} gap={gap} />
-        <SubRow subRow={frame.subRow} count={arr.length} cellWidth={cellWidth} gap={gap} />
+        <PalindromeArcs arcs={frame.arcs} count={arr.length} />
+        <SubRow subRow={frame.subRow} count={arr.length} gap={gap} />
       </div>
     );
   }
-  const cellWidth = 68; const gap = 10;
+  const gap = 10;
+  const cols = `repeat(${arr.length}, minmax(0, 1fr))`;
   return (
     <div className="viz-array-block">
       <StatChip chip={frame.chip} />
-      <PointerLabels pointers={frame.pointers} count={arr.length} cellWidth={cellWidth} gap={gap} />
-      <div className="viz-tiles" style={{ gap: `${gap}px` }}>
+      <PointerLabels pointers={frame.pointers} count={arr.length} gap={gap} />
+      <div className="viz-tiles" style={{ display: 'grid', gridTemplateColumns: cols, gap: `${gap}px` }}>
         {arr.map((v, idx) => {
           const role = frame.highlights?.[idx];
           const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
@@ -548,8 +579,8 @@ export function ArrayBarRenderer({ frame }) {
           );
         })}
       </div>
-      <PalindromeArcs arcs={frame.arcs} count={arr.length} cellWidth={cellWidth} gap={gap} />
-      <SubRow subRow={frame.subRow} count={arr.length} cellWidth={cellWidth} gap={gap} />
+      <PalindromeArcs arcs={frame.arcs} count={arr.length} />
+      <SubRow subRow={frame.subRow} count={arr.length} gap={gap} />
     </div>
   );
 }
@@ -559,13 +590,23 @@ export function GraphRenderer({ frame }) {
   const nodes = frame.nodes || [];
   const edges = frame.edges || [];
   if (nodes.length === 0) return null;
-  // Place nodes in a circle for stability across frames.
-  const cx = 240, cy = 170, R = 130;
+  // Place nodes in a circle. Radius scales with node count so a 23-node graph
+  // spreads out instead of overlapping; the viewBox is then computed from the
+  // actual node extents (below) so CSS width:100% scales the whole thing to fit.
+  const PAD = 40;
+  const R = Math.max(120, Math.min(360, nodes.length * 16));
+  const cx = R + PAD, cy = R + PAD;
   const positioned = nodes.map((n, i) => {
     const angle = (i / nodes.length) * 2 * Math.PI - Math.PI / 2;
     return { ...n, x: cx + R * Math.cos(angle), y: cy + R * Math.sin(angle) };
   });
   const posById = Object.fromEntries(positioned.map(n => [n.id, n]));
+  // Content-fit viewBox: bound to the nodes (single node => fixed box).
+  const xs = positioned.map(n => n.x), ys = positioned.map(n => n.y);
+  const minX = Math.min(...xs) - PAD, maxX = Math.max(...xs) + PAD;
+  const minY = Math.min(...ys) - PAD, maxY = Math.max(...ys) + PAD;
+  const vbW = Math.max(120, maxX - minX), vbH = Math.max(120, maxY - minY);
+  const viewBox = `${minX} ${minY} ${vbW} ${vbH}`;
   // Tolerate the legacy frame shape some producers still emit: edges keyed
   // {from,to,weight} instead of {a,b,w}, node highlighting via a
   // frame.highlightedNodes map instead of per-node state, and active edges via
@@ -581,7 +622,14 @@ export function GraphRenderer({ frame }) {
   return (
     <div className="viz-graph-block">
       <StatChip chip={frame.chip} />
-      <svg className="viz-graph" viewBox="0 0 480 340" role="img" aria-label="graph">
+      <svg
+        className="viz-graph"
+        viewBox={viewBox}
+        style={{ aspectRatio: `${vbW} / ${vbH}` }}
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="graph"
+      >
         {/* Edges first (under nodes). */}
         {edges.map((e, i) => {
           const a = posById[edgeA(e)]; const b = posById[edgeB(e)];
@@ -655,7 +703,10 @@ export function NumberGridRenderer({ frame }) {
       '.': '·', '#': '█', 'S': 'S', 'G': 'G', 'O': 'O', 'C': 'C', '*': '*',
     };
     return (
-      <div className="viz-grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)`, maxWidth: `${cols * 38}px` }}>
+      <div
+        className="viz-grid"
+        style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, maxWidth: `min(100%, ${cols * 42}px)` }}
+      >
         {Array.from({ length: rows * cols }, (_, k) => {
           const r = Math.floor(k / cols), c = k % cols;
           const raw = grid[r][c];
@@ -673,7 +724,10 @@ export function NumberGridRenderer({ frame }) {
   const nums = frame.numbers || [];
   const cols = frame.cols || 10;
   return (
-    <div className="viz-grid" style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+    <div
+      className="viz-grid"
+      style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))`, maxWidth: `min(100%, ${cols * 42}px)` }}
+    >
       {nums.map((n) => {
         const role = frame.state?.[n];
         return (
@@ -704,14 +758,22 @@ export function TreeRenderer({ frame }) {
   collect(root, 0);
   if (slots.length === 0) return null;
   const maxDepth = Math.max(...slots.map(s => s.depth));
-  const xStep = 440 / Math.max(slots.length, 1);
-  const yStep = maxDepth === 0 ? 0 : 270 / maxDepth;
+  // Fixed per-node/per-level spacing in an internal coordinate space; the
+  // viewBox is then sized to the actual content so a 9-node tree and a 2-node
+  // tree both fill their stage once CSS scales the SVG to the container width.
+  const PAD = 28;
+  const xStep = 56;
+  const yStep = 78;
+  const NODE_R = 16;
 
   // Map each node to its computed center.
   const pos = new Map();
   for (const s of slots) {
-    pos.set(s.node, { x: 20 + (s.slot + 0.5) * xStep, y: 35 + s.depth * yStep });
+    pos.set(s.node, { x: PAD + (s.slot + 0.5) * xStep, y: PAD + NODE_R + s.depth * yStep });
   }
+  const vbW = Math.max(120, slots.length * xStep + PAD);
+  const vbH = Math.max(120, (maxDepth * yStep) + NODE_R * 2 + PAD * 2);
+  const viewBox = `0 0 ${vbW} ${vbH}`;
 
   const edges = [];
   const walk = (node) => {
@@ -732,7 +794,14 @@ export function TreeRenderer({ frame }) {
   return (
     <div className="viz-tree-block">
       <StatChip chip={frame.chip} />
-      <svg className="viz-graph" viewBox="0 0 480 340" role="img" aria-label="tree">
+      <svg
+        className="viz-graph viz-tree-svg"
+        viewBox={viewBox}
+        style={{ aspectRatio: `${vbW} / ${vbH}` }}
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="tree"
+      >
         {edges.map((e, i) => (
           <path key={i} d={edgePath(e.a, e.b)} fill="none"
             className={`viz-edge ${e.state === 'current' || e.state === 'visited' ? 'viz-edge-tree' : ''}`} />
@@ -742,8 +811,8 @@ export function TreeRenderer({ frame }) {
           const isCurrent = node.state === 'current';
           return (
             <g key={node._id ?? `${p.x}-${p.y}`} className={`viz-node ${node.state ? 'viz-node-' + node.state : ''}`}>
-              {isCurrent && <circle cx={p.x} cy={p.y} r={20} className="viz-node-ring" />}
-              <circle cx={p.x} cy={p.y} r={15} />
+              {isCurrent && <circle cx={p.x} cy={p.y} r={NODE_R + 5} className="viz-node-ring" />}
+              <circle cx={p.x} cy={p.y} r={NODE_R} />
               <text x={p.x} y={p.y} dy=".34em" textAnchor="middle">{node.value}</text>
             </g>
           );
@@ -774,12 +843,13 @@ export function SlidingWindowRenderer({ frame }) {
     if (r >= 0 && r < arr.length && r !== l) auto[r] = 'r';
     return auto;
   })();
-  const cellWidth = 60; const gap = 8;
+  const gap = 8;
+  const cols = `repeat(${arr.length}, minmax(0, 1fr))`;
   return (
     <div className="viz-window-block">
       <StatChip chip={frame.chip} />
-      <PointerLabels pointers={pointers} count={arr.length} cellWidth={cellWidth} gap={gap} />
-      <div className="viz-window" style={{ gap: `${gap}px` }}>
+      <PointerLabels pointers={pointers} count={arr.length} gap={gap} />
+      <div className="viz-window" style={{ display: 'grid', gridTemplateColumns: cols, gap: `${gap}px` }}>
         {arr.map((v, idx) => {
           const inWindow = idx >= l && idx <= r;
           const isL = idx === l;
@@ -788,7 +858,6 @@ export function SlidingWindowRenderer({ frame }) {
             <div
               key={idx}
               className={`viz-cell ${inWindow ? 'viz-cell-window' : ''} ${isL ? 'viz-cell-l' : ''} ${isR ? 'viz-cell-r' : ''}`}
-              style={{ width: `${cellWidth}px` }}
               title={`arr[${idx}] = ${v}`}
             >
               <span className="viz-cell-value">{v}</span>

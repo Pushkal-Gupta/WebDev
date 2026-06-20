@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers, Clock, BarChart3 } from 'lucide-react';
 import { getPillar } from '../../content/mlContent';
 import ForgeThumb from './forge/ForgeThumb';
@@ -7,16 +7,27 @@ import './MLHub.css';
 
 const ICONS = { Sigma, Workflow, Layers, Brain, Zap, Network };
 
+const FROM_TARGETS = {
+  vault: { to: '/vault', label: 'Vault' },
+  forge: { to: '/ml', label: 'PGForge' },
+};
+function resolveFrom(search) {
+  const key = new URLSearchParams(search).get('from');
+  return FROM_TARGETS[key] || { to: '/ml', label: 'ML-DL-AI' };
+}
+
 export default function MLPillar() {
   const { pillarSlug } = useParams();
+  const location = useLocation();
+  const back = resolveFrom(location.search);
   const pillar = getPillar(pillarSlug);
 
   if (!pillar) {
     return (
       <div className="mlhub">
-        <Link to="/ml" className="learn-crumb">
+        <Link to={back.to} className="learn-crumb">
           <ArrowLeft size={13} />
-          <span>ML-DL-AI</span>
+          <span>{back.label}</span>
         </Link>
         <h1 className="mlhub-title">Not found</h1>
         <p className="mlhub-sub">No pillar matches "{pillarSlug}".</p>
@@ -29,9 +40,9 @@ export default function MLPillar() {
 
   return (
     <div className="mlhub">
-      <Link to="/ml" className="learn-crumb">
+      <Link to={back.to} className="learn-crumb">
         <ArrowLeft size={13} />
-        <span>ML-DL-AI</span>
+        <span>{back.label}</span>
         <span className="learn-crumb-sep">/</span>
         <span className="learn-crumb-here">{pillar.title}</span>
       </Link>
@@ -53,7 +64,7 @@ export default function MLPillar() {
           {lessons.map((l) => (
             <Link
               key={l.slug}
-              to={`/ml/${pillarSlug}/${l.slug}`}
+              to={`/ml/${pillarSlug}/${l.slug}${location.search}`}
               className="mlhub-pillar mlhub-lesson-card"
             >
               <span className="mlhub-pillar-stripe" aria-hidden="true" />

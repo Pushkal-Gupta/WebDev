@@ -37,6 +37,7 @@
   grid-auto-rows: 1fr;
   gap: 0.9rem;
   align-content: start;
+  align-items: stretch;
 }
 
 .forge-pj-card {
@@ -47,6 +48,8 @@
   border-radius: 13px;
   background: var(--viz-card);
   overflow: hidden;
+  text-decoration: none;
+  color: inherit;
   transition: border-color var(--t), transform var(--t), box-shadow var(--t);
 }
 .forge-pj-card::before {
@@ -106,7 +109,6 @@
   font-size: 0.8rem;
   color: var(--text-dim);
   line-height: 1.5;
-  flex: 1 1 auto;
 }
 
 .forge-pj-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
@@ -126,7 +128,7 @@
   align-items: center;
   align-self: flex-start;
   gap: 0.35rem;
-  margin-top: 0.15rem;
+  margin-top: auto;
   font-family: var(--mono);
   font-size: 0.68rem;
   font-weight: 700;

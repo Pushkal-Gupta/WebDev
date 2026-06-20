@@ -220,11 +220,23 @@
   font-size: 0.9rem;
 }
 .forge-spd-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
   font-family: var(--mono);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--accent);
   text-decoration: none;
+  padding: 0.45rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  transition: border-color var(--t), background var(--t), transform var(--t);
 }
-.forge-spd-back:hover { text-decoration: underline; }
+.forge-spd-back:hover {
+  border-color: var(--accent);
+  background: var(--hover-box);
+  transform: translateY(-1px);
+}
 

@@ -6,8 +6,9 @@ import './BrandLogo.css';
 // Icons (https://cdn.simpleicons.org/<slug>), `gb:<slug>` -> gilbarbara/logos on
 // jsDelivr. Simple Icons is preferred for full brand colour; gilbarbara fills the
 // big brands Simple Icons removed for trademark reasons (Amazon, Adobe, Microsoft,
-// Oracle, IBM, LinkedIn, Salesforce, ...). Every value here was confirmed 200 at
-// authoring time. Keyed by slug AND normalised display name so both COMPANY_GROUPS
+// Oracle, IBM, LinkedIn, Salesforce, ...). Every value here was re-confirmed 200
+// (2026-06; the removed `csharp`/`css3` Simple Icons slugs were repointed — see
+// LANGUAGE_SLUGS). Keyed by slug AND normalised display name so both COMPANY_GROUPS
 // rows ("google") and free-form labels ("Meta / Facebook") resolve. Companies with
 // no reliable brand SVG are omitted and fall through to the clean letter tile.
 const SI = 'https://cdn.simpleicons.org';
@@ -45,9 +46,19 @@ const COMPANY_LOGOS = {
   // travel / commerce / consumer / gaming
   doordash: 'si:doordash', roblox: 'si:roblox', unity: 'si:unity',
   visa: 'si:visa', mastercard: 'si:mastercard',
+  // commerce / consumer / finance / AI (all re-confirmed 200, 2026-06)
+  booking: 'si:bookingdotcom', expedia: 'si:expedia', instacart: 'si:instacart',
+  yelp: 'si:yelp', target: 'si:target', activision: 'si:activision',
+  'epic-games': 'si:epicgames', epicgames: 'si:epicgames', 'ea-games': 'si:ea', ea: 'si:ea',
+  vmware: 'si:vmware', elastic: 'si:elastic', hashicorp: 'si:hashicorp',
+  'goldman-sachs': 'si:goldmansachs', goldmansachs: 'si:goldmansachs',
+  brex: 'si:brex',
+  'hugging-face': 'si:huggingface', huggingface: 'si:huggingface',
+  mistral: 'si:mistralai', perplexity: 'si:perplexity',
   // India
   swiggy: 'si:swiggy', zomato: 'si:zomato', paytm: 'si:paytm', phonepe: 'si:phonepe',
-  razorpay: 'si:razorpay',
+  razorpay: 'si:razorpay', infosys: 'si:infosys', tcs: 'si:tcs', wipro: 'si:wipro',
+  zoho: 'si:zoho',
 };
 
 // Normalise a free-form company label/slug to a verified brand-SVG URL.
@@ -80,8 +91,10 @@ const LANGUAGE_SLUGS = {
   'c++': 'cplusplus',
   cpp: 'cplusplus',
   cplusplus: 'cplusplus',
-  'c#': 'csharp',
-  csharp: 'csharp',
+  // Simple Icons removed the `csharp` slug (trademark); gilbarbara serves the
+  // full-colour C# mark at `c-sharp` (verified 200).
+  'c#': 'gb:c-sharp',
+  csharp: 'gb:c-sharp',
   go: 'go',
   golang: 'go',
   rust: 'rust',
@@ -95,7 +108,8 @@ const LANGUAGE_SLUGS = {
   bash: 'gnubash',
   shell: 'gnubash',
   html: 'html5',
-  css: 'css3',
+  // Simple Icons renamed `css3` -> `css` (verified 200; old slug now 404s).
+  css: 'css',
   dart: 'dart',
   perl: 'perl',
   haskell: 'haskell',
@@ -115,7 +129,11 @@ function languageSlug(name) {
 
 function languageLogoUrl(name) {
   const slug = languageSlug(name);
-  return slug ? `https://cdn.simpleicons.org/${slug}` : null;
+  // Most language slugs are bare Simple Icons slugs; a few (C#) carry a `gb:`
+  // prefix, so route everything through the shared resolver. A bare slug is
+  // treated as a Simple Icons slug.
+  if (!slug) return null;
+  return slug.includes(':') ? logoSrc(slug) : `${SI}/${slug}`;
 }
 
 // Stable hash so a given name always maps to the same accent hue tile.

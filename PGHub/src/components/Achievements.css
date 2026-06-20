@@ -31,8 +31,19 @@
 }
 .ach-header-titlebar {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 1rem;
+}
+.ach-titlebar-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.ach-sub {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin: 0;
 }
 .ach-summary {
   display: flex;
@@ -166,9 +177,11 @@
 
 .ach-title {
   font-family: var(--serif);
-  font-size: 1rem;
+  font-size: 2rem;
   font-weight: 700;
   color: var(--text-main);
+  letter-spacing: -0.01em;
+  margin: 0;
 }
 
 .ach-count {
@@ -177,6 +190,9 @@
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 0.5rem;
 }
 
 .ach-sections {

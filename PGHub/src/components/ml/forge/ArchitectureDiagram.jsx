@@ -145,15 +145,25 @@ export default function ArchitectureDiagram({ title, blocks, skips = [], activeB
             const y2 = e.to.y;
             const hot = isHot(e.from.key) || isHot(e.to.key);
             return (
-              <line
-                key={`edge-${i}`}
-                className={`arch-edge${hot ? ' is-hot' : ''}`}
-                x1={cx}
-                y1={y1}
-                x2={cx}
-                y2={y2 - 2}
-                markerEnd={`url(#ah-${uid})`}
-              />
+              <g key={`edge-${i}`}>
+                <line
+                  className={`arch-edge${hot ? ' is-hot' : ''}`}
+                  x1={cx}
+                  y1={y1}
+                  x2={cx}
+                  y2={y2 - 2}
+                  markerEnd={`url(#ah-${uid})`}
+                />
+                {/* downward-flowing data pulse riding the trunk edge */}
+                <line
+                  className="arch-edge-flow"
+                  style={{ '--edge-i': i }}
+                  x1={cx}
+                  y1={y1}
+                  x2={cx}
+                  y2={y2 - 2}
+                />
+              </g>
             );
           })}
         </g>
@@ -177,6 +187,13 @@ export default function ArchitectureDiagram({ title, blocks, skips = [], activeB
                   className="arch-skip-path"
                   d={`M${nodeX} ${ya} C ${ctrlX} ${ya}, ${ctrlX} ${yb}, ${nodeX} ${yb - 1}`}
                   markerEnd={`url(#ah-skip-${uid})`}
+                />
+                {/* flowing residual data on the skip curve */}
+                <path
+                  className="arch-skip-flow"
+                  style={{ '--skip-i': i }}
+                  d={`M${nodeX} ${ya} C ${ctrlX} ${ya}, ${ctrlX} ${yb}, ${nodeX} ${yb - 1}`}
+                  fill="none"
                 />
                 {s.label && (
                   <text className="arch-skip-label" x={ctrlX - 4} y={my} textAnchor="end" dominantBaseline="central">
@@ -219,7 +236,20 @@ export default function ArchitectureDiagram({ title, blocks, skips = [], activeB
             const hot = isHot(n.key);
             const grad = `url(#ng-${n.meta.hue}-${uid})`;
             return (
-              <g key={`${n.key}-${n.idx}`} className={`arch-node hue-${n.meta.hue}${hot ? ' is-hot' : ''}`}>
+              <g
+                key={`${n.key}-${n.idx}`}
+                className={`arch-node hue-${n.meta.hue}${hot ? ' is-hot' : ''}`}
+                style={{ '--node-i': n.idx, '--node-n': nodes.length }}
+              >
+                {/* ambient sequential-activation sweep (forward pass), staggered by index */}
+                <rect
+                  className="arch-node-sweep"
+                  x={n.x}
+                  y={n.y}
+                  width={n.w}
+                  height={NODE_H}
+                  rx={13}
+                />
                 {hot && (
                   <rect
                     className="arch-node-glow"

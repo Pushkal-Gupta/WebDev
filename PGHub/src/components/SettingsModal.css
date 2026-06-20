@@ -140,7 +140,7 @@
 .settings-logout:hover {
   border-color: var(--hard);
   color: var(--hard);
-  background: rgba(239, 68, 68, 0.08);
+  background: color-mix(in srgb, var(--hard) 8%, transparent);
 }
 
 .settings-close {
@@ -842,7 +842,7 @@
 }
 
 .friend-accept:hover {
-  background: rgba(76, 175, 80, 0.1);
+  background: var(--easy-bg);
   border-color: var(--easy);
 }
 
@@ -851,7 +851,7 @@
 }
 
 .friend-reject:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: var(--hard-bg);
   border-color: var(--hard);
 }
 
@@ -872,13 +872,18 @@
 }
 
 .settings-message.success {
-  background: rgba(76, 175, 80, 0.1);
+  background: var(--easy-bg);
   color: var(--easy);
 }
 
 .settings-message.info {
   background: var(--hover-box);
   color: var(--accent);
+}
+
+.settings-message.error {
+  background: var(--hard-bg);
+  color: var(--hard);
 }
 
 @media (max-width: 768px) {

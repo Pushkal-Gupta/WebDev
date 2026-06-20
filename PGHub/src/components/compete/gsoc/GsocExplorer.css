@@ -25,9 +25,7 @@
   margin: 0 0 0.35rem;
 }
 .gsoc-title svg { color: var(--accent); }
-.gsoc-sub { font-size: 0.85rem; color: var(--text-dim); margin: 0 0 0.7rem; max-width: 760px; }
-.gsoc-stats { display: flex; gap: 1.4rem; flex-wrap: wrap; font-size: 0.78rem; color: var(--text-dim); }
-.gsoc-stats strong { color: var(--accent); font-size: 1rem; }
+.gsoc-sub { font-size: 0.85rem; color: var(--text-dim); margin: 0; max-width: 760px; }
 
 .gsoc-timeline {
   display: grid;

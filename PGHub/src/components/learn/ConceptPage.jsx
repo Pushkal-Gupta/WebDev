@@ -45,7 +45,7 @@ import AlgoVisualizer, {
 } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
 import { INTERACTIVE_VIZ } from './interactiveViz';
-import RunnableCode from './RunnableCode';
+import RunnableCodePanel from '../RunnableCodePanel';
 import './Learn.css';
 
 const LANG_TABS = [
@@ -589,25 +589,7 @@ export default function ConceptPage({ session }) {
               icon={Code2}
               variant="plain"
             >
-              <div className="cp-code-tabs" role="tablist">
-                {LANG_TABS.map((t) => {
-                  const disabled = !hasContent(code[t.value]);
-                  const active = resolvedLang === t.value;
-                  return (
-                    <button
-                      key={t.value}
-                      role="tab"
-                      aria-selected={active}
-                      className={`cp-code-tab${active ? ' active' : ''}`}
-                      onClick={() => setActiveLang(t.value)}
-                      disabled={disabled}
-                    >
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
-              <RunnableCode code={code} lang={resolvedLang} tabs={availableLangs} />
+              <RunnableCodePanel code={code} lang={resolvedLang} onLanguageChange={setActiveLang} />
             </Section>
           )}
 

@@ -57,18 +57,11 @@ export default function LcLlmBenchmark() {
     [sort],
   );
 
-  const best = useMemo(() => ranked[0], [ranked]);
-
   return (
     <div className="llm-page">
       <header className="llm-head">
         <h1 className="llm-title"><Cpu size={24} /> LLMs on LeetCode</h1>
         <p className="llm-sub">How language models score on rated contest problems — solve rate by difficulty, projected contest rating, and where they break.</p>
-        <div className="llm-stats">
-          <span>top model <strong>{best.name}</strong></span>
-          <span><strong>{best.overall}%</strong> overall</span>
-          <span>est. rating <strong>{best.rating}</strong></span>
-        </div>
       </header>
 
       <section className="llm-dash">

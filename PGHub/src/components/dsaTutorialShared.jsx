@@ -17,6 +17,25 @@ import TutorialViz from './dsaTutorialViz';
 import { TUT_VIZ_NAMES } from './dsaTutorialVizRegistry';
 import TutorialDiagram from './tutorials/tutorialDiagrams';
 import { TUT_DIAGRAM_NAMES } from './tutorials/tutorialDiagramsRegistry';
+import RunnableCodePanel from './RunnableCodePanel';
+
+// Programming-language fence tokens → RunnableCodePanel keys. Anything not here
+// (ascii/pseudocode/text/empty) stays a read-only CodeBlock.
+const PROG_LANG_MAP = {
+  py: 'python', python: 'python', python3: 'python',
+  js: 'javascript', javascript: 'javascript', node: 'javascript',
+  ts: 'typescript', typescript: 'typescript',
+  java: 'java',
+  'c++': 'cpp', cpp: 'cpp',
+  c: 'c',
+  go: 'go', golang: 'go',
+  rust: 'rust', rs: 'rust',
+};
+
+function normProgLang(raw) {
+  if (!raw) return null;
+  return PROG_LANG_MAP[String(raw).trim().toLowerCase()] || null;
+}
 
 // Cache a normalized-label -> viz-slug map so theory items without an explicit
 // `conceptSlug` can still resolve to a registered visualization.
@@ -356,8 +375,25 @@ function renderBlock(text, keyPrefix) {
   let fenceLang = '';
   let fenceVizArg = '';
   let fenceBuf = [];
+  let pendingCode = [];
+
+  // Emit one RunnableCodePanel (with a tab per normalized language) for the
+  // accumulated consecutive programming-language fences, then clear them.
+  const flushPending = () => {
+    if (!pendingCode.length) return;
+    const codeObj = {};
+    pendingCode.forEach(({ lang, code }) => { codeObj[lang] = code; });
+    out.push(
+      <RunnableCodePanel
+        key={`${keyPrefix}-run-${out.length}`}
+        code={codeObj}
+      />
+    );
+    pendingCode = [];
+  };
 
   const flushBuf = () => {
+    flushPending();
     if (!buf.length) return;
     const joined = buf.join('\n').trim();
     if (!joined) { buf = []; return; }
@@ -384,6 +420,7 @@ function renderBlock(text, keyPrefix) {
     if (fenceMatch) {
       if (inFence) {
         if (fenceLang === 'tut-viz') {
+          flushPending();
           const vizName = fenceBuf.join('').trim() || fenceVizArg;
           if (TUT_VIZ_NAMES.has(vizName)) {
             out.push(
@@ -393,6 +430,7 @@ function renderBlock(text, keyPrefix) {
             );
           }
         } else if (fenceLang === 'tut-diagram') {
+          flushPending();
           const diagramName = fenceBuf.join('').trim() || fenceVizArg;
           if (TUT_DIAGRAM_NAMES.has(diagramName)) {
             out.push(
@@ -402,13 +440,19 @@ function renderBlock(text, keyPrefix) {
             );
           }
         } else {
-          out.push(
-            <CodeBlock
-              key={`${keyPrefix}-pre-${out.length}`}
-              lang={fenceLang}
-              code={fenceBuf.join('\n')}
-            />
-          );
+          const prog = normProgLang(fenceLang);
+          if (prog) {
+            pendingCode.push({ lang: prog, code: fenceBuf.join('\n') });
+          } else {
+            flushPending();
+            out.push(
+              <CodeBlock
+                key={`${keyPrefix}-pre-${out.length}`}
+                lang={fenceLang}
+                code={fenceBuf.join('\n')}
+              />
+            );
+          }
         }
         inFence = false;
         fenceLang = '';
@@ -427,6 +471,7 @@ function renderBlock(text, keyPrefix) {
   }
   if (inFence) {
     if (fenceLang === 'tut-viz') {
+      flushPending();
       const vizName = fenceBuf.join('').trim() || fenceVizArg;
       if (TUT_VIZ_NAMES.has(vizName)) {
         out.push(
@@ -436,6 +481,7 @@ function renderBlock(text, keyPrefix) {
         );
       }
     } else if (fenceLang === 'tut-diagram') {
+      flushPending();
       const diagramName = fenceBuf.join('').trim() || fenceVizArg;
       if (TUT_DIAGRAM_NAMES.has(diagramName)) {
         out.push(
@@ -445,16 +491,23 @@ function renderBlock(text, keyPrefix) {
         );
       }
     } else {
-      out.push(
-        <CodeBlock
-          key={`${keyPrefix}-pre-${out.length}`}
-          lang={fenceLang}
-          code={fenceBuf.join('\n')}
-        />
-      );
+      const prog = normProgLang(fenceLang);
+      if (prog) {
+        pendingCode.push({ lang: prog, code: fenceBuf.join('\n') });
+      } else {
+        flushPending();
+        out.push(
+          <CodeBlock
+            key={`${keyPrefix}-pre-${out.length}`}
+            lang={fenceLang}
+            code={fenceBuf.join('\n')}
+          />
+        );
+      }
     }
   }
   flushBuf();
+  flushPending();
   return out;
 }
 

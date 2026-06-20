@@ -39,7 +39,7 @@ export default function RoadmapsIndex() {
       <header className="rmx-header">
         <h1 className="rmx-title">Roadmaps</h1>
         <p className="rmx-sub">
-          Curated study tracks. Pick one that matches your goal — full breadth, fastest interview prep, language fluency, or a specific topic deep-dive.
+          Ordered study tracks with prerequisite dependencies — full breadth, fast interview prep, or a single-topic deep dive.
         </p>
       </header>
 

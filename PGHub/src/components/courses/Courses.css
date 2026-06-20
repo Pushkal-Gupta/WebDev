@@ -619,7 +619,7 @@
 }
 
 .course-mistakes {
-  background: rgba(239, 68, 68, 0.05);
+  background: color-mix(in srgb, var(--hard) 5%, transparent);
   border-left: 3px solid var(--warning, var(--hard));
   border-radius: 0 10px 10px 0;
   padding: 1.15rem 1.35rem 1.25rem 1.35rem;
