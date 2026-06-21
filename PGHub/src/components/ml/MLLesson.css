@@ -380,9 +380,8 @@
   line-height: 1.55;
   padding: 1rem 1.1rem;
   color: var(--text-main);
-  overflow: hidden;
-  white-space: pre-wrap;
-  word-break: break-word;
+  overflow-x: auto;
+  white-space: pre;
   margin: 0;
 }
 

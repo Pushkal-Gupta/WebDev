@@ -1,5 +1,6 @@
 import React, { useId, useMemo } from 'react';
 import './ArchitectureDiagram.css';
+import { hueForIndex } from './pgForgeArchData';
 
 // A large, data-driven architecture diagram. The SVG scales to fill its
 // container (width:100%) so a generous viewBox keeps labels crisp and the whole
@@ -36,8 +37,12 @@ const KIND = {
   loss: { hue: 'pink', tag: 'loss' },
 };
 
-function kindOf(kind) {
-  return KIND[kind] || { hue: 'accent', tag: '' };
+// `kind` keeps driving the small type tag on each block ("attn", "norm", ...),
+// but the colour is now assigned per index so a run of same-kind blocks still
+// reads as a colourful sequence.
+function metaFor(kind, i) {
+  const k = KIND[kind] || { tag: '' };
+  return { hue: hueForIndex(i), tag: k.tag };
 }
 
 // Single centered vertical column. Blocks are big enough for a title + sub-line.
@@ -45,7 +50,7 @@ function layout(blocks) {
   const hasBracket = blocks.some((b) => b.repeat);
   const x = Math.round((VB_W - NODE_W) / 2) - (hasBracket ? Math.round(BRACKET_GAP / 2) : 0);
   const nodes = blocks.map((b, i) => {
-    const meta = kindOf(b.kind);
+    const meta = metaFor(b.kind, i);
     return {
       ...b,
       meta,

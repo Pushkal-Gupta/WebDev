@@ -374,6 +374,7 @@ function ListDetail({ session, list, onBack }) {
   const { data: progressBundle } = useUserProgress(userId);
   const [search, setSearch] = useState('');
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState(null);
 
   const togglePublic = async () => {
     const nextPublic = !list.is_public;
@@ -415,15 +416,15 @@ function ListDetail({ session, list, onBack }) {
   const addProblem = async (problemId) => {
     if (mutatingId === problemId) return;
     setMutatingId(problemId);
+    setError(null);
     try {
       const { error: e } = await supabase
         .from('PGcode_user_list_problems')
         .insert({ list_id: list.id, problem_id: problemId, position: listProblems.length });
-      if (!e) {
-        queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
-        queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
-        setSearch('');
-      }
+      if (e) { setError(e.message); return; }
+      queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
+      queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
+      setSearch('');
     } finally {
       setMutatingId(null);
     }
@@ -432,13 +433,15 @@ function ListDetail({ session, list, onBack }) {
   const removeProblem = async (problemId) => {
     if (mutatingId === problemId) return;
     setMutatingId(problemId);
+    setError(null);
     try {
       const { error: e } = await supabase
         .from('PGcode_user_list_problems')
         .delete()
         .eq('list_id', list.id)
         .eq('problem_id', problemId);
-      if (!e) queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
+      if (e) { setError(e.message); return; }
+      queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
     } finally {
       setMutatingId(null);
     }
@@ -485,6 +488,7 @@ function ListDetail({ session, list, onBack }) {
           <button className="ml-icon-btn" onClick={() => setSearch('')}><X size={12} /></button>
         )}
       </div>
+      {error && <div className="ml-error">{error}</div>}
       {searchResults.length > 0 && (
         <ul className="ml-search-results">
           {searchResults.map(p => (

@@ -465,8 +465,11 @@
 }
 
 .forge-step-item {
+  /* Per-step accent hue, set inline from the diagram-node hue so a step and
+     its architecture block share a colour. Falls back to teal chrome. */
+  --step-hue: var(--accent);
   border: 1px solid var(--border);
-  border-left: 3px solid transparent;
+  border-left: 3px solid color-mix(in srgb, var(--step-hue) 55%, transparent);
   border-radius: 9px;
   background: var(--bg);
   overflow: hidden;
@@ -474,8 +477,8 @@
 }
 
 .forge-step-item.is-open {
-  border-color: var(--accent);
-  border-left-color: var(--accent);
+  border-color: var(--step-hue);
+  border-left-color: var(--step-hue);
 }
 
 .forge-step {
@@ -498,7 +501,7 @@
 }
 
 .forge-step-item.is-open .forge-step {
-  background: rgba(var(--accent-rgb), 0.08);
+  background: color-mix(in srgb, var(--step-hue) 9%, transparent);
 }
 
 .forge-step-chevron {
@@ -510,12 +513,12 @@
 }
 
 .forge-step:hover .forge-step-chevron {
-  color: var(--accent);
+  color: var(--step-hue);
 }
 
 .forge-step-item.is-open .forge-step-chevron {
   transform: rotate(180deg);
-  color: var(--accent);
+  color: var(--step-hue);
 }
 
 .forge-step-num {
@@ -528,16 +531,18 @@
   font-size: 0.74rem;
   font-weight: 700;
   font-family: var(--mono);
-  color: var(--text-dim);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  /* Closed: a soft tinted badge in the step's hue, so the steps read as a
+     colourful sequence that mirrors the diagram nodes. Open: solid hue fill. */
+  color: color-mix(in srgb, var(--step-hue) 78%, var(--text-main));
+  background: color-mix(in srgb, var(--step-hue) 14%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--step-hue) 45%, var(--border));
   transition: color 0.15s, background 0.15s, border-color 0.15s;
 }
 
 .forge-step-item.is-open .forge-step-num {
   color: var(--bg);
-  background: var(--accent);
-  border-color: var(--accent);
+  background: var(--step-hue);
+  border-color: var(--step-hue);
 }
 
 .forge-step-body {
@@ -555,7 +560,7 @@
 }
 
 .forge-step-item.is-open .forge-step-title {
-  color: var(--accent);
+  color: color-mix(in srgb, var(--step-hue) 88%, var(--text-main));
 }
 
 .forge-step-detail {

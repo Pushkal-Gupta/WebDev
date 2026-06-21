@@ -5,8 +5,15 @@ import 'katex/dist/katex.min.css';
 import { ChevronRight, ChevronDown, ExternalLink, BookOpen, ArrowLeft, ArrowRight, FileText, Sigma, Code2 } from 'lucide-react';
 import './PGForgePapers.css';
 import { PAPERS } from './pgForgePapersData';
-import { getArchitecture } from './pgForgeArchData';
+import { getArchitecture, hueForIndex } from './pgForgeArchData';
 import ArchitectureDiagram from './ArchitectureDiagram';
+
+// Resolve a hue-cycle name to its theme token. 'accent' is the project teal
+// (var(--accent)); the rest are data-viz hues (var(--hue-*)). Used so a step's
+// number badge can carry the same colour as its architecture-diagram node.
+function hueToken(name) {
+  return name === 'accent' ? 'var(--accent)' : `var(--hue-${name})`;
+}
 import ForgeThumb from './ForgeThumb';
 
 // Render a KaTeX display formula to HTML the same way MLLesson does, so we
@@ -136,6 +143,20 @@ function PaperDetail({ paper, index, onBack, onOpen }) {
   const arch = getArchitecture(paper.id);
   const archActiveBlock = hoverBlock !== undefined ? hoverBlock : focusedBlock;
 
+  // Each step's accent hue is the hue of the diagram node it points to, so the
+  // step number badge and its architecture block share a colour (visual link).
+  // The diagram assigns hue by block index, so we look up the first block whose
+  // key matches this step's `block`; with no arch/match we fall back to the
+  // step's own index. Deterministic and index-based — never random.
+  const archBlocks = arch ? arch.blocks : [];
+  const stepHue = (i) => {
+    const step = steps[i];
+    const blockIdx = step
+      ? archBlocks.findIndex((b) => b.key === step.block)
+      : -1;
+    return hueToken(hueForIndex(blockIdx >= 0 ? blockIdx : i));
+  };
+
   const prev = index > 0 ? PAPERS[index - 1] : null;
   const next = index < PAPERS.length - 1 ? PAPERS[index + 1] : null;
 
@@ -183,6 +204,7 @@ function PaperDetail({ paper, index, onBack, onOpen }) {
                   <li
                     key={step.title}
                     className={`forge-step-item${isOpen ? ' is-open' : ''}`}
+                    style={{ '--step-hue': stepHue(i) }}
                   >
                     <button
                       type="button"
