@@ -4,8 +4,8 @@ import './Renderers.css';
 const stateStyles = {
   default: {},
   new: { background: 'rgba(var(--accent-rgb), 0.08)', borderLeft: '3px solid var(--accent)' },
-  modified: { background: 'rgba(240, 165, 0, 0.08)', borderLeft: '3px solid var(--medium)' },
-  deleted: { background: 'rgba(239, 68, 68, 0.06)', borderLeft: '3px solid var(--hard)', opacity: 0.5 },
+  modified: { background: 'rgba(var(--medium-rgb), 0.08)', borderLeft: '3px solid var(--medium)' },
+  deleted: { background: 'rgba(var(--hard-rgb), 0.06)', borderLeft: '3px solid var(--hard)', opacity: 0.5 },
 };
 
 function cellText(v) {

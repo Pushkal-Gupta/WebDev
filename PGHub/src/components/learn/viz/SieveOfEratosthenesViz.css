@@ -203,7 +203,7 @@
 }
 
 .sev-cell.is-composite-flash {
-  fill: rgba(255, 120, 170, 0.18);
+  fill: rgba(var(--hue-pink-rgb), 0.18);
   stroke: var(--hue-pink);
   stroke-width: 0.3;
   animation: sev-comp-flash 0.55s ease;
@@ -423,7 +423,7 @@
 }
 
 .sev-legend-swatch.flash {
-  background: rgba(255, 120, 170, 0.18);
+  background: rgba(var(--hue-pink-rgb), 0.18);
   border-color: var(--hue-pink);
 }
 

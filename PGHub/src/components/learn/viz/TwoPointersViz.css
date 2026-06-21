@@ -161,7 +161,7 @@
 }
 
 .tp-cell-found .tp-cell-rect {
-  fill: rgba(46, 196, 139, 0.18);
+  fill: rgba(var(--easy-rgb), 0.18);
   stroke: var(--easy);
   stroke-width: 2.4;
 }

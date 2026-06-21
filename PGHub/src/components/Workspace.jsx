@@ -10,6 +10,7 @@ import LanguageIcon from './LanguageIcon';
 import HintsPanel from './HintsPanel';
 import Discussion from './Discussion';
 import StatusPill from './StatusPill';
+import SaveToListButton from './SaveToListButton';
 import Select from './Select';
 import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
@@ -1218,6 +1219,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                 <div className="ws-q-head">
                   <h1 className="ws-q-title">{displayName}</h1>
                   <span className={`ws-diff-badge ws-diff-${activeProblem.difficulty?.toLowerCase()}`}>{activeProblem.difficulty}</span>
+                  <SaveToListButton session={session} problemId={activeProblem.id} variant="detail" align="right" />
                 </div>
 
 

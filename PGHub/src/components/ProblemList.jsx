@@ -6,6 +6,7 @@ import { supabase } from '../lib/supabase';
 import { useProblemPage, useTopics, useUserProgress, useLists, useListProblems, qk } from '../lib/queries';
 import { legacyToStatus } from '../lib/status';
 import { primaryTopicLabel, fullTopicLabel } from '../lib/topicLabel';
+import SaveToListButton from './SaveToListButton';
 import './ProblemList.css';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -133,6 +134,9 @@ export default function ProblemList({ session }) {
     difficulty: diffArray,
     search: debouncedSearch,
     sort: serverSort,
+    // Status is filtered SERVER-SIDE across the whole catalog (migrate-59). In
+    // list mode the visible rows come from listRows, so skip it there.
+    status: listActive ? null : statusFilter,
   });
   const rawProblems = useMemo(() => pageData?.rows || [], [pageData]);
   const totalServer = pageData?.total || 0;
@@ -343,19 +347,14 @@ export default function ProblemList({ session }) {
   };
 
 
-  // No list: the server already filtered by topic / difficulty / search / sort,
-  // so only the status filter remains client-side. With a list selected we hold
-  // the list's full rows (fetched directly, not paged), so topic / difficulty /
-  // search / sort / status are all applied client-side here and paginated below.
+  // No list: the server already filtered by topic / difficulty / search / sort /
+  // STATUS (migrate-59 applies status across the whole catalog), so the page rows
+  // are used as-is. With a list selected we hold the list's full rows (fetched
+  // directly, not paged), so topic / difficulty / search / sort / status are all
+  // applied client-side here and paginated below.
   const filteredProblems = useMemo(() => {
     if (!listActive) {
-      return rawProblems.filter(p => {
-        if (statusFilter !== 'all') {
-          const status = legacyToStatus(userProgress[p.id]);
-          if (status !== statusFilter) return false;
-        }
-        return true;
-      });
+      return rawProblems;
     }
     const term = debouncedSearch.trim().toLowerCase();
     const rows = (listRows || []).filter(p => {
@@ -413,9 +412,10 @@ export default function ProblemList({ session }) {
     return filteredProblems;
   }, [listActive, filteredProblems, page]);
 
-  // List mode and the status filter both narrow client-side; reflect that in the
-  // count so we never show "1-100 of 3,788" when only a few rows render.
-  const clientFiltered = statusFilter !== 'all' || listActive;
+  // Only list mode narrows client-side now — status is applied SERVER-SIDE
+  // (migrate-59), so totalServer already reflects the status-filtered catalog
+  // count and the pager/footer should use it (not the current page's row count).
+  const clientFiltered = listActive;
   const effectiveTotal = listActive
     ? filteredProblems.length
     : clientFiltered ? filteredProblems.length : totalServer;
@@ -702,6 +702,7 @@ export default function ProblemList({ session }) {
                   <Link to={`/solution/${p.id}`} className="pl-action-icon pl-sol" title="View Solution" aria-label="View solution">
                     <Lightbulb size={16} />
                   </Link>
+                  <SaveToListButton session={session} problemId={p.id} variant="row" align="right" />
                 </div>
               </div>
             );

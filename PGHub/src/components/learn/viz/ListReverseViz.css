@@ -115,7 +115,7 @@
 }
 
 .lrv-node-head .lrv-node-rect {
-  fill: rgba(46, 196, 139, 0.16);
+  fill: rgba(var(--easy-rgb), 0.16);
   stroke: var(--easy);
   stroke-width: 2.6;
 }

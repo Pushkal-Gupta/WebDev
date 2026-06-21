@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from './lib/supabase';
 import { queryClient } from './lib/queryClient';
 import { loadCustomColors, applyCustomColors } from './lib/customColors';
-import { useReviewCount, useProfile, qk } from './lib/queries';
+import { useProfile, qk } from './lib/queries';
 import Navbar from './components/Navbar';
 import SubNav from './components/SubNav';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -177,7 +177,6 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
   const location = useLocation();
   const queryClient = useQueryClient();
   const isWorkspace = location.pathname.startsWith('/category') || location.pathname.startsWith('/solution');
-  const { data: reviewCount = 0 } = useReviewCount(session?.user?.id);
   const { data: profile } = useProfile(session?.user?.id);
 
   useEffect(() => {
@@ -251,7 +250,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
         setPreferredLang={setPreferredLang}
         preferredLang={profile?.preferred_lang || 'python'}
       />
-      {!isWorkspace && <SubNav reviewCount={reviewCount} />}
+      {!isWorkspace && <SubNav userId={session?.user?.id} />}
       {!isWorkspace && <MobileBottomNav />}
       <CommandPalette />
       <Suspense fallback={<RouteFallback />}>

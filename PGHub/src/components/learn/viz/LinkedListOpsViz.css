@@ -99,7 +99,7 @@
 }
 
 .llo-node-found .llo-node-rect {
-  fill: rgba(46, 196, 139, 0.18);
+  fill: rgba(var(--easy-rgb), 0.18);
   stroke: var(--easy);
   stroke-width: 2.8;
   animation: llo-pop 520ms ease-out;
@@ -110,7 +110,7 @@
 }
 
 .llo-node-missed .llo-node-rect {
-  fill: rgba(220, 80, 80, 0.10);
+  fill: rgba(var(--hard-rgb), 0.10);
   stroke: var(--hard);
   stroke-width: 1.6;
 }
@@ -134,7 +134,7 @@
 .llo-node-deleting .llo-node-rect {
   stroke: var(--hard);
   stroke-width: 2.4;
-  fill: rgba(220, 80, 80, 0.14);
+  fill: rgba(var(--hard-rgb), 0.14);
   animation: llo-fade-out 600ms ease-in forwards;
 }
 
@@ -205,7 +205,7 @@
 
 .llo-null-rect-hit {
   stroke: var(--hard);
-  fill: rgba(220, 80, 80, 0.12);
+  fill: rgba(var(--hard-rgb), 0.12);
 }
 
 .llo-null-text {

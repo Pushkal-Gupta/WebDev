@@ -142,6 +142,7 @@ export function useProblemPage({
   difficulty = null,    // array | null
   search = '',
   sort = 'topic',
+  status = null,        // 'solved'|'attempted'|'mastered'|'bookmarked'|'needs_revision'|'not_started' | null/'all'
 } = {}) {
   return useQuery({
     queryKey: [
@@ -151,6 +152,7 @@ export function useProblemPage({
       (difficulty || []).join(',') || 'any',
       search || '',
       sort,
+      status || 'all',
     ],
     queryFn: async () => {
       const { data, error } = await supabase.rpc('pgcode_problem_page', {
@@ -160,12 +162,42 @@ export function useProblemPage({
         p_difficulty: difficulty && difficulty.length ? difficulty : null,
         p_search:     search || null,
         p_sort:       sort,
+        p_status:     status && status !== 'all' ? status : null,
       });
       if (error) throw error;
       return data || { rows: [], total: 0 };
     },
     staleTime: 60 * 1000,
     placeholderData: keepPreviousData,    // page/filter transitions keep old rows until new arrive; v5 API
+  });
+}
+
+// Full-catalog problem search for the "add problems" box in custom lists.
+// Goes straight through the paginated `pgcode_problem_page` RPC so ANY problem
+// (by name or number) in the ~4000-row catalog can be found — not just the
+// canonical top-500 that a client-side roadmap filter would surface. Returns
+// { rows, total } so callers can show a "more exist" hint. Disabled until a
+// non-trivial term is typed; debounce on the caller side to avoid hammering it.
+export function useProblemSearch(term, pageSize = 30) {
+  const q = (term || '').trim();
+  return useQuery({
+    queryKey: ['problemSearch', q, pageSize],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('pgcode_problem_page', {
+        p_limit:      pageSize,
+        p_offset:     0,
+        p_topic_id:   null,
+        p_difficulty: null,
+        p_search:     q,
+        p_sort:       'name',
+        p_status:     null,
+      });
+      if (error) throw error;
+      return data || { rows: [], total: 0 };
+    },
+    enabled: q.length > 0,
+    staleTime: 60 * 1000,
+    placeholderData: keepPreviousData,
   });
 }
 
@@ -904,6 +936,123 @@ export function useMyListProblems(listId) {
   });
 }
 
+// Which of the user's custom lists already contain a given problem. Returns a
+// Set of list ids so the "Save to list" popover can show each list checked or
+// unchecked. Reads the membership rows for all the user's lists in one query.
+export function useProblemListMembership(userId, problemId) {
+  return useQuery({
+    queryKey: ['problemListMembership', userId || 'anon', problemId || 'none'],
+    queryFn: async () => {
+      if (!userId || !problemId) return new Set();
+      const { data: lists, error: e1 } = await supabase
+        .from('PGcode_user_lists')
+        .select('id')
+        .eq('user_id', userId);
+      if (e1) throw e1;
+      const ids = (lists || []).map(l => l.id);
+      if (!ids.length) return new Set();
+      const { data: rels, error: e2 } = await supabase
+        .from('PGcode_user_list_problems')
+        .select('list_id')
+        .eq('problem_id', problemId)
+        .in('list_id', ids);
+      if (e2) throw e2;
+      return new Set((rels || []).map(r => r.list_id));
+    },
+    enabled: !!userId && !!problemId,
+    staleTime: 15 * 1000,
+  });
+}
+
+// Add or remove a problem from one custom list. `next === true` inserts the
+// membership row (appending to the list), `false` deletes it. Optimistic:
+// flips the membership Set immediately, rolls back on error, and invalidates
+// the membership / list-problems / list-summary queries on settle so the
+// popover checkbox, the in-list view, and the list card counts all stay live.
+export function useToggleListMembership(userId, problemId) {
+  const queryClient = useQueryClient();
+  const membershipKey = ['problemListMembership', userId || 'anon', problemId || 'none'];
+  return useMutation({
+    mutationFn: async ({ listId, next, position = 0 }) => {
+      if (next) {
+        const { error } = await supabase
+          .from('PGcode_user_list_problems')
+          .insert({ list_id: listId, problem_id: problemId, position });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('PGcode_user_list_problems')
+          .delete()
+          .eq('list_id', listId)
+          .eq('problem_id', problemId);
+        if (error) throw error;
+      }
+      return { listId, next };
+    },
+    onMutate: async ({ listId, next }) => {
+      await queryClient.cancelQueries({ queryKey: membershipKey });
+      const prev = queryClient.getQueryData(membershipKey);
+      queryClient.setQueryData(membershipKey, (old) => {
+        const set = new Set(old || []);
+        if (next) set.add(listId); else set.delete(listId);
+        return set;
+      });
+      return { prev };
+    },
+    onError: (_err, _vars, ctx) => {
+      if (ctx?.prev) queryClient.setQueryData(membershipKey, ctx.prev);
+    },
+    onSettled: (_data, _err, vars) => {
+      queryClient.invalidateQueries({ queryKey: membershipKey });
+      if (vars?.listId) {
+        queryClient.invalidateQueries({ queryKey: ['userListProblems', vars.listId] });
+      }
+      queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
+      queryClient.invalidateQueries({ queryKey: ['userListSizes', userId] });
+    },
+  });
+}
+
+// Create a new custom list and (optionally) add a problem to it in one step.
+// Used by the "+ New list" inline row in the Save-to-list popover. Returns the
+// created list row so the caller can reflect the new membership immediately.
+export function useCreateListWithProblem(userId) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ name, problemId }) => {
+      const clean = (name || '').trim();
+      if (!userId || !clean) throw new Error('A list name is required.');
+      const { data: list, error: e1 } = await supabase
+        .from('PGcode_user_lists')
+        .insert({ user_id: userId, name: clean })
+        .select()
+        .single();
+      if (e1) throw e1;
+      if (problemId) {
+        const { error: e2 } = await supabase
+          .from('PGcode_user_list_problems')
+          .insert({ list_id: list.id, problem_id: problemId, position: 0 });
+        if (e2) throw e2;
+      }
+      return list;
+    },
+    onSuccess: (list, vars) => {
+      queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
+      queryClient.invalidateQueries({ queryKey: ['userListSizes', userId] });
+      if (vars?.problemId) {
+        const membershipKey = ['problemListMembership', userId || 'anon', vars.problemId];
+        queryClient.setQueryData(membershipKey, (old) => {
+          const set = new Set(old || []);
+          set.add(list.id);
+          return set;
+        });
+        queryClient.invalidateQueries({ queryKey: membershipKey });
+        queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
+      }
+    },
+  });
+}
+
 // Public shared list lookup (by share_slug)
 export function usePublicList(shareSlug) {
   return useQuery({
@@ -1215,6 +1364,45 @@ export function useReviewCount(userId) {
         .lte('next_review_at', now);
       if (error) throw error;
       return count || 0;
+    },
+    enabled: !!userId,
+    staleTime: 60 * 1000,
+  });
+}
+
+// Due review items (the actual list behind the SubNav badge count). Pulls the
+// soonest-due completed problems whose spaced-repetition slot has come due, then
+// joins problem metadata so the notifications panel can render names/topics.
+export function useReviewDueItems(userId, limit = 8) {
+  return useQuery({
+    queryKey: ['reviewDueItems', userId || 'anon', limit],
+    queryFn: async () => {
+      if (!userId) return [];
+      const now = new Date().toISOString();
+      const { data: progress, error } = await supabase
+        .from('PGcode_user_progress')
+        .select('problem_id, next_review_at')
+        .eq('user_id', userId)
+        .eq('is_completed', true)
+        .not('next_review_at', 'is', null)
+        .lte('next_review_at', now)
+        .order('next_review_at', { ascending: true })
+        .limit(limit);
+      if (error) throw error;
+      if (!progress?.length) return [];
+
+      const ids = progress.map(p => p.problem_id);
+      const { data: problems, error: pErr } = await supabase
+        .from('PGcode_problems')
+        .select('id, name, topic_id, difficulty')
+        .in('id', ids);
+      if (pErr) throw pErr;
+
+      const byId = {};
+      (problems || []).forEach(p => { byId[p.id] = p; });
+      return progress
+        .map(p => ({ ...p, problem: byId[p.problem_id] }))
+        .filter(p => p.problem);
     },
     enabled: !!userId,
     staleTime: 60 * 1000,

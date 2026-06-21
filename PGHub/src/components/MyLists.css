@@ -267,6 +267,45 @@
 }
 .ml-back:hover { color: var(--accent); }
 
+/* ── In-list "Add problems" block ── */
+.ml-add-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--viz-card);
+}
+.ml-add-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+.ml-add-icon { color: var(--accent); flex: 0 0 auto; }
+.ml-add-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-main);
+}
+.ml-add-hint {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+}
+.ml-add-block .ml-search-row { background: var(--surface); }
+
+.ml-search-none {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  padding: 0.2rem 0.3rem;
+}
+
 .ml-search-results {
   list-style: none;
   padding: 0;
@@ -276,6 +315,7 @@
   background: var(--surface);
   overflow: hidden;
 }
+.ml-search-row-btn:disabled { opacity: 0.5; cursor: progress; }
 
 .ml-search-row-btn {
   width: 100%;
@@ -296,6 +336,15 @@
 }
 .ml-search-results li:last-child .ml-search-row-btn { border-bottom: none; }
 .ml-search-row-btn:hover { background: var(--hover-box); color: var(--accent); }
+
+.ml-search-more {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  padding: 0.5rem 0.85rem;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
 
 .ml-sr-name {
   overflow: hidden;

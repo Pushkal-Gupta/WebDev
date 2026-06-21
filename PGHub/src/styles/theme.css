@@ -65,6 +65,17 @@
   /* Accent in RGB triples so any rgba(var(--accent-rgb), 0.X) works. */
   --accent-rgb: 0, 255, 245;
 
+  /* Status + hue RGB triples — so any rgba(var(--X-rgb), 0.X) tint tracks the
+     palette. Computed from each block's hex; every palette redefines them. */
+  --easy-rgb: 76, 175, 80;
+  --medium-rgb: 240, 165, 0;
+  --hard-rgb: 239, 68, 68;
+  --warning-rgb: 245, 158, 11;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
+
   /* Canonical content max-width. Pages that aren't intentionally full-bleed
      (workspace, roadmap, playground canvases) should clamp to this. Widened so
      content fills more of the viewport and the side gutters roughly halve on a
@@ -123,6 +134,15 @@
   --hue-pink:   #db2777;
   --hue-mint:   #059669;
   --accent-rgb: 0, 138, 126;
+
+  --easy-rgb: 76, 175, 80;
+  --medium-rgb: 240, 165, 0;
+  --hard-rgb: 239, 68, 68;
+  --warning-rgb: 217, 119, 6;
+  --hue-violet-rgb: 124, 58, 237;
+  --hue-sky-rgb: 2, 132, 199;
+  --hue-pink-rgb: 219, 39, 119;
+  --hue-mint-rgb: 5, 150, 105;
 }
 
 /* ── Palette: Midnight (deep blue + violet accent) ── */
@@ -156,6 +176,15 @@
   --red-bar: #4a1a2a;
   --yellow-bg: #2e260d;
   --accent-rgb: 167, 139, 250;
+
+  --easy-rgb: 76, 175, 80;
+  --medium-rgb: 240, 165, 0;
+  --hard-rgb: 239, 68, 68;
+  --warning-rgb: 251, 191, 36;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
 }
 
 /* ── Palette: Solarized Light (warm, low-contrast scholar) ── */
@@ -198,6 +227,15 @@
   --yellow: #b58900;
   --yellow-bg: #f5ebcc;
   --accent-rgb: 38, 139, 210;
+
+  --easy-rgb: 133, 153, 0;
+  --medium-rgb: 181, 137, 0;
+  --hard-rgb: 220, 50, 47;
+  --warning-rgb: 203, 75, 22;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
 }
 
 /* ── Palette: Dracula (dark purple/pink accent) ── */
@@ -240,6 +278,15 @@
   --yellow: #f1fa8c;
   --yellow-bg: #2f3015;
   --accent-rgb: 255, 121, 198;
+
+  --easy-rgb: 80, 250, 123;
+  --medium-rgb: 241, 250, 140;
+  --hard-rgb: 255, 85, 85;
+  --warning-rgb: 255, 184, 108;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
 }
 
 /* ── Light partner of Midnight ── */
@@ -282,6 +329,15 @@
   --yellow: #b88a10;
   --yellow-bg: #fdf3cc;
   --accent-rgb: 107, 77, 255;
+
+  --easy-rgb: 46, 166, 109;
+  --medium-rgb: 201, 139, 26;
+  --hard-rgb: 198, 59, 59;
+  --warning-rgb: 201, 139, 26;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
 }
 
 /* ── Light partner of Dracula ── */
@@ -324,6 +380,15 @@
   --yellow: #b07d0c;
   --yellow-bg: #fdf3cc;
   --accent-rgb: 196, 55, 138;
+
+  --easy-rgb: 47, 158, 87;
+  --medium-rgb: 176, 125, 12;
+  --hard-rgb: 198, 59, 59;
+  --warning-rgb: 217, 119, 6;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
 }
 
 /* ── Dark partner of Solarized ── */
@@ -366,6 +431,15 @@
   --yellow: #b58900;
   --yellow-bg: #2d2410;
   --accent-rgb: 38, 139, 210;
+
+  --easy-rgb: 133, 153, 0;
+  --medium-rgb: 181, 137, 0;
+  --hard-rgb: 220, 50, 47;
+  --warning-rgb: 203, 75, 22;
+  --hue-violet-rgb: 167, 139, 250;
+  --hue-sky-rgb: 56, 189, 248;
+  --hue-pink-rgb: 244, 114, 182;
+  --hue-mint-rgb: 52, 211, 153;
 }
 
 /* ── Global mobile tightening for new routes ── */

@@ -6,9 +6,8 @@ import { supabase } from '../lib/supabase';
 import {
   useMyLists,
   useMyListProblems,
-  useProblemsCompact,
+  useProblemSearch,
   useUserProgress,
-  filterByRoadmap,
 } from '../lib/queries';
 import StatusPill from './StatusPill';
 import { legacyToStatus } from '../lib/status';
@@ -370,11 +369,19 @@ function ListDetail({ session, list, onBack }) {
   const userId = session?.user?.id;
   const queryClient = useQueryClient();
   const { data: listProblems = [], isLoading } = useMyListProblems(list.id);
-  const { data: allProblems = [] } = useProblemsCompact();
   const { data: progressBundle } = useUserProgress(userId);
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState(null);
+
+  // Debounce the typed term so each keystroke doesn't fire the RPC.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 250);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const { data: searchPage } = useProblemSearch(debouncedSearch, 30);
 
   const togglePublic = async () => {
     const nextPublic = !list.is_public;
@@ -403,13 +410,14 @@ function ListDetail({ session, list, onBack }) {
   const byId = progressBundle?.byId || {};
   const inList = useMemo(() => new Set(listProblems.map(p => p.id)), [listProblems]);
 
-  const searchResults = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return [];
-    return filterByRoadmap(allProblems, '500')
-      .filter(p => !inList.has(p.id) && p.name.toLowerCase().includes(q))
-      .slice(0, 10);
-  }, [allProblems, inList, search]);
+  // Full-catalog matches from the RPC, minus anything already in this list.
+  const allMatches = useMemo(
+    () => (searchPage?.rows || []).filter(p => !inList.has(p.id)),
+    [searchPage, inList],
+  );
+  const searchResults = useMemo(() => allMatches.slice(0, 20), [allMatches]);
+  const totalMatches = searchPage?.total ?? 0;
+  const moreExist = totalMatches > searchResults.length;
 
   const [mutatingId, setMutatingId] = useState(null);
 
@@ -476,31 +484,47 @@ function ListDetail({ session, list, onBack }) {
         )}
       </div>
 
-      <div className="ml-search-row">
-        <Search size={13} className="ml-search-icon" />
-        <input
-          className="ml-input"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search and add problems…"
-        />
-        {search && (
-          <button className="ml-icon-btn" onClick={() => setSearch('')}><X size={12} /></button>
-        )}
+      <div className="ml-add-block">
+        <div className="ml-add-head">
+          <ListPlus size={14} className="ml-add-icon" />
+          <span className="ml-add-title">Add problems</span>
+          <span className="ml-add-hint">Type a problem name, then click a result to add it.</span>
+        </div>
+        <div className="ml-search-row">
+          <Search size={13} className="ml-search-icon" />
+          <input
+            className="ml-input"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search the catalog by name…"
+            aria-label="Search problems to add"
+          />
+          {search && (
+            <button className="ml-icon-btn" onClick={() => setSearch('')} aria-label="Clear search"><X size={12} /></button>
+          )}
+        </div>
       </div>
       {error && <div className="ml-error">{error}</div>}
       {searchResults.length > 0 && (
         <ul className="ml-search-results">
           {searchResults.map(p => (
             <li key={p.id}>
-              <button className="ml-search-row-btn" onClick={() => addProblem(p.id)}>
+              <button className="ml-search-row-btn" onClick={() => addProblem(p.id)} disabled={mutatingId === p.id}>
                 <Plus size={11} />
                 <span className="ml-sr-name">{p.name}</span>
                 <span className={`ml-diff ml-diff-${p.difficulty?.toLowerCase()}`}>{p.difficulty}</span>
               </button>
             </li>
           ))}
+          {moreExist && (
+            <li className="ml-search-more">
+              Showing the first {searchResults.length} of {totalMatches} matches — keep typing to narrow it down.
+            </li>
+          )}
         </ul>
+      )}
+      {debouncedSearch && searchResults.length === 0 && (
+        <p className="ml-search-none">No matching problems (or they&rsquo;re already in this list).</p>
       )}
 
       {isLoading ? (

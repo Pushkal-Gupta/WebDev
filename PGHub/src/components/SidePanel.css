@@ -381,7 +381,7 @@
 }
 
 .sp-cal-cell.solved {
-  background: rgba(76, 175, 80, 0.2);
+  background: rgba(var(--easy-rgb), 0.2);
   color: var(--easy);
   font-weight: 700;
 }

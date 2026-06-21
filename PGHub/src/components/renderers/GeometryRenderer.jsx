@@ -9,9 +9,9 @@ const stateColors = {
   default: { fill: 'var(--surface)', stroke: 'var(--border)', text: 'var(--text-dim)' },
   current: { fill: 'rgba(var(--accent-rgb), 0.18)', stroke: 'var(--accent)', text: 'var(--accent)' },
   highlighted: { fill: 'rgba(var(--accent-rgb), 0.18)', stroke: 'var(--accent)', text: 'var(--accent)' },
-  visited: { fill: 'rgba(34, 197, 94, 0.15)', stroke: 'var(--easy)', text: 'var(--easy)' },
-  match: { fill: 'rgba(34, 197, 94, 0.15)', stroke: 'var(--easy)', text: 'var(--easy)' },
-  reject: { fill: 'rgba(239, 68, 68, 0.15)', stroke: 'var(--hard)', text: 'var(--hard)' },
+  visited: { fill: 'rgba(var(--easy-rgb), 0.15)', stroke: 'var(--easy)', text: 'var(--easy)' },
+  match: { fill: 'rgba(var(--easy-rgb), 0.15)', stroke: 'var(--easy)', text: 'var(--easy)' },
+  reject: { fill: 'rgba(var(--hard-rgb), 0.15)', stroke: 'var(--hard)', text: 'var(--hard)' },
 };
 
 export default function GeometryRenderer({ data }) {

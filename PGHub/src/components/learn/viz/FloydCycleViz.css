@@ -71,13 +71,13 @@
 }
 
 .fcv-node-slow .fcv-node-rect {
-  fill: rgba(56, 189, 248, 0.12);
+  fill: rgba(var(--hue-sky-rgb), 0.12);
   stroke: var(--hue-sky);
   stroke-width: 2.2;
 }
 
 .fcv-node-fast .fcv-node-rect {
-  fill: rgba(236, 72, 153, 0.12);
+  fill: rgba(var(--hue-pink-rgb), 0.12);
   stroke: var(--hue-pink);
   stroke-width: 2.2;
 }
@@ -97,7 +97,7 @@
 }
 
 .fcv-node-cycle-start .fcv-node-rect {
-  fill: rgba(46, 196, 139, 0.18);
+  fill: rgba(var(--easy-rgb), 0.18);
   stroke: var(--easy);
   stroke-width: 2.8;
   animation: fcv-pop 520ms ease-out;
@@ -208,9 +208,9 @@
 }
 
 .fcv-banner-success .fcv-banner-rect {
-  fill: rgba(46, 196, 139, 0.16);
+  fill: rgba(var(--easy-rgb), 0.16);
   stroke: var(--easy);
-  filter: drop-shadow(0 0 8px rgba(46, 196, 139, 0.35));
+  filter: drop-shadow(0 0 8px rgba(var(--easy-rgb), 0.35));
 }
 
 .fcv-banner-success .fcv-banner-text {
@@ -218,7 +218,7 @@
 }
 
 .fcv-banner-warn .fcv-banner-rect {
-  fill: rgba(220, 80, 80, 0.14);
+  fill: rgba(var(--hard-rgb), 0.14);
   stroke: var(--hard);
 }
 
@@ -442,12 +442,12 @@
 }
 
 .fcv-legend-slow {
-  background: rgba(56, 189, 248, 0.18);
+  background: rgba(var(--hue-sky-rgb), 0.18);
   border-color: var(--hue-sky);
 }
 
 .fcv-legend-fast {
-  background: rgba(236, 72, 153, 0.18);
+  background: rgba(var(--hue-pink-rgb), 0.18);
   border-color: var(--hue-pink);
 }
 

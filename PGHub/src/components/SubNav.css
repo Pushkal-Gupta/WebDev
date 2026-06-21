@@ -177,6 +177,189 @@
   color: var(--accent);
 }
 
+/* Notifications bell + panel (spaced-repetition review queue). */
+.sub-nav-notif-wrap {
+  position: relative;
+  display: inline-flex;
+  margin-left: 0.15rem;
+}
+
+.sub-nav-notif-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background var(--t), color var(--t);
+}
+.sub-nav-notif-btn:hover,
+.sub-nav-notif-btn.open { background: var(--hover-box); color: var(--accent); }
+
+.sub-nav-notif-btn .sub-nav-badge {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  padding: 0.05rem 0.28rem;
+  min-width: 14px;
+  font-size: 0.5rem;
+}
+
+.sub-nav-notif-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  z-index: 950;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+  overflow: hidden;
+  animation: subnav-pop 0.16s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.sub-nav-notif-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--border);
+}
+.sub-nav-notif-title {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.sub-nav-notif-count {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: var(--bg);
+  background: var(--accent);
+  padding: 0.1rem 0.4rem;
+  border-radius: 8px;
+  line-height: 1;
+}
+
+.sub-nav-notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0.35rem;
+  padding: 1.6rem 1rem;
+  color: var(--text-dim);
+}
+.sub-nav-notif-empty svg { color: var(--accent); opacity: 0.8; }
+.sub-nav-notif-empty p {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.sub-nav-notif-empty span { font-size: 0.7rem; }
+
+/* The list MAY scroll internally — this is an allowed popover, not page scroll. */
+.sub-nav-notif-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 0.3rem;
+}
+
+.sub-nav-notif-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.5rem 0.55rem;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: background var(--t);
+}
+.sub-nav-notif-item:hover { background: var(--hover-box); }
+
+.sub-nav-notif-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+
+.sub-nav-notif-item-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1;
+}
+.sub-nav-notif-item-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sub-nav-notif-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.62rem;
+  color: var(--text-dim);
+}
+.sub-nav-notif-item-topic {
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sub-nav-notif-item-time {
+  flex-shrink: 0;
+  color: var(--medium);
+  font-weight: 600;
+}
+.sub-nav-notif-item-arrow {
+  flex-shrink: 0;
+  color: var(--text-dim);
+  opacity: 0;
+  transition: opacity var(--t);
+}
+.sub-nav-notif-item:hover .sub-nav-notif-item-arrow { opacity: 1; }
+
+.sub-nav-notif-foot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  padding: 0.6rem;
+  background: transparent;
+  border: none;
+  border-top: 1px solid var(--border);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  transition: background var(--t);
+}
+.sub-nav-notif-foot:hover { background: var(--hover-box); }
+
 @media (max-width: 768px) {
   .sub-nav-inner {
     gap: 0.2rem;
@@ -193,6 +376,7 @@
   }
 
   .sub-nav-more-panel { right: -10px; }
+  .sub-nav-notif-panel { right: -8px; }
 }
 
 @media (max-width: 540px) {

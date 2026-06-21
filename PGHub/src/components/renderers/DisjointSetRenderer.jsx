@@ -8,8 +8,8 @@ const SPREAD = 70;
 const stateColors = {
   default: { fill: 'var(--surface)', stroke: 'var(--border)', text: 'var(--text-dim)' },
   current: { fill: 'rgba(var(--accent-rgb), 0.15)', stroke: 'var(--accent)', text: 'var(--accent)' },
-  root: { fill: 'rgba(34, 197, 94, 0.12)', stroke: 'var(--easy)', text: 'var(--easy)' },
-  merging: { fill: 'rgba(240, 165, 0, 0.15)', stroke: 'var(--medium)', text: 'var(--medium)' },
+  root: { fill: 'rgba(var(--easy-rgb), 0.12)', stroke: 'var(--easy)', text: 'var(--easy)' },
+  merging: { fill: 'rgba(var(--medium-rgb), 0.15)', stroke: 'var(--medium)', text: 'var(--medium)' },
 };
 
 /**
