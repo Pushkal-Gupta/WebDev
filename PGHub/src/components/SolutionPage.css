@@ -1,5 +1,5 @@
 .solnpage {
-  height: calc(100vh - 60px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   display: flex;
   flex-direction: column;
   overflow: hidden;

@@ -37,12 +37,12 @@
   box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.25);
 }
 
-[data-theme="light"] .topic-node-title {
-  color: #1a1a1a;
+[data-theme-mode="light"] .topic-node-title {
+  color: var(--text-main);
 }
 
-[data-theme="light"] .topic-node-num {
-  color: #007a70;
+[data-theme-mode="light"] .topic-node-num {
+  color: var(--accent);
 }
 
 .topic-node-content {

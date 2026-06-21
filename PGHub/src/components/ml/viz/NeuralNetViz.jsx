@@ -2,18 +2,22 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Play, RotateCcw } from 'lucide-react';
 import './MLViz.css';
 
+// Vertical feedforward net: layers stack TOP -> BOTTOM (input layer at the top,
+// output at the bottom). Neurons within a layer fan out as a horizontal row;
+// weights connect downward. Portrait viewBox (taller than wide).
 const W = 420;
-const H = 300;
-const PAD_L = 38;
-const PAD_R = 38;
-const PAD_T = 28;
-const PAD_B = 28;
+const H = 460;
+const PAD_L = 46;
+const PAD_R = 46;
+const PAD_T = 40;
+const PAD_B = 36;
 
 const N_IN = 3;
 const N_HID = 4;
 const N_OUT = 2;
 
-const COL_X = [PAD_L, W / 2, W - PAD_R];
+// Row Y for each layer (input -> hidden -> output), evenly spaced down the column.
+const ROW_Y = [PAD_T, H / 2, H - PAD_B];
 
 // Hardcoded deterministic weights & biases.
 // W1: hidden x input  (4 x 3)
@@ -49,9 +53,9 @@ function softmax(vs) {
 }
 
 function nodePos(layer, idx, n) {
-  const x = COL_X[layer];
-  const span = H - PAD_T - PAD_B;
-  const y = n === 1 ? PAD_T + span / 2 : PAD_T + (span * idx) / (n - 1);
+  const y = ROW_Y[layer];
+  const span = W - PAD_L - PAD_R;
+  const x = n === 1 ? PAD_L + span / 2 : PAD_L + (span * idx) / (n - 1);
   return { x, y };
 }
 
@@ -186,7 +190,7 @@ export default function NeuralNetViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide">
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-portrait" style={{ '--mlviz-portrait-ar': `${W} / ${H}` }}>
           <defs>
             <radialGradient id="nn-pulse" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="var(--accent)" stopOpacity="1" />
@@ -201,14 +205,14 @@ export default function NeuralNetViz() {
             </filter>
           </defs>
 
-          {/* layer labels */}
-          <text x={COL_X[0]} y={PAD_T - 12} fontSize="10" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+          {/* layer labels — one per row, sitting in the left gutter of each layer */}
+          <text x={PAD_L - 24} y={ROW_Y[0] - 22} fontSize="10" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="start" letterSpacing="0.14em">
             INPUT
           </text>
-          <text x={COL_X[1]} y={PAD_T - 12} fontSize="10" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+          <text x={PAD_L - 24} y={ROW_Y[1] - 30} fontSize="10" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="start" letterSpacing="0.14em">
             HIDDEN · ReLU
           </text>
-          <text x={COL_X[2]} y={PAD_T - 12} fontSize="10" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+          <text x={PAD_L - 24} y={ROW_Y[2] + 36} fontSize="10" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="start" letterSpacing="0.14em">
             OUTPUT · softmax
           </text>
 
@@ -409,13 +413,13 @@ export default function NeuralNetViz() {
                 {snap(inputs[i], 2)}
               </text>
               <text
-                x={p.x - 24}
-                y={p.y + 4}
+                x={p.x}
+                y={p.y - 22}
                 fontSize="10"
                 fill="var(--text-dim)"
                 fontFamily="var(--serif, serif)"
                 fontStyle="italic"
-                textAnchor="end"
+                textAnchor="middle"
               >
                 x{i + 1}
               </text>
@@ -540,12 +544,12 @@ export default function NeuralNetViz() {
                   </text>
                 )}
                 <text
-                  x={p.x + 24}
-                  y={p.y + 4}
+                  x={p.x}
+                  y={p.y + 32}
                   fontSize="10"
                   fill={color}
                   fontFamily="var(--mono, monospace)"
-                  textAnchor="start"
+                  textAnchor="middle"
                   fontWeight="700"
                 >
                   {i === 0 ? 'A' : 'B'}

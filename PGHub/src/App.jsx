@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, Suspense, lazy, useRef } from 'react';
-import { HashRouter, Routes, Route, useLocation, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from './lib/supabase';
 import { queryClient } from './lib/queryClient';
@@ -319,6 +319,8 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/playground/sql" element={<SqlPlayground theme={theme} />} />
           <Route path="/playground/sql/:courseSlug" element={<SqlPlayground theme={theme} />} />
           <Route path="/company" element={<CompaniesIndex />} />
+          {/* Plural alias — both /company and /companies land on the index */}
+          <Route path="/companies" element={<Navigate to="/company" replace />} />
           <Route path="/company/g/:groupSlug" element={<CompanyGroup />} />
           <Route path="/company/:slug" element={<CompanyDetail session={session} />} />
           <Route path="/contests" element={<ContestsIndex />} />
@@ -354,6 +356,9 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
             element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} preferredLang={profile?.preferred_lang} />}
           />
           <Route path="/solution/:problemId" element={<SolutionPage />} />
+          {/* Catch-all: any unknown hash route redirects to the roadmap instead
+              of rendering a blank void under the nav. */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         </RouteErrorBoundary>
       </Suspense>

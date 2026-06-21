@@ -3,12 +3,15 @@ import { Play, Pause, RotateCcw, Layers, Database } from 'lucide-react';
 import katex from 'katex';
 import './MLViz.css';
 
-const W = 760;
-const H = 360;
-const PANEL_TOP = 40;
-const PANEL_H = 240;
-const PANEL_GAP = 14;
-const PANEL_W = (W - 32 - PANEL_GAP * 3) / 4;
+// Vertical block flow: the four transformer stages stack TOP -> BOTTOM, each a
+// panel connected to the next by a downward arrow. Portrait viewBox.
+const W = 360;
+const H = 760;
+const PANEL_LEFT = 28;
+const PANEL_W = W - PANEL_LEFT * 2;
+const PANEL_TOP = 28;
+const PANEL_GAP = 22;
+const PANEL_H = (H - PANEL_TOP - 56 - PANEL_GAP * 3) / 4;
 const SEQ_LEN = 6;
 const D_MODEL = 64;
 const N_PANELS = 4;
@@ -130,20 +133,23 @@ export default function TransformerLayerFlowViz() {
 
   const transition = reducedMotion ? 'none' : 'opacity 0.35s ease, fill 0.35s ease, stroke 0.35s ease';
 
-  const cellSize = (Math.min(PANEL_W, PANEL_H - 70) - 10) / SEQ_LEN;
-  const panelX = (idx) => 16 + idx * (PANEL_W + PANEL_GAP);
+  // The SEQ_LEN x SEQ_LEN intensity grid sits on the left of each panel; the
+  // labels/sub-text occupy the right. Cell size is bounded by the panel height.
+  const cellSize = (Math.min(PANEL_H - 26, PANEL_W * 0.5) - 6) / SEQ_LEN;
+  const panelY = (idx) => PANEL_TOP + idx * (PANEL_H + PANEL_GAP);
 
   function renderPanel(idx) {
-    const x = panelX(idx);
+    const y = panelY(idx);
     const active = stage === idx;
     const arr = fields[idx];
-    const gridX = x + (PANEL_W - cellSize * SEQ_LEN) / 2;
-    const gridY = PANEL_TOP + 30;
+    const gridX = PANEL_LEFT + 12;
+    const gridY = y + (PANEL_H - cellSize * SEQ_LEN) / 2 + 4;
+    const textX = gridX + cellSize * SEQ_LEN + 22;
     return (
       <g key={idx} opacity={active ? 1 : 0.55} style={{ transition }}>
         <rect
-          x={x}
-          y={PANEL_TOP - 4}
+          x={PANEL_LEFT}
+          y={y}
           width={PANEL_W}
           height={PANEL_H}
           fill="var(--bg)"
@@ -153,8 +159,8 @@ export default function TransformerLayerFlowViz() {
           opacity={active ? 0.9 : 0.55}
         />
         <text
-          x={x + 8}
-          y={PANEL_TOP + 12}
+          x={PANEL_LEFT + 8}
+          y={y + 13}
           fontSize="9"
           fontFamily="var(--mono)"
           fill="var(--text-dim)"
@@ -163,8 +169,8 @@ export default function TransformerLayerFlowViz() {
           {`STEP ${idx + 1}`}
         </text>
         <text
-          x={x + PANEL_W - 8}
-          y={PANEL_TOP + 12}
+          x={PANEL_LEFT + PANEL_W - 8}
+          y={y + 13}
           fontSize="8.5"
           fontFamily="var(--mono)"
           fill={active ? 'var(--accent)' : 'var(--text-dim)'}
@@ -195,12 +201,12 @@ export default function TransformerLayerFlowViz() {
             />
           );
         })}
-        {/* token labels along bottom */}
+        {/* token labels along bottom of the grid */}
         {TOKENS.map((t, ti) => (
           <text
             key={ti}
             x={gridX + ti * cellSize + cellSize / 2}
-            y={gridY + cellSize * SEQ_LEN + 12}
+            y={gridY + cellSize * SEQ_LEN + 11}
             fontSize="8"
             fontFamily="var(--serif)"
             fontStyle="italic"
@@ -211,13 +217,13 @@ export default function TransformerLayerFlowViz() {
           </text>
         ))}
         <text
-          x={x + PANEL_W / 2}
-          y={PANEL_TOP + PANEL_H - 14}
+          x={textX}
+          y={y + PANEL_H / 2}
           fontSize="9"
           fontFamily="var(--mono)"
           fill="var(--text-dim)"
-          textAnchor="middle"
-          letterSpacing="0.08em"
+          textAnchor="start"
+          letterSpacing="0.06em"
         >
           {PANEL_LABELS[idx].sub}
         </text>
@@ -230,8 +236,8 @@ export default function TransformerLayerFlowViz() {
       <div className="mlviz-stage" style={{ padding: '0.6rem 0.4rem 0.4rem' }}>
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="mlviz-svg"
-          style={{ maxWidth: '100%', width: '100%', aspectRatio: `${W} / ${H}`, height: 'auto' }}
+          className="mlviz-svg mlviz-svg-portrait"
+          style={{ '--mlviz-portrait-ar': `${W} / ${H}` }}
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
@@ -242,18 +248,18 @@ export default function TransformerLayerFlowViz() {
 
           {[0, 1, 2, 3].map(renderPanel)}
 
-          {/* arrows between panels */}
+          {/* downward arrows between stacked panels */}
           {[0, 1, 2].map((i) => {
-            const x1 = panelX(i) + PANEL_W + 1;
-            const x2 = panelX(i + 1) - 1;
-            const y = PANEL_TOP + PANEL_H / 2;
+            const x = W / 2;
+            const y1 = panelY(i) + PANEL_H + 1;
+            const y2 = panelY(i + 1) - 1;
             return (
               <line
                 key={`a-${i}`}
-                x1={x1}
-                y1={y}
-                x2={x2}
-                y2={y}
+                x1={x}
+                y1={y1}
+                x2={x}
+                y2={y2}
                 stroke="var(--accent)"
                 strokeWidth="1.4"
                 strokeDasharray={stage > i ? '0' : '3 3'}
@@ -266,14 +272,14 @@ export default function TransformerLayerFlowViz() {
 
           <text
             x={W / 2}
-            y={H - 12}
-            fontSize="9.5"
+            y={H - 14}
+            fontSize="9"
             fontFamily="var(--mono)"
             fill="var(--text-dim)"
             textAnchor="middle"
-            letterSpacing="0.1em"
+            letterSpacing="0.06em"
           >
-            transformer block: embed → MHA → add+norm+FFN → output
+            embed → MHA → add+norm+FFN → output
           </text>
         </svg>
       </div>

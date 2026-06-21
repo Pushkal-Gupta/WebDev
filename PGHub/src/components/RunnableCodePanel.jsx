@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
 import { Play, RotateCcw, Loader2, Terminal, Send } from 'lucide-react';
 import { runCode, LANG_MAP } from '../lib/codeRunner';
@@ -52,7 +52,7 @@ function statusLabel(s) {
 //   fill=false (default) → inline: editor auto-sizes to its content (no inner
 //                          scrollbar); used in lessons / tutorials / concepts.
 //   fill=true           → fills the parent (height:100%); used on problem pages.
-export default function RunnableCodePanel({
+const RunnableCodePanel = forwardRef(function RunnableCodePanel({
   code,
   lang,
   title,
@@ -64,7 +64,7 @@ export default function RunnableCodePanel({
   onSubmit,
   submitLabel = 'Submit',
   onLanguageChange,
-}) {
+}, ref) {
   // Normalize input into { lang: source }.
   const seeds = useMemo(() => {
     if (typeof code === 'string') {
@@ -101,6 +101,7 @@ export default function RunnableCodePanel({
   const [result, setResult] = useState(null);
   const [running, setRunning] = useState(false);
   const [monacoTheme, setMonacoTheme] = useState(() => resolveMonacoTheme());
+  const [contentHeight, setContentHeight] = useState(0);
   const editorRef = useRef(null);
 
   useEffect(() => {
@@ -126,10 +127,13 @@ export default function RunnableCodePanel({
   const monacoLang = LANG_MAP[activeLang]?.monaco || 'plaintext';
   const canRun = runnable && !!LANG_MAP[activeLang]?.harness;
 
-  // Auto-size inline editors to content so they never grow an inner scrollbar.
-  const lineCount = Math.max(minLines, value.split('\n').length);
+  // Auto-size inline editors to their REAL rendered content height (reported by
+  // Monaco), so word-wrapped long lines never get clipped behind a hidden inline
+  // scrollbar. A line-count estimate seeds the first paint / pre-mount min; once
+  // mounted, onDidContentSizeChange drives the actual height.
   const lineH = maxFontSize + 7;
-  const inlineHeight = lineCount * lineH + 18;
+  const minHeight = minLines * lineH + 18;
+  const inlineHeight = Math.max(minHeight, contentHeight || minHeight);
 
   const switchLang = useCallback((next) => {
     setActive(next);
@@ -177,6 +181,15 @@ export default function RunnableCodePanel({
   const handleSubmit = useCallback(() => {
     onSubmit?.(value, activeLang);
   }, [onSubmit, value, activeLang]);
+
+  // Expose the live editor buffer + active language so an external trigger (e.g. a
+  // page-level "Run my code" CTA) can grade the exact code on screen without
+  // duplicating the editor state.
+  useImperativeHandle(ref, () => ({
+    getCode: () => value,
+    getLanguage: () => activeLang,
+    submit: handleSubmit,
+  }), [value, activeLang, handleSubmit]);
 
   if (!langs.length) return null;
 
@@ -227,7 +240,15 @@ export default function RunnableCodePanel({
           theme={monacoTheme}
           value={value}
           onChange={handleChange}
-          onMount={(ed, monaco) => { editorRef.current = ed; registerMonacoThemes(monaco); }}
+          onMount={(ed, monaco) => {
+            editorRef.current = ed;
+            registerMonacoThemes(monaco);
+            if (!fill) {
+              const sync = () => setContentHeight(ed.getContentHeight());
+              ed.onDidContentSizeChange(sync);
+              sync();
+            }
+          }}
           options={{
             fontSize: maxFontSize,
             minimap: { enabled: false },
@@ -266,4 +287,6 @@ export default function RunnableCodePanel({
       )}
     </div>
   );
-}
+});
+
+export default RunnableCodePanel;

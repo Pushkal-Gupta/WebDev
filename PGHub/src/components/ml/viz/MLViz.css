@@ -29,6 +29,13 @@
   aspect-ratio: 380 / 300;
 }
 
+/* Portrait architecture diagrams (vertical block flow): taller than wide. */
+.mlviz-svg-portrait {
+  aspect-ratio: var(--mlviz-portrait-ar, 360 / 760);
+  max-width: 420px;
+  margin: 0 auto;
+}
+
 .mlviz-readout {
   padding: 0.75rem 1rem 0.9rem;
   border-top: 1px solid var(--border);
@@ -1478,7 +1485,7 @@
 }
 
 /* ===== LSTMGateExplorer / BatchNormExplorer / EntropyExplorer (additive) ===== */
-.lstmx-svg { aspect-ratio: 560 / 320; cursor: default; }
+.lstmx-svg { aspect-ratio: 360 / 460; max-width: 420px; cursor: default; }
 .bnx-svg { aspect-ratio: 560 / 300; cursor: default; }
 .entx-svg { aspect-ratio: 560 / 320; cursor: ns-resize; }
 

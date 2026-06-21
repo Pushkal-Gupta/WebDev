@@ -2,12 +2,15 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Play, RotateCcw, Shuffle, Network } from 'lucide-react';
 import './MLViz.css';
 
-const W = 560;
-const H = 320;
-const PAD_L = 38;
-const PAD_R = 38;
-const PAD_T = 38;
-const PAD_B = 28;
+// Vertical autoencoder: the five layers stack TOP -> BOTTOM
+// (input · enc · latent · dec · output). Neurons within a layer fan out as a
+// horizontal row; weights connect downward. Portrait viewBox.
+const W = 360;
+const H = 560;
+const PAD_L = 40;
+const PAD_R = 40;
+const PAD_T = 54;
+const PAD_B = 48;
 
 const N_IN = 8;
 const N_E = 5;
@@ -15,12 +18,13 @@ const N_Z = 2;
 const N_D = 5;
 const N_OUT = 8;
 
-const COL_X = [
-  PAD_L,
-  PAD_L + (W - PAD_L - PAD_R) * 0.25,
-  PAD_L + (W - PAD_L - PAD_R) * 0.5,
-  PAD_L + (W - PAD_L - PAD_R) * 0.75,
-  W - PAD_R,
+// Row Y for each layer (input -> enc -> latent -> dec -> output), top to bottom.
+const ROW_Y = [
+  PAD_T,
+  PAD_T + (H - PAD_T - PAD_B) * 0.25,
+  PAD_T + (H - PAD_T - PAD_B) * 0.5,
+  PAD_T + (H - PAD_T - PAD_B) * 0.75,
+  H - PAD_B,
 ];
 
 const DEFAULT_INPUTS = [0.2, 0.6, 1.0, 0.8, 0.3, -0.2, -0.5, -0.3];
@@ -75,9 +79,9 @@ function snap(v, p = 2) {
 }
 
 function nodePos(layer, idx, n) {
-  const x = COL_X[layer];
-  const span = H - PAD_T - PAD_B;
-  const y = n === 1 ? PAD_T + span / 2 : PAD_T + (span * idx) / (n - 1);
+  const y = ROW_Y[layer];
+  const span = W - PAD_L - PAD_R;
+  const x = n === 1 ? PAD_L + span / 2 : PAD_L + (span * idx) / (n - 1);
   return { x, y };
 }
 
@@ -263,40 +267,42 @@ export default function AutoencoderViz() {
   const showDec = phase >= 6;
   const showOut = phase >= 8;
 
-  const INPUT_BAR = { x: PAD_L - 18, y: PAD_T - 4, w: 90, h: H - PAD_T - PAD_B + 4 };
-  const OUTPUT_BAR = { x: W - PAD_R - 72, y: PAD_T - 4, w: 90, h: H - PAD_T - PAD_B + 4 };
-
-  // Compute positions for the input "bars" column. We'll place them as a vertical strip of bars.
+  // Compute positions for the input "bars" row (top) and output bars row (bottom).
   const inBarHeights = inputs;
   const outBarHeights = outAct;
+  // Anchor X for the i-th input / output node along its horizontal row.
+  const rowX = (idx, n) => {
+    const span = W - PAD_L - PAD_R;
+    return n === 1 ? PAD_L + span / 2 : PAD_L + (span * idx) / (n - 1);
+  };
 
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
-          {/* Layer labels */}
-          <text x={COL_X[0]} y={PAD_T - 18} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-portrait" style={{ '--mlviz-portrait-ar': `${W} / ${H}` }}>
+          {/* Layer labels — right gutter of each row */}
+          <text x={W - 6} y={ROW_Y[0] + 3} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="end" letterSpacing="0.12em">
             INPUT · 8
           </text>
-          <text x={COL_X[1]} y={PAD_T - 18} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+          <text x={W - 6} y={ROW_Y[1] + 3} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="end" letterSpacing="0.12em">
             ENC · 5
           </text>
-          <text x={COL_X[2]} y={PAD_T - 18} fontSize="9.5" fill="var(--hue-mint, #6fe3a8)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em" fontWeight="700">
+          <text x={W - 6} y={ROW_Y[2] + 3} fontSize="9.5" fill="var(--hue-mint, #6fe3a8)" fontFamily="var(--mono, monospace)" textAnchor="end" letterSpacing="0.12em" fontWeight="700">
             LATENT · 2
           </text>
-          <text x={COL_X[3]} y={PAD_T - 18} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+          <text x={W - 6} y={ROW_Y[3] + 3} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="end" letterSpacing="0.12em">
             DEC · 5
           </text>
-          <text x={COL_X[4]} y={PAD_T - 18} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.14em">
+          <text x={W - 6} y={ROW_Y[4] + 3} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="end" letterSpacing="0.12em">
             OUT · 8
           </text>
 
-          {/* Bottleneck halo */}
+          {/* Bottleneck halo — horizontal band around the latent row */}
           <rect
-            x={COL_X[2] - 26}
-            y={PAD_T - 6}
-            width={52}
-            height={H - PAD_T - PAD_B + 10}
+            x={PAD_L - 10}
+            y={ROW_Y[2] - 26}
+            width={W - PAD_L - PAD_R + 20}
+            height={52}
             rx={10}
             fill="none"
             stroke="var(--hue-mint, #6fe3a8)"
@@ -305,43 +311,40 @@ export default function AutoencoderViz() {
             opacity="0.45"
           />
 
-          {/* Input column: small bars */}
+          {/* Input row: small vertical bars along the top */}
           {(() => {
             const n = N_IN;
-            const stripX = COL_X[0];
-            const stripTop = PAD_T;
-            const stripBottom = H - PAD_B;
-            const cellH = (stripBottom - stripTop) / (n - 1);
+            const stripY = ROW_Y[0];
             return inBarHeights.map((v, i) => {
-              const y = stripTop + i * cellH;
+              const x = rowX(i, n);
               const clamped = Math.max(-1, Math.min(1, v));
               const barLen = Math.abs(clamped) * 22;
               return (
                 <g key={`in-${i}`}>
                   <line
-                    x1={stripX - 22}
-                    y1={y}
-                    x2={stripX + 22}
-                    y2={y}
+                    x1={x}
+                    y1={stripY - 22}
+                    x2={x}
+                    y2={stripY + 22}
                     stroke="var(--border)"
                     strokeWidth="0.4"
                   />
                   <rect
-                    x={clamped >= 0 ? stripX : stripX - barLen}
-                    y={y - 4}
-                    width={barLen}
-                    height={8}
+                    x={x - 4}
+                    y={clamped >= 0 ? stripY - barLen : stripY}
+                    width={8}
+                    height={barLen}
                     fill="var(--accent)"
                     opacity="0.85"
                     rx="1.5"
                   />
                   <text
-                    x={stripX - 28}
-                    y={y + 3}
+                    x={x}
+                    y={stripY - 28}
                     fontSize="8"
                     fill="var(--text-dim)"
                     fontFamily="var(--mono, monospace)"
-                    textAnchor="end"
+                    textAnchor="middle"
                   >
                     x{i + 1}
                   </text>
@@ -353,11 +356,8 @@ export default function AutoencoderViz() {
           {/* Edges: input -> encoder */}
           {ENC_POS.map((ep, ei) =>
             Array.from({ length: N_IN }, (_, ii) => {
-              const stripTop = PAD_T;
-              const stripBottom = H - PAD_B;
-              const cellH = (stripBottom - stripTop) / (N_IN - 1);
-              const iy = stripTop + ii * cellH;
-              const ix = COL_X[0] + 4;
+              const iy = ROW_Y[0] + 4;
+              const ix = rowX(ii, N_IN);
               const w = W1[ei][ii];
               const dim = phase !== 1;
               return (
@@ -420,12 +420,9 @@ export default function AutoencoderViz() {
 
           {/* Edges: decoder -> output */}
           {(() => {
-            const stripTop = PAD_T;
-            const stripBottom = H - PAD_B;
-            const cellH = (stripBottom - stripTop) / (N_OUT - 1);
             return Array.from({ length: N_OUT }, (_, oi) => {
-              const oy = stripTop + oi * cellH;
-              const ox = COL_X[4] - 4;
+              const oy = ROW_Y[4] - 4;
+              const ox = rowX(oi, N_OUT);
               return DEC_POS.map((dp, di) => {
                 const w = W4[oi][di];
                 const dim = phase !== 7;
@@ -449,11 +446,8 @@ export default function AutoencoderViz() {
           {/* Edge weight labels (toggled) */}
           {showWeights && ENC_POS.map((ep, ei) =>
             Array.from({ length: N_IN }, (_, ii) => {
-              const stripTop = PAD_T;
-              const stripBottom = H - PAD_B;
-              const cellH = (stripBottom - stripTop) / (N_IN - 1);
-              const iy = stripTop + ii * cellH;
-              const ix = COL_X[0] + 4;
+              const iy = ROW_Y[0] + 4;
+              const ix = rowX(ii, N_IN);
               const mx = ix + (ep.x - ix) * 0.5;
               const my = iy + (ep.y - iy) * 0.5;
               const w = W1[ei][ii];
@@ -476,12 +470,9 @@ export default function AutoencoderViz() {
 
           {/* Pulses */}
           {phase === 1 && ENC_POS.map((ep, ei) => {
-            const stripTop = PAD_T;
-            const stripBottom = H - PAD_B;
-            const cellH = (stripBottom - stripTop) / (N_IN - 1);
             return Array.from({ length: N_IN }, (_, ii) => {
-              const iy = stripTop + ii * cellH;
-              const ix = COL_X[0] + 4;
+              const iy = ROW_Y[0] + 4;
+              const ix = rowX(ii, N_IN);
               const px = ix + (ep.x - ix) * pulseT;
               const py = iy + (ep.y - iy) * pulseT;
               const w = W1[ei][ii];
@@ -511,12 +502,9 @@ export default function AutoencoderViz() {
             })
           )}
           {phase === 7 && (() => {
-            const stripTop = PAD_T;
-            const stripBottom = H - PAD_B;
-            const cellH = (stripBottom - stripTop) / (N_OUT - 1);
             return Array.from({ length: N_OUT }, (_, oi) => {
-              const oy = stripTop + oi * cellH;
-              const ox = COL_X[4] - 4;
+              const oy = ROW_Y[4] - 4;
+              const ox = rowX(oi, N_OUT);
               return DEC_POS.map((dp, di) => {
                 const w = W4[oi][di];
                 const px = dp.x + (ox - dp.x) * pulseT;
@@ -618,46 +606,43 @@ export default function AutoencoderViz() {
             );
           })}
 
-          {/* Output column: small bars */}
+          {/* Output row: small vertical bars along the bottom */}
           {(() => {
             const n = N_OUT;
-            const stripX = COL_X[4];
-            const stripTop = PAD_T;
-            const stripBottom = H - PAD_B;
-            const cellH = (stripBottom - stripTop) / (n - 1);
+            const stripY = ROW_Y[4];
             return outBarHeights.map((v, i) => {
-              const y = stripTop + i * cellH;
+              const x = rowX(i, n);
               const reveal = showOut;
               const clamped = Math.max(-1, Math.min(1, v));
               const barLen = reveal ? Math.abs(clamped) * 22 : 0;
               return (
                 <g key={`out-${i}`}>
                   <line
-                    x1={stripX - 22}
-                    y1={y}
-                    x2={stripX + 22}
-                    y2={y}
+                    x1={x}
+                    y1={stripY - 22}
+                    x2={x}
+                    y2={stripY + 22}
                     stroke="var(--border)"
                     strokeWidth="0.4"
                   />
                   {reveal && (
                     <rect
-                      x={clamped >= 0 ? stripX : stripX - barLen}
-                      y={y - 4}
-                      width={barLen}
-                      height={8}
+                      x={x - 4}
+                      y={clamped >= 0 ? stripY - barLen : stripY}
+                      width={8}
+                      height={barLen}
                       fill="var(--hue-pink, #ff66cc)"
                       opacity="0.85"
                       rx="1.5"
                     />
                   )}
                   <text
-                    x={stripX + 28}
-                    y={y + 3}
+                    x={x}
+                    y={stripY + 32}
                     fontSize="8"
                     fill="var(--text-dim)"
                     fontFamily="var(--mono, monospace)"
-                    textAnchor="start"
+                    textAnchor="middle"
                   >
                     x'{i + 1}
                   </text>

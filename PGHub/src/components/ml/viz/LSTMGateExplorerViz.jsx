@@ -2,14 +2,15 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Cpu, RotateCcw } from 'lucide-react';
 import './MLViz.css';
 
-const W = 560;
-const H = 320;
+const W = 360;
+const H = 460;
 
-// gate columns laid out left -> right inside the cell diagram
-const COL_X = { f: 118, i: 230, g: 342, o: 454 };
-const BAR_TOP = 78;
-const BAR_H = 150;
-const BAR_W = 30;
+// gate rows stacked TOP -> BOTTOM inside the cell diagram; each gate's magnitude
+// is drawn as a HORIZONTAL bar growing rightward from the spine.
+const ROW_Y = { f: 96, i: 168, g: 240, o: 312 };
+const BAR_LEFT = 150;
+const BAR_W = 150; // max horizontal length of a gate bar
+const BAR_H = 26;  // thickness of each gate row bar
 
 const DEF = {
   x: 0.5,
@@ -47,7 +48,7 @@ export default function LSTMGateExplorerViz() {
     typeof window !== 'undefined' &&
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const trans = reducedMotion ? 'none' : 'height 0.12s ease, y 0.12s ease';
+  const trans = reducedMotion ? 'none' : 'width 0.12s ease';
 
   // gate activations: pre-activations also mixed lightly with the inputs so the
   // sliders for x / h / c shift the gates too (keeps everything interactive).
@@ -96,7 +97,7 @@ export default function LSTMGateExplorerViz() {
             preserveAspectRatio="xMidYMid meet"
           >
             <defs>
-              <linearGradient id="lstmx-cell-grad" x1="0" y1="0" x2="1" y2="0">
+              <linearGradient id="lstmx-cell-grad" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor="var(--accent)" />
                 <stop offset="100%" stopColor="var(--hue-mint)" />
               </linearGradient>
@@ -105,12 +106,12 @@ export default function LSTMGateExplorerViz() {
               </filter>
             </defs>
 
-            {/* cell-state highway across the top */}
+            {/* cell-state highway running DOWN the left spine */}
             <line
-              x1="24"
+              x1="44"
               y1="44"
-              x2={W - 24}
-              y2="44"
+              x2="44"
+              y2={H - 44}
               stroke="url(#lstmx-cell-grad)"
               strokeWidth="6"
               strokeLinecap="round"
@@ -118,17 +119,17 @@ export default function LSTMGateExplorerViz() {
               opacity="0.5"
             />
             <line
-              x1="24"
+              x1="44"
               y1="44"
-              x2={W - 24}
-              y2="44"
+              x2="44"
+              y2={H - 44}
               stroke="url(#lstmx-cell-grad)"
               strokeWidth="2.4"
               strokeLinecap="round"
             />
             <text
-              x="26"
-              y="36"
+              x="56"
+              y="40"
               fontSize="9"
               fill="var(--text-dim)"
               fontFamily="var(--mono)"
@@ -136,29 +137,37 @@ export default function LSTMGateExplorerViz() {
               c(t-1) = {fmt(st.cPrev, 2)}
             </text>
             <text
-              x={W - 26}
-              y="36"
+              x="56"
+              y={H - 30}
               fontSize="9.5"
               fill="var(--accent)"
               fontFamily="var(--mono)"
-              textAnchor="end"
               fontWeight="700"
             >
               c(t) = {fmt(ct, 2)}
             </text>
 
-            {/* gate bars */}
+            {/* gate rows — horizontal magnitude bars, stacked top -> bottom */}
             {GATES.map((g) => {
               const frac = barFrac(g.key);
-              const h = Math.max(2, frac * BAR_H);
-              const y = BAR_TOP + (BAR_H - h);
-              const x = COL_X[g.key];
+              const len = Math.max(2, frac * BAR_W);
+              const y = ROW_Y[g.key];
               return (
                 <g key={g.key}>
+                  {/* connector tick from the spine into the gate row */}
+                  <line
+                    x1="44"
+                    y1={y + BAR_H / 2}
+                    x2={BAR_LEFT}
+                    y2={y + BAR_H / 2}
+                    stroke="var(--viz-line)"
+                    strokeWidth="0.8"
+                    opacity="0.7"
+                  />
                   {/* track */}
                   <rect
-                    x={x}
-                    y={BAR_TOP}
+                    x={BAR_LEFT}
+                    y={y}
                     width={BAR_W}
                     height={BAR_H}
                     rx="5"
@@ -168,77 +177,86 @@ export default function LSTMGateExplorerViz() {
                   />
                   {/* fill */}
                   <rect
-                    x={x}
+                    x={BAR_LEFT}
                     y={y}
-                    width={BAR_W}
-                    height={h}
+                    width={len}
+                    height={BAR_H}
                     rx="5"
                     fill={g.color}
                     opacity={g.key === 'g' && gateVal.g < 0 ? 0.45 : 0.85}
                     style={{ transition: trans }}
                   />
                   <text
-                    x={x + BAR_W / 2}
-                    y={BAR_TOP - 8}
+                    x={BAR_LEFT - 8}
+                    y={y + BAR_H / 2 - 3}
                     fontSize="9"
                     fill={g.color}
                     fontFamily="var(--mono)"
                     fontWeight="700"
-                    textAnchor="middle"
+                    textAnchor="end"
                   >
                     {g.key}
                   </text>
                   <text
-                    x={x + BAR_W / 2}
-                    y={BAR_TOP + BAR_H + 14}
-                    fontSize="7.6"
+                    x={BAR_LEFT - 8}
+                    y={y + BAR_H / 2 + 8}
+                    fontSize="7"
                     fill="var(--text-dim)"
                     fontFamily="var(--mono)"
-                    textAnchor="middle"
+                    textAnchor="end"
                   >
-                    {g.label}
+                    {g.squash}
                   </text>
                   <text
-                    x={x + BAR_W / 2}
-                    y={BAR_TOP + BAR_H + 25}
+                    x={BAR_LEFT + BAR_W + 8}
+                    y={y + BAR_H / 2 - 3}
                     fontSize="8.4"
                     fill="var(--text-main)"
                     fontFamily="var(--mono)"
-                    textAnchor="middle"
+                    textAnchor="start"
                   >
                     {fmt(gateVal[g.key], 2)}
                   </text>
                   <text
-                    x={x + BAR_W / 2}
-                    y={BAR_TOP + BAR_H + 36}
-                    fontSize="7"
+                    x={BAR_LEFT + BAR_W + 8}
+                    y={y + BAR_H / 2 + 8}
+                    fontSize="7.6"
                     fill="var(--text-dim)"
                     fontFamily="var(--mono)"
-                    textAnchor="middle"
+                    textAnchor="start"
                   >
-                    {g.squash}
+                    {g.label}
                   </text>
                 </g>
               );
             })}
 
-            {/* hidden state readout node */}
+            {/* input node (top) */}
+            <circle cx={W - 40} cy="48" r="16" fill="var(--viz-card)" stroke="var(--hue-sky)" strokeWidth="1.4" />
+            <text x={W - 40} y="52" fontSize="9" fill="var(--hue-sky)" fontFamily="var(--mono)" fontWeight="700" textAnchor="middle">
+              x(t)
+            </text>
+            <text x={W - 40} y="74" fontSize="8.4" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+              {fmt(st.x, 2)}
+            </text>
+
+            {/* hidden state readout node (bottom) */}
             <circle
-              cx={W - 50}
-              cy="280"
+              cx={W - 40}
+              cy={H - 60}
               r="22"
               fill="rgba(var(--accent-rgb), 0.14)"
             />
             <circle
-              cx={W - 50}
-              cy="280"
+              cx={W - 40}
+              cy={H - 60}
               r="14"
               fill="var(--accent)"
               opacity="0.9"
             />
             <text
-              x={W - 50}
-              y="284"
+              x={W - 40}
+              y={H - 56}
               fontSize="9"
               fill="var(--bg)"
               fontFamily="var(--mono)"
@@ -248,8 +266,8 @@ export default function LSTMGateExplorerViz() {
               h(t)
             </text>
             <text
-              x={W - 50}
-              y="310"
+              x={W - 40}
+              y={H - 30}
               fontSize="9"
               fill="var(--accent)"
               fontFamily="var(--mono)"
@@ -257,15 +275,6 @@ export default function LSTMGateExplorerViz() {
               textAnchor="middle"
             >
               {fmt(ht, 2)}
-            </text>
-
-            {/* input node */}
-            <circle cx="34" cy="280" r="16" fill="var(--viz-card)" stroke="var(--hue-sky)" strokeWidth="1.4" />
-            <text x="34" y="284" fontSize="9" fill="var(--hue-sky)" fontFamily="var(--mono)" fontWeight="700" textAnchor="middle">
-              x(t)
-            </text>
-            <text x="34" y="306" fontSize="8.4" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
-              {fmt(st.x, 2)}
             </text>
           </svg>
         </div>

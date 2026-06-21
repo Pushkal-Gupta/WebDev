@@ -82,7 +82,7 @@ export default function ProblemVisualizer({ problem, vizAnchor = null }) {
   const Renderer = RENDERERS[viz.renderer] || ArrayBarRenderer;
 
   return (
-    <div style={{ padding: '1rem' }}>
+    <div className="viz-compact" style={{ padding: '0.5rem' }}>
       <AlgoVisualizer
         title={viz.title}
         frames={viz.frames}

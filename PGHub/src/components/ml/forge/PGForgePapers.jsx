@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
-import { ChevronRight, ExternalLink, BookOpen, ArrowLeft, ArrowRight, FileText, Sigma, Code2 } from 'lucide-react';
+import { ChevronRight, ChevronDown, ExternalLink, BookOpen, ArrowLeft, ArrowRight, FileText, Sigma, Code2 } from 'lucide-react';
 import './PGForgePapers.css';
 import { PAPERS } from './pgForgePapersData';
 import { getArchitecture } from './pgForgeArchData';
@@ -80,16 +80,13 @@ function PapersBrowse({ onOpen }) {
   );
 }
 
-// The expanded teaching panel for the active step: full paragraph + optional
-// KaTeX formula or code snippet + an optional link to the real PGForge problem.
-function StepExplanation({ step, index }) {
+// The expanded teaching panel for a step: full paragraph + optional KaTeX
+// formula or code snippet + an optional link to the real PGForge problem.
+// Rendered inline beneath each step's own toggle so several can stay open.
+function StepExplanation({ step }) {
   if (!step) return null;
   return (
-    <section className="forge-step-explain">
-      <div className="forge-step-explain-head">
-        <span className="forge-step-explain-num">{index + 1}</span>
-        <h3 className="forge-step-explain-title">{step.title}</h3>
-      </div>
+    <div className="forge-step-explain">
       <p className="forge-step-explain-body">{step.explanation || step.detail}</p>
       {step.formula && (
         <div className="forge-step-formula">
@@ -111,18 +108,33 @@ function StepExplanation({ step, index }) {
           Solve this <ArrowRight size={14} />
         </Link>
       )}
-    </section>
+    </div>
   );
 }
 
 function PaperDetail({ paper, index, onBack, onOpen }) {
-  const [activeStep, setActiveStep] = useState(0);
-  const [hoverBlock, setHoverBlock] = useState(undefined);
-
   const steps = paper.steps || [];
-  const activeBlock = steps[activeStep] ? steps[activeStep].block : undefined;
+  // Each step expands independently: track an OPEN SET of indices, not a single
+  // active step, so opening one never collapses another. The first step starts
+  // open as a hint that the rows are expandable.
+  const [openSteps, setOpenSteps] = useState(() => new Set(steps.length ? [0] : []));
+  const [hoverBlock, setHoverBlock] = useState(undefined);
+  // The diagram highlights the last step the reader touched (hover wins).
+  const [focusedStep, setFocusedStep] = useState(0);
+
+  const toggleStep = (i) => {
+    setOpenSteps((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+    setFocusedStep(i);
+  };
+
+  const focusedBlock = steps[focusedStep] ? steps[focusedStep].block : undefined;
   const arch = getArchitecture(paper.id);
-  const archActiveBlock = hoverBlock !== undefined ? hoverBlock : activeBlock;
+  const archActiveBlock = hoverBlock !== undefined ? hoverBlock : focusedBlock;
 
   const prev = index > 0 ? PAPERS[index - 1] : null;
   const next = index < PAPERS.length - 1 ? PAPERS[index + 1] : null;
@@ -164,37 +176,50 @@ function PaperDetail({ paper, index, onBack, onOpen }) {
               <span className="forge-step-count">{steps.length} steps</span>
             </div>
             <ol className="forge-steps">
-              {steps.map((step, i) => (
-                <li key={step.title}>
-                  <button
-                    type="button"
-                    className={`forge-step${i === activeStep ? ' is-active' : ''}`}
-                    onClick={() => setActiveStep(i)}
-                    onMouseEnter={() => {
-                      setActiveStep(i);
-                      setHoverBlock(step.block);
-                    }}
-                    onMouseLeave={() => setHoverBlock(undefined)}
-                    onFocus={() => {
-                      setActiveStep(i);
-                      setHoverBlock(step.block);
-                    }}
-                    onBlur={() => setHoverBlock(undefined)}
+              {steps.map((step, i) => {
+                const isOpen = openSteps.has(i);
+                const panelId = `forge-step-panel-${paper.id}-${i}`;
+                return (
+                  <li
+                    key={step.title}
+                    className={`forge-step-item${isOpen ? ' is-open' : ''}`}
                   >
-                    <span className="forge-step-num">{i + 1}</span>
-                    <span className="forge-step-body">
-                      <span className="forge-step-title">{step.title}</span>
-                      <span className="forge-step-detail">{step.detail}</span>
-                      {step.problem && (
-                        <span className="forge-step-tag">has practice problem</span>
-                      )}
-                    </span>
-                  </button>
-                </li>
-              ))}
+                    <button
+                      type="button"
+                      className="forge-step"
+                      aria-expanded={isOpen}
+                      aria-controls={panelId}
+                      onClick={() => toggleStep(i)}
+                      onMouseEnter={() => {
+                        setFocusedStep(i);
+                        setHoverBlock(step.block);
+                      }}
+                      onMouseLeave={() => setHoverBlock(undefined)}
+                      onFocus={() => {
+                        setFocusedStep(i);
+                        setHoverBlock(step.block);
+                      }}
+                      onBlur={() => setHoverBlock(undefined)}
+                    >
+                      <span className="forge-step-num">{i + 1}</span>
+                      <span className="forge-step-body">
+                        <span className="forge-step-title">{step.title}</span>
+                        <span className="forge-step-detail">{step.detail}</span>
+                        {step.problem && (
+                          <span className="forge-step-tag">has practice problem</span>
+                        )}
+                      </span>
+                      <ChevronDown size={16} className="forge-step-chevron" />
+                    </button>
+                    {isOpen && (
+                      <div id={panelId} className="forge-step-panel">
+                        <StepExplanation step={step} />
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
             </ol>
-
-            <StepExplanation step={steps[activeStep]} index={activeStep} />
           </div>
         </div>
 
@@ -215,9 +240,9 @@ function PaperDetail({ paper, index, onBack, onOpen }) {
                 <KeyIdeaCard ideas={paper.ideas || []} />
               </div>
             )}
-            {steps[activeStep] && (
+            {steps[focusedStep] && (
               <p className="forge-diagram-caption">
-                Step {activeStep + 1} · {steps[activeStep].title}
+                Step {focusedStep + 1} · {steps[focusedStep].title}
               </p>
             )}
           </div>

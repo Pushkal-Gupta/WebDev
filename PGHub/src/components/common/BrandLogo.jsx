@@ -36,7 +36,8 @@ const COMPANY_LOGOS = {
   qualcomm: 'si:qualcomm', sony: 'si:sony', sap: 'si:sap', dell: 'si:dell',
   paypal: 'si:paypal', stripe: 'si:stripe', salesforce: 'gb:salesforce',
   notion: 'si:notion', figma: 'si:figma', github: 'si:github', gitlab: 'si:gitlab',
-  slack: 'gb:slack-icon',
+  slack: 'gb:slack-icon', asana: 'si:asana', linear: 'si:linear', splunk: 'si:splunk',
+  square: 'si:square',
   shopify: 'si:shopify', ebay: 'si:ebay', coinbase: 'si:coinbase', robinhood: 'si:robinhood',
   openai: 'gb:openai-icon', anthropic: 'si:anthropic',
   // data / infra / dev tools
@@ -148,46 +149,77 @@ function hueFor(name) {
   return FALLBACK_HUES[h % FALLBACK_HUES.length];
 }
 
-// Renders a brand logo for a company or programming language with a clean
-// letter-tile fallback (never a broken-image icon).
+// Renders a brand logo for a company or programming language. The themed
+// monogram tile is ALWAYS the base layer, so there is never a blank box: when a
+// brand SVG is available it fades in on top once it actually loads. A stalled or
+// blocked CDN request (which fires no `error` event) just leaves the monogram
+// showing — and a timeout flips to the monogram if the image hasn't loaded in
+// time. This is what fixed the "logo not coming" reports: a pending <img> used
+// to render nothing.
 export default function BrandLogo({ name, slug, kind = 'company', size = 32, className = '' }) {
+  const [loaded, setLoaded] = React.useState(false);
   const [failed, setFailed] = React.useState(false);
 
-  let src = null;
-  if (!failed) {
-    src = kind === 'language' ? languageLogoUrl(name) : companyLogoUrl({ name, slug });
-  }
+  const src = kind === 'language' ? languageLogoUrl(name) : companyLogoUrl({ name, slug });
+  const letter = String(name || '?').trim().charAt(0).toUpperCase() || '?';
+  const hue = hueFor(name);
 
-  if (!src) {
-    const letter = String(name || '?').trim().charAt(0).toUpperCase() || '?';
-    const hue = hueFor(name);
+  // If the CDN stalls (no load, no error), fall back to the monogram so the tile
+  // is never left blank waiting on a hanging request.
+  React.useEffect(() => {
+    if (!src || loaded || failed) return undefined;
+    const t = setTimeout(() => { if (!loaded) setFailed(true); }, 6000);
+    return () => clearTimeout(t);
+  }, [src, loaded, failed]);
+
+  // Reset load state when the target logo changes.
+  React.useEffect(() => { setLoaded(false); setFailed(false); }, [src]);
+
+  const monogram = (
+    <span
+      className="brand-logo-mono"
+      style={{
+        fontSize: Math.round(size * 0.46),
+        color: hue,
+        background: `color-mix(in srgb, ${hue} 16%, var(--hover-box))`,
+        borderColor: `color-mix(in srgb, ${hue} 36%, var(--border))`,
+      }}
+      aria-hidden="true"
+    >
+      {letter}
+    </span>
+  );
+
+  // No brand SVG known -> plain monogram tile.
+  if (!src || failed) {
     return (
       <span
         className={`brand-logo brand-logo-fallback ${className}`}
-        style={{
-          width: size,
-          height: size,
-          fontSize: Math.round(size * 0.46),
-          color: hue,
-          background: `color-mix(in srgb, ${hue} 16%, var(--hover-box))`,
-          borderColor: `color-mix(in srgb, ${hue} 36%, var(--border))`,
-        }}
+        style={{ width: size, height: size }}
         aria-hidden="true"
       >
-        {letter}
+        {monogram}
       </span>
     );
   }
 
+  // Monogram base + brand SVG that fades in on successful load.
   return (
-    <img
-      className={`brand-logo brand-logo-img ${className}`}
-      src={src}
-      alt={name || ''}
-      width={size}
-      height={size}
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
+    <span
+      className={`brand-logo brand-logo-stack ${className}`}
+      style={{ width: size, height: size }}
+    >
+      {!loaded && monogram}
+      <img
+        className={`brand-logo-img${loaded ? ' is-loaded' : ''}`}
+        src={src}
+        alt={name || ''}
+        width={size}
+        height={size}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={() => setFailed(true)}
+      />
+    </span>
   );
 }

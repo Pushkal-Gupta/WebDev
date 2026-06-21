@@ -320,8 +320,8 @@ export default function PracticeHistory({ session, roadmapMode }) {
 
       <div className="ph-grid">
         <main className="ph-left">
-          <div className="ph-heatmap-card">
-            <ActivityHeatmap counts={dayCounts} weeks={12} />
+          <div className="ph-heatmap-card pgv-card">
+            <ActivityHeatmap counts={dayCounts} weeks={17} cellSize={14} />
           </div>
 
           <div className="ph-tabs" role="tablist">
@@ -350,9 +350,13 @@ export default function PracticeHistory({ session, roadmapMode }) {
           </div>
 
           {visibleGroups.length === 0 ? (
-            <div className="ph-empty">
-              <p className="ph-empty-title">No submissions yet.</p>
+            <div className="ph-empty ph-empty-grow">
+              <Calendar size={34} className="ph-empty-icon" />
+              <p className="ph-empty-title">No submissions yet</p>
               <p className="ph-empty-sub">Solve a problem and hit Submit to start your practice history.</p>
+              <Link to="/practice" className="ph-empty-cta">
+                <Play size={14} /> Start practising
+              </Link>
             </div>
           ) : (
             <div className="ph-table" role="table">
@@ -436,8 +440,14 @@ export default function PracticeHistory({ session, roadmapMode }) {
               </div>
             </div>
 
-            <div className="ph-bubble-wrap">
-              <BubbleCloud items={bubbleItems} width={320} height={220} />
+            <div className="ph-bubble-section">
+              <div className="ph-section-label">
+                <span>Solved by topic</span>
+                <span className="ph-section-count">{bubbleItems.length} topic{bubbleItems.length === 1 ? '' : 's'}</span>
+              </div>
+              <div className="ph-bubble-wrap">
+                <BubbleCloud items={bubbleItems} width={320} height={210} />
+              </div>
             </div>
 
             <div className="ph-chart-head">
@@ -465,21 +475,33 @@ export default function PracticeHistory({ session, roadmapMode }) {
               </div>
             </div>
 
-            <div className="ph-chart-month">{monthActivity.monthLabel}</div>
-            <div className="ph-chart">
-              {monthActivity.days.map((d, i) => {
-                const total = d.easy + d.medium + d.hard;
-                const heightPct = total === 0 ? 4 : Math.max(8, Math.round((total / monthActivity.maxDay) * 100));
-                return (
-                  <div key={i} className="ph-chart-col" title={`${d.date.toDateString()} — ${total} solve${total === 1 ? '' : 's'}`}>
-                    <div className={`ph-chart-bar ${total === 0 ? 'empty' : ''}`} style={{ height: `${heightPct}%` }}>
-                      {d.easy > 0 && <span className="ph-chart-seg ph-seg-easy" style={{ flex: d.easy }} />}
-                      {d.medium > 0 && <span className="ph-chart-seg ph-seg-medium" style={{ flex: d.medium }} />}
-                      {d.hard > 0 && <span className="ph-chart-seg ph-seg-hard" style={{ flex: d.hard }} />}
+            <div className="ph-chart-head-row">
+              <span className="ph-chart-month">{monthActivity.monthLabel}</span>
+              <span className="ph-chart-scale">peak {monthActivity.maxDay}/day</span>
+            </div>
+            <div className="ph-chart-plot">
+              <div className="ph-chart-grid" aria-hidden="true">
+                <span /><span /><span /><span />
+              </div>
+              <div className="ph-chart">
+                {monthActivity.days.map((d, i) => {
+                  const total = d.easy + d.medium + d.hard;
+                  const heightPct = total === 0 ? 0 : Math.max(10, Math.round((total / monthActivity.maxDay) * 100));
+                  return (
+                    <div key={i} className="ph-chart-col" title={`${d.date.toDateString()} — ${total} solve${total === 1 ? '' : 's'}`}>
+                      {total === 0 ? (
+                        <span className="ph-chart-tick" />
+                      ) : (
+                        <div className="ph-chart-bar" style={{ height: `${heightPct}%` }}>
+                          {d.easy > 0 && <span className="ph-chart-seg ph-seg-easy" style={{ flex: d.easy }} />}
+                          {d.medium > 0 && <span className="ph-chart-seg ph-seg-medium" style={{ flex: d.medium }} />}
+                          {d.hard > 0 && <span className="ph-chart-seg ph-seg-hard" style={{ flex: d.hard }} />}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
             <div className="ph-chart-axis">
               <span>1</span>

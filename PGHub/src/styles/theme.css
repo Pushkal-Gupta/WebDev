@@ -5,6 +5,9 @@
   --sans: "Inter", sans-serif;
   --t: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
+  /* Global nav height — shared by all routes for full-viewport sizing */
+  --pg-nav-h: 120px;
+
   /* Playground page widths — Compiler / Web / SQL share these tokens so
      adjusting in one place updates all three pages. */
   --playground-w: 1520px;
@@ -497,7 +500,7 @@ body {
 }
 
 #root {
-  height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -754,3 +757,26 @@ button {
     align-items: flex-start;
   }
 }
+
+/* Breadcrumb trail — defined globally so it styles correctly on every route
+   (the learn/ chunk that also defines .learn-crumb isn't loaded on /ml, where
+   MLGroup/MLPillar/MLLesson reuse this class). Without this the anchors fall
+   back to default blue underline. */
+.learn-crumb,
+.learn-crumb:link,
+.learn-crumb:visited,
+.learn-crumb:active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.85rem;
+  transition: color var(--t);
+}
+.learn-crumb:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.learn-crumb .learn-crumb-sep { color: var(--text-dim); opacity: 0.55; }
+.learn-crumb .learn-crumb-here { color: var(--text-main); }

@@ -2,13 +2,15 @@ import React, { useCallback, useMemo, useState } from 'react';
 import { Shuffle, RotateCcw } from 'lucide-react';
 import './MLViz.css';
 
-const W = 620;
-const H = 300;
-const PAD_T = 36;
-const PAD_B = 30;
-const PANEL_W_IN = 150;
-const PANEL_W_OUT = 150;
-const PANEL_GAP = 30;
+// Vertical autoencoder funnel: input panel on TOP, bottleneck in the middle,
+// output panel at the BOTTOM. The funnel narrows in width going down (encode)
+// then widens again (decode). Portrait viewBox.
+const W = 380;
+const H = 540;
+const PAD_L = 30;
+const PANEL_H_IN = 130;
+const PANEL_H_OUT = 130;
+const PANEL_GAP = 34;
 
 const DEFAULT_SEED = 7;
 
@@ -175,33 +177,35 @@ export default function AutoencoderShapeViz() {
     setCompression(0.6);
   }, []);
 
-  // Layout the three panels
-  const panelInX = 24;
-  const panelInY = PAD_T;
-  const panelInH = H - PAD_T - PAD_B;
+  // Layout the three panels stacked vertically.
+  const panelW = W - PAD_L * 2;
+  const panelInX = PAD_L;
+  const panelInY = 30;
+  const panelInH = PANEL_H_IN;
 
-  // Bottleneck panel scales narrower as compression goes up
-  const bnW = 60 + (1 - compression) * (PANEL_W_IN - 60) * 0.55; // ranges from ~60 (c=1) to ~105 (c=0)
-  const bnH = panelInH * (0.5 + (1 - compression) * 0.5);
-  const bnX = panelInX + PANEL_W_IN + PANEL_GAP;
-  const bnY = panelInY + (panelInH - bnH) / 2;
+  // Bottleneck panel scales narrower (in WIDTH) as compression goes up.
+  const bnW = panelW * (0.42 + (1 - compression) * 0.45); // ranges from ~0.42W (c=1) to ~0.87W (c=0)
+  const bnH = 90;
+  const bnX = panelInX + (panelW - bnW) / 2; // centred horizontally
+  const bnY = panelInY + panelInH + PANEL_GAP;
 
-  const panelOutX = bnX + bnW + PANEL_GAP;
-  const panelOutY = PAD_T;
-  const panelOutH = panelInH;
+  const panelOutX = PAD_L;
+  const panelOutY = bnY + bnH + PANEL_GAP;
+  const panelOutH = PANEL_H_OUT;
 
-  // Funnel polygon: connect input right edge -> bottleneck left edge -> bottleneck right edge -> output left edge
-  const funnelTop = `
-    M ${panelInX + PANEL_W_IN} ${panelInY}
+  // Funnel polygon: connect input bottom edge -> bottleneck top edge ->
+  // bottleneck bottom edge -> output top edge. Flow runs DOWNWARD.
+  const funnelLeft = `
+    M ${panelInX} ${panelInY + panelInH}
     L ${bnX} ${bnY}
-    L ${bnX + bnW} ${bnY}
+    L ${bnX} ${bnY + bnH}
     L ${panelOutX} ${panelOutY}
   `;
-  const funnelBot = `
-    M ${panelInX + PANEL_W_IN} ${panelInY + panelInH}
-    L ${bnX} ${bnY + bnH}
+  const funnelRight = `
+    M ${panelInX + panelW} ${panelInY + panelInH}
+    L ${bnX + bnW} ${bnY}
     L ${bnX + bnW} ${bnY + bnH}
-    L ${panelOutX} ${panelOutY + panelOutH}
+    L ${panelOutX + panelW} ${panelOutY}
   `;
 
   // Bottleneck values to render: at compression=0, mirror the inputs (5 bars equal to input).
@@ -222,39 +226,39 @@ export default function AutoencoderShapeViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-portrait" style={{ '--mlviz-portrait-ar': `${W} / ${H}` }}>
           <defs>
-            <linearGradient id="ae-shape-funnel" x1="0" x2="1" y1="0" y2="0">
+            <linearGradient id="ae-shape-funnel" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="var(--hue-sky, #7cc6ff)" stopOpacity="0.18" />
               <stop offset="50%" stopColor="var(--accent)" stopOpacity="0.22" />
               <stop offset="100%" stopColor="var(--hue-pink, #ff8ab8)" stopOpacity="0.18" />
             </linearGradient>
           </defs>
 
-          {/* Funnel fill: connect top + bottom curves into one filled region */}
+          {/* Funnel fill: connect left + right edges into one filled region (flows down) */}
           <path
             d={`
-              M ${panelInX + PANEL_W_IN} ${panelInY}
+              M ${panelInX} ${panelInY + panelInH}
               L ${bnX} ${bnY}
-              L ${bnX + bnW} ${bnY}
-              L ${panelOutX} ${panelOutY}
-              L ${panelOutX} ${panelOutY + panelOutH}
-              L ${bnX + bnW} ${bnY + bnH}
               L ${bnX} ${bnY + bnH}
-              L ${panelInX + PANEL_W_IN} ${panelInY + panelInH}
+              L ${panelOutX} ${panelOutY}
+              L ${panelOutX + panelW} ${panelOutY}
+              L ${bnX + bnW} ${bnY + bnH}
+              L ${bnX + bnW} ${bnY}
+              L ${panelInX + panelW} ${panelInY + panelInH}
               Z
             `}
             fill="url(#ae-shape-funnel)"
             stroke="none"
           />
-          <path d={funnelTop} fill="none" stroke="var(--accent)" strokeWidth="1.4" opacity="0.55" />
-          <path d={funnelBot} fill="none" stroke="var(--accent)" strokeWidth="1.4" opacity="0.55" />
+          <path d={funnelLeft} fill="none" stroke="var(--accent)" strokeWidth="1.4" opacity="0.55" />
+          <path d={funnelRight} fill="none" stroke="var(--accent)" strokeWidth="1.4" opacity="0.55" />
 
-          {/* Input panel */}
+          {/* Input panel (top) */}
           <BarChart
             x={panelInX}
             y={panelInY}
-            w={PANEL_W_IN}
+            w={panelW}
             h={panelInH}
             values={inputs}
             vmax={vmax}
@@ -262,7 +266,7 @@ export default function AutoencoderShapeViz() {
             label="input x (d=5)"
           />
 
-          {/* Bottleneck panel */}
+          {/* Bottleneck panel (middle) */}
           <BarChart
             x={bnX}
             y={bnY}
@@ -275,11 +279,11 @@ export default function AutoencoderShapeViz() {
             narrow
           />
 
-          {/* Output panel */}
+          {/* Output panel (bottom) */}
           <BarChart
             x={panelOutX}
             y={panelOutY}
-            w={PANEL_W_OUT}
+            w={panelW}
             h={panelOutH}
             values={outputs}
             vmax={vmax}
@@ -287,11 +291,11 @@ export default function AutoencoderShapeViz() {
             label="output x' (d=5)"
           />
 
-          {/* Encoder / Decoder labels along the funnel */}
+          {/* Encoder / Decoder labels in the side gutter of each funnel half */}
           <text
-            x={(panelInX + PANEL_W_IN + bnX) / 2}
-            y={PAD_T - 14}
-            textAnchor="middle"
+            x={W - 8}
+            y={(panelInY + panelInH + bnY) / 2}
+            textAnchor="end"
             fontSize="10"
             fill="var(--text-dim)"
             style={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}
@@ -299,9 +303,9 @@ export default function AutoencoderShapeViz() {
             encoder f_phi
           </text>
           <text
-            x={(bnX + bnW + panelOutX) / 2}
-            y={PAD_T - 14}
-            textAnchor="middle"
+            x={W - 8}
+            y={(bnY + bnH + panelOutY) / 2}
+            textAnchor="end"
             fontSize="10"
             fill="var(--text-dim)"
             style={{ letterSpacing: '0.08em', textTransform: 'uppercase' }}
@@ -309,9 +313,9 @@ export default function AutoencoderShapeViz() {
             decoder g_theta
           </text>
           <text
-            x={bnX + bnW / 2}
-            y={H - 10}
-            textAnchor="middle"
+            x={8}
+            y={bnY + bnH / 2}
+            textAnchor="start"
             fontSize="10"
             fill="var(--text-dim)"
             style={{ letterSpacing: '0.06em' }}

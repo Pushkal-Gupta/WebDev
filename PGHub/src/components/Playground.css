@@ -4,7 +4,7 @@
   width: 100%;
   max-width: var(--playground-w, 1520px);
   margin: 0 auto;
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   padding: 1.25rem var(--playground-gutter, 3rem) 1.5rem;
   gap: 1rem;
   min-height: 0;

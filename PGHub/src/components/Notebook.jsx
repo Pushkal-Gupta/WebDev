@@ -39,9 +39,20 @@ export default function Notebook({ session }) {
     );
   }, [noteRows, q]);
 
+  const crumbs = (
+    <nav className="vault-crumbs" aria-label="Breadcrumb">
+      <Link to="/vault" className="vault-crumbs-back">
+        <ArrowLeft size={12} /> Vault
+      </Link>
+      <span className="vault-crumbs-sep">/</span>
+      <span className="vault-crumbs-current">Notes</span>
+    </nav>
+  );
+
   if (!userId) {
     return (
       <div className="nb-container">
+        {crumbs}
         <header className="nb-header">
           <h1 className="nb-title">Notes</h1>
           <p className="nb-sub">
@@ -55,6 +66,7 @@ export default function Notebook({ session }) {
   if (isLoading) {
     return (
       <div className="nb-container">
+        {crumbs}
         <div className="nb-skel">
           <div className="skel skel-text" />
           <div className="skel skel-row-full" />
@@ -67,13 +79,7 @@ export default function Notebook({ session }) {
 
   return (
     <div className="nb-container">
-      <nav className="vault-crumbs" aria-label="Breadcrumb">
-        <Link to="/vault" className="vault-crumbs-back">
-          <ArrowLeft size={12} /> Vault
-        </Link>
-        <span className="vault-crumbs-sep">/</span>
-        <span className="vault-crumbs-current">Notes</span>
-      </nav>
+      {crumbs}
       <header className="nb-header">
         <h1 className="nb-title">Notes</h1>
         <p className="nb-sub">

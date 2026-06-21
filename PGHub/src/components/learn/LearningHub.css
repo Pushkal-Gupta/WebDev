@@ -4,7 +4,7 @@
   margin: 0 auto;
   padding: 2.5rem 0 2.5rem;
   font-family: var(--mono);
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   display: flex;
   flex-direction: column;
   flex: 1 1 auto;
