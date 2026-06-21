@@ -8,7 +8,7 @@ const BASE_SPREAD = 140;
 const stateColors = {
   unvisited: { fill: 'var(--surface)', stroke: 'var(--border)', text: 'var(--text-dim)' },
   current: { fill: 'rgba(var(--accent-rgb), 0.15)', stroke: 'var(--accent)', text: 'var(--accent)' },
-  visited: { fill: 'rgba(34, 197, 94, 0.12)', stroke: 'var(--easy)', text: 'var(--easy)' },
+  visited: { fill: 'rgba(var(--easy-rgb), 0.12)', stroke: 'var(--easy)', text: 'var(--easy)' },
 };
 
 export default function TreeRenderer({ data }) {

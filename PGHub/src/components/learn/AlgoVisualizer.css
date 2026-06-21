@@ -827,6 +827,14 @@
   margin: 0 auto;
 }
 
+/* Tree/graph blocks pair the SVG with a wrapping .viz-traversal-row beneath it,
+   all inside the 52vh .viz-stage. Cap the SVG lower so the SVG + traversal chips
+   fit within the stage without the (overflow:hidden) stage clipping the chips. */
+.viz-tree-block .viz-graph,
+.viz-graph-block .viz-graph {
+  max-height: 40vh;
+}
+
 .viz-edge {
   stroke: var(--border);
   stroke-width: 1.5;

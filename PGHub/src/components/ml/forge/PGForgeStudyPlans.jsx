@@ -32,7 +32,7 @@ export default function PGForgeStudyPlans() {
         {plans.map((p) => (
           <Link key={p.slug} to={`/ml/study-plans/${p.slug}`} className="forge-sp-card">
             <div className="forge-thumb-frame forge-sp-card-thumb">
-              <ForgeThumb seed={p.title} label={p.title} />
+              <ForgeThumb seed={p.title} topic={p.slug} label={p.title} />
               <span className={`forge-sp-level forge-sp-level-${p.level}`}>{p.level}</span>
             </div>
             <div className="forge-sp-card-body">

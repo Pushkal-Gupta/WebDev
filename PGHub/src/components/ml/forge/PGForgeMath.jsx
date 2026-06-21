@@ -14,7 +14,7 @@ function TopicCard({ topic }) {
   const inner = (
     <>
       <div className="forge-thumb-frame fmath-card-thumb">
-        <ForgeThumb seed={topic.title} />
+        <ForgeThumb seed={topic.title} topic={topic.slug} label={topic.title} />
       </div>
       <div className="fmath-card-body">
         <h3 className="fmath-card-title">{topic.title}</h3>

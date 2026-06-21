@@ -25,6 +25,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { wrapWithDriver, buildStdin, compareOutput } from '../src/lib/driverCode.js';
+import { compareOutputSmart, ORDER_INSENSITIVE } from './sol-batches/grade-helpers.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 try {
@@ -1836,7 +1837,7 @@ async function gradeLanguage(problem, language, code) {
     if (!r.ok) {
       return { lang: language, pass: false, passed, total: cases.length, reason: `case ${i}: ${r.error?.slice(0, 100)}`, failInputs: tc.inputs };
     }
-    if (!compareOutput(r.stdout, tc.expected)) {
+    if (!compareOutputSmart(r.stdout, tc.expected, { orderInsensitive: ORDER_INSENSITIVE.has(problem.id) })) {
       return {
         lang: language, pass: false, passed, total: cases.length,
         reason: `case ${i} WA: got ${JSON.stringify(r.stdout).slice(0, 60)} want ${JSON.stringify(tc.expected).slice(0, 60)}`,
@@ -1908,6 +1909,23 @@ async function processProblem(id) {
     id, name: problem.name, status: DRY ? 'graded-dry' : 'written',
     wrote: wroteLangs, rows,
   };
+}
+
+// Auto-merge every authored batch file under sol-batches/ (batch-*.mjs) into the
+// canonical map (keyed by problem id == slug, same shape). Adding a new batch file
+// needs ZERO wiring — it's picked up here. Later files override on key collision.
+{
+  const batchDir = path.join(__dirname, 'sol-batches');
+  const batchFiles = fs.readdirSync(batchDir)
+    .filter((f) => /^batch-.*\.mjs$/.test(f))
+    .sort();
+  for (const f of batchFiles) {
+    const mod = await import(path.join(batchDir, f));
+    if (mod.default && typeof mod.default === 'object') {
+      Object.assign(CANONICALS, mod.default);
+    }
+  }
+  console.log(`merged ${batchFiles.length} batch file(s): ${batchFiles.join(', ')}`);
 }
 
 // ── main ────────────────────────────────────────────────────────────────────

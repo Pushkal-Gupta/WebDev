@@ -97,7 +97,7 @@ export default function PGForgeProblems() {
           {filtered.map((p) => (
             <Link key={p.slug} to={`/ml/problems/${p.slug}`} className="forge-pb-card">
               <div className="forge-thumb-frame forge-pb-card-thumb">
-                <ForgeThumb seed={p.title} />
+                <ForgeThumb seed={p.title} topic={p.category} />
                 <span className={`forge-pb-diff forge-pb-diff-${p.difficulty}`}>{p.difficulty}</span>
               </div>
               <div className="forge-pb-card-body">

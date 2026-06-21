@@ -129,11 +129,8 @@ export default function RLHFPipelineViz() {
             ARTIFACT
           </text>
 
-          {/* Header title */}
-          <text x={16} y={22} fontSize="11" fill="var(--accent)" fontFamily="var(--mono, monospace)" letterSpacing="0.16em" fontWeight="700">
-            RLHF — THREE-STAGE PIPELINE
-          </text>
-          <text x={16} y={38} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">
+          {/* Subtitle only — section heading "The three-stage pipeline" already labels this viz */}
+          <text x={16} y={26} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">
             SFT → reward model → PPO leashed to π_SFT via KL penalty
           </text>
 

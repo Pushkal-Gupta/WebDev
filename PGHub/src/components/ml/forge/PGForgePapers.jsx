@@ -49,7 +49,7 @@ function PaperCardVisual({ paper }) {
   }
   return (
     <div className="forge-card-viz forge-card-viz-thumb">
-      <ForgeThumb kind="paper" seed={paper.title} />
+      <ForgeThumb kind="paper" seed={paper.title} topic={paper.topic} />
     </div>
   );
 }

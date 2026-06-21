@@ -6,8 +6,8 @@ const POINTER_COLORS = ['var(--accent)', 'var(--medium)', 'var(--easy)', 'var(--
 const stateStyles = {
   default: {},
   current: { borderColor: 'var(--accent)', background: 'rgba(var(--accent-rgb), 0.1)', boxShadow: '0 0 12px rgba(var(--accent-rgb), 0.2)' },
-  visited: { borderColor: 'var(--easy)', background: 'rgba(34, 197, 94, 0.08)' },
-  highlighted: { borderColor: 'var(--medium)', background: 'rgba(240, 165, 0, 0.08)' },
+  visited: { borderColor: 'var(--easy)', background: 'rgba(var(--easy-rgb), 0.08)' },
+  highlighted: { borderColor: 'var(--medium)', background: 'rgba(var(--medium-rgb), 0.08)' },
 };
 
 export default function LinkedListRenderer({ data }) {

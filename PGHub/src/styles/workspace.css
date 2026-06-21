@@ -52,6 +52,7 @@
 
 /* Title block: title + difficulty pill side-by-side */
 .ws-q-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.75rem; row-gap: 0.4rem; }
+.ws-q-head .stl-wrap { margin-left: auto; align-self: center; }
 .ws-q-title {
   font-family: var(--sans);
   font-size: 1.6rem;
@@ -921,7 +922,7 @@
 .ws-lang-select-fallback { display: none; }
 .ws-timer { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--text-dim); letter-spacing: 0.04em; padding: 0.15rem 0.45rem; border-radius: 4px; background: var(--bg); border: 1px solid var(--border); transition: all var(--t); }
 .ws-timer.paused { opacity: 0.4; }
-.ws-timer.stopped { color: var(--accent); border-color: var(--accent); background: rgba(0, 138, 126, 0.08); }
+.ws-timer.stopped { color: var(--accent); border-color: var(--accent); background: rgba(var(--accent-rgb), 0.08); }
 
 .ws-editor-area { flex: 1; min-height: 0; min-width: 0; background: var(--bg); overflow: hidden; }
 
@@ -1054,7 +1055,7 @@
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  background: rgba(76, 175, 80, 0.15);
+  background: rgba(var(--easy-rgb), 0.15);
   border: 2px solid var(--easy);
   color: var(--easy);
   padding: 1rem 2rem;

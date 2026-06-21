@@ -22,6 +22,11 @@
 -- send p_status (calling the current deployed function with an extra arg errors).
 -- Builds on migrate-58-search-number-bucket-fix.sql.
 
+-- Drop the prior 6-arg overload (migrate-58) so only the new 7-arg version
+-- exists. Calls with 6 args still resolve to it via p_status's DEFAULT, and the
+-- function name is no longer ambiguous for GRANT / PostgREST.
+DROP FUNCTION IF EXISTS pgcode_problem_page(int, int, text, text[], text, text);
+
 CREATE OR REPLACE FUNCTION pgcode_problem_page(
   p_limit      int      DEFAULT 100,
   p_offset     int      DEFAULT 0,
@@ -137,4 +142,4 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION pgcode_problem_page TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION pgcode_problem_page(int, int, text, text[], text, text, text) TO anon, authenticated;

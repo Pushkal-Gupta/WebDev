@@ -313,12 +313,11 @@
   border-left: 3px solid var(--accent);
   border-radius: 8px;
   color: var(--text-main);
-  overflow: hidden;
+  overflow-x: auto;
   margin: 0.4rem 0;
 }
 
-.ml-math .katex-display { margin: 0; overflow-x: hidden; }
-.ml-math .katex { white-space: normal; }
+.ml-math .katex-display { margin: 0; overflow-x: auto; }
 
 .ml-ascii-wrap {
   border: 1px solid var(--viz-line);

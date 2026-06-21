@@ -347,7 +347,7 @@
 .solve-lc:hover {
   border-color: var(--medium);
   color: var(--medium);
-  background: rgba(240, 165, 0, 0.06);
+  background: rgba(var(--medium-rgb), 0.06);
 }
 
 .solution-link {

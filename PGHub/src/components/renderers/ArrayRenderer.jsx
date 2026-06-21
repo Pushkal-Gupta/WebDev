@@ -31,9 +31,9 @@ export default function ArrayRenderer({ data }) {
     if (!highlights.includes(idx)) return {};
     const colorMap = {
       accent: { borderColor: 'var(--accent)', background: 'rgba(var(--accent-rgb), 0.1)', boxShadow: '0 0 12px rgba(var(--accent-rgb), 0.2)' },
-      green: { borderColor: 'var(--easy)', background: 'rgba(34, 197, 94, 0.1)', boxShadow: '0 0 12px rgba(34, 197, 94, 0.2)' },
-      red: { borderColor: 'var(--hard)', background: 'rgba(239, 68, 68, 0.1)', boxShadow: '0 0 12px rgba(239, 68, 68, 0.2)' },
-      yellow: { borderColor: 'var(--medium)', background: 'rgba(240, 165, 0, 0.1)', boxShadow: '0 0 12px rgba(240, 165, 0, 0.2)' },
+      green: { borderColor: 'var(--easy)', background: 'rgba(var(--easy-rgb), 0.1)', boxShadow: '0 0 12px rgba(var(--easy-rgb), 0.2)' },
+      red: { borderColor: 'var(--hard)', background: 'rgba(var(--hard-rgb), 0.1)', boxShadow: '0 0 12px rgba(var(--hard-rgb), 0.2)' },
+      yellow: { borderColor: 'var(--medium)', background: 'rgba(var(--medium-rgb), 0.1)', boxShadow: '0 0 12px rgba(var(--medium-rgb), 0.2)' },
     };
     return colorMap[highlightColor] || colorMap.accent;
   };

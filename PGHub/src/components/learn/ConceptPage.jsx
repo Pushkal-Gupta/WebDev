@@ -175,7 +175,7 @@ function Markdown({ children, inline = false }) {
   if (children == null) return null;
   const raw = typeof children === 'string' ? children : String(children);
   if (!raw.trim()) return null;
-  const source = preprocessInlineMath(formatPowers(raw));
+  const source = formatPowers(preprocessInlineMath(raw));
   return (
     <ReactMarkdown
       remarkPlugins={MD_REMARK_PLUGINS}

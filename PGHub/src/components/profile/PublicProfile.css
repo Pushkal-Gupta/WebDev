@@ -65,7 +65,7 @@
   position: relative;
   height: 110px;
   background:
-    linear-gradient(135deg, rgba(var(--accent-rgb), 0.18) 0%, rgba(167, 139, 250, 0.14) 100%);
+    linear-gradient(135deg, rgba(var(--accent-rgb), 0.18) 0%, rgba(var(--hue-violet-rgb), 0.14) 100%);
   border-bottom: 1px solid var(--border);
 }
 .pp-banner::after {
@@ -74,7 +74,7 @@
   inset: 0;
   background:
     radial-gradient(circle at 15% 30%, rgba(var(--accent-rgb), 0.18), transparent 55%),
-    radial-gradient(circle at 80% 70%, rgba(244, 114, 182, 0.16), transparent 55%);
+    radial-gradient(circle at 80% 70%, rgba(var(--hue-pink-rgb), 0.16), transparent 55%);
   pointer-events: none;
 }
 

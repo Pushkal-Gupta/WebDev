@@ -6,8 +6,8 @@ const NODE_R = 24;
 const stateColors = {
   unvisited: { fill: 'var(--surface)', stroke: 'var(--border)', text: 'var(--text-dim)' },
   current: { fill: 'rgba(var(--accent-rgb), 0.15)', stroke: 'var(--accent)', text: 'var(--accent)' },
-  visited: { fill: 'rgba(34, 197, 94, 0.12)', stroke: 'var(--easy)', text: 'var(--easy)' },
-  processing: { fill: 'rgba(240, 165, 0, 0.12)', stroke: 'var(--medium)', text: 'var(--medium)' },
+  visited: { fill: 'rgba(var(--easy-rgb), 0.12)', stroke: 'var(--easy)', text: 'var(--easy)' },
+  processing: { fill: 'rgba(var(--medium-rgb), 0.12)', stroke: 'var(--medium)', text: 'var(--medium)' },
 };
 
 const edgeStateColors = {

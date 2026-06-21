@@ -37,7 +37,7 @@ export default function PGForgeSheets() {
           return (
             <Link key={sheet.slug} to={`/ml/sheets/${sheet.slug}`} className="forge-sh-card">
               <div className="forge-thumb-frame forge-sh-card-thumb">
-                <ForgeThumb kind={THUMB_KINDS[sheet.slug] || 'auto'} seed={sheet.title} label={sheet.title} />
+                <ForgeThumb kind={THUMB_KINDS[sheet.slug] || 'auto'} topic={sheet.slug} seed={sheet.title} label={sheet.title} />
               </div>
               <div className="forge-sh-card-body">
                 <div className="forge-sh-card-head">
