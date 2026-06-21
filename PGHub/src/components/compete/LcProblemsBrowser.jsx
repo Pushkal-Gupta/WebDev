@@ -1,7 +1,7 @@
 import './LcProblemsBrowser.css';
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ArrowUpDown, ChevronLeft, ChevronRight, ChevronDown, Activity, X, Check } from 'lucide-react';
+import { Search, ArrowUpDown, ChevronLeft, ChevronRight, ChevronDown, Activity, X, Check, AlertTriangle, RotateCw } from 'lucide-react';
 import { useLcQuestions } from '../../lib/queries';
 
 // Themed sort dropdown — replaces the native <select> (whose OS popup clashed
@@ -223,7 +223,7 @@ function RatingChart({ rows, activeSlug, onPick }) {
 }
 
 export default function LcProblemsBrowser() {
-  const { data, isLoading } = useLcQuestions();
+  const { data, isLoading, isError, refetch } = useLcQuestions();
   const all = useMemo(() => data || [], [data]);
 
   const [query, setQuery] = useState('');
@@ -270,6 +270,45 @@ export default function LcProblemsBrowser() {
   function pickContest(slug) {
     setContestPick((cur) => (cur === slug ? null : slug));
     setPage(1);
+  }
+
+  if (isError) {
+    return (
+      <div className="lcp-container">
+        <header className="lcp-header">
+          <h1 className="lcp-title">LeetCode problems</h1>
+          <p className="lcp-sub">Every rated weekly and biweekly contest problem, searchable by name and filterable straight from the chart.</p>
+        </header>
+        <div
+          className="lcp-empty"
+          role="alert"
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '0.75rem',
+            padding: '3rem 1.5rem',
+            border: '1px solid var(--border)',
+            borderRadius: '12px',
+            background: 'var(--surface)',
+          }}
+        >
+          <AlertTriangle size={26} style={{ color: 'var(--hard)' }} aria-hidden />
+          <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>Couldn&apos;t load problems</span>
+          <span style={{ color: 'var(--text-dim)', textAlign: 'center', maxWidth: '38ch' }}>
+            Something went wrong reaching the catalog. Check your connection and try again.
+          </span>
+          <button
+            type="button"
+            className="lcp-page-btn"
+            onClick={() => refetch()}
+            style={{ marginTop: '0.25rem' }}
+          >
+            <RotateCw size={14} /> Retry
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (

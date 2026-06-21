@@ -105,5 +105,26 @@ Disjoint-file fleet; each agent audited → fixed in place → eslint+build clea
 3. **ML problem animations need major professional work** — the 200+ `ml/viz/*` components (esp. the attention/transformer/tokenization family: AttentionStepViz, AttentionHeatmapViz, multi-head, BPETokenizerViz) must hit TensorTonic-grade animated polish — smooth transitions, staged reveals, professional motion, live readouts. Currently many are static/rough.
 4. **Horizontal→vertical sweep** — rebuild the bespoke `PaperDiagram` SVGs (Transformer/Resnet/Seq2Seq/Vae/Diffusion/Vit/Clip/Rlhf/Flow) vertical, OR give every paper `pgForgeArchData` so the vertical `ArchitectureDiagram` renders instead.
 
+## SOLUTIONS BACKFILL (audited 2026-06-20 via `scripts/audit-solutions.mjs`)
+User: "solutions are completely shit, all the solutions [must] be there properly." Audit of 3,848 problems:
+- All four langs real & non-stub: **93.7%** (3,606). Python 95.4% real, JS/Java/C++ 93.8% real. No copy-pasted-python smell.
+- **ZERO solutions: 174 (4.5%)** · tests-but-no-usable-python: 177 · python stubs: 3.
+- Gap concentrated in **Easy** (89% complete) then Medium; many are famous problems (Number of Islands, Merge Intervals, Unique Paths, K Closest Points) → their solution pages render empty, hence "shit".
+- **242 actionable targets** (zero-solution OR missing/stub any lang OR tests-but-no-py) dumped to `scripts/solutions-backfill-targets.json` (each: id, name, difficulty, missingLangs, tests, pyReal).
+- NOTE: audit checks PRESENCE + non-stub, NOT correctness. "Shit" may also mean present-but-WRONG → needs a Judge0 grading sweep over existing solutions too.
+
+**Backfill plan (run when agent dispatch unblocks — session limit reset 3:50pm IST 2026-06-20):**
+1. For each target: ensure a correct Python canonical (generate if missing; must compile + pass the problem's test_cases via Judge0 / the existing `grade-submission` path).
+2. Derive JS/Java/C++ from the verified Python with the right method signature (NOT a python copy) — grade each against the same cases.
+3. Re-run `audit-solutions.mjs` to confirm zero-solution → 0 and all-four-real climbs toward 100%.
+4. Separately: a correctness sweep grading the existing 3,606 "complete" sets to catch present-but-wrong solutions.
+Partition the 242 across agents by difficulty/topic (disjoint id ranges), each generating+grading its slice, central re-audit after.
+
+## DONE 2026-06-21 (direct): company logos rendering blank ("logo not coming")
+Featured company cards (Google/Meta/Amazon/Microsoft/Apple/Netflix...) showed blank — slugs matched the `COMPANY_LOGOS` map and the CDN SVGs resolve 200 with brand colors, so the bug was render-side: a stalled/blocked CDN `<img>` fires NO `error` event, so the old monogram fallback never triggered → blank box. Rewrote `BrandLogo.jsx`/`.css`: the themed **monogram is now the always-present base layer**, the brand SVG is an overlay that `opacity:0 → 1` only `onLoad`, plus a 6s timeout → monogram if it stalls. Blank tile now impossible (online: logo wins; offline/slow: monogram shows). Build green.
+
+## DONE 2026-06-20 (direct, no-agent): problem-page visuals were too big
+`.viz-stage` was capped at 52vh (half viewport) so AlgoVisualizer ballooned on every problem/solution page. Added a `.viz-compact` modifier (`max-height:320px`, tighter padding/fonts) in `AlgoVisualizer.css`; `ProblemVisualizer.jsx` now wraps its AlgoVisualizer in `viz-compact` (padding 1rem→0.5rem). Scoped so the standalone `/visualize` explorer is untouched. Graph/tree renderers use `preserveAspectRatio="xMidYMid meet"` (scale-to-fit, no clip); array bars are short HTML rows. Build green.
+
 ## Parallel (non-UI) lane
 - **Test-case grow drive** — relaunch from `/PGHub/`: `node scripts/bulk-grow-test-cases.js --max 250 --target 50 --resume`. ~103 problems grown, ~2000+ cases added; ~99% of problems are growable (only ~1.3% SQL/async excluded). Judge0 free-tier rate-limits it — a dedicated Judge0 key is the real accelerator.

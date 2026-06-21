@@ -372,7 +372,11 @@
   font-family: var(--mono);
   font-size: 0.78rem;
   font-weight: 700;
+  cursor: pointer;
+  transition: filter var(--t), opacity var(--t);
 }
+.forge-pd-cta-badge:hover:not(:disabled) { filter: brightness(1.08); }
+.forge-pd-cta-badge:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* ---- HINTS ---- */
 .forge-pd-hints-toggle {

@@ -51,3 +51,137 @@
 .vault-crumbs-back:hover { color: var(--accent); }
 .vault-crumbs-sep { color: var(--text-dim); opacity: 0.6; }
 .vault-crumbs-current { color: var(--text-main); }
+
+/* ── ActivityHeatmap — GitHub-style contribution grid ──────────────────
+   Shared by PracticeHistory (/history) and ProgressDashboard (/vault).
+   Cells are a fixed pixel size (--hm-cell, set inline by the component) so the
+   grid stays tight and even regardless of card width — never giant squares. */
+.hm {
+  --hm-cell: 13px;
+  --hm-gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.hm-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.hm-title {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+.hm-sub {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-main);
+}
+
+/* Center the fixed-width grid in its track; on a narrow card it can scroll
+   horizontally rather than crushing the cells. */
+.hm-scroll {
+  display: flex;
+  justify-content: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.hm-scroll::-webkit-scrollbar { display: none; }
+
+.hm-body {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+}
+
+.hm-days {
+  display: grid;
+  grid-template-rows: repeat(7, var(--hm-cell));
+  gap: var(--hm-gap);
+  flex-shrink: 0;
+}
+.hm-day {
+  display: flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  line-height: 1;
+  color: var(--text-dim);
+  height: var(--hm-cell);
+}
+
+.hm-grid-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.hm-months {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--hm-cell);
+  gap: var(--hm-gap);
+  height: 0.7rem;
+}
+.hm-month {
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  color: var(--text-dim);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+.hm-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--hm-cell);
+  gap: var(--hm-gap);
+}
+.hm-col {
+  display: grid;
+  grid-template-rows: repeat(7, var(--hm-cell));
+  gap: var(--hm-gap);
+}
+.hm-cell {
+  width: var(--hm-cell);
+  height: var(--hm-cell);
+  border-radius: 3px;
+  background: var(--border);
+  transition: transform var(--t, 200ms) ease;
+}
+.hm-grid .hm-cell:hover { transform: scale(1.22); }
+.hm-l0 { background: var(--hover-box); box-shadow: inset 0 0 0 1px var(--border); }
+.hm-l1 { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+.hm-l2 { background: color-mix(in srgb, var(--accent) 52%, transparent); }
+.hm-l3 { background: color-mix(in srgb, var(--accent) 76%, transparent); }
+.hm-l4 { background: var(--accent); }
+.hm-future { opacity: 0.3; }
+
+.hm-legend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  align-self: flex-end;
+}
+.hm-legend .hm-cell {
+  width: 11px;
+  height: 11px;
+}
+.hm-legend-label {
+  font-family: var(--mono);
+  font-size: 0.58rem;
+  color: var(--text-dim);
+  margin: 0 0.2rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hm-cell { transition: none; }
+  .hm-grid .hm-cell:hover { transform: none; }
+}

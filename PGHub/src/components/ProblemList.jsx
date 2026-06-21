@@ -119,21 +119,29 @@ export default function ProblemList({ session }) {
     setPage(0);
   }
 
+  // The server's 'number' sort pages by NUMBER buckets, and the live RPC drops a
+  // search match that falls outside the current bucket (search looked broken).
+  // Its position-paging branch (any non-'number' sort) applies the search
+  // correctly, so while a search is active we ask the server to sort by name —
+  // this fixes search on the deployed DB with no migration needed.
+  const searching = debouncedSearch.trim() !== '';
+  const serverSort = searching && sortBy === 'number' ? 'name' : sortBy;
   const { data: pageData, isLoading: problemsLoading, isFetching } = useProblemPage({
     page,
     pageSize: PAGE_SIZE,
     topicId: topicFilter === 'all' ? null : topicFilter,
     difficulty: diffArray,
     search: debouncedSearch,
-    sort: sortBy,
+    sort: serverSort,
   });
   const rawProblems = useMemo(() => pageData?.rows || [], [pageData]);
   const totalServer = pageData?.total || 0;
   // When sorting by Number the server pages by NUMBER buckets (page N = problems
   // #(N-1)·100+1 .. #N·100), so the pager is sized by the highest number, not the
   // row count. maxNumber is 0 from older RPC versions → fall back to row count.
+  // A search uses position paging (see serverSort), so number-mode is off then.
   const maxNumber = pageData?.maxNumber || 0;
-  const numberMode = sortBy === 'number' && maxNumber > 0;
+  const numberMode = sortBy === 'number' && maxNumber > 0 && !searching;
 
   const topics = useMemo(() => (rawTopics || []).filter(t => t.id !== 'first-order'), [rawTopics]);
   const userProgress = useMemo(() => progressBundle?.byId || {}, [progressBundle]);
@@ -367,7 +375,8 @@ export default function ProblemList({ session }) {
     if (sortBy === 'name') sorted.sort((a, b) => a.name.localeCompare(b.name));
     else if (sortBy === 'difficulty') {
       const rank = { Easy: 0, Medium: 1, Hard: 2 };
-      sorted.sort((a, b) => (rank[a.difficulty] - rank[b.difficulty]) || (a.leetcode_number || 0) - (b.leetcode_number || 0));
+      const rankOf = d => (rank[d] ?? 99);
+      sorted.sort((a, b) => (rankOf(a.difficulty) - rankOf(b.difficulty)) || (a.leetcode_number || 0) - (b.leetcode_number || 0));
     } else if (sortBy === 'topic') {
       sorted.sort((a, b) => String(a.topic_id).localeCompare(String(b.topic_id)) || (a.leetcode_number || 0) - (b.leetcode_number || 0));
     } else if (sortBy === 'number') {
@@ -377,12 +386,22 @@ export default function ProblemList({ session }) {
     return sorted;
   }, [listActive, rawProblems, listRows, statusFilter, userProgress, debouncedSearch, topicFilter, diffArray, sortBy]);
 
+  // Capture the unfiltered catalog problem COUNT (the real total, ~3,788) so the
+  // headline solved/total denominator survives across filtered renders. This is
+  // the actual count, never the highest problem NUMBER (maxNumber, ~4,543, which
+  // has ~755 gaps and would make 100% unreachable); maxNumber stays reserved for
+  // number-bucket pager sizing. Render-phase setState (React re-renders before
+  // painting) is the supported pattern for adjusting state from prior renders.
+  const [catalogTotal, setCatalogTotal] = useState(0);
+  if (!hasActiveFilters && !listActive && totalServer > 0 && totalServer !== catalogTotal) {
+    setCatalogTotal(totalServer);
+  }
   const stats = useMemo(() => {
     const solved = Object.values(userProgress).filter(p => p?.is_completed).length;
-    // Catalog spans problem numbers up to maxNumber (4543) with gaps; show that as
-    // the headline total when available, else the row count.
-    return { total: maxNumber || totalServer, solved };
-  }, [maxNumber, totalServer, userProgress]);
+    // Denominator = actual catalog problem count, so solved/total reaches 100%.
+    const total = catalogTotal || totalServer;
+    return { total, solved };
+  }, [catalogTotal, totalServer, userProgress]);
 
   // With a list selected we hold the whole filtered list client-side, so slice
   // it into the current page here. Without a list the server already returned
@@ -402,11 +421,21 @@ export default function ProblemList({ session }) {
     : clientFiltered ? filteredProblems.length : totalServer;
   // In number-bucket mode (no list) the page count follows the highest problem
   // number. List mode and other sorts page by position in the result set.
-  const totalPages = (numberMode && !listActive)
-    ? Math.max(1, Math.ceil(maxNumber / PAGE_SIZE))
+  // A client-side status filter narrows the rendered rows but leaves the server
+  // in number-bucket mode; require statusFilter === 'all' so a status filter
+  // falls through to the real filtered count instead of the catalog range.
+  const numberBucketView = numberMode && !listActive && statusFilter === 'all';
+  // The REAL catalog problem count — same source the header denominator uses
+  // (catalogTotal, falling back to totalServer). The footer "N problems total"
+  // and the page count must reflect this, NOT maxNumber (the highest problem
+  // NUMBER, ~755 gaps inflated), so header/footer/pages agree and the last page
+  // lands on real content. Number-bucket row slicing still uses maxNumber below.
+  const realTotal = catalogTotal || totalServer;
+  const totalPages = numberBucketView
+    ? Math.max(1, Math.ceil(realTotal / PAGE_SIZE))
     : Math.max(1, Math.ceil(effectiveTotal / PAGE_SIZE));
   const showingFrom = effectiveTotal === 0 ? 0 : page * PAGE_SIZE + 1;
-  const showingTo = (numberMode && !listActive)
+  const showingTo = numberBucketView
     ? Math.min(maxNumber, (page + 1) * PAGE_SIZE)
     : listActive
       ? Math.min(effectiveTotal, (page + 1) * PAGE_SIZE)
@@ -587,9 +616,9 @@ export default function ProblemList({ session }) {
                     <span className="pl-practice-name">{p.leetcode_number ? `${p.leetcode_number}. ${p.name}` : p.name}</span>
                     <span className="pl-practice-topic">{topicNameMap[p.topic_id] || p.topic_id}</span>
                   </Link>
-                  <span className={`pl-diff-tag pl-diff-${p.difficulty.toLowerCase()}`}>
+                  <span className={`pl-diff-tag pl-diff-${(p.difficulty || '').toLowerCase()}`}>
                     <span className="pl-diff-dot" aria-hidden="true" />
-                    {p.difficulty}
+                    {p.difficulty || 'Unknown'}
                   </span>
                   {solved && <span className="pl-practice-flag"><Clock size={11} /> Done</span>}
                 </li>
@@ -656,9 +685,9 @@ export default function ProblemList({ session }) {
                   </span>
                 </div>
                 <div className="pl-col-diff">
-                  <span className={`pl-diff-tag pl-diff-${p.difficulty.toLowerCase()}`}>
+                  <span className={`pl-diff-tag pl-diff-${(p.difficulty || '').toLowerCase()}`}>
                     <span className="pl-diff-dot" aria-hidden="true" />
-                    {p.difficulty}
+                    {p.difficulty || 'Unknown'}
                   </span>
                 </div>
                 <div className="pl-col-actions">
@@ -700,11 +729,11 @@ export default function ProblemList({ session }) {
 
         <div className="pl-table-footer">
           <span className="pl-count">
-            {numberMode && !listActive ? (
+            {numberBucketView ? (
               <>
                 <span className="pl-count-label">Problems</span>
                 <strong>{showingFrom.toLocaleString()}–{showingTo.toLocaleString()}</strong>
-                <span className="pl-count-label">· {maxNumber.toLocaleString()} {maxNumber === 1 ? 'problem' : 'problems'} total</span>
+                <span className="pl-count-label">· {realTotal.toLocaleString()} {realTotal === 1 ? 'problem' : 'problems'} total</span>
               </>
             ) : (
               <>

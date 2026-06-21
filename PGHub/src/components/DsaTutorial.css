@@ -4,7 +4,7 @@
   margin: 0 auto;
   flex: 1 1 auto;
   min-height: 0;
-  max-height: calc(100dvh - 80px);
+  max-height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
   overflow-x: hidden;
   padding: 1.5rem 0 3rem;
@@ -1515,7 +1515,7 @@
   padding: 1.5rem 0 3rem;
   flex: 1 1 auto;
   min-height: 0;
-  max-height: calc(100dvh - 80px);
+  max-height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -1712,7 +1712,7 @@
   padding: 0 0 3rem;
   flex: 1 1 auto;
   min-height: 0;
-  max-height: calc(100dvh - 80px);
+  max-height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
   overflow-x: hidden;
 }

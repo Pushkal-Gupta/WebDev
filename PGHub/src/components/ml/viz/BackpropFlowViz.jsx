@@ -2,8 +2,11 @@ import React, { useMemo, useState } from 'react';
 import { RotateCcw, StepForward } from 'lucide-react';
 import './MLViz.css';
 
-const W = 600;
-const H = 320;
+// Vertical computation graph: nodes stack TOP -> BOTTOM (x at top, L at bottom).
+// Forward pass flows DOWN the spine; backward gradients flow back UP the same
+// vertical spine. Portrait viewBox.
+const W = 340;
+const H = 520;
 
 function snap(v, p = 3) {
   const m = Math.pow(10, p);
@@ -70,12 +73,13 @@ export default function BackpropFlowViz() {
   const fwdActive = step >= 1 && step <= 3;
   const bwdActive = step >= 4 && step <= 6;
 
-  // node layout: x -> [w1] -> z1/h -> [w2] -> ypred -> L
+  // node layout: x -> [w1] -> h -> [w2] -> ŷ -> L, stacked DOWN a vertical spine.
+  const spineX = W / 2;
   const nodes = [
-    { id: 'x', x: 60, y: 160, label: 'x', val: X },
-    { id: 'h', x: 200, y: 160, label: 'h', val: f.h },
-    { id: 'y', x: 360, y: 160, label: 'ŷ', val: f.yp },
-    { id: 'L', x: 510, y: 160, label: 'L', val: f.L },
+    { id: 'x', x: spineX, y: 70, label: 'x', val: X },
+    { id: 'h', x: spineX, y: 200, label: 'h', val: f.h },
+    { id: 'y', x: spineX, y: 330, label: 'ŷ', val: f.yp },
+    { id: 'L', x: spineX, y: 460, label: 'L', val: f.L },
   ];
 
   // edges carry the weight + the chain-rule product on the way back
@@ -109,8 +113,8 @@ export default function BackpropFlowViz() {
       <div className="mlviz-stage">
         <svg
           viewBox={`0 0 ${W} ${H}`}
-          className="mlviz-svg mlviz-svg-wide"
-          style={{ maxWidth: '820px' }}
+          className="mlviz-svg mlviz-svg-portrait"
+          style={{ '--mlviz-portrait-ar': `${W} / ${H}` }}
           preserveAspectRatio="xMidYMid meet"
         >
           <defs>
@@ -122,11 +126,11 @@ export default function BackpropFlowViz() {
             </marker>
           </defs>
 
-          <text x={40} y={24} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
-            {step <= 3 ? 'FORWARD →' : step <= 6 ? '← BACKWARD' : 'WEIGHT UPDATE'}
+          <text x={W / 2} y={28} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle" letterSpacing="0.1em">
+            {step <= 3 ? 'FORWARD ↓' : step <= 6 ? '↑ BACKWARD' : 'WEIGHT UPDATE'}
           </text>
 
-          {/* edges */}
+          {/* edges — vertical spine, forward arrow points down, backward up */}
           {edges.map((e) => {
             const a = nodeById(e.from);
             const b = nodeById(e.to);
@@ -134,31 +138,36 @@ export default function BackpropFlowViz() {
             const bwdOn = step >= 4 && step >= e.bwdAt;
             const active = (fwdActive && step === e.fwdAt) || (bwdActive && step === e.bwdAt);
             const stroke = bwdOn ? 'var(--hue-pink)' : fwdOn ? 'var(--accent)' : 'var(--border)';
-            const midX = (a.x + b.x) / 2;
+            const midY = (a.y + b.y) / 2;
+            // forward: top(a) -> bottom(b); backward: bottom(b) -> top(a)
+            const x1 = bwdOn ? b.x : a.x;
+            const y1 = bwdOn ? b.y - 24 : a.y + 24;
+            const x2 = bwdOn ? a.x : b.x;
+            const y2 = bwdOn ? a.y + 24 : b.y - 24;
             return (
               <g key={`${e.from}-${e.to}`}>
                 <line
-                  x1={a.x + 24}
-                  y1={a.y}
-                  x2={b.x - 24}
-                  y2={b.y}
+                  x1={x1}
+                  y1={y1}
+                  x2={x2}
+                  y2={y2}
                   stroke={stroke}
                   strokeWidth={active ? 2.4 : 1}
                   opacity={fwdOn || bwdOn ? 0.95 : 0.3}
                   markerEnd={bwdOn ? 'url(#bpf-arr-b)' : fwdOn ? 'url(#bpf-arr-f)' : undefined}
                 />
                 {e.w && (
-                  <text x={midX} y={a.y - 30} fontSize="9" fill="var(--text-main)" fontFamily="var(--serif)" fontStyle="italic" textAnchor="middle" fontWeight="700">
+                  <text x={a.x + 30} y={midY - 6} fontSize="9" fill="var(--text-main)" fontFamily="var(--serif)" fontStyle="italic" textAnchor="start" fontWeight="700">
                     {e.w}
                   </text>
                 )}
-                {/* local jacobian (always faintly shown) */}
-                <text x={midX} y={a.y - 18} fontSize="6.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+                {/* local jacobian (always faintly shown) — right gutter */}
+                <text x={a.x + 30} y={midY + 6} fontSize="6.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="start">
                   {e.local}
                 </text>
-                {/* chain-rule product gradient on the way back */}
+                {/* chain-rule product gradient on the way back — left gutter */}
                 {bwdOn && (
-                  <text x={midX} y={a.y + 30} fontSize="8" fill="var(--hue-pink)" fontFamily="var(--mono)" textAnchor="middle" fontWeight="700">
+                  <text x={a.x - 30} y={midY} fontSize="8" fill="var(--hue-pink)" fontFamily="var(--mono)" textAnchor="end" fontWeight="700">
                     {e.gradLabel} = {snap(e.grad, 3)}
                   </text>
                 )}

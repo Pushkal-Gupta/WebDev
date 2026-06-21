@@ -5,7 +5,25 @@
   flex-shrink: 0;
   border-radius: 8px;
   box-sizing: border-box;
+  position: relative;
 }
+
+/* The monogram tile is the ALWAYS-PRESENT base layer (never a blank box). The
+   per-name accent hue comes from inline styles; tokens keep it on-surface. */
+.brand-logo-mono {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-family: var(--serif);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.brand-logo-fallback .brand-logo-mono { position: static; width: 100%; height: 100%; }
 
 /* Brand marks are rendered on a deliberate near-white chip canvas — the same
    trick favicons use on a dark navbar. Many brand SVGs are monochrome dark
@@ -13,20 +31,26 @@
    chip keeps every mark legible in ALL 8 palettes (light AND dark) without
    per-logo recolouring. The chip bg is a fixed light neutral on purpose; the
    border tracks the active theme token so the chip still reads as part of the
-   surface rather than a clashing white box. */
+   surface rather than a clashing white box. The img sits ON TOP of the monogram
+   and only becomes visible once it actually loads, so a stalled/blocked CDN
+   request leaves the monogram showing instead of a blank tile. */
 .brand-logo-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid color-mix(in srgb, var(--border) 70%, rgba(0, 0, 0, 0.12));
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
   padding: 15%;
+  box-sizing: border-box;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
+.brand-logo-img.is-loaded { opacity: 1; }
 
-/* No verified brand SVG -> clean themed monogram tile (never a broken image).
-   Inline styles supply the per-name accent hue; tokens keep it on-surface. */
-.brand-logo-fallback {
-  font-family: var(--serif);
-  font-weight: 700;
-  line-height: 1;
-  border: 1px solid var(--border);
+@media (prefers-reduced-motion: reduce) {
+  .brand-logo-img { transition: none; }
 }

@@ -209,6 +209,24 @@
   .viz-stage { max-height: 60vh; }
 }
 
+/* ── Compact mode: problem / solution pages embed the visualizer as a side
+   panel, not a half-screen takeover. Cap the stage to a fixed, modest height
+   and shrink the chrome so the viz reads as a reference figure. Scoped to the
+   `.viz-compact` wrapper so the standalone /visualize explorer is unaffected. ── */
+.viz-compact .viz-stage {
+  min-height: 180px;
+  max-height: 320px;
+  padding: 0.5rem 0;
+}
+.viz-compact .viz-stage-frame { padding: 0.6rem; }
+.viz-compact .viz-explain { padding: 0.7rem 0.85rem; }
+.viz-compact .viz-explain-body { font-size: 0.8rem; line-height: 1.55; }
+.viz-compact .viz-caption { font-size: 0.82rem; }
+.viz-compact .viz-workspace { gap: 0.7rem; }
+@media (max-width: 920px) {
+  .viz-compact .viz-stage { max-height: 300px; }
+}
+
 @keyframes viz-frame-in {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }

@@ -1100,7 +1100,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       .replace(/\n/g, '<br />');
   };
 
-  const descHasExamples = /\bexample\s*\d*\s*:?/i.test(activeProblem.description || '');
+  const descHasExamples = /\bexamples?\s*\d*\s*:/i.test(activeProblem.description || '');
   const sampleCases = (() => {
     if (descHasExamples) return [];
     const tcs = Array.isArray(activeProblem.test_cases) ? activeProblem.test_cases : [];

@@ -28,7 +28,11 @@ export default function MyLists({ session }) {
   const { data: progressBundle } = useUserProgress(userId);
   const progressById = progressBundle?.byId || {};
 
-  const [activeList, setActiveList] = useState(null);
+  const [activeListId, setActiveListId] = useState(null);
+  const activeList = useMemo(
+    () => lists.find(l => l.id === activeListId) || null,
+    [lists, activeListId]
+  );
   const [newListName, setNewListName] = useState('');
   const [creating, setCreating] = useState(false);
   const [pendingId, setPendingId] = useState(null);   // list being delete/rename
@@ -67,7 +71,7 @@ export default function MyLists({ session }) {
       const { error: e } = await supabase.from('PGcode_user_lists').delete().eq('id', id);
       if (e) { setError(e.message); return; }
       queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
-      if (activeList?.id === id) setActiveList(null);
+      if (activeListId === id) setActiveListId(null);
       setDeleteTarget(null);
     } finally {
       setPendingId(null);
@@ -88,9 +92,20 @@ export default function MyLists({ session }) {
     }
   };
 
+  const crumbs = (
+    <nav className="vault-crumbs" aria-label="Breadcrumb">
+      <Link to="/vault" className="vault-crumbs-back">
+        <ArrowLeft size={12} /> Vault
+      </Link>
+      <span className="vault-crumbs-sep">/</span>
+      <span className="vault-crumbs-current">Lists</span>
+    </nav>
+  );
+
   if (!userId) {
     return (
       <div className="ml-container">
+        {crumbs}
         <div className="ml-empty">
           <ListPlus size={28} className="ml-empty-icon" />
           <h2 className="ml-empty-title">Sign in to create custom lists</h2>
@@ -103,6 +118,7 @@ export default function MyLists({ session }) {
   if (isLoading) {
     return (
       <div className="ml-container">
+        {crumbs}
         <header className="ml-header">
           <h1 className="ml-title">My Lists</h1>
           <p className="ml-sub">Your saved problem collections.</p>
@@ -120,18 +136,12 @@ export default function MyLists({ session }) {
   }
 
   if (activeList) {
-    return <ListDetail session={session} list={activeList} onBack={() => setActiveList(null)} />;
+    return <ListDetail session={session} list={activeList} onBack={() => setActiveListId(null)} />;
   }
 
   return (
     <div className="ml-container">
-      <nav className="vault-crumbs" aria-label="Breadcrumb">
-        <Link to="/vault" className="vault-crumbs-back">
-          <ArrowLeft size={12} /> Vault
-        </Link>
-        <span className="vault-crumbs-sep">/</span>
-        <span className="vault-crumbs-current">Lists</span>
-      </nav>
+      {crumbs}
       <header className="ml-header">
         <h1 className="ml-title">My Lists</h1>
         <p className="ml-sub">Your private problem collections — group anything however you want.</p>
@@ -175,7 +185,7 @@ export default function MyLists({ session }) {
               list={l}
               progressById={progressById}
               pending={pendingId === l.id}
-              onOpen={() => setActiveList(l)}
+              onOpen={() => setActiveListId(l.id)}
               onRename={() => setRenameTarget({ id: l.id, name: l.name })}
               onDelete={() => setDeleteTarget({ id: l.id, name: l.name })}
             />

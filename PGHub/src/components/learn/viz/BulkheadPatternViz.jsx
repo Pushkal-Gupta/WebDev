@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Play, Pause, RotateCcw, ChevronRight, SkipForward, Boxes, Waves } from 'lucide-react';
+import { Play, Pause, RotateCcw, ChevronRight, SkipForward, Boxes, Waves, AlertTriangle } from 'lucide-react';
 import './BulkheadPatternViz.css';
 
 const DEPS = [
@@ -330,8 +330,13 @@ export default function BulkheadPatternViz() {
                   style={{ stroke: d.color, fill: 'var(--surface)' }}
                 />
                 <text className="bhv-dep-label" x={x} y={66} style={{ fill: d.color }}>
-                  {d.label}{isFlood ? ' ⚠' : ''}
+                  {d.label}
                 </text>
+                {isFlood ? (
+                  <foreignObject x={colX(i) + colW - slotGap - 22} y={50} width={16} height={16}>
+                    <AlertTriangle size={14} color={d.color} aria-label="flooded" />
+                  </foreignObject>
+                ) : null}
               </g>
             );
           })}

@@ -43,7 +43,7 @@ export default function ReviewQueue({ session }) {
       setError(null);
       try {
         // Fetch all user progress with next_review_at set
-        const { data: progressData } = await supabase
+        const { data: progressData, error: progressError } = await supabase
           .from('PGcode_user_progress')
           .select('problem_id, confidence, last_solved_at, next_review_at, solve_count')
           .eq('user_id', session.user.id)
@@ -51,6 +51,7 @@ export default function ReviewQueue({ session }) {
           .not('next_review_at', 'is', null)
           .lte('next_review_at', new Date().toISOString())
           .order('next_review_at', { ascending: true });
+        if (progressError) throw progressError;
 
         if (!progressData || progressData.length === 0) {
           setReviewItems([]);
@@ -60,10 +61,11 @@ export default function ReviewQueue({ session }) {
 
         // Fetch problem details for the review items
         const problemIds = progressData.map(p => p.problem_id);
-        const { data: problemsData } = await supabase
+        const { data: problemsData, error: problemsError } = await supabase
           .from('PGcode_problems')
           .select('id, name, topic_id, difficulty')
           .in('id', problemIds);
+        if (problemsError) throw problemsError;
 
         const problemMap = {};
         (problemsData || []).forEach(p => { problemMap[p.id] = p; });
@@ -94,9 +96,20 @@ export default function ReviewQueue({ session }) {
     return { overdue, today };
   }, [reviewItems]);
 
+  const crumbs = (
+    <nav className="vault-crumbs" aria-label="Breadcrumb">
+      <Link to="/vault" className="vault-crumbs-back">
+        <ArrowLeft size={12} /> Vault
+      </Link>
+      <span className="vault-crumbs-sep">/</span>
+      <span className="vault-crumbs-current">Review</span>
+    </nav>
+  );
+
   if (!session?.user) {
     return (
       <div className="rq-container">
+        {crumbs}
         <div className="rq-empty-auth">
           <RotateCcw size={36} className="rq-empty-icon" />
           <h2>Spaced Repetition Review</h2>
@@ -109,6 +122,7 @@ export default function ReviewQueue({ session }) {
   if (loading) {
     return (
       <div className="rq-container">
+        {crumbs}
         <div className="rq-header">
           <div className="skel skel-title" />
         </div>
@@ -122,6 +136,7 @@ export default function ReviewQueue({ session }) {
   if (error) {
     return (
       <div className="rq-container">
+        {crumbs}
         <div className="rq-empty-auth">
           <AlertCircle size={32} className="rq-empty-icon" />
           <h2>Couldn&rsquo;t load your review queue</h2>
@@ -136,13 +151,7 @@ export default function ReviewQueue({ session }) {
 
   return (
     <div className="rq-container">
-      <nav className="vault-crumbs" aria-label="Breadcrumb">
-        <Link to="/vault" className="vault-crumbs-back">
-          <ArrowLeft size={12} /> Vault
-        </Link>
-        <span className="vault-crumbs-sep">/</span>
-        <span className="vault-crumbs-current">Review</span>
-      </nav>
+      {crumbs}
       <div className="rq-header">
         <div className="rq-title-row">
           <h1 className="rq-title">Review Queue</h1>
@@ -221,8 +230,8 @@ function ReviewCard({ item, problem, status, first, last }) {
       <div className="rq-card-left">
         <span className="rq-card-name">{problem.name}</span>
         <div className="rq-card-meta">
-          <span className={`rq-card-diff rq-diff-${problem.difficulty.toLowerCase()}`}>
-            {problem.difficulty}
+          <span className={`rq-card-diff rq-diff-${problem.difficulty?.toLowerCase() || ''}`}>
+            {problem.difficulty || ''}
           </span>
           <span className="rq-card-topic">{problem.topic_id}</span>
           <span className="rq-card-solved">Solved {item.solve_count || 1}x · {timeAgo(item.last_solved_at)}</span>

@@ -2,15 +2,18 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Dice5, RotateCcw, Lock, Unlock } from 'lucide-react';
 import './MLViz.css';
 
-const W = 620;
-const H = 360;
+// Vertical VAE pipeline: the five stages stack TOP -> BOTTOM —
+// input · encoder · latent · decoder · recon. Data flows DOWNWARD. Portrait.
+const W = 380;
+const H = 720;
 
-// Column x-anchors for the five panels.
-const X_INPUT = 60;
-const X_ENC   = 175;
-const X_LAT   = 340;
-const X_DEC   = 505;
-const Y_MID   = H / 2;
+// Shared centre x-anchor; each stage gets a y-anchor down the column.
+const X_MID   = W / 2;
+const Y_INPUT = 78;
+const Y_ENC   = 220;
+const Y_LAT   = 380;
+const Y_DEC   = 540;
+const Y_RECON = 660;
 
 const GRID_N = 4;
 const CELL = 22;
@@ -378,10 +381,18 @@ function LatentPlot({ cx, cy, size, mu, lv, z, eps, beta }) {
   );
 }
 
-function Funnel({ x, y, w, h, dir = 'right', label, sub, tint = 'var(--hue-sky, #5ecbff)' }) {
+function Funnel({ x, y, w, h, dir = 'down', label, sub, tint = 'var(--hue-sky, #5ecbff)' }) {
+  // Vertical funnels: 'down' narrows toward the bottom (encoder), 'widen'
+  // widens toward the bottom (decoder). The width-inset pinches the narrow end.
   const inset = w * 0.55;
   let path;
-  if (dir === 'right') {
+  if (dir === 'down') {
+    // wide at top, narrow at bottom
+    path = `M ${x} ${y} L ${x + w} ${y} L ${x + w - inset / 2} ${y + h} L ${x + inset / 2} ${y + h} Z`;
+  } else if (dir === 'widen') {
+    // narrow at top, wide at bottom
+    path = `M ${x + inset / 2} ${y} L ${x + w - inset / 2} ${y} L ${x + w} ${y + h} L ${x} ${y + h} Z`;
+  } else if (dir === 'right') {
     path = `M ${x} ${y} L ${x + w} ${y + inset / 2} L ${x + w} ${y + h - inset / 2} L ${x} ${y + h} Z`;
   } else {
     path = `M ${x + w} ${y} L ${x} ${y + inset / 2} L ${x} ${y + h - inset / 2} L ${x + w} ${y + h} Z`;
@@ -518,61 +529,59 @@ export default function VAEViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '820px' }}>
+        <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-portrait" style={{ '--mlviz-portrait-ar': `${W} / ${H}`, maxWidth: '420px' }}>
           <defs>
             <filter id="vae-glow" x="-120%" y="-120%" width="340%" height="340%">
               <feGaussianBlur stdDeviation="3" />
             </filter>
-            <linearGradient id="vae-reparam" x1="0" y1="0" x2="1" y2="0">
+            <linearGradient id="vae-reparam" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="var(--hue-mint, #6fe3a8)" />
               <stop offset="100%" stopColor="var(--hue-pink, #ff66cc)" />
             </linearGradient>
           </defs>
-          <text x={X_INPUT} y={28} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em">
+
+          {/* downward trunk: each stage connects to the next, flowing top -> bottom */}
+          <line x1={X_MID} y1={Y_INPUT + GRID_PX / 2 + 8} x2={X_MID} y2={Y_ENC - 58} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
+          <line x1={X_MID} y1={Y_ENC + 58} x2={X_MID} y2={Y_LAT - 78} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
+          <line x1={X_MID} y1={Y_LAT + 78} x2={X_MID} y2={Y_DEC - 58} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
+          <line x1={X_MID} y1={Y_DEC + 58} x2={X_MID} y2={Y_RECON - GRID_PX / 2 - 8} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
+
+          {/* INPUT x */}
+          <text x={X_MID} y={Y_INPUT - GRID_PX / 2 - 12} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em">
             INPUT x · 4×4
           </text>
-          <text x={X_ENC} y={28} fontSize="9.5" fill="var(--hue-sky, #5ecbff)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em" fontWeight={700}>
+          <PixelGrid cx={X_MID} cy={Y_INPUT} values={inputImage} accent="var(--accent)" />
+
+          {/* ENCODER qφ — funnel narrows downward */}
+          <text x={X_MID} y={Y_ENC - 70} fontSize="9.5" fill="var(--hue-sky, #5ecbff)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em" fontWeight={700}>
             ENCODER qφ
           </text>
-          <text x={X_LAT} y={28} fontSize="9.5" fill="var(--hue-mint, #6fe3a8)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em" fontWeight={700}>
-            LATENT z ∈ R²
-          </text>
-          <text x={X_DEC} y={28} fontSize="9.5" fill="var(--hue-sky, #5ecbff)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em" fontWeight={700}>
-            DECODER pθ
-          </text>
-          <text x={W - 60} y={28} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em">
-            RECON x̂
-          </text>
-
-          <line x1={X_INPUT + GRID_PX / 2 + 8} y1={Y_MID} x2={X_ENC - 38} y2={Y_MID} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
-          <line x1={X_ENC + 38} y1={Y_MID} x2={X_LAT - 75} y2={Y_MID} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
-          <line x1={X_LAT + 75} y1={Y_MID} x2={X_DEC - 38} y2={Y_MID} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
-          <line x1={X_DEC + 38} y1={Y_MID} x2={W - 60 - GRID_PX / 2 - 8} y2={Y_MID} stroke="var(--border)" strokeWidth={0.8} strokeDasharray="3 3" />
-
-          <PixelGrid cx={X_INPUT} cy={Y_MID} values={inputImage} accent="var(--accent)" />
-
           <Funnel
-            x={X_ENC - 38}
-            y={Y_MID - 56}
-            w={76}
+            x={X_MID - 56}
+            y={Y_ENC - 56}
+            w={112}
             h={112}
-            dir="right"
+            dir="down"
             label="qφ"
             sub="μ, log σ²"
             tint="var(--hue-sky, #5ecbff)"
           />
           <g>
-            <text x={X_ENC} y={Y_MID + 78} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle">
+            <text x={X_MID + 86} y={Y_ENC - 4} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="start">
               μ = ({snap(mu[0], 2)}, {snap(mu[1], 2)})
             </text>
-            <text x={X_ENC} y={Y_MID + 92} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle">
+            <text x={X_MID + 86} y={Y_ENC + 10} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="start">
               log σ² = ({snap(lv[0], 2)}, {snap(lv[1], 2)})
             </text>
           </g>
 
+          {/* LATENT z ∈ R² */}
+          <text x={X_MID} y={Y_LAT - 92} fontSize="9.5" fill="var(--hue-mint, #6fe3a8)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em" fontWeight={700}>
+            LATENT z ∈ R²
+          </text>
           <LatentPlot
-            cx={X_LAT}
-            cy={Y_MID}
+            cx={X_MID}
+            cy={Y_LAT}
             size={150}
             mu={manualZ ? zManual : mu}
             lv={manualZ ? [-2.5, -2.5] : lv}
@@ -581,20 +590,28 @@ export default function VAEViz() {
             beta={beta}
           />
 
+          {/* DECODER pθ — funnel widens downward */}
+          <text x={X_MID} y={Y_DEC - 70} fontSize="9.5" fill="var(--hue-sky, #5ecbff)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em" fontWeight={700}>
+            DECODER pθ
+          </text>
           <Funnel
-            x={X_DEC - 38}
-            y={Y_MID - 56}
-            w={76}
+            x={X_MID - 56}
+            y={Y_DEC - 56}
+            w={112}
             h={112}
-            dir="left"
+            dir="widen"
             label="pθ"
             sub="z → x̂"
             tint="var(--hue-sky, #5ecbff)"
           />
 
-          <PixelGrid cx={W - 60} cy={Y_MID} values={xHatAnim} accent="var(--hue-pink, #ff66cc)" />
+          {/* RECON x̂ */}
+          <text x={X_MID} y={Y_RECON - GRID_PX / 2 - 12} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.18em">
+            RECON x̂
+          </text>
+          <PixelGrid cx={X_MID} cy={Y_RECON} values={xHatAnim} accent="var(--hue-pink, #ff66cc)" />
 
-          <text x={X_LAT} y={H - 20} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.1em">
+          <text x={X_MID} y={H - 10} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle" letterSpacing="0.1em">
             reparam: z = μ + σ · ε,  ε ~ N(0, I)
           </text>
         </svg>

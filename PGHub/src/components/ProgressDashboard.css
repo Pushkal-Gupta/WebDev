@@ -9,7 +9,7 @@
   /* #root pins height: 100vh + overflow: hidden, so this container owns its
      own scroll. min-height (NOT height) so child cards can grow tall and we
      simply scroll the whole panel — no inner clipping. */
-  min-height: calc(100vh - 100px);
+  min-height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
 }
 
@@ -365,24 +365,6 @@
   transition: color var(--t);
 }
 .pd-card-action:hover { color: var(--accent); }
-
-.pd-heatmap {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-auto-flow: column;
-  grid-template-rows: repeat(7, 14px);
-  gap: 3px;
-}
-
-.pd-heat-cell {
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  background: var(--viz-line);
-}
-.pd-heat-1 { background: var(--easy-bg); }
-.pd-heat-2 { background: var(--easy); opacity: 0.55; }
-.pd-heat-3 { background: var(--easy); }
 
 .pd-topic-list {
   list-style: none;

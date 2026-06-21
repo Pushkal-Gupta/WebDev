@@ -140,6 +140,12 @@
   white-space: pre-wrap;
   word-break: break-word;
   background: transparent;
+  /* Cap tall program output (e.g. 500 print lines) so it scrolls inside the
+     output pane instead of growing the whole page. Short output stays
+     un-scrolled (max-height only caps the tall case). This is the one
+     legitimate inner scroll: terminal output, like Workspace's console. */
+  max-height: 22rem;
+  overflow: auto;
 }
 
 .rcp-spin { animation: rcp-spin 0.8s linear infinite; }

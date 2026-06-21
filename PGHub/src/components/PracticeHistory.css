@@ -3,7 +3,7 @@
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -437,14 +437,35 @@
 .ph-num-easy { color: var(--easy); }
 .ph-num-suffix { font-size: 0.95rem; color: var(--text-dim); font-weight: 600; }
 
+.ph-bubble-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.ph-section-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+.ph-section-count { color: var(--accent); }
+
 .ph-bubble-wrap {
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 0.3rem 0;
-  min-height: 220px;
+  padding: 0.2rem 0;
+  min-height: 210px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
 }
-.ph-bubble-wrap .bcl { width: 100%; max-width: 320px; height: 220px; }
+.ph-bubble-wrap .bcl { width: 100%; max-width: 320px; height: 210px; }
 
 .ph-chart-head {
   display: flex;
@@ -485,6 +506,12 @@
 
 .ph-gran-btn { padding: 0.35rem 0.7rem; min-width: 2rem; }
 
+.ph-chart-head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
 .ph-chart-month {
   font-family: var(--mono);
   font-size: 0.66rem;
@@ -492,12 +519,42 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+.ph-chart-scale {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+/* Plot area: a baseline + evenly-spaced gridlines so even a single bar reads as
+   a composed chart, not a lonely sliver in white space. */
+.ph-chart-plot {
+  position: relative;
+  height: 120px;
+  border-bottom: 1px solid var(--border);
+}
+.ph-chart-grid {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.ph-chart-grid span {
+  display: block;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.45;
+}
 
 .ph-chart {
+  position: relative;
   display: flex;
   align-items: flex-end;
   gap: 2px;
-  height: 110px;
+  height: 100%;
+  padding: 0 1px;
 }
 
 .ph-chart-col {
@@ -509,16 +566,24 @@
 }
 
 .ph-chart-bar {
-  width: 80%;
+  width: 72%;
+  max-width: 14px;
   display: flex;
   flex-direction: column-reverse;
-  background: var(--hover-box);
-  border-radius: 2px 2px 0 0;
+  border-radius: 3px 3px 0 0;
   overflow: hidden;
   animation: ph-grow 0.5s cubic-bezier(0.34, 1.2, 0.5, 1) both;
 }
 
-.ph-chart-bar.empty { background: var(--hover-box); opacity: 0.55; }
+/* Empty days get a faint baseline tick so the day axis stays legible. */
+.ph-chart-tick {
+  width: 72%;
+  max-width: 14px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--border);
+  opacity: 0.6;
+}
 
 @keyframes ph-grow { from { transform: scaleY(0); transform-origin: bottom; } }
 
@@ -544,123 +609,8 @@
   padding: 0.9rem 1.1rem 1rem;
 }
 
-.hm { display: flex; flex-direction: column; gap: 0.7rem; }
-
-.hm-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-}
-.hm-title {
-  font-family: var(--mono);
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-dim);
-}
-.hm-sub {
-  font-family: var(--mono);
-  font-size: 0.7rem;
-  color: var(--text-main);
-}
-
-.hm-body {
-  display: flex;
-  gap: 0.4rem;
-  align-items: flex-start;
-}
-
-.hm-days {
-  display: grid;
-  grid-template-rows: repeat(7, 1fr);
-  gap: 3px;
-  padding-top: 1.05rem;
-  flex-shrink: 0;
-}
-.hm-day {
-  display: flex;
-  align-items: center;
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  line-height: 1;
-  color: var(--text-dim);
-  height: 100%;
-  min-height: 11px;
-}
-
-.hm-grid-wrap {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.hm-months {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 3px;
-}
-.hm-month {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  color: var(--text-dim);
-  letter-spacing: 0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.hm-grid {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 3px;
-}
-.hm-col {
-  display: grid;
-  grid-template-rows: repeat(7, 1fr);
-  gap: 3px;
-}
-.hm-cell {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  min-height: 11px;
-  border-radius: 3px;
-  background: var(--border);
-  transition: transform var(--t, 200ms) ease;
-}
-.hm-grid .hm-cell:hover { transform: scale(1.18); }
-.hm-l0 { background: var(--hover-box); border: 1px solid var(--border); }
-.hm-l1 { background: color-mix(in srgb, var(--accent) 22%, transparent); }
-.hm-l2 { background: color-mix(in srgb, var(--accent) 45%, transparent); }
-.hm-l3 { background: color-mix(in srgb, var(--accent) 70%, transparent); }
-.hm-l4 { background: var(--accent); }
-.hm-future { opacity: 0.35; }
-
-.hm-legend {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  align-self: flex-end;
-}
-.hm-legend .hm-cell {
-  width: 11px;
-  height: 11px;
-  aspect-ratio: auto;
-  min-height: 0;
-}
-.hm-legend-label {
-  font-family: var(--mono);
-  font-size: 0.58rem;
-  color: var(--text-dim);
-  margin: 0 0.2rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hm-cell { transition: none; }
-  .hm-grid .hm-cell:hover { transform: none; }
-}
+/* ActivityHeatmap styles live in vault.css (shared by PracticeHistory + the
+   Vault ProgressDashboard so both render identically). Kept there, not here. */
 
 /* ── Skeleton / Empty / Misc ──────────────────────────────────────── */
 .ph-skel {
@@ -673,18 +623,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.55rem;
   padding: 3rem 1.5rem;
   text-align: center;
   border: 1px dashed var(--border);
-  border-radius: 10px;
+  border-radius: 12px;
+}
+
+/* In the list column, the empty state should expand to fill the freed space
+   instead of leaving a dead band below it. */
+.ph-empty-grow {
+  flex: 1;
+  min-height: 280px;
 }
 
 .ph-empty-icon { color: var(--text-dim); opacity: 0.5; }
 
 .ph-empty-title {
   font-family: var(--serif);
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   color: var(--text-main);
 }
 
@@ -692,7 +650,28 @@
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--text-dim);
+  max-width: 28ch;
 }
+
+.ph-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: background var(--t, 200ms) ease, color var(--t, 200ms) ease;
+}
+.ph-empty-cta:hover { background: var(--accent); color: var(--bg); }
 
 .ph-link {
   background: transparent;

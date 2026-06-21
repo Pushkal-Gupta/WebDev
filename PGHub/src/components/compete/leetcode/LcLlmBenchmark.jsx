@@ -5,6 +5,10 @@ import './LcLlmBenchmark.css';
 
 const DIFF_TOKEN = { Easy: 'var(--easy)', Medium: 'var(--medium)', Hard: 'var(--hard)' };
 
+// Normalize the failure-mode bars to the largest share so the top mode fills the
+// track and the rest stay proportional — never overflowing 100%.
+const maxFailShare = Math.max(...LLM_FAILURE_MODES.map((m) => m.share));
+
 function GroupedBars({ models }) {
   const groupW = 100 / models.length;
   return (
@@ -123,7 +127,7 @@ export default function LcLlmBenchmark() {
                   <span className="llm-fail-mode">{f.mode}</span>
                   <span className="llm-fail-share">{f.share}%</span>
                 </div>
-                <div className="llm-fail-bar"><i style={{ width: `${f.share * 3}%` }} /></div>
+                <div className="llm-fail-bar"><i style={{ width: `${(f.share / maxFailShare) * 100}%` }} /></div>
                 <span className="llm-fail-detail">{f.detail}</span>
               </li>
             ))}

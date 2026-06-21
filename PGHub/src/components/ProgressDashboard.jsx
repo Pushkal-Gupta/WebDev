@@ -3,6 +3,7 @@ import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X, CalendarClock, PieChart, CheckCircle2, ArrowLeft } from 'lucide-react';
 import ShareableCard from './ShareableCard';
 import ProgressRing from './vault/ProgressRing';
+import ActivityHeatmap from './vault/ActivityHeatmap';
 import { Donut, GaugeRing, HBarChart, StatCard } from './compete/Charts';
 import './vault/vault.css';
 import {
@@ -141,28 +142,18 @@ export default function ProgressDashboard({ session, roadmapMode }) {
     return { e, m, h, eT, mT, hT, solved: e + m + h, total: eT + mT + hT };
   }, [useLegacy, serverStats, filtered, byId]);
 
-  const heatmap = useMemo(() => {
-    const days = 84; // ~12 weeks
-    const today = new Date();
-    const counts = {};
+  // Per-day solve tally for the day-anchored ActivityHeatmap. It expects a Map
+  // keyed by each day's midnight-millis timestamp → solve count for that day.
+  const countsMap = useMemo(() => {
+    const m = new Map();
     (progressBundle?.rows || []).forEach(r => {
       if (!r.last_solved_at) return;
-      const d = new Date(r.last_solved_at).toDateString();
-      counts[d] = (counts[d] || 0) + 1;
+      const d = new Date(r.last_solved_at);
+      if (Number.isNaN(d.getTime())) return;
+      d.setHours(0, 0, 0, 0);
+      m.set(d.getTime(), (m.get(d.getTime()) || 0) + 1);
     });
-    const cells = [];
-    for (let i = days - 1; i >= 0; i--) {
-      const d = new Date(today);
-      d.setDate(today.getDate() - i);
-      const key = d.toDateString();
-      const count = counts[key] || 0;
-      let level = 0;
-      if (count > 0) level = 1;
-      if (count >= 2) level = 2;
-      if (count >= 4) level = 3;
-      cells.push({ date: key, count, level });
-    }
-    return cells;
+    return m;
   }, [progressBundle]);
 
   // Day-of-week solve distribution for the History tab. Derived from the same
@@ -362,15 +353,7 @@ export default function ProgressDashboard({ session, roadmapMode }) {
             <div className="pd-card-head">
               <h2 className="pd-card-title"><TrendingUp size={14} /> Last 12 weeks</h2>
             </div>
-            <div className="pd-heatmap">
-              {heatmap.map((c) => (
-                <span
-                  key={c.date}
-                  className={`pd-heat-cell pd-heat-${c.level}`}
-                  title={`${c.count} solve${c.count === 1 ? '' : 's'} on ${c.date}`}
-                />
-              ))}
-            </div>
+            <ActivityHeatmap counts={countsMap} weeks={12} />
           </section>
 
           <section className="pd-card pd-ach-summary">

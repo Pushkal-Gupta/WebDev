@@ -26,7 +26,7 @@
 
 .learn-sub {
   font-size: 0.85rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   max-width: 720px;
 }
 
@@ -49,6 +49,28 @@
 }
 .learn-breadcrumbs a:hover { color: var(--accent); }
 .learn-breadcrumbs span { color: var(--text-main); }
+
+/* Shared breadcrumb for pages under /learning, /visualize, /ml, etc. These
+   rules live here (an imported stylesheet) so the theme-token styling actually
+   loads — without them the anchors fall back to default blue underline. */
+.learn-crumb,
+.learn-crumb:link,
+.learn-crumb:visited,
+.learn-crumb:active {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
+  text-decoration: none;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.85rem;
+  transition: color var(--t);
+}
+.learn-crumb:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.learn-crumb .learn-crumb-sep { color: var(--text-dim); opacity: 0.55; }
+.learn-crumb .learn-crumb-here { color: var(--text-main); }
 
 .learn-group {
   margin-bottom: 1.6rem;
@@ -165,7 +187,7 @@
 
 .learn-module-card-desc {
   font-size: 0.78rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   line-height: 1.5;
   flex: 1;
 }
@@ -177,7 +199,7 @@
   margin-top: 0.4rem;
   font-family: var(--mono);
   font-size: 0.62rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -245,7 +267,7 @@
 
 .learn-module-child-desc {
   font-size: 0.7rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   line-height: 1.45;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -261,7 +283,7 @@
   margin-top: 0.15rem;
   font-family: var(--mono);
   font-size: 0.6rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -329,7 +351,7 @@
 
 .learn-submodule-card-desc {
   font-size: 0.76rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   line-height: 1.5;
   flex: 1;
 }
@@ -341,7 +363,7 @@
   margin-top: 0.2rem;
   font-family: var(--mono);
   font-size: 0.62rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -363,7 +385,7 @@
 
 .learn-module-desc {
   font-size: 0.85rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   max-width: 720px;
 }
 
@@ -445,7 +467,7 @@
 
 .learn-concept-subtitle {
   font-size: 0.72rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -1825,7 +1847,7 @@
 }
 .viz-detail-blurb {
   font-size: 0.95rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   line-height: 1.55;
   margin: 0;
   max-width: 760px;
@@ -1895,15 +1917,18 @@
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem;
-  /* Center the visual and clip any SVG that tries to overflow sideways, so the
-     diagram fits the card instead of bleeding past it (no horizontal scroll).
-     Bounded height keeps the stage from dominating the page or leaving a tall
-     dead band: it grows with content but never past ~58vh. */
+  /* Center the visual horizontally and clip sideways overflow so diagrams fit
+     the card instead of bleeding past it (no horizontal scroll). Tall
+     interactive RichViz with a fixed intrinsic height can exceed the bounded
+     height; allow vertical scroll inside the stage so its bottom is reachable
+     rather than clipped (max-height alone can't shrink fixed-height children).
+     align-items:flex-start keeps tall content scrollable from the top; normal
+     viz stay centered/bounded. */
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  overflow: hidden;
   overflow-x: hidden;
+  overflow-y: auto;
   min-height: 320px;
   max-height: 58vh;
 }
@@ -2017,7 +2042,7 @@
 .viz-gallery-container {
   width: 94%;
   max-width: var(--container-w);
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   display: flex;
   flex-direction: column;
   min-height: 0;
@@ -2181,7 +2206,7 @@
   z-index: 1;
   font-family: var(--sans);
   font-size: 0.76rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   line-height: 1.4;
 }
 
@@ -2208,7 +2233,7 @@
   padding: 0.14rem 0.45rem;
   border-radius: 4px;
   background: var(--hover-box);
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
   border: 1px solid var(--border);
 }
 .viz-cat-tag.live {
@@ -2281,7 +2306,7 @@
 .viz-member-blurb {
   font-family: var(--sans);
   font-size: 0.74rem;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 72%, var(--text-dim));
   line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -2358,7 +2383,7 @@
   font-size: 0.58rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-dim);
+  color: color-mix(in srgb, var(--text-main) 60%, var(--text-dim));
   flex-shrink: 0;
 }
 .viz-result-arrow { color: var(--text-dim); margin-left: auto; flex-shrink: 0; }

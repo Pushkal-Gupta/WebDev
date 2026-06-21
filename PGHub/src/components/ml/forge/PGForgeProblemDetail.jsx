@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -398,6 +398,7 @@ export default function PGForgeProblemDetail() {
   const [report, setReport] = useState(null);
   const [hintsOpen, setHintsOpen] = useState(false);
   const [solved, setSolved] = useState(() => (problem ? isSolved(problem.slug) : false));
+  const panelRef = useRef(null);
 
   const toggleSolved = useCallback(() => {
     if (!problem) return;
@@ -506,6 +507,16 @@ export default function PGForgeProblemDetail() {
       setRunning(false);
     }
   }, [problem, fnName, testPlan, solved]);
+
+  // Page-level "Run my code" CTA: grade the exact code currently in the editor by
+  // reading the panel's live buffer through its imperative handle, then routing it
+  // through the same handleSubmit grade flow the panel's own Submit button uses.
+  const gradeCurrentBuffer = useCallback(() => {
+    if (running) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    handleSubmit(panel.getCode(), panel.getLanguage());
+  }, [running, handleSubmit]);
 
   const starter = useMemo(
     () => (problem ? { python: problem.starterCode.python } : {}),
@@ -624,10 +635,16 @@ export default function PGForgeProblemDetail() {
                 {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
               </span>
             </div>
-            <span className="forge-pd-cta-badge">
+            <button
+              type="button"
+              className="forge-pd-cta-badge"
+              onClick={gradeCurrentBuffer}
+              disabled={running}
+              aria-busy={running}
+            >
               {running ? <Loader2 size={15} className="forge-pd-spin" /> : <Play size={15} />}
               {running ? 'Grading' : 'Run my code'}
-            </span>
+            </button>
           </div>
 
           <div className="forge-pd-block">
@@ -652,6 +669,7 @@ export default function PGForgeProblemDetail() {
         <section className="forge-pd-right" aria-label="Code editor">
           <div className="forge-pd-editor">
             <RunnableCodePanel
+              ref={panelRef}
               fill
               code={starter}
               lang="python"

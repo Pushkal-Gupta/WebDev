@@ -2,54 +2,78 @@
   width: 100%;
   height: 100%;
   display: block;
-  margin: 0.3rem 0;
 }
 
-.bcl-bubble circle {
-  transition: opacity var(--t), transform var(--t);
-  transform-origin: center;
+/* Per-bubble fill is set inline via --bcl-fill (a theme token / color-mix). */
+.bcl-circle {
+  fill: var(--bcl-fill, var(--accent));
   stroke: var(--surface);
-  stroke-width: 1;
+  stroke-width: 1.5;
+  transition: opacity var(--t, 200ms) ease, transform var(--t, 200ms) ease;
+  transform-origin: center;
 }
 
-.bcl-bubble text {
+.bcl-bubble {
+  /* Tasteful staggered entrance — scale each bubble around its own centre
+     (transform-box:fill-box) so they grow in place, not from the SVG origin. */
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: bcl-pop 420ms cubic-bezier(0.34, 1.4, 0.5, 1) both;
+  animation-delay: calc(var(--bcl-i, 0) * 55ms);
+}
+.bcl-bubble:hover .bcl-circle {
+  opacity: 0.88;
+  transform: scale(1.04);
+}
+
+.bcl-bubble-others .bcl-circle {
+  fill: var(--hover-box);
+  stroke: var(--border);
+}
+.bcl-bubble-others .bcl-count,
+.bcl-bubble-others .bcl-label { fill: var(--text-dim); }
+
+.bcl-count {
+  font-family: var(--serif);
+  font-weight: 700;
+  fill: var(--bg);
+  pointer-events: none;
+  letter-spacing: -0.01em;
+}
+
+.bcl-label {
   font-family: var(--mono);
   font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
   fill: var(--bg);
+  opacity: 0.95;
   pointer-events: none;
 }
 
-.bcl-bubble:hover circle {
-  opacity: 0.85;
-}
-
-.bcl-bubble-none circle    { fill: var(--border); }
-.bcl-bubble-low circle     { fill: var(--medium); opacity: 0.65; }
-.bcl-bubble-half circle    { fill: var(--easy); opacity: 0.75; }
-.bcl-bubble-mastered circle { fill: var(--easy); }
-
-.bcl-bubble-low text       { fill: var(--bg); opacity: 0.95; }
-.bcl-bubble-none text      { fill: var(--text-dim); }
-
-.bcl-bubble-kind-easy circle    { fill: var(--easy); opacity: 0.85; }
-.bcl-bubble-kind-medium circle  { fill: var(--medium); opacity: 0.85; }
-.bcl-bubble-kind-hard circle    { fill: var(--hard); opacity: 0.85; }
-.bcl-bubble-kind-easy text,
-.bcl-bubble-kind-medium text,
-.bcl-bubble-kind-hard text { fill: var(--bg); }
-
-.bcl-bubble-label {
+.bcl-single-caption {
   font-family: var(--mono);
+  font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  opacity: 0.92;
+  fill: var(--text-dim);
 }
 
 .bcl-empty {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--text-dim);
-  padding: 1rem 0;
+  padding: 1.5rem 0;
   text-align: center;
+}
+
+@keyframes bcl-pop {
+  from { opacity: 0; transform: scale(0.4); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bcl-bubble { animation: none; }
+  .bcl-bubble:hover .bcl-circle { transform: none; }
 }
