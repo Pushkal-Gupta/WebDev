@@ -32,6 +32,20 @@
 // Backwards compatible: getArchitecture(id) and the ARCHITECTURES export keep
 // the same names PGForgePapers.jsx already imports.
 
+// Deterministic, index-based hue cycle for architecture diagrams. Each
+// consecutive node draws the next hue from the data-viz palette so a column
+// reads as a colourful sequence (instead of one monochrome teal run when every
+// block shares a kind). The order leads with non-teal so the first node is
+// already distinct from the teal page chrome; teal/accent stays in the cycle as
+// one member. ArchitectureDiagram colours nodes with this, and the Papers steps
+// list reuses it so a step's number badge shares its diagram node's colour.
+// Always index-based, never random.
+export const HUE_CYCLE = ['violet', 'sky', 'mint', 'pink', 'accent'];
+
+export function hueForIndex(i) {
+  return HUE_CYCLE[((i % HUE_CYCLE.length) + HUE_CYCLE.length) % HUE_CYCLE.length];
+}
+
 export const ARCHITECTURES = {
   transformer: {
     title: 'Transformer',

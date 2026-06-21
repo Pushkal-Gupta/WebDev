@@ -199,6 +199,28 @@ export default function ProgressDashboard({ session, roadmapMode }) {
     { key: 'mastery',      label: 'Topic Mastery', icon: Target },
   ];
 
+  if (!userId) {
+    return (
+      <div className="pd-container">
+        <nav className="vault-crumbs" aria-label="Breadcrumb">
+          <Link to="/vault" className="vault-crumbs-back">
+            <ArrowLeft size={12} /> Vault
+          </Link>
+          <span className="vault-crumbs-sep">/</span>
+          <span className="vault-crumbs-current">Progress</span>
+        </nav>
+        <header className="pd-header">
+          <div className="pd-header-row">
+            <div>
+              <h1 className="pd-title">Your Activity</h1>
+              <p className="pd-sub">Sign in to see your solves, streaks, history, and topic mastery.</p>
+            </div>
+          </div>
+        </header>
+      </div>
+    );
+  }
+
   return (
     <div className="pd-container">
       <nav className="vault-crumbs" aria-label="Breadcrumb">

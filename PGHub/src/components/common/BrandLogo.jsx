@@ -35,6 +35,7 @@ const COMPANY_LOGOS = {
   oracle: 'gb:oracle', ibm: 'gb:ibm', intel: 'si:intel', cisco: 'si:cisco', amd: 'si:amd',
   qualcomm: 'si:qualcomm', sony: 'si:sony', sap: 'si:sap', dell: 'si:dell',
   paypal: 'si:paypal', stripe: 'si:stripe', salesforce: 'gb:salesforce',
+  intuit: 'si:intuit',
   notion: 'si:notion', figma: 'si:figma', github: 'si:github', gitlab: 'si:gitlab',
   slack: 'gb:slack-icon', asana: 'si:asana', linear: 'si:linear', splunk: 'si:splunk',
   square: 'si:square',
