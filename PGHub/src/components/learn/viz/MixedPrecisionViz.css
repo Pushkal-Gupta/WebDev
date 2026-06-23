@@ -1,0 +1,301 @@
+.mpv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.mpv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mpv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.mpv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.mpv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mpv-spacer {
+  flex: 1 1 auto;
+}
+
+.mpv-step-tag {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.mpv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mpv-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.mpv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.mpv-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.mpv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mpv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mpv-col-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.mpv-fmt-name {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.mpv-fmt-bits {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.mpv-bitseg {
+  stroke: var(--bg);
+  stroke-width: 1;
+}
+
+.mpv-bitseg-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--bg);
+  text-anchor: middle;
+}
+
+.mpv-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.mpv-grad {
+  stroke-width: 1.5;
+}
+.mpv-grad.is-safe {
+  fill: color-mix(in srgb, var(--easy) 70%, transparent);
+  stroke: var(--easy);
+}
+.mpv-grad.is-lost {
+  fill: color-mix(in srgb, var(--hard) 25%, transparent);
+  stroke: var(--hard);
+}
+
+.mpv-grad-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.mpv-grad-state {
+  font-family: var(--mono);
+  font-size: 10px;
+  text-anchor: start;
+}
+.mpv-grad-state.is-safe { fill: var(--easy); }
+.mpv-grad-state.is-lost { fill: var(--hard); }
+
+.mpv-step {
+  fill: var(--surface);
+  stroke-width: 1.6;
+  transition: fill 0.2s;
+}
+.mpv-step.is-done {
+  fill: color-mix(in srgb, var(--accent) 8%, var(--surface));
+}
+.mpv-step.is-active {
+  fill: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  stroke-width: 2.4;
+}
+
+.mpv-step-tag-t {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.mpv-step-label {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.mpv-step-extra {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--accent);
+  text-anchor: end;
+}
+
+.mpv-edge {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+.mpv-edge.is-on {
+  stroke: var(--accent);
+}
+
+.mpv-arrowhead {
+  fill: var(--border);
+}
+
+.mpv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.mpv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.mpv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mpv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.mpv-metric-value.is-mem { color: var(--hue-sky); }
+.mpv-metric-value.is-safe { color: var(--easy); }
+.mpv-metric-value.is-lost { color: var(--hard); }
+.mpv-metric-value.is-stage {
+  font-size: 0.78rem;
+  color: var(--text-main);
+}
+
+.mpv-math {
+  display: flex;
+  justify-content: center;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.mpv-math-line {
+  font-size: 0.95rem;
+  color: var(--text-main);
+}
+
+.mpv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.mpv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mpv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpv-btn,
+  .mpv-step {
+    transition: none;
+  }
+}

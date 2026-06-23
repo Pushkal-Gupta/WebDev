@@ -1,0 +1,36 @@
+.ksv { width: 100%; display: flex; flex-direction: column; gap: 1rem; font-family: var(--sans, -apple-system, system-ui, sans-serif); color: var(--text-main); }
+.ksv-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.ksv-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.ksv-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.ksv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.ksv-phase { font-family: var(--mono); font-size: 0.74rem; font-weight: 700; color: var(--accent); padding: 0.3rem 0.55rem; background: rgba(var(--accent-rgb), 0.1); border-radius: 6px; }
+
+.ksv-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.7rem; font-size: 0.78rem; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.ksv-btn:hover:not(:disabled) { background: var(--hover-box); border-color: var(--accent); }
+.ksv-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.ksv-speed { display: flex; align-items: center; gap: 0.5rem; }
+.ksv-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.ksv-range { width: 90px; accent-color: var(--accent); }
+.ksv-stepcount { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); margin-left: auto; }
+.ksv-stepcount strong { color: var(--text-main); font-weight: 700; }
+
+.ksv-body { display: flex; gap: 0.8rem; align-items: stretch; }
+.ksv-stage { flex: 1 1 auto; padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.ksv-svg { width: 100%; height: auto; display: block; }
+.ksv-node-label { font-family: var(--mono); font-size: 14px; font-weight: 700; text-anchor: middle; }
+
+.ksv-stack { flex: 0 0 96px; display: flex; flex-direction: column; gap: 0.4rem; padding: 0.75rem 0.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.ksv-stack-tag { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); text-align: center; }
+.ksv-stack-col { display: flex; flex-direction: column; gap: 0.3rem; }
+.ksv-stack-cell { font-family: var(--mono); font-size: 0.74rem; font-weight: 700; color: var(--text-main); padding: 0.32rem 0.4rem; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; text-align: center; }
+.ksv-stack-cell-hot { background: var(--medium); color: var(--bg); border-color: var(--medium); }
+.ksv-stack-empty { font-family: var(--mono); font-size: 0.72rem; color: var(--text-dim); text-align: center; padding: 0.4rem; }
+
+.ksv-note { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.65rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; }
+.ksv-note-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.ksv-note-text { font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); }
+
+@media (max-width: 640px) { .ksv-body { flex-direction: column; } .ksv-stack { flex-basis: auto; } .ksv-stack-col { flex-direction: row; flex-wrap: wrap; } }
+@media (prefers-reduced-motion: reduce) { .ksv-btn { transition: none; } }

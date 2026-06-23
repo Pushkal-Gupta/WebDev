@@ -1,0 +1,37 @@
+.kmpd { width: 100%; display: flex; flex-direction: column; gap: 1rem; font-family: var(--sans, -apple-system, system-ui, sans-serif); color: var(--text-main); }
+.kmpd-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.kmpd-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.kmpd-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.kmpd-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.kmpd-presets { display: inline-flex; gap: 0.3rem; }
+.kmpd-preset { padding: 0.42rem 0.6rem; font-family: var(--mono); font-size: 0.74rem; font-weight: 600; background: var(--bg); color: var(--text-dim); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.kmpd-preset-on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.kmpd-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.7rem; font-size: 0.78rem; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.kmpd-btn:hover:not(:disabled) { background: var(--hover-box); border-color: var(--accent); }
+.kmpd-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.kmpd-speed { display: flex; align-items: center; gap: 0.5rem; }
+.kmpd-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.kmpd-range { width: 90px; accent-color: var(--accent); }
+.kmpd-stepcount { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); margin-left: auto; }
+.kmpd-stepcount strong { color: var(--text-main); font-weight: 700; }
+
+.kmpd-stage { padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.kmpd-svg { width: 100%; height: auto; display: block; }
+.kmpd-rowtag { font-family: var(--mono); font-size: 13px; font-weight: 700; fill: var(--text-dim); }
+.kmpd-char { font-family: var(--mono); font-size: 15px; font-weight: 700; text-anchor: middle; fill: var(--text-main); }
+.kmpd-pi { font-family: var(--mono); font-size: 14px; font-weight: 700; text-anchor: middle; fill: var(--accent); }
+.kmpd-idx { font-family: var(--mono); font-size: 10px; text-anchor: middle; fill: var(--text-dim); }
+
+.kmpd-rows { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.6rem; }
+.kmpd-metric { display: flex; flex-direction: column; gap: 0.18rem; padding: 0.55rem 0.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; }
+.kmpd-metric-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.kmpd-metric-value { font-family: var(--mono); font-size: 0.9rem; font-weight: 700; color: var(--accent); }
+
+.kmpd-note { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.65rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; }
+.kmpd-note-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.kmpd-note-text { font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); }
+
+@media (prefers-reduced-motion: reduce) { .kmpd-btn, .kmpd-preset { transition: none; } }

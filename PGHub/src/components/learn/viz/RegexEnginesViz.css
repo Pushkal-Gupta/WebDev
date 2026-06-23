@@ -1,0 +1,210 @@
+.rgxe {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.rgxe-head {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+.rgxe-head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+.rgxe-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1 1 auto;
+}
+.rgxe-head-title {
+  font-family: var(--serif);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.rgxe-head-sub {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+.rgxe-head-sub code {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  padding: 0.05rem 0.3rem;
+  border-radius: 4px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+}
+.rgxe-chip {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  flex: 0 0 auto;
+}
+
+.rgxe-stage {
+  padding: 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rgxe-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.rgxe-tick {
+  font-family: var(--mono);
+  font-size: 9px;
+  fill: var(--text-dim);
+}
+.rgxe-axis {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  fill: var(--text-dim);
+}
+.rgxe-legend {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-main);
+}
+
+.rgxe-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+}
+.rgxe-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.rgxe-card-label {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.rgxe-card-val {
+  font-family: var(--mono);
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.rgxe-card-accent { border-left: 3px solid var(--accent); }
+.rgxe-card-accent .rgxe-card-val { color: var(--accent); }
+.rgxe-card-hard { border-left: 3px solid var(--hard); }
+.rgxe-card-hard .rgxe-card-val { color: var(--hard); }
+.rgxe-card-warn { border-left: 3px solid var(--warning); }
+.rgxe-card-warn .rgxe-card-val { color: var(--warning); }
+
+.rgxe-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.rgxe-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.rgxe-slider-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+.rgxe-slider input[type="range"] {
+  width: 160px;
+  accent-color: var(--accent);
+}
+.rgxe-slider-val {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 1.6em;
+  text-align: right;
+}
+.rgxe-spacer { flex: 1 1 auto; }
+
+.rgxe-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.rgxe-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.rgxe-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+.rgxe-narration-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.rgxe-narration-body {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rgxe-btn {
+    transition: none;
+  }
+}

@@ -1,0 +1,265 @@
+.pqaviz {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.3rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0.7rem 0;
+  color: var(--text-main);
+}
+
+.pqaviz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.pqaviz-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.pqaviz-iconbox {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.pqaviz-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.pqaviz-sub {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.pqaviz-chip {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.pqaviz-chip-arr {
+  color: var(--hue-mint);
+  background: color-mix(in srgb, var(--hue-mint) 14%, transparent);
+  border-color: color-mix(in srgb, var(--hue-mint) 45%, transparent);
+}
+
+.pqaviz-chip-heap {
+  color: var(--hue-violet);
+  background: color-mix(in srgb, var(--hue-violet) 14%, transparent);
+  border-color: color-mix(in srgb, var(--hue-violet) 45%, transparent);
+}
+
+.pqaviz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.pqaviz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  min-width: 9rem;
+  flex: 1 1 9rem;
+}
+
+.pqaviz-field input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.pqaviz-seg {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.pqaviz-segbtn {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.32rem 0.55rem;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.pqaviz-segbtn-active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.pqaviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.pqaviz-btn-ghost {
+  color: var(--text-main);
+  background: var(--bg);
+}
+
+.pqaviz-stage {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.pqaviz-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.pqaviz-grid {
+  stroke: var(--border);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.6;
+}
+
+.pqaviz-axisline {
+  stroke: var(--border);
+  stroke-width: 1.2;
+}
+
+.pqaviz-axis {
+  fill: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 9px;
+}
+
+.pqaviz-axis-dim {
+  opacity: 0.75;
+}
+
+.pqaviz-line-heap {
+  fill: none;
+  stroke: var(--hue-violet);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.pqaviz-line-arr {
+  fill: none;
+  stroke: var(--hue-mint);
+  stroke-width: 2.4;
+  stroke-linecap: round;
+}
+
+.pqaviz-cross {
+  stroke: var(--accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+  opacity: 0.8;
+}
+
+.pqaviz-crosslabel {
+  fill: var(--accent);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.pqaviz-marker {
+  stroke: var(--text-dim);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  opacity: 0.7;
+}
+
+.pqaviz-dot-heap {
+  fill: var(--hue-violet);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+
+.pqaviz-dot-arr {
+  fill: var(--hue-mint);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+
+.pqaviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.pqaviz-leg {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.pqaviz-leg::before {
+  content: '';
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.pqaviz-leg-heap {
+  color: var(--text-dim);
+}
+
+.pqaviz-leg-heap::before {
+  background: var(--hue-violet);
+}
+
+.pqaviz-leg-arr {
+  color: var(--text-dim);
+}
+
+.pqaviz-leg-arr::before {
+  background: var(--hue-mint);
+}
+
+.pqaviz-caption {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}

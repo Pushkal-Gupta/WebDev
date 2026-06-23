@@ -2,14 +2,14 @@ import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   ArrowLeft, ArrowRight, ChevronRight, Building2, MapPin, Star,
-  Sparkles, Rocket, Landmark, Briefcase,
+  Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud,
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { getCompanyGroup, membersOf } from '../../content/companyGroups';
 import { CompanyLogo } from './CompaniesIndex';
 import './Companies.css';
 
-const ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin };
+const ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin, Star, LineChart, Cloud };
 
 export default function CompanyGroup() {
   const { groupSlug } = useParams();
@@ -31,6 +31,7 @@ export default function CompanyGroup() {
   }
 
   const GroupIcon = ICONS[group.iconName] || Building2;
+  const groupHue = group.hue && group.hue !== 'accent' ? `var(--hue-${group.hue})` : 'var(--accent)';
 
   return (
     <div className="comp-container">
@@ -45,7 +46,7 @@ export default function CompanyGroup() {
           <ArrowLeft size={13} /> All companies
         </Link>
         <div className="comp-detail-title-row">
-          <GroupIcon size={22} className="comp-detail-icon" />
+          <GroupIcon size={22} className="comp-detail-icon" style={{ color: groupHue }} />
           <h1 className="comp-detail-title">{group.title}</h1>
         </div>
         <p className="comp-detail-tagline">{group.summary}</p>

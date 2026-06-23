@@ -3,7 +3,7 @@
    app shell is overflow:hidden, so this page root owns the only scroll. */
 
 .fp-page {
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
   overflow-x: hidden;
   width: 94%;

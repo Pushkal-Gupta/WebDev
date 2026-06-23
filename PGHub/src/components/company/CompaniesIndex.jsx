@@ -2,15 +2,14 @@ import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2, ArrowRight, MapPin, Star, Layers,
-  Sparkles, Rocket, Landmark, Briefcase,
+  Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud,
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { COMPANY_GROUPS, membersOf } from '../../content/companyGroups';
 import BrandLogo from '../common/BrandLogo';
-import ForgeThumb from '../ml/forge/ForgeThumb';
 import './Companies.css';
 
-const GROUP_ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin };
+const GROUP_ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin, Star, LineChart, Cloud };
 
 export function CompanyLogo({ c }) {
   return <BrandLogo kind="company" name={c.name} slug={c.slug} />;
@@ -80,13 +79,16 @@ export default function CompaniesIndex() {
           {Object.entries(COMPANY_GROUPS).map(([slug, g]) => {
             const Icon = GROUP_ICONS[g.iconName] || Building2;
             const n = groupCounts[slug] || 0;
+            const hueVar = g.hue && g.hue !== 'accent' ? `var(--hue-${g.hue})` : 'var(--accent)';
             return (
-              <Link key={slug} to={`/company/g/${slug}`} className="comp-card comp-group-card">
-                <div className="comp-card-flourish" aria-hidden="true">
-                  <ForgeThumb seed={g.title} kind="cards" label={g.title} />
-                </div>
+              <Link
+                key={slug}
+                to={`/company/g/${slug}`}
+                className="comp-card comp-group-card"
+                style={{ '--group-hue': hueVar }}
+              >
                 <div className="comp-card-head">
-                  <span className="comp-card-iconbox"><Icon size={16} /></span>
+                  <span className="comp-card-iconbox comp-group-iconbox"><Icon size={18} /></span>
                   <h3 className="comp-card-title">{g.title}</h3>
                   <Layers size={11} className="comp-group-card-badge" />
                 </div>

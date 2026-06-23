@@ -1,0 +1,341 @@
+.gvt {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.gvt-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.gvt-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.gvt-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.gvt-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.gvt-chips,
+.gvt-stream-modes {
+  display: inline-flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+.gvt-chip,
+.gvt-mchip {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0.6rem;
+  background: var(--bg);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.gvt-chip:hover,
+.gvt-mchip:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.gvt-chip.is-on,
+.gvt-mchip.is-on {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.gvt-spacer {
+  flex: 1 1 auto;
+}
+
+.gvt-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.gvt-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.gvt-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.gvt-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.gvt-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.gvt-svg,
+.gvt-flow-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.gvt-col-title {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 16px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+.gvt-col-grpc { fill: var(--hue-sky); }
+.gvt-col-thrift { fill: var(--hue-violet); }
+
+.gvt-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.2;
+  transition: stroke 0.18s, fill 0.18s;
+}
+.gvt-cell.is-active {
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  fill: rgba(var(--accent-rgb), 0.06);
+}
+.gvt-cell.is-win.is-active {
+  fill: rgba(var(--accent-rgb), 0.1);
+}
+
+.gvt-axis-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+.gvt-row.is-active .gvt-axis-label {
+  fill: var(--accent);
+}
+
+.gvt-cell-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-main);
+}
+
+.gvt-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.75rem 0.9rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.gvt-detail-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.gvt-detail-axis {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-main);
+}
+
+.gvt-edge {
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid;
+  border-radius: 999px;
+}
+
+.gvt-detail-body {
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.gvt-stream {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  padding: 0.85rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.gvt-stream-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.gvt-stream-title {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.gvt-wire {
+  stroke: var(--border);
+  stroke-width: 2;
+  stroke-dasharray: 4 4;
+}
+
+.gvt-node {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+.gvt-node-client { stroke: var(--hue-sky); }
+.gvt-node-server { stroke: var(--hue-mint); }
+
+.gvt-node-title {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.gvt-node-sub {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.gvt-dot {
+  stroke: none;
+}
+.gvt-dot.is-fwd { fill: var(--hue-sky); }
+.gvt-dot.is-back { fill: var(--hue-pink); }
+
+.gvt-flow-caption {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.gvt-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.gvt-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.gvt-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.gvt-metric-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.gvt-metric-value.is-grpc { color: var(--hue-sky); }
+.gvt-metric-value.is-thrift { color: var(--hue-violet); }
+
+.gvt-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.gvt-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.gvt-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gvt-chip,
+  .gvt-mchip,
+  .gvt-btn,
+  .gvt-cell {
+    transition: none;
+  }
+}

@@ -84,15 +84,16 @@
   color: var(--text-main);
 }
 
-/* Center the fixed-width grid in its track; on a narrow card it can scroll
-   horizontally rather than crushing the cells. */
+/* Center the fixed-width grid in its track. No inner scrollbar (HARD rule):
+   on a too-narrow card the grid shrinks to fit via the flex track instead of
+   spawning a horizontal scroll. */
 .hm-scroll {
   display: flex;
   justify-content: center;
-  overflow-x: auto;
-  scrollbar-width: none;
+  overflow: hidden;
+  min-width: 0;
 }
-.hm-scroll::-webkit-scrollbar { display: none; }
+.hm-scroll .hm-body { max-width: 100%; }
 
 .hm-body {
   display: flex;

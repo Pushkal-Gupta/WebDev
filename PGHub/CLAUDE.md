@@ -148,6 +148,14 @@ Causes to check on sight (every one of these has bitten us at least once):
 
 Audit every change: if ANY inner element shows a scrollbar of any kind, it's a P0 fix in the same pass. No exceptions for "but the content is just that big" — make the content smaller.
 
+**NO "legitimate exception" carve-outs. There are none.** These all got added thinking they were fine and ALL are violations to revert:
+- Terminal / code RUN output panes (`max-height` + `overflow:auto`) — NO. Let the output grow; the page scrolls. (`.rcp-output-body` etc.)
+- A "tall interactive viz" stage (`.viz-detail-stage { overflow-y:auto }`) — NO. Scale/size the viz to fit the stage; never scroll inside it.
+- Wide ASCII diagrams or math (`overflow-x:auto`) — NO. Shrink font / reflow / split. (`.ml-ascii`, `.ml-math .katex-display`)
+- A code EDITOR (Monaco) inherently scrolls its own viewport — that's the editing surface itself, fine; but its surrounding panels/output must NOT add their own scroll.
+
+When in doubt: search the diff for `overflow` before finishing. Any `auto`/`scroll` on inner content is a P0 in the same pass. The ONLY scrollbar on screen is the whole-page vertical one.
+
 ## Manager role — never stop assigning (HARD)
 
 You are the manager. The user's standing instruction: do not stop deploying agents. Pipeline mode is the default.

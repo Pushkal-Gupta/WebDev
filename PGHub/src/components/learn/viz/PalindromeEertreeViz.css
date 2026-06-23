@@ -1,0 +1,280 @@
+.eerviz {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.3rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0.7rem 0;
+  color: var(--text-main);
+}
+
+.eerviz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.eerviz-title {
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+}
+
+.eerviz-presets {
+  display: inline-flex;
+  gap: 0.3rem;
+  padding: 0.2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+}
+
+.eerviz-pbtn {
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.eerviz-pbtn-active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.eerviz-string {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.eerviz-char {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 700;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-dim);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.eerviz-char-done {
+  color: var(--text-main);
+  border-color: rgba(var(--accent-rgb), 0.4);
+}
+
+.eerviz-char-cur {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.eerviz-stage {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.eerviz-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.eerviz-edge {
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+
+.eerviz-edge-ch {
+  fill: var(--hue-sky);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.eerviz-suffix {
+  fill: none;
+  stroke: var(--hue-violet);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+  opacity: 0.8;
+}
+
+.eerviz-node {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.eerviz-node-root {
+  fill: var(--surface);
+  stroke: var(--text-dim);
+  stroke-dasharray: 3 2;
+}
+
+.eerviz-node-new {
+  fill: rgba(var(--accent-rgb), 0.2);
+  stroke: var(--accent);
+  stroke-width: 2.5;
+}
+
+.eerviz-node-reuse {
+  fill: color-mix(in srgb, var(--hue-mint) 22%, var(--bg));
+  stroke: var(--hue-mint);
+  stroke-width: 2.5;
+}
+
+.eerviz-node-label {
+  fill: var(--text-main);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.eerviz-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: 0.6rem;
+}
+
+.eerviz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.eerviz-stat-k {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.eerviz-stat-v {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--accent);
+}
+
+.eerviz-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eerviz-leg {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.eerviz-leg::before {
+  content: '';
+  width: 16px;
+  height: 0;
+  border-top-width: 2px;
+  border-top-style: solid;
+}
+
+.eerviz-leg-edge::before {
+  border-top-color: var(--border);
+}
+
+.eerviz-leg-suf::before {
+  border-top-style: dashed;
+  border-top-color: var(--hue-violet);
+}
+
+.eerviz-caption {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.eerviz-cap-icon {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.eerviz-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.eerviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+}
+
+.eerviz-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+
+.eerviz-btn-ghost {
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+.eerviz-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.eerviz-step {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eerviz-char,
+  .eerviz-node {
+    transition: none;
+  }
+}

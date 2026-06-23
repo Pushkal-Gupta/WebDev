@@ -1,0 +1,339 @@
+.s4v {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.s4v-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.s4v-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.s4v-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.s4v-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.s4v-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.s4v-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.s4v-chip {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.5rem;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.s4v-chip:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.s4v-chip.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.s4v-stepper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.s4v-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.s4v-step-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.s4v-spacer {
+  flex: 1 1 auto;
+}
+
+.s4v-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.s4v-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.s4v-btn-primary {
+  background: var(--warning);
+  color: var(--bg);
+  border-color: var(--warning);
+}
+.s4v-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--warning);
+}
+
+.s4v-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.s4v-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.s4v-ic {
+  color: var(--text-dim);
+}
+
+.s4v-trunk {
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.s4v-arrowhead {
+  fill: var(--text-dim);
+}
+
+.s4v-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+.s4v-box.is-active {
+  stroke-width: 2.4;
+}
+
+.s4v-box-title {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.s4v-line {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.s4v-dim {
+  fill: var(--text-dim);
+}
+
+.s4v-hash {
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.s4v-sig {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.s4v-chain {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.s4v-chain-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.s4v-chain-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.3rem;
+}
+
+.s4v-link {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+  flex: 1 1 110px;
+  min-width: 0;
+  padding: 0.4rem 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--hue-pink);
+  border-radius: 6px;
+}
+
+.s4v-link-name {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--hue-pink);
+}
+
+.s4v-link-input {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.s4v-link-value {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.s4v-link-arrow {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  color: var(--text-dim);
+}
+
+.s4v-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.6rem;
+}
+
+.s4v-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.s4v-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.s4v-metric-value {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-all;
+}
+.s4v-metric-value.is-ok { color: var(--hue-mint); }
+.s4v-metric-value.is-tampered { color: var(--warning); }
+
+.s4v-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.s4v-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.s4v-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .s4v-btn,
+  .s4v-chip,
+  .s4v-step-btn {
+    transition: none;
+  }
+}

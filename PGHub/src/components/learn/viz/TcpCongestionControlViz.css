@@ -1,0 +1,51 @@
+.tcv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+.tcv-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.tcv-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; display: flex; align-items: center; gap: 0.4rem; }
+.tcv-ticon { color: var(--accent); }
+.tcv-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.tcv-controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem;
+  padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+}
+.tcv-algos, .tcv-toggle { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.tcv-toggle { margin-left: auto; }
+.tcv-algo, .tcv-tg {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0.7rem; font-family: inherit; font-size: 0.78rem; font-weight: 600;
+  background: var(--bg); color: var(--text-main); border: 1px solid var(--border);
+  border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.tcv-algo:hover, .tcv-tg:hover { background: var(--hover-box); border-color: var(--accent); }
+.tcv-algo-on { border-color: var(--accent); background: var(--hover-box); }
+.tcv-tg-on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.tcv-tg-on:hover { background: var(--accent); }
+.tcv-swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+
+.tcv-stage { padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.tcv-svg { width: 100%; height: auto; display: block; }
+.tcv-axis { font-family: var(--mono); font-size: 11px; fill: var(--text-dim); }
+.tcv-loss { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: var(--hard); }
+
+.tcv-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.6rem; }
+.tcv-card { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.6rem 0.7rem; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; transition: opacity 0.15s; }
+.tcv-card-off { opacity: 0.4; }
+.tcv-card-head { display: flex; align-items: center; gap: 0.4rem; }
+.tcv-card-name { font-family: var(--mono); font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+.tcv-card-tput { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); margin-left: auto; }
+.tcv-card-desc { font-family: var(--sans, system-ui); font-size: 0.76rem; color: var(--text-dim); margin: 0; line-height: 1.4; }
+
+.tcv-trace { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.65rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; }
+.tcv-trace-label { font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+.tcv-trace-val { font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tcv-algo, .tcv-tg, .tcv-card { transition: none; }
+}

@@ -1691,7 +1691,253 @@
 .lca-tex .katex { color: var(--text-main); white-space: normal; }
 .lca-tex .katex-display { margin: 0; }
 
+/* ── Username lookup → last-contest prediction (primary flow) ───────────── */
+.lca-lookup {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.lca-lookup-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-dim);
+  transition: border-color var(--t);
+}
+.lca-lookup-input:focus-within { border-color: rgba(var(--accent-rgb), 0.6); }
+.lca-lookup-input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  padding: 0.6rem 0;
+}
+.lca-lookup-input input:focus { outline: none; }
+.lca-lookup-input input::placeholder { color: var(--text-dim); }
+.lca-lookup-btn {
+  padding: 0 1.1rem;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: opacity var(--t);
+}
+.lca-lookup-btn:hover { opacity: 0.9; }
+.lca-lookup-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.lca-empty {
+  margin: 0;
+  padding: 1.1rem 1.2rem;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text-dim);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+.lca-empty strong { color: var(--text-main); }
+
+.lca-skel {
+  height: 150px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, var(--surface), var(--hover-box), var(--surface));
+  background-size: 200% 100%;
+  animation: lca-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes lca-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.lca-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.lca-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.lca-avatar-fb {
+  display: grid;
+  place-items: center;
+  background: var(--hover-box);
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.lca-profile-meta { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
+.lca-profile-name { font-weight: 700; color: var(--text-main); font-size: 0.95rem; }
+.lca-profile-handle { font-family: var(--mono); font-size: 0.74rem; color: var(--text-dim); }
+.lca-stat-grid {
+  display: flex;
+  gap: 1.6rem;
+  margin-left: auto;
+  flex-wrap: wrap;
+}
+.lca-stat { display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+.lca-stat-ico { color: var(--accent); }
+.lca-stat-val { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+.lca-stat-lbl {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+
+.lca-contest {
+  margin-top: 1rem;
+  padding: 1.3rem 1.4rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+}
+.lca-contest-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+.lca-contest-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.98rem;
+}
+.lca-contest-title svg { color: var(--accent); }
+.lca-contest-date {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.lca-facts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+  margin: 1.1rem 0;
+}
+.lca-fact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.7rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.lca-fact-ico { color: var(--accent); }
+.lca-fact-val { font-weight: 700; color: var(--text-main); font-size: 1.05rem; }
+.lca-fact-of { color: var(--text-dim); font-weight: 600; font-size: 0.82rem; }
+.lca-fact-lbl {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+.lca-move-track {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  padding: 0.8rem 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.lca-move-old { color: var(--text-dim); }
+.lca-move-arrow { color: var(--text-dim); font-size: 1.1rem; }
+.lca-move-new { color: var(--text-main); }
+.lca-move-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.lca-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.lca-compare-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+.lca-compare-lbl {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-dim);
+}
+.lca-compare-val { font-weight: 700; color: var(--text-main); font-size: 1.35rem; }
+.lca-compare-sub { font-size: 0.78rem; font-weight: 700; }
+
+/* Demoted what-if (collapsible) */
+.lca-whatif {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  overflow: hidden;
+}
+.lca-whatif-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.95rem 1.2rem;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  list-style: none;
+}
+.lca-whatif-summary::-webkit-details-marker { display: none; }
+.lca-whatif-summary svg:first-child { color: var(--accent); }
+.lca-whatif-caret { margin-left: auto; color: var(--text-dim); transition: transform var(--t); }
+.lca-whatif[open] .lca-whatif-caret { transform: rotate(90deg); }
+.lca-whatif-body { padding: 0 1.2rem 1.3rem; }
+.lca-whatif-note { margin: 0 0 1rem; color: var(--text-dim); font-size: 0.84rem; line-height: 1.5; }
+.lca-whatif-body .lca-curve-head { margin-top: 1.4rem; }
+
 @media (max-width: 720px) {
+  .lca-stat-grid { margin-left: 0; gap: 1.1rem; }
+  .lca-facts { grid-template-columns: 1fr; }
+  .lca-compare { grid-template-columns: 1fr; }
   .lca-predictor { grid-template-columns: 1fr; padding: 1.2rem; }
   .lca-qhead,
   .lca-qrow { grid-template-columns: 26px minmax(0, 1fr) 44px 60px; gap: 0.6rem; }

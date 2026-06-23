@@ -33,6 +33,15 @@ function moduleThumbKind(name = '', slug = '') {
   return 'auto';
 }
 
+// Rotating hue palette so each module's banded thumb strip + accent reads as a
+// deliberate, distinct colour rather than a uniform teal wash. Teal (--accent)
+// stays the brand chrome; modules borrow the --hue-* palette.
+const HUE_TOKENS = [
+  'var(--accent)', 'var(--hue-violet)', 'var(--hue-sky)',
+  'var(--hue-pink)', 'var(--hue-mint)',
+];
+const hueFor = (i) => HUE_TOKENS[i % HUE_TOKENS.length];
+
 export default function LearnIndex({ session: _session }) {
   const { moduleSlug } = useParams();
   const { data: modules = [], isLoading: modulesLoading } = useModules();
@@ -204,7 +213,11 @@ export default function LearnIndex({ session: _session }) {
               directCount
             );
             return (
-              <section key={m.slug} className="learn-module-card learn-module-card-parent">
+              <section
+                key={m.slug}
+                className="learn-module-card learn-module-card-parent"
+                style={{ '--card-accent': hueFor(mIdx) }}
+              >
                 <div className="learn-module-card-head">
                   <span className="learn-module-card-num">{displayNum}</span>
                   <h2 className="learn-module-card-title">{m.name}</h2>
@@ -212,13 +225,14 @@ export default function LearnIndex({ session: _session }) {
                 {m.description && <p className="learn-module-card-desc">{m.description}</p>}
 
                 <div className="learn-module-child-grid">
-                  {children.map(child => {
+                  {children.map((child, cIdx) => {
                     const count = (conceptsByModule[child.slug] || []).length;
                     return (
                       <Link
                         key={child.slug}
                         to={`/learn/${child.slug}`}
                         className="learn-module-child-card"
+                        style={{ '--card-accent': hueFor(mIdx + cIdx + 1) }}
                       >
                         <div className="learn-module-child-thumb" aria-hidden="true">
                           <ForgeThumb seed={child.name} kind={moduleThumbKind(child.name, child.slug)} />
@@ -252,9 +266,14 @@ export default function LearnIndex({ session: _session }) {
           }
 
           return (
-            <Link key={m.slug} to={`/learn/${m.slug}`} className="learn-module-card learn-module-card-thumbed">
+            <Link
+              key={m.slug}
+              to={`/learn/${m.slug}`}
+              className="learn-module-card learn-module-card-thumbed"
+              style={{ '--card-accent': hueFor(mIdx) }}
+            >
               <div className="learn-module-card-thumb" aria-hidden="true">
-                <ForgeThumb seed={m.name} />
+                <ForgeThumb seed={m.name} kind={moduleThumbKind(m.name, m.slug)} />
               </div>
               <div className="learn-module-card-head">
                 <span className="learn-module-card-num">{displayNum}</span>

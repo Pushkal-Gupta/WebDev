@@ -170,7 +170,7 @@
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
 }
 

@@ -1,0 +1,31 @@
+.lctv { width: 100%; display: flex; flex-direction: column; gap: 1rem; font-family: var(--sans, -apple-system, system-ui, sans-serif); color: var(--text-main); }
+.lctv-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.lctv-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.lctv-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.lctv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; padding: 0.75rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.lctv-hint { display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.74rem; color: var(--text-dim); }
+.lctv-pills { display: inline-flex; gap: 0.3rem; flex-wrap: wrap; }
+.lctv-pill { width: 32px; height: 32px; font-family: var(--mono); font-size: 0.82rem; font-weight: 700; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; }
+.lctv-pill:hover { border-color: var(--accent); }
+.lctv-pill-on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+.lctv-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.7rem; font-size: 0.78rem; font-weight: 600; background: var(--bg); color: var(--text-main); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s, border-color 0.15s; margin-left: auto; }
+.lctv-btn:hover { background: var(--hover-box); border-color: var(--accent); }
+
+.lctv-stage { padding: 1rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; }
+.lctv-svg { width: 100%; height: auto; display: block; }
+.lctv-node { cursor: pointer; }
+.lctv-node-label { font-family: var(--mono); font-size: 14px; font-weight: 700; text-anchor: middle; }
+.lctv-legend { font-family: var(--mono); font-size: 11px; fill: var(--text-dim); }
+
+.lctv-info { display: flex; }
+.lctv-card { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.45rem; padding: 0.8rem 0.85rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; }
+.lctv-card-tag { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.lctv-path { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.lctv-path-node { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 0.88rem; font-weight: 700; color: var(--bg); background: var(--accent); border-radius: 6px; }
+.lctv-path-arrow { font-family: var(--mono); font-size: 0.9rem; color: var(--text-dim); }
+.lctv-path-empty { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); }
+.lctv-card-sub { font-size: 0.78rem; color: var(--text-main); line-height: 1.45; }
+
+@media (prefers-reduced-motion: reduce) { .lctv-pill, .lctv-btn { transition: none; } }

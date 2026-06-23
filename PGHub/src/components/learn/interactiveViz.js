@@ -307,6 +307,71 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import QueueUsingStacksViz from './viz/QueueUsingStacksViz';
+import RecursionTailCallViz from './viz/RecursionTailCallViz';
+import MasterTheoremViz from './viz/MasterTheoremViz';
+import MeetInTheMiddleViz from './viz/MeetInTheMiddleViz';
+import StrassenMatrixMultViz from './viz/StrassenMatrixMultViz';
+import LpDualityViz from './viz/LpDualityViz';
+import MonadFunctorViz from './viz/MonadFunctorViz';
+import SolidPrinciplesViz from './viz/SolidPrinciplesViz';
+import QuadtreeSpatialViz from './viz/QuadtreeSpatialViz';
+import SparseTableRmqViz from './viz/SparseTableRmqViz';
+import SparseTableDeepViz from './viz/SparseTableDeepViz';
+import RegexEngineViz from './viz/RegexEngineViz';
+import WebhooksViz from './viz/WebhooksViz';
+import Sigv4SigningViz from './viz/Sigv4SigningViz';
+import RequestCoalescingViz from './viz/RequestCoalescingViz';
+import SnowflakeIdViz from './viz/SnowflakeIdViz';
+import SpannerTruetimeViz from './viz/SpannerTruetimeViz';
+import RedisDataStructuresViz from './viz/RedisDataStructuresViz';
+import ProtocolBuffersViz from './viz/ProtocolBuffersViz';
+import UnicodeUtf8Viz from './viz/UnicodeUtf8Viz';
+import SseVsWebsocketsViz from './viz/SseVsWebsocketsViz';
+import WebrtcStunTurnViz from './viz/WebrtcStunTurnViz';
+import TcpCongestionViz from './viz/TcpCongestionViz';
+import WebVitalsViz from './viz/WebVitalsViz';
+import MixedPrecisionViz from './viz/MixedPrecisionViz';
+import KnuthOptViz from './viz/KnuthOptViz';
+import IteratorIterableViz from './viz/IteratorIterableViz';
+import InsertionSortViz from './viz/InsertionSortViz';
+import IpDomainRoutingViz from './viz/IpDomainRoutingViz';
+import JwtPasetoViz from './viz/JwtPasetoViz';
+import KahnCycleViz from './viz/KahnCycleViz';
+import KmpDeepDiveViz from './viz/KmpDeepDiveViz';
+import Kosaraju2PassViz from './viz/Kosaraju2PassViz';
+import LinkCutTreeViz from './viz/LinkCutTreeViz';
+import LcaBstViz from './viz/LcaBstViz';
+import OnlineLearningSystemsViz from './viz/OnlineLearningSystemsViz';
+import PalindromeEertreeViz from './viz/PalindromeEertreeViz';
+import PermutationsBacktrackViz from './viz/PermutationsBacktrackViz';
+import PigeonholePrincipleViz from './viz/PigeonholePrincipleViz';
+import PipelineParallelViz from './viz/PipelineParallelViz';
+import PowerOfTwoChoicesViz from './viz/PowerOfTwoChoicesViz';
+import PresignedUrlViz from './viz/PresignedUrlViz';
+import PrimVsKruskalViz from './viz/PrimVsKruskalViz';
+import PriorityInversionViz from './viz/PriorityInversionViz';
+import PriorityQueueArrayViz from './viz/PriorityQueueArrayViz';
+import JwsSignatureViz from './viz/JwsSignatureViz';
+import GrpcVsThriftViz from './viz/GrpcVsThriftViz';
+import CanaryDeploymentViz from './viz/CanaryDeploymentViz';
+import ReplicationLagViz from './viz/ReplicationLagViz';
+import WriteAmplificationViz from './viz/WriteAmplificationViz';
+import SecretsRotationViz from './viz/SecretsRotationViz';
+import SelectionSortViz from './viz/SelectionSortViz';
+import ServerlessVsContainersViz from './viz/ServerlessVsContainersViz';
+import ServiceDiscoveryViz from './viz/ServiceDiscoveryViz';
+import SetCoverGreedyViz from './viz/SetCoverGreedyViz';
+import SubsetsPowerSetViz from './viz/SubsetsPowerSetViz';
+import SuffixTreeViz from './viz/SuffixTreeViz';
+import LoadSheddingViz from './viz/LoadSheddingViz';
+import TailLatencyViz from './viz/TailLatencyViz';
+import TDigestPercentilesViz from './viz/TDigestPercentilesViz';
+import TarjanArticulationViz from './viz/TarjanArticulationViz';
+import TcpCongestionControlViz from './viz/TcpCongestionControlViz';
+import TensorParallelViz from './viz/TensorParallelViz';
+import ThreePointerViz from './viz/ThreePointerViz';
+import TimeSeriesStorageViz from './viz/TimeSeriesStorageViz';
 
 export const INTERACTIVE_VIZ = {
   'sql-injection': SqlInjectionViz,
@@ -699,6 +764,115 @@ export const INTERACTIVE_VIZ = {
   'graph-eulerian': EulerianViz,
   'heaps-skew-leftist': LeftistHeapViz,
   'kruskals-algorithm': KruskalMSTViz,
+
+  // --- coverage aliases: concepts taught by an existing adjacent viz ---
+  'three-pointer': ThreePointerViz,
+  'three-pointers': ThreePointerViz,
+  'slowfast-cycle-entry': FloydTortoiseHareViz,
+  'tortoise-and-hare-multi': FloydTortoiseHareViz,
+  'kahn-cycle-detect': KahnCycleViz,
+  'kosaraju-2pass': Kosaraju2PassViz,
+  'strongly-connected': TarjanSCCViz,
+  'topo-shortest-dag': TopoSortDFSViz,
+  'tarjan-articulation': TarjanArticulationViz,
+  'network-bridge-finding': GraphBridgesViz,
+  'permutations-backtrack': PermutationsBacktrackViz,
+  'subsets-power-set': SubsetsPowerSetViz,
+  'prim-vs-kruskal': PrimVsKruskalViz,
+  'mst-rerooting': TreeDPViz,
+  'range-sum-2d': PrefixSumViz,
+  'range-update-range-query': SegmentTreeLazyViz,
+  'string-z-function': ZAlgorithmViz,
+  'string-rolling-hash': RabinKarpViz,
+  'string-trie-radix': RadixTreeViz,
+  'tree-morris-traversal': MorrisTraversalViz,
+  'tree-iterative-traversals': InorderIteratorViz,
+  'kmp-deep-dive': KmpDeepDiveViz,
+  'priority-queue-array': PriorityQueueArrayViz,
+  'minimax-game-theory': GameTheoryDPViz,
+  'median-of-medians': QuickSelectViz,
+  'quic-protocol': TcpVsQuicViz,
+  'quic-internals': TcpVsQuicViz,
+  'rate-limiting': RateLimiterViz,
+  'secrets-rotation': SecretsRotationViz,
+  'oauth2-pkce-deep': Oauth2PkceViz,
+  'jwt-vs-paseto-deep': JwtPasetoViz,
+  'mtls-internals': MtlsMutualViz,
+  'multipart-form-upload': MultipartUploadViz,
+  'snapshot-isolation': MvccViz,
+  'wal-deep-dive': WALViz,
+  'write-behind-cache': CacheStrategyViz,
+  'zero-downtime-deploys': MigrationZeroDowntimeViz,
+  'strangler-fig-migration': MigrationZeroDowntimeViz,
+  'topk-streaming': CountMinSketchViz,
+  'misra-gries': BoyerMooreVotingViz,
+  'random-reservoir-stream': ReservoirSamplingViz,
+  'random-weighted-sampling': ReservoirSamplingViz,
+  'power-of-two-choices': PowerOfTwoChoicesViz,
+  'vector-database-architecture': EmbeddingStoreViz,
+  'unix-pipes': ShellPipesViz,
+  'memory-mmap-vs-read': VirtualMemoryViz,
+  'queue-priority-fair-sched': SchedulerAlgorithmsViz,
+  'ip-vs-domain-routing': IpDomainRoutingViz,
+  'time-series-storage': TimeSeriesStorageViz,
+  'sd-storage-replication-lag': ReplicationLagViz,
+  'sd-storage-write-amplification': WriteAmplificationViz,
+  'sd-network-grpc-vs-thrift': GrpcVsThriftViz,
+  'sd-reliability-canary-deployment': CanaryDeploymentViz,
+  'sd-auth-security-pkcs-jws': JwsSignatureViz,
+  'foundations-iterator-vs-iterable': IteratorIterableViz,
+  'dp-knuth-optimization': KnuthOptViz,
+  'link-cut-tree': LinkCutTreeViz,
+  'mo-on-trees': MoAlgorithmViz,
+  'palindrome-eertree': PalindromeEertreeViz,
+  'suffix-tree': SuffixTreeViz,
+  'wavelet-matrix': WaveletTreeViz,
+  'math-modular-inverse-fermat': FastExponentiationViz,
+  'lowest-common-ancestor-bst': LcaBstViz,
+  'system-design-load-shedding': LoadSheddingViz,
+  'insertion-sort-algorithm': InsertionSortViz,
+  'online-learning-systems': OnlineLearningSystemsViz,
+  'pigeonhole-principle': PigeonholePrincipleViz,
+  'pipeline-parallel-training': PipelineParallelViz,
+  'presigned-url': PresignedUrlViz,
+  'priority-inversion': PriorityInversionViz,
+  'selection-sort-algorithm': SelectionSortViz,
+  'serverless-vs-containers': ServerlessVsContainersViz,
+  'service-discovery': ServiceDiscoveryViz,
+  'set-cover-greedy': SetCoverGreedyViz,
+  'system-design-tail-latency': TailLatencyViz,
+  't-digest-percentiles': TDigestPercentilesViz,
+  'tcp-congestion-control-deep': TcpCongestionControlViz,
+  'tensor-parallel-training': TensorParallelViz,
+
+  // --- new bespoke viz (status.md viz drive) ---
+  'queue-using-stacks': QueueUsingStacksViz,
+  'recursion-tail-call': RecursionTailCallViz,
+  'master-theorem': MasterTheoremViz,
+  'meet-in-the-middle': MeetInTheMiddleViz,
+  'strassen-matrix-mult': StrassenMatrixMultViz,
+  'lp-duality': LpDualityViz,
+  'monad-functor': MonadFunctorViz,
+  'solid-principles': SolidPrinciplesViz,
+  'quadtree-spatial': QuadtreeSpatialViz,
+  'sparse-table-rmq': SparseTableRmqViz,
+  'sparse-table-rmq-deep': SparseTableDeepViz,
+  'regex-engine-build': RegexEngineViz,
+  'regex-engines': RegexEngineViz,
+  'webhooks-design': WebhooksViz,
+  'webhook-receiver-best-practices': WebhooksViz,
+  'sigv4-aws-signing': Sigv4SigningViz,
+  'request-coalescing': RequestCoalescingViz,
+  'snowflake-id': SnowflakeIdViz,
+  'spanner-truetime': SpannerTruetimeViz,
+  'redis-data-structures': RedisDataStructuresViz,
+  'protocol-buffers': ProtocolBuffersViz,
+  'unicode-utf8': UnicodeUtf8Viz,
+  'sse-vs-websockets': SseVsWebsocketsViz,
+  'webrtc-stun-turn': WebrtcStunTurnViz,
+  'slowstart-tcp': TcpCongestionViz,
+  'web-vitals-lcp-cls-inp': WebVitalsViz,
+  'mixed-precision-training': MixedPrecisionViz,
 };
 
 export default INTERACTIVE_VIZ;

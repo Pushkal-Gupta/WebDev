@@ -9,7 +9,7 @@
   padding: 1.5rem 0 3rem;
   overflow-y: auto;
   overflow-x: hidden;
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
 }
 
 /* Sections region grows to fill remaining height so the page never bottoms out
@@ -55,7 +55,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .comp-card:hover { transform: none; }
-  .comp-card:hover .comp-card-flourish { transform: none; }
 }
 
 .comp-section {
@@ -132,24 +131,6 @@
 
 .comp-card:hover::after { opacity: 1; }
 
-/* ForgeThumb banner — teal-tinted radial wash behind each card's distinct motif. */
-.comp-card-flourish {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 104px;
-  height: 70px;
-  opacity: 0.22;
-  pointer-events: none;
-  z-index: 0;
-  transition: opacity var(--t), transform var(--t);
-}
-.comp-card-flourish > svg { width: 100%; height: 100%; }
-.comp-card:hover .comp-card-flourish {
-  opacity: 0.42;
-  transform: scale(1.05);
-}
-
 .comp-card-head {
   display: flex;
   align-items: center;
@@ -178,6 +159,22 @@
   font-family: var(--serif);
   font-size: 0.95rem;
   font-weight: 700;
+}
+
+/* Per-group emblem: a clean lucide glyph on a hue-tinted tile so each group
+   reads as visually distinct. --group-hue is set inline per card. */
+.comp-group-iconbox {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  color: var(--group-hue, var(--accent));
+  background:
+    radial-gradient(120% 120% at 30% 10%, color-mix(in srgb, var(--group-hue, var(--accent)) 26%, transparent) 0%, transparent 72%),
+    var(--hover-box);
+  border: 1px solid color-mix(in srgb, var(--group-hue, var(--accent)) 40%, var(--border));
+}
+.comp-group-card:hover .comp-group-iconbox {
+  border-color: color-mix(in srgb, var(--group-hue, var(--accent)) 60%, var(--border));
 }
 
 .comp-card-logo {

@@ -1,0 +1,38 @@
+.jpv { width: 100%; display: flex; flex-direction: column; gap: 1rem; font-family: var(--sans, -apple-system, system-ui, sans-serif); color: var(--text-main); }
+.jpv-head { display: flex; flex-direction: column; gap: 0.2rem; }
+.jpv-title { font-family: var(--serif); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+.jpv-sub { font-size: 0.82rem; color: var(--text-dim); margin: 0; }
+
+.jpv-attacks { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.jpv-attack { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.7rem; font-family: var(--mono); font-size: 0.76rem; font-weight: 600; background: var(--bg); color: var(--text-dim); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.jpv-attack:hover { border-color: var(--accent); }
+.jpv-attack-on { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.jpv-attack-valid.jpv-attack-on { background: var(--easy); border-color: var(--easy); }
+.jpv-attack-desc { font-family: var(--mono); font-size: 0.78rem; color: var(--text-dim); margin: 0; }
+
+.jpv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 0.8rem; }
+.jpv-panel { display: flex; flex-direction: column; gap: 0.6rem; padding: 0.9rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.jpv-panel-bad { border-left: 3px solid var(--hard); }
+.jpv-panel-ok { border-left: 3px solid var(--easy); }
+.jpv-panel-head { display: flex; align-items: center; justify-content: space-between; }
+.jpv-panel-name { font-family: var(--mono); font-size: 0.84rem; font-weight: 700; color: var(--text-main); }
+.jpv-verdict { display: inline-flex; align-items: center; gap: 0.3rem; font-family: var(--mono); font-size: 0.66rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; padding: 0.22rem 0.45rem; border-radius: 5px; }
+.jpv-verdict-bad { background: rgba(var(--accent-rgb), 0.06); color: var(--hard); }
+.jpv-verdict-ok { background: rgba(var(--accent-rgb), 0.1); color: var(--easy); }
+
+.jpv-token { display: flex; flex-direction: column; align-items: stretch; gap: 0.15rem; }
+.jpv-seg { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.45rem 0.6rem; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; }
+.jpv-seg-hot { border-color: var(--hard); background: rgba(var(--accent-rgb), 0.05); }
+.jpv-seg-fixed { border-color: var(--easy); }
+.jpv-seg-tag { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.jpv-seg-val { font-family: var(--mono); font-size: 0.78rem; font-weight: 600; color: var(--text-main); }
+.jpv-flow { text-align: center; font-size: 0.9rem; color: var(--text-dim); line-height: 1; }
+
+.jpv-why { font-size: 0.78rem; color: var(--text-dim); margin: 0; line-height: 1.45; }
+.jpv-why-ok { color: var(--text-main); }
+
+.jpv-takeaway { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.7rem 0.85rem; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 6px; }
+.jpv-takeaway-label { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.jpv-takeaway-text { font-size: 0.8rem; color: var(--text-main); line-height: 1.45; }
+
+@media (prefers-reduced-motion: reduce) { .jpv-attack { transition: none; } }
