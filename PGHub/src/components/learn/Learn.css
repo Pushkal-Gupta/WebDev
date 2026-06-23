@@ -109,8 +109,9 @@
 .learn-module-card-thumbed .learn-module-card-foot { padding: 0.4rem 1.2rem 1rem; margin-top: 0.6rem; }
 .learn-module-card-thumb {
   position: relative;
-  height: 84px;
-  background: var(--bg);
+  height: 120px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--card-accent, var(--accent)) 12%, var(--surface)) 0%, var(--surface) 80%);
   border-bottom: 1px solid var(--border);
   overflow: hidden;
 }
@@ -216,8 +217,11 @@
 
 .learn-module-child-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 0.6rem;
+  /* auto-FIT (not auto-fill): when a parent has only 2 sub-modules the empty
+     trailing tracks collapse and the 2 cards stretch to fill the full row —
+     no dead right gutter. Modules with more children flow 3-4 across. */
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.7rem;
   margin-top: 0.55rem;
 }
 
@@ -225,9 +229,9 @@
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 0 0.85rem 0.75rem;
+  padding: 0 0.95rem 0.8rem;
   border: 1px solid var(--border);
-  border-radius: 9px;
+  border-radius: 10px;
   background: var(--bg);
   text-decoration: none;
   color: inherit;
@@ -235,10 +239,13 @@
   transition: transform var(--t), border-color var(--t), background var(--t);
 }
 .learn-module-child-thumb {
-  height: 60px;
-  margin: 0 -0.85rem 0.45rem;
+  /* A real banded header strip in the card hue — a deliberate visual, not a
+     faint corner decal. Tints to the ForgeThumb's own hues underneath. */
+  height: 96px;
+  margin: 0 -0.95rem 0.55rem;
   border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--card-accent, var(--accent)) 14%, var(--surface)) 0%, var(--surface) 78%);
   overflow: hidden;
 }
 .learn-module-child-thumb .forge-thumb { width: 100%; height: 100%; display: block; }
@@ -305,7 +312,7 @@
 /* Single-module view — full grid of sub-modules for a parent like System Design. */
 .learn-submodule-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 0.85rem;
 }
 
@@ -323,10 +330,11 @@
   transition: transform var(--t), border-color var(--t), box-shadow var(--t);
 }
 .learn-submodule-card-thumb {
-  height: 76px;
-  margin: 0 -1.1rem 0.5rem;
+  height: 120px;
+  margin: 0 -1.1rem 0.6rem;
   border-bottom: 1px solid var(--border);
-  background: var(--bg);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--surface)) 0%, var(--surface) 80%);
   overflow: hidden;
 }
 .learn-submodule-card-thumb .forge-thumb { width: 100%; height: 100%; display: block; }
@@ -1715,13 +1723,8 @@
   position: sticky;
   top: 90px;
   align-self: start;
-  max-height: calc(100vh - 120px);
-  overflow-y: auto;
   padding-right: 0.25rem;
 }
-
-.cp-aside::-webkit-scrollbar { width: 6px; }
-.cp-aside::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 .cp-toc {
   border: 1px solid var(--border);
@@ -1917,26 +1920,27 @@
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem;
-  /* Center the visual horizontally and clip sideways overflow so diagrams fit
-     the card instead of bleeding past it (no horizontal scroll). Tall
-     interactive RichViz with a fixed intrinsic height can exceed the bounded
-     height; allow vertical scroll inside the stage so its bottom is reachable
-     rather than clipped (max-height alone can't shrink fixed-height children).
-     align-items:flex-start keeps tall content scrollable from the top; normal
-     viz stay centered/bounded. */
+  /* The primary diagram STAYS in view while the reader scrolls the step-by-step
+     walkthrough below it (sticky, just under the nav). The visualization SCALES
+     to fit this card — no inner scrollbar (CLAUDE.md: only the page scrolls).
+     Sideways bleed is clipped; the child shrinks to fit the bounded height. */
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: center;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: hidden;
   min-height: 320px;
-  max-height: 58vh;
+  max-height: 62vh;
+  position: sticky;
+  top: calc(var(--pg-nav-h, 120px) + 0.75rem);
+  z-index: 1;
 }
-/* Let the hero child size to the stage width without forcing its own scroll. */
+/* Let the hero child fill the stage width and scale down to fit its height
+   (object-fit handles media; SVG/canvas viz scale via their own viewBox). */
 .viz-detail-stage > * {
   width: 100%;
   max-width: 100%;
   max-height: 100%;
+  object-fit: contain;
 }
 
 .viz-detail-section {
@@ -2122,7 +2126,7 @@
   align-items: stretch;
 }
 
-/* Premium hue card: left stripe, corner flourish, tinted icon-box, hover lift */
+/* Premium hue card: top motif banner, left stripe, tinted icon-box, hover lift */
 .viz-cat-card {
   position: relative;
   display: flex;
@@ -2132,7 +2136,8 @@
   border-radius: 12px;
   background: var(--surface);
   overflow: hidden;
-  padding: 1.35rem 1.4rem 1.25rem;
+  /* No top padding — the banner bleeds to the card edges. */
+  padding: 0 1.4rem 1.25rem;
   text-decoration: none;
   transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 }
@@ -2149,22 +2154,35 @@
   width: 3px;
   background: var(--card-accent, var(--accent));
   opacity: 0.85;
+  z-index: 2;
 }
 
-/* Animated SVG preview, repurposed as a top-corner flourish. */
-.viz-cat-flourish {
-  position: absolute;
-  top: -6px;
-  right: -8px;
-  width: 110px;
-  height: 58px;
-  opacity: 0.2;
-  pointer-events: none;
-  transition: opacity var(--t), transform var(--t);
+/* Prominent topic-motif banner: a full-width header strip in the card's hue
+   that actually READS, not a faint corner decal. The animated SVG fills it. */
+.viz-cat-banner {
+  position: relative;
+  display: block;
+  height: 100px;
+  margin: 0 -1.4rem 0.85rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--card-accent, var(--accent)) 30%, var(--border));
+  background:
+    radial-gradient(130% 130% at 82% 8%, color-mix(in srgb, var(--card-accent, var(--accent)) 24%, transparent) 0%, transparent 62%),
+    linear-gradient(135deg, color-mix(in srgb, var(--card-accent, var(--accent)) 14%, var(--surface)) 0%, var(--surface) 82%);
+  overflow: hidden;
+  transition: background var(--t);
 }
-.viz-cat-card:hover .viz-cat-flourish {
-  opacity: 0.4;
-  transform: scale(1.05);
+.viz-cat-banner > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0.55rem 0.7rem;
+  opacity: 0.92;
+}
+.viz-cat-card:hover .viz-cat-banner {
+  background:
+    radial-gradient(130% 130% at 82% 8%, color-mix(in srgb, var(--card-accent, var(--accent)) 32%, transparent) 0%, transparent 62%),
+    linear-gradient(135deg, color-mix(in srgb, var(--card-accent, var(--accent)) 20%, var(--surface)) 0%, var(--surface) 82%);
 }
 
 .viz-cat-head {
@@ -2278,11 +2296,12 @@
 }
 .viz-member-preview {
   flex-shrink: 0;
-  width: 96px;
-  height: 64px;
-  border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
+  width: 120px;
+  height: 84px;
+  border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--card-accent, var(--accent)) 26%, var(--border));
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--card-accent, var(--accent)) 12%, var(--surface)) 0%, var(--surface) 82%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2426,7 +2445,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .viz-cat-card:hover { transform: none; }
-  .viz-cat-card:hover .viz-cat-flourish { transform: none; }
   .viz-detail-chip-link { transition: none; }
 }
 

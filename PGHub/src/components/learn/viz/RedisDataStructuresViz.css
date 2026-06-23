@@ -1,0 +1,357 @@
+.rdv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.rdv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.rdv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.rdv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.rdv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rdv-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rdv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rdv-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rdv-chip:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.rdv-chip.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rdv-stepper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rdv-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rdv-step-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.rdv-spacer {
+  flex: 1 1 auto;
+}
+
+.rdv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rdv-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.rdv-btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.rdv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.rdv-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.rdv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rdv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.rdv-stage-title {
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.rdv-stage-cmd {
+  font-family: var(--mono);
+  font-size: 13px;
+  fill: var(--accent);
+  text-anchor: end;
+}
+
+.rdv-keylabel {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.rdv-axis {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  opacity: 0.85;
+}
+
+.rdv-cell {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.rdv-cell-field {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+
+.rdv-slot-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.rdv-string-val {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.rdv-cell-idx {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.rdv-cell-val {
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.rdv-edge-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.rdv-link {
+  stroke: var(--border);
+  stroke-width: 2;
+}
+
+.rdv-hash-field {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.rdv-set-node {
+  fill: var(--surface);
+  stroke-width: 2.4;
+}
+
+.rdv-zset-track {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+
+.rdv-zset-bar {
+  opacity: 0.85;
+}
+
+.rdv-zset-rank {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.rdv-zset-member {
+  font-family: var(--mono);
+  font-size: 16px;
+  font-weight: 700;
+  fill: var(--bg);
+  text-anchor: start;
+}
+
+.rdv-zset-score {
+  font-family: var(--mono);
+  font-size: 15px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: end;
+}
+
+.rdv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.rdv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.rdv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rdv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.rdv-metric-value.is-cmd { color: var(--hue-sky); }
+.rdv-metric-value.is-result { color: var(--hue-mint); }
+.rdv-metric-value.is-tip { color: var(--hue-violet); }
+
+.rdv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.rdv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rdv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rdv-btn,
+  .rdv-chip,
+  .rdv-step-btn {
+    transition: none;
+  }
+}

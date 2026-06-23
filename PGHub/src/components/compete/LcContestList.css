@@ -4,7 +4,7 @@
   margin: 0 auto;
   padding: 1.5rem 0 3rem;
   /* #root is overflow:hidden (theme.css), so this route must scroll itself. */
-  height: calc(100vh - 100px);
+  height: calc(100dvh - var(--pg-nav-h, 120px));
   overflow-y: auto;
   display: flex;
   flex-direction: column;

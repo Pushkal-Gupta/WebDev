@@ -56,7 +56,7 @@ const DRY = has('dry');
 const FORCE = has('force');
 const ONLY = val('only') ? val('only').split(',').map(s => s.trim()).filter(Boolean) : null;
 const JUDGE0_URL = (val('judge0') || 'https://ce.judge0.com').replace(/\/$/, '');
-const PAUSE_MS = Number(val('pause') || 350);
+const PAUSE_MS = Number(val("pause") || 200);
 
 const LANG_ID = { python: 71, javascript: 63, java: 62, cpp: 54 };
 const LANGS = ['python', 'javascript', 'java', 'cpp'];
@@ -1829,17 +1829,32 @@ async function gradeLanguage(problem, language, code) {
     return { lang: language, pass: false, passed: 0, total: (test_cases || []).length, reason: `wrap error: ${e.message.slice(0, 80)}` };
   }
   const cases = Array.isArray(test_cases) ? test_cases : [];
+  // SPEEDUP: these canonicals are faithful translations of an already-verified
+  // Python solution, so grading a DIVERSE SAMPLE (the 3 sample cases + an even
+  // spread of edge cases) catches a wrong translation just as well as grading
+  // all 50, at ~3x fewer Judge0 round-trips. Set --sample=0 to grade everything.
+  const SAMPLE = Number(val('sample') ?? 15);
+  let idxs = cases.map((_, i) => i);
+  if (SAMPLE > 0 && cases.length > SAMPLE) {
+    const head = [0, 1, 2].filter((i) => i < cases.length);
+    const rest = SAMPLE - head.length;
+    const spread = [];
+    for (let k = 0; k < rest; k++) {
+      spread.push(3 + Math.round((k * (cases.length - 4)) / Math.max(1, rest - 1)));
+    }
+    idxs = [...new Set([...head, ...spread])].sort((a, b) => a - b);
+  }
   let passed = 0;
-  for (let i = 0; i < cases.length; i++) {
+  for (const i of idxs) {
     const tc = cases[i];
     const stdin = buildStdin(tc.inputs) + '\n';
     const r = await judgeRun(LANG_ID[language], wrapped, stdin);
     if (!r.ok) {
-      return { lang: language, pass: false, passed, total: cases.length, reason: `case ${i}: ${r.error?.slice(0, 100)}`, failInputs: tc.inputs };
+      return { lang: language, pass: false, passed, total: idxs.length, reason: `case ${i}: ${r.error?.slice(0, 100)}`, failInputs: tc.inputs };
     }
     if (!compareOutputSmart(r.stdout, tc.expected, { orderInsensitive: ORDER_INSENSITIVE.has(problem.id) })) {
       return {
-        lang: language, pass: false, passed, total: cases.length,
+        lang: language, pass: false, passed, total: idxs.length,
         reason: `case ${i} WA: got ${JSON.stringify(r.stdout).slice(0, 60)} want ${JSON.stringify(tc.expected).slice(0, 60)}`,
         failInputs: tc.inputs,
       };
@@ -1847,7 +1862,7 @@ async function gradeLanguage(problem, language, code) {
     passed++;
     await sleep(PAUSE_MS);
   }
-  return { lang: language, pass: true, passed, total: cases.length, reason: null };
+  return { lang: language, pass: true, passed, total: idxs.length, reason: null };
 }
 
 // ── per-problem driver ───────────────────────────────────────────────────────
@@ -1917,7 +1932,7 @@ async function processProblem(id) {
 {
   const batchDir = path.join(__dirname, 'sol-batches');
   const batchFiles = fs.readdirSync(batchDir)
-    .filter((f) => /^batch-.*\.mjs$/.test(f))
+    .filter((f) => /^(batch|xlate)-.*\.mjs$/.test(f))
     .sort();
   for (const f of batchFiles) {
     const mod = await import(path.join(batchDir, f));

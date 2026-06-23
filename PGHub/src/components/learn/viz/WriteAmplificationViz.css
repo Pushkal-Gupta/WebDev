@@ -1,0 +1,350 @@
+.wav {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.wav-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.wav-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.wav-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.wav-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.wav-engines {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.wav-engine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-align: left;
+  padding: 0.45rem 0.7rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.wav-engine:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.wav-engine.is-on {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+}
+
+.wav-engine-label {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.wav-engine.is-on .wav-engine-label {
+  color: var(--accent);
+}
+
+.wav-engine-sub {
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+
+.wav-spacer {
+  flex: 1 1 auto;
+}
+
+.wav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.wav-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.wav-sliders {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.wav-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.wav-slider-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  min-width: 5.5em;
+}
+
+.wav-slider input[type='range'] {
+  flex: 1 1 auto;
+  accent-color: var(--accent);
+}
+
+.wav-slider-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--text-main);
+  min-width: 3.6em;
+  text-align: right;
+}
+
+.wav-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.wav-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.wav-diag-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.wav-lsm-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+
+.wav-lsm-name {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.wav-lsm-write {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.wav-down {
+  stroke: var(--hue-violet);
+  stroke-width: 2;
+}
+
+.wav-arrowhead {
+  fill: var(--hue-violet);
+}
+
+.wav-page {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.6;
+}
+.wav-page-wasted {
+  fill: rgba(var(--accent-rgb), 0.04);
+  stroke: var(--warning);
+  stroke-width: 1.4;
+  stroke-dasharray: 5 4;
+}
+.wav-page-useful {
+  fill: color-mix(in srgb, var(--hue-sky) 32%, transparent);
+  stroke: var(--hue-sky);
+  stroke-width: 1.4;
+}
+
+.wav-page-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.wav-page-useful-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--hue-sky);
+  text-anchor: middle;
+}
+
+.wav-page-wasted-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--warning);
+  text-anchor: middle;
+}
+
+.wav-gauge-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.wav-wa-big {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.wav-gauge-track {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+}
+
+.wav-gauge-min,
+.wav-gauge-max {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+}
+.wav-gauge-min { text-anchor: start; }
+.wav-gauge-max { text-anchor: end; }
+
+.wav-dom {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.wav-dom-val {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.wav-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.wav-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.wav-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.wav-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.wav-metric-value.is-cost { color: var(--hue-violet); }
+
+.wav-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.wav-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.wav-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wav-engine,
+  .wav-btn {
+    transition: none;
+  }
+}

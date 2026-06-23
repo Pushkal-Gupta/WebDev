@@ -1,0 +1,329 @@
+.rcv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.rcv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.rcv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.rcv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.rcv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rcv-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rcv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rcv-chip {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rcv-chip:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.rcv-chip.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rcv-stepper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rcv-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rcv-step-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.rcv-spacer {
+  flex: 1 1 auto;
+}
+
+.rcv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rcv-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.rcv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.rcv-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.rcv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rcv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.rcv-ic {
+  color: var(--text-dim);
+}
+
+.rcv-arrowhead {
+  fill: var(--text-dim);
+}
+
+.rcv-row-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: start;
+  letter-spacing: 0.03em;
+}
+.rcv-row-label-center {
+  text-anchor: middle;
+}
+
+.rcv-edge {
+  stroke: var(--border);
+  stroke-width: 1.6;
+  fill: none;
+}
+.rcv-edge.is-waiter {
+  stroke-dasharray: 4 4;
+}
+.rcv-edge.is-leader {
+  stroke-width: 2.4;
+}
+.rcv-edge.is-storm {
+  stroke-width: 1.6;
+  opacity: 0.85;
+}
+
+.rcv-node {
+  fill: var(--surface);
+  stroke-width: 2.4;
+}
+
+.rcv-node-tag {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.rcv-node-role {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  text-anchor: middle;
+  letter-spacing: 0.03em;
+}
+
+.rcv-coal {
+  fill: var(--surface);
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.rcv-coal-title {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.rcv-coal-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+  letter-spacing: 0.02em;
+}
+
+.rcv-backend {
+  fill: var(--surface);
+  stroke-width: 2.4;
+}
+.rcv-backend.is-stormed {
+  fill: color-mix(in srgb, var(--warning) 10%, var(--surface));
+}
+
+.rcv-backend-title {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.rcv-backend-load {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  text-anchor: start;
+  letter-spacing: 0.02em;
+}
+
+.rcv-fan {
+  stroke: var(--hue-mint);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 4;
+  opacity: 0.7;
+}
+
+.rcv-result {
+  fill: var(--hue-mint);
+  stroke: var(--hue-mint);
+  stroke-width: 2;
+}
+
+.rcv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.rcv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.rcv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rcv-metric-value {
+  font-family: var(--mono);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+.rcv-metric-value.is-ok { color: var(--hue-mint); }
+.rcv-metric-value.is-storm { color: var(--warning); }
+.rcv-metric-value.is-waiter { color: var(--hue-sky); }
+
+.rcv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.rcv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rcv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rcv-btn,
+  .rcv-chip,
+  .rcv-step-btn {
+    transition: none;
+  }
+}

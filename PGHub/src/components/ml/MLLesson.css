@@ -313,11 +313,13 @@
   border-left: 3px solid var(--accent);
   border-radius: 8px;
   color: var(--text-main);
-  overflow-x: auto;
+  max-width: 100%;
   margin: 0.4rem 0;
 }
 
-.ml-math .katex-display { margin: 0; overflow-x: auto; }
+/* Wide display equations SHRINK to fit the column instead of scrolling: KaTeX
+   keeps its nowrap layout but the font scales down so the row fits. */
+.ml-math .katex-display { margin: 0; max-width: 100%; font-size: clamp(0.7rem, 2.2vw, 1rem); }
 
 .ml-ascii-wrap {
   border: 1px solid var(--viz-line);
@@ -375,11 +377,13 @@
 .ml-ascii {
   display: block;
   font-family: var(--mono);
-  font-size: 0.78rem;
+  /* Scale down so the widest ASCII line (~94 chars) fits the column width
+     instead of scrolling horizontally. ~0.62vw per char keeps 94ch within a
+     ~58rem column; clamp caps it for readability on wide/narrow viewports. */
+  font-size: clamp(0.5rem, 1.55vw, 0.78rem);
   line-height: 1.55;
   padding: 1rem 1.1rem;
   color: var(--text-main);
-  overflow-x: auto;
   white-space: pre;
   margin: 0;
 }

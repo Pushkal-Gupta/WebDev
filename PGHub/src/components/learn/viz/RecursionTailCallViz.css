@@ -1,0 +1,335 @@
+.rtc {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.rtc-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.rtc-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.rtc-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.rtc-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rtc-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rtc-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rtc-chip {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.55rem;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rtc-chip:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.rtc-chip.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.rtc-stepper {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.rtc-step-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rtc-step-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+
+.rtc-toggle {
+  display: inline-flex;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.rtc-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.65rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-dim);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.rtc-seg + .rtc-seg {
+  border-left: 1px solid var(--border);
+}
+.rtc-seg:hover {
+  background: var(--hover-box);
+}
+.rtc-seg.is-on {
+  background: rgba(var(--accent-rgb), 0.14);
+  color: var(--accent);
+}
+
+.rtc-spacer {
+  flex: 1 1 auto;
+}
+
+.rtc-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.rtc-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.rtc-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.rtc-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.rtc-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+.rtc-btn-primary:disabled {
+  opacity: 0.45;
+}
+
+.rtc-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.rtc-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.rtc-ic {
+  color: var(--text-dim);
+}
+
+.rtc-stage-title {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.rtc-stage-sub {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.rtc-ghost {
+  fill: none;
+  stroke: var(--border);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 5;
+  opacity: 0.6;
+}
+
+.rtc-frame {
+  fill: var(--surface);
+  stroke-width: 2;
+  transition: y 0.25s ease;
+}
+.rtc-frame.is-base {
+  fill: color-mix(in srgb, var(--surface), var(--hover-box) 50%);
+}
+.rtc-frame.is-done {
+  fill: rgba(var(--accent-rgb), 0.12);
+}
+
+.rtc-frame-label {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: start;
+}
+
+.rtc-frame-meta {
+  font-family: var(--mono);
+  font-size: 12px;
+  fill: var(--text-dim);
+  text-anchor: end;
+}
+
+.rtc-base-line {
+  stroke: var(--text-dim);
+  stroke-width: 2;
+}
+
+.rtc-base-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.rtc-reuse-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  fill: var(--hue-mint);
+  text-anchor: middle;
+  letter-spacing: 0.04em;
+}
+
+.rtc-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.rtc-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.rtc-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rtc-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.rtc-metric-value.is-good { color: var(--hue-mint); }
+.rtc-metric-value.is-bad { color: var(--hue-pink); }
+
+.rtc-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+.rtc-narration.is-why {
+  border-left-color: var(--hue-violet);
+}
+
+.rtc-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.rtc-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rtc-btn,
+  .rtc-chip,
+  .rtc-step-btn,
+  .rtc-seg,
+  .rtc-frame {
+    transition: none;
+  }
+}

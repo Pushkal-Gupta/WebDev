@@ -1,0 +1,321 @@
+.mim {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.mim-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.mim-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.mim-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.mim-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mim-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.mim-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mim-chip {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.3rem 0.5rem;
+  border-radius: 5px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mim-chip:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.mim-chip.is-active {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.mim-spacer {
+  flex: 1 1 auto;
+}
+
+.mim-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mim-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.mim-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.mim-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.mim-btn-primary:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+.mim-btn-primary:disabled {
+  opacity: 0.45;
+}
+
+.mim-stageband {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.mim-band-ic {
+  color: var(--accent);
+}
+
+.mim-band-step {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mim-band-label {
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.mim-band-target {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.mim-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mim-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.mim-half-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  text-anchor: start;
+}
+
+.mim-cell {
+  fill: var(--surface);
+  stroke-width: 2;
+  transition: fill 0.2s;
+}
+.mim-cell.is-hl {
+  fill: rgba(var(--accent-rgb), 0.16);
+}
+
+.mim-cell-val {
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  text-anchor: middle;
+}
+
+.mim-divider {
+  stroke: var(--border);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 5;
+}
+
+.mim-sums-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  fill: var(--hue-violet);
+  text-anchor: start;
+}
+.mim-sums-label.is-right {
+  fill: var(--hue-sky);
+  text-anchor: end;
+}
+
+.mim-sum {
+  fill: color-mix(in srgb, var(--hue-violet), var(--surface) 80%);
+  stroke: color-mix(in srgb, var(--hue-violet), var(--border) 40%);
+  stroke-width: 1.4;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.mim-sum.is-right {
+  fill: color-mix(in srgb, var(--hue-sky), var(--surface) 80%);
+  stroke: color-mix(in srgb, var(--hue-sky), var(--border) 40%);
+}
+.mim-sum.is-hit {
+  fill: rgba(var(--accent-rgb), 0.22);
+  stroke: var(--accent);
+  stroke-width: 2.2;
+}
+
+.mim-sum-val {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.mim-search-line {
+  font-family: var(--mono);
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--accent);
+  text-anchor: middle;
+}
+
+.mim-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.6rem;
+}
+
+.mim-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.mim-metric.is-wide {
+  grid-column: span 2;
+}
+
+.mim-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mim-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--accent);
+  word-break: break-word;
+}
+.mim-metric-value.is-good { color: var(--hue-mint); }
+.mim-metric-value.is-bad { color: var(--hue-pink); }
+
+.mim-metric-katex {
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.mim-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.mim-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mim-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-main);
+  line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mim-chip,
+  .mim-btn,
+  .mim-cell,
+  .mim-sum {
+    transition: none;
+  }
+}

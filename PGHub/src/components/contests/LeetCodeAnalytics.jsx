@@ -1,7 +1,13 @@
-import React, { useMemo, useRef, useState } from 'react';
-import { TrendingUp, TrendingDown, MousePointerClick } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
+  Hash, CheckCircle2, Award, Globe, Sparkles, Target, SlidersHorizontal,
+  ChevronRight, Minus,
+} from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
+import { supabase } from '../../lib/supabase';
+import { useLeetCodeUser, useProfile } from '../../lib/queries';
 import './Contests.css';
 
 // Display-mode KaTeX → HTML string; matches ConceptPage's renderer.
@@ -114,89 +120,347 @@ const DIFF_HUE = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--ha
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
-export default function LeetCodeAnalytics() {
-  const [rating, setRating] = useState(1750);
-  const [rank, setRank] = useState(820);
-  const [played, setPlayed] = useState(12);
+const fmtDate = (unixSeconds) => {
+  const t = Number(unixSeconds);
+  if (!Number.isFinite(t) || t <= 0) return '';
+  return new Date(t * 1000).toLocaleDateString(undefined, {
+    year: 'numeric', month: 'short', day: 'numeric',
+  });
+};
 
-  const result = useMemo(
-    () => predictDelta({
-      rating,
-      actualRank: rank,
+const chgColor = (c) => (c > 0 ? 'var(--easy)' : c < 0 ? 'var(--hard)' : 'var(--text-dim)');
+const fmtChange = (c) => { const r = Math.round(c); return `${r > 0 ? '+' : ''}${r}`; };
+const changeIcon = (c) => (c > 0
+  ? <TrendingUp size={15} aria-hidden />
+  : c < 0 ? <TrendingDown size={15} aria-hidden /> : <Minus size={15} aria-hidden />);
+
+export default function LeetCodeAnalytics() {
+  // ── Primary flow: look a handle up and read its LAST attended contest ──────
+  const [userId, setUserId] = useState(null);
+  const [draft, setDraft] = useState('');
+  const [handle, setHandle] = useState('');
+  const [prefilled, setPrefilled] = useState(false);
+
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setUserId(data?.session?.user?.id ?? null);
+    });
+    return () => { alive = false; };
+  }, []);
+
+  const { data: profile } = useProfile(userId);
+  const savedHandle = profile?.leetcode_handle?.trim();
+
+  // Prefill once, the moment the saved handle resolves (render-time set is the
+  // React-recommended pattern and keeps this off the effect path).
+  if (!prefilled && savedHandle) {
+    setPrefilled(true);
+    setDraft(savedHandle);
+    setHandle(savedHandle);
+  }
+
+  const { data: user, isLoading, isError, error } = useLeetCodeUser(handle);
+
+  const realRating = useMemo(() => {
+    const r = Number(user?.rating);
+    return Number.isFinite(r) && r > 0 ? r : 1500;
+  }, [user]);
+
+  // Most recent attended contest + the rating carried INTO it (the previous
+  // attended contest's finalized rating, or 1500 on debut). Using that
+  // pre-contest rating makes our "change" line up with LeetCode's own delta.
+  const latest = useMemo(() => {
+    const attended = (user?.history || [])
+      .filter((h) => h?.attended)
+      .sort((a, b) => Number(a.startTime) - Number(b.startTime));
+    if (!attended.length) return null;
+
+    const current = attended[attended.length - 1];
+    const previous = attended.length > 1 ? attended[attended.length - 2] : null;
+    const oldRating = previous ? Number(previous.rating) : 1500;
+    const newRating = Number(current.rating);
+    const actualChange = newRating - oldRating;
+    const played = Math.max(0, (Number(user?.attendedContestsCount) || attended.length) - 1);
+
+    const expected = predictDelta({
+      rating: oldRating,
+      actualRank: Math.max(1, Number(current.ranking) || 1),
       contestsPlayed: played,
       fieldRatings: SAMPLE_FIELD,
       fieldSize: TOTAL_PARTICIPANTS,
-    }),
-    [rating, rank, played],
-  );
+    });
 
-  const up = result.delta >= 0;
-  const deltaRounded = Math.round(result.delta);
-  const newRating = Math.round(result.newRating);
+    return { current, oldRating, newRating, actualChange, expected, isDebut: !previous, played };
+  }, [user]);
+
+  const submit = (e) => {
+    e.preventDefault();
+    const v = draft.trim();
+    if (v) setHandle(v);
+  };
+
+  const noContests = handle && !isLoading && !isError && user && !latest;
+
+  // ── What-if (demoted): re-run against the SAME baseline the last contest used,
+  // so experimenting with a different finish stays anchored to the real rating. ─
+  const [rank, setRank] = useState(820);
+  const whatIfBase = latest ? latest.oldRating : realRating;
+  const whatIfPlayed = latest
+    ? latest.played
+    : Math.max(0, (Number(user?.attendedContestsCount) || 1) - 1);
+
+  const whatIf = useMemo(
+    () => predictDelta({
+      rating: whatIfBase,
+      actualRank: Math.max(1, rank),
+      contestsPlayed: whatIfPlayed,
+      fieldRatings: SAMPLE_FIELD,
+      fieldSize: TOTAL_PARTICIPANTS,
+    }),
+    [whatIfBase, rank, whatIfPlayed],
+  );
+  const wUp = whatIf.delta >= 0;
   const percentile = clamp((1 - rank / TOTAL_PARTICIPANTS) * 100, 0, 100);
-  const dir = up ? 'up' : 'down';
 
   return (
     <div className="lca-wrap">
       <p className="ctx-sub lca-intro">
-        Type an exact value or drag any control to turn a contest finish into a predicted rating change.
+        Enter your LeetCode username to pull your latest rated round, see how it actually moved your
+        rating, and compare it against what our model expected.
       </p>
 
-      {/* Predictor dashboard — inputs left, single result block right */}
+      {/* Primary: username → last contest → prediction */}
       <section className="lca-section">
-        <div className="lca-predictor">
-          <div className="lca-inputs">
-            <Slider label="Current rating" value={rating} min={1200} max={3200} step={10} onChange={setRating} unit="elo" />
-            <Slider label="Finish rank" value={rank} min={1} max={TOTAL_PARTICIPANTS} step={1} onChange={setRank} unit={`of ${TOTAL_PARTICIPANTS.toLocaleString()}`} />
-            <Slider label="Contests played" value={played} min={0} max={120} step={1} onChange={setPlayed} unit="contests" />
-
-            <div className="lca-pctl">
-              <div className="lca-pctl-head">
-                <span>Top {(100 - percentile).toFixed(1)}%</span>
-                <span>{rank.toLocaleString()} / {TOTAL_PARTICIPANTS.toLocaleString()}</span>
-              </div>
-              <div className="lca-pctl-track">
-                <div className="lca-pctl-fill" style={{ width: `${percentile}%` }} />
-                <div className="lca-pctl-marker" style={{ left: `${percentile}%` }} />
-              </div>
-            </div>
+        <form className="lca-lookup" onSubmit={submit}>
+          <div className="lca-lookup-input">
+            <Search size={15} aria-hidden />
+            <input
+              type="text"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              placeholder="LeetCode username"
+              aria-label="LeetCode username"
+              spellCheck={false}
+              autoComplete="off"
+            />
           </div>
+          <button type="submit" className="lca-lookup-btn" disabled={!draft.trim()}>
+            Look up
+          </button>
+        </form>
 
-          <div className="lca-result">
-            <span className="lca-result-cap">Predicted new rating</span>
-            <div className="lca-result-rating">{newRating.toLocaleString()}</div>
-            <div className={`lca-result-chip ${dir}`}>
-              {up ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-              {up ? '+' : ''}{deltaRounded}
+        {!handle && (
+          <p className="lca-empty">
+            We&apos;ll find your most recent contest and turn its finish into a rating prediction —
+            no manual entry needed.
+          </p>
+        )}
+
+        {handle && isLoading && <div className="lca-skel" aria-hidden />}
+
+        {handle && isError && (
+          <p className="lca-empty">
+            Couldn&apos;t find <strong>{handle}</strong>
+            {error?.message ? ` — ${error.message}` : '. Check the username and try again.'}
+          </p>
+        )}
+
+        {handle && !isLoading && !isError && user && (
+          <>
+            <div className="lca-profile">
+              {user.avatar ? (
+                <img className="lca-avatar" src={user.avatar} alt="" />
+              ) : (
+                <span className="lca-avatar lca-avatar-fb">
+                  {(user.username || handle).slice(0, 1).toUpperCase()}
+                </span>
+              )}
+              <div className="lca-profile-meta">
+                <span className="lca-profile-name">{user.realName || user.username || handle}</span>
+                {user.username && user.realName && (
+                  <span className="lca-profile-handle">@{user.username}</span>
+                )}
+              </div>
+              <div className="lca-stat-grid">
+                <div className="lca-stat">
+                  <span className="lca-stat-ico"><Award size={14} aria-hidden /></span>
+                  <span className="lca-stat-val">{Math.round(realRating)}</span>
+                  <span className="lca-stat-lbl">Rating</span>
+                </div>
+                <div className="lca-stat">
+                  <span className="lca-stat-ico"><Hash size={14} aria-hidden /></span>
+                  <span className="lca-stat-val">{user.attendedContestsCount ?? 0}</span>
+                  <span className="lca-stat-lbl">Contests</span>
+                </div>
+                <div className="lca-stat">
+                  <span className="lca-stat-ico"><Globe size={14} aria-hidden /></span>
+                  <span className="lca-stat-val">
+                    {user.globalRanking ? Number(user.globalRanking).toLocaleString() : '—'}
+                  </span>
+                  <span className="lca-stat-lbl">Global rank</span>
+                </div>
+              </div>
             </div>
-            <RatingSpark from={rating} to={newRating} up={up} />
-            <div className="lca-result-foot">
-              <span>{rating.toLocaleString()}</span>
-              <span className="lca-result-foot-dim">now</span>
-              <span className="lca-result-foot-arrow">→</span>
-              <span className="lca-result-foot-dim">after</span>
-              <span>{newRating.toLocaleString()}</span>
-            </div>
-          </div>
-        </div>
+
+            {latest && (
+              <article className="lca-contest">
+                <header className="lca-contest-head">
+                  <div className="lca-contest-title">
+                    <Trophy size={16} aria-hidden />
+                    <span>{latest.current.title}</span>
+                  </div>
+                  <span className="lca-contest-date">
+                    <Calendar size={13} aria-hidden />
+                    {fmtDate(latest.current.startTime)}
+                  </span>
+                </header>
+
+                <div className="lca-facts">
+                  <div className="lca-fact">
+                    <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
+                    <span className="lca-fact-val">
+                      {latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : '—'}
+                    </span>
+                    <span className="lca-fact-lbl">Rank</span>
+                  </div>
+                  <div className="lca-fact">
+                    <span className="lca-fact-ico"><CheckCircle2 size={14} aria-hidden /></span>
+                    <span className="lca-fact-val">
+                      {latest.current.problemsSolved ?? 0}
+                      <span className="lca-fact-of">/{latest.current.totalProblems ?? '—'}</span>
+                    </span>
+                    <span className="lca-fact-lbl">Solved</span>
+                  </div>
+                  <div className="lca-fact">
+                    <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
+                    <span className="lca-fact-val">
+                      {Math.round(latest.oldRating)}
+                      {latest.isDebut && <span className="lca-fact-of"> (debut)</span>}
+                    </span>
+                    <span className="lca-fact-lbl">Old rating</span>
+                  </div>
+                </div>
+
+                <div className="lca-move-track">
+                  <span className="lca-move-old">{Math.round(latest.oldRating)}</span>
+                  <span className="lca-move-arrow" aria-hidden>→</span>
+                  <span className="lca-move-new" style={{ color: chgColor(latest.actualChange) }}>
+                    {Math.round(latest.newRating)}
+                  </span>
+                  <span className="lca-move-chip" style={{ color: chgColor(latest.actualChange) }}>
+                    {changeIcon(latest.actualChange)}
+                    {fmtChange(latest.actualChange)}
+                  </span>
+                </div>
+
+                <div className="lca-compare">
+                  <div className="lca-compare-cell">
+                    <span className="lca-compare-lbl">
+                      <Sparkles size={12} aria-hidden /> Expected rating
+                    </span>
+                    <span className="lca-compare-val">{Math.round(latest.expected.newRating)}</span>
+                    <span className="lca-compare-sub" style={{ color: chgColor(latest.expected.delta) }}>
+                      {fmtChange(latest.expected.delta)} projected
+                    </span>
+                  </div>
+                  <div className="lca-compare-cell">
+                    <span className="lca-compare-lbl">
+                      <Target size={12} aria-hidden /> Actual rating
+                    </span>
+                    <span className="lca-compare-val">{Math.round(latest.newRating)}</span>
+                    <span className="lca-compare-sub" style={{ color: chgColor(latest.actualChange) }}>
+                      {fmtChange(latest.actualChange)} on LeetCode
+                    </span>
+                  </div>
+                </div>
+              </article>
+            )}
+
+            {noContests && (
+              <p className="lca-empty">
+                <strong>{user.username || handle}</strong> hasn&apos;t finished a rated contest yet. Open
+                the what-if below to project a finish from the current rating of {Math.round(realRating)}.
+              </p>
+            )}
+          </>
+        )}
       </section>
 
-      {/* Rank → delta curve — click anywhere on it to set the finish rank */}
+      {/* Demoted what-if: manual sliders for experimenting only */}
       <section className="lca-section">
-        <div className="lca-curve-head">
-          <h2 className="lca-section-title">Rank to rating change</h2>
-          <span className="lca-curve-hint">
-            <MousePointerClick size={12} />
-            Click the curve to set your finish rank
-          </span>
-        </div>
-        <RankDeltaCurve
-          rating={rating}
-          played={played}
-          rank={rank}
-          total={TOTAL_PARTICIPANTS}
-          onPick={(r) => setRank(clamp(Math.round(r), 1, TOTAL_PARTICIPANTS))}
-        />
+        <details className="lca-whatif" open={!!noContests}>
+          <summary className="lca-whatif-summary">
+            <SlidersHorizontal size={15} aria-hidden />
+            <span>What-if: try a different finish</span>
+            <ChevronRight size={15} className="lca-whatif-caret" aria-hidden />
+          </summary>
+
+          <div className="lca-whatif-body">
+            <p className="lca-whatif-note">
+              Hypothetical only — drag a finish rank to project the swing from a baseline rating of{' '}
+              {Math.round(whatIfBase)}.
+            </p>
+
+            <div className="lca-predictor">
+              <div className="lca-inputs">
+                <Slider
+                  label="Finish rank"
+                  value={rank}
+                  min={1}
+                  max={TOTAL_PARTICIPANTS}
+                  step={1}
+                  onChange={setRank}
+                  unit={`of ${TOTAL_PARTICIPANTS.toLocaleString()}`}
+                />
+
+                <div className="lca-pctl">
+                  <div className="lca-pctl-head">
+                    <span>Top {(100 - percentile).toFixed(1)}%</span>
+                    <span>{rank.toLocaleString()} / {TOTAL_PARTICIPANTS.toLocaleString()}</span>
+                  </div>
+                  <div className="lca-pctl-track">
+                    <div className="lca-pctl-fill" style={{ width: `${percentile}%` }} />
+                    <div className="lca-pctl-marker" style={{ left: `${percentile}%` }} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="lca-result">
+                <span className="lca-result-cap">Projected new rating</span>
+                <div className="lca-result-rating">{Math.round(whatIf.newRating).toLocaleString()}</div>
+                <div className={`lca-result-chip ${wUp ? 'up' : 'down'}`}>
+                  {wUp ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                  {fmtChange(whatIf.delta)}
+                </div>
+                <RatingSpark from={Math.round(whatIfBase)} to={Math.round(whatIf.newRating)} up={wUp} />
+                <div className="lca-result-foot">
+                  <span>{Math.round(whatIfBase).toLocaleString()}</span>
+                  <span className="lca-result-foot-dim">base</span>
+                  <span className="lca-result-foot-arrow">→</span>
+                  <span className="lca-result-foot-dim">after</span>
+                  <span>{Math.round(whatIf.newRating).toLocaleString()}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Rank → delta curve — click anywhere on it to set the finish rank */}
+            <div className="lca-curve-head">
+              <h2 className="lca-section-title">Rank to rating change</h2>
+              <span className="lca-curve-hint">
+                <MousePointerClick size={12} />
+                Click the curve to set the finish rank
+              </span>
+            </div>
+            <RankDeltaCurve
+              rating={whatIfBase}
+              played={whatIfPlayed}
+              rank={rank}
+              total={TOTAL_PARTICIPANTS}
+              onPick={(r) => setRank(clamp(Math.round(r), 1, TOTAL_PARTICIPANTS))}
+            />
+          </div>
+        </details>
       </section>
 
       {/* Per-question solve rate */}

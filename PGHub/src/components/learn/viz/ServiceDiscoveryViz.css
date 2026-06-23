@@ -1,0 +1,361 @@
+.sdv {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-family: var(--sans, -apple-system, system-ui, sans-serif);
+  color: var(--text-main);
+}
+
+.sdv-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sdv-title {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.sdv-sub {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.sdv-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.sdv-modes {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sdv-mode {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--bg);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.sdv-mode:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.sdv-mode.is-on {
+  background: rgba(var(--accent-rgb), 0.14);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.sdv-mode-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.sdv-mode-sub {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
+  color: var(--text-dim);
+}
+
+.sdv-spacer {
+  flex: 1 1 auto;
+}
+
+.sdv-input-label {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sdv-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.sdv-speed-range {
+  width: 100px;
+  accent-color: var(--accent);
+}
+.sdv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  color: var(--text-main);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+.sdv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  background: var(--bg);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.sdv-btn:hover:not(:disabled) {
+  background: var(--hover-box);
+  border-color: var(--accent);
+}
+.sdv-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.sdv-btn-primary {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+.sdv-btn-primary:hover:not(:disabled) {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.sdv-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.sdv-stepcount {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+.sdv-stepcount strong {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.sdv-stage {
+  padding: 1rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.sdv-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.sdv-skel {
+  stroke: var(--border);
+  stroke-width: 1.6;
+  stroke-dasharray: 4 5;
+  opacity: 0.55;
+}
+
+.sdv-active-edge {
+  stroke: var(--accent);
+  stroke-width: 2.4;
+  opacity: 0.9;
+}
+
+.sdv-arrowhead {
+  fill: var(--accent);
+}
+
+.sdv-packet {
+  fill: var(--accent);
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+
+.sdv-box {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: stroke 0.2s, fill 0.2s;
+}
+.sdv-box.is-active {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+}
+
+.sdv-registry.is-lit,
+.sdv-midbox.is-lit {
+  stroke: var(--accent);
+  stroke-width: 2.6;
+  fill: rgba(var(--accent-rgb), 0.08);
+}
+
+.sdv-box-title {
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 13px;
+  font-weight: 700;
+  fill: var(--text-main);
+  text-anchor: middle;
+}
+
+.sdv-box-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.03em;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+.sdv-reg-dot {
+  stroke: var(--bg);
+  stroke-width: 1.5;
+}
+.sdv-reg-dot.is-up { fill: var(--easy); }
+.sdv-reg-dot.is-down { fill: var(--text-dim); opacity: 0.5; }
+
+.sdv-inst-group {
+  cursor: pointer;
+}
+
+.sdv-inst {
+  fill: var(--surface);
+  stroke: var(--border);
+  stroke-width: 1.4;
+  transition: stroke 0.2s, fill 0.2s, opacity 0.2s;
+}
+.sdv-inst.is-pick {
+  fill: rgba(var(--accent-rgb), 0.08);
+  stroke-width: 2.6;
+}
+.sdv-inst.is-target {
+  stroke-width: 3;
+}
+.sdv-inst.is-down {
+  opacity: 0.5;
+  stroke-dasharray: 5 4;
+}
+
+.sdv-inst-title {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.sdv-inst-title.is-down {
+  fill: var(--text-dim);
+}
+
+.sdv-inst-sub {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  fill: var(--text-dim);
+}
+.sdv-inst-sub.is-down {
+  fill: var(--hard);
+}
+
+.sdv-inst-icon.is-up { color: var(--easy); }
+.sdv-inst-icon.is-down { color: var(--hard); }
+
+.sdv-inst-hint {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.04em;
+  fill: var(--text-dim);
+  opacity: 0.8;
+}
+
+.sdv-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.6rem;
+}
+
+.sdv-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.18rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.sdv-metric-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sdv-metric-value {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-main);
+  word-break: break-word;
+}
+.sdv-metric-value.is-accent { color: var(--accent); }
+.sdv-metric-value.is-target { color: var(--hue-mint); }
+
+.sdv-narration {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 0.65rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+}
+
+.sdv-narration-label {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.sdv-narration-body {
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdv-btn,
+  .sdv-mode,
+  .sdv-box,
+  .sdv-inst {
+    transition: none;
+  }
+  .sdv-packet animate {
+    display: none;
+  }
+}

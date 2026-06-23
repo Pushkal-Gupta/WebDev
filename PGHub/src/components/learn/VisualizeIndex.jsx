@@ -343,10 +343,19 @@ function VizDetail({ slug }) {
       : null);
   const hasEditor = Boolean(editorSlug);
   const hasWalkthrough = vizStepCount(viz) > 0;
+  // The editable code surface, in priority order:
+  //   1. the concept's reference implementation (multi-language, from the DB)
+  //   2. the interactive template's starter code (JavaScript, runs in-browser)
+  // Whichever exists is rendered as a REAL editable + runnable RunnableCodePanel
+  // so the "Editable code" pill always reveals something the user can edit/run.
+  const templateCode = editorSlug ? INTERACTIVE_TEMPLATES[editorSlug]?.initialCode : null;
+  const panelCode = (concept?.code && typeof concept.code === 'object')
+    ? concept.code
+    : (refCode ? refCode.body : templateCode);
+  const panelLang = refCode ? refCode.language : 'javascript';
   // The "Editable code" badge must promise something real: it shows only when
-  // the page actually renders an editable surface — the in-browser template OR
-  // the runnable reference implementation pulled from the concept.
-  const hasCodePanel = hasEditor || Boolean(refCode);
+  // the page actually renders an editable surface.
+  const hasCodePanel = Boolean(panelCode) || hasEditor;
 
   const walkthrough = hasWalkthrough ? (
     <AlgoVisualizer
@@ -414,16 +423,13 @@ function VizDetail({ slug }) {
 
       {hasCodePanel && <div ref={codePanelRef} className="viz-detail-anchor" aria-hidden="true" />}
 
-      {refCode && (
-        <section className="viz-detail-section" aria-label="Reference implementation">
+      {panelCode && (
+        <section className="viz-detail-section" aria-label="Editable code">
           <div className="viz-detail-section-head">
             <Code2 size={14} />
-            <span>Reference implementation — edit and run it</span>
+            <span>Editable code — edit and run it</span>
           </div>
-          <RunnableCodePanel
-            code={concept?.code && typeof concept.code === 'object' ? concept.code : refCode.body}
-            lang={refCode.language}
-          />
+          <RunnableCodePanel code={panelCode} lang={panelLang} />
         </section>
       )}
 
@@ -1240,7 +1246,7 @@ function VisualizeIndexList() {
                 style={{ '--card-accent': hue }}
               >
                 <span className="viz-cat-stripe" aria-hidden="true" />
-                <span className="viz-cat-flourish" aria-hidden="true">
+                <span className="viz-cat-banner" aria-hidden="true">
                   <Preview kind={def.preview} accent={hue} />
                 </span>
                 <span className="viz-cat-head">

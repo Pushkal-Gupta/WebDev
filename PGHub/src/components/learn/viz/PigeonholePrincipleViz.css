@@ -1,0 +1,210 @@
+.phpviz {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.3rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin: 0.7rem 0;
+  color: var(--text-main);
+}
+
+.phpviz-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.phpviz-head-left {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.phpviz-iconbox {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.phpviz-title {
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.phpviz-sub {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.phpviz-verdict {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+
+.phpviz-verdict-forced {
+  color: var(--hue-pink);
+  background: color-mix(in srgb, var(--hue-pink) 14%, transparent);
+  border-color: color-mix(in srgb, var(--hue-pink) 45%, transparent);
+}
+
+.phpviz-verdict-ok {
+  color: var(--text-dim);
+  background: var(--surface);
+}
+
+.phpviz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.phpviz-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  min-width: 9rem;
+  flex: 1 1 9rem;
+}
+
+.phpviz-field input[type='range'] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.phpviz-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.42rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.phpviz-btn-ghost {
+  color: var(--text-main);
+  background: var(--bg);
+  border-color: var(--border);
+}
+
+.phpviz-btn:hover {
+  filter: brightness(1.05);
+}
+
+.phpviz-stage {
+  width: 100%;
+  padding: 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.phpviz-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.phpviz-box {
+  fill: var(--bg);
+  stroke: var(--border);
+  stroke-width: 1.5;
+}
+
+.phpviz-box-over {
+  stroke: var(--hue-pink);
+  fill: color-mix(in srgb, var(--hue-pink) 8%, var(--bg));
+}
+
+.phpviz-boxlabel {
+  fill: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+
+.phpviz-pigeon {
+  transition: cy 0.25s ease;
+}
+
+.phpviz-pid {
+  fill: var(--bg);
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.phpviz-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.6rem;
+}
+
+.phpviz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.phpviz-stat-k {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-dim);
+}
+
+.phpviz-stat-v {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--mono);
+}
+
+.phpviz-stat-warn {
+  color: var(--hue-pink);
+}
+
+.phpviz-caption {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phpviz-pigeon {
+    transition: none;
+  }
+}

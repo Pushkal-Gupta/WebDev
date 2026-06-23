@@ -6,30 +6,37 @@
 
 const has = (set) => (c) => set.has(c.slug);
 
+// Each group carries an `iconName` (a distinct lucide glyph that reads as the
+// group's meaning) and a `hue` (one of the theme --hue-* tokens, or 'accent')
+// so its hub card gets a unique tinted emblem instead of a generic square.
 export const COMPANY_GROUPS = {
   faang: {
-    iconName: 'Sparkles',
+    iconName: 'Landmark',
+    hue: 'accent',
     title: 'FAANG',
     summary: 'The five that set the interview bar — Meta, Amazon, Apple, Netflix, Google.',
     order: ['facebook', 'meta', 'amazon', 'apple', 'netflix', 'google'],
     match: has(new Set(['meta', 'facebook', 'amazon', 'apple', 'netflix', 'google'])),
   },
   gayman: {
-    iconName: 'Sparkles',
-    title: 'GAYMAN',
+    iconName: 'Star',
+    hue: 'violet',
+    title: 'New Guard',
     summary: 'Google, Amazon, Y Combinator, Meta, Apple, Nvidia — the AI-era heavyweights every loop now measures you against.',
     order: ['google', 'amazon', 'y-combinator', 'meta', 'apple', 'nvidia'],
     match: has(new Set(['google', 'amazon', 'y-combinator', 'meta', 'apple', 'nvidia'])),
   },
   mango: {
     iconName: 'Sparkles',
-    title: 'MANGO',
+    hue: 'pink',
+    title: 'AI Frontier',
     summary: 'Microsoft, Apple, Nvidia, Google, OpenAI — the companies steering the AI era.',
     order: ['microsoft', 'apple', 'nvidia', 'google', 'openai'],
     match: has(new Set(['microsoft', 'apple', 'nvidia', 'google', 'openai'])),
   },
   'big-tech': {
     iconName: 'Building2',
+    hue: 'sky',
     title: 'Big Tech',
     summary: 'Large-scale product companies where distributed systems and scale dominate the loop.',
     match: has(new Set([
@@ -40,6 +47,7 @@ export const COMPANY_GROUPS = {
   },
   unicorns: {
     iconName: 'Rocket',
+    hue: 'mint',
     title: 'Unicorns & Scale-ups',
     summary: 'High-growth product companies — fast loops, heavy on practical design and ownership.',
     match: has(new Set([
@@ -50,7 +58,8 @@ export const COMPANY_GROUPS = {
     ])),
   },
   fintech: {
-    iconName: 'Landmark',
+    iconName: 'LineChart',
+    hue: 'violet',
     title: 'Fintech & Quant',
     summary: 'Payments, trading, and quant shops — correctness, latency, and numeric edge cases bite hardest here.',
     match: (c) => ['Fintech', 'Finance'].includes(c.domain)
@@ -59,7 +68,8 @@ export const COMPANY_GROUPS = {
           'morgan-stanley', 'goldman-sachs'].includes(c.slug),
   },
   enterprise: {
-    iconName: 'Briefcase',
+    iconName: 'Cloud',
+    hue: 'sky',
     title: 'Enterprise & Cloud',
     summary: 'B2B SaaS and cloud platforms — API design, multi-tenancy, and reliability questions.',
     match: (c) => c.domain === 'Enterprise'
@@ -68,6 +78,7 @@ export const COMPANY_GROUPS = {
   },
   india: {
     iconName: 'MapPin',
+    hue: 'mint',
     title: 'India',
     summary: 'Product and services companies hiring across India — from startups to the global majors local offices.',
     match: (c) => c.region === 'india',

@@ -4,17 +4,18 @@ Worked by the QA Scrum Flow (`docs/QA_SCRUM_FLOW.md`). Open items drain through
 the role pipeline; when empty, an identifier sweep refills it. Last sweep
 (`qa-scrum` workflow): 22 confirmed issues, 0 P0.
 
-## Open — blocked on live-DB apply (user authorization required)
+## Open
 
-These are **code-complete**; the SQL just needs applying to the live Supabase DB.
-Apply (Supabase SQL Editor, no password needed) in order: 58 → 59 → 60.
+(none — DB migrations applied 2026-06-22; awaiting next sweep results)
 
-- [ ] P0 public-list-rls — Public list share links return nothing for non-owners (no public-read RLS policy) · `scripts/migrate-60-public-list-rls.sql` · apply.
-- [ ] P1 search-number-rpc — Practice search by number/title returns no rows · `scripts/migrate-58-search-number-bucket-fix.sql` · apply.
-- [ ] P1 status-filter-paging — Status filter only filters the current page · `scripts/migrate-59-filter-paging.sql` · apply, then pass `p_status` from the client.
-- [ ] P1 topic-empty-pages — Topic filter under Number sort yields empty pages · fixed by `scripts/migrate-59-filter-paging.sql` · apply.
+## Done — DB migrations APPLIED to live Supabase (2026-06-22, verified)
 
-## Done (this sweep)
+- [x] P0 public-list-rls — `migrate-60` applied: public read + owner read/insert/update/delete on PGcode_user_list_problems. List add/remove + share links work.
+- [x] P1 search-number-rpc — `migrate-58` applied: search by number/title works under any sort (verified "two sum"→4, "1840"/"1802"→found).
+- [x] P1 status-filter-paging — `migrate-59` applied + client wired (`useProblemPage` passes `p_status`): Status filter works catalog-wide.
+- [x] P1 topic-empty-pages — `migrate-59` applied: narrowing filters fall back to position paging (no empty pages).
+
+## Done (prior sweep)
 
 - [x] P1 review-null-diff — /review blanked on null difficulty (guarded `?.toLowerCase()`).
 - [x] P1 lists-share-stale — Share link/Copy now appear immediately after toggling Public (live `activeListId` derive).
