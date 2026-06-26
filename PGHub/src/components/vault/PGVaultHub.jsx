@@ -6,6 +6,15 @@ import './PGVaultHub.css';
 
 const CARDS = [
   {
+    to: '/assessments',
+    Icon: ClipboardList,
+    title: 'Assessments',
+    desc: 'Timed, generated practice sets that mock a real interview round.',
+    hue: 'var(--hue-mint)',
+    motif: 'assessments',
+    requiresAuth: true,
+  },
+  {
     to: '/review',
     Icon: RotateCcw,
     title: 'Review',
@@ -42,7 +51,7 @@ const CARDS = [
     requiresAuth: true,
   },
   {
-    to: '/ml/progress',
+    to: '/ml/progress?from=vault',
     Icon: Brain,
     title: 'ML Progress',
     desc: 'PGForge ML problems — solved ring, badges, streak, and recent activity.',
@@ -66,15 +75,6 @@ const CARDS = [
     desc: 'Badges and milestones you unlock as you solve and keep streaks.',
     hue: 'var(--warning)',
     motif: 'achievements',
-    requiresAuth: true,
-  },
-  {
-    to: '/assessments',
-    Icon: ClipboardList,
-    title: 'Assessments',
-    desc: 'Timed, generated practice sets that mock a real interview round.',
-    hue: 'var(--hue-mint)',
-    motif: 'assessments',
     requiresAuth: true,
   },
 ];

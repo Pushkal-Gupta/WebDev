@@ -1,11 +1,59 @@
 import React, { useState, useEffect } from 'react';
-import { Copy, Check, ChevronRight } from 'lucide-react';
+import { Copy, Check, ChevronRight, BookOpen, Clock, Cpu } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
 import ProblemVisualizer from './ProblemVisualizer';
 import LanguageIcon from './LanguageIcon';
+import Markdown from './learn/MarkdownRenderer';
 import { RICH_CONTENT } from '../content/problemContent';
 import './SolutionView.css';
+
+// Renders the authored editorial walkthrough (problem.editorial_md). Reuses the
+// shared markdown + KaTeX renderer so headings, fenced code, tables and
+// \(...\)/\[...\] math match the concept pages exactly. Hides itself when the
+// column is empty/null so no blank box appears.
+function EditorialSection({ md }) {
+  if (typeof md !== 'string' || !md.trim()) return null;
+  return (
+    <section className="sv-editorial">
+      <div className="sv-editorial-head">
+        <span className="sv-editorial-icon" aria-hidden="true">
+          <BookOpen size={15} />
+        </span>
+        <div className="sv-editorial-headtext">
+          <span className="sv-editorial-eyebrow">Editorial</span>
+          <h3 className="sv-editorial-title">Approach walkthrough</h3>
+        </div>
+      </div>
+      <div className="sv-editorial-body">
+        <Markdown>{md}</Markdown>
+      </div>
+    </section>
+  );
+}
+
+// Time/space complexity rendered as paired chips with a lucide glyph each.
+function ComplexityChips({ time, space }) {
+  if (!time && !space) return null;
+  return (
+    <div className="sv-cx-chips">
+      {time && (
+        <span className="sv-cx-chip">
+          <Clock size={12} />
+          <span className="sv-cx-chip-label">Time</span>
+          <code className="sv-cx-chip-val">{time}</code>
+        </span>
+      )}
+      {space && (
+        <span className="sv-cx-chip">
+          <Cpu size={12} />
+          <span className="sv-cx-chip-label">Space</span>
+          <code className="sv-cx-chip-val">{space}</code>
+        </span>
+      )}
+    </div>
+  );
+}
 
 const LANG_ORDER = ['python', 'javascript', 'typescript', 'java', 'kotlin', 'cpp', 'c', 'go', 'rust', 'swift', 'csharp', 'ruby', 'php', 'bash'];
 
@@ -95,6 +143,8 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
     return (
       <div className="sv-container">
         <h2 className="sv-problem-title">{problem.name} — reference solution</h2>
+        <EditorialSection md={problem.editorial_md} />
+        {numApproaches > 0 && <h3 className="sv-section-title">Approaches</h3>}
         {Array.from({ length: numApproaches }, (_, i) => i).map(idx => {
           const ap = currentLangApproaches[idx];
           // Pull approach metadata (name, intuition) from whichever language
@@ -120,6 +170,9 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
                 )}
               </summary>
               <div className="sv-approach-body">
+                {complexity && (
+                  <ComplexityChips time={complexity.time} space={complexity.space} />
+                )}
                 {intuition && (
                   <div className="sv-subsection">
                     <h4 className="sv-subtitle">Intuition</h4>
@@ -182,6 +235,7 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
   if (approaches.length === 0) {
     return (
       <div className="sv-container">
+        <EditorialSection md={problem.editorial_md} />
         {problem.solution_video_url && (
           <div className="sv-section">
             <h3 className="sv-section-title">Video Explanation</h3>
@@ -209,6 +263,9 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
       {/* Problem title */}
       <h2 className="sv-problem-title">{problem.name} - Explanation</h2>
 
+      {/* Editorial walkthrough */}
+      <EditorialSection md={problem.editorial_md} />
+
       {/* Video */}
       {problem.solution_video_url && (
         <div className="sv-section">
@@ -220,6 +277,7 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
       )}
 
       {/* Approaches */}
+      {approaches.length > 0 && <h3 className="sv-section-title">Approaches</h3>}
       {approaches.map((ap, idx) => {
         let steps = [];
         try {
@@ -243,6 +301,8 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
               )}
             </summary>
             <div className="sv-approach-body">
+              <ComplexityChips time={ap.time_complexity} space={ap.space_complexity} />
+
               {/* Intuition */}
               <div className="sv-subsection">
                 <h4 className="sv-subtitle">Intuition</h4>

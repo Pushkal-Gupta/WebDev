@@ -34,13 +34,31 @@ Filterable table across all topics with pattern tags, difficulty toggles, and st
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | React 19, React Router 7, Vite |
-| Visualization | ReactFlow (roadmap DAG), Custom renderers (Array, Tree, Graph, LinkedList, Stack, HashMap) |
-| Code Editor | Monaco Editor |
-| Code Execution | Judge0 CE API (Python, JavaScript, Java) |
-| Backend | Supabase (PostgreSQL + Auth + RLS) |
-| Icons | Lucide React |
-| Styling | Custom CSS with design tokens (no framework) |
+| Frontend | React 19, React Router 7 (HashRouter), Vite (SPA, no SSR) |
+| Data / state | TanStack Query + `localStorage` persistence; all reads/writes through a keyed query registry |
+| Code editor | `@monaco-editor/react` (single neutral grey/black theme across all 8 palettes) |
+| Visualization | ReactFlow (roadmap DAG) · 300+ custom interactive SVG visualizations · KaTeX (math) · MANIM-style step-throughs · per-structure renderers (Array, Tree, Graph, LinkedList, Stack, HashMap, Grid) |
+| Code execution | Judge0 (14 languages) — **self-hosted via Docker / colima for unlimited grading** ([setup](./docs/JUDGE0_SELF_HOST.md)); 4-language driver harness (Py/JS/Java/C++) |
+| Grading | Server-side `grade-submission` Supabase Edge Function + a mutation-tested case suite ([methodology](./docs/TEST_CASE_METHODOLOGY.md)) |
+| Backend | Supabase — PostgreSQL + Auth (Google/GitHub OAuth) + Row-Level Security + Edge Functions |
+| Math / content | KaTeX rendering · markdown concept files + seed scripts, bulk-imported |
+| Icons / styling | lucide-react (no emoji) · hand-rolled CSS with design tokens, 8 theme palettes |
+| Build | Vite `manualChunks` (react / monaco / reactflow / query / supabase / icons split as cached vendor chunks) |
+
+### Grading & test-case quality — correct code passes, wrong code fails
+
+The auto-grader is only as trustworthy as its test cases, so we treat case quality as a
+first-class, measurable engineering problem rather than chasing a fixed count. Each problem gets
+**as many cases as it needs** (some 30, some 800+), decided by objective gates:
+
+- **Soundness** — the canonical solution (the oracle) passes every stored case; bad cases are pruned, not patched.
+- **Self-consistency** — every case's expected output is produced by the canonical itself.
+- **Branch / path coverage** — the case set must exercise every branch of the canonical.
+- **Mutation testing** — we generate small wrong variants (mutants) of the canonical and require the case set to **kill 100% of them**; a surviving mutant means a hole, and we synthesize the distinguishing input to close it.
+- **Continuous regression** — background watchdogs re-run these gates so coverage only ratchets up.
+
+Full write-up: **[`docs/TEST_CASE_METHODOLOGY.md`](./docs/TEST_CASE_METHODOLOGY.md)** ·
+Judge0 self-hosting: **[`docs/JUDGE0_SELF_HOST.md`](./docs/JUDGE0_SELF_HOST.md)**.
 
 ## For AI coding assistants
 

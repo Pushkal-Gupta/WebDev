@@ -1,21 +1,13 @@
 import React from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Brain, Sigma, Workflow, Calculator, Layers, Zap, Network, BarChart3 } from 'lucide-react';
+import { ArrowRight, Brain, Sigma, Workflow, Calculator, Layers, Zap, Network, BarChart3 } from 'lucide-react';
 import { getGroup } from '../../content/mlGroups';
 import { PILLARS as REGISTRY } from '../../content/mlContent';
+import Breadcrumb from '../common/Breadcrumb';
 import ForgeThumb from './forge/ForgeThumb';
 import './MLHub.css';
 
 const ICONS = { Sigma, Workflow, Brain };
-
-const FROM_TARGETS = {
-  vault: { to: '/vault', label: 'Vault' },
-  forge: { to: '/ml', label: 'PGForge' },
-};
-function resolveFrom(search) {
-  const key = new URLSearchParams(search).get('from');
-  return FROM_TARGETS[key] || { to: '/ml', label: 'ML-DL-AI' };
-}
 
 const MODULE_ICONS = {
   foundations: Sigma,
@@ -30,16 +22,12 @@ const MODULE_ICONS = {
 export default function MLGroup() {
   const { groupSlug } = useParams();
   const location = useLocation();
-  const back = resolveFrom(location.search);
   const group = getGroup(groupSlug);
 
   if (!group) {
     return (
       <div className="mlhub">
-        <Link to={back.to} className="learn-crumb">
-          <ArrowLeft size={13} />
-          <span>{back.label}</span>
-        </Link>
+        <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Group' }]} />
         <h1 className="mlhub-title">Not found</h1>
         <p className="mlhub-sub">No group matches "{groupSlug}".</p>
       </div>
@@ -50,12 +38,7 @@ export default function MLGroup() {
 
   return (
     <div className="mlhub">
-      <Link to={back.to} className="learn-crumb">
-        <ArrowLeft size={13} />
-        <span>{back.label}</span>
-        <span className="learn-crumb-sep">/</span>
-        <span className="learn-crumb-here">{group.title}</span>
-      </Link>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: group.title }]} />
 
       <header className="mlhub-hero">
         <div className="mlhub-hero-icon">
@@ -66,7 +49,7 @@ export default function MLGroup() {
       </header>
 
       <section className={`mlhub-pillars ${group.members.length === 3 ? 'mlhub-pillars-3' : 'mlhub-pillars-2'}`}>
-        {group.members.map(m => {
+        {group.members.map((m, i) => {
           const mod = REGISTRY[m.slug];
           if (!mod) return null;
           const lessonCount = mod.lessons?.length || 0;
@@ -75,7 +58,7 @@ export default function MLGroup() {
             <Link key={m.slug} to={`/ml/${m.slug}${location.search}`} className="mlhub-pillar mlhub-lesson-card">
               <span className="mlhub-pillar-stripe" aria-hidden="true" />
               <div className="mlhub-lesson-thumb" aria-hidden="true">
-                <ForgeThumb seed={m.label} kind={m.slug} label={m.label.split(/\s+/)[0]} />
+                <ForgeThumb seed={m.label} index={i} kind={m.slug} label={m.label.split(/\s+/)[0]} />
               </div>
               <div className="mlhub-lesson-body">
                 <div className="mlhub-lesson-head">

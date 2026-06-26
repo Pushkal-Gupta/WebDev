@@ -3,6 +3,16 @@
 // interview. Each sheet is a list of sections; each section is a list of items
 // with a one-line label and a short, correct snippet. These are reading-and-
 // reference notes, not a graded judge — the code shows the idiomatic shape.
+//
+// Per-section visual metadata (all optional; renderer supplies fallbacks):
+//   icon    — lucide icon name shown in the section header chip
+//   accent  — hue token: 'violet' | 'sky' | 'pink' | 'mint' | 'accent'
+//   diagram — name of a tiny inline SVG illustration (see SHEET_DIAGRAMS)
+//   note    — one-line takeaway pinned under the header
+
+// Cycle of hue accents so neighbouring section cards stay visually distinct
+// even when a sheet's sections don't declare their own.
+export const SHEET_ACCENT_CYCLE = ['violet', 'sky', 'pink', 'mint', 'accent'];
 
 export const PG_FORGE_SHEETS = [
   // ============================== NumPy ==============================
@@ -14,6 +24,9 @@ export const PG_FORGE_SHEETS = [
     sections: [
       {
         heading: 'Create arrays',
+        icon: 'Sparkles',
+        accent: 'mint',
+        note: 'Allocate once, with the dtype and shape you mean.',
         items: [
           { label: 'From a Python list', code: `a = np.array([1, 2, 3])` },
           { label: 'Filled with zeros or ones', code: `np.zeros((2, 3))\nnp.ones((2, 3))` },
@@ -24,6 +37,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Shape and reshape',
+        icon: 'Move3d',
+        accent: 'sky',
+        note: 'Reshapes are views — same memory, new strides.',
         items: [
           { label: 'Inspect shape and rank', code: `a.shape                  # (2, 3)\na.ndim                   # 2\na.size                   # 6` },
           { label: 'Reshape, letting one axis infer', code: `a.reshape(3, -1)         # -1 means "work it out"` },
@@ -33,6 +49,10 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Broadcasting',
+        icon: 'Maximize2',
+        accent: 'violet',
+        diagram: 'broadcast',
+        note: 'Axes align from the right; length-1 axes stretch.',
         items: [
           { label: 'Rule of thumb', code: `# axes align from the right; a length-1 or
 # missing axis stretches to match.
@@ -43,6 +63,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Index and slice',
+        icon: 'Crosshair',
+        accent: 'pink',
+        note: 'Slices view; fancy/boolean indexing copies.',
         items: [
           { label: 'Basic slices share memory', code: `a[1:3]                   # a view, not a copy\na[::-1]                  # reversed view` },
           { label: 'Fancy indexing copies', code: `a[[0, 2, 2]]             # pick rows by index\nm[rows, cols]            # paired index arrays` },
@@ -52,6 +75,10 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Reduce along an axis',
+        icon: 'Minimize2',
+        accent: 'mint',
+        diagram: 'axis-reduce',
+        note: 'axis=k collapses that axis; keepdims keeps a 1.',
         items: [
           { label: 'Sum and mean over one axis', code: `m.sum(axis=0)            # collapse rows\nm.mean(axis=1)           # average each row` },
           { label: 'Keep the reduced axis', code: `m.sum(axis=1, keepdims=True)  # shape (n, 1)` },
@@ -61,6 +88,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Linear algebra',
+        icon: 'Grid3x3',
+        accent: 'sky',
+        note: 'Prefer solve over inv; einsum names every axis.',
         items: [
           { label: 'Dot and matrix multiply', code: `a @ b                    # matmul / dot\nnp.dot(a, b)` },
           { label: 'Einsum for explicit contractions', code: `np.einsum('ij,jk->ik', a, b)   # matmul\nnp.einsum('ii->i', m)          # diagonal\nnp.einsum('ij->', m)           # full sum` },
@@ -70,6 +100,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Random',
+        icon: 'Dices',
+        accent: 'violet',
+        note: 'Seed a Generator; never the legacy global np.random.',
         items: [
           { label: 'Seeded generator (preferred)', code: `rng = np.random.default_rng(0)\nrng.random((2, 3))       # uniform [0, 1)\nrng.normal(0, 1, (2, 3)) # gaussian` },
           { label: 'Integers and shuffles', code: `rng.integers(0, 10, 5)\nrng.permutation(10)` },
@@ -77,6 +110,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Handy idioms',
+        icon: 'Wand2',
+        accent: 'pink',
+        note: 'Vectorised one-liners that replace whole loops.',
         items: [
           { label: 'Normalise rows to unit length', code: `m / np.linalg.norm(m, axis=1, keepdims=True)` },
           { label: 'One-hot encode labels', code: `np.eye(num_classes)[labels]` },
@@ -95,6 +131,9 @@ export const PG_FORGE_SHEETS = [
     sections: [
       {
         heading: 'Tensors and devices',
+        icon: 'Boxes',
+        accent: 'sky',
+        note: 'Pick a device once, then .to(device) everything.',
         items: [
           { label: 'Make a tensor', code: `x = torch.tensor([1.0, 2.0, 3.0])\ntorch.zeros(2, 3)\ntorch.randn(2, 3)        # standard normal` },
           { label: 'Pick a device once, reuse it', code: `device = "cuda" if torch.cuda.is_available() else "cpu"\nx = x.to(device)` },
@@ -104,6 +143,10 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Autograd',
+        icon: 'GitBranch',
+        accent: 'violet',
+        diagram: 'autograd',
+        note: 'forward builds a graph; backward fills .grad.',
         items: [
           { label: 'Track gradients on a leaf', code: `w = torch.randn(3, requires_grad=True)` },
           { label: 'Backprop from a scalar loss', code: `loss = (w ** 2).sum()\nloss.backward()          # fills w.grad` },
@@ -113,6 +156,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Define a model',
+        icon: 'Brain',
+        accent: 'mint',
+        note: '__init__ registers layers; forward wires them.',
         items: [
           { label: 'Subclass nn.Module', code: `class Net(nn.Module):
     def __init__(self):
@@ -131,6 +177,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Common layers',
+        icon: 'Layers',
+        accent: 'sky',
+        note: 'The building blocks every architecture stacks.',
         items: [
           { label: 'Fully connected and conv', code: `nn.Linear(in_features, out_features)\nnn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1)` },
           { label: 'Normalisation and dropout', code: `nn.BatchNorm2d(channels)\nnn.LayerNorm(dim)\nnn.Dropout(p=0.1)` },
@@ -139,6 +188,9 @@ export const PG_FORGE_SHEETS = [
       },
       {
         heading: 'Loss functions',
+        icon: 'Target',
+        accent: 'pink',
+        note: 'Logit-eating losses are the numerically stable ones.',
         items: [
           { label: 'Classification', code: `# expects raw logits, not softmax output
 nn.CrossEntropyLoss()` },
@@ -148,6 +200,10 @@ nn.CrossEntropyLoss()` },
       },
       {
         heading: 'Training loop',
+        icon: 'RefreshCw',
+        accent: 'violet',
+        diagram: 'train-loop',
+        note: 'zero_grad, forward, loss, backward, step — every batch.',
         items: [
           { label: 'Optimizer and step', code: `opt = torch.optim.Adam(net.parameters(), lr=1e-3)
 
@@ -162,6 +218,9 @@ for xb, yb in loader:
       },
       {
         heading: 'Evaluation mode',
+        icon: 'Eye',
+        accent: 'mint',
+        note: 'eval() + no_grad() before you ever measure accuracy.',
         items: [
           { label: 'Disable grad and dropout for inference', code: `net.eval()
 with torch.no_grad():
@@ -171,6 +230,9 @@ with torch.no_grad():
       },
       {
         heading: 'Save and load',
+        icon: 'Save',
+        accent: 'sky',
+        note: 'Save state_dict, not the pickled module object.',
         items: [
           { label: 'Save weights, not the whole object', code: `torch.save(net.state_dict(), "model.pt")` },
           { label: 'Load into the same architecture', code: `net.load_state_dict(torch.load("model.pt"))
@@ -179,6 +241,9 @@ net.eval()` },
       },
       {
         heading: 'Reshape and combine',
+        icon: 'Combine',
+        accent: 'pink',
+        note: 'view shares memory; cat joins, stack adds an axis.',
         items: [
           { label: 'Reshape and add axes', code: `x.view(batch, -1)        # flatten per sample\nx.unsqueeze(1)           # add an axis\nx.permute(0, 2, 1)       # reorder axes` },
           { label: 'Stack and concat', code: `torch.cat([a, b], dim=0)\ntorch.stack([a, b], dim=0)   # new axis` },
@@ -196,6 +261,10 @@ net.eval()` },
     sections: [
       {
         heading: 'Thread, block, grid',
+        icon: 'Grid3x3',
+        accent: 'mint',
+        diagram: 'thread-grid',
+        note: 'global index = blockIdx * blockDim + threadIdx.',
         items: [
           { label: 'Global index of one thread', code: `int i = blockIdx.x * blockDim.x + threadIdx.x;` },
           { label: 'Built-in coordinates', code: `threadIdx.x   // lane within the block
@@ -213,6 +282,10 @@ int row = blockIdx.y * blockDim.y + threadIdx.y;` },
       },
       {
         heading: 'Memory hierarchy',
+        icon: 'Database',
+        accent: 'sky',
+        diagram: 'memory-hierarchy',
+        note: 'Registers fastest, then shared, then global.',
         items: [
           { label: 'Global: large, slow, visible to all', code: `// passed in as pointers; coalesce accesses
 c[i] = a[i] + b[i];` },
@@ -224,6 +297,9 @@ extern __shared__ float buf[]; // dynamic, sized at launch` },
       },
       {
         heading: 'A minimal kernel',
+        icon: 'Code2',
+        accent: 'violet',
+        note: 'Guard with if (i < n); launch with ceil-div blocks.',
         items: [
           { label: 'Define the kernel', code: `__global__ void vec_add(const float* a, const float* b,
                         float* c, int n) {
@@ -238,6 +314,9 @@ cudaDeviceSynchronize();` },
       },
       {
         heading: 'Synchronise',
+        icon: 'AlignJustify',
+        accent: 'pink',
+        note: 'Every thread must reach the same __syncthreads().',
         items: [
           { label: 'Barrier across a block', code: `__syncthreads();   // all threads in the block wait here` },
           { label: 'Rule', code: `// every thread in the block must reach the same
@@ -247,6 +326,9 @@ cudaDeviceSynchronize();` },
       },
       {
         heading: 'Reduction pattern',
+        icon: 'GitMerge',
+        accent: 'mint',
+        note: 'Halve the stride each step until one value remains.',
         items: [
           { label: 'Tree reduce in shared memory', code: `__shared__ float s[256];
 int t = threadIdx.x;
@@ -262,6 +344,9 @@ if (t == 0) out[blockIdx.x] = s[0];` },
       },
       {
         heading: 'Tiled matmul sketch',
+        icon: 'LayoutGrid',
+        accent: 'sky',
+        note: 'Stage tiles into shared memory to reuse loads.',
         items: [
           { label: 'Load a tile, sync, accumulate', code: `__shared__ float As[T][T], Bs[T][T];
 float acc = 0.0f;
@@ -277,6 +362,9 @@ C[row * N + col] = acc;` },
       },
       {
         heading: 'Occupancy notes',
+        icon: 'Gauge',
+        accent: 'violet',
+        note: 'Warp-multiple blocks, coalesced reads, no divergence.',
         items: [
           { label: 'Block size', code: `// pick a multiple of 32 (the warp size).
 // 128 or 256 is a safe default.` },
@@ -300,6 +388,9 @@ C[row * N + col] = acc;` },
     sections: [
       {
         heading: 'Program id and offsets',
+        icon: 'Hash',
+        accent: 'mint',
+        note: 'One program handles one BLOCK-sized slice.',
         items: [
           { label: 'Which block is this instance', code: `pid = tl.program_id(axis=0)` },
           { label: 'Offsets this block owns', code: `offsets = pid * BLOCK + tl.arange(0, BLOCK)` },
@@ -308,6 +399,9 @@ C[row * N + col] = acc;` },
       },
       {
         heading: 'Load and store with masks',
+        icon: 'ArrowLeftRight',
+        accent: 'sky',
+        note: 'Masks keep the ragged tail from reading past the end.',
         items: [
           { label: 'Masked load (out-of-range reads ignored)', code: `x = tl.load(x_ptr + offsets, mask=mask, other=0.0)` },
           { label: 'Masked store (out-of-range writes skipped)', code: `tl.store(out_ptr + offsets, y, mask=mask)` },
@@ -315,6 +409,9 @@ C[row * N + col] = acc;` },
       },
       {
         heading: 'Vector add kernel',
+        icon: 'Plus',
+        accent: 'violet',
+        note: 'The hello-world: load, add, masked store.',
         items: [
           { label: 'The kernel', code: `@triton.jit
 def add_kernel(x_ptr, y_ptr, out_ptr, n, BLOCK: tl.constexpr):
@@ -330,6 +427,9 @@ add_kernel[grid](x, y, out, n, BLOCK=1024)` },
       },
       {
         heading: 'Softmax skeleton (one row per block)',
+        icon: 'Sigma',
+        accent: 'pink',
+        note: 'Subtract the row max before exp for stability.',
         items: [
           { label: 'Load a row, subtract the max, normalise', code: `@triton.jit
 def softmax_kernel(in_ptr, out_ptr, row_stride, n_cols,
@@ -347,6 +447,9 @@ def softmax_kernel(in_ptr, out_ptr, row_stride, n_cols,
       },
       {
         heading: 'Reductions in a block',
+        icon: 'GitMerge',
+        accent: 'mint',
+        note: 'Block-level reductions are a single intrinsic call.',
         items: [
           { label: 'Sum, max, mean along an axis', code: `tl.sum(x, axis=0)
 tl.max(x, axis=0)
@@ -355,6 +458,9 @@ total = tl.sum(x, axis=0)` },
       },
       {
         heading: 'Autotune',
+        icon: 'Gauge',
+        accent: 'sky',
+        note: 'Let the compiler sweep BLOCK and num_warps.',
         items: [
           { label: 'Let Triton pick the best config', code: `@triton.autotune(
     configs=[
@@ -382,6 +488,10 @@ def kernel(...):
     sections: [
       {
         heading: 'Bias and variance',
+        icon: 'Scale',
+        accent: 'violet',
+        diagram: 'bias-variance',
+        note: 'Capacity trades bias for variance — find the dip.',
         items: [
           { label: 'What each one means', code: `# high bias  -> too simple, underfits
 #               train and test error both high
@@ -395,6 +505,9 @@ def kernel(...):
       },
       {
         heading: 'Regularization',
+        icon: 'Shrink',
+        accent: 'sky',
+        note: 'L2 shrinks, L1 sparsifies, dropout perturbs.',
         items: [
           { label: 'L2 (ridge): shrinks weights', code: `loss + lambda * sum(w ** 2)   # smooth, keeps all weights small` },
           { label: 'L1 (lasso): drives weights to zero', code: `loss + lambda * sum(abs(w))   # sparse, does feature selection` },
@@ -404,6 +517,9 @@ def kernel(...):
       },
       {
         heading: 'Losses and when to use them',
+        icon: 'Target',
+        accent: 'pink',
+        note: 'Match the loss to the task and the outlier story.',
         items: [
           { label: 'Cross-entropy for classification', code: `# pairs with a softmax/sigmoid output;
 # penalises confident wrong answers hard.` },
@@ -414,6 +530,9 @@ def kernel(...):
       },
       {
         heading: 'Optimizer cheat sheet',
+        icon: 'Rocket',
+        accent: 'mint',
+        note: 'AdamW is the transformer default; SGD still wins on vision.',
         items: [
           { label: 'SGD with momentum', code: `# simple, well understood, needs a tuned LR.
 # momentum carries velocity through flat regions.` },
@@ -425,6 +544,9 @@ def kernel(...):
       },
       {
         heading: 'Evaluation metrics',
+        icon: 'BarChart3',
+        accent: 'sky',
+        note: 'Accuracy lies on imbalance; reach for F1 and AUC.',
         items: [
           { label: 'Precision and recall', code: `precision = TP / (TP + FP)   # of the flagged, how many right
 recall    = TP / (TP + FN)   # of the real, how many caught` },
@@ -435,6 +557,9 @@ recall    = TP / (TP + FN)   # of the real, how many caught` },
       },
       {
         heading: 'Fixing overfitting',
+        icon: 'Wrench',
+        accent: 'violet',
+        note: 'More data first, then simplify, then cross-validate.',
         items: [
           { label: 'Get more or augment data', code: `# the most reliable fix; augmentation cheaply
 # multiplies what you already have.` },
@@ -444,6 +569,10 @@ recall    = TP / (TP + FN)   # of the real, how many caught` },
       },
       {
         heading: 'Transformers and attention',
+        icon: 'Network',
+        accent: 'pink',
+        diagram: 'attention',
+        note: 'Q·Kᵀ scores, scale, softmax, then weight V.',
         items: [
           { label: 'Scaled dot-product attention', code: `attention(Q, K, V) = softmax(Q @ K.T / sqrt(d_k)) @ V` },
           { label: 'Why divide by sqrt(d_k)', code: `# large dot products push softmax into saturation;
@@ -454,6 +583,9 @@ recall    = TP / (TP + FN)   # of the real, how many caught` },
       },
       {
         heading: 'Gradient-descent gotchas',
+        icon: 'TrendingDown',
+        accent: 'mint',
+        note: 'Normalise inputs, warm up the LR, clip the spikes.',
         items: [
           { label: 'Vanishing and exploding gradients', code: `# deep stacks shrink or blow up gradients;
 # fixes: residual connections, normalisation, clipping.` },

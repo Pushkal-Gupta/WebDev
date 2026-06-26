@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft, Search, X } from 'lucide-react';
+import { useParams } from 'react-router-dom';
+import { Search, X } from 'lucide-react';
+import Breadcrumb from './common/Breadcrumb';
 import { DSA_TUTORIAL } from '../content/dsaTutorial';
 import {
   useProblemsCompact,
@@ -61,14 +62,7 @@ export default function DsaTutorialTopic({ session }) {
   if (!section) {
     return (
       <div className="tut-topic">
-        <div className="tut-topic-sticky">
-          <div className="tut-topic-back">
-            <Link to="/tutorial" className="tut-topic-back-link">
-              <ArrowLeft size={14} />
-              <span>Back to Tutorial</span>
-            </Link>
-          </div>
-        </div>
+        <Breadcrumb items={[{ label: 'Tutorial', to: '/tutorial' }, { label: 'Topic' }]} />
         <div className="tut-topic-notfound">
           <h1>Topic not found</h1>
           <p>That topic slug does not exist. Head back and pick another.</p>
@@ -85,10 +79,7 @@ export default function DsaTutorialTopic({ session }) {
     <div className="tut-topic">
       <div className="tut-topic-sticky">
         <div className="tut-topic-back">
-          <Link to="/tutorial" className="tut-topic-back-link">
-            <ArrowLeft size={14} />
-            <span>Back to Tutorial</span>
-          </Link>
+          <Breadcrumb items={[{ label: 'Tutorial', to: '/tutorial' }, { label: section.title || 'Topic' }]} />
           <span className="tut-topic-back-num">
             {String(sectionIdx + 1).padStart(2, '0')} / {String(DSA_TUTORIAL.length).padStart(2, '0')}
           </span>

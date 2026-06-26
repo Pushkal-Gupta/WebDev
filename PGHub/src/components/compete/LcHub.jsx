@@ -8,6 +8,7 @@ import {
 import { supabase } from '../../lib/supabase';
 import { useLeetCodeUser, useProfile } from '../../lib/queries';
 import { predictDelta } from '../contests/LeetCodeAnalytics';
+import Breadcrumb from '../common/Breadcrumb';
 import './LcHub.css';
 
 const SAMPLE_FIELD = [3240, 2980, 2510, 2180, 1840, 1620, 1500, 1390, 1310, 1240, 1180, 1120];
@@ -139,11 +140,7 @@ export default function LcHub() {
 
   return (
     <div className="lch-wrap">
-      <nav className="lch-crumbs" aria-label="Breadcrumb">
-        <Link to="/compete">PGBattle</Link>
-        <ChevronRight size={13} aria-hidden />
-        <span>LeetCode</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'Compete', to: '/compete' }, { label: 'LeetCode' }]} />
 
       <header className="lch-hero">
         <h1 className="lch-title">LeetCode</h1>

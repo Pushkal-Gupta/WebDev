@@ -228,14 +228,20 @@ export default function BubbleSortViz() {
             const isCompare = compareSet && (i === compareSet[0] || i === compareSet[1]);
             const isSwap = isCompare && current.swapping;
             const isSorted = i >= current.sortedFrom;
+            // Resting/sorted bars are coloured BY VALUE across a sky -> pink spectrum,
+            // so the array is rich at rest and a finished sort reads as a clean
+            // gradient. Compare/swap override the fill; sorted keeps its value colour
+            // and gains a green outline so "locked in" still reads.
+            const pct = Math.round((v / maxVal) * 100);
+            const valueColor = `color-mix(in srgb, var(--hue-sky), var(--hue-pink) ${pct}%)`;
             const fill = isSwap ? 'var(--hard)'
               : isCompare ? 'var(--hue-pink)'
-              : isSorted ? 'var(--easy)'
-              : 'rgba(var(--accent-rgb), 0.55)';
+              : valueColor;
             const stroke = isSwap ? 'var(--hard)'
               : isCompare ? 'var(--hue-pink)'
               : isSorted ? 'var(--easy)'
-              : 'var(--accent)';
+              : valueColor;
+            const sw = isCompare ? 2.6 : isSorted ? 2.2 : 1.2;
             return (
               <g key={`bar-${i}`}>
                 <rect
@@ -245,8 +251,9 @@ export default function BubbleSortViz() {
                   height={h}
                   rx={4}
                   fill={fill}
+                  fillOpacity={isCompare || isSwap ? 1 : 0.9}
                   stroke={stroke}
-                  strokeWidth={isCompare ? 2.4 : 1.2}
+                  strokeWidth={sw}
                 />
                 <text x={x + barW / 2} y={y - 7} className="bsv-bar-val">{v}</text>
                 <text x={x + barW / 2} y={baseY + 18} className="bsv-bar-idx">{i}</text>

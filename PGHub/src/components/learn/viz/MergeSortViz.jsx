@@ -323,21 +323,30 @@ export default function MergeSortViz() {
             const isPlaced = placedSet.has(i);
             const isDone = current.phase === 'done';
 
-            let fill = 'rgba(var(--accent-rgb), 0.5)';
-            if (isDone || (current.phase === 'merged' && isPlaced)) fill = 'var(--easy)';
-            else if (isPlaced) fill = 'rgba(var(--easy-rgb, var(--accent-rgb)), 0.55)';
+            // Resting bars are coloured BY VALUE across a sky -> pink spectrum so the
+            // array reads rich at rest. Merge-state overrides (pointers, placed, done)
+            // still win; a fully merged/sorted bar keeps its value colour but takes the
+            // green outline so "locked in its run" still reads.
+            const pct = Math.round((v / maxVal) * 100);
+            const valueColor = `color-mix(in srgb, var(--hue-sky), var(--hue-pink) ${pct}%)`;
+
+            let fill = valueColor;
+            if (isDone || (current.phase === 'merged' && isPlaced)) fill = valueColor;
+            else if (isPlaced) fill = valueColor;
             else if (isLeftPtr) fill = 'var(--hue-sky)';
             else if (isRightPtr) fill = 'var(--hue-violet)';
-            else if (inLeft) fill = 'rgba(var(--accent-rgb), 0.32)';
-            else if (inRight) fill = 'rgba(var(--accent-rgb), 0.32)';
 
-            let stroke = 'var(--accent)';
+            let stroke = valueColor;
             if (isDone || current.phase === 'merged') stroke = 'var(--easy)';
+            else if (isPlaced) stroke = 'var(--easy)';
             else if (isLeftPtr) stroke = 'var(--hue-sky)';
             else if (isRightPtr) stroke = 'var(--hue-violet)';
             else if (isWrite) stroke = 'var(--hue-pink)';
 
             const emphasized = isLeftPtr || isRightPtr || isWrite;
+            const settledStroke = isDone || current.phase === 'merged' || isPlaced;
+            const inActiveRange = inLeft || inRight;
+            const sw = emphasized ? 2.4 : settledStroke ? 2.2 : inActiveRange ? 1.8 : 1.2;
             return (
               <g key={`bar-${i}`}>
                 <rect
@@ -347,8 +356,9 @@ export default function MergeSortViz() {
                   height={h}
                   rx={4}
                   fill={fill}
+                  fillOpacity={emphasized ? 1 : 0.9}
                   stroke={stroke}
-                  strokeWidth={emphasized ? 2.4 : 1.2}
+                  strokeWidth={sw}
                 />
                 <text x={x + barW / 2} y={y - 7} className="msv-bar-val">{v}</text>
                 <text x={x + barW / 2} y={baseY + 18} className="msv-bar-idx">{i}</text>

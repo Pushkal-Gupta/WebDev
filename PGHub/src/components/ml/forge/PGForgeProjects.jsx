@@ -1,18 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, FolderGit2, ArrowRight } from 'lucide-react';
+import { FolderGit2, ArrowRight } from 'lucide-react';
 import { PG_FORGE_PROJECTS } from './pgForgeProjectsData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeProjects.css';
 
 export default function PGForgeProjects() {
   return (
     <div className="forge-pj">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Projects</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Projects' }]} />
 
       <header className="forge-pj-header">
         <h1 className="forge-pj-title">
@@ -25,10 +22,10 @@ export default function PGForgeProjects() {
       </header>
 
       <section className="forge-pj-grid">
-        {PG_FORGE_PROJECTS.map((p) => (
+        {PG_FORGE_PROJECTS.map((p, i) => (
           <Link key={p.slug} to={`/ml/projects/${p.slug}`} className="forge-pj-card">
             <div className="forge-thumb-frame forge-pj-card-thumb">
-              <ForgeThumb seed={p.title} topic={p.tags && p.tags[0]} label={p.title} />
+              <ForgeThumb seed={p.title} index={i} topic={p.tags && p.tags[0]} label={p.title} />
               <span className={`forge-pj-diff forge-pj-diff-${p.difficulty}`}>{p.difficulty}</span>
             </div>
             <div className="forge-pj-card-body">

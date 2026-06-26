@@ -163,13 +163,19 @@ export default function InsertionSortViz({ seed = 7 }) {
             const isKey = i === cur.keyIdx;
             const isCmp = i === cur.cmpIdx;
             const inSorted = i < cur.sortedTo;
-            let fill = inSorted ? 'rgba(var(--accent-rgb), 0.45)' : 'var(--bg)';
-            let stroke = 'var(--border)';
+            // Resting bars are coloured BY VALUE across a sky -> pink spectrum so the
+            // array reads rich at rest and a finished sort is a clean gradient. The
+            // algorithm's compare/key states still override; sorted bars keep their
+            // value colour and gain a green outline so the locked prefix still reads.
+            const pct = Math.round((v / max) * 100);
+            const valueColor = `color-mix(in srgb, var(--hue-sky), var(--hue-pink) ${pct}%)`;
+            let fill = valueColor;
+            let stroke = inSorted ? 'var(--easy)' : valueColor;
             if (isCmp) { fill = 'var(--medium)'; stroke = 'var(--medium)'; }
             if (isKey) { fill = 'var(--hue-violet)'; stroke = 'var(--hue-violet)'; }
             return (
               <g key={i}>
-                <rect x={x + 6} y={y} width={slotW - 12} height={h} rx={4} fill={fill} stroke={stroke} strokeWidth={isKey || isCmp ? 2.4 : 1.4} />
+                <rect x={x + 6} y={y} width={slotW - 12} height={h} rx={4} fill={fill} fillOpacity={isKey || isCmp ? 1 : 0.9} stroke={stroke} strokeWidth={isKey || isCmp ? 2.4 : inSorted ? 2.2 : 1.4} />
                 <text x={x + slotW / 2} y={y - 6} className="isv-bar-label">{v}</text>
                 <text x={x + slotW / 2} y={H - 22} className="isv-idx-label">{i}</text>
               </g>

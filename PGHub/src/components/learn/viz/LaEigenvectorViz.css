@@ -1,0 +1,91 @@
+.lev { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.lev-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.lev-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.lev-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.lev-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.lev-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.lev-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.lev-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.lev-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.lev-presets { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.lev-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.lev-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.lev-controls { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.55rem; }
+.lev-slider {
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.4rem 0.55rem;
+}
+.lev-slider-key { flex: 0 0 auto; color: var(--accent); }
+.lev-slider-key .katex { color: var(--accent); }
+.lev-slider input[type="range"] {
+  flex: 1 1 auto; min-width: 0; accent-color: var(--accent); cursor: pointer;
+}
+.lev-slider-val { flex: 0 0 auto; font-size: 0.72rem; color: var(--text-dim); min-width: 2.6em; text-align: right; }
+
+.lev-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.lev-svg { width: 100%; height: auto; display: block; }
+
+.lev-grid { stroke: var(--border); stroke-width: 0.5; opacity: 0.4; }
+.lev-axis { stroke: var(--text-dim); stroke-width: 1.2; opacity: 0.7; }
+
+.lev-pre { stroke: var(--text-dim); stroke-width: 1; opacity: 0.4; }
+.lev-post { stroke: var(--hue-sky); stroke-width: 1.6; opacity: 0.78; }
+.lev-post-anim { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+
+.lev-eigenline { stroke-width: 1.4; stroke-dasharray: 7 5; opacity: 0.55; }
+.lev-eigenline-1 { stroke: var(--accent); }
+.lev-eigenline-2 { stroke: var(--hue-pink); }
+.lev-eigenvec { stroke-width: 3.4; }
+.lev-eigenvec-1 { stroke: var(--accent); }
+.lev-eigenvec-2 { stroke: var(--hue-pink); }
+
+.lev-rot-icon { color: var(--warning); opacity: 0.85; }
+
+.lev-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; align-items: stretch; }
+.lev-stats-rot { grid-template-columns: 1fr; }
+.lev-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.lev-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.lev-stat-val { font-size: 0.84rem; color: var(--text-main); line-height: 1.45; }
+.lev-stat-val .katex { color: var(--text-main); }
+.lev-stat-sub { font-size: 0.78rem; color: var(--text-dim); }
+.lev-stat-sub .katex { color: var(--text-dim); }
+.lev-accent { border-color: var(--accent); }
+.lev-accent .lev-stat-val .katex { color: var(--accent); }
+.lev-pink { border-color: var(--hue-pink); }
+.lev-pink .lev-stat-val .katex { color: var(--hue-pink); }
+.lev-warn { border-color: var(--warning); }
+.lev-warn .lev-stat-val { color: var(--text-main); }
+.lev-warn .katex { color: var(--warning); }
+
+.lev-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.lev-trace-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.lev-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 720px) {
+  .lev-controls { grid-template-columns: repeat(2, 1fr); }
+  .lev-stats { grid-template-columns: 1fr; }
+}

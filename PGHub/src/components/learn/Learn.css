@@ -1920,27 +1920,20 @@
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem;
-  /* The primary diagram STAYS in view while the reader scrolls the step-by-step
-     walkthrough below it (sticky, just under the nav). The visualization SCALES
-     to fit this card — no inner scrollbar (CLAUDE.md: only the page scrolls).
-     Sideways bleed is clipped; the child shrinks to fit the bounded height. */
+  /* The stage GROWS to fit its visualization — never clips it. Pure-SVG viz scale
+     to the width via their own viewBox; rich interactive viz (controls + array +
+     readouts, e.g. BubbleSortViz) keep their natural height. No inner scrollbar,
+     no clipping (CLAUDE.md: only the page scrolls, and nothing is cut off). */
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
   min-height: 320px;
-  max-height: 62vh;
-  position: sticky;
-  top: calc(var(--pg-nav-h, 120px) + 0.75rem);
-  z-index: 1;
 }
-/* Let the hero child fill the stage width and scale down to fit its height
-   (object-fit handles media; SVG/canvas viz scale via their own viewBox). */
+/* The hero child fills the stage width; SVG/canvas viz scale via their viewBox. */
 .viz-detail-stage > * {
   width: 100%;
   max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
 }
 
 .viz-detail-section {
@@ -2061,7 +2054,10 @@
 .viz-gallery-container > .viz-member-grid {
   flex: 1 1 auto;
   min-height: 0;
-  align-content: start;
+  /* Rows grow to consume the column height so the grid fills the viewport instead
+     of top-packing and leaving a dead band at the bottom (NO-EMPTY-SPACE rule). */
+  align-content: stretch;
+  grid-auto-rows: minmax(150px, 1fr);
 }
 
 .viz-search {
@@ -2120,7 +2116,7 @@
 .viz-cat-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.1rem;
+  gap: 0.8rem;
   /* stretch → every card in a row is the same height (no ragged gaps under
      shorter cards); the CTA is pinned to the bottom via margin-top:auto below. */
   align-items: stretch;
@@ -2136,8 +2132,10 @@
   border-radius: 12px;
   background: var(--surface);
   overflow: hidden;
-  /* No top padding — the banner bleeds to the card edges. */
-  padding: 0 1.4rem 1.25rem;
+  /* No top padding — the banner bleeds to the card edges. Generous bottom
+     padding so the viz-count + INTERACTIVE chips finish with air beneath them
+     inside the card (breathing-space rule), never flush to the border. */
+  padding: 0 1.4rem 2.1rem;
   text-decoration: none;
   transition: border-color var(--t), box-shadow var(--t), transform var(--t);
 }

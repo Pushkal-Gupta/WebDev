@@ -53,6 +53,11 @@ const MOTIFS = [
   'transformer', 'schedule', 'cluster', 'project',
 ];
 
+// Stride for positional (index-based) motif assignment. Coprime to MOTIFS.length
+// (31) so stepping by it visits every motif exactly once — consecutive cards get
+// well-separated, never-repeating shapes. Keep coprime if MOTIFS grows.
+const MOTIF_STRIDE = 13;
+
 // Explicit content -> motif map. A card that knows its real subject (a problem
 // CATEGORY, a Foundations TOPIC/module, a project TAG, a study-plan SLUG) passes
 // it as `topic` and gets the matching on-topic picture directly — no guessing.
@@ -216,37 +221,42 @@ function topicKey(topic) {
 }
 
 function pickMotif(kind, seed, topic) {
-  // 1. explicit topic wins — the on-topic, never-collides path.
-  if (topic) {
-    const key = topicKey(topic);
-    if (TOPIC_MOTIF[key]) return TOPIC_MOTIF[key];
-    const spaced = key.replace(/-/g, ' ');
-    if (TOPIC_MOTIF[spaced]) return TOPIC_MOTIF[spaced];
+  // UNIQUENESS-FIRST. A unique seed (the card's own title) scatters across the
+  // FULL motif pool, salted by kind+topic, so two cards never share a motif just
+  // because they share a category. (Previously kind/topic short-circuited and
+  // collapsed every same-category card onto one motif — all "activation" cards
+  // became bars, all "reduction" cards became trees, etc.) Combined with the
+  // seed-decoupled colour pair + seeded jitter, every card draws a distinct image.
+  if (seed) {
+    return MOTIFS[hash(`m:${seed}|${kind || ''}|${topic || ''}`) % MOTIFS.length];
   }
-  // 2. explicit kind, if it names a motif directly.
+  // No seed — fall back to kind, then topic, then a default.
   if (kind && kind !== 'auto') {
     const k = kind.toLowerCase();
     if (MOTIFS.includes(k)) return k;
     if (ALIASES[k]) return ALIASES[k];
     if (TOPIC_MOTIF[topicKey(k)]) return TOPIC_MOTIF[topicKey(k)];
   }
-  // 3. keyword rules over the seed/title.
-  for (const [re, motif] of RULES) if (re.test(seed)) return motif;
-  // 4. no match — deterministically scatter across all motifs by hash so generic
-  // titles still differ from one another instead of all defaulting.
-  if (seed) return MOTIFS[hash(`m:${seed}`) % MOTIFS.length];
+  if (topic) {
+    const key = topicKey(topic);
+    if (TOPIC_MOTIF[key]) return TOPIC_MOTIF[key];
+    const spaced = key.replace(/-/g, ' ');
+    if (TOPIC_MOTIF[spaced]) return TOPIC_MOTIF[spaced];
+  }
   return 'scatter';
 }
 
 // Short corner label. Honours an explicit prop, otherwise derives 1-2 words from
 // topic/kind/seed so every thumbnail carries some kind of name.
 function pickLabel(label, kind, seed, topic) {
-  if (label) return label.slice(0, 14);
-  if (topic) return topic.slice(0, 14);
-  if (kind && kind !== 'auto') return kind.slice(0, 14);
+  // Keep whole words — the SVG text auto-compresses to fit, so we never cut a word
+  // mid-character ("Numerical Stab"). Cap generously to avoid absurdly long tags.
+  if (label) return label.slice(0, 26);
+  if (topic) return topic.slice(0, 26);
+  if (kind && kind !== 'auto') return kind.slice(0, 26);
   const words = (seed || '').trim().split(/\s+/).filter(Boolean);
   if (!words.length) return 'forge';
-  return words.slice(0, 2).join(' ').slice(0, 14);
+  return words.slice(0, 3).join(' ').slice(0, 26);
 }
 
 // All motifs receive a seeded `rand` stream so the same motif jitters per card.
@@ -698,7 +708,7 @@ function Motif({ name, c1, c2, rand }) {
   }
 }
 
-export default function ForgeThumb({ kind = 'auto', seed = '', topic = '', label, className = '' }) {
+export default function ForgeThumb({ kind = 'auto', seed = '', topic = '', label, index = null, className = '' }) {
   const { motif, c1, c2, hi, tag } = useMemo(() => {
     // Decouple the colour pair: c1 from the seed, c2 from an independent salted
     // hash, and force them apart so no card shows a same-colour-on-same-colour
@@ -709,14 +719,22 @@ export default function ForgeThumb({ kind = 'auto', seed = '', topic = '', label
     const i1 = h1 % HUES.length;
     let i2 = h2 % HUES.length;
     if (i2 === i1) i2 = (i2 + 1 + (h2 % (HUES.length - 1))) % HUES.length;
+    // When the parent passes a card `index`, assign the motif POSITIONALLY with a
+    // stride coprime to the pool size — this guarantees every card on the page
+    // draws a DIFFERENT motif (no hash-collision repeats), spread across the pool
+    // so neighbours never share a shape. Colour stays seed-based, so each card is
+    // still individually distinct. Without an index, fall back to seed scatter.
+    const motifVal = (typeof index === 'number')
+      ? MOTIFS[((index * MOTIF_STRIDE) % MOTIFS.length + MOTIFS.length) % MOTIFS.length]
+      : pickMotif(kind, seed, topic);
     return {
-      motif: pickMotif(kind, seed, topic),
+      motif: motifVal,
       c1: HUES[i1],
       c2: HUES[i2],
       hi: i1,
       tag: pickLabel(label, kind, seed, topic),
     };
-  }, [kind, seed, topic, label]);
+  }, [kind, seed, topic, label, index]);
 
   // A fresh PRNG per render keyed on the card's full identity. Deterministic:
   // the same card always draws the same jitter, different cards differ.
@@ -740,8 +758,26 @@ export default function ForgeThumb({ kind = 'auto', seed = '', topic = '', label
       <rect x="0" y="0" width="120" height="80" fill="url(#ft-glow)" />
       <Motif name={motif} c1={c1} c2={c2} rand={rand} />
       <g className="ft-tag" aria-hidden="true">
-        <rect className="ft-tag-bg" x="4" y="66" width={Math.min(112, 9 + tag.length * 5.4)} height="11" rx="3" />
-        <text className="ft-tag-text" x="8" y="74">{tag.toUpperCase()}</text>
+        {(() => {
+          const text = tag.toUpperCase();
+          const estW = text.length * 5.6; // rough glyph width at the tag font size
+          const MAX_W = 104; // keep within the 120-wide viewBox with side padding
+          const fit = estW > MAX_W;
+          const boxW = Math.min(112, 9 + (fit ? MAX_W : estW));
+          return (
+            <>
+              <rect className="ft-tag-bg" x="4" y="66" width={boxW} height="11" rx="3" />
+              <text
+                className="ft-tag-text"
+                x="8"
+                y="74"
+                {...(fit ? { textLength: MAX_W, lengthAdjust: 'spacingAndGlyphs' } : {})}
+              >
+                {text}
+              </text>
+            </>
+          );
+        })()}
       </g>
     </svg>
   );

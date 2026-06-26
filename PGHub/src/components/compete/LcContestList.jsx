@@ -1,18 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import {
   Trophy,
   Clock,
   Calendar,
   Radio,
-  ChevronRight,
   CalendarOff,
-  ArrowLeft,
   ArrowDownWideNarrow,
   ArrowUpNarrowWide,
 } from 'lucide-react';
 import './LcContestList.css';
 import { useExternalContests } from '../../lib/queries';
+import Breadcrumb from '../common/Breadcrumb';
 
 const FILTERS = [
   { key: 'all', label: 'All' },
@@ -100,18 +98,13 @@ export default function LcContestList() {
 
   return (
     <div className="lcc-container">
-      <Link to="/compete/leetcode" className="lcc-back">
-        <ArrowLeft size={14} />
-        Back to LeetCode
-      </Link>
-
-      <nav className="lcc-breadcrumb">
-        <Link to="/compete">Compete</Link>
-        <ChevronRight size={13} />
-        <Link to="/compete/leetcode">LeetCode</Link>
-        <ChevronRight size={13} />
-        <span>Contests</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: 'Compete', to: '/compete' },
+          { label: 'LeetCode', to: '/compete/leetcode' },
+          { label: 'Contests' },
+        ]}
+      />
 
       <header className="lcc-header">
         <h1 className="lcc-title">

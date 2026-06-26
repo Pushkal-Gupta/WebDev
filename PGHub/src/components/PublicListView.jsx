@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Globe, ArrowLeft } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { usePublicList, useMyListProblems, useUserProgress } from '../lib/queries';
+import Breadcrumb from './common/Breadcrumb';
 import StatusPill from './StatusPill';
 import { legacyToStatus } from '../lib/status';
 import './MyLists.css';
@@ -16,6 +17,7 @@ export default function PublicListView({ session }) {
   if (isLoading) {
     return (
       <div className="ml-container">
+        <Breadcrumb items={[{ label: 'Lists', to: '/lists' }, { label: 'Shared list' }]} />
         <div className="ml-skel">
           <div className="skel skel-text" />
           <div className="skel skel-row-full" />
@@ -28,6 +30,7 @@ export default function PublicListView({ session }) {
   if (isError) {
     return (
       <div className="ml-container">
+        <Breadcrumb items={[{ label: 'Lists', to: '/lists' }, { label: 'Shared list' }]} />
         <div className="ml-empty">
           <h2 className="ml-empty-title">Couldn&rsquo;t load shared list</h2>
           <p className="ml-empty-sub">
@@ -43,6 +46,7 @@ export default function PublicListView({ session }) {
   if (!list) {
     return (
       <div className="ml-container">
+        <Breadcrumb items={[{ label: 'Lists', to: '/lists' }, { label: 'Shared list' }]} />
         <div className="ml-empty">
           <h2 className="ml-empty-title">List not found</h2>
           <p className="ml-empty-sub">
@@ -56,9 +60,7 @@ export default function PublicListView({ session }) {
 
   return (
     <div className="ml-container">
-      <Link to="/lists" className="ml-back" style={{ textDecoration: 'none' }}>
-        <ArrowLeft size={13} /> My Lists
-      </Link>
+      <Breadcrumb items={[{ label: 'Lists', to: '/lists' }, { label: list.name || 'Shared list' }]} />
       <header className="ml-header">
         <h1 className="ml-title">{list.name}</h1>
         <p className="ml-sub">

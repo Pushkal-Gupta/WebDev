@@ -11,7 +11,10 @@ import { primaryTopicLabel } from '../lib/topicLabel';
 import StatusPill from './StatusPill';
 import { legacyToStatus } from '../lib/status';
 import ForgeThumb from './ml/forge/ForgeThumb';
+import Breadcrumb from './common/Breadcrumb';
 import './Assessments.css';
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'Assessments' }];
 
 // Keyword -> ForgeThumb archetype, so each topic card carries a distinct,
 // topic-related motif. First match wins; specific patterns precede generic ones
@@ -139,13 +142,7 @@ export default function Assessments({ session, roadmapMode = '500' }) {
 
   return (
     <div className="asm-container">
-      <nav className="vault-crumbs" aria-label="Breadcrumb">
-        <Link to="/vault" className="vault-crumbs-back">
-          <ArrowLeft size={12} /> Vault
-        </Link>
-        <span className="vault-crumbs-sep">/</span>
-        <span className="vault-crumbs-current">Assessments</span>
-      </nav>
+      <Breadcrumb items={CRUMBS} />
       <header className="asm-header">
         <h1 className="asm-title">Assessments</h1>
         <p className="asm-sub">

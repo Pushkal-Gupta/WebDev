@@ -1,3 +1,9 @@
+import { C_BASICS_COURSE } from './courses/cBasics.js';
+import { KOTLIN_BASICS_COURSE } from './courses/kotlinBasics.js';
+import { CSHARP_BASICS_COURSE } from './courses/csharpBasics.js';
+import { RUBY_BASICS_COURSE } from './courses/rubyBasics.js';
+import { PHP_BASICS_COURSE } from './courses/phpBasics.js';
+
 // Course registry. Each course has lessons; each lesson can have a runnable
 // code sample + an optional exercise with an expected stdout for auto-grading.
 //
@@ -8178,6 +8184,11 @@ export const COURSES = {
     ],
     lessons: HTMLCSS_LESSONS,
   },
+  "c-basics": C_BASICS_COURSE,
+  "kotlin-basics": KOTLIN_BASICS_COURSE,
+  "csharp-basics": CSHARP_BASICS_COURSE,
+  "ruby-basics": RUBY_BASICS_COURSE,
+  "php-basics": PHP_BASICS_COURSE,
 };
 
 export const COURSE_CARDS = Object.values(COURSES).map(c => ({

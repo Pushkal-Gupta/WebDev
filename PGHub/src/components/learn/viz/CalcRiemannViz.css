@@ -1,0 +1,61 @@
+.crv { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.crv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.crv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.crv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.crv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.crv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.crv-sub .katex { font-size: 0.92em; color: var(--text-main); margin: 0 0.15em; }
+.crv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.crv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.crv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.crv-svg { width: 100%; height: auto; display: block; }
+.crv-axis-lbl { fill: var(--text-dim); font-size: 0.7rem; font-family: var(--mono); }
+
+.crv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.crv-slider { flex: 1 1 260px; display: flex; align-items: center; gap: 0.55rem; font-size: 0.74rem; color: var(--text-dim); }
+.crv-slider span:first-child { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+.crv-slider input { flex: 1 1 auto; accent-color: var(--accent); }
+.crv-slider-val { font-weight: 700; color: var(--accent); min-width: 2.6ch; text-align: right; }
+
+.crv-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.crv-seg-btn {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 0.38rem 0.7rem;
+  background: var(--surface); color: var(--text-dim); border: none; cursor: pointer;
+  border-right: 1px solid var(--border); transition: color var(--t), background var(--t);
+}
+.crv-seg-btn:last-child { border-right: none; }
+.crv-seg-btn:hover { color: var(--accent); }
+.crv-seg-on { background: var(--hover-box); color: var(--accent); }
+
+.crv-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.crv-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.crv-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.crv-stat-val { font-size: 0.82rem; color: var(--text-main); }
+.crv-stat-val .katex { color: var(--text-main); }
+.crv-accent { border-color: var(--accent); }
+.crv-accent .katex { color: var(--accent); }
+.crv-green { border-color: var(--easy); }
+.crv-green .katex { color: var(--easy); }
+
+.crv-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.crv-trace-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.crv-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .crv-stats { grid-template-columns: repeat(2, 1fr); } }

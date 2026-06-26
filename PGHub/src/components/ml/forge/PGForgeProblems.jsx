@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Code2, Search, ArrowRight } from 'lucide-react';
+import { Code2, Search, ArrowRight } from 'lucide-react';
 import { PG_FORGE_PROBLEMS, PG_FORGE_CATEGORIES } from './pgForgeProblemsData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeProblems.css';
 
@@ -24,11 +25,7 @@ export default function PGForgeProblems() {
 
   return (
     <div className="forge-pb">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Problems</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Problems' }]} />
 
       <header className="forge-pb-header">
         <h1 className="forge-pb-title">Build the machinery yourself</h1>
@@ -94,10 +91,10 @@ export default function PGForgeProblems() {
         <p className="forge-pb-none">No problems match those filters.</p>
       ) : (
         <div className="forge-pb-grid">
-          {filtered.map((p) => (
+          {filtered.map((p, i) => (
             <Link key={p.slug} to={`/ml/problems/${p.slug}`} className="forge-pb-card">
               <div className="forge-thumb-frame forge-pb-card-thumb">
-                <ForgeThumb seed={p.title} topic={p.category} />
+                <ForgeThumb seed={p.title} index={i} topic={p.category} />
                 <span className={`forge-pb-diff forge-pb-diff-${p.difficulty}`}>{p.difficulty}</span>
               </div>
               <div className="forge-pb-card-body">

@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ChevronRight, ArrowLeft, Trophy, Clock, Play, Square, Award,
+  ChevronRight, Trophy, Clock, Play, Square, Award,
   Hourglass, Flag, Target, CalendarClock, Layers, ListChecks, Gauge,
   ListOrdered, Globe, TrendingUp, TrendingDown, Minus, ChevronLeft,
 } from 'lucide-react';
@@ -14,6 +14,7 @@ import {
 import { predictDelta } from './LeetCodeAnalytics';
 import StatusPill from '../StatusPill';
 import { legacyToStatus } from '../../lib/status';
+import Breadcrumb from '../common/Breadcrumb';
 import './Contests.css';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -290,6 +291,7 @@ export default function ContestDetail({ session }) {
   if (isLoading) {
     return (
       <div className="ctx-container">
+        <Breadcrumb items={[{ label: 'Contests', to: '/contests' }, { label: 'Contest' }]} />
         <div className="ctx-skeleton">
           <div className="skel skel-text" />
           <div className="skel skel-row-full" />
@@ -301,11 +303,10 @@ export default function ContestDetail({ session }) {
   if (isError) {
     return (
       <div className="ctx-container">
+        <Breadcrumb items={[{ label: 'Contests', to: '/contests' }, { label: 'Contest' }]} />
         <div className="ctx-empty">
           <h2 className="ctx-empty-title">Couldn&rsquo;t load contest</h2>
-          <p className="ctx-empty-sub">{error?.message || 'Network error.'}{' '}
-            <Link to="/contests">Back to contests</Link>.
-          </p>
+          <p className="ctx-empty-sub">{error?.message || 'Network error.'}</p>
         </div>
       </div>
     );
@@ -314,9 +315,9 @@ export default function ContestDetail({ session }) {
   if (!contest) {
     return (
       <div className="ctx-container">
+        <Breadcrumb items={[{ label: 'Contests', to: '/contests' }, { label: 'Contest' }]} />
         <div className="ctx-empty">
           <h2 className="ctx-empty-title">Contest not found</h2>
-          <p className="ctx-empty-sub"><Link to="/contests">Back to contests</Link></p>
         </div>
       </div>
     );
@@ -326,15 +327,7 @@ export default function ContestDetail({ session }) {
 
   return (
     <div className="ctx-container ctx-detail">
-      <nav className="ctx-breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/contests">Contests</Link>
-        <ChevronRight size={12} />
-        <span>{contest.name}</span>
-      </nav>
-
-      <Link to="/contests" className="ctx-back">
-        <ArrowLeft size={13} /> All contests
-      </Link>
+      <Breadcrumb items={[{ label: 'Contests', to: '/contests' }, { label: contest.name || 'Contest' }]} />
 
       <header className={`ctx-hero ctx-hero-${status}`} style={{ '--hero-hue': ringHue }}>
         <div className="ctx-hero-ring">

@@ -1,0 +1,42 @@
+/* Canonical breadcrumb back-nav — shared across every nested route.
+   Mono, compact, uppercase: matches the established vault crumb look so the
+   gutter reads the same on Vault / PGForge / Companies / Compete / Learn. */
+.pg-crumbs {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 0.9rem;
+}
+
+.pg-crumbs-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color var(--t, 0.15s ease);
+}
+a.pg-crumbs-link:hover { color: var(--accent); }
+
+.pg-crumbs-arrow { flex-shrink: 0; }
+
+.pg-crumbs-sep {
+  color: var(--text-dim);
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+
+.pg-crumbs-current {
+  color: var(--text-main);
+  font-weight: 600;
+  max-width: 38ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

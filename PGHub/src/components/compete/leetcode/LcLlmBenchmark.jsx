@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Cpu, Gauge, AlertTriangle, Lightbulb } from 'lucide-react';
 import { LLM_MODELS, LLM_DIFFICULTIES, LLM_FAILURE_MODES, LLM_TAKEAWAYS } from './lcLlmData';
+import Breadcrumb from '../../common/Breadcrumb';
 import './LcLlmBenchmark.css';
 
 const DIFF_TOKEN = { Easy: 'var(--easy)', Medium: 'var(--medium)', Hard: 'var(--hard)' };
@@ -63,6 +64,13 @@ export default function LcLlmBenchmark() {
 
   return (
     <div className="llm-page">
+      <Breadcrumb
+        items={[
+          { label: 'Compete', to: '/compete' },
+          { label: 'LeetCode', to: '/compete/leetcode' },
+          { label: 'LLM benchmark' },
+        ]}
+      />
       <header className="llm-head">
         <h1 className="llm-title"><Cpu size={24} /> LLMs on LeetCode</h1>
         <p className="llm-sub">How language models score on rated contest problems — solve rate by difficulty, projected contest rating, and where they break.</p>

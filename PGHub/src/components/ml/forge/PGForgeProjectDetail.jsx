@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ChevronRight, Clock, ArrowLeft, Target, Hammer, Wrench, Code2, ListChecks,
+  Clock, ArrowLeft, Target, Hammer, Wrench, Code2, ListChecks,
   Gauge, Layers, Flag, CheckCircle2, Play,
 } from 'lucide-react';
 import { getProject } from './pgForgeProjectsData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import RunnableCodePanel from '../../RunnableCodePanel';
 import './PGForgeProjectDetail.css';
@@ -29,13 +30,13 @@ export default function PGForgeProjectDetail() {
   if (!project) {
     return (
       <div className="forge-pjd">
-        <nav className="forge-crumb">
-          <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-          <ChevronRight size={13} />
-          <Link to="/ml/projects" className="forge-crumb-link">Projects</Link>
-          <ChevronRight size={13} />
-          <span className="forge-crumb-cur">Not found</span>
-        </nav>
+        <Breadcrumb
+          items={[
+            { label: 'PGForge', to: '/ml' },
+            { label: 'Projects', to: '/ml/projects' },
+            { label: 'Project' },
+          ]}
+        />
         <div className="forge-pjd-empty">
           <p>That project does not exist.</p>
           <Link to="/ml/projects" className="forge-pjd-back"><ArrowLeft size={14} /> Back to all projects</Link>
@@ -48,13 +49,13 @@ export default function PGForgeProjectDetail() {
 
   return (
     <div className="forge-pjd" style={{ '--pjd-hue': hue }}>
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <Link to="/ml/projects" className="forge-crumb-link">Projects</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">{project.title}</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: 'PGForge', to: '/ml' },
+          { label: 'Projects', to: '/ml/projects' },
+          { label: project.title || 'Project' },
+        ]}
+      />
 
       {/* HERO */}
       <header className="forge-pjd-hero">

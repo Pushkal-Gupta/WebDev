@@ -38,3 +38,4 @@ Thumbs.db
 # Claude workspace
 .claude/
 status.md
+.judge0/

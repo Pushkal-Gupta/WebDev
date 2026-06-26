@@ -2,7 +2,7 @@ import React, { useId, useMemo, useRef, useState } from 'react';
 import {
   Search, TrendingUp, TrendingDown, Trophy, Globe, Percent, Swords,
   Loader2, Info, Minus, User, Users, Check, Flame, CalendarDays,
-  Code2, Tags, Target, BarChart3, PieChart, Send,
+  Code2, Tags, Target, BarChart3, PieChart, Send, X,
 } from 'lucide-react';
 import { useLeetCodeUser } from '../../lib/queries';
 import {
@@ -167,6 +167,53 @@ function ChartTip({ tip }) {
   );
 }
 
+// Chronological ordering key for a contest. Prefer the contest number parsed
+// out of the title ("Weekly Contest 505" -> 505) so a raw API order that ships
+// "502" after "505" still sorts numerically; fall back to startTime, then to
+// the API index. Without this, slice(-8) trusts the source order and lists
+// contests out of sequence.
+function contestOrder(h) {
+  const n = typeof h.title === 'string' ? h.title.match(/(\d+)/) : null;
+  if (n) return Number(n[1]);
+  const t = Number(h.startTime);
+  if (Number.isFinite(t)) return t;
+  return Number(h.index) || 0;
+}
+
+// Stable identity key for a contest so two users' histories align by the SAME
+// contest rather than by array position. Prefer slug, then the contest number
+// parsed from the title, then startTime — never the raw array index, which is
+// per-user and would mis-pair different contests.
+function contestKey(h) {
+  if (h.slug) return `s:${String(h.slug).toLowerCase()}`;
+  const n = typeof h.title === 'string' ? h.title.match(/(\d+)/) : null;
+  if (n) {
+    const isBi = /bi-?weekly/i.test(h.title || '');
+    return `${isBi ? 'b' : 'w'}:${n[1]}`;
+  }
+  const t = Number(h.startTime);
+  if (Number.isFinite(t)) return `t:${t}`;
+  return `x:${h.title || h.index}`;
+}
+
+// Sorted union (oldest -> newest) of both users' contest histories keyed by
+// actual contest identity. Each row carries the matching entry for A and B (or
+// null where that user did not participate).
+function unionContests(a, b) {
+  const byKey = new Map();
+  const add = (h, side) => {
+    const k = contestKey(h);
+    const row = byKey.get(k) || { key: k, title: h.title || h.slug || '', order: contestOrder(h), a: null, b: null };
+    row[side] = h;
+    if (!row.title) row.title = h.title || h.slug || '';
+    row.order = Math.max(row.order, contestOrder(h));
+    byKey.set(k, row);
+  };
+  (a.history || []).forEach((h) => add(h, 'a'));
+  (b.history || []).forEach((h) => add(h, 'b'));
+  return Array.from(byKey.values()).sort((x, y) => x.order - y.order);
+}
+
 function deltaFor(history, i) {
   if (i === 0) return null;
   const cur = history[i].rating;
@@ -286,7 +333,10 @@ function RatingSection({ history }) {
 }
 
 function ProfileBody({ data }) {
-  const history = useMemo(() => data.history || [], [data.history]);
+  const history = useMemo(
+    () => [...(data.history || [])].sort((a, b) => contestOrder(a) - contestOrder(b)),
+    [data.history],
+  );
   const recent = useMemo(() => {
     const withDelta = history.map((h, i) => ({ ...h, delta: deltaFor(history, i) }));
     return withDelta.slice(-8).reverse();
@@ -455,36 +505,46 @@ function tagCompareRows(a, b) {
     .slice(0, 8);
 }
 
-function commonContests(a, b) {
-  const keyOf = (h) => (h.slug || h.title || '').toLowerCase();
-  const mapB = new Map((b.history || []).map((h) => [keyOf(h), h]));
-  return (a.history || [])
-    .map((ha) => {
-      const hb = mapB.get(keyOf(ha));
-      return hb ? { title: ha.title || ha.slug, ha, hb } : null;
-    })
-    .filter(Boolean);
+// Marks a cell where a user did not participate in that contest. Lucide X
+// (never an emoji), muted via theme tokens.
+function AbsentMark() {
+  return (
+    <span className="lpf-absent" aria-label="did not participate" title="Did not participate">
+      <X size={13} />
+    </span>
+  );
 }
 
-function CommonContestsTable({ a, b }) {
-  const rows = commonContests(a, b);
-  if (rows.length === 0) return <div className="chk-empty">No common contests.</div>;
+// Per-contest comparison over the sorted UNION of both histories (newest first).
+// Where a user skipped a contest the cell shows an X, so "A attended, B didn't"
+// reads at a glance instead of silently dropping the row.
+function ContestComparisonTable({ a, b }) {
+  const rows = useMemo(() => unionContests(a, b).reverse(), [a, b]);
+  if (rows.length === 0) return <div className="chk-empty">No contests on either side.</div>;
+  const rankCell = (h, color) => (h && h.ranking != null
+    ? <span style={{ color }}>{`#${h.ranking.toLocaleString()}`}</span>
+    : h
+      ? <span style={{ color }}>—</span>
+      : <AbsentMark />);
+  const solvedCell = (h) => (h
+    ? <span>{h.problemsSolved != null ? `${h.problemsSolved}/${h.totalProblems ?? '?'}` : '—'}</span>
+    : <AbsentMark />);
   return (
-    <div className="lpf-common" role="table" aria-label="Contests both profiles attended">
+    <div className="lpf-common" role="table" aria-label="Per-contest comparison across both profiles">
       <div className="lpf-common-head" role="row">
         <span role="columnheader">Contest</span>
-        <span role="columnheader">A rank</span>
-        <span role="columnheader">B rank</span>
-        <span role="columnheader">A solved</span>
-        <span role="columnheader">B solved</span>
+        <span role="columnheader" style={{ color: CMP_A }}>@{a.username} rank</span>
+        <span role="columnheader" style={{ color: CMP_B }}>@{b.username} rank</span>
+        <span role="columnheader" style={{ color: CMP_A }}>@{a.username} solved</span>
+        <span role="columnheader" style={{ color: CMP_B }}>@{b.username} solved</span>
       </div>
-      {rows.map((r, i) => (
-        <div key={i} className="lpf-common-row" role="row">
-          <span className="lpf-common-name" role="cell">{r.title}</span>
-          <span role="cell" style={{ color: CMP_A }}>{r.ha.ranking != null ? `#${r.ha.ranking.toLocaleString()}` : '—'}</span>
-          <span role="cell" style={{ color: CMP_B }}>{r.hb.ranking != null ? `#${r.hb.ranking.toLocaleString()}` : '—'}</span>
-          <span role="cell">{r.ha.problemsSolved != null ? `${r.ha.problemsSolved}/${r.ha.totalProblems ?? '?'}` : '—'}</span>
-          <span role="cell">{r.hb.problemsSolved != null ? `${r.hb.problemsSolved}/${r.hb.totalProblems ?? '?'}` : '—'}</span>
+      {rows.map((r) => (
+        <div key={r.key} className="lpf-common-row" role="row">
+          <span className="lpf-common-name" role="cell">{r.title || r.key}</span>
+          <span role="cell">{rankCell(r.a, CMP_A)}</span>
+          <span role="cell">{rankCell(r.b, CMP_B)}</span>
+          <span role="cell">{solvedCell(r.a)}</span>
+          <span role="cell">{solvedCell(r.b)}</span>
         </div>
       ))}
     </div>
@@ -757,9 +817,10 @@ const CR_PAD_R = 16;
 const CR_PAD_T = 16;
 const CR_PAD_B = 26;
 
-function smoothPath(pts) {
+function smoothPath(pts, yMin = -Infinity, yMax = Infinity) {
   if (pts.length === 0) return '';
   if (pts.length < 3) return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)}`).join(' ');
+  const clampY = (v) => Math.max(yMin, Math.min(yMax, v));
   let d = `M ${pts[0].cx.toFixed(1)} ${pts[0].cy.toFixed(1)}`;
   for (let i = 0; i < pts.length - 1; i += 1) {
     const p0 = pts[i - 1] || pts[i];
@@ -767,38 +828,47 @@ function smoothPath(pts) {
     const p2 = pts[i + 1];
     const p3 = pts[i + 2] || p2;
     const c1x = p1.cx + (p2.cx - p0.cx) / 6;
-    const c1y = p1.cy + (p2.cy - p0.cy) / 6;
+    const c1y = clampY(p1.cy + (p2.cy - p0.cy) / 6);
     const c2x = p2.cx - (p3.cx - p1.cx) / 6;
-    const c2y = p2.cy - (p3.cy - p1.cy) / 6;
+    const c2y = clampY(p2.cy - (p3.cy - p1.cy) / 6);
     d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.cx.toFixed(1)} ${p2.cy.toFixed(1)}`;
   }
   return d;
 }
 
-function CompareRatingChart({ ptsA, ptsB, handleA, handleB }) {
+// `slots` is the aligned union: one entry per contest (same index = same
+// contest for both users), each with { label, a: value|null, b: value|null }.
+// Missing entries leave a gap in that user's line instead of shifting the
+// curve, so the two series stay registered on the real contest axis.
+function CompareRatingChart({ slots, handleA, handleB }) {
   const { ref, tip, move, clear } = useChartTip();
   const [hover, setHover] = useState(null);
   const uid = useId().replace(/[:]/g, '');
 
   const geo = useMemo(() => {
-    const all = [...ptsA, ...ptsB].map((p) => p.value);
+    const all = slots.flatMap((s) => [s.a, s.b]).filter((v) => v != null);
     if (all.length === 0) return null;
     let lo = Math.min(...all);
     let hi = Math.max(...all);
     if (hi === lo) { hi += 50; lo -= 50; }
     const pad = (hi - lo) * 0.12;
     lo -= pad; hi += pad;
-    const maxLen = Math.max(ptsA.length, ptsB.length);
+    const maxLen = slots.length;
     const plotW = CR_VB_W - CR_PAD_L - CR_PAD_R;
     const plotH = CR_VB_H - CR_PAD_T - CR_PAD_B;
     const x = (i) => CR_PAD_L + (maxLen <= 1 ? plotW / 2 : (i / (maxLen - 1)) * plotW);
     const y = (v) => CR_PAD_T + plotH - ((v - lo) / (hi - lo)) * plotH;
-    const map = (pts) => pts.map((p, i) => ({ ...p, cx: x(i), cy: y(p.value) }));
+    const map = (side) => slots
+      .map((s, i) => (s[side] == null ? null : { label: s.label, value: s[side], cx: x(i), cy: y(s[side]) }))
+      .filter(Boolean);
     return {
-      a: map(ptsA), b: map(ptsB), maxLen,
+      a: map('a'), b: map('b'), maxLen,
+      aAt: slots.map((s, i) => (s.a == null ? null : { value: s.a, cx: x(i), cy: y(s.a) })),
+      bAt: slots.map((s, i) => (s.b == null ? null : { value: s.b, cx: x(i), cy: y(s.b) })),
+      labels: slots.map((s) => s.label),
       gridY: [0, 0.5, 1].map((f) => ({ yy: CR_PAD_T + plotH - f * plotH, val: Math.round(lo + f * (hi - lo)) })),
     };
-  }, [ptsA, ptsB]);
+  }, [slots]);
 
   if (!geo) return null;
 
@@ -816,14 +886,14 @@ function CompareRatingChart({ ptsA, ptsB, handleA, handleB }) {
       if (d < bestDist) { bestDist = d; best = i; }
     }
     setHover(best);
-    const pa = geo.a[best];
-    const pb = geo.b[best];
+    const pa = geo.aAt[best];
+    const pb = geo.bAt[best];
     move(e, {
-      title: (pa || pb)?.label || `Contest ${best + 1}`,
+      title: geo.labels[best] || `Contest ${best + 1}`,
       rows: [
-        pa ? { label: `@${handleA}`, value: Math.round(pa.value).toLocaleString(), color: CMP_A } : null,
-        pb ? { label: `@${handleB}`, value: Math.round(pb.value).toLocaleString(), color: CMP_B } : null,
-      ].filter(Boolean),
+        { label: `@${handleA}`, value: pa ? Math.round(pa.value).toLocaleString() : 'did not participate', color: CMP_A },
+        { label: `@${handleB}`, value: pb ? Math.round(pb.value).toLocaleString() : 'did not participate', color: CMP_B },
+      ],
     });
   };
 
@@ -832,7 +902,7 @@ function CompareRatingChart({ ptsA, ptsB, handleA, handleB }) {
     : null;
 
   const renderSeries = (coords, color) => coords.length > 0 && (
-    <path d={smoothPath(coords)} fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" filter={`url(#crGlow-${uid})`} />
+    <path d={smoothPath(coords, CR_PAD_T, CR_VB_H - CR_PAD_B)} fill="none" stroke={color} strokeWidth="2.4" strokeLinejoin="round" strokeLinecap="round" filter={`url(#crGlow-${uid})`} />
   );
 
   return (
@@ -863,11 +933,11 @@ function CompareRatingChart({ ptsA, ptsB, handleA, handleB }) {
         )}
         {renderSeries(geo.a, CMP_A)}
         {renderSeries(geo.b, CMP_B)}
-        {hover != null && geo.a[hover] && (
-          <circle cx={geo.a[hover].cx} cy={geo.a[hover].cy} r="5" fill={CMP_A} stroke="var(--surface)" strokeWidth="2" />
+        {hover != null && geo.aAt[hover] && (
+          <circle cx={geo.aAt[hover].cx} cy={geo.aAt[hover].cy} r="5" fill={CMP_A} stroke="var(--surface)" strokeWidth="2" />
         )}
-        {hover != null && geo.b[hover] && (
-          <circle cx={geo.b[hover].cx} cy={geo.b[hover].cy} r="5" fill={CMP_B} stroke="var(--surface)" strokeWidth="2" />
+        {hover != null && geo.bAt[hover] && (
+          <circle cx={geo.bAt[hover].cx} cy={geo.bAt[hover].cy} r="5" fill={CMP_B} stroke="var(--surface)" strokeWidth="2" />
         )}
       </svg>
       <ChartTip tip={tip} />
@@ -879,8 +949,14 @@ function CompareView({ a, b }) {
   const ratingA = num(a.rating);
   const ratingB = num(b.rating);
   const tally = headToHeadTally(a, b);
-  const ptsA = useMemo(() => ratingPoints(a.history), [a.history]);
-  const ptsB = useMemo(() => ratingPoints(b.history), [b.history]);
+  // Aligned rating timeline: one slot per contest in the sorted union, with each
+  // user's rating at that contest or null if absent.
+  const ratingSlots = unionContests(a, b).map((r) => ({
+    label: r.title || r.key,
+    a: r.a && typeof r.a.rating === 'number' ? r.a.rating : null,
+    b: r.b && typeof r.b.rating === 'number' ? r.b.rating : null,
+  }));
+  const hasRatingData = ratingSlots.some((s) => s.a != null || s.b != null);
   const tagRows = tagCompareRows(a, b);
 
   let headline;
@@ -935,11 +1011,11 @@ function CompareView({ a, b }) {
       <div className="lpf-grid">
         <section className="lpf-card lpf-card-wide">
           <h3 className="lpf-panel-title"><TrendingUp size={14} /> Rating over time</h3>
-          {ptsA.length === 0 && ptsB.length === 0
+          {!hasRatingData
             ? <div className="chk-empty">No attended contests to plot yet.</div>
             : (
               <div className="lpf-chart">
-                <CompareRatingChart ptsA={ptsA} ptsB={ptsB} handleA={a.username} handleB={b.username} />
+                <CompareRatingChart slots={ratingSlots} handleA={a.username} handleB={b.username} />
                 <Legend items={[{ color: CMP_A, label: `@${a.username}` }, { color: CMP_B, label: `@${b.username}` }]} />
               </div>
             )}
@@ -953,8 +1029,8 @@ function CompareView({ a, b }) {
         </section>
 
         <section className="lpf-card lpf-card-wide">
-          <h3 className="lpf-panel-title"><Trophy size={14} /> Common contests</h3>
-          <CommonContestsTable a={a} b={b} />
+          <h3 className="lpf-panel-title"><Trophy size={14} /> Contest-by-contest</h3>
+          <ContestComparisonTable a={a} b={b} />
         </section>
       </div>
     </div>

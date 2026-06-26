@@ -1,12 +1,13 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ArrowLeft, ArrowRight, ChevronRight, Building2, MapPin, Star,
+  ArrowRight, Building2, MapPin, Star,
   Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud,
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { getCompanyGroup, membersOf } from '../../content/companyGroups';
 import { CompanyLogo } from './CompaniesIndex';
+import Breadcrumb from '../common/Breadcrumb';
 import './Companies.css';
 
 const ICONS = { Sparkles, Building2, Rocket, Landmark, Briefcase, MapPin, Star, LineChart, Cloud };
@@ -21,10 +22,10 @@ export default function CompanyGroup() {
   if (!group) {
     return (
       <div className="comp-container">
+        <Breadcrumb items={[{ label: 'Companies', to: '/company' }, { label: 'Group' }]} />
         <div className="comp-empty">
           <Building2 size={32} className="comp-empty-icon" />
           <h2 className="comp-empty-title">Group not found</h2>
-          <p className="comp-empty-sub"><Link to="/company">Back to companies</Link></p>
         </div>
       </div>
     );
@@ -35,16 +36,9 @@ export default function CompanyGroup() {
 
   return (
     <div className="comp-container">
-      <nav className="comp-breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/company">Companies</Link>
-        <ChevronRight size={12} />
-        <span>{group.title}</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'Companies', to: '/company' }, { label: group.title }]} />
 
       <header className="comp-detail-header">
-        <Link to="/company" className="comp-back">
-          <ArrowLeft size={13} /> All companies
-        </Link>
         <div className="comp-detail-title-row">
           <GroupIcon size={22} className="comp-detail-icon" style={{ color: groupHue }} />
           <h1 className="comp-detail-title">{group.title}</h1>

@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems, useSubmissionsForProblem, useUpdateSubmissionNotes } from '../lib/queries';
 import Editor from '@monaco-editor/react';
+import { MONACO_THEME_MAP, DARK_PRESETS, registerMonacoThemes } from '../lib/monacoTheme';
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2, Copy, Check, StickyNote } from 'lucide-react';
 import SolutionView from './SolutionView';
 import LanguageIcon from './LanguageIcon';
@@ -76,55 +77,9 @@ function fallbackStarter(lang, problemName) {
   return `// Write your solution for ${problemName || 'this problem'} here\n`;
 }
 
-// Map app theme preset → Monaco theme. Custom themes are registered on first
-// editor mount (registerMonacoThemes). Built-ins ('vs', 'vs-dark') are aliased
-// to keep one source of truth.
-const MONACO_THEME_MAP = {
-  dark: 'pg-dark',
-  light: 'pg-light',
-  midnight: 'pg-midnight',
-  solarized: 'pg-solarized',
-  dracula: 'pg-dracula',
-  'midnight-light': 'pg-midnight-light',
-  'dracula-light': 'pg-dracula-light',
-  'solarized-dark': 'pg-solarized-dark',
-};
-
-// True when the resolved Monaco theme should use a dark base.
-const DARK_PRESETS = new Set(['dark', 'midnight', 'dracula', 'solarized-dark']);
-
-let monacoThemesRegistered = false;
-function registerMonacoThemes(monaco) {
-  if (monacoThemesRegistered || !monaco?.editor?.defineTheme) return;
-  const defs = {
-    'pg-dark':     { base: 'vs-dark', bg: '#030a0a', fg: '#d7e9e6' },
-    'pg-light':    { base: 'vs',      bg: '#f5f2ed', fg: '#1c1f23' },
-    'pg-midnight': { base: 'vs-dark', bg: '#0b1024', fg: '#dbe2ff' },
-    'pg-solarized':{ base: 'vs',      bg: '#fdf6e3', fg: '#586e75' },
-    'pg-dracula':  { base: 'vs-dark', bg: '#282a36', fg: '#f8f8f2' },
-    'pg-midnight-light':  { base: 'vs',      bg: '#eef1ff', fg: '#1a2040' },
-    'pg-dracula-light':   { base: 'vs',      bg: '#f4f4ff', fg: '#2d2f3f' },
-    'pg-solarized-dark':  { base: 'vs-dark', bg: '#002b36', fg: '#93a1a1' },
-  };
-  for (const [name, d] of Object.entries(defs)) {
-    monaco.editor.defineTheme(name, {
-      base: d.base,
-      inherit: true,
-      rules: [],
-      colors: {
-        'editor.background': d.bg,
-        'editor.foreground': d.fg,
-        'editorLineNumber.foreground': d.base === 'vs-dark' ? '#4a5d7a' : '#a0a8b0',
-        'editorLineNumber.activeForeground': d.fg,
-        'editor.selectionBackground': d.base === 'vs-dark' ? '#1f3a4a' : '#cfe2f3',
-        'editor.lineHighlightBackground': d.base === 'vs-dark' ? '#0e1f24' : '#ece9e0',
-        'editorCursor.foreground': d.fg,
-        'editorWidget.background': d.bg,
-      },
-    });
-  }
-  monacoThemesRegistered = true;
-}
+// Monaco theme registration + resolution lives in one shared source of truth
+// (src/lib/monacoTheme.js) so the Workspace editor and every RunnableCodePanel
+// render with identical NEUTRAL grey/black editor colors in every app theme.
 
 export default function Workspace({ session, theme, roadmapMode, preferredLang }) {
   const { categoryId, problemId } = useParams();

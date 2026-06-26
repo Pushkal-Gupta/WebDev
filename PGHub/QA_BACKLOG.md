@@ -6,7 +6,15 @@ the role pipeline; when empty, an identifier sweep refills it. Last sweep
 
 ## Open
 
-(none — DB migrations applied 2026-06-22; awaiting next sweep results)
+(none — 2026-06-24 user-screenshot QA batch cleared; all build-green, lint-0, render-verified)
+
+## Done (2026-06-24 — UI/QA from user screenshots, all render-verified headlessly)
+
+- [x] P1 forgethumb-labels-truncated — `ForgeThumb.jsx` sliced labels to 14 chars, cutting mid-word ("Numerical Stab", "Finite Differe", "Tensor Contrac"). Now keeps whole words (slice 26) and the SVG `<text>` auto-compresses via `textLength`+`lengthAdjust` to fit the 120-wide thumb. Verified on `/ml/math`, `/ml/cuda`.
+- [x] P1 forgethumb-motifs-repeated — every same-category card drew the same motif (all "activation"→bars, all "reduction"→trees) because `pickMotif` let `kind`/`topic` short-circuit. Rewrote so the unique per-card **seed** scatters across the full 35-motif pool (kind/topic only a salt) → each card draws a distinct image. Verified on `/ml/cuda` (bits/paper/orbit/vectors/chain/scatter/grid… all different).
+- [x] P1 paper-diagram-not-sticky — the right architecture diagram scrolled away. Root cause: grid `align-items:start` left the aside only as tall as the diagram, so sticky had no travel; AND the diagram (~691px) nearly filled the viewport. Fix: `.forge-paper-detail-aside{align-self:stretch}` (aside now full column height) + cap the diagram panel to `100dvh - nav - 5rem` and the svg to `52vh`. Verified: diagram top is identical (159px) at scroll 550/900 — pins for the whole left-column scroll, releases at the end. Covers ALL paper pages (single CSS rule; papers is the only left-text/right-diagram layout).
+- [x] P1 mllearn-bare — `/ml/learn` (MLHub) had no back link, no card visuals, ~65% empty. Added `ML-DL-AI / Lessons` breadcrumb to `/ml`, ForgeThumb banners (distinct seed per group), per-module count chips, and grid stretch so cards fill the viewport.
+- [x] P2 visualize-gallery-empty — `/visualize` gallery top-packed rows (`align-content:start`) leaving a bottom band. Now `align-content:stretch` + `grid-auto-rows:minmax(150px,1fr)` so rows fill the column height. Verified 21 cards fill the viewport.
 
 ## Done — DB migrations APPLIED to live Supabase (2026-06-22, verified)
 

@@ -1272,6 +1272,15 @@
 
 .lpf-common-name { color: var(--text-main); }
 
+/* X marker for a contest a user did not participate in */
+.lpf-absent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  opacity: 0.7;
+}
+
 /* ---- loading skeleton ---- */
 .lpf-skeleton {
   display: flex;

@@ -5,6 +5,7 @@ import { Play, Loader2, RotateCcw, Table, Database, Check, X, BookOpen, ChevronL
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';
 import { SQL_COURSES, gradeResult, listPlaygroundDbs } from '../content/sqlCourses';
 import PlaygroundSwitcher from './PlaygroundSwitcher';
+import { registerMonacoThemes, resolveMonacoTheme } from '../lib/monacoTheme';
 import './SqlPlayground.css';
 
 // Per-DB starter snippets that demo the schema without giving away anything.
@@ -417,7 +418,7 @@ export default function SqlPlayground({ theme }) {
     })();
   };
 
-  const monacoTheme = theme === 'light' || theme === 'solarized' ? 'light' : 'vs-dark';
+  const monacoTheme = resolveMonacoTheme(theme);
 
   // Custom-DB setup view — paste or fetch SQL into a fresh SQLite instance.
   if (customMode && !customLoaded) {
@@ -672,6 +673,7 @@ export default function SqlPlayground({ theme }) {
             <Editor
               height="100%"
               language="sql"
+              beforeMount={(monaco) => registerMonacoThemes(monaco)}
               theme={monacoTheme}
               value={sql}
               onChange={(v) => setSql(v ?? '')}

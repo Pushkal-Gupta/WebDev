@@ -258,6 +258,7 @@ function BarChart({ frame, maxVal }) {
         const isSettled = settled.has(idx);
         const isInWindow = inWindow(idx);
 
+        const isDimmed = !isFound && !isPivot && !isSwapped && !isCompared && !isSettled && !isInWindow && frame.lo != null;
         const cls = [
           'qsv-bar',
           isFound && 'is-found',
@@ -265,13 +266,23 @@ function BarChart({ frame, maxVal }) {
           !isFound && !isPivot && isSwapped && 'is-swapped',
           !isFound && !isPivot && !isSwapped && isCompared && 'is-compared',
           !isFound && !isPivot && !isSwapped && !isCompared && isSettled && 'is-settled',
-          !isFound && !isPivot && !isSwapped && !isCompared && !isSettled && !isInWindow && frame.lo != null && 'is-dim',
+          isDimmed && 'is-dim',
         ].filter(Boolean).join(' ');
+
+        // Resting bars (no algorithm state) are coloured BY VALUE across a sky -> pink
+        // spectrum (inline). Active roles carry no inline colour so their CSS class wins.
+        const isResting = !isFound && !isPivot && !isSwapped && !isCompared && !isSettled;
+        const pct = Math.round((v / Math.max(1, maxVal)) * 100);
+        const valueColor = `color-mix(in srgb, var(--hue-sky), var(--hue-pink) ${pct}%)`;
+        const restStyle = isResting
+          ? { fill: valueColor, stroke: valueColor, opacity: isDimmed ? 0.5 : 1 }
+          : undefined;
 
         return (
           <g key={idx}>
             <rect
               className={cls}
+              style={restStyle}
               x={x}
               y={y}
               width={barW}

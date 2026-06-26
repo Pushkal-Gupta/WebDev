@@ -1,7 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, ArrowRight, Grid3x3, Flame, Cpu, Zap, Brain, FileText } from 'lucide-react';
+import { ArrowRight, Grid3x3, Flame, Cpu, Zap, Brain, FileText } from 'lucide-react';
 import { PG_FORGE_SHEETS } from './pgForgeSheetsData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeSheets.css';
 
@@ -18,11 +19,7 @@ const THUMB_KINDS = {
 export default function PGForgeSheets() {
   return (
     <div className="forge-sh">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Sheets</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Sheets' }]} />
 
       <header className="forge-sh-header">
         <h1 className="forge-sh-title">Reference sheets</h1>
@@ -32,12 +29,12 @@ export default function PGForgeSheets() {
       </header>
 
       <div className="forge-sh-grid">
-        {PG_FORGE_SHEETS.map((sheet) => {
+        {PG_FORGE_SHEETS.map((sheet, i) => {
           const Icon = ICONS[sheet.icon] || FileText;
           return (
             <Link key={sheet.slug} to={`/ml/sheets/${sheet.slug}`} className="forge-sh-card">
               <div className="forge-thumb-frame forge-sh-card-thumb">
-                <ForgeThumb kind={THUMB_KINDS[sheet.slug] || 'auto'} topic={sheet.slug} seed={sheet.title} label={sheet.title} />
+                <ForgeThumb kind={THUMB_KINDS[sheet.slug] || 'auto'} index={i} topic={sheet.slug} seed={sheet.title} label={sheet.title} />
               </div>
               <div className="forge-sh-card-body">
                 <div className="forge-sh-card-head">

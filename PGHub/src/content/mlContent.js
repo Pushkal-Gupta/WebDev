@@ -1087,6 +1087,12 @@ The **backward pass** evaluates the graph right to left. It starts by seeding th
           },
           {
             kind: 'viz',
+            component: 'MnistNetViz',
+            props: {},
+            heading: 'See it on a real digit: draw a number, watch the forward pass classify it',
+          },
+          {
+            kind: 'viz',
             heading: 'Forward pass, then backward pass on the same graph',
             component: 'ForwardBackwardGraphViz',
             props: {},

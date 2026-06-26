@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import Breadcrumb from './common/Breadcrumb';
 import SolutionView from './SolutionView';
 import './SolutionPage.css';
 
@@ -35,6 +35,7 @@ export default function SolutionPage() {
   if (loading) {
     return (
       <div className="solnpage">
+        <Breadcrumb items={[{ label: 'Practice', to: '/practice' }, { label: 'Solution' }]} />
         <div className="solnpage-loading">Loading solution...</div>
       </div>
     );
@@ -43,9 +44,9 @@ export default function SolutionPage() {
   if (!problem) {
     return (
       <div className="solnpage">
+        <Breadcrumb items={[{ label: 'Practice', to: '/practice' }, { label: 'Solution' }]} />
         <div className="solnpage-error">
-          {fetchError ? 'Failed to load problem. Check your connection.' : 'Problem not found.'}{' '}
-          <Link to="/">Back to Roadmap</Link>
+          {fetchError ? 'Failed to load problem. Check your connection.' : 'Problem not found.'}
         </div>
       </div>
     );
@@ -53,11 +54,7 @@ export default function SolutionPage() {
 
   return (
     <div className="solnpage">
-      <div className="solnpage-header">
-        <Link to="/" className="solnpage-back">
-          <ChevronLeft size={16} /> Back to Roadmap
-        </Link>
-      </div>
+      <Breadcrumb items={[{ label: 'Practice', to: '/practice' }, { label: problem.name || 'Solution' }]} />
       <div className="solnpage-content">
         <SolutionView problem={problem} />
       </div>

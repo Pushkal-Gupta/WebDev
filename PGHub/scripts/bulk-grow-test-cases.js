@@ -59,7 +59,14 @@ const MAX_PROBLEMS = Number(arg('max') || 50);
 const PAUSE_MS = Number(arg('pause') || 450);
 const RESUME = !!arg('resume');
 const INCLUDE_CURATED = !!arg('include-curated');
-const JUDGE0_URL = arg('judge0') || 'https://ce.judge0.com';
+const JUDGE0_URL = arg('judge0') || process.env.JUDGE0_URL || 'https://ce.judge0.com';
+// Self-hosted Judge0 protects its API with an X-Auth-Token header; the public CE
+// needs none. Set JUDGE0_AUTH_TOKEN in the env to point this drive at a local
+// instance (unlimited submissions, no rate limit).
+const JUDGE0_AUTH = arg('auth') || process.env.JUDGE0_AUTH_TOKEN || '';
+const J0_HEADERS = JUDGE0_AUTH
+  ? { 'content-type': 'application/json', 'X-Auth-Token': JUDGE0_AUTH }
+  : { 'content-type': 'application/json' };
 const PYTHON_LANG_ID = 71;
 
 const LOG_PATH = '/tmp/bulk-grow-log.json';
@@ -336,7 +343,7 @@ async function judgeRun(sourceCode, stdin) {
     try {
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: J0_HEADERS,
         body: JSON.stringify({
           language_id: PYTHON_LANG_ID,
           source_code: sourceCode,

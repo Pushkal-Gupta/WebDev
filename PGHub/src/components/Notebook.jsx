@@ -1,10 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, X, ArrowLeft } from 'lucide-react';
+import { Search, X, NotebookPen } from 'lucide-react';
 import { useUserProgress, useProblemsCompact } from '../lib/queries';
 import ConfidenceMeter from './vault/ConfidenceMeter';
+import SignInPrompt from './common/SignInPrompt';
+import Breadcrumb from './common/Breadcrumb';
 import './vault/vault.css';
 import './Notebook.css';
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'Notes' }];
 
 export default function Notebook({ session }) {
   const userId = session?.user?.id;
@@ -39,15 +43,7 @@ export default function Notebook({ session }) {
     );
   }, [noteRows, q]);
 
-  const crumbs = (
-    <nav className="vault-crumbs" aria-label="Breadcrumb">
-      <Link to="/vault" className="vault-crumbs-back">
-        <ArrowLeft size={12} /> Vault
-      </Link>
-      <span className="vault-crumbs-sep">/</span>
-      <span className="vault-crumbs-current">Notes</span>
-    </nav>
-  );
+  const crumbs = <Breadcrumb items={CRUMBS} />;
 
   if (!userId) {
     return (
@@ -55,10 +51,12 @@ export default function Notebook({ session }) {
         {crumbs}
         <header className="nb-header">
           <h1 className="nb-title">Notes</h1>
-          <p className="nb-sub">
-            Sign in to see every note you've written, searchable and grouped by problem.
-          </p>
         </header>
+        <SignInPrompt
+          icon={NotebookPen}
+          title="Sign in to see your notes"
+          message="Every note you write while solving, searchable and grouped by problem."
+        />
       </div>
     );
   }

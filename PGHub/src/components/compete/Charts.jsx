@@ -191,10 +191,14 @@ const PAD_R = 16;
 const PAD_T = 18;
 const PAD_B = 28;
 
-// Catmull-Rom -> cubic Bezier smoothing for a soft, premium curve.
-function smoothPath(pts) {
+// Catmull-Rom -> cubic Bezier smoothing for a soft, premium curve. Control-point
+// Y is clamped to [yMin, yMax] (the plot band) so sharp reversals don't make the
+// curve overshoot past the gridlines / axis scale — the line must stay aligned
+// with the same inner rect the gridlines and y-scale use.
+function smoothPath(pts, yMin = -Infinity, yMax = Infinity) {
   if (pts.length === 0) return '';
   if (pts.length < 3) return pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.cx.toFixed(1)} ${p.cy.toFixed(1)}`).join(' ');
+  const clampY = (v) => Math.max(yMin, Math.min(yMax, v));
   let d = `M ${pts[0].cx.toFixed(1)} ${pts[0].cy.toFixed(1)}`;
   for (let i = 0; i < pts.length - 1; i += 1) {
     const p0 = pts[i - 1] || pts[i];
@@ -202,9 +206,9 @@ function smoothPath(pts) {
     const p2 = pts[i + 1];
     const p3 = pts[i + 2] || p2;
     const c1x = p1.cx + (p2.cx - p0.cx) / 6;
-    const c1y = p1.cy + (p2.cy - p0.cy) / 6;
+    const c1y = clampY(p1.cy + (p2.cy - p0.cy) / 6);
     const c2x = p2.cx - (p3.cx - p1.cx) / 6;
-    const c2y = p2.cy - (p3.cy - p1.cy) / 6;
+    const c2y = clampY(p2.cy - (p3.cy - p1.cy) / 6);
     d += ` C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${p2.cx.toFixed(1)} ${p2.cy.toFixed(1)}`;
   }
   return d;
@@ -300,7 +304,7 @@ export function LineChart({ series, area = false, interactive = true, peakLabel 
         coords.length > 1 ? (
           <path
             key={si}
-            d={`${smoothPath(coords)} L ${coords[coords.length - 1].cx.toFixed(1)} ${(VB_H - PAD_B).toFixed(1)} L ${coords[0].cx.toFixed(1)} ${(VB_H - PAD_B).toFixed(1)} Z`}
+            d={`${smoothPath(coords, PAD_T, VB_H - PAD_B)} L ${coords[coords.length - 1].cx.toFixed(1)} ${(VB_H - PAD_B).toFixed(1)} L ${coords[0].cx.toFixed(1)} ${(VB_H - PAD_B).toFixed(1)} Z`}
             fill={`url(#lineArea-${uid}-${si})`}
           />
         ) : null
@@ -309,7 +313,7 @@ export function LineChart({ series, area = false, interactive = true, peakLabel 
       {geo.coords.map((coords, si) => (
         <g key={si}>
           <path
-            d={smoothPath(coords)}
+            d={smoothPath(coords, PAD_T, VB_H - PAD_B)}
             fill="none"
             stroke={coords[0]?.color || 'var(--accent)'}
             strokeWidth="2.4"

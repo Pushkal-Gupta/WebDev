@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, Code2, BookOpen, Flag, Layers, Clock } from 'lucide-react';
+import { ChevronRight, Code2, BookOpen, Flag, Layers, Clock } from 'lucide-react';
 import { useRoadmap, useRoadmapNodes, useProblemsCompact, useAllConceptsCompact, useUserProgress, useListProblemIds } from '../../lib/queries';
 import StatusPill from '../StatusPill';
 import { legacyToStatus } from '../../lib/status';
+import Breadcrumb from '../common/Breadcrumb';
 import './Roadmaps.css';
 
 export default function RoadmapTrack({ session }) {
@@ -73,6 +74,7 @@ export default function RoadmapTrack({ session }) {
   if (isLoading) {
     return (
       <div className="rmx-container">
+        <Breadcrumb items={[{ label: 'Roadmaps', to: '/roadmaps' }, { label: 'Track' }]} />
         <div className="rmx-skeleton">
           <div className="skel skel-text" />
           <div className="skel skel-row-full" />
@@ -85,11 +87,9 @@ export default function RoadmapTrack({ session }) {
   if (!roadmap) {
     return (
       <div className="rmx-container">
+        <Breadcrumb items={[{ label: 'Roadmaps', to: '/roadmaps' }, { label: 'Track' }]} />
         <div className="rmx-empty">
           <h2 className="rmx-empty-title">Roadmap not found</h2>
-          <p className="rmx-empty-sub">
-            <Link to="/roadmaps">Back to all roadmaps</Link>
-          </p>
         </div>
       </div>
     );
@@ -97,16 +97,9 @@ export default function RoadmapTrack({ session }) {
 
   return (
     <div className="rmx-container rmx-track">
-      <nav className="rmx-breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/roadmaps">Roadmaps</Link>
-        <ChevronRight size={12} />
-        <span>{roadmap.name}</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'Roadmaps', to: '/roadmaps' }, { label: roadmap.name || 'Track' }]} />
 
       <header className="rmx-track-header">
-        <Link to="/roadmaps" className="rmx-back">
-          <ArrowLeft size={14} /> All roadmaps
-        </Link>
         <h1 className="rmx-track-title">{roadmap.name}</h1>
         {roadmap.description && <p className="rmx-track-desc">{roadmap.description}</p>}
         <div className="rmx-track-meta">

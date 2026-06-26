@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useRef, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import {
@@ -8,6 +8,7 @@ import {
   CheckCircle2, XCircle, MinusCircle, AlertTriangle,
 } from 'lucide-react';
 import { getForgeProblem } from './pgForgeProblemsData';
+import Breadcrumb from '../../common/Breadcrumb';
 import { isSolved, markSolved, unmarkSolved } from './forgeProgressStore';
 import { runCode } from '../../../lib/codeRunner';
 import RunnableCodePanel from '../../RunnableCodePanel';
@@ -527,13 +528,13 @@ export default function PGForgeProblemDetail() {
 
   return (
     <div className="forge-pd" style={{ '--pd-hue': hue }}>
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <Link to="/ml/problems" className="forge-crumb-link">Problems</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">{problem.title}</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: 'PGForge', to: '/ml' },
+          { label: 'Problems', to: '/ml/problems' },
+          { label: problem.title || 'Problem' },
+        ]}
+      />
 
       <div className="forge-pd-grid">
         <section className="forge-pd-left" aria-label="Problem description">

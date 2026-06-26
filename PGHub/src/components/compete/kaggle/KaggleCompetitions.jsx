@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Brain, Trophy, Users, Clock, BarChart3 } from 'lucide-react';
 import { KAGGLE_COMPETITIONS, KAGGLE_CATEGORIES, DIFFICULTY_ORDER } from './kaggleData';
+import Breadcrumb from '../../common/Breadcrumb';
 import './KaggleCompetitions.css';
 
 const CAT_HUE = {
@@ -95,6 +96,7 @@ export default function KaggleCompetitions() {
 
   return (
     <div className="kg-page">
+      <Breadcrumb items={[{ label: 'Compete', to: '/compete' }, { label: 'Kaggle' }]} />
       <header className="kg-head">
         <h1 className="kg-title"><Brain size={24} /> ML Competitions</h1>
         <p className="kg-sub">Live data-science and machine-learning contests — sorted by deadline, prize, or field, with prize pools at a glance.</p>

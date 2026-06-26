@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
-  ChevronRight, Target, Award, Trophy, Flame, Check, Activity, ArrowRight,
+  Target, Award, Trophy, Flame, Check, Activity, ArrowRight,
   User, Share2, Pencil, Send,
 } from 'lucide-react';
 import { PG_FORGE_PROBLEMS } from './pgForgeProblemsData';
+import Breadcrumb from '../../common/Breadcrumb';
 import { computeStats } from './forgeProgressStore';
 import './PGForgeProgress.css';
 
@@ -38,6 +39,11 @@ function initialsOf(name) {
 }
 
 export default function PGForgeProgress({ session }) {
+  // Context-aware back nav: reached from PGVault (?from=vault) -> back to Vault;
+  // reached from PGForge -> back to PGForge. Same page, different origin crumb.
+  const fromVault = new URLSearchParams(useLocation().search).get('from') === 'vault';
+  const back = fromVault ? { to: '/vault', label: 'PGVault' } : { to: '/ml', label: 'PGForge' };
+
   // Title lookup so recent solves can show their problem name.
   const titleBySlug = useMemo(() => {
     const m = {};
@@ -111,11 +117,7 @@ export default function PGForgeProgress({ session }) {
 
   return (
     <div className="fp-page">
-      <nav className="forge-crumb" aria-label="Breadcrumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Progress</span>
-      </nav>
+      <Breadcrumb items={[{ label: back.label, to: back.to }, { label: 'Progress' }]} />
 
       <header className="fp-header">
         <h1 className="fp-title">Your ML progress</h1>

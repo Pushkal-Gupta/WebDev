@@ -4,6 +4,7 @@ import {
   ChevronRight, ChevronDown, TrendingDown, Network, GitBranch, Grid3x3, Mail,
   Boxes, Target, Sparkles, BookOpen, Lightbulb, Code2, ListChecks,
 } from 'lucide-react';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeArena.css';
 
@@ -342,11 +343,7 @@ export default function PGForgeArena() {
 
   return (
     <div className="forge-arena">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Arena</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Arena' }]} />
 
       <header className="forge-arena-header">
         <h1 className="forge-arena-h1">Arena</h1>
@@ -357,7 +354,7 @@ export default function PGForgeArena() {
 
       <div className="forge-arena-layout">
         <aside className="forge-arena-list">
-          {CHALLENGES.map((c) => {
+          {CHALLENGES.map((c, i) => {
             const Icon = c.icon;
             const active = c.id === selectedId;
             return (
@@ -368,7 +365,7 @@ export default function PGForgeArena() {
                 className={`forge-arena-item ${active ? 'active' : ''}`}
               >
                 <span className="forge-arena-item-thumb">
-                  <ForgeThumb kind={THUMB_KINDS[c.id] || 'auto'} seed={c.title} label={c.tags[0]} />
+                  <ForgeThumb kind={THUMB_KINDS[c.id] || 'auto'} seed={c.title} index={i} label={c.tags[0]} />
                 </span>
                 <span className="forge-arena-item-body">
                   <span className="forge-arena-item-head">

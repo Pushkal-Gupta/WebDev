@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import {
-  ChevronLeft,
   ArrowLeft,
   ArrowRight,
   Play,
@@ -17,7 +16,9 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { COURSES } from '../../content/courses';
+import Breadcrumb from '../common/Breadcrumb';
 import { runCode } from '../../lib/codeRunner';
+import { registerMonacoThemes, resolveMonacoTheme } from '../../lib/monacoTheme';
 import AlgoVisualizer, {
   ArrayBarRenderer,
   GraphRenderer,
@@ -175,7 +176,7 @@ export default function CoursePage() {
   if (!course) {
     return (
       <div className="courses-container">
-        <Link to="/courses" className="courses-back"><ChevronLeft size={12} /> All courses</Link>
+        <Breadcrumb items={[{ label: 'Courses', to: '/courses' }, { label: 'Course' }]} />
         <h1 className="courses-title">Course not found</h1>
         <p className="courses-sub">No course with id "{slug}".</p>
       </div>
@@ -184,6 +185,7 @@ export default function CoursePage() {
 
   const readMin = estimateReadMinutes(lesson);
   const monacoLang = course.language === 'cpp' ? 'cpp' : course.language;
+  const monacoTheme = resolveMonacoTheme();
 
   const markComplete = (lid) => {
     setCompleted(prev => {
@@ -230,10 +232,22 @@ export default function CoursePage() {
   const totalLessons = lessons.length;
   const isComplete = completed.has(activeLessonId);
 
+  const lessonTitle = lesson?.title ? lesson.title.replace(/^\d+\.\s*/, '') : null;
+  const crumbItems = lessonTitle
+    ? [
+        { label: 'Courses', to: '/courses' },
+        { label: course.title, to: `/courses/${course.id}` },
+        { label: lessonTitle },
+      ]
+    : [
+        { label: 'Courses', to: '/courses' },
+        { label: course.title },
+      ];
+
   return (
     <div className="course-page">
+      <Breadcrumb items={crumbItems} className="course-crumb" />
       <aside className="course-side">
-        <Link to="/courses" className="courses-back"><ChevronLeft size={12} /> All courses</Link>
         <h1 className="course-side-title" style={{ '--course-color': course.color }}>{course.title}</h1>
         <div className="course-side-progress" style={{ '--course-color': course.color }}>
           <div
@@ -300,7 +314,8 @@ export default function CoursePage() {
               <Editor
                 height={`${Math.min(320, Math.max(110, lesson.code.split('\n').length * 22 + 28))}px`}
                 language={monacoLang}
-                theme="vs-dark"
+                beforeMount={(monaco) => registerMonacoThemes(monaco)}
+                theme={monacoTheme}
                 value={lesson.code}
                 options={{
                   readOnly: true,
@@ -378,7 +393,8 @@ export default function CoursePage() {
               <Editor
                 height="260px"
                 language={monacoLang}
-                theme="vs-dark"
+                beforeMount={(monaco) => registerMonacoThemes(monaco)}
+                theme={monacoTheme}
                 value={code}
                 onChange={(v) => setCode(v ?? '')}
                 options={{
