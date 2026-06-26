@@ -7,6 +7,7 @@ import { supabase } from '../lib/supabase';
 import Select from './Select';
 import PlaygroundSwitcher from './PlaygroundSwitcher';
 import LanguageIcon from './LanguageIcon';
+import { registerMonacoThemes, resolveMonacoTheme } from '../lib/monacoTheme';
 import './Playground.css';
 
 // Lazy import - keeps pyodide (~10MB) out of the main bundle.
@@ -391,7 +392,7 @@ export default function Playground({ theme, preferredLang, session }) {
   };
 
   const monacoLang = langOptions.find(l => l.value === lang)?.monaco || 'python';
-  const monacoTheme = theme === 'light' || theme === 'solarized' ? 'light' : 'vs-dark';
+  const monacoTheme = resolveMonacoTheme(theme);
 
   const statusLabel = (s) => {
     switch (s) {
@@ -478,6 +479,7 @@ export default function Playground({ theme, preferredLang, session }) {
           <Editor
             height="100%"
             language={monacoLang}
+            beforeMount={(monaco) => registerMonacoThemes(monaco)}
             theme={monacoTheme}
             value={code}
             onChange={(v) => setCode(v ?? '')}

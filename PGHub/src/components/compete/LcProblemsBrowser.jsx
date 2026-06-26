@@ -3,6 +3,13 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ArrowUpDown, ChevronLeft, ChevronRight, ChevronDown, Activity, X, Check, AlertTriangle, RotateCw } from 'lucide-react';
 import { useLcQuestions } from '../../lib/queries';
+import Breadcrumb from '../common/Breadcrumb';
+
+const CRUMBS = [
+  { label: 'Compete', to: '/compete' },
+  { label: 'LeetCode', to: '/compete/leetcode' },
+  { label: 'Problems' },
+];
 
 // Themed sort dropdown — replaces the native <select> (whose OS popup clashed
 // with the app theme). Renders a proper menu using theme tokens.
@@ -275,6 +282,7 @@ export default function LcProblemsBrowser() {
   if (isError) {
     return (
       <div className="lcp-container">
+        <Breadcrumb items={CRUMBS} />
         <header className="lcp-header">
           <h1 className="lcp-title">LeetCode problems</h1>
           <p className="lcp-sub">Every rated weekly and biweekly contest problem, searchable by name and filterable straight from the chart.</p>
@@ -313,6 +321,7 @@ export default function LcProblemsBrowser() {
 
   return (
     <div className="lcp-container">
+      <Breadcrumb items={CRUMBS} />
       <header className="lcp-header">
         <h1 className="lcp-title">
           LeetCode problems

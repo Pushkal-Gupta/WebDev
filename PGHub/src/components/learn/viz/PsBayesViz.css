@@ -1,0 +1,116 @@
+.psb { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+
+.psb-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.psb-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.psb-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.psb-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.psb-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.psb-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.psb-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.psb-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.psb-presets { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.psb-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.psb-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.psb-controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.55rem; }
+.psb-slider {
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.4rem 0.55rem;
+}
+.psb-slider-key { flex: 0 0 auto; color: var(--accent); }
+.psb-slider-key .katex { color: var(--accent); }
+.psb-slider input[type="range"] {
+  flex: 1 1 auto; min-width: 0; accent-color: var(--accent); cursor: pointer;
+}
+.psb-slider-val { flex: 0 0 auto; font-size: 0.72rem; color: var(--text-dim); min-width: 3.4em; text-align: right; }
+
+.psb-grids { display: grid; grid-template-columns: 1.35fr 1fr; gap: 0.6rem; align-items: stretch; }
+.psb-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.5rem; display: flex; flex-direction: column; gap: 0.35rem;
+}
+.psb-stage-cap { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.psb-svg { width: 100%; height: auto; display: block; }
+
+.psb-area { stroke: var(--bg); stroke-width: 1; }
+.psb-anim { transition: x 0.4s ease, y 0.4s ease, width 0.4s ease, height 0.4s ease; }
+.psb-area-tp { fill: color-mix(in srgb, var(--hue-mint) 78%, transparent); }
+.psb-area-fn { fill: color-mix(in srgb, var(--hue-violet) 60%, transparent); }
+.psb-area-fp { fill: color-mix(in srgb, var(--warning) 82%, transparent); }
+.psb-area-tn { fill: color-mix(in srgb, var(--hue-sky) 32%, transparent); }
+
+.psb-frame { fill: none; stroke: var(--border); stroke-width: 1.2; }
+.psb-divider { stroke: var(--text-main); stroke-width: 1.4; opacity: 0.5; stroke-dasharray: 4 4; }
+.psb-col-label { font-size: 11px; fill: var(--text-main); font-family: var(--mono); opacity: 0.85; }
+.psb-cell-label { font-size: 12px; font-weight: 700; fill: var(--bg); font-family: var(--mono); dominant-baseline: middle; }
+
+.psb-icon { stroke: var(--surface); stroke-width: 0.6; }
+.psb-c-tp { fill: color-mix(in srgb, var(--hue-mint) 82%, transparent); }
+.psb-c-fp { fill: color-mix(in srgb, var(--warning) 88%, transparent); }
+.psb-c-fn { fill: color-mix(in srgb, var(--hue-violet) 66%, transparent); }
+.psb-c-tn { fill: color-mix(in srgb, var(--hue-sky) 26%, transparent); }
+
+.psb-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; }
+.psb-leg { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; color: var(--text-dim); }
+.psb-sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; border: 1px solid var(--border); }
+
+.psb-stats { display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 0.6rem; align-items: stretch; }
+.psb-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.psb-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.psb-stat-val { font-size: 0.84rem; color: var(--text-main); line-height: 1.45; }
+.psb-stat-val .katex { color: var(--text-main); }
+.psb-stat-sub { font-size: 0.78rem; color: var(--text-dim); }
+.psb-stat-sub .katex { color: var(--text-dim); }
+.psb-cells .katex { font-size: 0.92em; }
+.psb-hero { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--surface)); }
+.psb-hero .psb-stat-val { font-size: 1rem; }
+.psb-hero .psb-stat-val .katex { color: var(--accent); }
+
+.psb-formula {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; align-items: center;
+}
+.psb-formula-label {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);
+}
+.psb-formula-math { max-width: 100%; }
+.psb-formula-math .katex-display { margin: 0; }
+.psb-formula-math .katex { color: var(--text-main); font-size: 0.92em; }
+
+.psb-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.psb-trace-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.psb-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .psb-anim { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .psb-controls { grid-template-columns: 1fr; }
+  .psb-grids { grid-template-columns: 1fr; }
+  .psb-stats { grid-template-columns: 1fr; }
+}

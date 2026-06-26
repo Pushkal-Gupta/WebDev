@@ -1,0 +1,105 @@
+.pscl { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+
+.pscl-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.pscl-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.pscl-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.pscl-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.pscl-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.pscl-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.pscl-head-btns { flex: 0 0 auto; display: flex; gap: 0.4rem; }
+.pscl-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pscl-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.pscl-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.pscl-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.pscl-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+.pscl-chip-on {
+  border-color: var(--accent); color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+
+.pscl-controls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.55rem; }
+.pscl-slider {
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.4rem 0.6rem;
+}
+.pscl-slider-key { flex: 0 0 auto; font-size: 0.72rem; color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem; }
+.pscl-slider-key .katex { color: var(--accent); }
+.pscl-slider input[type="range"] { flex: 1 1 auto; min-width: 0; accent-color: var(--accent); cursor: pointer; }
+.pscl-slider-val { flex: 0 0 auto; font-size: 0.74rem; font-weight: 600; color: var(--text-main); min-width: 2.6em; text-align: right; }
+
+.pscl-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; align-items: stretch; }
+.pscl-panel {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.55rem 0.6rem 0.45rem;
+}
+.pscl-panel-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.pscl-svg { width: 100%; height: auto; display: block; }
+
+.pscl-axis { stroke: var(--text-dim); stroke-width: 1; opacity: 0.6; }
+
+.pscl-srcbar {
+  fill: color-mix(in srgb, var(--hue-pink) 70%, var(--surface));
+  stroke: var(--hue-pink); stroke-width: 0.4;
+}
+
+.pscl-meanbar {
+  fill: color-mix(in srgb, var(--hue-sky) 60%, var(--surface));
+  stroke: var(--hue-sky); stroke-width: 0.4;
+  transition: y 0.4s cubic-bezier(0.4, 0, 0.2, 1), height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.pscl-ciband { fill: rgba(var(--accent-rgb), 0.08); }
+
+.pscl-curve { fill: none; stroke: url(#pscl-curve-grad); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.pscl-curve-glow { fill: none; stroke: var(--accent); stroke-width: 3.4; opacity: 0.45; stroke-linecap: round; stroke-linejoin: round; }
+
+.pscl-muline { stroke: var(--hue-violet); stroke-width: 1.4; stroke-dasharray: 5 4; opacity: 0.8; }
+
+.pscl-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; align-items: stretch; }
+.pscl-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.pscl-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.pscl-stat-val { font-size: 0.84rem; color: var(--text-main); line-height: 1.45; }
+.pscl-stat-val .katex { color: var(--text-main); }
+.pscl-stat-sub { font-size: 0.78rem; color: var(--text-dim); }
+.pscl-stat-sub .katex { color: var(--text-dim); }
+.pscl-accent { border-color: var(--accent); }
+.pscl-accent .pscl-stat-val .katex { color: var(--accent); }
+.pscl-violet { border-color: var(--hue-violet); }
+.pscl-violet .pscl-stat-val .katex { color: var(--hue-violet); }
+
+.pscl-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.pscl-trace-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pscl-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 720px) {
+  .pscl-panels { grid-template-columns: 1fr; }
+  .pscl-controls { grid-template-columns: 1fr; }
+  .pscl-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pscl-meanbar { transition: none; }
+}

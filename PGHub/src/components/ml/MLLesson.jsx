@@ -4,21 +4,12 @@ import { ArrowLeft, ArrowRight, Info, Lightbulb, Clock, Gauge, ListTree } from '
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { getLesson, getPillar } from '../../content/mlContent';
+import Breadcrumb from '../common/Breadcrumb';
 
 function katexHtml(tex, displayMode = false) {
   return katex.renderToString(tex, { throwOnError: false, displayMode, output: 'html' });
 }
 
-/* Where to send the user "back to" when they arrived from another hub.
-   Entry links pass ?from=vault | ?from=forge; default falls back to the ML root. */
-const FROM_TARGETS = {
-  vault: { to: '/vault', label: 'Vault' },
-  forge: { to: '/ml', label: 'PGForge' },
-};
-function resolveFrom(search, fallback = { to: '/ml', label: 'ML-DL-AI' }) {
-  const key = new URLSearchParams(search).get('from');
-  return FROM_TARGETS[key] || fallback;
-}
 import VectorPlayground from './viz/VectorPlayground';
 import VectorAdditionViz from './viz/VectorAdditionViz';
 import VectorGeometryViz from './viz/VectorGeometryViz';
@@ -227,10 +218,11 @@ import EntropyExplorerViz from './viz/EntropyExplorerViz';
 import SVMMarginExplorerViz from './viz/SVMMarginExplorerViz';
 import KNNExplorerViz from './viz/KNNExplorerViz';
 import PositionalEncodingExplorerViz from './viz/PositionalEncodingExplorerViz';
+import MnistNetViz from './viz/MnistNetViz';
 import './MLHub.css';
 import './MLLesson.css';
 
-const VIZ_REGISTRY = { VectorPlayground, VectorAdditionViz, VectorGeometryViz, MatrixTransform, GradientDescent, AttentionHeatmap, NormBall, SoftmaxViz, NeuralNetViz, ConvolutionViz, EigenvectorViz, BackpropViz, KMeansViz, KMeansFullViz, LogisticRegressionViz, NaiveBayesViz, GaussianViz, ActivationsViz, AutoencoderViz, KLDivergenceViz, ROCCurveViz, ConfusionMatrixViz, TransformerBlockViz, TransformerBlockFullViz, BatchNormViz, BatchNormScatterViz, PCAViz, GANViz, GANLoopViz, GANDynamicsViz, TSNEViz, FFTViz, PolicyGradientViz, DiffusionViz, DiffusionChainViz, VAEViz, VAELatentViz, BezierViz, GaussianProcessViz, ConvNetViz, ProjectionViz, CrossValidationViz, BiasVarianceViz, SVDViz, ChainRuleViz, AutogradTraceViz, BayesUpdateViz, LinearRegressionViz, EmbeddingEvolutionViz, WordEmbeddingViz, ResidualGradientViz, ResidualBlockViz, SGDComparisonViz, NormalizationCompareViz, PerceptronViz, SVMViz, DecisionTreeViz, RandomForestViz, LSTMGatesViz, BPETokenizerViz, SamplingViz, KernelTrickViz, ImageAugmentationViz, BeamSearchViz, LRScheduleViz, VanishingGradientViz, DropoutTrainingViz, KVCacheViz, ConvKernelViz, WeightDecayViz, ReceptiveFieldViz, MultiHeadAttentionViz, Word2VecViz, AdamOptimizerViz, ScalingLawsViz, PolyOverfitViz, GradientCheckViz, MCMCViz, EMAlgorithmViz, L1L2RegularizationViz, GCNViz, QLearningViz, KDEViz, DotProductSignViz, MatrixColumnsViz, LogLossCurveViz, PCAProjectionViz, ForwardBackwardGraphViz, ParabolaDescentViz, AttentionStepViz, LoRAStructureViz, DropoutMasksViz, AutoencoderShapeViz, RNNUnrollViz, MomentumZigzagViz, MDPGridworldViz, RLHFPipelineViz, FloatSpacingViz, PositionalWavelengthsViz, ContrastiveEmbeddingViz, KnowledgeDistillationViz, SHAPValuesViz, QuantizationViz, AttentionRolloutViz, InitVarianceViz, OptimizerZooViz, FloatFormatGridViz, DeadReLUViz, MixupViz, LabelSmoothingViz, CurriculumLearningViz, MixedPrecisionViz, SpeculativeDecodingViz, BeamWidthEffectsViz, OptimizerTrajectoriesViz, LRWarmupCosineDecayViz, GradientNoiseViz, TripletLossViz, ContrastiveTrainingDynamicsViz, EmbeddingProjectionUmapViz, AttentionHeatmapViz, PositionalEncodingViz, SoftmaxTemperatureViz, DiffusionForwardReverseViz, LossLandscape2DViz, GradientClippingViz, TransformerLayerFlowViz, RewardShapingViz, VarianceReductionViz, BPETrainingTraceViz, LRSchedulerLandingViz, FederatedAveragingViz, ModelCalibrationViz, MixtureOfExpertsViz, ChainOfThoughtViz, InferenceBatchingViz, RAGRetrievalPipelineViz, KLDivergenceVsTemperatureViz, TokenGenerationStreamViz, CurriculumTemperatureViz, VisionTransformerPatchViz, SparseAttentionPatternViz, PerplexityVsCalibrationViz, TokenizerNormalizationViz, DecodingStrategiesViz, DropoutMaskAblationViz, SaliencyMapViz, TokenizerFairnessViz, RotaryEmbeddingViz, GradientAccumulationViz, FlashAttentionTilingViz, GANMinimaxViz, NormalizingFlowViz, AutoregressiveViz, MoERoutingViz, LRScheduleShapesViz, MomentumBowlViz, SecondOrderViz, GradientClipNormViz, WeightDecayContourViz, EarlyStoppingViz, DataAugmentationViz, PolicyGradientTrajViz, ActorCriticViz, ExplorationExploitationViz, ConditionNumberViz, IterativeSolversViz, AutodiffGraphViz, MonteCarloIntegrationViz, ViTPatchEmbeddingViz, EfficientNetScalingViz, DetectionGridViz, PPOClipViz, ReplayBufferViz, TrustRegionViz, MixupBlendViz, StochasticDepthViz, AdversarialPerturbationViz, AdamWVsL2Viz, RMSPropAdaptiveViz, NaturalGradientViz, KahanSummationViz, QRvsNormalEqViz, QueryKeyValueViz, DropoutEnsembleViz, SoftmaxTempViz, BackpropFlowViz, BellmanUpdateViz, AdamMomentsViz, ActivationExplorerViz, LossDescentExplorerViz, GaussianExplorerViz, ConvKernelExplorerViz, MultiHeadAttentionExplorerViz, CrossEntropyExplorerViz, EigenvectorExplorerViz, PCAExplorerViz, DropoutExplorerViz, DerivativeExplorerViz, KLDivergenceExplorerViz, BayesExplorerViz, LSTMGateExplorerViz, BatchNormExplorerViz, EntropyExplorerViz, SVMMarginExplorerViz, KNNExplorerViz, PositionalEncodingExplorerViz };
+const VIZ_REGISTRY = { VectorPlayground, VectorAdditionViz, VectorGeometryViz, MatrixTransform, GradientDescent, AttentionHeatmap, NormBall, SoftmaxViz, NeuralNetViz, ConvolutionViz, EigenvectorViz, BackpropViz, KMeansViz, KMeansFullViz, LogisticRegressionViz, NaiveBayesViz, GaussianViz, ActivationsViz, AutoencoderViz, KLDivergenceViz, ROCCurveViz, ConfusionMatrixViz, TransformerBlockViz, TransformerBlockFullViz, BatchNormViz, BatchNormScatterViz, PCAViz, GANViz, GANLoopViz, GANDynamicsViz, TSNEViz, FFTViz, PolicyGradientViz, DiffusionViz, DiffusionChainViz, VAEViz, VAELatentViz, BezierViz, GaussianProcessViz, ConvNetViz, ProjectionViz, CrossValidationViz, BiasVarianceViz, SVDViz, ChainRuleViz, AutogradTraceViz, BayesUpdateViz, LinearRegressionViz, EmbeddingEvolutionViz, WordEmbeddingViz, ResidualGradientViz, ResidualBlockViz, SGDComparisonViz, NormalizationCompareViz, PerceptronViz, SVMViz, DecisionTreeViz, RandomForestViz, LSTMGatesViz, BPETokenizerViz, SamplingViz, KernelTrickViz, ImageAugmentationViz, BeamSearchViz, LRScheduleViz, VanishingGradientViz, DropoutTrainingViz, KVCacheViz, ConvKernelViz, WeightDecayViz, ReceptiveFieldViz, MultiHeadAttentionViz, Word2VecViz, AdamOptimizerViz, ScalingLawsViz, PolyOverfitViz, GradientCheckViz, MCMCViz, EMAlgorithmViz, L1L2RegularizationViz, GCNViz, QLearningViz, KDEViz, DotProductSignViz, MatrixColumnsViz, LogLossCurveViz, PCAProjectionViz, ForwardBackwardGraphViz, ParabolaDescentViz, AttentionStepViz, LoRAStructureViz, DropoutMasksViz, AutoencoderShapeViz, RNNUnrollViz, MomentumZigzagViz, MDPGridworldViz, RLHFPipelineViz, FloatSpacingViz, PositionalWavelengthsViz, ContrastiveEmbeddingViz, KnowledgeDistillationViz, SHAPValuesViz, QuantizationViz, AttentionRolloutViz, InitVarianceViz, OptimizerZooViz, FloatFormatGridViz, DeadReLUViz, MixupViz, LabelSmoothingViz, CurriculumLearningViz, MixedPrecisionViz, SpeculativeDecodingViz, BeamWidthEffectsViz, OptimizerTrajectoriesViz, LRWarmupCosineDecayViz, GradientNoiseViz, TripletLossViz, ContrastiveTrainingDynamicsViz, EmbeddingProjectionUmapViz, AttentionHeatmapViz, PositionalEncodingViz, SoftmaxTemperatureViz, DiffusionForwardReverseViz, LossLandscape2DViz, GradientClippingViz, TransformerLayerFlowViz, RewardShapingViz, VarianceReductionViz, BPETrainingTraceViz, LRSchedulerLandingViz, FederatedAveragingViz, ModelCalibrationViz, MixtureOfExpertsViz, ChainOfThoughtViz, InferenceBatchingViz, RAGRetrievalPipelineViz, KLDivergenceVsTemperatureViz, TokenGenerationStreamViz, CurriculumTemperatureViz, VisionTransformerPatchViz, SparseAttentionPatternViz, PerplexityVsCalibrationViz, TokenizerNormalizationViz, DecodingStrategiesViz, DropoutMaskAblationViz, SaliencyMapViz, TokenizerFairnessViz, RotaryEmbeddingViz, GradientAccumulationViz, FlashAttentionTilingViz, GANMinimaxViz, NormalizingFlowViz, AutoregressiveViz, MoERoutingViz, LRScheduleShapesViz, MomentumBowlViz, SecondOrderViz, GradientClipNormViz, WeightDecayContourViz, EarlyStoppingViz, DataAugmentationViz, PolicyGradientTrajViz, ActorCriticViz, ExplorationExploitationViz, ConditionNumberViz, IterativeSolversViz, AutodiffGraphViz, MonteCarloIntegrationViz, ViTPatchEmbeddingViz, EfficientNetScalingViz, DetectionGridViz, PPOClipViz, ReplayBufferViz, TrustRegionViz, MixupBlendViz, StochasticDepthViz, AdversarialPerturbationViz, AdamWVsL2Viz, RMSPropAdaptiveViz, NaturalGradientViz, KahanSummationViz, QRvsNormalEqViz, QueryKeyValueViz, DropoutEnsembleViz, SoftmaxTempViz, BackpropFlowViz, BellmanUpdateViz, AdamMomentsViz, ActivationExplorerViz, LossDescentExplorerViz, GaussianExplorerViz, ConvKernelExplorerViz, MultiHeadAttentionExplorerViz, CrossEntropyExplorerViz, EigenvectorExplorerViz, PCAExplorerViz, DropoutExplorerViz, DerivativeExplorerViz, KLDivergenceExplorerViz, BayesExplorerViz, LSTMGateExplorerViz, BatchNormExplorerViz, EntropyExplorerViz, SVMMarginExplorerViz, KNNExplorerViz, PositionalEncodingExplorerViz, MnistNetViz };
 
 /* Inline parser: handles `code`, **bold**, *italic*, [text](url), \(math\).
    Token order matters — backticks beat asterisks (so `*p` stays literal inside code). */
@@ -530,7 +522,6 @@ export default function MLLesson() {
   const lesson = getLesson(pillarSlug, lessonSlug);
   const pillar = getPillar(pillarSlug);
   const scrollRef = useRef(null);
-  const back = resolveFrom(location.search);
 
   // Reset scroll to top whenever the lesson changes so off-screen viz observers
   // re-trigger naturally — fixes the "Loading visualization…" stuck state on back-nav.
@@ -557,10 +548,11 @@ export default function MLLesson() {
   if (!lesson) {
     return (
       <div className="ml-lesson">
-        <Link to={pillar ? `/ml/${pillarSlug}${location.search}` : back.to} className="learn-crumb">
-          <ArrowLeft size={13} />
-          <span>{pillar ? pillar.title : back.label}</span>
-        </Link>
+        <Breadcrumb items={[
+          { label: 'PGForge', to: '/ml' },
+          { label: pillar?.title || 'Lessons', to: `/ml/${pillarSlug}${location.search}` },
+          { label: 'Lesson' },
+        ]} />
         <h1 className="ml-lesson-title">Not found</h1>
         <p className="ml-lesson-sub">No lesson "{lessonSlug}" in {pillar?.title || pillarSlug}.</p>
       </div>
@@ -569,14 +561,11 @@ export default function MLLesson() {
 
   return (
     <div className="ml-lesson" ref={scrollRef}>
-      <Link to={back.to} className="learn-crumb">
-        <ArrowLeft size={13} />
-        <span>{back.label}</span>
-        <span className="learn-crumb-sep">/</span>
-        <span>{pillar.title}</span>
-        <span className="learn-crumb-sep">/</span>
-        <span className="learn-crumb-here">{lesson.title}</span>
-      </Link>
+      <Breadcrumb items={[
+        { label: 'PGForge', to: '/ml' },
+        { label: pillar?.title || 'Lessons', to: `/ml/${pillarSlug}${location.search}` },
+        { label: lesson.title || 'Lesson' },
+      ]} />
 
       <header className="ml-lesson-hero">
         <span className="ml-lesson-stripe" aria-hidden="true" />

@@ -1,10 +1,12 @@
 import React, { useMemo, useState, useEffect, lazy, Suspense } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X, CalendarClock, PieChart, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X, CalendarClock, PieChart, CheckCircle2 } from 'lucide-react';
 import ShareableCard from './ShareableCard';
+import Breadcrumb from './common/Breadcrumb';
 import ProgressRing from './vault/ProgressRing';
 import ActivityHeatmap from './vault/ActivityHeatmap';
 import { Donut, GaugeRing, HBarChart, StatCard } from './compete/Charts';
+import SignInPrompt from './common/SignInPrompt';
 import './vault/vault.css';
 import {
   useProblemsCompact,
@@ -22,6 +24,8 @@ import './ProgressDashboard.css';
 const PracticeHistory = lazy(() => import('./PracticeHistory'));
 
 const TAB_KEYS = ['stats', 'history', 'achievements', 'mastery'];
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'Progress' }];
 
 function ringStyle(pct) {
   const r = 36;
@@ -202,34 +206,26 @@ export default function ProgressDashboard({ session, roadmapMode }) {
   if (!userId) {
     return (
       <div className="pd-container">
-        <nav className="vault-crumbs" aria-label="Breadcrumb">
-          <Link to="/vault" className="vault-crumbs-back">
-            <ArrowLeft size={12} /> Vault
-          </Link>
-          <span className="vault-crumbs-sep">/</span>
-          <span className="vault-crumbs-current">Progress</span>
-        </nav>
+        <Breadcrumb items={CRUMBS} />
         <header className="pd-header">
           <div className="pd-header-row">
             <div>
               <h1 className="pd-title">Your Activity</h1>
-              <p className="pd-sub">Sign in to see your solves, streaks, history, and topic mastery.</p>
             </div>
           </div>
         </header>
+        <SignInPrompt
+          icon={BarChart3}
+          title="Sign in to see your activity"
+          message="Solves, streaks, submission history, and per-topic mastery — all in one place."
+        />
       </div>
     );
   }
 
   return (
     <div className="pd-container">
-      <nav className="vault-crumbs" aria-label="Breadcrumb">
-        <Link to="/vault" className="vault-crumbs-back">
-          <ArrowLeft size={12} /> Vault
-        </Link>
-        <span className="vault-crumbs-sep">/</span>
-        <span className="vault-crumbs-current">Progress</span>
-      </nav>
+      <Breadcrumb items={CRUMBS} />
       <header className="pd-header">
         <div className="pd-header-row">
           <div>

@@ -1,8 +1,9 @@
 import React, { useMemo, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {
   ArrowLeft, CheckCircle2, XCircle, RotateCcw, ArrowRight, ListChecks, Trophy,
 } from 'lucide-react';
+import Breadcrumb from './common/Breadcrumb';
 import { getQuizById, TOPIC_LABELS } from '../content/quizzes';
 import './QuizRunner.css';
 
@@ -14,7 +15,6 @@ function pctClass(pct) {
 
 export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
   const params = useParams();
-  const navigate = useNavigate();
 
   const quiz = useMemo(() => {
     if (passedQuiz) return passedQuiz;
@@ -29,6 +29,7 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
   if (!quiz) {
     return (
       <div className="quiz-container">
+        <Breadcrumb items={[{ label: 'Quiz', to: '/quiz' }, { label: 'Quiz' }]} />
         <p className="quiz-not-found">
           That quiz doesn&rsquo;t exist or has been retired.{' '}
           <Link to="/quiz" className="quiz-link">Back to all quizzes</Link>.
@@ -75,9 +76,7 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
     return (
       <div className={embedded ? '' : 'quiz-container'}>
         {!embedded && (
-          <button type="button" className="quiz-back" onClick={() => navigate('/quiz')}>
-            <ArrowLeft size={13} /> All quizzes
-          </button>
+          <Breadcrumb items={[{ label: 'Quiz', to: '/quiz' }, { label: quiz.title || 'Quiz' }]} />
         )}
         <div className="quiz-result-card">
           <Trophy size={28} className="quiz-result-icon" />
@@ -147,9 +146,7 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
   return (
     <div className={embedded ? '' : 'quiz-container'}>
       {!embedded && (
-        <button type="button" className="quiz-back" onClick={() => navigate('/quiz')}>
-          <ArrowLeft size={13} /> All quizzes
-        </button>
+        <Breadcrumb items={[{ label: 'Quiz', to: '/quiz' }, { label: quiz.title || 'Quiz' }]} />
       )}
 
       <header className="quiz-run-header">

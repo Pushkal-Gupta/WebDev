@@ -295,13 +295,19 @@ export default function QuickSortViz() {
             const isSwap = swapSet && (idx === swapSet[0] || idx === swapSet[1]);
             const isSortedBar = current.sorted[idx];
             const dimmed = current.lo != null && current.hi != null && !inRange(idx) && !isSortedBar;
-            let fill = 'rgba(var(--accent-rgb), 0.55)';
-            let stroke = 'var(--accent)';
-            if (isSortedBar) { fill = 'var(--easy)'; stroke = 'var(--easy)'; }
+            // Resting bars are coloured BY VALUE across a sky -> pink spectrum so the
+            // array reads rich at rest and a finished sort is a clean gradient. The
+            // pivot/compare/swap states still override the fill; a sorted bar keeps its
+            // value colour but takes a green outline so its final placement still reads.
+            const pct = Math.round((v / maxVal) * 100);
+            const valueColor = `color-mix(in srgb, var(--hue-sky), var(--hue-pink) ${pct}%)`;
+            let fill = valueColor;
+            let stroke = valueColor;
+            if (isSortedBar) { fill = valueColor; stroke = 'var(--easy)'; }
             else if (isPivot) { fill = 'var(--hard)'; stroke = 'var(--hard)'; }
             else if (isSwap) { fill = 'var(--warning)'; stroke = 'var(--warning)'; }
             else if (isCompare) { fill = 'var(--hue-pink)'; stroke = 'var(--hue-pink)'; }
-            else if (dimmed) { fill = 'rgba(var(--accent-rgb), 0.18)'; stroke = 'var(--border)'; }
+            else if (dimmed) { fill = valueColor; stroke = 'var(--border)'; }
             return (
               <g key={`bar-${idx}`} opacity={dimmed ? 0.7 : 1}>
                 <rect
@@ -311,8 +317,9 @@ export default function QuickSortViz() {
                   height={h}
                   rx={4}
                   fill={fill}
+                  fillOpacity={(isPivot || isCompare || isSwap) ? 1 : 0.9}
                   stroke={stroke}
-                  strokeWidth={(isPivot || isCompare || isSwap) ? 2.4 : 1.2}
+                  strokeWidth={(isPivot || isCompare || isSwap) ? 2.4 : isSortedBar ? 2.2 : 1.2}
                 />
                 <text x={x + barW / 2} y={y - 7} className="qsv-bar-val">{v}</text>
                 <text x={x + barW / 2} y={baseY + 18} className="qsv-bar-idx">{idx}</text>

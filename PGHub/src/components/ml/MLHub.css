@@ -98,7 +98,25 @@
 .mlhub-pillars-auto {
   flex: 1 1 auto;
   min-height: 0;
-  align-content: start;
+  align-content: stretch;
+  align-items: stretch;
+}
+
+/* In the auto-fill hub grid, lesson cards stretch to fill the row height so
+   the page reaches the viewport bottom instead of bottoming out at ~35%. */
+.mlhub-pillars-auto .mlhub-lesson-card {
+  min-height: 320px;
+  height: 100%;
+}
+
+.mlhub-pillars-auto .mlhub-lesson-thumb {
+  flex: 0 0 140px;
+  height: 140px;
+  min-height: 140px;
+}
+
+.mlhub-pillars-auto .mlhub-lesson-card .mlhub-pillar-stripe {
+  inset: 140px auto 0 0;
 }
 
 .mlhub-pillars-3 {
@@ -398,6 +416,20 @@ a.mlhub-lesson-card {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--hover-box);
+}
+
+.mlhub-group-chip-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.05rem;
+  padding: 0 0.28rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  line-height: 1.4;
+  border-radius: 999px;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
 }
 
 .mlhub-pillar {

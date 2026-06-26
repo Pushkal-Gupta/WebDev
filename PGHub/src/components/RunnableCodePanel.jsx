@@ -64,6 +64,7 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
   onSubmit,
   submitLabel = 'Submit',
   onLanguageChange,
+  runPreamble = '',
 }, ref) {
   // Normalize input into { lang: source }.
   const seeds = useMemo(() => {
@@ -169,14 +170,22 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
     setResult(null);
     const t0 = performance.now();
     try {
-      const out = await runCode(value, activeLang, '');
+      // `runPreamble` defines harness globals (e.g. the visualizer's `input` /
+      // `step` / `log`) so template code runs standalone at run time only — the
+      // editor buffer and `onSubmit` payload stay the clean source the user sees.
+      // Wrapped in an IIFE so harness code + the user's body share one scope and
+      // top-level `return` (common in the templates) is legal.
+      const source = (runPreamble && activeLang === 'javascript')
+        ? `;(function(){\n${runPreamble}\n${value}\n})();`
+        : value;
+      const out = await runCode(source, activeLang, '');
       setResult({ ...out, elapsed: Math.round(performance.now() - t0) });
     } catch (err) {
       setResult({ status: 'runtime_error', output: err?.message || 'Execution failed', elapsed: 0 });
     } finally {
       setRunning(false);
     }
-  }, [running, canRun, value, activeLang]);
+  }, [running, canRun, value, activeLang, runPreamble]);
 
   const handleSubmit = useCallback(() => {
     onSubmit?.(value, activeLang);

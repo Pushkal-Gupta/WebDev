@@ -1,0 +1,92 @@
+.ncv { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+
+.ncv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.ncv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.ncv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.ncv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.ncv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.ncv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.ncv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.ncv-kernels { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; }
+.ncv-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.ncv-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+.ncv-chip-on { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+
+.ncv-arrows { display: inline-flex; gap: 0.3rem; margin-left: auto; }
+.ncv-arrow {
+  width: 28px; height: 28px; border-radius: 7px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-main); cursor: pointer; font-size: 0.85rem;
+  display: grid; place-items: center; transition: border-color var(--t), color var(--t);
+}
+.ncv-arrow:hover { border-color: var(--accent); color: var(--accent); }
+
+.ncv-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.5rem; display: flex;
+}
+.ncv-svg { width: 100%; height: auto; display: block; }
+
+.ncv-cap { font-size: 11px; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.ncv-cell { stroke: var(--border); stroke-width: 0.8; }
+.ncv-cell-win { stroke: var(--accent); stroke-width: 1.2; }
+.ncv-cnum { font-size: 11px; fill: var(--text-dim); font-family: var(--mono); }
+.ncv-cnum-bright { fill: var(--text-main); font-weight: 700; }
+
+.ncv-window {
+  fill: color-mix(in srgb, var(--accent) 14%, transparent);
+  stroke: var(--accent); stroke-width: 2.4; cursor: grab;
+  transition: x 0.12s ease, y 0.12s ease;
+}
+.ncv-window:active { cursor: grabbing; }
+
+.ncv-fcell { stroke: var(--border); stroke-width: 0.8; }
+.ncv-fcell-cur { stroke: var(--hue-violet); stroke-width: 1.4; }
+.ncv-fnum { font-size: 10px; fill: var(--text-main); font-family: var(--mono); }
+.ncv-curcell { fill: none; stroke: var(--hue-violet); stroke-width: 2.4; transition: x 0.12s ease, y 0.12s ease; }
+
+.ncv-foot { display: grid; grid-template-columns: auto 1.4fr auto; gap: 0.6rem; align-items: stretch; }
+.ncv-kerbox, .ncv-dot, .ncv-result {
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.35rem;
+}
+.ncv-kerbox-cap, .ncv-dot-cap, .ncv-result-lab {
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim);
+  display: inline-flex; align-items: center; gap: 0.3rem;
+}
+.ncv-kergrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; }
+.ncv-kercell {
+  display: grid; place-items: center; min-width: 30px; height: 26px;
+  font-size: 0.72rem; color: var(--text-main); border: 1px solid var(--border);
+  border-radius: 5px; background: var(--bg);
+}
+.ncv-dot { justify-content: center; align-items: flex-start; }
+.ncv-dot-math { width: 100%; }
+.ncv-dot-math .katex { color: var(--text-main); font-size: 0.84em; }
+.ncv-result { border-left: 3px solid var(--hue-violet); justify-content: center; }
+.ncv-result-val { font-size: 1.2rem; font-weight: 700; color: var(--hue-violet); }
+.ncv-result-hint { font-size: 0.66rem; color: var(--text-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ncv-window, .ncv-curcell { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .ncv-foot { grid-template-columns: 1fr; }
+  .ncv-arrows { margin-left: 0; }
+}

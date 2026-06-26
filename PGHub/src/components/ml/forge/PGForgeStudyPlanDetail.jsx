@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ChevronRight, Clock, ListChecks, ArrowRight, ArrowLeft,
+  Clock, ListChecks, ArrowRight, ArrowLeft,
   BookOpen, Code2, FileText, Sigma, Hammer,
 } from 'lucide-react';
 import { getStudyPlan } from './pgForgeStudyPlansData';
+import Breadcrumb from '../../common/Breadcrumb';
 import './PGForgeStudyPlanDetail.css';
 
 const KIND_ICON = {
@@ -30,13 +31,13 @@ export default function PGForgeStudyPlanDetail() {
   if (!plan) {
     return (
       <div className="forge-spd">
-        <nav className="forge-crumb">
-          <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-          <ChevronRight size={13} />
-          <Link to="/ml/study-plans" className="forge-crumb-link">Study Plans</Link>
-          <ChevronRight size={13} />
-          <span className="forge-crumb-cur">Not found</span>
-        </nav>
+        <Breadcrumb
+          items={[
+            { label: 'PGForge', to: '/ml' },
+            { label: 'Study plans', to: '/ml/study-plans' },
+            { label: 'Plan' },
+          ]}
+        />
         <div className="forge-spd-empty">
           <p>That study plan does not exist.</p>
           <Link to="/ml/study-plans" className="forge-spd-back"><ArrowLeft size={14} /> Back to all plans</Link>
@@ -47,13 +48,13 @@ export default function PGForgeStudyPlanDetail() {
 
   return (
     <div className="forge-spd">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <Link to="/ml/study-plans" className="forge-crumb-link">Study Plans</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">{plan.title}</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: 'PGForge', to: '/ml' },
+          { label: 'Study plans', to: '/ml/study-plans' },
+          { label: plan.title || 'Plan' },
+        ]}
+      />
 
       <header className="forge-spd-header">
         <h1 className="forge-spd-title">{plan.title}</h1>

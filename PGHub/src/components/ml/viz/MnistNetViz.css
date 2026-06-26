@@ -1,0 +1,168 @@
+/* MnistNetViz — prefix: mnv- */
+
+.mnv-wrap {
+  font-family: var(--sans, inherit);
+}
+
+.mnv-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.mnv-head-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.12);
+  flex-shrink: 0;
+}
+
+.mnv-head-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.mnv-head-title {
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.mnv-head-sub {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+}
+
+.mnv-chip {
+  margin-left: auto;
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+}
+
+.mnv-body {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.85fr) 1.4fr;
+  gap: 0.5rem;
+  padding: 0.6rem;
+  align-items: start;
+}
+
+.mnv-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.mnv-padwrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.mnv-pad {
+  width: 100%;
+  max-width: 220px;
+  aspect-ratio: 1;
+  display: grid;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(circle at 50% 45%, rgba(var(--accent-rgb), 0.06), transparent 60%),
+    var(--bg);
+  touch-action: none;
+  user-select: none;
+  cursor: crosshair;
+}
+
+.mnv-cell {
+  border-radius: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: background 0.08s ease, opacity 0.08s ease;
+}
+
+.mnv-cell.is-on {
+  border-color: rgba(var(--accent-rgb), 0.4);
+}
+
+.mnv-pad-hint {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.mnv-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+}
+
+.mnv-stage {
+  border-radius: 10px;
+  min-width: 0;
+}
+
+.mnv-svg {
+  width: 100%;
+  max-width: 460px;
+  aspect-ratio: 460 / 560;
+  display: block;
+  margin: 0 auto;
+  user-select: none;
+}
+
+.mnv-readout {
+  gap: 0.5rem;
+}
+
+.mnv-btns {
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.mnv-top2 {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+@media (max-width: 640px) {
+  .mnv-body {
+    grid-template-columns: 1fr;
+  }
+  .mnv-pad {
+    max-width: 200px;
+  }
+  .mnv-top2 {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mnv-cell {
+    transition: none;
+  }
+}

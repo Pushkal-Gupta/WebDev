@@ -1,0 +1,58 @@
+.ftcv { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.ftcv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.ftcv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.ftcv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.ftcv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.ftcv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.ftcv-sub .katex { font-size: 0.9em; color: var(--text-main); margin: 0 0.15em; }
+.ftcv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.ftcv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.ftcv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.ftcv-svg { width: 100%; height: auto; display: block; touch-action: none; }
+.ftcv-handle { cursor: grab; }
+.ftcv-handle:active { cursor: grabbing; }
+.ftcv-axis-lbl { fill: var(--text-dim); font-size: 0.7rem; font-family: var(--mono); }
+.ftcv-axis-x { fill: var(--accent); font-weight: 700; }
+.ftcv-panel-lbl { fill: var(--text-dim); font-size: 0.68rem; font-family: var(--mono); }
+.ftcv-mk { fill: var(--text-main); font-size: 0.68rem; font-family: var(--mono); font-weight: 600; }
+
+.ftcv-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.ftcv-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.ftcv-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.ftcv-stat-val { font-size: 0.82rem; color: var(--text-main); }
+.ftcv-stat-val .katex { color: var(--text-main); }
+.ftcv-accent { border-color: var(--accent); }
+.ftcv-accent .katex { color: var(--accent); }
+.ftcv-green { border-color: var(--easy); }
+.ftcv-green .katex { color: var(--easy); }
+.ftcv-pink { border-color: var(--hue-pink); }
+.ftcv-pink .katex { color: var(--hue-pink); }
+
+.ftcv-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.ftcv-slider { flex: 1 1 260px; display: flex; align-items: center; gap: 0.55rem; font-size: 0.74rem; color: var(--text-dim); }
+.ftcv-slider span:first-child { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+.ftcv-slider input { flex: 1 1 auto; accent-color: var(--accent); }
+.ftcv-slider-val { font-weight: 700; color: var(--accent); min-width: 2.6ch; text-align: right; }
+
+.ftcv-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.ftcv-trace-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.ftcv-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .ftcv-stats { grid-template-columns: repeat(2, 1fr); } }

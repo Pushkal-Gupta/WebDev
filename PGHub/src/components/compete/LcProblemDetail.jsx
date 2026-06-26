@@ -1,11 +1,19 @@
 import './LcProblemDetail.css';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ChevronRight, ExternalLink, Gauge, Layers, CalendarDays,
+  ExternalLink, Gauge, Layers, CalendarDays,
   Hash, Trophy, Target, ArrowLeft,
 } from 'lucide-react';
 import { useLcQuestion } from '../../lib/queries';
+import Breadcrumb from '../common/Breadcrumb';
+
+const crumbs = (title) => [
+  { label: 'Compete', to: '/compete' },
+  { label: 'LeetCode', to: '/compete/leetcode' },
+  { label: 'Problems', to: '/compete/leetcode/problems' },
+  { label: title || 'Problem' },
+];
 
 const RATING_MIN = 1200;
 const RATING_MAX = 3000;
@@ -24,20 +32,6 @@ function diffWord(d) {
   if (d === 'easy') return 'Easy';
   if (d === 'hard') return 'Hard';
   return 'Medium';
-}
-
-function Breadcrumb({ title }) {
-  return (
-    <nav className="lcpd-crumbs" aria-label="Breadcrumb">
-      <Link to="/compete" className="lcpd-crumb">Compete</Link>
-      <ChevronRight size={13} className="lcpd-crumb-sep" />
-      <span className="lcpd-crumb">LeetCode</span>
-      <ChevronRight size={13} className="lcpd-crumb-sep" />
-      <Link to="/compete/leetcode/problems" className="lcpd-crumb">Problems</Link>
-      <ChevronRight size={13} className="lcpd-crumb-sep" />
-      <span className="lcpd-crumb lcpd-crumb-current">{title}</span>
-    </nav>
-  );
 }
 
 export default function LcProblemDetail() {
@@ -62,7 +56,7 @@ export default function LcProblemDetail() {
   if (isLoading) {
     return (
       <div className="lcpd-container">
-        <Breadcrumb title={titleFromSlug(slug)} />
+        <Breadcrumb items={crumbs(titleFromSlug(slug))} />
         <div className="lcpd-skel lcpd-skel-head" />
         <div className="lcpd-skel lcpd-skel-hero" />
         <div className="lcpd-skel-row">
@@ -80,7 +74,7 @@ export default function LcProblemDetail() {
     const title = titleFromSlug(slug);
     return (
       <div className="lcpd-container">
-        <Breadcrumb title={title} />
+        <Breadcrumb items={crumbs(title)} />
         <div className="lcpd-empty">
           <Trophy size={34} className="lcpd-empty-icon" />
           <h1 className="lcpd-empty-title">{title}</h1>
@@ -101,7 +95,7 @@ export default function LcProblemDetail() {
 
   return (
     <div className="lcpd-container">
-      <Breadcrumb title={q.title} />
+      <Breadcrumb items={crumbs(q.title)} />
 
       <header className="lcpd-head">
         <div className="lcpd-badges">

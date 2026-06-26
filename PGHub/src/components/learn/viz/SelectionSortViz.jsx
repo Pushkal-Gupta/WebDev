@@ -294,10 +294,23 @@ export default function SelectionSortViz({ seed = 7 }) {
             const h = barH(v);
             const x = barX(i);
             const y = baseY - h;
+            // Idle bars are coloured BY VALUE across a sky -> pink spectrum (inline,
+            // so the array reads rich at rest). Active roles (locked/cursor/min/swap)
+            // carry no inline colour, so their CSS class styling still wins.
+            const pct = Math.round((v / maxVal) * 100);
+            const valueColor = `color-mix(in srgb, var(--hue-sky), var(--hue-pink) ${pct}%)`;
+            // Locked bars keep their value colour but take a green outline so the sorted
+            // prefix still reads; at the end the whole array is a clean sky->pink gradient.
+            const idleStyle = role === 'idle'
+              ? { fill: valueColor, fillOpacity: 0.9, stroke: valueColor }
+              : role === 'locked'
+                ? { fill: valueColor, fillOpacity: 0.9, stroke: 'var(--easy)', strokeWidth: 2.2 }
+                : undefined;
             return (
               <g key={`bar-${i}`} className={`ssv-bargroup ssv-role-${role}`}>
                 <rect
                   className={`ssv-bar ssv-bar-${role}`}
+                  style={idleStyle}
                   x={x}
                   y={y}
                   width={cellW}

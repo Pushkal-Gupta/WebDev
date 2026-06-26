@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronRight, BarChart3, Trophy, Users, Calendar, Tag, ExternalLink, CalendarOff } from 'lucide-react';
+import { BarChart3, Trophy, Users, Calendar, Tag, ExternalLink, CalendarOff } from 'lucide-react';
 import { useExternalContests } from '../../lib/queries';
+import Breadcrumb from '../common/Breadcrumb';
 import './LaunchSections.css';
 
 function fmtDate(iso) {
@@ -28,11 +28,7 @@ export default function CompetitionsSection() {
 
   return (
     <div className="lnch">
-      <nav className="lnch-crumbs">
-        <Link to="/compete">PGBattle</Link>
-        <ChevronRight size={11} />
-        <span>Competitions</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'Compete', to: '/compete' }, { label: 'Competitions' }]} />
 
       <header className="lnch-head">
         <h1 className="lnch-title"><BarChart3 size={26} /> Competitions</h1>

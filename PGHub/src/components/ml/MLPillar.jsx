@@ -1,34 +1,22 @@
 import React from 'react';
 import { Link, useParams, useLocation } from 'react-router-dom';
-import { ArrowLeft, ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers, Clock, BarChart3 } from 'lucide-react';
+import { ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers, Clock, BarChart3 } from 'lucide-react';
 import { getPillar } from '../../content/mlContent';
+import Breadcrumb from '../common/Breadcrumb';
 import ForgeThumb from './forge/ForgeThumb';
 import './MLHub.css';
 
 const ICONS = { Sigma, Workflow, Layers, Brain, Zap, Network };
 
-const FROM_TARGETS = {
-  vault: { to: '/vault', label: 'Vault' },
-  forge: { to: '/ml', label: 'PGForge' },
-};
-function resolveFrom(search) {
-  const key = new URLSearchParams(search).get('from');
-  return FROM_TARGETS[key] || { to: '/ml', label: 'ML-DL-AI' };
-}
-
 export default function MLPillar() {
   const { pillarSlug } = useParams();
   const location = useLocation();
-  const back = resolveFrom(location.search);
   const pillar = getPillar(pillarSlug);
 
   if (!pillar) {
     return (
       <div className="mlhub">
-        <Link to={back.to} className="learn-crumb">
-          <ArrowLeft size={13} />
-          <span>{back.label}</span>
-        </Link>
+        <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Pillar' }]} />
         <h1 className="mlhub-title">Not found</h1>
         <p className="mlhub-sub">No pillar matches "{pillarSlug}".</p>
       </div>
@@ -40,12 +28,7 @@ export default function MLPillar() {
 
   return (
     <div className="mlhub">
-      <Link to={back.to} className="learn-crumb">
-        <ArrowLeft size={13} />
-        <span>{back.label}</span>
-        <span className="learn-crumb-sep">/</span>
-        <span className="learn-crumb-here">{pillar.title}</span>
-      </Link>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: pillar.title }]} />
 
       <header className="mlhub-hero">
         <div className="mlhub-pillar-head" style={{ marginBottom: '0.6rem' }}>
@@ -61,7 +44,7 @@ export default function MLPillar() {
         </section>
       ) : (
         <section className="mlhub-pillars mlhub-pillars-auto">
-          {lessons.map((l) => (
+          {lessons.map((l, i) => (
             <Link
               key={l.slug}
               to={`/ml/${pillarSlug}/${l.slug}${location.search}`}
@@ -69,7 +52,7 @@ export default function MLPillar() {
             >
               <span className="mlhub-pillar-stripe" aria-hidden="true" />
               <div className="mlhub-lesson-thumb" aria-hidden="true">
-                <ForgeThumb seed={l.title} label={l.title.split(/\s+/)[0]} />
+                <ForgeThumb seed={l.title} index={i} label={l.title.split(/\s+/)[0]} />
               </div>
               <div className="mlhub-lesson-body">
                 <div className="mlhub-lesson-head">

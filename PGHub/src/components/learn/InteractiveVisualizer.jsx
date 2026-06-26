@@ -9,6 +9,7 @@ import {
   NumberGridRenderer, TreeRenderer,
 } from './AlgoVisualizer';
 import { INTERACTIVE_TEMPLATES } from './interactiveTemplates';
+import { registerMonacoThemes, resolveMonacoTheme } from '../../lib/monacoTheme';
 import './InteractiveVisualizer.css';
 
 const MAX_FRAMES = 600;
@@ -190,7 +191,8 @@ export default function InteractiveVisualizer({ slug }) {
               language="javascript"
               value={code}
               onChange={(v) => setCode(v ?? '')}
-              theme="vs-dark"
+              beforeMount={(monaco) => registerMonacoThemes(monaco)}
+              theme={resolveMonacoTheme()}
               options={{
                 minimap: { enabled: false },
                 fontSize: 13,

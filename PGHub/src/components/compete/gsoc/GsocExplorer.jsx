@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { GitBranch, Search, Calendar, Layers, Lightbulb, ChevronDown } from 'lucide-react';
 import { GSOC_ORGS, GSOC_CATEGORIES, GSOC_TIMELINE } from './gsocData';
+import Breadcrumb from '../../common/Breadcrumb';
 import './GsocExplorer.css';
 
 const CAT_HUE = {
@@ -44,6 +45,7 @@ export default function GsocExplorer() {
 
   return (
     <div className="gsoc-page">
+      <Breadcrumb items={[{ label: 'Compete', to: '/compete' }, { label: 'GSoC' }]} />
       <header className="gsoc-head">
         <h1 className="gsoc-title"><GitBranch size={24} /> GSoC Explorer</h1>
         <p className="gsoc-sub">Mentoring organizations and their project ideas — filter by domain, search by tech, open a card for sample tasks.</p>

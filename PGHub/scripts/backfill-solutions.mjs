@@ -55,7 +55,12 @@ const val = (n, d = null) => {
 const DRY = has('dry');
 const FORCE = has('force');
 const ONLY = val('only') ? val('only').split(',').map(s => s.trim()).filter(Boolean) : null;
-const JUDGE0_URL = (val('judge0') || 'https://ce.judge0.com').replace(/\/$/, '');
+const JUDGE0_URL = (val('judge0') || process.env.JUDGE0_URL || 'https://ce.judge0.com').replace(/\/$/, '');
+// Self-hosted Judge0 needs an X-Auth-Token header; public CE needs none.
+const JUDGE0_AUTH = val('auth') || process.env.JUDGE0_AUTH_TOKEN || '';
+const J0_HEADERS = JUDGE0_AUTH
+  ? { 'content-type': 'application/json', 'X-Auth-Token': JUDGE0_AUTH }
+  : { 'content-type': 'application/json' };
 const PAUSE_MS = Number(val("pause") || 200);
 
 const LANG_ID = { python: 71, javascript: 63, java: 62, cpp: 54 };
@@ -1771,7 +1776,7 @@ async function judgeRun(languageId, sourceCode, stdin) {
     try {
       const res = await fetch(url, {
         method: 'POST',
-        headers: { 'content-type': 'application/json' },
+        headers: J0_HEADERS,
         body: JSON.stringify({
           language_id: languageId,
           source_code: sourceCode,

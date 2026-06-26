@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
-import { ChevronRight, Target, Code2 } from 'lucide-react';
+import { Navigate, useParams } from 'react-router-dom';
+import { Target, Code2 } from 'lucide-react';
 import { getCuda } from './pgForgeCudaData';
+import Breadcrumb from '../../common/Breadcrumb';
 import './PGForgeCudaDetail.css';
 
 export default function PGForgeCudaDetail() {
@@ -12,13 +13,13 @@ export default function PGForgeCudaDetail() {
 
   return (
     <div className="forge-cd">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <Link to="/ml/cuda" className="forge-crumb-link">CUDA kernels</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">{lesson.title}</span>
-      </nav>
+      <Breadcrumb
+        items={[
+          { label: 'PGForge', to: '/ml' },
+          { label: 'CUDA kernels', to: '/ml/cuda' },
+          { label: lesson.title || 'Kernel' },
+        ]}
+      />
 
       <div className="forge-cd-meta">
         <span className={`forge-cd-diff forge-cd-diff-${lesson.difficulty}`}>

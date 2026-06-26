@@ -1,11 +1,12 @@
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
-  ArrowRight, Play, Search, X, Code2, Film, ArrowLeft, Zap, Sparkles,
+  ArrowRight, Play, Search, X, Code2, Film, Zap, Sparkles,
   BarChart3, Crosshair, Rows3, Layers, Link2, Network, Triangle, Hash,
   Ruler, Share2, Route, GitBranch, Combine, Workflow, Grid3x3, Spline,
   Type, Binary, Sigma, Server, Boxes,
 } from 'lucide-react';
+import 'katex/dist/katex.min.css';
 import AlgoVisualizer, { ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer, NumberGridRenderer, TreeRenderer } from './AlgoVisualizer';
 import { VISUALIZATIONS } from './conceptVisualizations';
 import { INTERACTIVE_TEMPLATES } from './interactiveTemplates';
@@ -13,6 +14,7 @@ import { INTERACTIVE_VIZ } from './interactiveViz';
 import { recordLocalVisit } from '../../lib/achievements';
 import { useConcept } from '../../lib/queries';
 import RunnableCodePanel from '../RunnableCodePanel';
+import Breadcrumb from '../common/Breadcrumb';
 import ForgeThumb from '../ml/forge/ForgeThumb';
 import '../ml/MLLesson.css';
 import './Learn.css';
@@ -318,12 +320,17 @@ function VizDetail({ slug }) {
   const refCode = useMemo(() => pickReferenceCode(concept?.code), [concept]);
 
   const viz = VISUALIZATIONS[slug];
-  if (!viz) {
+  const RichViz = INTERACTIVE_VIZ[slug] || INTERACTIVE_VIZ[STATIC_TO_RICHVIZ[slug]] || null;
+  // A slug is renderable if it has EITHER a frame walkthrough OR a rich interactive
+  // component — many concepts ship only the interactive viz (no frame steps).
+  if (!viz && !RichViz) {
     return (
       <div className="learn-container">
-        <div className="learn-breadcrumbs">
-          <Link to="/visualize">Visualizations</Link>
-        </div>
+        <Breadcrumb items={[
+          { label: 'Learning', to: '/learning' },
+          { label: 'Visualize', to: '/visualize' },
+          { label: 'Not found' },
+        ]} />
         <div className="learn-header">
           <h1 className="learn-title">Not found</h1>
           <p className="learn-sub">No visualization exists for "{slug}".</p>
@@ -335,14 +342,16 @@ function VizDetail({ slug }) {
   const meta = META[slug] || {};
   const cat = categoryForSlug(slug);
   const catDef = CAT_BY_KEY[cat];
-  const RichViz = INTERACTIVE_VIZ[slug] || INTERACTIVE_VIZ[STATIC_TO_RICHVIZ[slug]] || null;
+  const vizTitle = viz?.title
+    || concept?.title
+    || slug.split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
   const editorSlug = INTERACTIVE_TEMPLATES[slug]
     ? slug
     : (STATIC_TO_INTERACTIVE[slug] && INTERACTIVE_TEMPLATES[STATIC_TO_INTERACTIVE[slug]]
       ? STATIC_TO_INTERACTIVE[slug]
       : null);
   const hasEditor = Boolean(editorSlug);
-  const hasWalkthrough = vizStepCount(viz) > 0;
+  const hasWalkthrough = viz ? vizStepCount(viz) > 0 : false;
   // The editable code surface, in priority order:
   //   1. the concept's reference implementation (multi-language, from the DB)
   //   2. the interactive template's starter code (JavaScript, runs in-browser)
@@ -353,6 +362,18 @@ function VizDetail({ slug }) {
     ? concept.code
     : (refCode ? refCode.body : templateCode);
   const panelLang = refCode ? refCode.language : 'javascript';
+  // When the editable surface IS the interactive visualizer template (not a
+  // concept's DB reference code), its JS calls `input` / `step` / `log` — globals
+  // the visualizer supplies but Judge0 does not. Inject a run-time-only preamble
+  // that binds them so Run executes standalone and prints the step captions as a
+  // readable trace. Reference-implementation code paths get no preamble.
+  const isTemplatePanel = Boolean(editorSlug) && panelCode === templateCode;
+  const runPreamble = isTemplatePanel
+    ? `const input = ${JSON.stringify(INTERACTIVE_TEMPLATES[editorSlug]?.initialInput ?? {})};\n`
+      + `const __frames = [];\n`
+      + `function step(state, caption) { __frames.push(caption); if (caption !== undefined) console.log(String(caption)); }\n`
+      + `function log(...args) { console.log(...args); }`
+    : '';
   // The "Editable code" badge must promise something real: it shows only when
   // the page actually renders an editable surface.
   const hasCodePanel = Boolean(panelCode) || hasEditor;
@@ -370,21 +391,16 @@ function VizDetail({ slug }) {
 
   return (
     <div className="learn-container viz-detail">
-      <div className="learn-breadcrumbs">
-        <Link to="/visualize">Visualize</Link>
-        {catDef && (
-          <>
-            <span>/</span>
-            <Link to={`/visualize/c/${cat}`}>{catDef.label}</Link>
-          </>
-        )}
-        <span>/</span>
-        <span>{viz.title}</span>
-      </div>
+      <Breadcrumb items={[
+        { label: 'Learning', to: '/learning' },
+        { label: 'Visualize', to: '/visualize' },
+        ...(catDef ? [{ label: catDef.label, to: `/visualize/c/${cat}` }] : []),
+        { label: vizTitle || 'Visualization' },
+      ]} />
 
       <header className="viz-detail-hero">
         <div className="viz-detail-hero-text">
-          <h1 className="viz-detail-title">{viz.title}</h1>
+          <h1 className="viz-detail-title">{vizTitle}</h1>
           {meta.blurb && <p className="viz-detail-blurb">{meta.blurb}</p>}
         </div>
         <div className="viz-detail-chips">
@@ -429,7 +445,7 @@ function VizDetail({ slug }) {
             <Code2 size={14} />
             <span>Editable code — edit and run it</span>
           </div>
-          <RunnableCodePanel code={panelCode} lang={panelLang} />
+          <RunnableCodePanel code={panelCode} lang={panelLang} runPreamble={runPreamble} />
         </section>
       )}
 
@@ -1179,11 +1195,7 @@ function VisualizeIndexList() {
   return (
     <div className="learn-container viz-gallery-container">
       <div className="learn-header">
-        <Link to="/learning" className="learn-crumb">
-          <ArrowLeft size={13} /> <span>Learning</span>
-          <span className="learn-crumb-sep">/</span>
-          <span className="learn-crumb-here">Visualize</span>
-        </Link>
+        <Breadcrumb items={[{ label: 'Learning', to: '/learning' }, { label: 'Visualize' }]} />
         <h1 className="learn-title">Visualize</h1>
         <p className="learn-sub">Pick a data structure or algorithm family and step through it frame by frame.</p>
         <div className="viz-search">
@@ -1282,11 +1294,11 @@ function VizCategory({ category }) {
     return (
       <div className="learn-container viz-gallery-container">
         <div className="learn-header">
-          <Link to="/visualize" className="learn-crumb">
-            <ArrowLeft size={13} /> <span>Visualize</span>
-            <span className="learn-crumb-sep">/</span>
-            <span className="learn-crumb-here">Not found</span>
-          </Link>
+          <Breadcrumb items={[
+            { label: 'Learning', to: '/learning' },
+            { label: 'Visualize', to: '/visualize' },
+            { label: 'Not found' },
+          ]} />
           <h1 className="learn-title">Not found</h1>
           <p className="learn-sub">No category matches "{category}".</p>
         </div>
@@ -1297,11 +1309,11 @@ function VizCategory({ category }) {
   return (
     <div className="learn-container viz-gallery-container" style={{ '--card-accent': accent }}>
       <div className="learn-header">
-        <Link to="/visualize" className="learn-crumb">
-          <ArrowLeft size={13} /> <span>Visualize</span>
-          <span className="learn-crumb-sep">/</span>
-          <span className="learn-crumb-here">{def.label}</span>
-        </Link>
+        <Breadcrumb items={[
+          { label: 'Learning', to: '/learning' },
+          { label: 'Visualize', to: '/visualize' },
+          { label: def.label },
+        ]} />
         <h1 className="learn-title">{def.label}</h1>
         <p className="learn-sub">{def.blurb}</p>
       </div>

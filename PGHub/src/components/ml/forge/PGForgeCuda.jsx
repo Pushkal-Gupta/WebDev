@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Cpu, Search, ArrowRight } from 'lucide-react';
+import { Cpu, Search, ArrowRight } from 'lucide-react';
 import { PG_FORGE_CUDA, PG_FORGE_CUDA_CATEGORIES } from './pgForgeCudaData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeCuda.css';
 
@@ -51,11 +52,7 @@ export default function PGForgeCuda() {
 
   return (
     <div className="forge-cuda">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">CUDA kernels</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'CUDA kernels' }]} />
 
       <header className="forge-cuda-header">
         <h1 className="forge-cuda-title">CUDA kernels</h1>
@@ -121,12 +118,12 @@ export default function PGForgeCuda() {
         <p className="forge-cuda-none">No kernels match those filters.</p>
       ) : (
         <div className="forge-cuda-grid">
-          {filtered.map((lesson) => {
+          {filtered.map((lesson, i) => {
             const thumb = thumbFor(lesson);
             return (
             <Link key={lesson.slug} to={`/ml/cuda/${lesson.slug}`} className="forge-cuda-card">
               <div className="forge-thumb-frame">
-                <ForgeThumb kind={thumb.kind} label={thumb.label} seed={lesson.title} />
+                <ForgeThumb kind={thumb.kind} label={thumb.label} seed={lesson.title} index={i} />
               </div>
               <div className="forge-cuda-card-head">
                 <Cpu size={16} className="forge-cuda-card-icon" />

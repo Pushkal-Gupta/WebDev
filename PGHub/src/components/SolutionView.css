@@ -1,6 +1,6 @@
 /* ═══ NeetCode-style Solution View ═══ */
 
-.sv-container { display: flex; flex-direction: column; gap: 1.75rem; padding-bottom: 2rem; }
+.sv-container { display: flex; flex-direction: column; gap: 1.75rem; padding-bottom: 4rem; }
 .sv-loading { padding: 2rem; text-align: center; color: var(--text-dim); font-family: var(--sans); font-size: 0.85rem; }
 
 .sv-problem-title {
@@ -86,10 +86,11 @@
 /* ── Code Block ── */
 .sv-code-header {
   display: flex; align-items: stretch; justify-content: space-between;
+  flex-wrap: wrap; gap: 0.25rem;
   border-bottom: 1px solid var(--border);
   background: var(--bg); border-radius: 8px 8px 0 0;
 }
-.sv-lang-tabs { display: flex; gap: 0; }
+.sv-lang-tabs { display: flex; flex-wrap: wrap; gap: 0; min-width: 0; }
 .sv-copy-btn {
   display: inline-flex; align-items: center; gap: 0.35rem;
   font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
@@ -145,6 +146,141 @@
 }
 .sv-complexity strong { color: var(--text-main); }
 
+/* ── Editorial walkthrough (problem.editorial_md) ── */
+.sv-editorial {
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.05), rgba(var(--accent-rgb), 0.01));
+  padding: 1.1rem 1.3rem 1.4rem;
+  display: flex; flex-direction: column; gap: 0.9rem;
+}
+.sv-editorial-head { display: flex; align-items: center; gap: 0.65rem; }
+.sv-editorial-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 30px; height: 30px; flex-shrink: 0;
+  border-radius: 8px; color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.12);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+}
+.sv-editorial-headtext { display: flex; flex-direction: column; gap: 0.05rem; min-width: 0; }
+.sv-editorial-eyebrow {
+  font-family: var(--mono); font-size: 0.66rem; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent);
+}
+.sv-editorial-title {
+  font-family: var(--sans); font-size: 1rem; font-weight: 700;
+  color: var(--text-main); margin: 0;
+}
+
+/* Markdown body inside the editorial — wraps everything so the only scrollbar
+   on screen is the page scroll (HARD rule: no inner scrollbars anywhere). */
+.sv-editorial-body { font-family: var(--sans); color: var(--text-main); }
+.sv-editorial-body > :first-child { margin-top: 0; }
+.sv-editorial-body > :last-child { margin-bottom: 0; }
+.sv-editorial-body p {
+  font-size: 0.95rem; line-height: 1.72; color: var(--text-main); margin: 0.7rem 0;
+}
+.sv-editorial-body h1,
+.sv-editorial-body h2,
+.sv-editorial-body h3,
+.sv-editorial-body h4 {
+  font-family: var(--sans); color: var(--text-main); font-weight: 700;
+  line-height: 1.3; margin: 1.4rem 0 0.5rem;
+}
+.sv-editorial-body h1 { font-size: 1.15rem; }
+.sv-editorial-body h2 {
+  font-size: 1.05rem; padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+.sv-editorial-body h3 { font-size: 0.97rem; }
+.sv-editorial-body h4 { font-size: 0.9rem; color: var(--text-dim); }
+.sv-editorial-body strong { color: var(--text-main); font-weight: 700; }
+.sv-editorial-body em { color: var(--text-main); }
+.sv-editorial-body a { color: var(--accent); text-decoration: none; }
+.sv-editorial-body a:hover { text-decoration: underline; }
+.sv-editorial-body ul,
+.sv-editorial-body ol {
+  margin: 0.6rem 0; padding-left: 1.4rem;
+  font-size: 0.94rem; line-height: 1.7; color: var(--text-main);
+}
+.sv-editorial-body li { margin: 0.25rem 0; }
+.sv-editorial-body li::marker { color: var(--accent); }
+.sv-editorial-body blockquote {
+  margin: 0.9rem 0; padding: 0.5rem 1rem;
+  border-left: 3px solid rgba(var(--accent-rgb), 0.45);
+  background: rgba(var(--accent-rgb), 0.05);
+  border-radius: 0 6px 6px 0; color: var(--text-dim);
+}
+.sv-editorial-body blockquote p { margin: 0.25rem 0; }
+.sv-editorial-body hr { border: none; border-top: 1px solid var(--border); margin: 1.2rem 0; }
+
+/* Inline code + fenced code: wrap, never scroll. */
+.sv-editorial-body :not(pre) > code {
+  font-family: var(--mono); font-size: 0.84em;
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.1rem 0.35rem;
+  color: var(--accent); overflow-wrap: anywhere;
+}
+.sv-editorial-body pre {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0.95rem 1.1rem; margin: 0.9rem 0;
+  max-width: 100%;
+}
+.sv-editorial-body pre code {
+  font-family: var(--mono); font-size: 0.85rem; line-height: 1.6;
+  color: var(--text-main); background: none; border: none; padding: 0;
+  white-space: pre-wrap; word-break: break-word; overflow-wrap: anywhere;
+}
+
+/* Tables: full-width, stacked-safe, no horizontal scroll. */
+.sv-editorial-body table {
+  width: 100%; border-collapse: collapse; margin: 0.9rem 0;
+  font-size: 0.88rem; table-layout: fixed;
+}
+.sv-editorial-body th,
+.sv-editorial-body td {
+  border: 1px solid var(--border); padding: 0.45rem 0.65rem;
+  text-align: left; color: var(--text-main); overflow-wrap: anywhere;
+}
+.sv-editorial-body th {
+  background: rgba(var(--accent-rgb), 0.06); font-weight: 700; color: var(--text-main);
+}
+
+/* KaTeX from the shared renderer — match ConceptPage, keep math on-screen. */
+.sv-editorial-body .cp-imath { display: inline-block; color: var(--text-main); vertical-align: baseline; }
+.sv-editorial-body .cp-imath .katex { font-size: 1em; color: var(--text-main); }
+.sv-editorial-body .cp-math {
+  display: block; font-size: 1.02rem; line-height: 1.5;
+  padding: 1rem 1.1rem; margin: 0.8rem 0;
+  background: rgba(var(--accent-rgb), 0.05);
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 8px; color: var(--text-main); text-align: center;
+}
+.sv-editorial-body .cp-math .katex-display { margin: 0; }
+.sv-editorial-body .cp-math .katex-display > .katex { white-space: normal; max-width: 100%; }
+.sv-editorial-body .cp-math .katex { color: var(--text-main); font-size: 1.02em; }
+
+/* ── Complexity chips ── */
+.sv-cx-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.sv-cx-chip {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.32rem 0.65rem; border-radius: 999px;
+  background: var(--bg); border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.sv-cx-chip > svg { color: var(--accent); flex-shrink: 0; }
+.sv-cx-chip-label {
+  font-family: var(--sans); font-size: 0.7rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);
+}
+.sv-cx-chip-val {
+  font-family: var(--mono); font-size: 0.8rem; font-weight: 600;
+  color: var(--text-main);
+}
+
 /* ── Light Mode ── */
 [data-theme="light"] .sv-approach { background: rgba(var(--accent-rgb), 0.03); }
 [data-theme="light"] .sv-code-block { background: var(--surface); }
+[data-theme="light"] .sv-editorial-body pre,
+[data-theme="light"] .sv-editorial-body :not(pre) > code { background: var(--surface); }

@@ -1,11 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { RotateCcw, Clock, ChevronRight, AlertCircle, CheckCircle, ArrowLeft } from 'lucide-react';
+import { RotateCcw, Clock, ChevronRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import TimelineMarker from './vault/TimelineMarker';
 import ConfidenceMeter from './vault/ConfidenceMeter';
+import SignInPrompt from './common/SignInPrompt';
+import Breadcrumb from './common/Breadcrumb';
 import './vault/vault.css';
 import './ReviewQueue.css';
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'Review' }];
 
 const CONFIDENCE_LABELS = { 1: 'Again', 2: 'Hard', 3: 'Good', 4: 'Easy', 5: 'Mastered' };
 const CONFIDENCE_COLORS = { 1: 'var(--hard)', 2: 'var(--medium)', 3: 'var(--accent)', 4: 'var(--easy)', 5: 'var(--easy)' };
@@ -96,25 +100,17 @@ export default function ReviewQueue({ session }) {
     return { overdue, today };
   }, [reviewItems]);
 
-  const crumbs = (
-    <nav className="vault-crumbs" aria-label="Breadcrumb">
-      <Link to="/vault" className="vault-crumbs-back">
-        <ArrowLeft size={12} /> Vault
-      </Link>
-      <span className="vault-crumbs-sep">/</span>
-      <span className="vault-crumbs-current">Review</span>
-    </nav>
-  );
+  const crumbs = <Breadcrumb items={CRUMBS} />;
 
   if (!session?.user) {
     return (
       <div className="rq-container">
         {crumbs}
-        <div className="rq-empty-auth">
-          <RotateCcw size={36} className="rq-empty-icon" />
-          <h2>Spaced Repetition Review</h2>
-          <p>Log in to track your review schedule and reinforce patterns you've learned.</p>
-        </div>
+        <SignInPrompt
+          icon={RotateCcw}
+          title="Sign in for spaced-repetition review"
+          message="Track your review schedule and reinforce the patterns you've already learned."
+        />
       </div>
     );
   }

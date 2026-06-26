@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { ChevronRight, Presentation, MapPin, CalendarDays, Tag, ExternalLink } from 'lucide-react';
+import { Presentation, MapPin, CalendarDays, Tag, ExternalLink } from 'lucide-react';
+import Breadcrumb from '../common/Breadcrumb';
 import './LaunchSections.css';
 
 const CONFERENCES = [
@@ -89,11 +89,7 @@ const CONFERENCES = [
 export default function ConferencesSection() {
   return (
     <div className="lnch">
-      <nav className="lnch-crumbs">
-        <Link to="/compete">PGBattle</Link>
-        <ChevronRight size={11} />
-        <span>Conferences</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'Compete', to: '/compete' }, { label: 'Conferences' }]} />
 
       <header className="lnch-head">
         <h1 className="lnch-title"><Presentation size={26} /> Conferences</h1>

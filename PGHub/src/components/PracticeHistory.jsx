@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  Calendar, ChevronDown, Flame, Play, Shuffle, ArrowRight, ArrowLeft,
+  Calendar, ChevronDown, Flame, Play, Shuffle, ArrowRight,
 } from 'lucide-react';
 import {
   useSubmissionHistory,
@@ -18,8 +18,12 @@ import { primaryTopicLabel } from '../lib/topicLabel';
 import { supabase } from '../lib/supabase';
 import BubbleCloud from './BubbleCloud';
 import ActivityHeatmap from './vault/ActivityHeatmap';
+import SignInPrompt from './common/SignInPrompt';
+import Breadcrumb from './common/Breadcrumb';
 import './vault/vault.css';
 import './PracticeHistory.css';
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'History' }];
 
 const WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -210,11 +214,12 @@ export default function PracticeHistory({ session, roadmapMode }) {
   if (!userId) {
     return (
       <div className="ph-container">
-        <div className="ph-empty">
-          <Calendar size={32} className="ph-empty-icon" />
-          <h2 className="ph-empty-title">Sign in to see your practice history</h2>
-          <p className="ph-empty-sub">Every Run and Submit gets logged once you&rsquo;re signed in.</p>
-        </div>
+        <Breadcrumb items={CRUMBS} />
+        <SignInPrompt
+          icon={Calendar}
+          title="Sign in to see your practice history"
+          message="Every Run and Submit gets logged once you're signed in — solves, streaks, and trends."
+        />
       </div>
     );
   }
@@ -222,6 +227,7 @@ export default function PracticeHistory({ session, roadmapMode }) {
   if (isLoading) {
     return (
       <div className="ph-container">
+        <Breadcrumb items={CRUMBS} />
         <div className="ph-skel">
           <div className="skel skel-text" />
           <div className="skel skel-row-full" />
@@ -234,6 +240,7 @@ export default function PracticeHistory({ session, roadmapMode }) {
   if (isError) {
     return (
       <div className="ph-container">
+        <Breadcrumb items={CRUMBS} />
         <div className="ph-empty">
           <h2 className="ph-empty-title">Couldn&rsquo;t load history</h2>
           <p className="ph-empty-sub">Network error. <button className="ph-link" onClick={() => window.location.reload()}>Retry</button></p>
@@ -263,13 +270,7 @@ export default function PracticeHistory({ session, roadmapMode }) {
 
   return (
     <div className="ph-container">
-      <nav className="vault-crumbs" aria-label="Breadcrumb">
-        <Link to="/vault" className="vault-crumbs-back">
-          <ArrowLeft size={12} /> Vault
-        </Link>
-        <span className="vault-crumbs-sep">/</span>
-        <span className="vault-crumbs-current">History</span>
-      </nav>
+      <Breadcrumb items={CRUMBS} />
       <section className="ph-overview">
         <div className="ph-streak-card">
           <header className="ph-streak-head">

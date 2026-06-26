@@ -14,6 +14,19 @@
     "pyReal": false
   },
   {
+    "id": "pghub-b45-edit-distance",
+    "name": "Edit Distance Between Words",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "flatten-nested-list-iterator",
     "name": "Flatten Nested List",
     "difficulty": "Medium",
@@ -22,6 +35,160 @@
       "cpp"
     ],
     "tests": 11,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-stack-sort",
+    "name": "Sort A Stack",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-token-bucket",
+    "name": "Token Bucket Drops",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-run-compress",
+    "name": "Run-Length Compress Size",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-coin-rows",
+    "name": "Non-Adjacent Coin Rows",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "transpose-matrix",
+    "name": "Transpose Matrix",
+    "difficulty": "Easy",
+    "presentCount": 3,
+    "missingLangs": [
+      "cpp"
+    ],
+    "tests": 2,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-rotated-min",
+    "name": "Minimum In Rotated Array",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-gcd-subarray",
+    "name": "Whole-Array GCD Reach",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-bracket-depth",
+    "name": "Maximum Bracket Depth",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-stable-partition",
+    "name": "Stable Even-Odd Partition",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-course-order",
+    "name": "Valid Course Ordering",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-warehouse-merge",
+    "name": "Merge Inventory Ranges",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-trie-prefix",
+    "name": "Shortest Unique Prefixes",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
     "pyReal": true
   },
   {
@@ -39,6 +206,278 @@
     "pyReal": false
   },
   {
+    "id": "pghub-b47-skyline-peaks",
+    "name": "Visible Building Count",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-budget-greedy",
+    "name": "Maximum Affordable Items",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-flip-streak",
+    "name": "Max Ones After K Flips",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-grid-min-path",
+    "name": "Cheapest Falling Path",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b47-snowball-merge",
+    "name": "Snowball Collision Stones",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-elevator-stops",
+    "name": "Elevator Energy Stops",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-vowel-window",
+    "name": "Densest Vowel Window",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-paren-balance",
+    "name": "Minimum Parenthesis Insertions",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "bulb-switcher",
+    "name": "Bulb Switcher",
+    "difficulty": "Medium",
+    "presentCount": 2,
+    "missingLangs": [
+      "java",
+      "cpp"
+    ],
+    "tests": 3,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-jump-reach",
+    "name": "Reach The Last Tile",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-pair-target",
+    "name": "Count Pairs Summing To Target",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-island-perimeter",
+    "name": "Single Island Perimeter",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-coin-combos",
+    "name": "Ways To Make Change",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-kth-largest",
+    "name": "Kth Largest In Stream",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-zigzag-rows",
+    "name": "Zigzag Row Read",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-binary-gap",
+    "name": "Longest Binary Gap",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-subarray-target",
+    "name": "Subarrays With Exact Sum",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-tree-diameter",
+    "name": "Binary Tree Diameter",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-word-ladder-len",
+    "name": "Shortest Transform Length",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-min-edit",
+    "name": "Edit Distance",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b51-rabbit-hop",
+    "name": "Distinct Frog Stairs",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "unique-binary-search-trees-ii",
     "name": "Unique Binary Search Trees II",
     "difficulty": "Medium",
@@ -53,8 +492,21 @@
     "pyReal": false
   },
   {
-    "id": "pghub-band-compression",
-    "name": "Run-Band Compression",
+    "id": "pghub-b48-elevator-stops",
+    "name": "Elevator Resting Floor",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-vowel-shift",
+    "name": "Vowel Caesar Shift",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -78,73 +530,8 @@
     "pyReal": true
   },
   {
-    "id": "pghub-mirror-pair-sum",
-    "name": "Mirror Pair Sum",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-bracket-depth",
-    "name": "Maximum Bracket Depth",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-tidy-range-merge",
-    "name": "Tidy Range Merge",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-zigzag-merge",
     "name": "Alternating Merge",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-missing-streak",
-    "name": "Longest Missing Streak",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-digit-spiral",
-    "name": "Digit Spiral Sum",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -169,8 +556,8 @@
     "pyReal": true
   },
   {
-    "id": "pghub-nearest-equal",
-    "name": "Nearest Equal Distance",
+    "id": "pghub-b48-pair-target",
+    "name": "Count Pairs To Target",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -182,117 +569,11 @@
     "pyReal": true
   },
   {
-    "id": "pghub-token-frequency-rank",
-    "name": "Token Frequency Rank",
+    "id": "pghub-b35-circuit-tree",
+    "name": "Deepest Circuit Node",
     "difficulty": "Medium",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-staircase-cost",
-    "name": "Minimum Staircase Cost",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-balance-point",
-    "name": "Weight Balance Point",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-color-blocks",
-    "name": "Repaint Color Blocks",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-jump-reachable",
-    "name": "Reachable Cells",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-anagram-groups-count",
-    "name": "Count Anagram Groups",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-tide-levels",
-    "name": "Rising Tide Marks",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-shelf-stacking",
-    "name": "Shelf Stacking Capacity",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-relay-handoff",
-    "name": "Relay Baton Handoff",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -301,32 +582,6 @@
   {
     "id": "pghub-vault-rotation",
     "name": "Vault Dial Distance",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-ledger-reconcile",
-    "name": "Ledger Reconciliation",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-pixel-runs",
-    "name": "Longest Equal Pixel Run",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -352,97 +607,6 @@
     "pyReal": false
   },
   {
-    "id": "pghub-orchard-prune",
-    "name": "Orchard Prune Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-signal-decay",
-    "name": "Signal Decay Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-mosaic-borders",
-    "name": "Mosaic Border Tiles",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-parcel-routing",
-    "name": "Parcel Hop Routing",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-coin-rolls",
-    "name": "Coin Roll Combinations",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-fold-palindrome",
-    "name": "Foldable String Check",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-elevator-trips",
-    "name": "Elevator Batch Trips",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-warehouse-zones",
     "name": "Warehouse Connected Zones",
     "difficulty": "Medium",
@@ -456,13 +620,24 @@
     "pyReal": true
   },
   {
-    "id": "pghub-budget-subarray",
-    "name": "Longest Budget Run",
+    "id": "pghub-b48-island-perimeter",
+    "name": "Single Island Perimeter",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
       "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b11-courier-route",
+    "name": "Courier Cheapest Route",
+    "difficulty": "Medium",
+    "presentCount": 3,
+    "missingLangs": [
       "cpp"
     ],
     "tests": 10,
@@ -496,195 +671,11 @@
     "pyReal": true
   },
   {
-    "id": "pghub-k-distinct-window",
-    "name": "Longest K-Distinct Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-square-count-range",
-    "name": "Perfect Squares in Range",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-max-diagonal-sum",
-    "name": "Maximum Diagonal Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-second-largest-distinct",
-    "name": "Second Largest Distinct",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-asteroid-settle",
-    "name": "Asteroid Collisions Settle",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-min-platforms",
-    "name": "Minimum Train Platforms",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-total-set-bits",
-    "name": "Total Set Bits to N",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-subarray-sum-count",
-    "name": "Subarrays Summing to K",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-is-subsequence",
-    "name": "Is Subsequence",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-min-coins-amount",
-    "name": "Fewest Coins for Amount",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-count-components",
-    "name": "Count Connected Components",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-kth-smallest-pair-sum",
     "name": "Kth Smallest Pair Sum",
     "difficulty": "Hard",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-shout-odd-words",
-    "name": "Shout Odd-Length Words",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-ship-capacity",
-    "name": "Minimum Ship Capacity",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-plateau-count",
-    "name": "Count Flat Plateaus",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -693,97 +684,6 @@
   {
     "id": "pghub-vowel-window",
     "name": "Densest Vowel Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-stable-shift",
-    "name": "Stable Even-Odd Shift",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-ledger-balance",
-    "name": "Running Ledger Low Point",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-tower-visible",
-    "name": "Visible Towers From Left",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-grid-diagonal-sum",
-    "name": "Grid Diagonal Bands",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-coin-reach",
-    "name": "Exact Coin Reach",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-pair-product-sign",
-    "name": "Sign of Pair Product",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-snake-decode",
-    "name": "Snake Path Decode",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -821,19 +721,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-meeting-overlap",
-    "name": "Peak Concurrent Meetings",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-zip-checksum",
     "name": "Interleaved Checksum",
     "difficulty": "Easy",
@@ -847,9 +734,9 @@
     "pyReal": true
   },
   {
-    "id": "pghub-island-perimeter",
-    "name": "Single Island Perimeter",
-    "difficulty": "Medium",
+    "id": "pghub-b48-stock-single",
+    "name": "Single Trade Profit",
+    "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -860,8 +747,8 @@
     "pyReal": true
   },
   {
-    "id": "pghub-binary-gap",
-    "name": "Widest Binary Gap",
+    "id": "pghub-b48-kth-distinct",
+    "name": "Kth Distinct String",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -884,6 +771,84 @@
     "pyReal": true
   },
   {
+    "id": "pghub-b48-meeting-rooms",
+    "name": "Minimum Meeting Rooms",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-bitset-subsets",
+    "name": "Subset XOR Total",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-tree-tilt",
+    "name": "Binary Tree Sum Tilt",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-jump-reach",
+    "name": "Minimum Jumps To End",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-sorted-square",
+    "name": "Sorted Squares Merge",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-decode-ways",
+    "name": "Digit Message Decodings",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "flatten-deeply-nested-array",
     "name": "Flatten Deeply Nested Array",
     "difficulty": "Medium",
@@ -892,6 +857,106 @@
       "cpp"
     ],
     "tests": 50,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-word-ladder-len",
+    "name": "Word Transform Length",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-lru-evictions",
+    "name": "LRU Cache Evictions",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b12-maze-escape",
+    "name": "Maze Escape Steps",
+    "difficulty": "Medium",
+    "presentCount": 3,
+    "missingLangs": [
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b48-trapping-water",
+    "name": "Trapped Rainwater Volume",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-meeting-gap",
+    "name": "Longest Free Gap",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-digit-spread",
+    "name": "Digit Spread Sum",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-reverse-blocks",
+    "name": "Reverse Fixed Blocks",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-flood-region-size",
+    "name": "Largest Flooded Region",
+    "difficulty": "Medium",
+    "presentCount": 3,
+    "missingLangs": [
+      "cpp"
+    ],
+    "tests": 10,
     "pyReal": true
   },
   {
@@ -909,6 +974,56 @@
     "pyReal": false
   },
   {
+    "id": "pghub-b12-spore-spread",
+    "name": "Spore Spread Regions",
+    "difficulty": "Medium",
+    "presentCount": 3,
+    "missingLangs": [
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-island-perimeter",
+    "name": "Single Island Perimeter",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-balanced-split",
+    "name": "Balanced Split Count",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-kth-distinct",
+    "name": "Kth Distinct Element",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "string-matching-in-an-array",
     "name": "String Matching in an Array",
     "difficulty": "Easy",
@@ -917,97 +1032,6 @@
       "cpp"
     ],
     "tests": 3,
-    "pyReal": true
-  },
-  {
-    "id": "find-pivot-index",
-    "name": "Find Pivot Index",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-temperature-streak",
-    "name": "Longest Warming Streak",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-balanced-brackets-types",
-    "name": "Balanced Mixed Brackets",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-rotate-grid-90",
-    "name": "Rotate Grid Clockwise",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-min-meeting-rooms",
-    "name": "Minimum Meeting Rooms",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-digit-product-depth",
-    "name": "Digital Product Depth",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-flood-region-size",
-    "name": "Largest Flooded Region",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
     "pyReal": true
   },
   {
@@ -1038,126 +1062,9 @@
     "pyReal": true
   },
   {
-    "id": "pghub-distinct-subseq-count",
-    "name": "Count Distinct Subsequences",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-gas-station-loop",
-    "name": "Circular Fuel Loop",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-target-pair-sorted",
-    "name": "Pair Sum in Sorted Array",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-stock-single-trade",
-    "name": "Best Single Stock Trade",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-kth-largest-stream",
-    "name": "Kth Largest in Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-word-ladder-length",
     "name": "Shortest Word Transform",
     "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-trapped-rainwater",
-    "name": "Trapped Rainwater",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-grid-min-path",
-    "name": "Minimum Falling Path",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-tidal-water-blocks",
-    "name": "Tidal Water Blocks",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-palindrome-bridge",
-    "name": "Palindrome Bridge Length",
-    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -1181,117 +1088,11 @@
     "pyReal": true
   },
   {
-    "id": "pghub-ferry-min-trips",
-    "name": "Ferry Minimum Trips",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-spiral-ring-sum",
-    "name": "Spiral Ring Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-gene-mutation-steps",
     "name": "Gene Mutation Steps",
     "difficulty": "Medium",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-digit-staircase",
-    "name": "Digit Staircase",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-budget-knapsack-items",
-    "name": "Budget Item Selection",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-rotate-deck-cuts",
-    "name": "Minimum Deck Cuts",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-signal-denoise",
-    "name": "Signal Denoise Median",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-token-bucket-allow",
-    "name": "Token Bucket Allow",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-meeting-merge-free",
-    "name": "Merge Free Slots",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -1312,19 +1113,6 @@
     "pyReal": false
   },
   {
-    "id": "pghub-stock-span-peaks",
-    "name": "Stock Span Peaks",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-xor-pair-target",
     "name": "XOR Pair Exists",
     "difficulty": "Easy",
@@ -1338,9 +1126,178 @@
     "pyReal": true
   },
   {
-    "id": "pghub-balanced-multibracket-758",
-    "name": "Balanced Multi-Bracket",
+    "id": "pghub-b50-coin-change-min",
+    "name": "Fewest Coins To Total",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-search-2d",
+    "name": "Search Sorted Matrix",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-task-scheduler",
+    "name": "Idle Slots With Cooldown",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-tree-tilt",
+    "name": "Binary Tree Tilt",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-stack-sort",
+    "name": "Sort Stack With One Helper",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-subset-xor",
+    "name": "Count Zero-XOR Subsets",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-word-ladder-len",
+    "name": "Shortest Transform Length",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-knight-min",
+    "name": "Minimum Knight Moves",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b50-lru-window",
+    "name": "Distinct In Sliding Window",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-vowel-shift",
+    "name": "Vowel-Shifted Word",
     "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-altsum",
+    "name": "Alternating Block Sum",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-digit-spiral",
+    "name": "Digital Persistence Length",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-pair-target",
+    "name": "Closest Sorted Pair Difference",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-bracket-depth",
+    "name": "Maximum Bracket Depth",
+    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -1377,8 +1334,8 @@
     "pyReal": false
   },
   {
-    "id": "pghub-orchard-harvest-window",
-    "name": "Orchard Harvest Window",
+    "id": "pghub-b49-fuel-stops",
+    "name": "Minimum Refuel Stops to Reach End",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -1390,9 +1347,9 @@
     "pyReal": true
   },
   {
-    "id": "pghub-elevator-floor-trips",
-    "name": "Elevator Floor Trips",
-    "difficulty": "Easy",
+    "id": "pghub-b49-distinct-window",
+    "name": "Longest Window With At Most Two Distinct",
+    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -1403,9 +1360,48 @@
     "pyReal": true
   },
   {
-    "id": "pghub-tournament-byes",
-    "name": "Tournament Bye Rounds",
-    "difficulty": "Easy",
+    "id": "pghub-b49-tiling-paths",
+    "name": "Tiling Step Combinations",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-kth-merged",
+    "name": "Kth Smallest Across Sorted Lists",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-min-speed",
+    "name": "Minimum Eating Speed",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b49-merge-busy",
+    "name": "Total Busy Time After Merge",
+    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -1419,244 +1415,8 @@
     "id": "pghub-courier-route-cost",
     "name": "Courier Route Cost",
     "difficulty": "Medium",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-palindrome-after-merge",
-    "name": "Palindrome After One Swap",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-bracket-depth-score",
-    "name": "Bracket Depth Score",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-staircase-ways-step",
-    "name": "Bounded Staircase Ways",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-frequency-sort-stable",
-    "name": "Frequency Then Value Sort",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-island-fence-perimeter",
-    "name": "Island Fence Perimeter",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-running-max-difference",
-    "name": "Best Buy-Sell Profit",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b9-kth-pair-sum-1950",
-    "name": "Kth Smallest Pair Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-subset-target-count",
-    "name": "Subset Sum Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-rotate-matrix-layers",
-    "name": "Rotate Matrix Clockwise",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-min-coins-exact",
-    "name": "Minimum Coins Exact Change",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-distinct-window-count",
-    "name": "Distinct In Each Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-conveyor-defect",
-    "name": "Conveyor Defect Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-lantern-glow",
-    "name": "Lantern Glow Coverage",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-relay-baton",
-    "name": "Relay Baton Handoffs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-mosaic-tiles",
-    "name": "Mosaic Tile Pairs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-vault-combination",
-    "name": "Vault Combination Score",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-river-stepping",
-    "name": "River Stepping Stones",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-orchard-harvest",
-    "name": "Orchard Harvest Heap",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -1677,175 +1437,8 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b10-cipher-shift-band",
-    "name": "Cipher Shift Band",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-canyon-echo",
-    "name": "Canyon Echo Depth",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-frost-grid-spread",
-    "name": "Frost Grid Spread",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-summit-visibility",
-    "name": "Summit Visibility Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-bracelet-beads",
-    "name": "Bracelet Bead Symmetry",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-treasure-split",
-    "name": "Treasure Equal Split",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "construct-binary-tree-from-inorder-and-postorder-traversal",
-    "name": "Construct Binary Tree from Inorder and Postorder Traversal",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 11,
-    "pyReal": false
-  },
-  {
-    "id": "pghub-b10-pipe-pressure",
-    "name": "Pipe Pressure Equalize",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b10-glacier-melt-trees",
-    "name": "Glacier Melt BST Range",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "binary-subarrays-with-sum",
-    "name": "Binary Subarrays With Sum",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
-  },
-  {
-    "id": "merge-similar-items",
-    "name": "Merge Similar Items",
-    "difficulty": "Easy",
-    "presentCount": 3,
-    "missingLangs": [
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": true
-  },
-  {
-    "id": "sum-of-unique-elements",
-    "name": "Sum of Unique Elements",
-    "difficulty": "Easy",
-    "presentCount": 3,
-    "missingLangs": [
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-knapsack-exact-weight",
-    "name": "Exact-Weight Knapsack",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-conveyor-color-runs",
-    "name": "Conveyor Color Runs",
+    "id": "pghub-b49-xor-toggle",
+    "name": "Single Unpaired Number",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -1870,188 +1463,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-elastic-password-strength",
-    "name": "Elastic Password Strength",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-lantern-brightness-window",
-    "name": "Lantern Brightness Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-token-stack-collapse",
-    "name": "Token Stack Collapse",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-frog-lily-hops",
-    "name": "Frog Lily Hops",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-meeting-room-overlap-peak",
-    "name": "Meeting Room Overlap Peak",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-distinct-echo-substrings",
-    "name": "Distinct Echo Substrings",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-maximum-average-subtree",
-    "name": "Maximum Average Subtree",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-split-into-increasing-pieces",
-    "name": "Split Into Increasing Pieces",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-recharge-station-reachable",
-    "name": "Recharge Station Reachable",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-coin-pile-parity-game",
-    "name": "Coin Pile Parity Game",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-compress-color-runs",
-    "name": "Compress Color Runs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-lexicographic-bit-sequence",
-    "name": "Kth Two-Bit Number",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-grid-treasure-loops",
-    "name": "Grid Treasure Loops",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-elevator-trip-count",
-    "name": "Elevator Trip Count",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-vowel-window-max",
     "name": "Densest Vowel Window",
     "difficulty": "Medium",
@@ -2065,8 +1476,8 @@
     "pyReal": true
   },
   {
-    "id": "pghub-grid-min-path-cost",
-    "name": "Falling Path Min Cost",
+    "id": "pghub-b49-color-island",
+    "name": "Count Connected Color Regions",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -2078,65 +1489,22 @@
     "pyReal": true
   },
   {
-    "id": "pghub-task-cooldown-time",
-    "name": "Task Cooldown Time",
-    "difficulty": "Medium",
-    "presentCount": 1,
+    "id": "pghub-b36-festival-lanterns",
+    "name": "Festival Lantern Buy",
+    "difficulty": "Hard",
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
     "pyReal": true
   },
   {
-    "id": "pghub-bracket-depth-score-b8",
-    "name": "Bracket Depth Score",
+    "id": "pghub-b36-island-counter",
+    "name": "Flooded Field Patches",
     "difficulty": "Medium",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-island-perimeter-count",
-    "name": "Single Island Perimeter",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-coin-change-ways",
-    "name": "Coin Combination Ways",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-rotated-array-min",
-    "name": "Rotated Array Minimum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -2156,67 +1524,12 @@
     "pyReal": true
   },
   {
-    "id": "pghub-prefix-divisible-flags",
-    "name": "Prefix Divisible Flags",
+    "id": "pghub-b37-bracket-depth",
+    "name": "Maximum Bracket Depth",
     "difficulty": "Easy",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-kth-distinct-string",
-    "name": "Kth Distinct String",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "find-the-longest-substring-containing-vowels-in-even-counts",
-    "name": "Find the Longest Substring Containing Vowels in Even Counts",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": false
-  },
-  {
-    "id": "pghub-network-delay-time",
-    "name": "Network Delay Time",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-max-product-subarray",
-    "name": "Maximum Product Subarray",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
+      "javascript"
     ],
     "tests": 10,
     "pyReal": true
@@ -2247,6 +1560,19 @@
     "pyReal": true
   },
   {
+    "id": "pghub-b49-tree-levelmax",
+    "name": "Largest Value In Each Tree Level",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "lowest-common-ancestor-of-a-binary-search-tree",
     "name": "Lowest Common Ancestor of a Binary Search Tree",
     "difficulty": "Medium",
@@ -2261,18 +1587,30 @@
     "pyReal": false
   },
   {
-    "id": "find-the-original-array-of-prefix-xor",
-    "name": "Find The Original Array of Prefix Xor",
+    "id": "pghub-b49-subset-target",
+    "name": "Subsets Summing To Target",
     "difficulty": "Medium",
-    "presentCount": 0,
+    "presentCount": 1,
     "missingLangs": [
-      "python",
       "javascript",
       "java",
       "cpp"
     ],
-    "tests": 2,
-    "pyReal": false
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-warehouse-shelves",
+    "name": "Warehouse Shelf Capacity",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
   },
   {
     "id": "queue-reconstruction-by-height",
@@ -2289,6 +1627,58 @@
     "pyReal": false
   },
   {
+    "id": "pghub-b52-signal-decay",
+    "name": "Signal Decay Threshold",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-token-stack",
+    "name": "Collapsing Token Stack",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-garden-water",
+    "name": "Garden Sprinkler Coverage",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-relay-teams",
+    "name": "Relay Team Formation",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "vertical-order-traversal-of-a-binary-tree",
     "name": "Vertical Order Traversal of a Binary Tree",
     "difficulty": "Hard",
@@ -2301,6 +1691,19 @@
     ],
     "tests": 3,
     "pyReal": false
+  },
+  {
+    "id": "pghub-b52-palindrome-removal",
+    "name": "Palindromic Letter Trim",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
   },
   {
     "id": "find-all-duplicates-in-an-array",
@@ -2317,19 +1720,6 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b12-ticket-queue",
-    "name": "Ticket Queue Refunds",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b12-warehouse-stamp",
     "name": "Warehouse Box Stacking",
     "difficulty": "Medium",
@@ -2343,200 +1733,15 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b12-signal-decay",
-    "name": "Signal Decay Threshold",
+    "id": "construct-binary-tree-from-inorder-and-postorder-traversal",
+    "name": "Construct Binary Tree from Inorder and Postorder Traversal",
     "difficulty": "Medium",
-    "presentCount": 1,
+    "presentCount": 2,
     "missingLangs": [
-      "javascript",
       "java",
       "cpp"
     ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-dewdrop-merge",
-    "name": "Dewdrop Interval Merge",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-loom-thread",
-    "name": "Loom Thread Reversal",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-rune-stack",
-    "name": "Rune Cancellation Stack",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-prime-gear",
-    "name": "Prime Gear Teeth",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "bulb-switcher",
-    "name": "Bulb Switcher",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": false
-  },
-  {
-    "id": "count-number-of-bad-pairs",
-    "name": "Count Number of Bad Pairs",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 2,
-    "pyReal": false
-  },
-  {
-    "id": "pghub-b12-spore-spread",
-    "name": "Spore Spread Regions",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-caravan-fuel",
-    "name": "Caravan Fuel Reserve",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-anagram-windows",
-    "name": "Anagram Window Hunt",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-relic-xor",
-    "name": "Relic XOR Pairing",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-festival-seating",
-    "name": "Festival Seating Greedy",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-glyph-trie",
-    "name": "Glyph Prefix Counter",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-maze-escape",
-    "name": "Maze Escape Steps",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b12-coin-combos",
-    "name": "Coin Pouch Combinations",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
+    "tests": 11,
     "pyReal": true
   },
   {
@@ -2605,20 +1810,6 @@
     "pyReal": true
   },
   {
-    "id": "delete-and-earn",
-    "name": "Delete and Earn",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": false
-  },
-  {
     "id": "pghub-b13-prime-fence",
     "name": "Prime Fence Segments",
     "difficulty": "Easy",
@@ -2658,18 +1849,15 @@
     "pyReal": true
   },
   {
-    "id": "course-schedule",
-    "name": "Course Schedule",
+    "id": "pghub-network-delay-time",
+    "name": "Network Delay Time",
     "difficulty": "Medium",
-    "presentCount": 0,
+    "presentCount": 3,
     "missingLangs": [
-      "python",
-      "javascript",
-      "java",
       "cpp"
     ],
-    "tests": 50,
-    "pyReal": false
+    "tests": 10,
+    "pyReal": true
   },
   {
     "id": "pghub-b13-festival-seats",
@@ -2683,20 +1871,6 @@
     ],
     "tests": 10,
     "pyReal": true
-  },
-  {
-    "id": "combination-sum",
-    "name": "Combination Sum",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
   },
   {
     "id": "pghub-b13-keypad-words",
@@ -2892,15 +2066,13 @@
     "id": "champagne-tower",
     "name": "Champagne Tower",
     "difficulty": "Medium",
-    "presentCount": 0,
+    "presentCount": 2,
     "missingLangs": [
-      "python",
-      "javascript",
       "java",
       "cpp"
     ],
     "tests": 3,
-    "pyReal": false
+    "pyReal": true
   },
   {
     "id": "pghub-b13-clinic-queue",
@@ -3050,58 +2222,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b11-warehouse-shelf",
-    "name": "Warehouse Shelf Refill",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-token-merge",
-    "name": "Token Merge Value",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-signal-runs",
-    "name": "Signal Run Compression",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-toll-booth",
-    "name": "Toll Booth Reachability",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "count-negative-numbers-in-a-sorted-matrix",
     "name": "Count Negative Numbers in a Sorted Matrix",
     "difficulty": "Easy",
@@ -3116,66 +2236,11 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b11-elevator-load",
-    "name": "Elevator Trip Planner",
+    "id": "pghub-palindrome-bridge",
+    "name": "Palindrome Bridge Length",
     "difficulty": "Medium",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-coupon-stack",
-    "name": "Coupon Discount Order",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-garden-water",
-    "name": "Garden Watering Reach",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "count-and-say",
-    "name": "Count and Say",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
-  },
-  {
-    "id": "pghub-b11-prime-factory",
-    "name": "Prime Factory Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -3196,32 +2261,6 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b11-ledger-balance",
-    "name": "Ledger Balance Point",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-queue-tickets",
-    "name": "Festival Ticket Queue",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "next-greater-element-i",
     "name": "Next Greater Element I",
     "difficulty": "Easy",
@@ -3236,32 +2275,6 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b11-bit-pairs",
-    "name": "Bit Difference Pairs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-vault-rotate",
-    "name": "Vault Dial Rotation",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "maximum-length-of-pair-chain",
     "name": "Maximum Length of Pair Chain",
     "difficulty": "Medium",
@@ -3274,59 +2287,6 @@
     ],
     "tests": 2,
     "pyReal": false
-  },
-  {
-    "id": "combination-sum-iv",
-    "name": "Combination Sum IV",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
-  },
-  {
-    "id": "pghub-b11-relic-subseq",
-    "name": "Relic Rising Subsequence",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-island-perimeter",
-    "name": "Lagoon Island Perimeter",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b11-courier-route",
-    "name": "Courier Cheapest Route",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
   },
   {
     "id": "pghub-b16-warehouse-aisles",
@@ -3382,19 +2342,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b16-elevator-floors",
-    "name": "Elevator Floor Span",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "xor-operation-in-an-array",
     "name": "XOR Operation in an Array",
     "difficulty": "Easy",
@@ -3409,8 +2356,8 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b16-orchard-rows",
-    "name": "Orchard Pollination Pairs",
+    "id": "pghub-b16-elevator-floors",
+    "name": "Elevator Floor Span",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -3422,32 +2369,17 @@
     "pyReal": true
   },
   {
-    "id": "decompress-run-length-encoded-list",
-    "name": "Decompress Run-Length Encoded List",
-    "difficulty": "Easy",
-    "presentCount": 0,
+    "id": "pghub-b16-orchard-rows",
+    "name": "Orchard Pollination Pairs",
+    "difficulty": "Medium",
+    "presentCount": 1,
     "missingLangs": [
-      "python",
       "javascript",
       "java",
       "cpp"
     ],
-    "tests": 2,
-    "pyReal": false
-  },
-  {
-    "id": "find-numbers-with-even-number-of-digits",
-    "name": "Find Numbers with Even Number of Digits",
-    "difficulty": "Easy",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 2,
-    "pyReal": false
+    "tests": 10,
+    "pyReal": true
   },
   {
     "id": "student-attendance-record-i",
@@ -3491,20 +2423,6 @@
     "pyReal": true
   },
   {
-    "id": "continuous-subarray-sum",
-    "name": "Continuous Subarray Sum",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
-  },
-  {
     "id": "pghub-b16-paint-fence",
     "name": "Fence Painting Schemes",
     "difficulty": "Medium",
@@ -3516,20 +2434,6 @@
     ],
     "tests": 10,
     "pyReal": true
-  },
-  {
-    "id": "cells-in-a-range-on-an-excel-sheet",
-    "name": "Cells in a Range on an Excel Sheet",
-    "difficulty": "Easy",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 2,
-    "pyReal": false
   },
   {
     "id": "pghub-b16-ring-buffer-max",
@@ -3584,20 +2488,6 @@
     ],
     "tests": 10,
     "pyReal": true
-  },
-  {
-    "id": "find-first-and-last-position-of-element-in-sorted-array",
-    "name": "Find First and Last Position of Element in Sorted Array",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": false
   },
   {
     "id": "binary-tree-maximum-path-sum",
@@ -3809,15 +2699,13 @@
     "id": "construct-binary-tree-from-preorder-and-inorder-traversal",
     "name": "Construct Binary Tree from Preorder and Inorder Traversal",
     "difficulty": "Medium",
-    "presentCount": 0,
+    "presentCount": 2,
     "missingLangs": [
-      "python",
-      "javascript",
       "java",
       "cpp"
     ],
     "tests": 21,
-    "pyReal": false
+    "pyReal": true
   },
   {
     "id": "pghub-b16-budget-pick",
@@ -3900,18 +2788,6 @@
     ],
     "tests": 2,
     "pyReal": false
-  },
-  {
-    "id": "maximum-profit-in-job-scheduling",
-    "name": "Maximum Profit in Job Scheduling",
-    "difficulty": "Hard",
-    "presentCount": 4,
-    "missingLangs": [
-      "java",
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": true
   },
   {
     "id": "pghub-b18-warehouse-pallets",
@@ -4304,6 +3180,71 @@
     "pyReal": true
   },
   {
+    "id": "pghub-b52-meeting-overlap",
+    "name": "Peak Concurrent Meetings",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-grid-treasure",
+    "name": "Maximum Treasure Path",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-bracket-depth",
+    "name": "Maximum Nesting Depth",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-courier-routes",
+    "name": "Courier Reachable Hubs",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-color-runs",
+    "name": "Minimum Color Repaints",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "pghub-b15-warehouse-aisles",
     "name": "Warehouse Aisle Restock",
     "difficulty": "Easy",
@@ -4499,6 +3440,19 @@
     "pyReal": true
   },
   {
+    "id": "pghub-b52-prefix-product",
+    "name": "Prefix Product Sign",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "pghub-b19-conveyor-merge",
     "name": "Conveyor Belt Merge Cost",
     "difficulty": "Medium",
@@ -4633,6 +3587,19 @@
     "id": "pghub-b19-elevation-peaks",
     "name": "Elevation Peak Indices",
     "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-subset-xor",
+    "name": "Subset XOR Total",
+    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -4929,20 +3896,6 @@
     "pyReal": true
   },
   {
-    "id": "boats-to-save-people",
-    "name": "Boats to Save People",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
-  },
-  {
     "id": "pghub-b22-thermostat-runs",
     "name": "Thermostat Stable Runs",
     "difficulty": "Easy",
@@ -5138,20 +4091,6 @@
     "pyReal": true
   },
   {
-    "id": "convert-sorted-array-to-binary-search-tree",
-    "name": "Convert Sorted Array to Binary Search Tree",
-    "difficulty": "Easy",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 50,
-    "pyReal": false
-  },
-  {
     "id": "pghub-b20-garden-rows",
     "name": "Garden Row Watering",
     "difficulty": "Medium",
@@ -5204,20 +4143,6 @@
     "pyReal": true
   },
   {
-    "id": "snakes-and-ladders",
-    "name": "Snakes and Ladders",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 2,
-    "pyReal": false
-  },
-  {
     "id": "pghub-b20-palette-merge",
     "name": "Palette Interval Merge",
     "difficulty": "Medium",
@@ -5242,6 +4167,20 @@
     ],
     "tests": 10,
     "pyReal": true
+  },
+  {
+    "id": "snakes-and-ladders",
+    "name": "Snakes and Ladders",
+    "difficulty": "Medium",
+    "presentCount": 0,
+    "missingLangs": [
+      "python",
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 2,
+    "pyReal": false
   },
   {
     "id": "pghub-b20-tunnel-bits",
@@ -5325,6 +4264,32 @@
     "id": "pghub-b20-roster-rotate",
     "name": "Roster Cyclic Rotate",
     "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-event-schedule",
+    "name": "Maximize Attended Events",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b52-cycle-detect",
+    "name": "Course Schedule Feasible",
+    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -6116,9 +5081,74 @@
     "pyReal": true
   },
   {
+    "id": "pghub-b53-tide-marks",
+    "name": "Rising Tide Marks",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "pghub-b23-circular-subarray-max",
     "name": "Circular Banner Sum",
     "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-keypad-mash",
+    "name": "Decompress Keypad Mash",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-conveyor-load",
+    "name": "Conveyor Belt Capacity",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-bracket-depth",
+    "name": "Maximum Nesting Depth",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-orchard-rows",
+    "name": "Orchard Watering Cost",
+    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -6143,6 +5173,147 @@
     "pyReal": false
   },
   {
+    "id": "pghub-b53-relay-rooms",
+    "name": "Relay Reachable Rooms",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-gear-ratio",
+    "name": "Reduce Gear Ratio",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-ticket-window",
+    "name": "Longest Calm Ticket Window",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-palindrome-cut",
+    "name": "Minimum Palindrome Cuts",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-courier-order",
+    "name": "Courier Pickup Order",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-signal-flip",
+    "name": "Flip To Maximum Signal",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-shelf-merge",
+    "name": "Merge Shelf Intervals",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-stack-evaluate",
+    "name": "Evaluate Postfix Expression",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-prefix-router",
+    "name": "Prefix Router Lookup",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b53-laser-cells",
+    "name": "Closest Pair By Manhattan",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b38-bracket-depth",
+    "name": "Maximum Bracket Depth",
+    "difficulty": "Easy",
+    "presentCount": 3,
+    "missingLangs": [
+      "javascript"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
     "id": "path-sum-iii",
     "name": "Path Sum III",
     "difficulty": "Medium",
@@ -6155,228 +5326,6 @@
     ],
     "tests": 11,
     "pyReal": false
-  },
-  {
-    "id": "pghub-b28-warehouse-rows",
-    "name": "Warehouse Shelf Capacity",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-toggle-lights",
-    "name": "Hallway Light Toggles",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-bracket-depth",
-    "name": "Maximum Bracket Depth",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-courier-merge",
-    "name": "Merge Delivery Windows",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-relay-teams",
-    "name": "Relay Team Pairing",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-signal-decode",
-    "name": "Run-Length Signal Decode",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-cluster-merge",
-    "name": "Friend Cluster Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-tax-brackets",
-    "name": "Progressive Tax Owed",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-trie-prefix",
-    "name": "Shortest Unique Prefix",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-grid-paths-obstacles",
-    "name": "Robot Grid Paths",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-task-scheduler",
-    "name": "Cooldown Task Schedule",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-coin-combos",
-    "name": "Ways To Make Change",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-rotting-fruit",
-    "name": "Spreading Spoilage",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b28-kth-largest-stream",
-    "name": "Kth Largest Stock Price",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "delete-columns-to-make-sorted",
-    "name": "Delete Columns to Make Sorted",
-    "difficulty": "Easy",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 3,
-    "pyReal": false
-  },
-  {
-    "id": "pghub-b28-job-deadlines",
-    "name": "Weighted Job Deadlines",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b27-run-length",
-    "name": "Run-Length Compression",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
   },
   {
     "id": "pghub-b27-digital-root-product",
@@ -6431,35 +5380,9 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b27-pairs-below-target",
-    "name": "Pair Sums Below Target",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b27-lcs-length",
     "name": "Longest Shared Subsequence",
     "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b27-popcount-range",
-    "name": "Set Bits Over A Range",
-    "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -6509,33 +5432,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b27-recent-hits",
-    "name": "Recent Request Counter",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "count-good-triplets",
-    "name": "Count Good Triplets",
-    "difficulty": "Easy",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 32,
-    "pyReal": false
-  },
-  {
     "id": "pghub-b27-longest-window-sum",
     "name": "Longest Bounded Sum Window",
     "difficulty": "Medium",
@@ -6575,214 +5471,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b29-warehouse-restock",
-    "name": "Warehouse Restock Threshold",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-zigzag-merge",
-    "name": "Alternating Queue Merge",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-toll-booth-peak",
-    "name": "Toll Booth Peak Hour",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-bracket-depth",
-    "name": "Maximum Bracket Nesting",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-coupon-stacking",
-    "name": "Maximum Coupon Value",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-relay-baton",
-    "name": "Relay Team Handoffs",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-frequency-rank",
-    "name": "Top Frequent Token",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-prime-gap",
-    "name": "Nearest Prime Above",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-binary-clock",
-    "name": "Binary Clock Bit Count",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-shipping-capacity",
-    "name": "Minimum Daily Ship Capacity",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-anagram-groups",
-    "name": "Count Anagram Groups",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-subset-product",
-    "name": "Count Subsets Below Product",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-circular-tour",
-    "name": "Gas Station Circular Tour",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-tree-balance",
-    "name": "Tree Height Difference",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b29-meeting-rooms",
-    "name": "Concurrent Meeting Rooms",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-ticket-window",
-    "name": "Cinema Ticket Window",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b30-balanced-brackets",
     "name": "Minimum Bracket Fixes",
     "difficulty": "Easy",
@@ -6796,322 +5484,22 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b30-warehouse-aisles",
-    "name": "Warehouse Aisle Capacity",
+    "id": "pghub-b40-courier-routes",
+    "name": "Courier Shortest Detour",
     "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-color-runs",
-    "name": "Paint Roller Runs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-river-crossing",
-    "name": "River Stepping Stones",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-meeting-rooms",
-    "name": "Conference Room Crunch",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-binary-gap",
-    "name": "Longest Binary Gap",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-token-rotation",
-    "name": "Rotate Token Ring",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-island-perimeter",
-    "name": "Lake Shoreline Length",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-dna-decode",
-    "name": "Decode DNA Strand",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-fair-candy",
-    "name": "Fair Candy Split",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-staircase-paint",
-    "name": "Staircase Climbing Ways",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-kth-distinct",
-    "name": "Kth Distinct Visitor",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-warehouse-routes",
-    "name": "Cheapest Delivery Route",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b30-tree-tilt",
-    "name": "Binary Tree Tilt Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "transpose-matrix",
-    "name": "Transpose Matrix",
-    "difficulty": "Easy",
     "presentCount": 3,
     "missingLangs": [
       "cpp"
     ],
-    "tests": 2,
+    "tests": 10,
     "pyReal": true
   },
   {
-    "id": "pghub-b32-locker-toggle",
-    "name": "Open Locker Count",
+    "id": "pghub-b27-popcount-range",
+    "name": "Set Bits Over A Range",
     "difficulty": "Easy",
-    "presentCount": 1,
+    "presentCount": 2,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-shelf-stack",
-    "name": "Collapsing Plate Stack",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-relay-baton",
-    "name": "Relay Baton Pass",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-spiral-sum",
-    "name": "Spiral Layer Totals",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-watered-plants",
-    "name": "Garden Watering Splits",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-coin-rows",
-    "name": "Two Rows of Coins",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-radio-towers",
-    "name": "Radio Tower Coverage",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-anagram-groups",
-    "name": "Anagram Family Sizes",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-circular-fuel",
-    "name": "Circular Fuel Loop",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-bst-range",
-    "name": "BST Range Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-elevator-trips",
-    "name": "Elevator Trip Planner",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
       "java",
       "cpp"
     ],
@@ -7146,105 +5534,12 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b32-segment-paint",
-    "name": "Painted Segment Length",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-bridge-network",
-    "name": "Network Cut Edges",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b32-xor-pairs",
-    "name": "Equal XOR Pairs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-stamp-pages",
-    "name": "Passport Stamp Pages",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b31-vowel-streak",
     "name": "Longest Vowel Streak",
     "difficulty": "Easy",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-coin-change-ways",
-    "name": "Vending Coin Combinations",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-bridge-tolls",
-    "name": "Cheapest Toll Bridge Route",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-shelf-balance",
-    "name": "Balanced Shelf Split",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
+      "javascript"
     ],
     "tests": 10,
     "pyReal": true
@@ -7263,287 +5558,12 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b31-thermostat-sched",
-    "name": "Thermostat Comfort Windows",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-elevator-trips",
-    "name": "Elevator Weight Trips",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-server-merge",
-    "name": "Merge Server Logs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-lock-rotations",
-    "name": "Combination Lock Distance",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-tournament-bracket",
-    "name": "Tournament Bracket Rounds",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b31-paren-depth",
     "name": "Maximum Nesting Depth",
     "difficulty": "Easy",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-garden-prune",
-    "name": "Garden Tree Pruning",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-word-anagram-groups",
-    "name": "Anagram Group Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b31-subset-sum-reach",
-    "name": "Reachable Weight Targets",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-elevator-trips",
-    "name": "Freight Elevator Trips",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-signal-peaks",
-    "name": "Sensor Signal Peaks",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-vault-code",
-    "name": "Rotary Vault Distance",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-locker-toggle",
-    "name": "Locker Hall Toggles",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-cafeteria-queue",
-    "name": "Cafeteria Tray Stack",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-elevator-loads",
-    "name": "Elevator Load Windows",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-treasure-grid",
-    "name": "Treasure Grid Paths",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-radio-frequencies",
-    "name": "Radio Channel XOR",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-tournament-bracket",
-    "name": "Knockout Tournament Rounds",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-garden-watering",
-    "name": "Garden Watering Reach",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-relay-friends",
-    "name": "Friendship Circles Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-printer-jobs",
-    "name": "Priority Printer Queue",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-mountain-peak",
-    "name": "Mountain Peak Index",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
+      "javascript"
     ],
     "tests": 10,
     "pyReal": true
@@ -7551,71 +5571,6 @@
   {
     "id": "pghub-b33-string-compress",
     "name": "Run-Length Compress",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-coin-change-ways",
-    "name": "Coin Combination Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-word-prefixes",
-    "name": "Prefix Word Counter",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-circular-route",
-    "name": "Circular Fuel Route",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b33-zigzag-list",
-    "name": "Zigzag Reorder List",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-garden-water",
-    "name": "Garden Sprinkler Coverage",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -7640,48 +5595,9 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b34-relay-network",
-    "name": "Relay Network Reachability",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b34-keypad-presses",
     "name": "Minimum Keypad Presses",
     "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-stack-machine",
-    "name": "Postfix Calculator",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-photo-frames",
-    "name": "Largest Square Frame",
-    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -7706,99 +5622,8 @@
     "pyReal": false
   },
   {
-    "id": "pghub-b34-merge-logs",
-    "name": "Merge Sorted Logs",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-coin-rows",
-    "name": "Two-Row Coin Pickup",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b34-prefix-router",
     "name": "Longest Routing Prefix",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-shelf-search",
-    "name": "Shelf Rotation Search",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-xor-pairs",
-    "name": "Single Unpaired Sensor",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b34-job-scheduler",
-    "name": "Profit Job Scheduler",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-parking-tiers",
-    "name": "Parking Tier Revenue",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-token-bucket",
-    "name": "Token Bucket Throttle",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -7813,50 +5638,9 @@
     "id": "pghub-b38-palindrome-trim",
     "name": "Trim To Palindrome",
     "difficulty": "Easy",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-conveyor-merge",
-    "name": "Conveyor Belt Capacity",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-spiral-sum",
-    "name": "Spiral Border Sum",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-bracket-depth",
-    "name": "Maximum Bracket Depth",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
+      "javascript"
     ],
     "tests": 10,
     "pyReal": true
@@ -7865,71 +5649,6 @@
     "id": "pghub-b38-color-runs",
     "name": "Recolor Minimum Tiles",
     "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-ring-buffer-max",
-    "name": "Circular Window Maximum",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-coupon-graph",
-    "name": "Coupon Conversion Path",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-gift-split",
-    "name": "Fair Gift Split",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-clock-angle",
-    "name": "Analog Clock Angle",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-stock-cooldown",
-    "name": "Trading With Cooldown",
-    "difficulty": "Hard",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -7953,247 +5672,11 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b38-island-perimeter",
-    "name": "Lake Shoreline Length",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b38-warehouse-robot",
-    "name": "Warehouse Robot Fuel",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-warehouse-aisles",
-    "name": "Warehouse Aisle Stock",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-palindrome-rungs",
-    "name": "Palindrome Ladder Count",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-ticket-window",
-    "name": "Ticket Queue Service Time",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-toll-booths",
-    "name": "Minimum Toll Coins",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-cargo-balance",
-    "name": "Cargo Hold Balance Point",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-festival-stalls",
-    "name": "Festival Stall Overlap",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-water-tanks",
-    "name": "Trapped Water Between Tanks",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-circuit-tree",
-    "name": "Deepest Circuit Node",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b35-gene-mutation",
     "name": "Gene Mutation Steps",
     "difficulty": "Hard",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-treasure-grid",
-    "name": "Treasure Path Count",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-quota-split",
-    "name": "Fair Quota Threshold",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-relay-baton",
-    "name": "Relay Baton Cycle Length",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-stock-span",
-    "name": "Daily Price Span",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-subset-xor",
-    "name": "Maximum Subset XOR",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b35-event-priority",
-    "name": "Top K Frequent Events",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-turnstile-flow",
-    "name": "Turnstile Throughput",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-warehouse-pack",
-    "name": "Two-Box Shipment",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
       "cpp"
     ],
     "tests": 10,
@@ -8213,164 +5696,8 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b37-bracket-depth",
-    "name": "Maximum Bracket Depth",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-river-crossing",
-    "name": "Stepping-Stone Crossing",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-server-load",
-    "name": "Peak Server Window",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b37-tree-tilt",
     "name": "Binary Tree Tilt Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-island-perimeter",
-    "name": "Lake Shoreline Length",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-coin-change-ways",
-    "name": "Ways to Make Change",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-gift-distribution",
-    "name": "Fair Candy Handout",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-power-set-size",
-    "name": "Distinct Subset XORs",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-meeting-overlap",
-    "name": "Peak Concurrent Meetings",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-package-merge",
-    "name": "Merge Overlapping Deliveries",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-task-cooldown",
-    "name": "Task Scheduler Cooldown",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b37-token-bucket",
-    "name": "Token Bucket Throttle",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-warehouse-aisles",
-    "name": "Warehouse Aisle Splits",
     "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
@@ -8395,100 +5722,9 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b36-festival-lanterns",
-    "name": "Festival Lantern Buy",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b36-typist-backspace",
     "name": "Typist Backspace Match",
     "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-ticket-windows",
-    "name": "Ticket Window Wait",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-shipping-days",
-    "name": "Shipping Within Days",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-orchard-trees",
-    "name": "Orchard Tree Levels",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-paint-fence",
-    "name": "Fence Painting Ways",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-cargo-balance",
-    "name": "Cargo Pivot Balance",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-subscriber-streak",
-    "name": "Subscriber Active Streak",
-    "difficulty": "Medium",
     "presentCount": 1,
     "missingLangs": [
       "javascript",
@@ -8512,73 +5748,8 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b36-island-counter",
-    "name": "Flooded Field Patches",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-discount-codes",
-    "name": "Distinct Discount Codes",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b36-cache-evict",
-    "name": "Frequency Eviction Order",
-    "difficulty": "Hard",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b36-signal-toggle",
     "name": "Signal Bit Toggle Cost",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-elevator-stops",
-    "name": "Elevator Energy Stops",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-receipt-rounding",
-    "name": "Receipt Cash Rounding",
     "difficulty": "Easy",
     "presentCount": 1,
     "missingLangs": [
@@ -8593,89 +5764,9 @@
     "id": "pghub-b40-keypad-letters",
     "name": "Old Phone Keypad Letters",
     "difficulty": "Easy",
-    "presentCount": 1,
+    "presentCount": 3,
     "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-water-tanks",
-    "name": "Balance Water Tanks",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-meeting-rooms-peak",
-    "name": "Peak Concurrent Meetings",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-rotate-deck",
-    "name": "Rotate Card Deck",
-    "difficulty": "Easy",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-signal-decay",
-    "name": "Signal Strength Decay",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-warehouse-restock",
-    "name": "Warehouse Restock Plan",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-tree-leaf-depths",
-    "name": "Deepest Leaf Sum",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
+      "javascript"
     ],
     "tests": 10,
     "pyReal": true
@@ -8707,45 +5798,6 @@
     "pyReal": true
   },
   {
-    "id": "pghub-b40-toggle-switches",
-    "name": "Light Switch Toggles",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-courier-routes",
-    "name": "Courier Shortest Detour",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
-    "id": "pghub-b40-stair-tickets",
-    "name": "Minimum Stair Tickets",
-    "difficulty": "Medium",
-    "presentCount": 1,
-    "missingLangs": [
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 10,
-    "pyReal": true
-  },
-  {
     "id": "pghub-b40-bracket-pairs",
     "name": "Valid Multi-Bracket Check",
     "difficulty": "Easy",
@@ -8766,47 +5818,41 @@
     "missingLangs": [
       "cpp"
     ],
-    "tests": 2,
+    "tests": 32,
     "pyReal": true
   },
   {
-    "id": "max-number-of-k-sum-pairs",
-    "name": "Max Number of K-Sum Pairs",
+    "id": "pghub-b30-dna-decode",
+    "name": "Decode DNA Strand",
+    "difficulty": "Medium",
+    "presentCount": 3,
+    "missingLangs": [
+      "javascript"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b30-warehouse-routes",
+    "name": "Cheapest Delivery Route",
+    "difficulty": "Hard",
+    "presentCount": 3,
+    "missingLangs": [
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b31-bridge-tolls",
+    "name": "Cheapest Toll Bridge Route",
     "difficulty": "Medium",
     "presentCount": 3,
     "missingLangs": [
       "cpp"
     ],
-    "tests": 2,
+    "tests": 10,
     "pyReal": true
-  },
-  {
-    "id": "count-vowel-strings-in-ranges",
-    "name": "Count Vowel Strings in Ranges",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 2,
-    "pyReal": false
-  },
-  {
-    "id": "find-the-prefix-common-array-of-two-arrays",
-    "name": "Find the Prefix Common Array of Two Arrays",
-    "difficulty": "Medium",
-    "presentCount": 0,
-    "missingLangs": [
-      "python",
-      "javascript",
-      "java",
-      "cpp"
-    ],
-    "tests": 2,
-    "pyReal": false
   },
   {
     "id": "path-with-maximum-probability",
@@ -8818,6 +5864,980 @@
       "cpp"
     ],
     "tests": 3,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-shelf-weight-cap",
+    "name": "Shelf Weight Capacity",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-vowel-shift",
+    "name": "Vowel Shift Cipher",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-toll-booth-balance",
+    "name": "Toll Booth Net Balance",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-conveyor-merge",
+    "name": "Merge Sorted Conveyors",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-garden-water-days",
+    "name": "Garden Watering Days",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-island-cluster-count",
+    "name": "Count Field Clusters",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-discount-tiers",
+    "name": "Loyalty Discount Tiers",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-stack-span",
+    "name": "Stock Price Span",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-xor-pair-target",
+    "name": "XOR Pair Reaches Target",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-rope-cut-cost",
+    "name": "Minimum Rope Joining Cost",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-ledger-rollback",
+    "name": "Ledger With Rollback",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-word-ladder-len",
+    "name": "Shortest Transform Steps",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-trapped-basins",
+    "name": "Trapped Rainwater Basins",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-subarray-sum-k",
+    "name": "Count Subarrays Summing K",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b41-tree-tilt",
+    "name": "Binary Tree Tilt Sum",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-elevator-trips",
+    "name": "Elevator Trip Count",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-zigzag-merge",
+    "name": "Zigzag Two Lists",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-prime-gap",
+    "name": "Smallest Prime Gap",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-undo-stack",
+    "name": "Text Editor Undo",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-balanced-split",
+    "name": "Count Balanced Splits",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-water-fill",
+    "name": "Terrace Water Fill",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-meeting-overlap",
+    "name": "Peak Meeting Overlap",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-tree-leaf-depth",
+    "name": "Deepest Leaf Sum",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-stamp-ways",
+    "name": "Stamp Combination Count",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-island-count",
+    "name": "Count Connected Plots",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-xor-pairs",
+    "name": "Count Equal XOR Pairs",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-rotate-search",
+    "name": "Search Rotated Catalog",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-word-ladder-len",
+    "name": "One-Letter Word Chain",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-snake-path",
+    "name": "Longest Increasing Trail",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b43-min-platforms",
+    "name": "Minimum Train Platforms",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-run-length",
+    "name": "Run-Length Encode",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-second-largest",
+    "name": "Second Largest Distinct",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-longest-le-k",
+    "name": "Longest Subarray Sum At Most K",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-bracket-depth",
+    "name": "Max Bracket Nesting Depth",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-min-coins-greedy",
+    "name": "Canonical Coin Change",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-factorial-zeros",
+    "name": "Trailing Zeros of Factorial",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-closest-pair-sum",
+    "name": "Pair Sum Closest To Target",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-int-sqrt",
+    "name": "Integer Square Root",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-circular-rob",
+    "name": "Circular Street Robber",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-bst-range-count",
+    "name": "Count Values In Range",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-shortest-path-len",
+    "name": "Shortest Hop Count",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-kth-largest",
+    "name": "Kth Largest Element",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-total-set-bits",
+    "name": "Total Set Bits",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-distinct-perms",
+    "name": "Distinct Permutation Count",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b44-merged-coverage",
+    "name": "Total Covered Length",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-warehouse-aisles",
+    "name": "Warehouse Aisle Restock",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-pair-temperature",
+    "name": "Closest Temperature Pair",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-bracket-depth",
+    "name": "Maximum Bracket Nesting",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-coin-rows",
+    "name": "Skip-One Coin Collection",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-token-bucket",
+    "name": "Token Bucket Admissions",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-roman-toll",
+    "name": "Roman Numeral Toll",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-sensor-window",
+    "name": "Longest Stable Sensor Run",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-modular-power",
+    "name": "Repeated Squaring Modulo",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-grid-region-perimeter",
+    "name": "Region Perimeter",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-rotate-vault",
+    "name": "Rotate Vault Dial",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-task-deadlines",
+    "name": "Deadline Task Scheduler",
+    "difficulty": "Hard",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-trie-autocomplete",
+    "name": "Prefix Autocomplete Count",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-tree-vertical-sum",
+    "name": "Vertical Column Sums",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-flip-segments",
+    "name": "Minimum Flips To Uniform",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b46-subset-equal-sum",
+    "name": "Partition Into Equal Sums",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-keypad-presses",
+    "name": "Old Keypad Presses",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-diagonal-sum",
+    "name": "Matrix Diagonal Difference",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-roman-clamp",
+    "name": "Clamp Into Range",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-window-distinct",
+    "name": "Max Distinct in Window",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-bracket-depth",
+    "name": "Maximum Bracket Depth",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-gift-distribution",
+    "name": "Fair Gift Boxes",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-coin-min",
+    "name": "Fewest Coins To Pay",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-rotate-array",
+    "name": "Rotate Array Right",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-vowel-runs",
+    "name": "Longest Vowel Run",
+    "difficulty": "Easy",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-bst-range-sum",
+    "name": "BST Range Sum",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-task-cooldown",
+    "name": "Task Cooldown Schedule",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-graph-bipartite",
+    "name": "Two-Color The Network",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b45-subset-xor-total",
+    "name": "Sum Of Subset XORs",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "pghub-b12-prime-gear",
+    "name": "Prime Gear Teeth",
+    "difficulty": "Easy",
+    "presentCount": 2,
+    "missingLangs": [
+      "java",
+      "cpp"
+    ],
+    "tests": 10,
+    "pyReal": true
+  },
+  {
+    "id": "combination-sum-iv",
+    "name": "Combination Sum IV",
+    "difficulty": "Medium",
+    "presentCount": 1,
+    "missingLangs": [
+      "javascript",
+      "java",
+      "cpp"
+    ],
+    "tests": 50,
     "pyReal": true
   }
 ]

@@ -19,6 +19,15 @@ function logoSrc(spec) {
   return src === 'gb' ? `${GB}/${slug}.svg` : `${SI}/${slug}`;
 }
 
+// Every slug below was curl-verified HTTP 200 with an `<svg>` body against its
+// CDN (Simple Icons or gilbarbara), 2026-06. Keys cover the form each company's
+// DB `slug` AND display `name` normalise to (the matcher also tries first-token
+// + suffix-strip fallbacks), so "Activision Blizzard", "EA Games", "Epic Games",
+// "Booking.com", "Twitter / X", "Block (Square)" all resolve. Companies with no
+// verified live brand SVG on either CDN (Amazon-the-wordmark, Bloomberg, Canva,
+// Disney, Flipkart, Freshworks, Walmart, Wayfair, Workday, ServiceNow, the Indian
+// consumer apps Meesho/Ola/MakeMyTrip, the quant funds, etc.) are intentionally
+// omitted and fall through to the themed monogram tile.
 const COMPANY_LOGOS = {
   // FAANG + big tech
   google: 'si:google', alphabet: 'si:google',
@@ -30,7 +39,7 @@ const COMPANY_LOGOS = {
   airbnb: 'si:airbnb', tesla: 'si:tesla', spotify: 'si:spotify', dropbox: 'si:dropbox',
   pinterest: 'si:pinterest', reddit: 'si:reddit', twitch: 'si:twitch',
   snap: 'si:snapchat', snapchat: 'si:snapchat', linkedin: 'gb:linkedin-icon',
-  twitter: 'si:x', x: 'si:x',
+  twitter: 'si:x', x: 'si:x', 'twitter-x': 'si:x',
   tiktok: 'si:tiktok', bytedance: 'si:tiktok', samsung: 'si:samsung',
   oracle: 'gb:oracle', ibm: 'gb:ibm', intel: 'si:intel', cisco: 'si:cisco', amd: 'si:amd',
   qualcomm: 'si:qualcomm', sony: 'si:sony', sap: 'si:sap', dell: 'si:dell',
@@ -38,7 +47,7 @@ const COMPANY_LOGOS = {
   intuit: 'si:intuit',
   notion: 'si:notion', figma: 'si:figma', github: 'si:github', gitlab: 'si:gitlab',
   slack: 'gb:slack-icon', asana: 'si:asana', linear: 'si:linear', splunk: 'si:splunk',
-  square: 'si:square',
+  square: 'si:square', block: 'si:square',
   shopify: 'si:shopify', ebay: 'si:ebay', coinbase: 'si:coinbase', robinhood: 'si:robinhood',
   openai: 'gb:openai-icon', anthropic: 'si:anthropic',
   // data / infra / dev tools
@@ -49,21 +58,36 @@ const COMPANY_LOGOS = {
   doordash: 'si:doordash', roblox: 'si:roblox', unity: 'si:unity',
   visa: 'si:visa', mastercard: 'si:mastercard',
   // commerce / consumer / finance / AI (all re-confirmed 200, 2026-06)
-  booking: 'si:bookingdotcom', expedia: 'si:expedia', instacart: 'si:instacart',
-  yelp: 'si:yelp', target: 'si:target', activision: 'si:activision',
-  'epic-games': 'si:epicgames', epicgames: 'si:epicgames', 'ea-games': 'si:ea', ea: 'si:ea',
+  booking: 'si:bookingdotcom', 'booking-com': 'si:bookingdotcom', bookingcom: 'si:bookingdotcom',
+  expedia: 'si:expedia', instacart: 'si:instacart',
+  yelp: 'si:yelp', target: 'si:target',
+  activision: 'si:activision', 'activision-blizzard': 'si:activision',
+  'epic-games': 'si:epicgames', epicgames: 'si:epicgames',
+  'ea-games': 'si:ea', ea: 'si:ea',
   vmware: 'si:vmware', elastic: 'si:elastic', hashicorp: 'si:hashicorp',
   'goldman-sachs': 'si:goldmansachs', goldmansachs: 'si:goldmansachs',
   brex: 'si:brex',
   'hugging-face': 'si:huggingface', huggingface: 'si:huggingface',
-  mistral: 'si:mistralai', perplexity: 'si:perplexity',
+  mistral: 'si:mistralai', 'mistral-ai': 'si:mistralai', mistralai: 'si:mistralai',
+  perplexity: 'si:perplexity',
   // India
   swiggy: 'si:swiggy', zomato: 'si:zomato', paytm: 'si:paytm', phonepe: 'si:phonepe',
   razorpay: 'si:razorpay', infosys: 'si:infosys', tcs: 'si:tcs', wipro: 'si:wipro',
   zoho: 'si:zoho',
 };
 
-// Normalise a free-form company label/slug to a verified brand-SVG URL.
+// Suffix words that are safe to strip when probing the map: "Activision Blizzard"
+// -> "activision", "Mistral AI" -> "mistral", "EA Games" -> "ea". Each strip is
+// tried as a fallback key, so a future "Foo Technologies" still finds "foo".
+const STRIP_SUFFIXES = [
+  'blizzard', 'games', 'ai', 'inc', 'incorporated', 'technologies', 'technology',
+  'labs', 'studios', 'corp', 'corporation', 'group', 'systems', 'software',
+];
+
+// Normalise a free-form company label/slug to a verified brand-SVG URL. Tries,
+// in order: the dashed key, the dash-stripped key, the first token ("activision"
+// from "activision-blizzard"), and suffix-stripped forms ("mistral" from
+// "mistral-ai") — so map keys don't have to anticipate every name decoration.
 function companyLogoUrl({ name, slug } = {}) {
   const tryKey = (raw) => {
     if (!raw) return null;
@@ -75,7 +99,20 @@ function companyLogoUrl({ name, slug } = {}) {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
     if (!k) return null;
-    return COMPANY_LOGOS[k] || COMPANY_LOGOS[k.replace(/-/g, '')] || null;
+
+    if (COMPANY_LOGOS[k]) return COMPANY_LOGOS[k];
+    if (COMPANY_LOGOS[k.replace(/-/g, '')]) return COMPANY_LOGOS[k.replace(/-/g, '')];
+
+    const tokens = k.split('-').filter(Boolean);
+    // First-token fallback: "activision-blizzard" -> "activision".
+    if (tokens.length > 1 && COMPANY_LOGOS[tokens[0]]) return COMPANY_LOGOS[tokens[0]];
+    // Suffix-strip fallback: drop a trailing generic word and retry.
+    if (tokens.length > 1 && STRIP_SUFFIXES.includes(tokens[tokens.length - 1])) {
+      const stripped = tokens.slice(0, -1).join('-');
+      if (COMPANY_LOGOS[stripped]) return COMPANY_LOGOS[stripped];
+      if (COMPANY_LOGOS[stripped.replace(/-/g, '')]) return COMPANY_LOGOS[stripped.replace(/-/g, '')];
+    }
+    return null;
   };
   return logoSrc(tryKey(slug) || tryKey(name));
 }

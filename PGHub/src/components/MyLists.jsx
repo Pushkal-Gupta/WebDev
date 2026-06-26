@@ -10,10 +10,14 @@ import {
   useUserProgress,
 } from '../lib/queries';
 import StatusPill from './StatusPill';
+import SignInPrompt from './common/SignInPrompt';
+import Breadcrumb from './common/Breadcrumb';
 import { legacyToStatus } from '../lib/status';
 import ProgressRing from './vault/ProgressRing';
 import './vault/vault.css';
 import './MyLists.css';
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'Lists' }];
 
 const isSolved = (p) => {
   const s = legacyToStatus(p);
@@ -91,25 +95,17 @@ export default function MyLists({ session }) {
     }
   };
 
-  const crumbs = (
-    <nav className="vault-crumbs" aria-label="Breadcrumb">
-      <Link to="/vault" className="vault-crumbs-back">
-        <ArrowLeft size={12} /> Vault
-      </Link>
-      <span className="vault-crumbs-sep">/</span>
-      <span className="vault-crumbs-current">Lists</span>
-    </nav>
-  );
+  const crumbs = <Breadcrumb items={CRUMBS} />;
 
   if (!userId) {
     return (
       <div className="ml-container">
         {crumbs}
-        <div className="ml-empty">
-          <ListPlus size={28} className="ml-empty-icon" />
-          <h2 className="ml-empty-title">Sign in to create custom lists</h2>
-          <p className="ml-empty-sub">Group problems however you want — Revisit this week, Trees mastery, Pre-Google.</p>
-        </div>
+        <SignInPrompt
+          icon={ListPlus}
+          title="Sign in to create custom lists"
+          message="Group problems however you want — Revisit this week, Trees mastery, Pre-Google."
+        />
       </div>
     );
   }

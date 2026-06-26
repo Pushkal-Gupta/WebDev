@@ -15,6 +15,15 @@ Apply everywhere:
 
 Audit at 1920×1080 desktop AND 1440×900 laptop. If there's a band of empty space below content that isn't intentional breathing room, fix it. Empty pixels are wasted learning surface.
 
+## Breathing space after enclosed content (HARD)
+
+**Content must never bleed flush against the edge that encloses it.** A grid of cards, a list, a code block, a chart, a diagram — anything inside a page container, a card, a modal, or a section — must have a small, consistent gap after the LAST element before the container ends. Last row of cards touching the viewport bottom, a chart whose baseline sits on the container border, text ending exactly at a card's bottom padding-line — all read as cut-off and cheap.
+
+- Every scrollable route container ends with **bottom padding** (≈2–3rem) so the last row finishes with air beneath it, never flush against the fold/edge.
+- Every card/box/modal gives its inner content padding on ALL sides — the bottom included — so nothing kisses the border.
+- This is distinct from NO EMPTY SPACE: that rule kills *large dead bands*; this rule guarantees a *small, deliberate* gap so content visibly "finishes". A page fills the viewport AND ends with breathing room — both are true at once.
+- When something looks "cut", first check it's not just below the fold (scroll reveals it); if it genuinely clips, the container is missing bottom padding or has an `overflow:hidden` + fixed height — fix the padding/height, never add an inner scrollbar.
+
 ## What this is
 
 PGcode is a single-author DSA / interview-prep platform aiming to be measurably better than NeetCode + GeeksforGeeks + Programiz combined — broader catalog, deeper editorial, more polished UI, server-side grading, multi-language support. Design quality and editorial depth outrank feature count.

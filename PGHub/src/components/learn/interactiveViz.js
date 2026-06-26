@@ -307,6 +307,28 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import NnPerceptronViz from './viz/NnPerceptronViz';
+import NnActivationsViz from './viz/NnActivationsViz';
+import NnGradientDescentViz from './viz/NnGradientDescentViz';
+import NnBackpropViz from './viz/NnBackpropViz';
+import NnConvolutionViz from './viz/NnConvolutionViz';
+import NnAttentionViz from './viz/NnAttentionViz';
+import PsRandomVarViz from './viz/PsRandomVarViz';
+import PsDistributionsViz from './viz/PsDistributionsViz';
+import PsExpectationViz from './viz/PsExpectationViz';
+import PsBayesViz from './viz/PsBayesViz';
+import PsCLTViz from './viz/PsCLTViz';
+import LaVectorSpanViz from './viz/LaVectorSpanViz';
+import LaMatrixTransformViz from './viz/LaMatrixTransformViz';
+import LaDeterminantViz from './viz/LaDeterminantViz';
+import LaEigenvectorViz from './viz/LaEigenvectorViz';
+import CalcFTCViz from './viz/CalcFTCViz';
+import CalcOptimizationViz from './viz/CalcOptimizationViz';
+import CalcRelatedRatesViz from './viz/CalcRelatedRatesViz';
+import CalcLimitViz from './viz/CalcLimitViz';
+import CalcDerivativeSlopeViz from './viz/CalcDerivativeSlopeViz';
+import CalcChainRuleViz from './viz/CalcChainRuleViz';
+import CalcRiemannViz from './viz/CalcRiemannViz';
 import QueueUsingStacksViz from './viz/QueueUsingStacksViz';
 import RecursionTailCallViz from './viz/RecursionTailCallViz';
 import MasterTheoremViz from './viz/MasterTheoremViz';
@@ -873,6 +895,36 @@ export const INTERACTIVE_VIZ = {
   'slowstart-tcp': TcpCongestionViz,
   'web-vitals-lcp-cls-inp': WebVitalsViz,
   'mixed-precision-training': MixedPrecisionViz,
+
+  // --- calculus foundations (content-growth wave 1) ---
+  'calc-limits-continuity': CalcLimitViz,
+  'calc-derivative-as-slope': CalcDerivativeSlopeViz,
+  'calc-chain-rule': CalcChainRuleViz,
+  'calc-integral-as-area': CalcRiemannViz,
+
+  // --- content-growth wave 2 (linear algebra + calculus depth) ---
+  'la-vectors-spaces': LaVectorSpanViz,
+  'la-matrix-as-transformation': LaMatrixTransformViz,
+  'la-determinant': LaDeterminantViz,
+  'la-eigenvectors': LaEigenvectorViz,
+  'calc-fundamental-theorem': CalcFTCViz,
+  'calc-optimization': CalcOptimizationViz,
+  'calc-related-rates': CalcRelatedRatesViz,
+
+  // --- content-growth wave 3 (probability & statistics) ---
+  'ps-random-variables': PsRandomVarViz,
+  'ps-distributions': PsDistributionsViz,
+  'ps-expectation-variance': PsExpectationViz,
+  'ps-bayes-theorem': PsBayesViz,
+  'ps-clt-sampling': PsCLTViz,
+
+  // --- content-growth wave 4 (neural networks foundations) ---
+  'nn-perceptron': NnPerceptronViz,
+  'nn-activations': NnActivationsViz,
+  'nn-gradient-descent': NnGradientDescentViz,
+  'nn-backpropagation': NnBackpropViz,
+  'nn-convolutional': NnConvolutionViz,
+  'nn-attention-transformers': NnAttentionViz,
 };
 
 export default INTERACTIVE_VIZ;

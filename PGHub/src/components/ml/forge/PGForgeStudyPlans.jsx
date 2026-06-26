@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Clock, ListChecks, ArrowRight } from 'lucide-react';
+import { Clock, ListChecks, ArrowRight } from 'lucide-react';
 import { PG_FORGE_STUDY_PLANS } from './pgForgeStudyPlansData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeStudyPlans.css';
 
@@ -17,11 +18,7 @@ export default function PGForgeStudyPlans() {
 
   return (
     <div className="forge-sp">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Study Plans</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Study plans' }]} />
 
       <header className="forge-sp-header">
         <h1 className="forge-sp-title">Study Plans</h1>
@@ -29,10 +26,10 @@ export default function PGForgeStudyPlans() {
       </header>
 
       <div className="forge-sp-grid">
-        {plans.map((p) => (
+        {plans.map((p, i) => (
           <Link key={p.slug} to={`/ml/study-plans/${p.slug}`} className="forge-sp-card">
             <div className="forge-thumb-frame forge-sp-card-thumb">
-              <ForgeThumb seed={p.title} topic={p.slug} label={p.title} />
+              <ForgeThumb seed={p.title} index={i} topic={p.slug} label={p.title} />
               <span className={`forge-sp-level forge-sp-level-${p.level}`}>{p.level}</span>
             </div>
             <div className="forge-sp-card-body">

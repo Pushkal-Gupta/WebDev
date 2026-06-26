@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { Play, RotateCcw, ExternalLink, Maximize2, Minimize2, FileCode, Palette, Braces, ChevronLeft } from 'lucide-react';
 import PlaygroundSwitcher from './PlaygroundSwitcher';
+import { registerMonacoThemes, resolveMonacoTheme } from '../lib/monacoTheme';
 import './WebSandbox.css';
 
 const STARTERS = {
@@ -76,7 +77,7 @@ export default function WebSandbox({ theme }) {
     setTimeout(() => URL.revokeObjectURL(url), 30000);
   };
 
-  const monacoTheme = theme === 'light' || theme === 'solarized' ? 'light' : 'vs-dark';
+  const monacoTheme = resolveMonacoTheme(theme);
   const activeTabMeta = TABS.find(t => t.id === activeTab);
 
   return (
@@ -132,6 +133,7 @@ export default function WebSandbox({ theme }) {
           <Editor
             height="100%"
             language={activeTabMeta?.lang || 'html'}
+            beforeMount={(monaco) => registerMonacoThemes(monaco)}
             theme={monacoTheme}
             value={files[activeTab] ?? ''}
             onChange={(v) => setFiles(f => ({ ...f, [activeTab]: v ?? '' }))}

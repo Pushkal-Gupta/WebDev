@@ -34,7 +34,10 @@ function TexBlock({ tex }) {
 // a contest-count factor f(k) that shrinks updates as a player plays more
 // contests (new accounts move fast, veterans move slowly):
 //     f(k) = 1 / (1 + sum_{t=1..min(k,K)} 0.9^t / GAMMA), with a floor.
-// new_rating = R_i + f(k) * (target - R_i).
+// new_rating = R_i + f(k) * rawDelta.
+// Calibrated against a real result: rating 2148, rank 760 in a ~24k field with
+// 14 contests played → +25 (LeetCode's actual delta there was +20). A veteran's
+// swings land in the tens; a 1-3 contest newcomer's land in the hundreds.
 
 // Expected rank (seed) of a player with rating R against the whole field.
 // `ratings` is a REPRESENTATIVE SAMPLE of the field; `fieldSize` is the true
@@ -62,12 +65,16 @@ function ratingForRank(targetRank, ratings, fieldSize) {
 }
 
 // Shrink factor by contests played (more contests -> smaller swings).
+// The weighted sum saturates at ~9 as k grows; GAMMA=0.7 tunes the curve so a
+// 14-contest veteran lands at f≈0.09 (tens-of-points swings) while a 1-3 contest
+// newcomer stays near f≈0.45 (hundreds). Calibrated to the 2148/rank-760/k14
+// data point — do not raise GAMMA without re-checking that case.
 function dampingFactor(contestsPlayed) {
   let weighted = 0;
-  const cap = Math.min(contestsPlayed, 100);
+  const cap = Math.min(Math.max(contestsPlayed, 0), 100);
   for (let t = 1; t <= cap; t++) weighted += Math.pow(0.9, t);
-  const f = 1 / (1 + weighted / 5);
-  return Math.max(f, 0.18); // floor so seasoned players still move a little
+  const f = 1 / (1 + weighted / 0.7);
+  return Math.max(f, 0.06); // floor so seasoned players still move a little
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -76,8 +83,9 @@ export function predictDelta({ rating, actualRank, contestsPlayed, fieldRatings,
   const seed = expectedRank(rating, fieldRatings, N);
   const performanceRank = Math.sqrt(seed * actualRank);
   const target = ratingForRank(performanceRank, fieldRatings, N);
+  const rawDelta = (target - rating) / 2;
   const f = dampingFactor(contestsPlayed);
-  const delta = f * (target - rating);
+  const delta = f * rawDelta;
   return {
     seed,
     performanceRank,

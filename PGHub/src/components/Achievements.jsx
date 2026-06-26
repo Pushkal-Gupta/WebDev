@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Lock, Search, Trophy, Flame, ArrowLeft } from 'lucide-react';
+import { Lock, Search, Trophy, Flame } from 'lucide-react';
+import Breadcrumb from './common/Breadcrumb';
 import {
   ACHIEVEMENTS,
   CATEGORY_ORDER,
@@ -20,6 +20,8 @@ import {
 import ProgressRing from './vault/ProgressRing';
 import './vault/vault.css';
 import './Achievements.css';
+
+const CRUMBS = [{ label: 'Vault', to: '/vault' }, { label: 'Achievements' }];
 
 // Map a category to one of the four hue tokens so each section reads as its own
 // colour family without inventing palette values.
@@ -153,15 +155,9 @@ export default function Achievements({ session, roadmapMode = '500', compact = f
 
   return (
     <div className={`ach ${compact ? 'ach-compact' : ''}`}>
+      {!compact && <Breadcrumb items={CRUMBS} />}
       {!compact && (
         <header className="ach-header">
-          <nav className="vault-crumbs" aria-label="Breadcrumb">
-            <Link to="/vault" className="vault-crumbs-back">
-              <ArrowLeft size={12} /> Vault
-            </Link>
-            <span className="vault-crumbs-sep">/</span>
-            <span className="vault-crumbs-current">Achievements</span>
-          </nav>
           <div className="ach-header-titlebar">
             <div className="ach-titlebar-text">
               <h1 className="ach-title">Achievements</h1>

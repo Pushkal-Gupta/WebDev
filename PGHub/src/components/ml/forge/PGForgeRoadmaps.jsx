@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Sigma, Workflow, Layers, Brain, Sparkles, Zap, Network, ChevronRight, ArrowRight, Route,
+  Sigma, Workflow, Layers, Brain, Sparkles, Zap, Network, ArrowRight, Route,
 } from 'lucide-react';
 import { PILLARS } from '../../../content/mlContent';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeRoadmaps.css';
 
@@ -35,11 +36,7 @@ export default function PGForgeRoadmaps() {
 
   return (
     <div className="forge-rm">
-      <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
-        <ChevronRight size={13} />
-        <span className="forge-crumb-cur">Roadmaps</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Roadmaps' }]} />
 
       <header className="forge-rm-header">
         <h1 className="forge-rm-title">
@@ -63,7 +60,7 @@ export default function PGForgeRoadmaps() {
               </div>
               <Link to={`/ml/${s.slug}`} className="forge-rm-card">
                 <div className="forge-thumb-frame forge-rm-card-thumb">
-                  <ForgeThumb seed={s.title} />
+                  <ForgeThumb seed={s.title} index={i} />
                 </div>
                 <div className="forge-rm-card-body">
                   <div className="forge-rm-card-head">

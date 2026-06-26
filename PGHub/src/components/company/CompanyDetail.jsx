@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ChevronRight, ArrowLeft, Flame, MapPin, BookOpen, Layers, GraduationCap, ArrowRight } from 'lucide-react';
+import { Flame, MapPin, BookOpen, Layers, GraduationCap, ArrowRight } from 'lucide-react';
 import { useCompany, useCompanyProblems, useUserProgress, useAllConceptsCompact } from '../../lib/queries';
 import StatusPill from '../StatusPill';
 import { legacyToStatus } from '../../lib/status';
 import { topTopics, pickConcepts, pickTutorials, pickCourses, readableTopic } from './companyContent';
 import BrandLogo from '../common/BrandLogo';
+import Breadcrumb from '../common/Breadcrumb';
 import './Companies.css';
 
 const DIFFICULTIES = ['Easy', 'Medium', 'Hard'];
@@ -44,6 +45,7 @@ export default function CompanyDetail({ session }) {
   if (isLoading) {
     return (
       <div className="comp-container">
+        <Breadcrumb items={[{ label: 'Companies', to: '/company' }, { label: 'Company' }]} />
         <div className="comp-skeleton">
           <div className="skel skel-text" />
           <div className="skel skel-row-full" />
@@ -56,9 +58,9 @@ export default function CompanyDetail({ session }) {
   if (!company) {
     return (
       <div className="comp-container">
+        <Breadcrumb items={[{ label: 'Companies', to: '/company' }, { label: 'Company' }]} />
         <div className="comp-empty">
           <h2 className="comp-empty-title">Company not found</h2>
-          <p className="comp-empty-sub"><Link to="/company">Back to companies</Link></p>
         </div>
       </div>
     );
@@ -75,16 +77,9 @@ export default function CompanyDetail({ session }) {
 
   return (
     <div className="comp-container comp-detail">
-      <nav className="comp-breadcrumbs" aria-label="Breadcrumb">
-        <Link to="/company">Companies</Link>
-        <ChevronRight size={12} />
-        <span>{company.name}</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'Companies', to: '/company' }, { label: company.name }]} />
 
       <header className="comp-detail-header">
-        <Link to="/company" className="comp-back">
-          <ArrowLeft size={13} /> All companies
-        </Link>
         <div className="comp-detail-title-row">
           <BrandLogo kind="company" name={company.name} slug={company.slug} size={40} className="comp-detail-logo" />
           <h1 className="comp-detail-title">{company.name}</h1>

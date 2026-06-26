@@ -1,0 +1,73 @@
+.lmt { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.lmt-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.lmt-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.lmt-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.lmt-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.lmt-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.lmt-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.lmt-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.lmt-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.lmt-presets { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.lmt-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.lmt-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.lmt-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.lmt-svg { width: 100%; height: auto; display: block; touch-action: none; }
+
+.lmt-axis { stroke: var(--text-dim); stroke-width: 1.2; opacity: 0.6; }
+.lmt-wgrid { stroke: var(--hue-sky); stroke-width: 0.7; opacity: 0.45; }
+
+.lmt-square { fill: rgba(var(--accent-rgb), 0.16); stroke: var(--accent); stroke-width: 1.4; }
+.lmt-flipped { fill: color-mix(in srgb, var(--warning) 16%, transparent); stroke: var(--warning); }
+.lmt-shape-orig { fill: none; stroke: var(--text-dim); stroke-width: 1; stroke-dasharray: 4 3; opacity: 0.5; }
+.lmt-shape { fill: color-mix(in srgb, var(--hue-pink) 22%, transparent); stroke: var(--hue-pink); stroke-width: 1.6; }
+
+.lmt-i { stroke: var(--accent); stroke-width: 2.8; }
+.lmt-j { stroke: var(--hue-violet); stroke-width: 2.8; }
+
+.lmt-handle { cursor: grab; stroke-width: 2; }
+.lmt-handle:active { cursor: grabbing; }
+.lmt-handle-i { stroke: var(--accent); fill: rgba(var(--accent-rgb), 0.25); }
+.lmt-handle-j { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 25%, transparent); }
+.lmt-lbl { font-size: 0.8rem; font-weight: 700; font-family: var(--mono); }
+.lmt-lbl-i { fill: var(--accent); }
+.lmt-lbl-j { fill: var(--hue-violet); }
+
+.lmt-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; align-items: stretch; }
+.lmt-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.lmt-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.lmt-stat-val { font-size: 0.84rem; color: var(--text-main); }
+.lmt-stat-val .katex { color: var(--text-main); }
+.lmt-mat { border-color: var(--border); }
+.lmt-accent { border-color: var(--accent); }
+.lmt-accent .katex { color: var(--accent); }
+.lmt-violet { border-color: var(--hue-violet); }
+.lmt-violet .katex { color: var(--hue-violet); }
+
+.lmt-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.lmt-trace-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.lmt-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .lmt-stats { grid-template-columns: repeat(2, 1fr); } }

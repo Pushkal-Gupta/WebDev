@@ -4,8 +4,8 @@ import { X, Eye, EyeOff, Settings } from 'lucide-react';
 import Logo from './Logo';
 import './LoginModal.css';
 
-export default function LoginModal({ onClose, onGoToSettings }) {
-  const [mode, setMode] = useState('login'); // login | signup | reset | otp | newPassword
+export default function LoginModal({ onClose, onGoToSettings, initialMode = 'login' }) {
+  const [mode, setMode] = useState(initialMode); // login | signup | reset | otp | newPassword
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [otpCode, setOtpCode] = useState('');

@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronRight, Play, BookOpen, Sigma, ArrowRight } from 'lucide-react';
+import { Play, BookOpen, Sigma, ArrowRight } from 'lucide-react';
 import { MATH_MODULES } from './pgForgeMathData';
+import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import './PGForgeMath.css';
 
-function TopicCard({ topic }) {
+function TopicCard({ topic, index }) {
   const href = topic.vizSlug
     ? `/visualize/${topic.vizSlug}`
     : topic.lessonPath || null;
@@ -14,7 +15,7 @@ function TopicCard({ topic }) {
   const inner = (
     <>
       <div className="forge-thumb-frame fmath-card-thumb">
-        <ForgeThumb seed={topic.title} topic={topic.slug} label={topic.title} />
+        <ForgeThumb seed={topic.title} index={index} topic={topic.slug} label={topic.title} />
       </div>
       <div className="fmath-card-body">
         <h3 className="fmath-card-title">{topic.title}</h3>
@@ -45,11 +46,7 @@ export default function PGForgeMath() {
 
   return (
     <div className="fmath">
-      <nav className="forge-crumb fmath-crumb">
-        <Link to="/ml">PGForge</Link>
-        <ChevronRight size={12} />
-        <span className="fmath-crumb-cur">Foundations</span>
-      </nav>
+      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Foundations' }]} />
 
       <header className="fmath-head">
         <h1 className="fmath-title">
@@ -66,8 +63,8 @@ export default function PGForgeMath() {
               <p className="fmath-module-blurb">{mod.blurb}</p>
             </div>
             <div className="fmath-grid">
-              {mod.topics.map((t) => (
-                <TopicCard key={t.slug} topic={t} />
+              {mod.topics.map((t, i) => (
+                <TopicCard key={t.slug} topic={t} index={i} />
               ))}
             </div>
           </section>

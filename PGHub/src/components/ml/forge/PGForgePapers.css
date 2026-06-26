@@ -295,11 +295,21 @@
 
 .forge-paper-detail-aside {
   min-width: 0;
+  /* Stretch to the full grid-row height (= the tall left column) so the sticky
+     diagram has room to stay pinned for the WHOLE left-column scroll, releasing
+     only when the text ends — instead of scrolling away after one diagram-height
+     (which is what the grid's align-items:start caused). */
+  align-self: stretch;
 }
 
 .forge-paper-detail-aside .forge-detail-diagram {
   position: sticky;
   top: 1rem;
+  /* Keep the whole panel COMFORTABLY shorter than the viewport so it has ample
+     sticky travel — it stays pinned for the entire left-column scroll, then
+     releases only at the very end. (A panel that nearly fills the viewport has
+     almost no travel and drifts away.) */
+  max-height: calc(100dvh - var(--pg-nav-h, 120px) - 5rem);
 }
 
 .forge-detail-diagram {
@@ -314,7 +324,7 @@
 }
 
 .forge-detail-diagram .forge-paper-diagram svg {
-  max-height: 78vh;
+  max-height: 52vh;
 }
 
 @media (max-width: 900px) {
