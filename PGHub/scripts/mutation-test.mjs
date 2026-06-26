@@ -69,6 +69,8 @@ const OPS = [
   [/\+/g, '-'], [/(?<![\-\w])\-(?![\-=>])/g, '+'],
   [/(?<![*\/])\/\/(?!=)/g, '*'], [/(?<![*\/])\*(?![*\/=])/g, '//'],
   [/\breturn\s+True\b/g, 'return False'], [/\breturn\s+0\b/g, 'return 1'],
+  // optimization-direction flips — catch greedy/DP bugs that have no relational op
+  [/\bmin\b/g, 'max'], [/\bmax\b/g, 'min'],
 ];
 function genMutants(src) {
   const masked = maskLiterals(src);

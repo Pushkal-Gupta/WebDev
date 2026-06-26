@@ -94,6 +94,29 @@
   flex-shrink: 0;
 }
 
+/* Group card title shouldn't eat all the row width — let the acronym pill
+   sit snug beside it, with the Layers badge pinned far right. */
+.comp-group-card .comp-card-title {
+  flex: 0 1 auto;
+  min-width: 0;
+}
+
+/* Catchy acronym for the member set (FAANG / GAYMAN / MANGO) — a small mono
+   pill that sits beside the descriptive title without crowding the row. */
+.comp-group-acronym {
+  flex-shrink: 0;
+  padding: 0.14rem 0.46rem;
+  font-family: var(--mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--group-hue, var(--accent));
+  background: color-mix(in srgb, var(--group-hue, var(--accent)) 12%, var(--surface));
+  border: 1px solid color-mix(in srgb, var(--group-hue, var(--accent)) 38%, var(--border));
+  border-radius: 999px;
+}
+
 .comp-card {
   position: relative;
   display: flex;

@@ -7,16 +7,13 @@ import {
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useLeetCodeUser, useProfile } from '../../lib/queries';
-import { predictDelta } from '../contests/LeetCodeAnalytics';
+import { predictDelta, SAMPLE_FIELD, TOTAL_PARTICIPANTS } from '../contests/LeetCodeAnalytics';
 import Breadcrumb from '../common/Breadcrumb';
 import './LcHub.css';
 
-const SAMPLE_FIELD = [3240, 2980, 2510, 2180, 1840, 1620, 1500, 1390, 1310, 1240, 1180, 1120];
-
-// The SAMPLE_FIELD is a 12-value REPRESENTATIVE slice; predictDelta scales it to
-// this true participant count. Without fieldSize the seed is computed on an N=12
-// scale while actualRank is on the full-field scale, which craters any finish.
-const TOTAL_PARTICIPANTS = 24180;
+// SAMPLE_FIELD / TOTAL_PARTICIPANTS are the single calibrated source of truth in
+// LeetCodeAnalytics — predictDelta scales the field sample to the true
+// participant count. A local divergent copy here over-predicted strong finishes.
 
 const HUES = ['var(--hue-violet)', 'var(--hue-sky)', 'var(--hue-pink)', 'var(--hue-mint)'];
 

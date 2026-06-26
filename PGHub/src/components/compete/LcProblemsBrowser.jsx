@@ -422,19 +422,19 @@ export default function LcProblemsBrowser() {
         <button
           className="lcp-page-btn"
           disabled={safePage <= 1}
-          onClick={() => setPage((p) => Math.max(1, p - 1))}
+          onClick={() => setPage(Math.max(1, safePage - 1))}
         >
           <ChevronLeft size={15} /> Prev
         </button>
         <div className="lcp-page-info">
-          <span className="lcp-page-now">Page {safePage} of {totalPages}</span>
+          <span className="lcp-page-now">Page {safePage} of {totalPages.toLocaleString()}</span>
           <span className="lcp-page-sep">·</span>
           <span className="lcp-page-total">{filtered.length.toLocaleString()} problems</span>
         </div>
         <button
           className="lcp-page-btn"
           disabled={safePage >= totalPages}
-          onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+          onClick={() => setPage(Math.min(totalPages, safePage + 1))}
         >
           Next <ChevronRight size={15} />
         </button>

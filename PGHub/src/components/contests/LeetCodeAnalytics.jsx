@@ -114,12 +114,15 @@ function estimatedRating(q) {
   return Math.round((floor + Math.pow(1 - p, 1.15) * 900) / 10) * 10;
 }
 
-const TOTAL_PARTICIPANTS = 24180;
+export const TOTAL_PARTICIPANTS = 24180;
 // A representative slice of a real LeetCode field — mid-weighted around ~1500
 // with thinner high/low tails (NOT top-heavy), so a strong rating maps to a
 // strong expected rank. Used as the distribution sample the model scales to
-// TOTAL_PARTICIPANTS.
-const SAMPLE_FIELD = [
+// TOTAL_PARTICIPANTS. EXPORTED as the single source of truth — every caller of
+// predictDelta must reuse this exact field; a divergent (more bottom-heavy)
+// slice inflates a strong player's seed and over-predicts (the 2148/+234 bug).
+// eslint-disable-next-line react-refresh/only-export-components
+export const SAMPLE_FIELD = [
   3100, 2700, 2400, 2150, 1950, 1800, 1700, 1620, 1560, 1510,
   1470, 1430, 1390, 1350, 1310, 1270, 1230, 1180, 1120, 1040, 950, 850,
 ];
