@@ -4,10 +4,10 @@
   margin: 0 auto;
   padding: 1.5rem 0 2rem;
   height: calc(100dvh - var(--pg-nav-h, 120px));
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
+  overflow: hidden;
 }
 
 .lcp-header {
@@ -307,6 +307,7 @@
 .lcp-table-wrap {
   flex: 1 1 auto;
   min-height: 0;
+  overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);
@@ -318,6 +319,9 @@
   table-layout: fixed;
 }
 .lcp-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
   text-align: left;
   font-family: var(--mono);
   font-size: 0.63rem;
@@ -433,6 +437,8 @@
   border-radius: 12px;
   background: var(--surface);
 }
+.lcp-pager .lcp-page-btn { flex: 0 0 auto; min-width: 6.5rem; justify-content: center; }
+.lcp-pager .lcp-page-info { flex: 1 1 auto; justify-content: center; }
 .lcp-page-btn {
   display: inline-flex;
   align-items: center;

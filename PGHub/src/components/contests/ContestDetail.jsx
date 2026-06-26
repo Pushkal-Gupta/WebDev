@@ -11,7 +11,7 @@ import {
   useContest, useContestProblems, useContestAttempt, useUserProgress,
   useLcContestRanking,
 } from '../../lib/queries';
-import { predictDelta } from './LeetCodeAnalytics';
+import { predictDelta, SAMPLE_FIELD, TOTAL_PARTICIPANTS } from './LeetCodeAnalytics';
 import StatusPill from '../StatusPill';
 import { legacyToStatus } from '../../lib/status';
 import Breadcrumb from '../common/Breadcrumb';
@@ -92,8 +92,6 @@ const SAMPLE_RANKINGS = [
   { rank: 9, username: 'ecnerwala', country: 'United States', score: 14, finishTime: null },
   { rank: 10, username: 'scott_wu', country: 'United States', score: 13, finishTime: null },
 ];
-// Representative field-rating slice that drives the Elo expectation column.
-const SAMPLE_FIELD = [3240, 2980, 2510, 2180, 1840, 1620, 1500, 1390, 1310, 1240, 1180, 1120];
 const PAGE_SIZE = 25; // LeetCode returns 25 rows per ranking page.
 const AVG_RATING = 1600; // baseline rating assumed for the expected-change column
 
@@ -236,6 +234,7 @@ export default function ContestDetail({ session }) {
         actualRank: Math.max(1, r.rank),
         contestsPlayed: 8,
         fieldRatings: SAMPLE_FIELD,
+        fieldSize: liveRanking?.totalUsers || TOTAL_PARTICIPANTS,
       });
       return { ...r, expectedDelta: delta };
     });

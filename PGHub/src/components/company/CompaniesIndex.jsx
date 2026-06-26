@@ -90,6 +90,7 @@ export default function CompaniesIndex() {
                 <div className="comp-card-head">
                   <span className="comp-card-iconbox comp-group-iconbox"><Icon size={18} /></span>
                   <h3 className="comp-card-title">{g.title}</h3>
+                  {g.acronym && <span className="comp-group-acronym">{g.acronym}</span>}
                   <Layers size={11} className="comp-group-card-badge" />
                 </div>
                 <p className="comp-card-desc">{g.summary}</p>
