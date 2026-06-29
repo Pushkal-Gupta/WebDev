@@ -51,11 +51,14 @@ const MOTIFS = [
   // on-topic motifs added for the PGForge content surfaces
   'convolution', 'metrics', 'recommender', 'timeseries', 'sequence',
   'transformer', 'schedule', 'cluster', 'project',
+  // genuinely-new distinct silhouettes
+  'gauge', 'spiral', 'venn', 'pyramid', 'flow',
 ];
 
 // Stride for positional (index-based) motif assignment. Coprime to MOTIFS.length
-// (31) so stepping by it visits every motif exactly once — consecutive cards get
-// well-separated, never-repeating shapes. Keep coprime if MOTIFS grows.
+// (36 = 2^2·3^2) so stepping by it visits every motif exactly once — consecutive
+// cards get well-separated, never-repeating shapes. 13 is prime and shares no
+// factor with 36. Keep coprime if MOTIFS grows.
 const MOTIF_STRIDE = 13;
 
 // Explicit content -> motif map. A card that knows its real subject (a problem
@@ -263,7 +266,7 @@ function pickLabel(label, kind, seed, topic) {
 function Motif({ name, c1, c2, rand }) {
   switch (name) {
     case 'vectors': {
-      // 2-3 arrows from the origin at seed-varied angles/lengths.
+      // 2-3 arrows from a shared origin at seed-varied angles/lengths.
       const n = 2 + Math.floor(rand() * 2);
       return (
         <g>
@@ -281,16 +284,20 @@ function Motif({ name, c1, c2, rand }) {
       );
     }
     case 'matrix':
+      // A labelled cell grid wrapped in matrix brackets — reads as "a matrix",
+      // distinct from the borderless heat/cuda grids.
       return (
         <g>
+          <path d="M16 14 L11 14 L11 66 L16 66" fill="none" stroke={c2} strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M104 14 L109 14 L109 66 L104 66" fill="none" stroke={c2} strokeWidth="2.5" strokeLinecap="round" />
           {[0, 1, 2].map((r) => [0, 1, 2, 3].map((col) => (
-            <rect key={`${r}-${col}`} x={20 + col * 20} y={18 + r * 16} width="14" height="11" rx="2"
-              fill={rand() > 0.5 ? c1 : c2} opacity={0.3 + rand() * 0.6} />
+            <rect key={`${r}-${col}`} x={20 + col * 20} y={18 + r * 16} width="15" height="12" rx="2"
+              fill={rand() > 0.5 ? c1 : c2} opacity={0.35 + rand() * 0.55} />
           )))}
         </g>
       );
     case 'descent': {
-      // A bowl + a path of steps rolling toward the minimum, jittered per card.
+      // A contour bowl + a path of steps rolling toward the minimum.
       const pts = [0, 1, 2, 3].map((i) => {
         const t = 0.18 + i * 0.2;
         const x = 18 + t * 80;
@@ -300,21 +307,30 @@ function Motif({ name, c1, c2, rand }) {
       const dip = 0.4 + rand() * 0.2;
       return (
         <g>
+          <path d={`M6 18 Q${10 + dip * 100} 96 114 24`} fill="none" stroke={c2} strokeWidth="2" opacity="0.3" />
           <path d={`M10 20 Q${10 + dip * 100} 92 110 26`} fill="none" stroke={c2} strokeWidth="2.5" opacity="0.55" />
           {pts.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4.5" fill={c1} opacity={1 - i * 0.18} />)}
           <path d={`M${pts.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c1} strokeWidth="2" strokeDasharray="3 3" />
         </g>
       );
     }
-    case 'attention':
+    case 'attention': {
+      // A QK attention map: the diagonal + its neighbours light up, off-diagonal
+      // cells stay faint — a recognisable diagonal band, not a random grid.
       return (
         <g>
-          {[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((col) => (
-            <rect key={`${r}-${col}`} x={28 + col * 16} y={16 + r * 13} width="13" height="10" rx="2"
-              fill={rand() > 0.55 ? c1 : c2} opacity={0.16 + rand() * 0.74} />
-          )))}
+          {[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((col) => {
+            const onDiag = col === r;
+            const near = Math.abs(col - r) === 1;
+            return (
+              <rect key={`${r}-${col}`} x={30 + col * 15} y={14 + r * 15} width="13" height="13" rx="2"
+                fill={onDiag ? c1 : c2}
+                opacity={onDiag ? 0.92 : near ? 0.5 : 0.14 + rand() * 0.12} />
+            );
+          }))}
         </g>
       );
+    }
     case 'network': {
       // 3-layer net with seed-varied node counts per layer.
       const cols = [24, 60, 96];
@@ -335,28 +351,45 @@ function Motif({ name, c1, c2, rand }) {
       );
     }
     case 'distribution': {
-      // A bell histogram whose peak position/spread shift per card.
-      const peak = 3 + Math.floor(rand() * 3);
-      const heights = Array.from({ length: 9 }, (_, i) => {
-        const d = Math.abs(i - peak);
-        return Math.max(8, 64 * Math.exp(-(d * d) / (2 + rand() * 2)));
-      });
+      // A smooth bell curve as a filled area under a baseline — clearly a
+      // continuous density, not a bar chart.
+      const base = 66;
+      const mu = 50 + (rand() - 0.5) * 30;
+      const sig = 15 + rand() * 9;
+      const pts = [];
+      for (let x = 12; x <= 108; x += 3) {
+        const y = base - 50 * Math.exp(-((x - mu) ** 2) / (2 * sig * sig));
+        pts.push(`${x} ${y.toFixed(1)}`);
+      }
       return (
         <g>
-          {heights.map((h, i) => (
-            <rect key={i} x={16 + i * 10} y={70 - h} width="8" height={h} rx="1.5"
-              fill={i === peak ? c1 : c2} opacity={i === peak ? 0.92 : 0.45} />
-          ))}
+          <line x1="12" y1={base} x2="108" y2={base} className="ft-axis" />
+          <path d={`M12 ${base} L${pts.join(' L')} L108 ${base} Z`} fill={c1} opacity="0.26" />
+          <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+          <line x1={mu} y1={base} x2={mu} y2={base - 50} stroke={c2} strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
         </g>
       );
     }
     case 'entropy': {
-      const a = 18 + rand() * 16;
-      const b = 36 + rand() * 16;
+      // One uneven horizontal stacked-probability bar — segment widths vary by
+      // seed, so a high-entropy card looks even and a low-entropy one lopsided.
+      const raw = Array.from({ length: 4 }, () => 0.35 + rand());
+      const sum = raw.reduce((s, v) => s + v, 0);
+      const total = 92;
+      let acc = 14;
+      const segs = raw.map((v, i) => {
+        const w = (v / sum) * total;
+        const x0 = acc;
+        acc += w;
+        return { x: x0, w: Math.max(2, w - 1.5), i };
+      });
       return (
         <g>
-          <path d={`M14 68 C40 68 40 ${a} 60 ${a} C80 ${a} 80 68 106 68`} fill="none" stroke={c1} strokeWidth="2.5" />
-          <path d={`M14 68 C40 68 40 ${b} 60 ${b} C80 ${b} 80 68 106 68`} fill="none" stroke={c2} strokeWidth="2.5" opacity="0.6" strokeDasharray="4 3" />
+          {segs.map(({ x, w, i }) => (
+            <rect key={i} x={x} y="32" width={w} height="18" rx="2"
+              fill={i % 2 ? c2 : c1} opacity={0.4 + (i / 4) * 0.5} />
+          ))}
+          <rect x="14" y="32" width={total} height="18" rx="2.5" fill="none" stroke={c2} strokeWidth="1" opacity="0.4" />
         </g>
       );
     }
@@ -375,43 +408,52 @@ function Motif({ name, c1, c2, rand }) {
         </g>
       );
     }
-    case 'diffusion':
+    case 'diffusion': {
+      // Points strung along a fading diagonal trail — dense + bright at the
+      // origin, growing and dissolving toward the far corner.
       return (
         <g>
-          {Array.from({ length: 24 }).map((_, i) => (
-            <circle key={i} cx={18 + rand() * 84} cy={12 + rand() * 54} r={1.5 + rand() * 3}
-              fill={i % 2 ? c1 : c2} opacity={0.15 + rand() * 0.7} />
-          ))}
-          <path d="M16 70 L104 70" stroke={c1} strokeWidth="1.5" opacity="0.4" />
-        </g>
-      );
-    case 'orbit': {
-      const moons = 2 + Math.floor(rand() * 2);
-      return (
-        <g>
-          <circle cx="60" cy="40" r="22" fill="none" stroke={c2} strokeWidth="2" opacity="0.5" strokeDasharray="4 4" />
-          <circle cx="60" cy="40" r="8" fill={c1} />
-          {Array.from({ length: moons }).map((_, i) => {
-            const ang = rand() * Math.PI * 2;
-            const rad = 16 + rand() * 8;
-            return <circle key={i} cx={60 + Math.cos(ang) * rad} cy={40 + Math.sin(ang) * rad} r={3 + rand() * 2} fill={i % 2 ? c2 : c1} opacity="0.8" />;
+          {Array.from({ length: 22 }).map((_, i) => {
+            const t = i / 21;
+            const x = 16 + t * 84 + (rand() - 0.5) * 11;
+            const y = 60 - t * 46 + (rand() - 0.5) * 11;
+            return (
+              <circle key={i} cx={x} cy={y} r={1.4 + t * 3.4}
+                fill={i % 2 ? c1 : c2} opacity={0.85 - t * 0.6} />
+            );
           })}
         </g>
       );
     }
-    case 'cuda':
+    case 'orbit': {
+      // Concentric ellipses with a body at the focus + dots riding the orbits.
+      const ang = rand() * Math.PI * 2;
       return (
         <g>
-          {[0, 1, 2, 3, 4, 5].map((col) => (
-            <g key={col}>
-              {[0, 1, 2, 3].map((r) => (
-                <rect key={r} x={16 + col * 15} y={16 + r * 12} width="11" height="9" rx="1.5"
-                  fill={rand() > 0.5 ? c1 : c2} opacity={0.25 + rand() * 0.6} />
-              ))}
-            </g>
-          ))}
+          <ellipse cx="60" cy="40" rx="36" ry="16" fill="none" stroke={c2} strokeWidth="1.5" opacity="0.45" />
+          <ellipse cx="60" cy="40" rx="22" ry="10" fill="none" stroke={c1} strokeWidth="1.5" opacity="0.6" strokeDasharray="3 3" />
+          <circle cx="60" cy="40" r="7" fill={c1} />
+          <circle cx={60 + Math.cos(ang) * 36} cy={40 + Math.sin(ang) * 16} r="4" fill={c2} />
+          <circle cx={60 + Math.cos(ang + 2.2) * 22} cy={40 + Math.sin(ang + 2.2) * 10} r="3" fill={c1} opacity="0.8" />
         </g>
       );
+    }
+    case 'cuda': {
+      // A thread-block tile grid with one warp row lit as a band — distinct from
+      // the random heatmap and the bracketed matrix.
+      const warp = Math.floor(rand() * 4);
+      return (
+        <g>
+          {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4, 5].map((col) => {
+            const isWarp = r === warp;
+            return (
+              <rect key={`${r}-${col}`} x={16 + col * 15} y={16 + r * 12} width="12" height="9" rx="1.5"
+                fill={isWarp ? c1 : c2} opacity={isWarp ? 0.85 : 0.2 + rand() * 0.18} />
+            );
+          }))}
+        </g>
+      );
+    }
     case 'paper':
       return (
         <g>
@@ -433,14 +475,14 @@ function Motif({ name, c1, c2, rand }) {
         </g>
       );
     case 'scatter':
+      // Loose, full-bleed random points spread across the whole frame — no
+      // grouping (that's `cluster`), no trail (that's `diffusion`).
       return (
         <g>
-          {Array.from({ length: 18 }).map((_, i) => {
-            const cluster = i % 2;
-            const cx = cluster ? 40 + rand() * 24 : 70 + rand() * 24;
-            const cy = cluster ? 20 + rand() * 24 : 36 + rand() * 24;
-            return <circle key={i} cx={cx} cy={cy} r="3.5" fill={cluster ? c1 : c2} opacity="0.75" />;
-          })}
+          {Array.from({ length: 24 }).map((_, i) => (
+            <circle key={i} cx={12 + rand() * 96} cy={10 + rand() * 56} r={1.8 + rand() * 2.2}
+              fill={rand() > 0.5 ? c1 : c2} opacity={0.55 + rand() * 0.4} />
+          ))}
         </g>
       );
     case 'bars':
@@ -499,29 +541,27 @@ function Motif({ name, c1, c2, rand }) {
       );
     }
     case 'heat':
+      // A gap-free heatmap: each cell colour-mixes c1/c2 by its value, so the
+      // grid reads as a continuous temperature field, not spaced tiles.
       return (
         <g>
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4, 5].map((col) => {
-            const v = rand();
+            const v = Math.round(rand() * 100);
             return (
-              <rect key={`${r}-${col}`} x={16 + col * 15} y={16 + r * 12} width="14" height="11" rx="1"
-                fill={v > 0.5 ? c1 : c2} opacity={0.18 + v * 0.72} />
+              <rect key={`${r}-${col}`} x={15 + col * 15} y={14 + r * 13} width="15" height="13"
+                fill={`color-mix(in srgb, ${c1} ${v}%, ${c2})`} opacity="0.88" />
             );
           }))}
         </g>
       );
     case 'chain':
+      // Interlocking chain links — overlapping rounded outlines, a physical
+      // "chain" silhouette distinct from `sequence`'s filled token boxes.
       return (
         <g>
-          {[20, 50, 80].map((x) => (
-            <line key={`l${x}`} x1={x + 9} y1="40" x2={x + 21} y2="40"
-              stroke={c2} strokeWidth="2.5" markerEnd="url(#ft-a2)" />
-          ))}
-          {[20, 50, 80, 110].map((x, i) => (
-            <circle key={`n${x}`} cx={x} cy="40" r="9"
-              fill={i === 3 ? 'none' : c1} stroke={i === 3 ? c2 : 'none'}
-              strokeWidth="2" strokeDasharray={i === 3 ? '3 3' : undefined}
-              opacity={i === 3 ? 0.7 : 0.9 - i * 0.12} />
+          {[0, 1, 2, 3, 4].map((i) => (
+            <rect key={i} x={14 + i * 19} y="30" width="26" height="20" rx="10"
+              fill="none" stroke={i % 2 ? c1 : c2} strokeWidth="3.5" opacity="0.85" />
           ))}
         </g>
       );
@@ -562,33 +602,42 @@ function Motif({ name, c1, c2, rand }) {
       );
     }
     case 'metrics': {
-      // A gauge arc filled to a seed-varied fraction.
-      const frac = 0.35 + rand() * 0.55;
-      const start = Math.PI;
-      const end = Math.PI * (1 - frac);
-      const cx = 60; const cy = 56; const rad = 30;
-      const p = (ang) => `${cx + Math.cos(ang) * rad} ${cy - Math.sin(ang) * rad}`;
+      // A row of three small dial gauges, each filled to a seed-varied fraction.
+      const cy = 50; const rad = 15;
       return (
         <g>
-          <path d={`M${p(start)} A${rad} ${rad} 0 0 1 ${p(0)}`} fill="none" stroke={c2} strokeWidth="4" opacity="0.3" strokeLinecap="round" />
-          <path d={`M${p(start)} A${rad} ${rad} 0 0 1 ${p(end)}`} fill="none" stroke={c1} strokeWidth="4" strokeLinecap="round" />
-          <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 4)} y2={cy - Math.sin(end) * (rad - 4)} stroke={c1} strokeWidth="2.5" />
-          <circle cx={cx} cy={cy} r="3.5" fill={c1} />
+          {[28, 60, 92].map((cx, i) => {
+            const frac = 0.28 + rand() * 0.6;
+            const end = Math.PI * (1 - frac);
+            const p = (ang) => `${cx + Math.cos(ang) * rad} ${cy - Math.sin(ang) * rad}`;
+            const col = i === 1 ? c2 : c1;
+            return (
+              <g key={i}>
+                <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(0)}`} fill="none" stroke={c2} strokeWidth="3.5" opacity="0.22" strokeLinecap="round" />
+                <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(end)}`} fill="none" stroke={col} strokeWidth="3.5" strokeLinecap="round" />
+                <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 3)} y2={cy - Math.sin(end) * (rad - 3)} stroke={col} strokeWidth="1.8" />
+                <circle cx={cx} cy={cy} r="2.4" fill={col} />
+              </g>
+            );
+          })}
         </g>
       );
     }
     case 'recommender': {
-      // A user-item rating matrix with a few seed-chosen filled cells.
+      // A bipartite users (left circles) × items (right squares) graph with
+      // seed-chosen rating links between them.
+      const users = [20, 36, 52, 68];
+      const items = [26, 46, 66];
+      const ux = 26; const ix = 94;
       return (
         <g>
-          {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4].map((col) => {
-            const filled = rand() > 0.5;
-            return filled
-              ? <rect key={`${r}-${col}`} x={22 + col * 16} y={16 + r * 13} width="13" height="10" rx="2"
-                  fill={rand() > 0.5 ? c1 : c2} opacity={0.5 + rand() * 0.45} />
-              : <rect key={`${r}-${col}`} x={22 + col * 16} y={16 + r * 13} width="13" height="10" rx="2"
-                  fill="none" stroke={c2} strokeWidth="1" opacity="0.35" />;
-          }))}
+          {users.map((uy, ui) => items.map((iy, ii) => (
+            rand() > 0.5
+              ? <line key={`e${ui}${ii}`} x1={ux} y1={uy} x2={ix} y2={iy} stroke={c2} strokeWidth="1" opacity="0.35" />
+              : null
+          )))}
+          {users.map((uy, i) => <circle key={`u${i}`} cx={ux} cy={uy} r="4.5" fill={c1} />)}
+          {items.map((iy, i) => <rect key={`i${i}`} x={ix - 4.5} y={iy - 4.5} width="9" height="9" rx="2" fill={c2} />)}
         </g>
       );
     }
@@ -621,16 +670,22 @@ function Motif({ name, c1, c2, rand }) {
       );
     }
     case 'transformer': {
-      // A vertical stack of blocks — the canonical transformer column.
+      // A vertical stack of blocks with a skip-connection arc in the left gutter
+      // and downward trunk arrows — the canonical transformer column.
       const n = 3 + Math.floor(rand() * 2);
+      const gap = 52 / n;
+      const topY = 12 + gap * 0.5;
+      const botY = 12 + (n - 1) * gap + gap * 0.5;
       return (
         <g>
+          <path d={`M44 ${topY} C26 ${topY}, 26 ${botY}, 44 ${botY}`} fill="none" stroke={c2} strokeWidth="2" opacity="0.7" />
           {Array.from({ length: n }).map((_, i) => (
-            <rect key={i} x="38" y={12 + i * (52 / n)} width="44" height={(52 / n) - 5} rx="3"
-              fill={i % 2 ? c1 : c2} opacity={0.45 + (i / n) * 0.45} />
+            <rect key={i} x="44" y={12 + i * gap} width="42" height={gap - 5} rx="3"
+              fill={i % 2 ? c1 : c2} opacity={0.5 + (i / n) * 0.4} />
           ))}
           {Array.from({ length: n - 1 }).map((_, i) => (
-            <line key={`a${i}`} x1="60" y1={12 + (i + 1) * (52 / n) - 4} x2="60" y2={12 + (i + 1) * (52 / n)} stroke={c2} strokeWidth="2" />
+            <line key={`a${i}`} x1="65" y1={12 + (i + 1) * gap - 5} x2="65" y2={12 + (i + 1) * gap}
+              stroke={c1} strokeWidth="2" markerEnd="url(#ft-a1)" />
           ))}
         </g>
       );
@@ -654,19 +709,25 @@ function Motif({ name, c1, c2, rand }) {
       );
     }
     case 'cluster': {
-      // Three blobs around seed-placed centroids, marked with a ring.
-      const centers = Array.from({ length: 3 }, () => [26 + rand() * 68, 18 + rand() * 44]);
+      // Two to three tight blobs, each marked with a centroid X — clearly
+      // grouped, unlike the evenly-scattered `scatter`.
+      const k = 2 + Math.floor(rand() * 2);
+      const centers = Array.from({ length: k }, () => [28 + rand() * 64, 22 + rand() * 36]);
       return (
         <g>
-          {centers.map(([cx, cy], ci) => (
-            <g key={ci}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <circle key={i} cx={cx + (rand() - 0.5) * 18} cy={cy + (rand() - 0.5) * 18} r="2.6"
-                  fill={ci === 1 ? c2 : c1} opacity="0.7" />
-              ))}
-              <circle cx={cx} cy={cy} r="4" fill="none" stroke={ci === 1 ? c2 : c1} strokeWidth="2" />
-            </g>
-          ))}
+          {centers.map(([cx, cy], ci) => {
+            const col = ci === 1 ? c2 : c1;
+            return (
+              <g key={ci}>
+                {Array.from({ length: 7 }).map((_, i) => (
+                  <circle key={i} cx={cx + (rand() - 0.5) * 17} cy={cy + (rand() - 0.5) * 17} r="2.4"
+                    fill={col} opacity="0.6" />
+                ))}
+                <line x1={cx - 4} y1={cy - 4} x2={cx + 4} y2={cy + 4} stroke={col} strokeWidth="2.5" />
+                <line x1={cx - 4} y1={cy + 4} x2={cx + 4} y2={cy - 4} stroke={col} strokeWidth="2.5" />
+              </g>
+            );
+          })}
         </g>
       );
     }
@@ -693,6 +754,90 @@ function Motif({ name, c1, c2, rand }) {
               </g>
             );
           })}
+        </g>
+      );
+    }
+    case 'gauge': {
+      // A single large speedometer with tick marks + a needle.
+      const frac = 0.22 + rand() * 0.62;
+      const cx = 60; const cy = 58; const rad = 34;
+      const end = Math.PI * (1 - frac);
+      const p = (ang, r = rad) => `${cx + Math.cos(ang) * r} ${cy - Math.sin(ang) * r}`;
+      return (
+        <g>
+          <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(0)}`} fill="none" stroke={c2} strokeWidth="5" opacity="0.22" strokeLinecap="round" />
+          <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(end)}`} fill="none" stroke={c1} strokeWidth="5" strokeLinecap="round" />
+          {Array.from({ length: 7 }).map((_, i) => {
+            const ang = Math.PI - (i / 6) * Math.PI;
+            return (
+              <line key={i} x1={cx + Math.cos(ang) * (rad - 8)} y1={cy - Math.sin(ang) * (rad - 8)}
+                x2={cx + Math.cos(ang) * (rad - 2)} y2={cy - Math.sin(ang) * (rad - 2)}
+                stroke={c2} strokeWidth="1.5" opacity="0.5" />
+            );
+          })}
+          <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 6)} y2={cy - Math.sin(end) * (rad - 6)} stroke={c1} strokeWidth="2.5" />
+          <circle cx={cx} cy={cy} r="4" fill={c1} />
+        </g>
+      );
+    }
+    case 'spiral': {
+      // An Archimedean spiral winding out from the centre.
+      const turns = 2.6 + rand() * 1.6;
+      const steps = 84;
+      const pts = [];
+      for (let i = 0; i <= steps; i += 1) {
+        const t = i / steps;
+        const ang = t * turns * Math.PI * 2 + rand() * 0.3;
+        const r = t * 31;
+        pts.push(`${(60 + Math.cos(ang) * r).toFixed(1)} ${(40 + Math.sin(ang) * r).toFixed(1)}`);
+      }
+      return (
+        <g>
+          <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+          <circle cx="60" cy="40" r="3" fill={c2} />
+        </g>
+      );
+    }
+    case 'venn': {
+      // Overlapping set circles — two, sometimes three.
+      const three = rand() > 0.5;
+      return (
+        <g>
+          <circle cx="48" cy={three ? 32 : 40} r="20" fill={c1} fillOpacity="0.35" stroke={c1} strokeWidth="1.5" />
+          <circle cx="72" cy={three ? 32 : 40} r="20" fill={c2} fillOpacity="0.35" stroke={c2} strokeWidth="1.5" />
+          {three && <circle cx="60" cy="52" r="20" fill={c1} fillOpacity="0.28" stroke={c1} strokeWidth="1.5" />}
+        </g>
+      );
+    }
+    case 'pyramid': {
+      // Widening stacked tiers — a pyramid / funnel silhouette.
+      const n = 4;
+      return (
+        <g>
+          {Array.from({ length: n }).map((_, i) => {
+            const w = 18 + i * 20;
+            return (
+              <rect key={i} x={60 - w / 2} y={16 + i * 13} width={w} height="10" rx="2"
+                fill={i % 2 ? c2 : c1} opacity={0.5 + (i / n) * 0.42} />
+            );
+          })}
+        </g>
+      );
+    }
+    case 'flow': {
+      // A top-to-bottom flowchart that branches in two then rejoins.
+      return (
+        <g>
+          <rect x="48" y="10" width="24" height="13" rx="3" fill={c1} opacity="0.85" />
+          <line x1="60" y1="23" x2="60" y2="32" stroke={c2} strokeWidth="2" />
+          <line x1="34" y1="32" x2="86" y2="32" stroke={c2} strokeWidth="2" />
+          <line x1="34" y1="32" x2="34" y2="41" stroke={c2} strokeWidth="2" markerEnd="url(#ft-a2)" />
+          <line x1="86" y1="32" x2="86" y2="41" stroke={c2} strokeWidth="2" markerEnd="url(#ft-a2)" />
+          <rect x="22" y="43" width="24" height="13" rx="3" fill={c2} opacity="0.7" />
+          <rect x="74" y="43" width="24" height="13" rx="3" fill={c2} opacity="0.7" />
+          <line x1="34" y1="56" x2="60" y2="65" stroke={c1} strokeWidth="2" />
+          <line x1="86" y1="56" x2="60" y2="65" stroke={c1} strokeWidth="2" />
+          <rect x="48" y="65" width="24" height="13" rx="3" fill={c1} opacity="0.85" />
         </g>
       );
     }

@@ -1914,21 +1914,20 @@
 }
 
 .viz-detail-stage {
+  /* ONE clean card holding the interactive visualization (header + controls +
+     bars). The live notebook sits in its OWN card below — viz above, notebook
+     below, cleanly stacked. min-height keeps the viz room so it never collapses. */
   background:
     radial-gradient(120% 140% at 50% 0%, rgba(var(--accent-rgb), 0.06), transparent 60%),
     var(--surface);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 1.5rem;
-  /* The stage GROWS to fit its visualization — never clips it. Pure-SVG viz scale
-     to the width via their own viewBox; rich interactive viz (controls + array +
-     readouts, e.g. BubbleSortViz) keep their natural height. No inner scrollbar,
-     no clipping (CLAUDE.md: only the page scrolls, and nothing is cut off). */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 320px;
+  /* BLOCK container that GROWS to fit the viz. No min-height (it was being treated
+     as a fixed height in this flex-item context, so tall viz overflowed the card
+     and bled into the notebook below / hero above). Plain block flow contains the
+     viz; its SVG cap (42vh) handles fit-on-screen. */
+  display: block;
 }
 /* The hero child fills the stage width; SVG/canvas viz scale via their viewBox. */
 .viz-detail-stage > * {
@@ -2078,10 +2077,11 @@
 .viz-gallery-container > .viz-member-grid {
   flex: 1 1 auto;
   min-height: 0;
-  /* Rows grow to consume the column height so the grid fills the viewport instead
-     of top-packing and leaving a dead band at the bottom (NO-EMPTY-SPACE rule). */
-  align-content: stretch;
-  grid-auto-rows: minmax(150px, 1fr);
+  /* Top-pack member cards at a SENSIBLE height. (Stretching rows to 1fr ballooned
+     a 2-card category into giant empty cards — wrong.) Cap row height so cards stay
+     compact; a sparse category ends with breathing room rather than huge cards. */
+  align-content: start;
+  grid-auto-rows: minmax(132px, max-content);
 }
 
 .viz-search {

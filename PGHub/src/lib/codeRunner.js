@@ -4,6 +4,7 @@
 
 import { supabase } from './supabase';
 import { JAVA_CASE_SEP, JAVA_OUT_END, JAVA_ERR_PREFIX } from './driverCode';
+import { runPythonInBrowser } from './pythonInteractive';
 
 const JUDGE0_DIRECT_URL = 'https://ce.judge0.com/submissions?base64_encoded=false&wait=true';
 
@@ -127,6 +128,13 @@ export async function runCodeMultiCase(code, language, stdins) {
 
 // Single-shot execution (used by free-run mode with no test cases).
 export async function runCode(code, language, stdin = '') {
+  // Free-form Python runs go through Pyodide in the browser: it ships numpy/pandas/
+  // scipy/sklearn/matplotlib/sympy/networkx (auto-loaded from imports), whereas Judge0's
+  // Python has none of them and isn't even reachable from the static-hosted deploy.
+  // Other languages and non-browser contexts keep the Judge0 path.
+  if (language === 'python' && typeof window !== 'undefined') {
+    return runPythonInBrowser(code);
+  }
   const batch = await runCodeBatch(code, language, [stdin]);
   return batch[0];
 }
