@@ -189,9 +189,13 @@ export default function LeetCodeAnalytics() {
 
     const current = attended[attended.length - 1];
     const previous = attended.length > 1 ? attended[attended.length - 2] : null;
-    const oldRating = previous ? Number(previous.rating) : 1500;
+    // The just-finished contest shows up in history with a rank but no published
+    // rating for a few hours — LeetCode rates contests well after they end. In that
+    // window we still predict from the rank; the actual rating reads "pending".
     const newRating = Number(current.rating);
-    const actualChange = newRating - oldRating;
+    const ratingPending = !Number.isFinite(newRating) || newRating <= 0;
+    const oldRating = Number(previous?.rating) || Number(user?.rating) || 1500;
+    const actualChange = ratingPending ? null : newRating - oldRating;
     const played = Math.max(0, (Number(user?.attendedContestsCount) || attended.length) - 1);
 
     const expected = predictDelta({
@@ -202,7 +206,7 @@ export default function LeetCodeAnalytics() {
       fieldSize: TOTAL_PARTICIPANTS,
     });
 
-    return { current, oldRating, newRating, actualChange, expected, isDebut: !previous, played };
+    return { current, oldRating, newRating, actualChange, expected, isDebut: !previous, played, ratingPending };
   }, [user]);
 
   const submit = (e) => {
@@ -356,13 +360,26 @@ export default function LeetCodeAnalytics() {
                 <div className="lca-move-track">
                   <span className="lca-move-old">{Math.round(latest.oldRating)}</span>
                   <span className="lca-move-arrow" aria-hidden>→</span>
-                  <span className="lca-move-new" style={{ color: chgColor(latest.actualChange) }}>
-                    {Math.round(latest.newRating)}
-                  </span>
-                  <span className="lca-move-chip" style={{ color: chgColor(latest.actualChange) }}>
-                    {changeIcon(latest.actualChange)}
-                    {fmtChange(latest.actualChange)}
-                  </span>
+                  {latest.ratingPending ? (
+                    <>
+                      <span className="lca-move-new" style={{ color: chgColor(latest.expected.delta) }}>
+                        ~{Math.round(latest.expected.newRating)}
+                      </span>
+                      <span className="lca-move-chip" style={{ color: 'var(--text-dim)' }}>
+                        rating pending on LeetCode
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="lca-move-new" style={{ color: chgColor(latest.actualChange) }}>
+                        {Math.round(latest.newRating)}
+                      </span>
+                      <span className="lca-move-chip" style={{ color: chgColor(latest.actualChange) }}>
+                        {changeIcon(latest.actualChange)}
+                        {fmtChange(latest.actualChange)}
+                      </span>
+                    </>
+                  )}
                 </div>
 
                 <div className="lca-compare">
@@ -379,9 +396,11 @@ export default function LeetCodeAnalytics() {
                     <span className="lca-compare-lbl">
                       <Target size={12} aria-hidden /> Actual rating
                     </span>
-                    <span className="lca-compare-val">{Math.round(latest.newRating)}</span>
-                    <span className="lca-compare-sub" style={{ color: chgColor(latest.actualChange) }}>
-                      {fmtChange(latest.actualChange)} on LeetCode
+                    <span className="lca-compare-val">
+                      {latest.ratingPending ? '—' : Math.round(latest.newRating)}
+                    </span>
+                    <span className="lca-compare-sub" style={{ color: latest.ratingPending ? 'var(--text-dim)' : chgColor(latest.actualChange) }}>
+                      {latest.ratingPending ? 'pending LeetCode update' : `${fmtChange(latest.actualChange)} on LeetCode`}
                     </span>
                   </div>
                 </div>

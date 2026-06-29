@@ -1,0 +1,87 @@
+.ossch { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.ossch-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.ossch-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.ossch-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.ossch-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.ossch-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.ossch-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.ossch-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.ossch-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.ossch-chip {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+  padding: 0.34rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.ossch-chip:hover { border-color: var(--accent); color: var(--accent); }
+.ossch-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.ossch-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 0.9rem; }
+.ossch-leg { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; color: var(--text-main); }
+.ossch-leg-dot { width: 11px; height: 11px; border-radius: 3px; border: 1px solid var(--border); }
+.ossch-leg-meta { font-weight: 500; color: var(--text-dim); font-size: 0.66rem; }
+.ossch-leg.is-a .ossch-leg-dot { background: color-mix(in srgb, var(--accent) 60%, transparent); border-color: var(--accent); }
+.ossch-leg.is-b .ossch-leg-dot { background: color-mix(in srgb, var(--hue-violet) 60%, transparent); border-color: var(--hue-violet); }
+.ossch-leg.is-c .ossch-leg-dot { background: color-mix(in srgb, var(--hue-sky) 60%, transparent); border-color: var(--hue-sky); }
+.ossch-leg.is-d .ossch-leg-dot { background: color-mix(in srgb, var(--hue-pink) 60%, transparent); border-color: var(--hue-pink); }
+
+.ossch-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.ossch-svg { width: 100%; height: auto; max-height: 38vh; display: block; }
+
+.ossch-axis { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); }
+.ossch-base { stroke: var(--border); stroke-width: 1; }
+.ossch-tick { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); }
+
+.ossch-seg { opacity: 0.16; transition: opacity var(--t); }
+.ossch-seg.is-shown { opacity: 1; }
+.ossch-seg-box { stroke-width: 1.5; fill: var(--bg); transition: filter var(--t); }
+.ossch-seg.is-a .ossch-seg-box { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 22%, transparent); }
+.ossch-seg.is-b .ossch-seg-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 22%, transparent); }
+.ossch-seg.is-c .ossch-seg-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 22%, transparent); }
+.ossch-seg.is-d .ossch-seg-box { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 22%, transparent); }
+.ossch-seg.is-cur .ossch-seg-box { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 55%, transparent)); stroke-width: 2.4; }
+.ossch-seg-text { font-size: 0.78rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; }
+
+.ossch-controls { display: flex; align-items: center; gap: 0.6rem; }
+.ossch-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.ossch-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ossch-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ossch-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.ossch-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.ossch-stat {
+  flex: 1 1 30%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.ossch-stat.is-wait { border-left-color: var(--warning); color: var(--warning); }
+.ossch-stat.is-turn { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.ossch-stat.is-done { border-left-color: var(--easy); color: var(--easy); }
+.ossch-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.ossch-stat-val { margin-left: auto; font-size: 0.95rem; font-weight: 700; }
+
+.ossch-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-violet); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.ossch-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.ossch-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }

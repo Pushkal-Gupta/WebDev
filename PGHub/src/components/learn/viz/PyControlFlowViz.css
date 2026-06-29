@@ -1,0 +1,113 @@
+.pycf { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.pycf-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.pycf-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.pycf-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.pycf-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.pycf-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.pycf-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pycf-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.pycf-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.7rem 0.8rem; display: flex; flex-direction: column; gap: 0.6rem; max-height: 44vh;
+}
+
+.pycf-code {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 0.18rem;
+}
+.pycf-line {
+  display: flex; align-items: center; gap: 0.5rem;
+  padding: 0.34rem 0.55rem; border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--bg);
+  transition: background var(--t), border-color var(--t), box-shadow var(--t);
+}
+.pycf-line.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.pycf-indent-1 { margin-left: 1.6rem; }
+.pycf-indent-2 { margin-left: 3.2rem; }
+
+.pycf-gutter {
+  flex: 0 0 auto; width: 1.2rem; text-align: right;
+  font-size: 0.72rem; color: var(--text-dim); font-weight: 600; user-select: none;
+}
+.pycf-caret {
+  flex: 0 0 auto; width: 15px; height: 15px;
+  display: grid; place-items: center; color: var(--accent);
+}
+.pycf-src {
+  flex: 0 1 auto; font-family: var(--mono); font-size: 0.86rem;
+  color: var(--text-main); font-weight: 600; white-space: nowrap;
+}
+.pycf-line.is-active .pycf-src { color: var(--text-main); }
+
+.pycf-badge {
+  flex: 0 0 auto; margin-left: auto;
+  display: inline-flex; align-items: center; gap: 0.28rem;
+  font-size: 0.66rem; font-weight: 700; padding: 0.18rem 0.45rem; border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.pycf-badge.is-true { color: var(--easy); border-color: var(--easy); background: color-mix(in srgb, var(--easy) 14%, transparent); }
+.pycf-badge.is-false { color: var(--hard); border-color: var(--hard); background: color-mix(in srgb, var(--hard) 14%, transparent); }
+
+.pycf-branch {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.4rem 0.6rem; border-radius: 8px;
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-violet);
+  background: var(--bg);
+}
+.pycf-branch-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pycf-branch-val { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 700; margin-left: auto; }
+.pycf-branch-val.is-idle { color: var(--text-dim); }
+.pycf-branch-val.is-taken { color: var(--easy); }
+.pycf-branch-val.is-skip { color: var(--hard); }
+
+.pycf-controls { display: flex; align-items: center; gap: 0.6rem; }
+.pycf-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pycf-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pycf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pycf-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.pycf-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pycf-stat {
+  flex: 1 1 30%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.pycf-stat.is-n { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.pycf-stat.is-total { border-left-color: var(--hue-mint); color: var(--hue-mint); }
+.pycf-stat.is-cond { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.pycf-stat.is-cond.is-true { border-left-color: var(--easy); color: var(--easy); }
+.pycf-stat.is-cond.is-false { border-left-color: var(--hard); color: var(--hard); }
+.pycf-stat.is-cond.is-idle { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.pycf-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pycf-stat-val { margin-left: auto; font-size: 0.95rem; font-weight: 700; }
+
+.pycf-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.pycf-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pycf-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }

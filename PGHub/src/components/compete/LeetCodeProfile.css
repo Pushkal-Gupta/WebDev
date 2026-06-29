@@ -1281,6 +1281,73 @@
   opacity: 0.7;
 }
 
+/* ---- head-to-head stat table (A value | metric | B value) ---- */
+.lpf-h2h {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.lpf-h2h-head,
+.lpf-h2h-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.lpf-h2h-head {
+  padding: 0 0.6rem 0.3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.lpf-h2h-head span {
+  font-size: 0.66rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.lpf-h2h-head span:first-child { text-align: right; }
+.lpf-h2h-head span:nth-child(2) { text-align: center; }
+
+.lpf-h2h-row {
+  padding: 0.4rem 0.6rem;
+  border-radius: 0.4rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.lpf-h2h-val {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lpf-h2h-val.a { text-align: right; }
+.lpf-h2h-val.b { text-align: left; }
+.lpf-h2h-val.win { font-weight: 800; }
+
+.lpf-h2h-metric {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-align: center;
+}
+
+.lpf-h2h-metric svg {
+  flex: 0 0 auto;
+  color: var(--text-dim);
+}
+
 /* ---- loading skeleton ---- */
 .lpf-skeleton {
   display: flex;

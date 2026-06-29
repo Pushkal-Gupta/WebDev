@@ -1,0 +1,100 @@
+.neten { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.neten-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.neten-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.neten-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.neten-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.neten-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.neten-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.neten-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.neten-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.neten-svg { width: 100%; height: auto; max-height: 46vh; display: block; }
+
+/* layer rows */
+.neten-row-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t), fill var(--t); }
+.neten-row-name { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.neten-row-pdu { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); }
+
+.neten-row.is-active .neten-row-box { stroke-width: 2.4; }
+.neten-row.is-app.is-active .neten-row-box { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 14%, var(--bg)); }
+.neten-row.is-transport.is-active .neten-row-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 14%, var(--bg)); }
+.neten-row.is-network.is-active .neten-row-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, var(--bg)); }
+.neten-row.is-link.is-active .neten-row-box { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, var(--bg)); }
+.neten-row.is-physical.is-active .neten-row-box { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 14%, var(--bg)); }
+
+/* direction arrow */
+.neten-dir { stroke: var(--accent); stroke-width: 2; }
+.neten-arrow-head { fill: var(--accent); }
+
+/* wire */
+.neten-wire { stroke: var(--border); stroke-width: 2; stroke-dasharray: 5 5; transition: stroke var(--t); }
+.neten-wire.is-hot { stroke: var(--accent); }
+.neten-router { fill: var(--surface); stroke: var(--text-dim); stroke-width: 1.4; }
+
+/* PDU composite bar */
+.neten-seg-box { stroke-width: 1.6; transition: filter var(--t); }
+.neten-seg-text { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.neten-seg.is-app-seg .neten-seg-box { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 26%, transparent); }
+.neten-seg.is-transport-seg .neten-seg-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 26%, transparent); }
+.neten-seg.is-network-seg .neten-seg-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 26%, transparent); }
+.neten-seg.is-link-seg .neten-seg-box { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 26%, transparent); }
+
+.neten-bits { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; fill: var(--accent); font-family: var(--mono); }
+
+/* controls */
+.neten-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.neten-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.neten-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.neten-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.neten-progress { font-size: 0.7rem; color: var(--text-dim); }
+.neten-phase {
+  margin-left: auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.7rem; font-weight: 700; padding: 0.3rem 0.6rem; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface);
+}
+.neten-phase-down { color: var(--hue-sky); border-color: color-mix(in srgb, var(--hue-sky) 45%, var(--border)); }
+.neten-phase-up { color: var(--hue-mint); border-color: color-mix(in srgb, var(--hue-mint) 45%, var(--border)); }
+.neten-phase-wire { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+
+/* readouts */
+.neten-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.neten-stat {
+  flex: 1 1 22%; min-width: 110px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.neten-stat.is-layer { border-left-color: var(--hue-violet); }
+.neten-stat.is-pdu { border-left-color: var(--hue-sky); }
+.neten-stat.is-bytes { border-left-color: var(--warning); }
+.neten-stat.is-hdr { border-left-color: var(--hue-pink); }
+.neten-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.neten-stat-val { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+.neten-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.neten-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.neten-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .neten-row-box, .neten-seg-box, .neten-wire { transition: none; }
+}

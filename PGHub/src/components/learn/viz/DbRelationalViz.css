@@ -1,0 +1,72 @@
+.dbrel { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.dbrel-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.dbrel-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.dbrel-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.dbrel-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.dbrel-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.dbrel-sub b { color: var(--text-main); }
+.dbrel-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbrel-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.dbrel-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.dbrel-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600;
+  padding: 0.32rem 0.75rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.dbrel-chip:hover { border-color: var(--accent); color: var(--accent); }
+.dbrel-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.dbrel-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.dbrel-svg { width: 100%; height: auto; max-height: 42vh; display: block; }
+
+.dbrel-tname { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.dbrel-cell { fill: var(--bg); stroke: var(--border); stroke-width: 1; transition: fill var(--t), stroke var(--t); }
+.dbrel-cell.is-orphan { stroke: var(--hue-pink); stroke-dasharray: 4 3; }
+.dbrel-row.is-hit .dbrel-cell { fill: rgba(var(--accent-rgb), 0.16); stroke: var(--accent); stroke-width: 1.8; }
+.dbrel-key { font-size: 0.74rem; fill: var(--hue-violet); font-weight: 700; font-family: var(--mono); }
+.dbrel-val { font-size: 0.74rem; fill: var(--text-main); font-family: var(--mono); }
+.dbrel-link { stroke: var(--accent); stroke-width: 2.2; }
+.dbrel-nullnote { font-size: 0.68rem; fill: var(--hue-pink); font-weight: 600; font-family: var(--mono); }
+
+.dbrel-controls { display: flex; align-items: center; gap: 0.6rem; }
+.dbrel-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbrel-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.dbrel-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dbrel-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.dbrel-readout { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+.dbrel-sql {
+  margin: 0; border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; font-family: var(--mono);
+  font-size: 0.72rem; line-height: 1.6; color: var(--text-main); white-space: pre-wrap; word-break: break-word;
+}
+.dbrel-result {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.dbrel-result-head { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.dbrel-result-cols, .dbrel-result-row { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 0.4rem; font-size: 0.72rem; }
+.dbrel-result-cols { color: var(--text-dim); font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.04em; padding-bottom: 0.2rem; border-bottom: 1px solid var(--border); }
+.dbrel-result-row { color: var(--text-main); padding: 0.15rem 0; }
+.dbrel-result-empty { font-size: 0.7rem; color: var(--text-dim); font-style: italic; }
+.dbrel-null { color: var(--hue-pink); font-style: normal; }
+
+@media (max-width: 640px) { .dbrel-readout { grid-template-columns: 1fr; } }

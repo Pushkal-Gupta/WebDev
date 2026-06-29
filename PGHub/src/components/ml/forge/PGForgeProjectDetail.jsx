@@ -8,6 +8,7 @@ import { getProject } from './pgForgeProjectsData';
 import Breadcrumb from '../../common/Breadcrumb';
 import ForgeThumb from './ForgeThumb';
 import RunnableCodePanel from '../../RunnableCodePanel';
+import NotebookCells from './NotebookCells';
 import './PGForgeProjectDetail.css';
 
 // Deterministic accent hue per project so each detail page reads distinctly but
@@ -124,8 +125,17 @@ export default function PGForgeProjectDetail() {
           </ol>
         </section>
 
-        {/* STARTER CODE — runnable */}
-        {project.starterSnippet && (
+        {/* NOTEBOOK — interleaved teaching + runnable cells */}
+        {project.cells && project.cells.length > 0 ? (
+          <section className="forge-pjd-section">
+            <h2 className="forge-pjd-section-title"><Code2 size={16} /> Build it in the notebook</h2>
+            <p className="forge-pjd-prose forge-pjd-prose-sm">
+              Work through it cell by cell. Each code cell runs on its own — run them top to bottom
+              to watch the idea come together.
+            </p>
+            <NotebookCells cells={project.cells} slug={project.slug} />
+          </section>
+        ) : project.starterSnippet && (
           <section className="forge-pjd-section">
             <h2 className="forge-pjd-section-title"><Code2 size={16} /> Starter scaffold</h2>
             <p className="forge-pjd-prose forge-pjd-prose-sm">
@@ -158,8 +168,8 @@ export default function PGForgeProjectDetail() {
 
         <div className="forge-pjd-footer">
           <Link to="/ml/projects" className="forge-pjd-back"><ArrowLeft size={14} /> All projects</Link>
-          {project.starterSnippet && (
-            <span className="forge-pjd-footer-hint"><Play size={13} /> Run the scaffold above to begin</span>
+          {(project.cells?.length || project.starterSnippet) && (
+            <span className="forge-pjd-footer-hint"><Play size={13} /> Run the cells above to begin</span>
           )}
         </div>
       </div>

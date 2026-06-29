@@ -60,6 +60,33 @@ next wave. Never idle; on rate-limit/token-out, **retry after a cooldown** and r
 - **Next:** Sprint 2 — T4 ML/DL depth (CNN feature maps, optimizer comparison, transformer attention,
   RL gridworld) building on the MNIST viz. Then T2 CS core (OS/DBMS/Networks).
 
+## Waves 10-11 — SHIPPED (2026-06-29): T2 done + T3 started
+- **Wave 10** Computer Networks module (4): OSI/TCP-IP layers, TCP reliability, IP routing, DNS/HTTP + viz.
+  → **T2 CS-core trio complete** (Databases + OS + Networks).
+- **Wave 11** Python language course (4): variables/types, control flow, functions/scope, data structures
+  + interactive viz. Language-course code VERIFIED runnable (py-variables-types prints correct output).
+- **535 concepts live.** eslint 0, build green, no crashes verified.
+
+## Waves 7-9 — SHIPPED (2026-06-27/28)
+- **Wave 7** Statistics depth (4): hypothesis testing, linear regression, A/B testing, MLE + animated viz.
+- **Wave 8** Databases module (4): relational/SQL, B-tree indexing, ACID transactions, normalization + viz.
+- **Wave 9** Operating Systems module (4): processes/threads, CPU scheduling, virtual memory, deadlocks + viz.
+- **527 concepts live.** All viz fit-on-screen (SVG capped + readouts compacted: kl-divergence 1018→820px).
+- **PGForge projects → multi-cell Jupyter notebooks** (all 10; markdown + runnable pure-Python cells).
+- eslint 0, build green; verified no crashes across all new routes.
+
+## Wave 5-6 — SHIPPED (2026-06-27): MANIM-style animations + ML depth
+- **Wave 5** Calculus animations (4): Taylor series, Fourier series, parametric curves, vector fields —
+  each an auto-playing rAF MANIM-style viz (Play/Pause + scrub, prefers-reduced-motion).
+- **Wave 6** Neural Networks depth (3): optimizers (SGD/Momentum/Adam race), RNN unrolling, RL gridworld
+  — each animated. **515 concepts live**, 7 viz registered, eslint 0, build green.
+- **llm-wiki filled**: 5 new pages (content-growth-pipeline, live-notebook, manim-style-animation,
+  contest-seeding, adding-a-learn-module) + index/README/scrollbar/viz-patterns refreshed.
+- **PGArena 38 contests** (+20 batch-3).
+- **DEPLOY NOTE:** `dist/` is git-tracked + served at pushkalgupta.com/PGHub/dist/. Rebuilt fresh;
+  must be committed + pushed to go live (user runs commits). Production build verified to contain the
+  live notebook + all fixes.
+
 ## Sprint 1 (Math foundations) — COMPLETE + verified (2026-06-25)
 3 new modules, 16 lessons, 16 interactive viz, all imported live (502 concepts) + render-verified:
 - **Calculus** (7): limits, derivative-as-slope, chain rule, integral-as-area, FTC, optimization, related rates.

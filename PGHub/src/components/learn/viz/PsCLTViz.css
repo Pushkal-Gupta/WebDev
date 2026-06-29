@@ -50,7 +50,7 @@
   border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.55rem 0.6rem 0.45rem;
 }
 .pscl-panel-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
-.pscl-svg { width: 100%; height: auto; display: block; }
+.pscl-svg { width: 100%; height: auto; max-height: 34vh; display: block; margin: 0 auto; }
 
 .pscl-axis { stroke: var(--text-dim); stroke-width: 1; opacity: 0.6; }
 

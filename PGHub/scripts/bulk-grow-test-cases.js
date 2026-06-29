@@ -26,6 +26,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { wrapWithDriver, buildStdin } from '../src/lib/driverCode.js';
+import { parseBounds, validateInputs, clampValue } from './lib/constraint-bounds.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 try {
@@ -301,12 +302,22 @@ function genForType(type, _name) {
   return null;
 }
 
-// Build a full input row (one stringified value per param).
-function genInputs(params) {
+// Build a full input row (one stringified value per param). When `bounds` is
+// supplied (parsed from the problem's constraints), each generated value is
+// clamped into range so we never emit a case OUTSIDE the stated constraints —
+// such a case can wrongly FAIL a correct solution that relies on them.
+function genInputs(params, bounds = null) {
   const out = [];
   for (const p of params) {
-    const v = genForType(p.type, p.name);
+    let v = genForType(p.type, p.name);
     if (v === null) return null;
+    const pb = bounds && bounds.perParam ? bounds.perParam[p.name] : null;
+    if (pb) {
+      try {
+        const parsed = JSON.parse(v);
+        v = JSON.stringify(clampValue(p.type, parsed, pb));
+      } catch { /* non-JSON scalar — leave as-is */ }
+    }
     out.push(v);
   }
   return out;
@@ -423,6 +434,10 @@ async function growForProblem(problem, opts = {}) {
     return { id, before: beforeCount, after: beforeCount, added: 0, dedupd: 0, skipped: `driver wrap error: ${e.message.slice(0, 80)}` };
   }
 
+  // Parse stated constraints so generated inputs stay in-range. Best effort:
+  // when nothing parses, bounds is empty and generation is unchanged.
+  const bounds = parseBounds(problem.constraints, params);
+
   const seen = new Set(existing.map(tc => JSON.stringify(tc.inputs)));
   const newCases = [];
   let dedupd = 0;
@@ -431,9 +446,13 @@ async function growForProblem(problem, opts = {}) {
   const maxAttempts = need * 8 + 16;
 
   for (let attempt = 0; attempt < maxAttempts && newCases.length < need; attempt++) {
-    const inputs = genInputs(params);
+    const inputs = genInputs(params, bounds);
     if (!inputs) break;
     if (!sanityHookOk(params, inputs)) { dedupd++; continue; }
+    // Reject any input that still CLEARLY violates the stated constraints after
+    // clamping (e.g. a min-length the clamp can't satisfy without inventing
+    // data). Never write an out-of-constraint case.
+    if (!validateInputs(inputs, params, bounds).ok) { dedupd++; continue; }
     const key = JSON.stringify(inputs);
     if (seen.has(key)) { dedupd++; continue; }
     seen.add(key);
@@ -496,7 +515,7 @@ async function fetchCandidates() {
   const PAGE = 1000;
   while (true) {
     const { data, error } = await sb.from('PGcode_problems')
-      .select('id, method_name, params, return_type, solutions, test_cases, difficulty')
+      .select('id, method_name, params, return_type, solutions, test_cases, difficulty, constraints')
       .order('id', { ascending: true })
       .range(page * PAGE, (page + 1) * PAGE - 1);
     if (error) throw new Error(error.message);
@@ -524,7 +543,7 @@ async function main() {
   // Single-slug dry mode.
   if (isDry && onlySlug) {
     const { data, error } = await sb.from('PGcode_problems')
-      .select('id, method_name, params, return_type, solutions, test_cases, difficulty')
+      .select('id, method_name, params, return_type, solutions, test_cases, difficulty, constraints')
       .eq('id', onlySlug)
       .maybeSingle();
     if (error || !data) { console.error('not found'); process.exit(1); }

@@ -393,30 +393,34 @@ export default function ProjectionViz() {
           dangerouslySetInnerHTML={{ __html: numericHtml }}
         />
 
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_U }}>u</span>
-          <span className="mlviz-val">[{snap(u.x)}, {snap(u.y)}]</span>
-          <span className="mlviz-sub">‖u‖ = {snap(Math.hypot(u.x, u.y))}</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_V }}>v</span>
-          <span className="mlviz-val">[{snap(v.x)}, {snap(v.y)}]</span>
-          <span className="mlviz-sub">‖v‖ = {snap(lenV)}</span>
+        <div className="mlviz-grid2">
+          <div className="mlviz-row">
+            <span className="mlviz-tag" style={{ color: COLOR_U }}>u</span>
+            <span className="mlviz-val">[{snap(u.x)}, {snap(u.y)}]</span>
+            <span className="mlviz-sub">‖u‖ = {snap(Math.hypot(u.x, u.y))}</span>
+          </div>
+          <div className="mlviz-row">
+            <span className="mlviz-tag" style={{ color: COLOR_V }}>v</span>
+            <span className="mlviz-val">[{snap(v.x)}, {snap(v.y)}]</span>
+            <span className="mlviz-sub">‖v‖ = {snap(lenV)}</span>
+          </div>
         </div>
         <div className="mlviz-row mlviz-row-hi">
           <span className="mlviz-tag">u · v</span>
           <span className="mlviz-val">{snap(dot)}</span>
           <span className="mlviz-sub">|v|² = {snap(vDotV)}</span>
         </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag">scalar</span>
-          <span className="mlviz-val">{snap(scalar)}</span>
-          <span className="mlviz-sub">= u·v / ‖v‖ — signed length along v</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: COLOR_P }}>proj</span>
-          <span className="mlviz-val">[{snap(proj.x)}, {snap(proj.y)}]</span>
-          <span className="mlviz-sub">k = {snap(k)}</span>
+        <div className="mlviz-grid2">
+          <div className="mlviz-row">
+            <span className="mlviz-tag">scalar</span>
+            <span className="mlviz-val">{snap(scalar)}</span>
+            <span className="mlviz-sub">= u·v / ‖v‖</span>
+          </div>
+          <div className="mlviz-row">
+            <span className="mlviz-tag" style={{ color: COLOR_P }}>proj</span>
+            <span className="mlviz-val">[{snap(proj.x)}, {snap(proj.y)}]</span>
+            <span className="mlviz-sub">k = {snap(k)}</span>
+          </div>
         </div>
         <div className="mlviz-hint">
           the dashed pink segment is the perpendicular from u onto v's line

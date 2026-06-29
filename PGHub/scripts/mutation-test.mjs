@@ -19,6 +19,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { wrapWithDriver, buildStdin, compareOutput } from '../src/lib/driverCode.js';
+import { parseBounds, validateInputs, clampValue } from './lib/constraint-bounds.mjs';
+import { runLocal } from './local-grade.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 for (const l of fs.readFileSync(path.join(__dirname, '..', '.env'), 'utf8').split('\n')) {
@@ -38,9 +40,15 @@ const JUDGE0_URL = (arg('judge0') || process.env.JUDGE0_URL || 'https://ce.judge
 const JUDGE0_AUTH = arg('auth') || process.env.JUDGE0_AUTH_TOKEN || '';
 const J0_HEADERS = JUDGE0_AUTH ? { 'content-type': 'application/json', 'X-Auth-Token': JUDGE0_AUTH } : { 'content-type': 'application/json' };
 const PY = 71;
+// Local host exec by default — faster + no rate limit; LOCAL_EXEC=0 forces Judge0.
+const LOCAL_EXEC = process.env.LOCAL_EXEC !== '0' && !process.argv.includes('--judge0-remote');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 async function judgeRun(source, stdin) {
+  if (LOCAL_EXEC) {
+    const r = runLocal(PY, source, stdin, { timeoutMs: 8000 });
+    return r.ok ? { ok: true, stdout: r.stdout, status: r.status } : { ok: false, status: r.status, err: r.err };
+  }
   const url = `${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`;
   for (let a = 1; a <= 3; a++) {
     try {
@@ -137,12 +145,24 @@ async function processProblem(p) {
     const types = (p.params || []).map((x) => x.type);
     if (types.some((t) => genValue(t, Math.random) === null)) { result.note = 'unsynthesizable param type'; return result; }
     const newCases = [];
+    // Parse stated constraints so synthesized distinguishing inputs stay
+    // in-range — an out-of-constraint case would wrongly fail a correct
+    // solution. Best effort: empty bounds => behavior unchanged.
+    const bounds = parseBounds(p.constraints, p.params);
+    const params = p.params || [];
+    const clampInputs = (inputs) => inputs.map((raw, i) => {
+      const pb = bounds.perParam ? bounds.perParam[params[i]?.name] : null;
+      if (!pb) return raw;
+      try { return JSON.stringify(clampValue(params[i].type, JSON.parse(raw), pb)); }
+      catch { return raw; }
+    });
     const rnd = seededRand(p.id.split('').reduce((a, c) => a + c.charCodeAt(0), 7));
     for (const mut of survivors) {
       let mWrapped; try { mWrapped = wrap(mut.src); } catch { continue; }
       let found = null;
       for (let attempt = 0; attempt < 60 && !found; attempt++) {
-        const inputs = types.map((t) => genValue(t, rnd));
+        const inputs = clampInputs(types.map((t) => genValue(t, rnd)));
+        if (!validateInputs(inputs, params, bounds).ok) continue; // never emit out-of-constraint
         const stdin = buildStdin(inputs) + '\n';
         const [cr, mr] = [await judgeRun(canonWrapped, stdin), await judgeRun(mWrapped, stdin)];
         if (cr.ok && (!mr.ok || !compareOutput(cr.stdout, mr.stdout))) found = { inputs, expected: cr.stdout };
@@ -160,14 +180,14 @@ async function processProblem(p) {
 }
 
 async function main() {
-  console.log(`mutation-test ${FIX ? '(FIX — adds cases)' : '(report only)'} | Judge0: ${JUDGE0_URL}`);
+  console.log(`mutation-test ${FIX ? '(FIX — adds cases)' : '(report only)'} | exec: ${LOCAL_EXEC ? 'LOCAL host' : 'Judge0 ' + JUDGE0_URL}`);
   let rows;
   if (SLUG) {
-    const { data } = await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,test_cases,solutions').eq('id', SLUG).limit(1);
+    const { data } = await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,test_cases,solutions,constraints').eq('id', SLUG).limit(1);
     rows = data || [];
   } else {
     const OFFSET = Number(arg('offset') || 0);
-    const { data } = await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,test_cases,solutions').order('id').range(OFFSET, OFFSET + MAX - 1);
+    const { data } = await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,test_cases,solutions,constraints').order('id').range(OFFSET, OFFSET + MAX - 1);
     rows = (data || []).filter((r) => r.solutions?.python && (Array.isArray(r.test_cases) ? r.test_cases.length : 0) > 0);
   }
   let totMut = 0, totKill = 0, totAdd = 0, weak = 0;

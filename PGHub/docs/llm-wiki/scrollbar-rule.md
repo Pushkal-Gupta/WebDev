@@ -17,6 +17,16 @@ If something doesn't fit:
 
 NEVER reach for `overflow: auto`, `overflow-x: auto`, `overflow-y: auto`, `overflow: scroll`, or any variant.
 
+## CLAUDE.md tightened this: NO carve-outs
+
+The root `CLAUDE.md` has since removed every "legitimate exception" for *inner
+content*. Terminal/run-output panes, "tall viz" stages, wide ASCII/math — all are
+violations to revert, not allowed exceptions. The only inner scroll that stays is a
+code **editor**'s own viewport (Monaco) — its surrounding panels/output must not add
+their own. The page-level whitelist below is about the outer route shell + modals,
+not inner content; when CLAUDE.md and this list disagree on inner content, CLAUDE.md
+wins.
+
 ## The whitelist (legitimate page-level scrolls)
 
 A handful of CSS rules CAN have `overflow-y: auto` because they're the outer-page-scroll role. After the Wave-9 sweep, these were validated as legitimate:

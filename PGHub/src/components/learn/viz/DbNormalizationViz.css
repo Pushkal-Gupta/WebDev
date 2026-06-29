@@ -1,0 +1,101 @@
+.dbnorm { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.dbnorm-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.dbnorm-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.dbnorm-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.dbnorm-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.dbnorm-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.dbnorm-sub b { color: var(--text-main); }
+.dbnorm-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbnorm-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.dbnorm-fds { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.dbnorm-fd-label { font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.dbnorm-fd {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.72rem; font-weight: 600; color: var(--text-main);
+  padding: 0.26rem 0.6rem; border: 1px solid var(--border); border-radius: 7px; background: var(--surface);
+}
+.dbnorm-fd.is-transitive { border-color: var(--hue-pink); color: var(--hue-pink); }
+.dbnorm-fd em { font-style: normal; opacity: 0.85; font-size: 0.66rem; }
+
+.dbnorm-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.85rem; display: grid; grid-template-columns: 1fr; max-height: 46vh; overflow: visible;
+}
+.dbnorm-panel { transition: opacity var(--t), transform var(--t); grid-area: 1 / 1; }
+.dbnorm-denorm { opacity: 1; transform: none; }
+.dbnorm-norm { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.dbnorm-stage.is-normalized .dbnorm-denorm { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+.dbnorm-stage.is-normalized .dbnorm-norm { opacity: 1; transform: none; pointer-events: auto; }
+
+.dbnorm-tname { font-size: 0.78rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.4rem; }
+.dbnorm-tag {
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.04em; font-weight: 600;
+  padding: 0.1rem 0.4rem; border-radius: 5px; border: 1px solid var(--hue-pink); color: var(--hue-pink);
+}
+.dbnorm-tag.is-ok { border-color: var(--easy); color: var(--easy); }
+
+.dbnorm-table { width: 100%; border-collapse: collapse; font-size: 0.74rem; }
+.dbnorm-table th {
+  text-align: left; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.03em;
+  color: var(--text-dim); padding: 0.3rem 0.55rem; border-bottom: 1px solid var(--border); font-weight: 600;
+}
+.dbnorm-table td { padding: 0.32rem 0.55rem; color: var(--text-main); border-bottom: 1px solid var(--border); }
+.dbnorm-table tr:last-child td { border-bottom: none; }
+.dbnorm-dup .dbnorm-citycell {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  color: var(--text-main); font-weight: 700; border-radius: 4px;
+}
+.dbnorm-fk, .dbnorm-pk {
+  font-size: 0.5rem; margin-left: 0.3rem; padding: 0.05rem 0.25rem; border-radius: 4px;
+  vertical-align: middle; letter-spacing: 0.03em;
+}
+.dbnorm-fk { color: var(--hue-sky); border: 1px solid var(--hue-sky); }
+.dbnorm-pk { color: var(--accent); border: 1px solid var(--accent); }
+.dbnorm-fkcell { color: var(--hue-sky); font-weight: 700; }
+.dbnorm-norm .dbnorm-citycell { color: var(--text-main); }
+
+.dbnorm-split-tables { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 0.6rem; }
+.dbnorm-subtable { border: 1px solid var(--border); border-radius: 9px; padding: 0.5rem 0.5rem 0.2rem; background: var(--bg); }
+.dbnorm-fk-link { display: grid; place-items: center; color: var(--hue-sky); }
+
+.dbnorm-anomaly {
+  display: flex; align-items: center; gap: 0.45rem; margin-top: 0.6rem;
+  font-size: 0.72rem; line-height: 1.4; font-weight: 600;
+  padding: 0.45rem 0.6rem; border-radius: 8px;
+  border: 1px solid var(--warning); color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 8%, transparent);
+}
+.dbnorm-anomaly.is-fixed {
+  border-color: var(--easy); color: var(--easy);
+  background: color-mix(in srgb, var(--easy) 8%, transparent);
+}
+
+.dbnorm-controls { display: flex; gap: 0.5rem; }
+.dbnorm-toggle {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.42rem 0.85rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.dbnorm-toggle:hover { border-color: var(--accent); color: var(--accent); }
+.dbnorm-toggle.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+@media (prefers-reduced-motion: reduce) {
+  .dbnorm-panel { transition: none; }
+}
+@media (max-width: 640px) {
+  .dbnorm-split-tables { grid-template-columns: 1fr; }
+  .dbnorm-fk-link { transform: rotate(90deg); }
+}

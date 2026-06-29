@@ -1,0 +1,99 @@
+.nopt { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.nopt-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.nopt-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.nopt-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.nopt-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.nopt-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.nopt-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.nopt-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.nopt-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.nopt-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.nopt-btn {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.nopt-btn-primary { border-color: var(--accent); color: var(--accent); }
+.nopt-btn-primary:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+
+.nopt-chip {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.34rem 0.65rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  transition: border-color var(--t), color var(--t), background var(--t), opacity var(--t);
+}
+.nopt-chip:not(.is-on) { opacity: 0.6; }
+.nopt-chip:not(.is-on):hover { opacity: 0.85; }
+.nopt-chip-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+
+.nopt-body { display: grid; grid-template-columns: 1.3fr 0.9fr; gap: 0.7rem; align-items: stretch; }
+.nopt-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.4rem; display: flex;
+}
+.nopt-svg { width: 100%; height: auto; display: block; }
+
+.nopt-plot { fill: var(--bg); stroke: var(--border); stroke-width: 1.1; }
+.nopt-contour { fill: none; stroke: var(--accent); stroke-width: 1.1; }
+.nopt-min circle { fill: var(--easy); stroke: var(--surface); stroke-width: 1.5; }
+.nopt-min svg, .nopt-min { color: var(--easy); }
+.nopt-trail { fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; opacity: 0.92; }
+.nopt-ball { stroke: var(--surface); stroke-width: 1.6; }
+.nopt-axlab { font-size: 9px; fill: var(--text-dim); font-family: var(--mono); }
+
+.nopt-side { display: flex; flex-direction: column; gap: 0.55rem; }
+.nopt-stat-step {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.45rem 0.55rem; display: flex; align-items: baseline; justify-content: space-between;
+  border-top: 2px solid var(--accent);
+}
+.nopt-stat-lab { font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.nopt-stat-val { font-size: 1rem; font-weight: 700; color: var(--text-main); }
+.nopt-stat-max { font-size: 0.72rem; font-weight: 500; color: var(--text-dim); }
+
+.nopt-readouts { display: flex; flex-direction: column; gap: 0.4rem; }
+.nopt-stat {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.42rem 0.5rem; display: flex; align-items: center; justify-content: space-between;
+  border-top: 2px solid var(--border);
+}
+.nopt-stat.is-dim { opacity: 0.55; }
+.nopt-stat-name { font-size: 0.74rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem; }
+.nopt-stat-loss { font-size: 0.74rem; font-weight: 600; color: var(--text-main); }
+
+.nopt-slider {
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.35rem;
+}
+.nopt-slider-lab { display: flex; align-items: center; justify-content: space-between; font-size: 0.72rem; color: var(--text-main); }
+.nopt-slider-val { font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+.nopt-slider input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+.nopt-note {
+  border: 1px solid var(--border); border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  padding: 0.55rem 0.65rem; font-size: 0.72rem; color: var(--text-dim); line-height: 1.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nopt-ball, .nopt-trail { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .nopt-body { grid-template-columns: 1fr; }
+}

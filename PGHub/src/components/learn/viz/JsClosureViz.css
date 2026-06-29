@@ -1,0 +1,148 @@
+.jscl { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.jscl-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.jscl-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.jscl-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.jscl-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.jscl-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.jscl-sub code {
+  font-family: var(--mono); font-size: 0.74rem; color: var(--accent);
+  background: var(--hover-box); padding: 0.04rem 0.28rem; border-radius: 5px;
+}
+.jscl-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.jscl-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.jscl-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.7rem 0.8rem; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: 0.8rem; align-items: stretch; max-height: 44vh;
+}
+
+.jscl-code {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 0.16rem;
+}
+.jscl-line {
+  display: flex; align-items: center; gap: 0.45rem;
+  padding: 0.28rem 0.5rem; border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--bg);
+  transition: background var(--t), border-color var(--t), box-shadow var(--t);
+}
+.jscl-line.is-active {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.jscl-indent-1 { margin-left: 1.1rem; }
+.jscl-indent-2 { margin-left: 2.2rem; }
+
+.jscl-gutter {
+  flex: 0 0 auto; width: 1.1rem; text-align: right;
+  font-size: 0.68rem; color: var(--text-dim); font-weight: 600; user-select: none;
+}
+.jscl-caret {
+  flex: 0 0 auto; width: 14px; height: 14px;
+  display: grid; place-items: center; color: var(--accent);
+}
+.jscl-src {
+  flex: 0 1 auto; font-family: var(--mono); font-size: 0.78rem;
+  color: var(--text-main); font-weight: 600; white-space: nowrap;
+}
+
+.jscl-svg {
+  width: 100%; max-height: 44vh; align-self: center;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg);
+}
+
+.jscl-svg-cap {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  fill: var(--text-dim); text-transform: uppercase; letter-spacing: 0.06em;
+}
+.jscl-frame {
+  fill: var(--surface); stroke: var(--border); stroke-width: 1.4;
+  transition: fill var(--t), stroke var(--t), opacity var(--t);
+}
+.jscl-frame.is-alive { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 12%, var(--surface)); }
+.jscl-frame.is-gone { opacity: 0.3; stroke-dasharray: 4 4; }
+.jscl-frame.is-global { stroke: var(--border); }
+.jscl-svg-frame-t { font-family: var(--mono); font-size: 11px; font-weight: 700; fill: var(--text-main); }
+.jscl-svg-frame-s { font-family: var(--mono); font-size: 9px; fill: var(--text-dim); }
+.jscl-svg-frame-g { font-family: var(--mono); font-size: 10px; font-weight: 600; fill: var(--hue-violet); }
+
+.jscl-closure {
+  stroke: var(--border); stroke-width: 1.4; stroke-dasharray: 5 4;
+  transition: stroke var(--t), fill var(--t), opacity var(--t);
+}
+.jscl-closure.is-on { stroke: var(--hue-mint); stroke-dasharray: none; }
+.jscl-svg-closure-t {
+  font-family: var(--mono); font-size: 9px; font-weight: 700;
+  fill: var(--hue-mint); text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.jscl-countbox {
+  fill: var(--surface); stroke: var(--border); stroke-width: 1.4;
+  transition: fill var(--t), stroke var(--t);
+}
+.jscl-countbox.is-live {
+  stroke: var(--hue-mint);
+  fill: color-mix(in srgb, var(--hue-mint) 16%, var(--surface));
+}
+.jscl-svg-var {
+  font-family: var(--mono); font-size: 9px; font-weight: 600;
+  fill: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em;
+}
+.jscl-svg-num { font-family: var(--mono); font-size: 17px; font-weight: 800; fill: var(--hue-mint); }
+
+.jscl-link { stroke: var(--hue-sky); stroke-width: 1.8; stroke-dasharray: 4 3; }
+.jscl-svg-link-t { font-family: var(--mono); font-size: 8.5px; font-weight: 600; fill: var(--hue-sky); }
+.jscl-svg-survive { font-family: var(--mono); font-size: 9px; font-weight: 700; fill: var(--warning); }
+
+.jscl-controls { display: flex; align-items: center; gap: 0.6rem; }
+.jscl-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.jscl-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.jscl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.jscl-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.jscl-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.jscl-stat {
+  flex: 1 1 30%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.jscl-stat.is-count { border-left-color: var(--hue-mint); color: var(--hue-mint); }
+.jscl-stat.is-calls { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.jscl-stat.is-frame { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.jscl-stat.is-frame.is-alive { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.jscl-stat.is-frame.is-gone { border-left-color: var(--warning); color: var(--warning); }
+.jscl-stat.is-frame.is-idle { border-left-color: var(--text-dim); color: var(--text-dim); }
+.jscl-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.jscl-stat-val { margin-left: auto; font-size: 0.95rem; font-weight: 700; }
+
+.jscl-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.jscl-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.jscl-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .jscl-stage { grid-template-columns: 1fr; }
+}

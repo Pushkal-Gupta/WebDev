@@ -2,7 +2,7 @@ import React, { useId, useMemo, useRef, useState } from 'react';
 import {
   Search, TrendingUp, TrendingDown, Trophy, Globe, Percent, Swords,
   Loader2, Info, Minus, User, Users, Check, Flame, CalendarDays,
-  Code2, Tags, Target, BarChart3, PieChart, Send, X,
+  Code2, Tags, Target, BarChart3, PieChart, Send, X, Award, ListChecks,
 } from 'lucide-react';
 import { useLeetCodeUser } from '../../lib/queries';
 import {
@@ -945,6 +945,108 @@ function CompareRatingChart({ slots, handleA, handleB }) {
   );
 }
 
+// ---- derived head-to-head metrics ----
+// Each value is read defensively off the normalized lc-user shape; missing
+// fields collapse to null so the row renders an em-dash instead of breaking.
+
+function peakRating(d) {
+  const rs = (d.history || []).map((h) => num(h.rating)).filter((v) => v != null);
+  return rs.length ? Math.max(...rs) : num(d.rating);
+}
+
+function acceptanceRate(d) {
+  const solved = num(d.submitStats?.total);
+  const subs = num(d.submitStats?.submissionsTotal);
+  if (solved == null || !subs) return null;
+  return Math.min(100, (solved / subs) * 100);
+}
+
+function avgBeats(d) {
+  const vals = DIFFS.map((x) => num(d.beats?.[x])).filter((v) => v != null);
+  return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+}
+
+// Average share of a contest's problems solved across all attended contests —
+// a proxy for in-contest performance ("win rate").
+function contestSolveRate(d) {
+  const rows = (d.history || []).filter((h) => num(h.problemsSolved) != null && num(h.totalProblems));
+  if (!rows.length) return null;
+  const sum = rows.reduce((s, h) => s + (h.problemsSolved / h.totalProblems), 0);
+  return (sum / rows.length) * 100;
+}
+
+// Ordered metric rows for the A | metric | B comparison table. `better` decides
+// which side gets the leader highlight; `hue` tints the metric icon where a
+// difficulty color reads clearer than the neutral dim.
+const STAT_ROWS = [
+  { key: 'rating', label: 'Current rating', icon: Swords, better: 'high', av: (d) => num(d.rating), fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'peak', label: 'Peak rating', icon: TrendingUp, better: 'high', av: peakRating, fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'grank', label: 'Global ranking', icon: Globe, better: 'low', av: (d) => num(d.globalRanking), fmt: (v) => `#${Math.round(v).toLocaleString()}` },
+  { key: 'top', label: 'Top percentage', icon: Percent, better: 'low', av: (d) => num(d.topPercentage), fmt: (v) => `${v.toFixed(1)}%` },
+  { key: 'solved', label: 'Total solved', icon: ListChecks, better: 'high', av: (d) => num(d.submitStats?.total), fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'easy', label: 'Easy solved', icon: Check, hue: 'var(--easy)', better: 'high', av: (d) => num(d.submitStats?.easy), fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'medium', label: 'Medium solved', icon: Check, hue: 'var(--medium)', better: 'high', av: (d) => num(d.submitStats?.medium), fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'hard', label: 'Hard solved', icon: Check, hue: 'var(--hard)', better: 'high', av: (d) => num(d.submitStats?.hard), fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'acc', label: 'Acceptance rate', icon: Target, better: 'high', av: acceptanceRate, fmt: (v) => `${v.toFixed(1)}%` },
+  { key: 'beats', label: 'Avg beats percentile', icon: Target, better: 'high', av: avgBeats, fmt: (v) => `${v.toFixed(1)}%` },
+  { key: 'attended', label: 'Contests attended', icon: Trophy, better: 'high', av: (d) => num(d.attendedContestsCount) ?? (d.history || []).length, fmt: (v) => Math.round(v).toLocaleString() },
+  { key: 'winrate', label: 'Contest solve rate', icon: Swords, better: 'high', av: contestSolveRate, fmt: (v) => `${v.toFixed(0)}%` },
+  { key: 'streak', label: 'Current streak', icon: Flame, hue: 'var(--warning)', better: 'high', av: (d) => num(d.activity?.streak), fmt: (v) => `${Math.round(v)} d` },
+  { key: 'active', label: 'Active days', icon: CalendarDays, better: 'high', av: (d) => num(d.activity?.totalActiveDays), fmt: (v) => `${Math.round(v)} d` },
+];
+
+// Full metric table: A value (right) | metric (center) | B value (left), with
+// the leading value bolded + tinted to its side color. A trailing badge row
+// shows each profile's contest badge (no winner — it's categorical).
+function StatComparisonTable({ a, b }) {
+  return (
+    <div className="lpf-h2h" role="table" aria-label="Head-to-head profile statistics">
+      <div className="lpf-h2h-head" role="row">
+        <span role="columnheader" style={{ color: CMP_A }}>@{a.username}</span>
+        <span role="columnheader">Metric</span>
+        <span role="columnheader" style={{ color: CMP_B }}>@{b.username}</span>
+      </div>
+      {STAT_ROWS.map((m) => {
+        const av = m.av(a);
+        const bv = m.av(b);
+        let win = null;
+        if (av != null && bv != null && av !== bv) {
+          win = (m.better === 'high' ? av > bv : av < bv) ? 'a' : 'b';
+        }
+        const Icon = m.icon;
+        return (
+          <div key={m.key} className="lpf-h2h-row" role="row">
+            <span
+              role="cell"
+              className={`lpf-h2h-val a${win === 'a' ? ' win' : ''}`}
+              style={win === 'a' ? { color: CMP_A } : undefined}
+            >
+              {av == null ? '—' : m.fmt(av)}
+            </span>
+            <span role="cell" className="lpf-h2h-metric">
+              <Icon size={12} style={m.hue ? { color: m.hue } : undefined} /> {m.label}
+            </span>
+            <span
+              role="cell"
+              className={`lpf-h2h-val b${win === 'b' ? ' win' : ''}`}
+              style={win === 'b' ? { color: CMP_B } : undefined}
+            >
+              {bv == null ? '—' : m.fmt(bv)}
+            </span>
+          </div>
+        );
+      })}
+      {(a.badge || b.badge) && (
+        <div className="lpf-h2h-row" role="row">
+          <span role="cell" className="lpf-h2h-val a">{a.badge || '—'}</span>
+          <span role="cell" className="lpf-h2h-metric"><Award size={12} /> Badge</span>
+          <span role="cell" className="lpf-h2h-val b">{b.badge || '—'}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CompareView({ a, b }) {
   const ratingA = num(a.rating);
   const ratingB = num(b.rating);
@@ -978,6 +1080,11 @@ function CompareView({ a, b }) {
         <CompareIdentity data={a} color={CMP_A} />
         <CompareIdentity data={b} color={CMP_B} />
       </div>
+
+      <section className="lpf-card lpf-card-wide">
+        <h3 className="lpf-panel-title"><BarChart3 size={14} /> Head-to-head stats</h3>
+        <StatComparisonTable a={a} b={b} />
+      </section>
 
       {/* Uniform top-row analytics cards — every card equal size via the same
           grid track + align-items: stretch, no per-card width overrides. */}
@@ -1037,8 +1144,13 @@ function CompareView({ a, b }) {
   );
 }
 
+// Comparison opens pre-loaded with these two real handles so the head-to-head
+// renders immediately on mount instead of waiting for manual entry.
+const DEFAULT_A = 'Pushkal_Gupta';
+const DEFAULT_B = 'Pushkal-Gupta';
+
 export default function LeetCodeProfile() {
-  const [mode, setMode] = useState('single');
+  const [mode, setMode] = useState('compare');
 
   // ---- single mode ----
   const [input, setInput] = useState('');
@@ -1046,10 +1158,10 @@ export default function LeetCodeProfile() {
   const single = useLeetCodeUser(handle);
 
   // ---- compare mode (two unconditional hook calls, gated by enabled:!!handle) ----
-  const [inputA, setInputA] = useState('');
-  const [inputB, setInputB] = useState('');
-  const [handleA, setHandleA] = useState('');
-  const [handleB, setHandleB] = useState('');
+  const [inputA, setInputA] = useState(DEFAULT_A);
+  const [inputB, setInputB] = useState(DEFAULT_B);
+  const [handleA, setHandleA] = useState(DEFAULT_A);
+  const [handleB, setHandleB] = useState(DEFAULT_B);
   const cmpA = useLeetCodeUser(handleA);
   const cmpB = useLeetCodeUser(handleB);
 
@@ -1070,11 +1182,17 @@ export default function LeetCodeProfile() {
   const singleSample = !handle || singleFallback;
   const singleProfile = singleSample ? SAMPLE : single.data;
 
-  // compare-mode resolution — each side independently falls back to a sample
+  // compare-mode resolution — each side independently falls back to a sample.
+  // On fallback we keep the requested handle as the displayed username so the
+  // columns always read the real handle, never the sample's placeholder id.
   const failA = handleA && (cmpA.isError || (cmpA.data && cmpA.data.notFound));
   const failB = handleB && (cmpB.isError || (cmpB.data && cmpB.data.notFound));
-  const profileA = (!handleA || failA) ? SAMPLE : cmpA.data;
-  const profileB = (!handleB || failB) ? SAMPLE_B : cmpB.data;
+  const profileA = (!handleA || failA)
+    ? { ...SAMPLE, username: handleA || SAMPLE.username, realName: '' }
+    : cmpA.data;
+  const profileB = (!handleB || failB)
+    ? { ...SAMPLE_B, username: handleB || SAMPLE_B.username, realName: '' }
+    : cmpB.data;
   const cmpLoading = (handleA && cmpA.isLoading && !failA) || (handleB && cmpB.isLoading && !failB);
   const bothEmpty = mode === 'compare' && !handleA && !handleB;
   const oneEmpty = mode === 'compare' && (handleA || handleB) && (!handleA || !handleB);
@@ -1143,7 +1261,7 @@ export default function LeetCodeProfile() {
               <input
                 className="lpf-input"
                 type="text"
-                placeholder="Ex: hy_34"
+                placeholder="Ex: Pushkal_Gupta"
                 value={inputA}
                 onChange={(e) => setInputA(e.target.value)}
                 spellCheck={false}
@@ -1157,7 +1275,7 @@ export default function LeetCodeProfile() {
               <input
                 className="lpf-input"
                 type="text"
-                placeholder="Ex: sb_03"
+                placeholder="Ex: Pushkal-Gupta"
                 value={inputB}
                 onChange={(e) => setInputB(e.target.value)}
                 spellCheck={false}

@@ -1,0 +1,76 @@
+.dbtx { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.dbtx-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.dbtx-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.dbtx-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.dbtx-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.dbtx-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.dbtx-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbtx-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.dbtx-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.dbtx-chip {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.dbtx-chip:hover { border-color: var(--accent); color: var(--accent); }
+.dbtx-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.dbtx-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.dbtx-svg { width: 100%; height: auto; max-height: 34vh; display: block; }
+
+.dbtx-lane-lbl { font-size: 0.8rem; font-weight: 700; font-family: var(--mono); }
+.dbtx-t1 { fill: var(--accent); }
+.dbtx-t2 { fill: var(--hue-violet); }
+.dbtx-track { stroke: var(--border); stroke-width: 1; stroke-dasharray: 2 4; }
+.dbtx-axis { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); }
+
+.dbtx-op { opacity: 0; transition: opacity var(--t); }
+.dbtx-op.is-shown { opacity: 1; }
+.dbtx-op-box { fill: var(--bg); stroke-width: 1.4; transition: stroke var(--t), fill var(--t); }
+.dbtx-op.is-t1 .dbtx-op-box { stroke: var(--accent); }
+.dbtx-op.is-t2 .dbtx-op-box { stroke: var(--hue-violet); }
+.dbtx-op.is-cur .dbtx-op-box { fill: var(--hover-box); stroke-width: 2.2; }
+.dbtx-op.is-dirty .dbtx-op-box { stroke: var(--hard); fill: color-mix(in srgb, var(--hard) 16%, transparent); }
+.dbtx-op.is-wait .dbtx-op-box { stroke: var(--warning); stroke-dasharray: 4 3; }
+.dbtx-op-text { font-size: 0.6rem; fill: var(--text-main); font-family: var(--mono); font-weight: 600; }
+
+.dbtx-controls { display: flex; align-items: center; gap: 0.6rem; }
+.dbtx-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbtx-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.dbtx-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dbtx-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.dbtx-readout { display: flex; flex-direction: column; gap: 0.5rem; }
+.dbtx-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.6rem 0.8rem; display: flex; flex-direction: column; gap: 0.2rem;
+}
+.dbtx-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.dbtx-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+.dbtx-verdict {
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.6rem 0.85rem; font-size: 0.8rem; font-weight: 600; color: var(--text-dim);
+}
+.dbtx-verdict.is-bad { border-color: var(--hard); color: var(--hard); background: color-mix(in srgb, var(--hard) 8%, transparent); }
+.dbtx-verdict.is-good { border-color: var(--easy); color: var(--easy); background: color-mix(in srgb, var(--easy) 8%, transparent); }
+.dbtx-verdict-idle { color: var(--text-dim); font-style: italic; }

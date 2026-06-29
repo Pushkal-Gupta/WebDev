@@ -1,0 +1,113 @@
+.pyvar { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.pyvar-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.pyvar-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.pyvar-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.pyvar-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.pyvar-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.pyvar-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pyvar-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.pyvar-code { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pyvar-code-line {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.3rem 0.6rem; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--surface); color: var(--text-dim);
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.pyvar-code-line.is-done { color: var(--text-main); }
+.pyvar-code-line.is-cur {
+  border-color: var(--accent); color: var(--accent); background: var(--hover-box);
+}
+
+.pyvar-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.pyvar-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.pyvar-axis { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+.pyvar-col-label { color: var(--text-dim); }
+
+.pyvar-arrowfill { fill: var(--text-dim); }
+.pyvar-trackstop-a { stop-color: var(--accent); }
+.pyvar-trackstop-b { stop-color: var(--hue-violet); }
+
+.pyvar-arrow { stroke: var(--text-dim); stroke-width: 1.8; opacity: 0.85; transition: stroke var(--t); }
+
+.pyvar-name-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t); }
+.pyvar-name-id { font-size: 1.05rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.pyvar-name-type { font-size: 0.64rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.03em; }
+.pyvar-name-val { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); }
+.pyvar-name.is-empty { opacity: 0.45; }
+.pyvar-name.is-int .pyvar-name-box { stroke: var(--hue-sky); }
+.pyvar-name.is-int .pyvar-name-type { fill: var(--hue-sky); }
+.pyvar-name.is-str .pyvar-name-box { stroke: var(--hue-violet); }
+.pyvar-name.is-str .pyvar-name-type { fill: var(--hue-violet); }
+.pyvar-name.is-bool .pyvar-name-box { stroke: var(--hue-mint); }
+.pyvar-name.is-bool .pyvar-name-type { fill: var(--hue-mint); }
+
+.pyvar-box-rect { fill: var(--bg); stroke-width: 1.6; transition: filter var(--t), stroke var(--t); }
+.pyvar-box-val { font-size: 0.92rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.pyvar-box-type { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.pyvar-box-refs { font-size: 0.66rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); }
+.pyvar-box-gc { font-size: 0.58rem; fill: var(--warning); font-family: var(--mono); }
+
+.pyvar-box.is-int .pyvar-box-rect { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 18%, transparent); }
+.pyvar-box.is-int .pyvar-box-refs { fill: var(--hue-sky); }
+.pyvar-box.is-str .pyvar-box-rect { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 18%, transparent); }
+.pyvar-box.is-str .pyvar-box-refs { fill: var(--hue-violet); }
+.pyvar-box.is-bool .pyvar-box-rect { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 18%, transparent); }
+.pyvar-box.is-bool .pyvar-box-refs { fill: var(--hue-mint); }
+.pyvar-box.is-new .pyvar-box-rect { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 50%, transparent)); stroke-width: 2.4; }
+.pyvar-box.is-orphan .pyvar-box-rect { stroke-dasharray: 4 3; }
+.pyvar-box.is-orphan { opacity: 0.6; }
+
+.pyvar-controls { display: flex; align-items: center; gap: 0.6rem; }
+.pyvar-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pyvar-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pyvar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pyvar-progress { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+.pyvar-curline {
+  margin-left: auto; font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  color: var(--accent); padding: 0.2rem 0.55rem; border-radius: 7px; background: var(--hover-box);
+}
+
+.pyvar-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pyvar-stat {
+  flex: 1 1 45%; min-width: 160px;
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.pyvar-stat.is-empty { border-left-color: var(--border); }
+.pyvar-stat.is-int { border-left-color: var(--hue-sky); }
+.pyvar-stat.is-str { border-left-color: var(--hue-violet); }
+.pyvar-stat.is-bool { border-left-color: var(--hue-mint); }
+.pyvar-stat-name { font-size: 0.92rem; font-weight: 700; color: var(--text-main); }
+.pyvar-stat-arrow { color: var(--text-dim); flex: 0 0 auto; }
+.pyvar-stat.is-int .pyvar-stat-type { color: var(--hue-sky); }
+.pyvar-stat.is-str .pyvar-stat-type { color: var(--hue-violet); }
+.pyvar-stat.is-bool .pyvar-stat-type { color: var(--hue-mint); }
+.pyvar-stat-type { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.pyvar-stat-val { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+.pyvar-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.pyvar-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pyvar-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }

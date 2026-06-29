@@ -307,6 +307,33 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import NetEncapsulationViz from './viz/NetEncapsulationViz';
+import NetTcpHandshakeViz from './viz/NetTcpHandshakeViz';
+import NetRoutingViz from './viz/NetRoutingViz';
+import NetDnsHttpViz from './viz/NetDnsHttpViz';
+import PyVariablesViz from './viz/PyVariablesViz';
+import PyControlFlowViz from './viz/PyControlFlowViz';
+import PyScopeViz from './viz/PyScopeViz';
+import PyDataStructuresViz from './viz/PyDataStructuresViz';
+import OsContextSwitchViz from './viz/OsContextSwitchViz';
+import OsSchedulingViz from './viz/OsSchedulingViz';
+import OsPagingViz from './viz/OsPagingViz';
+import OsDeadlockViz from './viz/OsDeadlockViz';
+import DbRelationalViz from './viz/DbRelationalViz';
+import DbBTreeIndexViz from './viz/DbBTreeIndexViz';
+import DbTransactionsViz from './viz/DbTransactionsViz';
+import DbNormalizationViz from './viz/DbNormalizationViz';
+import PsHypothesisTestViz from './viz/PsHypothesisTestViz';
+import PsLinearRegressionViz from './viz/PsLinearRegressionViz';
+import PsABTestViz from './viz/PsABTestViz';
+import PsMLEViz from './viz/PsMLEViz';
+import CalcTaylorSeriesViz from './viz/CalcTaylorSeriesViz';
+import CalcFourierSeriesViz from './viz/CalcFourierSeriesViz';
+import CalcParametricViz from './viz/CalcParametricViz';
+import CalcVectorFieldViz from './viz/CalcVectorFieldViz';
+import NnOptimizersViz from './viz/NnOptimizersViz';
+import NnRnnViz from './viz/NnRnnViz';
+import NnRLViz from './viz/NnRLViz';
 import NnPerceptronViz from './viz/NnPerceptronViz';
 import NnActivationsViz from './viz/NnActivationsViz';
 import NnGradientDescentViz from './viz/NnGradientDescentViz';
@@ -925,6 +952,43 @@ export const INTERACTIVE_VIZ = {
   'nn-backpropagation': NnBackpropViz,
   'nn-convolutional': NnConvolutionViz,
   'nn-attention-transformers': NnAttentionViz,
+
+  // --- waves 5-6 (manim-style math animations + ML depth) ---
+  'calc-taylor-series': CalcTaylorSeriesViz,
+  'calc-fourier-series': CalcFourierSeriesViz,
+  'calc-parametric-curves': CalcParametricViz,
+  'calc-vector-fields': CalcVectorFieldViz,
+  'nn-optimizers': NnOptimizersViz,
+  'nn-rnn-sequences': NnRnnViz,
+  'nn-reinforcement-learning': NnRLViz,
+
+  // --- wave 7 (statistics depth) ---
+  'ps-hypothesis-testing': PsHypothesisTestViz,
+  'ps-linear-regression': PsLinearRegressionViz,
+  'ps-ab-testing': PsABTestViz,
+  'ps-maximum-likelihood': PsMLEViz,
+
+  // --- wave 8 (databases) ---
+  'db-relational-model': DbRelationalViz,
+  'db-indexing-btree': DbBTreeIndexViz,
+  'db-transactions-acid': DbTransactionsViz,
+  'db-normalization': DbNormalizationViz,
+
+  // --- wave 9 (operating systems) ---
+  'os-processes-threads': OsContextSwitchViz,
+  'os-cpu-scheduling': OsSchedulingViz,
+  'os-virtual-memory': OsPagingViz,
+  'os-deadlocks': OsDeadlockViz,
+
+  // --- waves 10-11 (computer networks + python) ---
+  'net-osi-tcpip-layers': NetEncapsulationViz,
+  'net-tcp-reliability': NetTcpHandshakeViz,
+  'net-ip-routing': NetRoutingViz,
+  'net-dns-http': NetDnsHttpViz,
+  'py-variables-types': PyVariablesViz,
+  'py-control-flow': PyControlFlowViz,
+  'py-functions-scope': PyScopeViz,
+  'py-data-structures': PyDataStructuresViz,
 };
 
 export default INTERACTIVE_VIZ;

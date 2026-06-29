@@ -291,7 +291,26 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
               </span>
             )}
           </div>
-          <pre className="rcp-output-body">{running ? 'Running…' : (result?.output ?? '')}</pre>
+          <pre className="rcp-output-body">{
+            running
+              ? 'Running…'
+              : (() => {
+                  const out = (result?.output ?? '').trim();
+                  // A successful run with nothing printed used to read as a bare
+                  // "(No output)" — confusing next to a green "Success". Explain it.
+                  if (result?.status === 'success' && (out === '' || out === '(No output)')) {
+                    return 'Ran successfully — the code compiled and executed, but nothing was printed. Add a print(...) / console.log(...) to see values.';
+                  }
+                  // ML examples often import torch/numpy/etc. which aren't in the
+                  // sandbox. Show a clear note instead of a raw ModuleNotFoundError.
+                  const libMatch = out.match(/No module named ['"]?([\w.]+)['"]?/i);
+                  if (libMatch) {
+                    const lib = libMatch[1].split('.')[0];
+                    return `This example uses "${lib}", which isn't installed in the in-browser sandbox — it's illustrative here. Run it locally with "${lib}" installed (e.g. pip install ${lib}) to execute it.`;
+                  }
+                  return result?.output ?? '';
+                })()
+          }</pre>
         </div>
       )}
     </div>

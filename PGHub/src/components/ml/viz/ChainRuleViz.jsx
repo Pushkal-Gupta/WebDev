@@ -470,9 +470,9 @@ export default function ChainRuleViz() {
           <span className="mlviz-sub">= {snap(dL_dy, 3)} · {snap(dy_dx, 3)}</span>
         </div>
 
-        {/* Function pickers */}
+        {/* Function pickers + x on one wrapping controls row */}
         <div className="mlviz-row mlviz-controls" style={{ gap: 10, flexWrap: 'wrap' }}>
-          <label className="mlviz-slider" style={{ minWidth: 180 }}>
+          <label className="mlviz-slider" style={{ minWidth: 150, flex: '1 1 150px' }}>
             <span className="mlviz-slider-label">f</span>
             <select
               value={fKey}
@@ -494,7 +494,7 @@ export default function ChainRuleViz() {
               ))}
             </select>
           </label>
-          <label className="mlviz-slider" style={{ minWidth: 180 }}>
+          <label className="mlviz-slider" style={{ minWidth: 150, flex: '1 1 150px' }}>
             <span className="mlviz-slider-label">g</span>
             <select
               value={gKey}
@@ -516,10 +516,7 @@ export default function ChainRuleViz() {
               ))}
             </select>
           </label>
-        </div>
-
-        <div className="mlviz-row mlviz-controls">
-          <label className="mlviz-slider">
+          <label className="mlviz-slider" style={{ minWidth: 150, flex: '1 1 150px' }}>
             <span className="mlviz-slider-label">x</span>
             <input
               type="range"
