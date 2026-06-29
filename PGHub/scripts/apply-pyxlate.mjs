@@ -67,9 +67,14 @@ console.log(`apply-pyxlate ${DRY ? '(DRY)' : '(LIVE)'} | candidates: ${slugs.len
 let wrote = 0, failed = 0, missing = 0, prunedTotal = 0;
 const fails = [];
 for (const slug of slugs) {
-  const code = map[slug];
+  // entry is either a bare code string (legacy) or { code, approach, complexity, hints }
+  const entry = map[slug];
+  const code = typeof entry === 'string' ? entry : entry?.code;
+  const approach = typeof entry === 'object' ? entry?.approach : null;
+  const complexity = typeof entry === 'object' ? entry?.complexity : null;
+  const hints = typeof entry === 'object' && Array.isArray(entry?.hints) ? entry.hints.filter((h) => h && h.trim()) : null;
   if (!code || code.length < 12) { console.log(`  -    ${slug}: empty candidate`); missing++; continue; }
-  const { data, error } = await sb.from('PGcode_problems').select('id,method_name,params,return_type,solutions,test_cases').eq('id', slug).single();
+  const { data, error } = await sb.from('PGcode_problems').select('id,method_name,params,return_type,solutions,test_cases,hints').eq('id', slug).single();
   if (error || !data) { console.log(`  -    ${slug}: not found`); missing++; continue; }
   let cases = Array.isArray(data.test_cases) ? data.test_cases : [];
   if (!cases.length) { console.log(`  -    ${slug}: no test cases`); missing++; continue; }
@@ -111,12 +116,22 @@ for (const slug of slugs) {
   if (DRY) { console.log(`  PASS ${slug}: ${cases.length} cases (dry, not written)`); wrote++; continue; }
   const merged = { ...(data.solutions || {}) };
   const prev = merged.python;
-  merged.python = (prev && typeof prev === 'object') ? { ...prev, code } : code;
+  // NeetCode-style entry: store { code, approach, complexity } so the solution page
+  // shows intuition + complexity, not bare code. Preserve any existing richer fields.
+  const prevObj = (prev && typeof prev === 'object') ? prev : {};
+  const pyEntry = { ...prevObj, code };
+  if (approach && approach.trim()) pyEntry.approach = approach.trim();
+  if (complexity && (complexity.time || complexity.space)) pyEntry.complexity = { time: complexity.time || '', space: complexity.space || '' };
+  merged.python = pyEntry;
   const update = { solutions: merged };
   if (prunedTotal && cases.length !== (Array.isArray(data.test_cases) ? data.test_cases.length : 0)) update.test_cases = cases;
+  // Fill graduated hints only when the problem has none (don't clobber good existing hints).
+  const hasHints = Array.isArray(data.hints) && data.hints.length >= 2;
+  if (hints && hints.length >= 2 && !hasHints) update.hints = hints;
   const { error: uerr } = await sb.from('PGcode_problems').update(update).eq('id', slug);
   if (uerr) { console.log(`  ERR  ${slug}: write failed ${uerr.message.slice(0, 60)}`); failed++; continue; }
-  console.log(`  WROTE ${slug}: python PASS ${cases.length} cases`);
+  const extras = [pyEntry.approach ? 'approach' : null, pyEntry.complexity ? 'complexity' : null, (update.hints ? 'hints' : null)].filter(Boolean);
+  console.log(`  WROTE ${slug}: python PASS ${cases.length} cases${extras.length ? ' +' + extras.join('+') : ' (CODE ONLY — no editorial)'}`);
   wrote++;
 }
 console.log(`\n${DRY ? 'would-write' : 'wrote'}: ${wrote} | failed: ${failed} | missing/skip: ${missing} | corrupt cases pruned: ${prunedTotal}`);

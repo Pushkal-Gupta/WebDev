@@ -45,12 +45,33 @@ function deepClone(value) {
   return out;
 }
 
+// Pretty-print the input JSON but keep arrays of PRIMITIVES on ONE line (e.g.
+// "array": [5, 2, 9, 1, 7] instead of one element per line) — far easier to edit.
+// Objects and arrays-of-objects still indent normally for readability.
+function formatInput(value, indent = 0) {
+  const pad = '  '.repeat(indent);
+  const padIn = '  '.repeat(indent + 1);
+  if (Array.isArray(value)) {
+    if (value.every((v) => v === null || typeof v !== 'object')) {
+      return `[${value.map((v) => JSON.stringify(v)).join(', ')}]`; // inline primitive array
+    }
+    if (value.length === 0) return '[]';
+    return `[\n${value.map((v) => padIn + formatInput(v, indent + 1)).join(',\n')}\n${pad}]`;
+  }
+  if (value && typeof value === 'object') {
+    const keys = Object.keys(value);
+    if (keys.length === 0) return '{}';
+    return `{\n${keys.map((k) => `${padIn}${JSON.stringify(k)}: ${formatInput(value[k], indent + 1)}`).join(',\n')}\n${pad}}`;
+  }
+  return JSON.stringify(value);
+}
+
 export default function InteractiveVisualizer({ slug }) {
   const template = INTERACTIVE_TEMPLATES[slug];
 
   const [code, setCode] = useState(() => template?.initialCode || '');
   const [inputText, setInputText] = useState(() =>
-    JSON.stringify(template?.initialInput ?? null, null, 2),
+    formatInput(template?.initialInput ?? null),
   );
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(0);
@@ -66,7 +87,7 @@ export default function InteractiveVisualizer({ slug }) {
     // Reset all state when switching algorithms; mirrors the new template into local editor state.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setCode(template.initialCode);
-    setInputText(JSON.stringify(template.initialInput ?? null, null, 2));
+    setInputText(formatInput(template.initialInput ?? null));
     setFrames([]);
     setIdx(0);
     setLogs([]);
@@ -136,7 +157,7 @@ export default function InteractiveVisualizer({ slug }) {
   const reset = useCallback(() => {
     setPlaying(false);
     setCode(template.initialCode);
-    setInputText(JSON.stringify(template.initialInput ?? null, null, 2));
+    setInputText(formatInput(template.initialInput ?? null));
     setFrames([]);
     setIdx(0);
     setLogs([]);

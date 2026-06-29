@@ -1,1 +1,150 @@
-[]
+[
+  {
+    "slug": "sliding-subarray-beauty",
+    "leetcode_number": 2653,
+    "status": "DISAGREE",
+    "agree": 12,
+    "total": 68,
+    "kind": "ours-error",
+    "input": [
+      "[39,1]",
+      "0",
+      "1"
+    ],
+    "ours": "<Runtime Error (NZEC)>",
+    "ref": "[0, 0, 0]"
+  },
+  {
+    "slug": "minimum-adjacent-swaps-to-reach-the-kth-smallest-number",
+    "leetcode_number": 1850,
+    "status": "DISAGREE",
+    "agree": 94,
+    "total": 120,
+    "kind": "value",
+    "input": [
+      "\"81\"",
+      "999"
+    ],
+    "ours": "1",
+    "ref": "0"
+  },
+  {
+    "slug": "maximum-number-of-coins-you-can-get",
+    "leetcode_number": 1561,
+    "status": "DISAGREE",
+    "agree": 56,
+    "total": 120,
+    "kind": "value",
+    "input": [
+      "[11,95,56,88]"
+    ],
+    "ours": "88",
+    "ref": "151"
+  },
+  {
+    "slug": "minimum-number-of-changes-to-make-binary-string-beautiful",
+    "leetcode_number": 2914,
+    "status": "DISAGREE",
+    "agree": 71,
+    "total": 120,
+    "kind": "ours-error",
+    "input": [
+      "\"100\""
+    ],
+    "ours": "<Runtime Error (NZEC)>",
+    "ref": "1"
+  },
+  {
+    "slug": "maximum-score-words-formed-by-letters",
+    "leetcode_number": 1255,
+    "status": "DISAGREE",
+    "agree": 23,
+    "total": 120,
+    "kind": "ours-error",
+    "input": [
+      "[\"yr\",\"j\"]",
+      "[\"Ww\",\"mFc\",\"rl\"]",
+      "[1,9,4,9,2,2,0,6,8,8,7,7,0,4]"
+    ],
+    "ours": "<Runtime Error (NZEC)>",
+    "ref": "0"
+  },
+  {
+    "slug": "maximum-number-of-jumps-to-reach-the-last-index",
+    "leetcode_number": 2770,
+    "status": "DISAGREE",
+    "agree": 99,
+    "total": 120,
+    "kind": "ours-error",
+    "input": [
+      "[]",
+      "0"
+    ],
+    "ours": "<Runtime Error (NZEC)>",
+    "ref": "-1"
+  },
+  {
+    "slug": "maximum-performance-of-a-team",
+    "leetcode_number": 1383,
+    "status": "DISAGREE",
+    "agree": 81,
+    "total": 120,
+    "kind": "value",
+    "input": [
+      "50",
+      "[59,26]",
+      "[34]",
+      "-1"
+    ],
+    "ours": "0",
+    "ref": "2006"
+  },
+  {
+    "slug": "maximum-bitwise-and-after-increment-operations",
+    "leetcode_number": 3806,
+    "status": "DISAGREE",
+    "agree": 68,
+    "total": 120,
+    "kind": "value",
+    "input": [
+      "[44,43,52,48,9,57,39,29]",
+      "1",
+      "0"
+    ],
+    "ours": "17179869183",
+    "ref": "63"
+  },
+  {
+    "slug": "minimum-operations-to-make-binary-palindrome",
+    "leetcode_number": 3766,
+    "status": "DISAGREE",
+    "agree": 12,
+    "total": 120,
+    "kind": "value",
+    "input": [
+      "[-20,-8]"
+    ],
+    "ours": "[21, 9]",
+    "ref": "[20, 8]"
+  },
+  {
+    "slug": "minimum-moves-to-reach-target-with-rotations",
+    "status": "ERROR",
+    "note": "both crashed on all inputs"
+  },
+  {
+    "slug": "maximum-walls-destroyed-by-robots",
+    "leetcode_number": 3661,
+    "status": "DISAGREE",
+    "agree": 119,
+    "total": 120,
+    "kind": "value",
+    "input": [
+      "[7,92,60,36,36]",
+      "[86,1,28,81,19]",
+      "[40,14,37,86,6]"
+    ],
+    "ours": "4",
+    "ref": "5"
+  }
+]

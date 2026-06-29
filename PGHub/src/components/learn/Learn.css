@@ -2077,9 +2077,18 @@
 .viz-gallery-container > .viz-member-grid {
   flex: 1 1 auto;
   min-height: 0;
-  /* Top-pack member cards at a SENSIBLE height. (Stretching rows to 1fr ballooned
-     a 2-card category into giant empty cards — wrong.) Cap row height so cards stay
-     compact; a sparse category ends with breathing room rather than huge cards. */
+}
+/* MAIN gallery (always ~21 category cards): rows stretch to FILL the viewport — no
+   empty band below (NO-EMPTY-SPACE). It always has enough cards to fill cleanly. */
+.viz-gallery-container > .viz-cat-grid {
+  align-content: stretch;
+  grid-auto-rows: minmax(150px, 1fr);
+}
+/* Drill-down + search grids hold a VARIABLE (often small) number of cards — stretch
+   ballooned a 2-card category into giant empty cards. Top-pack at a sensible height
+   instead; a sparse result ends with breathing room, not huge cards. */
+.viz-gallery-container > .viz-result-grid,
+.viz-gallery-container > .viz-member-grid {
   align-content: start;
   grid-auto-rows: minmax(132px, max-content);
 }

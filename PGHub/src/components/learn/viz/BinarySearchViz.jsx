@@ -170,6 +170,7 @@ export default function BinarySearchViz({
   const [appliedTarget, setAppliedTarget] = useState(initialTarget);
   const [stepIdx, setStepIdx] = useState(0);
   const [isRunningRaw, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState(1); // 0.5x .. 4x — divides the base run delay
   const runTimer = useRef(null);
 
   const steps = useMemo(() => buildSteps(arr, appliedTarget), [arr, appliedTarget]);
@@ -212,14 +213,14 @@ export default function BinarySearchViz({
     if (!isRunning) return;
     runTimer.current = setTimeout(() => {
       setStepIdx(i => Math.min(i + 1, totalSteps - 1));
-    }, RUN_DELAY_MS);
+    }, Math.round(RUN_DELAY_MS / speed));
     return () => {
       if (runTimer.current) {
         clearTimeout(runTimer.current);
         runTimer.current = null;
       }
     };
-  }, [isRunning, totalSteps]);
+  }, [isRunning, totalSteps, stepIdx, speed]);
 
   const handleRunToggle = () => {
     if (isRunning) { stop(); return; }
@@ -306,6 +307,21 @@ export default function BinarySearchViz({
         >
           <RotateCcw size={14} /> Reset
         </button>
+
+        <label className="bsv-speed">
+          <span className="bsv-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="bsv-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="bsv-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="bsv-stage-wrap">
