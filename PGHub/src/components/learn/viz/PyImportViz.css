@@ -1,0 +1,109 @@
+.pyimp { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.pyimp-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.pyimp-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.pyimp-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.pyimp-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.pyimp-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+
+.pyimp-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; }
+.pyimp-chips-label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.2rem; }
+.pyimp-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.pyimp-chip.is-import:hover { border-color: var(--hue-sky); color: var(--hue-sky); }
+.pyimp-chip.is-from:hover { border-color: var(--hue-violet); color: var(--hue-violet); }
+.pyimp-chip.is-cache:hover { border-color: var(--hue-mint); color: var(--hue-mint); }
+.pyimp-chip.is-import.is-active { border-color: var(--hue-sky); color: var(--hue-sky); background: color-mix(in srgb, var(--hue-sky) 12%, transparent); }
+.pyimp-chip.is-from.is-active { border-color: var(--hue-violet); color: var(--hue-violet); background: color-mix(in srgb, var(--hue-violet) 12%, transparent); }
+.pyimp-chip.is-cache.is-active { border-color: var(--hue-mint); color: var(--hue-mint); background: color-mix(in srgb, var(--hue-mint) 12%, transparent); }
+
+.pyimp-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.pyimp-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.pyimp-box-title { font-size: 0.82rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; }
+.pyimp-box-tag { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.pyimp-empty { font-size: 0.72rem; fill: var(--text-dim); font-family: var(--mono); }
+
+.pyimp-modbox { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; }
+.pyimp-nsbox { fill: var(--bg); stroke: var(--accent); stroke-width: 1.6; }
+.pyimp-cachebox { fill: var(--bg); stroke: var(--hue-mint); stroke-width: 1.4; stroke-dasharray: 5 4; transition: stroke var(--t), filter var(--t); }
+.pyimp-cachebox.is-hit { stroke-width: 2.4; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-mint) 55%, transparent)); }
+
+.pyimp-trunk { stroke: var(--border); stroke-width: 2; transition: stroke var(--t); }
+.pyimp-trunk-head { fill: var(--border); transition: fill var(--t); }
+.pyimp-trunk-label { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); font-weight: 700; }
+.pyimp.is-import .pyimp-trunk { stroke: var(--hue-sky); }
+.pyimp.is-import .pyimp-trunk-head { fill: var(--hue-sky); }
+.pyimp.is-import .pyimp-trunk-label { fill: var(--hue-sky); }
+.pyimp.is-from .pyimp-trunk { stroke: var(--hue-violet); }
+.pyimp.is-from .pyimp-trunk-head { fill: var(--hue-violet); }
+.pyimp.is-from .pyimp-trunk-label { fill: var(--hue-violet); }
+.pyimp.is-cache .pyimp-trunk { stroke: var(--hue-mint); }
+.pyimp.is-cache .pyimp-trunk-head { fill: var(--hue-mint); }
+.pyimp.is-cache .pyimp-trunk-label { fill: var(--hue-mint); }
+
+/* pills */
+.pyimp-pill-box { fill: var(--surface); stroke: var(--border); stroke-width: 1.4; transition: filter var(--t), stroke-width var(--t), stroke var(--t); }
+.pyimp-pill-txt { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+
+.pyimp-pill.is-mod .pyimp-pill-box { stroke: var(--text-dim); }
+.pyimp-pill.is-module .pyimp-pill-box { fill: color-mix(in srgb, var(--hue-sky) 14%, transparent); stroke: var(--hue-sky); }
+.pyimp-pill.is-name .pyimp-pill-box { fill: color-mix(in srgb, var(--hue-violet) 14%, transparent); stroke: var(--hue-violet); }
+.pyimp-pill.is-cache .pyimp-pill-box { fill: color-mix(in srgb, var(--hue-mint) 12%, transparent); stroke: var(--hue-mint); }
+
+.pyimp.is-from .pyimp-pill.is-mod.is-glow .pyimp-pill-box { stroke: var(--hue-violet); stroke-width: 2.4; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-violet) 55%, transparent)); }
+.pyimp.is-import .pyimp-pill.is-mod.is-glow .pyimp-pill-box { stroke: var(--hue-sky); stroke-width: 2.4; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-sky) 55%, transparent)); }
+
+.pyimp-pill.is-module.is-glow .pyimp-pill-box { stroke-width: 2.4; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--hue-sky) 60%, transparent)); }
+.pyimp-pill.is-name.is-glow .pyimp-pill-box { stroke-width: 2.4; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--hue-violet) 60%, transparent)); }
+.pyimp-pill.is-cache.is-glow .pyimp-pill-box { stroke-width: 2.4; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--hue-mint) 60%, transparent)); }
+.pyimp-pill.is-cache.is-hit .pyimp-pill-box { stroke-width: 2.4; filter: drop-shadow(0 0 7px color-mix(in srgb, var(--hue-mint) 60%, transparent)); }
+
+.pyimp-cache-status { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); font-weight: 700; }
+.pyimp.is-cache .pyimp-cachebox.is-hit ~ .pyimp-cache-status,
+.pyimp-cachebox.is-hit + .pyimp-cache-status { fill: var(--hue-mint); }
+
+.pyimp-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+.pyimp-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pyimp-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pyimp-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pyimp-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.pyimp-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pyimp-stat {
+  flex: 1 1 30%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.pyimp-stat.is-import { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.pyimp-stat.is-from { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.pyimp-stat.is-cache { border-left-color: var(--hue-mint); color: var(--hue-mint); }
+.pyimp-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pyimp-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); text-align: right; }
+
+.pyimp-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.pyimp-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pyimp-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pyimp-pill-box, .pyimp-cachebox, .pyimp-trunk, .pyimp-trunk-head { transition: none; }
+}

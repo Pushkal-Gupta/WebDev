@@ -65,6 +65,7 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
   submitLabel = 'Submit',
   onLanguageChange,
   runPreamble = '',
+  getRunPrefix,
 }, ref) {
   // Normalize input into { lang: source }.
   const seeds = useMemo(() => {
@@ -175,17 +176,24 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
       // editor buffer and `onSubmit` payload stay the clean source the user sees.
       // Wrapped in an IIFE so harness code + the user's body share one scope and
       // top-level `return` (common in the templates) is legal.
-      const source = (runPreamble && activeLang === 'javascript')
-        ? `;(function(){\n${runPreamble}\n${value}\n})();`
-        : value;
+      let source = value;
+      if (runPreamble && activeLang === 'javascript') {
+        // JS visualizer harness: wrap in an IIFE so harness globals + body share scope.
+        source = `;(function(){\n${runPreamble}\n${value}\n})();`;
+      } else if (getRunPrefix) {
+        // Notebook cell: prepend the LIVE code of all prior cells so names defined
+        // earlier (e.g. xs/ys) are in scope — real Jupyter accumulates state.
+        const prefix = getRunPrefix();
+        if (prefix && prefix.trim()) source = `${prefix}\n${value}`;
+      }
       const out = await runCode(source, activeLang, '');
-      setResult({ ...out, elapsed: Math.round(performance.now() - t0) });
+      setResult({ ...out, elapsed: Math.round(performance.now() - t0), hadPrefix: !!getRunPrefix });
     } catch (err) {
       setResult({ status: 'runtime_error', output: err?.message || 'Execution failed', elapsed: 0 });
     } finally {
       setRunning(false);
     }
-  }, [running, canRun, value, activeLang, runPreamble]);
+  }, [running, canRun, value, activeLang, runPreamble, getRunPrefix]);
 
   const handleSubmit = useCallback(() => {
     onSubmit?.(value, activeLang);
@@ -307,6 +315,11 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
                   if (libMatch) {
                     const lib = libMatch[1].split('.')[0];
                     return `This example uses "${lib}", which isn't installed in the in-browser sandbox — it's illustrative here. Run it locally with "${lib}" installed (e.g. pip install ${lib}) to execute it.`;
+                  }
+                  // Notebook cell that references a name from an earlier cell — guide
+                  // the reader to run/keep the prior cells (real Jupyter behaviour).
+                  if (result?.hadPrefix && /NameError|ReferenceError|not defined|is not defined|was not declared/i.test(out)) {
+                    return `${result.output}\n\n--- This cell depends on a name defined in an earlier cell. Make sure the cells above are intact (and run top-to-bottom). ---`;
                   }
                   return result?.output ?? '';
                 })()

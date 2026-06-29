@@ -109,6 +109,28 @@ function equalsOrderInsensitive(expected, actual) {
  *   3. If the problem is flagged order-insensitive, canonicalize (sort) both
  *      parsed shapes and compare as multisets.
  */
+// Float-tolerant comparison: LeetCode accepts answers within 1e-5. The grader stores
+// fixed-precision strings ("0.66667", "14.50000") that str(float) can't reproduce.
+// Compare the NUMERIC content positionally with tolerance, but only when the bracket/
+// comma skeleton (numbers blanked) matches — so order and nesting still matter and a
+// reordered or restructured array can't sneak through.
+function numericEqual(actual, expected, tol = 1e-5) {
+  const a = (actual ?? '').toString().trim();
+  const e = (expected ?? '').toString().trim();
+  if (!/\d/.test(a) || !/\d/.test(e)) return false;
+  if (!/^[\s[\](),\-+.eE0-9]+$/.test(a) || !/^[\s[\](),\-+.eE0-9]+$/.test(e)) return false;
+  const numRe = /-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?/g;
+  const skel = (s) => s.replace(numRe, '#').replace(/\s+/g, '');
+  if (skel(a) !== skel(e)) return false;
+  const na = a.match(numRe).map(Number), ne = e.match(numRe).map(Number);
+  if (na.length !== ne.length || na.length === 0) return false;
+  for (let i = 0; i < na.length; i++) {
+    const d = Math.abs(na[i] - ne[i]);
+    if (d > tol && d > tol * Math.abs(ne[i])) return false;
+  }
+  return true;
+}
+
 export function compareOutputSmart(actual, expected, opts = {}) {
   // 1) baseline shared comparison
   if (equalsNormalized(expected, actual)) return true;
@@ -118,7 +140,10 @@ export function compareOutputSmart(actual, expected, opts = {}) {
   const eStripped = stripOuterQuotes(expected);
   if (equalsNormalized(eStripped, aStripped)) return true;
 
-  // 3) order-insensitive comparison (gated)
+  // 3) float tolerance (scalars + numeric arrays, order/structure preserved)
+  if (numericEqual(aStripped, eStripped)) return true;
+
+  // 4) order-insensitive comparison (gated)
   if (opts.orderInsensitive && equalsOrderInsensitive(expected, actual)) return true;
 
   return false;
