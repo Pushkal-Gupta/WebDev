@@ -4,10 +4,11 @@ import {
   ChevronRight, ListOrdered, Trophy, ArrowRight, Search,
   TrendingUp, TrendingDown, Award, Hash, Globe, Calendar,
   Target, CheckCircle2, Sparkles, SlidersHorizontal, Minus,
+  Hourglass, Clock,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useLeetCodeUser, useProfile } from '../../lib/queries';
-import { predictDelta, SAMPLE_FIELD, TOTAL_PARTICIPANTS } from '../contests/LeetCodeAnalytics';
+import { predictDelta, pendingContestSince, SAMPLE_FIELD, TOTAL_PARTICIPANTS } from '../contests/LeetCodeAnalytics';
 import Breadcrumb from '../common/Breadcrumb';
 import './LcHub.css';
 
@@ -48,6 +49,7 @@ export default function LcHub() {
   const [handle, setHandle] = useState('');
   const [rank, setRank] = useState(2000);
   const [prefilled, setPrefilled] = useState(false);
+  const [nowMs] = useState(() => Date.now());
 
   // Pull the signed-in user's saved LeetCode handle (if any) and prefill once.
   useEffect(() => {
@@ -90,8 +92,12 @@ export default function LcHub() {
     const previous = attended.length > 1 ? attended[attended.length - 2] : null;
     const oldRating = previous ? Number(previous.rating) : 1500;
 
+    // A just-finished round shows in history with a rank but no published rating
+    // for a while — LeetCode rates contests well after they end. In that window
+    // we predict from the rank and read the actual as "pending".
     const newRating = Number(current.rating);
-    const actualChange = newRating - oldRating;
+    const ratingPending = !Number.isFinite(newRating) || newRating <= 0;
+    const actualChange = ratingPending ? null : newRating - oldRating;
 
     const played = Math.max(0, (Number(user?.attendedContestsCount) || attended.length) - 1);
     const expected = predictDelta({
@@ -102,28 +108,43 @@ export default function LcHub() {
       fieldSize: TOTAL_PARTICIPANTS,
     });
 
-    return { current, oldRating, newRating, actualChange, expected, isDebut: !previous };
+    return { current, oldRating, newRating, actualChange, expected, isDebut: !previous, played, ratingPending };
   }, [user]);
 
-  // What-if always re-runs against the SAME baseline the latest contest used:
-  // the pre-contest rating when we have one, otherwise the live current rating.
-  const whatIfBase = latest ? latest.oldRating : realRating;
-  const whatIfPlayed = useMemo(() => {
-    const c = Number(user?.attendedContestsCount);
-    return Math.max(0, (Number.isFinite(c) && c > 0 ? c : 1) - 1);
-  }, [user]);
+  // A round the user just played that LeetCode hasn't rated yet (so it isn't in
+  // the history API). Detected from the public cadence. Only when the API's
+  // latest IS finalized — an unrated latest entry is handled by ratingPending.
+  // Plain computation (cheap) so the React Compiler auto-memoizes it; a useMemo
+  // here trips the manual-deps heuristic, which mistakes `latest.current` for a
+  // ref access and bails out of optimizing the whole component.
+  const pendingRaw =
+    latest && !latest.ratingPending ? pendingContestSince(latest.current, nowMs) : null;
+  const pending = pendingRaw
+    ? {
+        ...pendingRaw,
+        base: Math.round(Number(latest.newRating) || realRating),
+        played: Math.max(0, Number(user?.attendedContestsCount) || latest.played + 1),
+      }
+    : null;
 
-  const whatIf = useMemo(
-    () =>
-      predictDelta({
-        rating: whatIfBase,
-        actualRank: Math.max(1, rank),
-        contestsPlayed: whatIfPlayed,
-        fieldRatings: SAMPLE_FIELD,
-        fieldSize: TOTAL_PARTICIPANTS,
-      }),
-    [whatIfBase, rank, whatIfPlayed],
-  );
+  // What-if re-runs against the SAME baseline the latest round used: the
+  // pre-contest rating normally, or the CURRENT rating when a round is awaiting
+  // LeetCode's rating (so a finish projects that pending round directly). Plain
+  // computations so the React Compiler auto-memoizes — a manual useMemo here
+  // can't be preserved once it depends on the cadence-derived `pending`.
+  const whatIfBase = pending ? pending.base : latest ? latest.oldRating : realRating;
+  const attendedCount = Number(user?.attendedContestsCount);
+  const whatIfPlayed = pending
+    ? pending.played
+    : Math.max(0, (Number.isFinite(attendedCount) && attendedCount > 0 ? attendedCount : 1) - 1);
+
+  const whatIf = predictDelta({
+    rating: whatIfBase,
+    actualRank: Math.max(1, rank),
+    contestsPlayed: whatIfPlayed,
+    fieldRatings: SAMPLE_FIELD,
+    fieldSize: TOTAL_PARTICIPANTS,
+  });
 
   const submit = (e) => {
     e.preventDefault();
@@ -175,8 +196,8 @@ export default function LcHub() {
           <h2>Your latest contest</h2>
         </div>
         <p className="lch-panel-sub">
-          Enter a LeetCode handle to pull your most recent rated round, see how your rating actually
-          moved, and compare it against what our model expected.
+          Enter a LeetCode handle to pull your latest round — rated, or still awaiting LeetCode&apos;s
+          update — and see how it moved your rating against what our model expected.
         </p>
 
         <form className="lch-lookup" onSubmit={submit}>
@@ -254,19 +275,64 @@ export default function LcHub() {
               </div>
             </div>
 
+            {pending && (
+              <article className="lch-contest lch-contest-pending">
+                <header className="lch-contest-head">
+                  <div className="lch-contest-title">
+                    <Hourglass size={16} aria-hidden />
+                    <span>{pending.title}</span>
+                  </div>
+                  <span className="lch-pending-pill">
+                    <Clock size={12} aria-hidden /> Awaiting LeetCode rating
+                  </span>
+                </header>
+
+                <div className="lch-facts">
+                  <div className="lch-fact">
+                    <span className="lch-fact-ico"><Calendar size={14} aria-hidden /></span>
+                    <span className="lch-fact-val lch-fact-date">{fmtDate(pending.startTime)}</span>
+                    <span className="lch-fact-lbl">Contest day</span>
+                  </div>
+                  <div className="lch-fact">
+                    <span className="lch-fact-ico"><Hash size={14} aria-hidden /></span>
+                    <span className="lch-fact-val">—</span>
+                    <span className="lch-fact-lbl">Rank pending</span>
+                  </div>
+                  <div className="lch-fact">
+                    <span className="lch-fact-ico"><Award size={14} aria-hidden /></span>
+                    <span className="lch-fact-val">{pending.base}</span>
+                    <span className="lch-fact-lbl">Current rating</span>
+                  </div>
+                </div>
+
+                <p className="lch-pending-note">
+                  LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
+                  rated history. Your last confirmed rating is {pending.base}. Project the finish below to
+                  see the likely swing — it&apos;ll be confirmed once LeetCode posts the official change.
+                </p>
+              </article>
+            )}
+
             {latest && (
               <article className="lch-contest">
                 <header className="lch-contest-head">
                   <div className="lch-contest-title">
                     <Trophy size={16} aria-hidden />
                     <span>{latest.current.title}</span>
+                    {pending && <span className="lch-rated-tag">Last rated</span>}
                   </div>
                   <div className="lch-contest-meta">
                     <span className="lch-contest-date">
                       <Calendar size={13} aria-hidden />
                       {fmtDate(latest.current.startTime)}
                     </span>
-                    <ChangePill change={latest.actualChange} />
+                    {latest.ratingPending ? (
+                      <span className="lch-trend-pill" style={{ color: 'var(--text-dim)' }}>
+                        <Clock size={13} aria-hidden /> pending
+                      </span>
+                    ) : (
+                      <ChangePill change={latest.actualChange} />
+                    )}
                   </div>
                 </header>
 
@@ -300,14 +366,27 @@ export default function LcHub() {
                   <div className="lch-move-track">
                     <span className="lch-move-old">{Math.round(latest.oldRating)}</span>
                     <span className="lch-move-arrow" aria-hidden><ArrowRight size={18} /></span>
-                    <span className="lch-move-new">{Math.round(latest.newRating)}</span>
-                    <span
-                      className="lch-move-chip"
-                      style={{ color: chgColor(latest.actualChange) }}
-                    >
-                      {changeIcon(latest.actualChange)}
-                      {fmtChange(latest.actualChange)}
-                    </span>
+                    {latest.ratingPending ? (
+                      <>
+                        <span className="lch-move-new" style={{ color: chgColor(latest.expected.delta) }}>
+                          ~{Math.round(latest.expected.newRating)}
+                        </span>
+                        <span className="lch-move-chip" style={{ color: 'var(--text-dim)' }}>
+                          rating pending on LeetCode
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="lch-move-new">{Math.round(latest.newRating)}</span>
+                        <span
+                          className="lch-move-chip"
+                          style={{ color: chgColor(latest.actualChange) }}
+                        >
+                          {changeIcon(latest.actualChange)}
+                          {fmtChange(latest.actualChange)}
+                        </span>
+                      </>
+                    )}
                   </div>
 
                   <div className="lch-compare">
@@ -327,12 +406,14 @@ export default function LcHub() {
                       <span className="lch-compare-lbl">
                         <Target size={12} aria-hidden /> Actual rating
                       </span>
-                      <span className="lch-compare-val">{Math.round(latest.newRating)}</span>
+                      <span className="lch-compare-val">
+                        {latest.ratingPending ? '—' : Math.round(latest.newRating)}
+                      </span>
                       <span
                         className="lch-compare-sub"
-                        style={{ color: chgColor(latest.actualChange) }}
+                        style={{ color: latest.ratingPending ? 'var(--text-dim)' : chgColor(latest.actualChange) }}
                       >
-                        {fmtChange(latest.actualChange)} on LeetCode
+                        {latest.ratingPending ? 'pending LeetCode update' : `${fmtChange(latest.actualChange)} on LeetCode`}
                       </span>
                     </div>
                   </div>
@@ -347,17 +428,18 @@ export default function LcHub() {
               </p>
             )}
 
-            <details className="lch-whatif" open={!!noContests}>
+            <details className="lch-whatif" open={!!noContests || !!pending}>
               <summary className="lch-whatif-summary">
                 <SlidersHorizontal size={15} aria-hidden />
-                <span>What if you placed differently?</span>
+                <span>{pending ? `Project your ${pending.title} finish` : 'What if you placed differently?'}</span>
                 <ChevronRight size={15} className="lch-whatif-caret" aria-hidden />
               </summary>
 
               <div className="lch-whatif-body">
                 <p className="lch-whatif-note">
-                  Hypothetical only — drag a finish to project the swing from a baseline rating of{' '}
-                  {Math.round(whatIfBase)}.
+                  {pending
+                    ? `Drag your finish to project ${pending.title} from your current rating of ${Math.round(whatIfBase)}.`
+                    : `Hypothetical only — drag a finish to project the swing from a baseline rating of ${Math.round(whatIfBase)}.`}
                 </p>
 
                 <div className="lch-slider-row">

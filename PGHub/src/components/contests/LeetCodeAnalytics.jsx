@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, Target, SlidersHorizontal,
-  ChevronRight, Minus,
+  ChevronRight, Minus, Hourglass, Clock,
 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -127,6 +127,65 @@ export const SAMPLE_FIELD = [
   1470, 1430, 1390, 1350, 1310, 1270, 1230, 1180, 1120, 1040, 950, 850,
 ];
 
+// ── Pending (unrated) contest detection ──────────────────────────────────────
+// LeetCode appends a round to userContestRankingHistory only AFTER it rates it,
+// which can lag the contest by a day or more. So the API's "latest" round may be
+// one or two behind what the user actually just played. We detect that gap from
+// the public cadence (Weekly every Sunday 02:30 UTC, Biweekly alternate
+// Saturdays 14:30 UTC) and surface the most recent FINISHED round that started
+// after the last rated one as "awaiting LeetCode's rating". As soon as LeetCode
+// rates it, it enters the history and this returns null again (self-correcting).
+const PENDING_WEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 8, 29, 2, 30), number: 419 }; // Sun 2024-09-29
+const PENDING_BIWEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 9, 5, 14, 30), number: 142 }; // Sat 2024-10-05
+const PENDING_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+const PENDING_FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
+const PENDING_DURATION_MS = 90 * 60 * 1000;
+
+function parseContestNumber(title) {
+  const m = /(\d+)\s*$/.exec(String(title || '').trim());
+  return m ? Number(m[1]) : null;
+}
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function pendingContestSince(lastRated, nowMs = Date.now()) {
+  const lastStartMs = Number(lastRated?.startTime) * 1000;
+  if (!Number.isFinite(lastStartMs) || lastStartMs <= 0) return null;
+
+  // Latest occurrence of each cadence that has fully FINISHED by now.
+  const latestFinished = (anchorMs, period) => {
+    const k = Math.floor((nowMs - anchorMs - PENDING_DURATION_MS) / period);
+    return k >= 0 ? anchorMs + k * period : null;
+  };
+  const wStart = latestFinished(PENDING_WEEKLY_ANCHOR.utcMs, PENDING_WEEK_MS);
+  const bStart = latestFinished(PENDING_BIWEEKLY_ANCHOR.utcMs, PENDING_FORTNIGHT_MS);
+
+  const cands = [];
+  if (wStart && wStart > lastStartMs) cands.push({ kind: 'weekly', startMs: wStart, period: PENDING_WEEK_MS });
+  if (bStart && bStart > lastStartMs) cands.push({ kind: 'biweekly', startMs: bStart, period: PENDING_FORTNIGHT_MS });
+  if (!cands.length) return null;
+  cands.sort((a, b) => b.startMs - a.startMs);
+  const pick = cands[0];
+
+  // Cadence NUMBERING drifts from LeetCode's real numbering, so never trust the
+  // synthetic number. If the last rated round is the SAME cadence, extrapolate a
+  // real number from its title; otherwise present the round by date only.
+  const lastTitle = lastRated?.title || '';
+  const lastIsBiweekly = /biweekly/i.test(lastTitle);
+  const lastIsWeekly = /weekly/i.test(lastTitle) && !lastIsBiweekly;
+  const lastNum = parseContestNumber(lastTitle);
+  const label = pick.kind === 'weekly' ? 'Weekly Contest' : 'Biweekly Contest';
+  let title = label;
+  if (
+    lastNum != null &&
+    ((pick.kind === 'weekly' && lastIsWeekly) || (pick.kind === 'biweekly' && lastIsBiweekly))
+  ) {
+    const steps = Math.round((pick.startMs - lastStartMs) / pick.period);
+    title = `${label} ${lastNum + steps}`;
+  }
+
+  return { kind: pick.kind, startMs: pick.startMs, startTime: Math.round(pick.startMs / 1000), title };
+}
+
 const DIFF_HUE = { easy: 'var(--easy)', medium: 'var(--medium)', hard: 'var(--hard)' };
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -151,6 +210,7 @@ export default function LeetCodeAnalytics() {
   const [draft, setDraft] = useState('');
   const [handle, setHandle] = useState('');
   const [prefilled, setPrefilled] = useState(false);
+  const [nowMs] = useState(() => Date.now());
 
   useEffect(() => {
     let alive = true;
@@ -209,6 +269,18 @@ export default function LeetCodeAnalytics() {
     return { current, oldRating, newRating, actualChange, expected, isDebut: !previous, played, ratingPending };
   }, [user]);
 
+  // A round the user just played that LeetCode hasn't rated yet (so it isn't in
+  // the history API). Only when the API's latest IS finalized — if the latest
+  // entry is itself unrated, the ratingPending path above already covers it.
+  const pending = useMemo(() => {
+    if (!latest || latest.ratingPending) return null;
+    const p = pendingContestSince(latest.current, nowMs);
+    if (!p) return null;
+    const base = Math.round(Number(latest.newRating) || realRating);
+    const played = Math.max(0, Number(user?.attendedContestsCount) || latest.played + 1);
+    return { ...p, base, played };
+  }, [latest, realRating, user, nowMs]);
+
   const submit = (e) => {
     e.preventDefault();
     const v = draft.trim();
@@ -217,13 +289,17 @@ export default function LeetCodeAnalytics() {
 
   const noContests = handle && !isLoading && !isError && user && !latest;
 
-  // ── What-if (demoted): re-run against the SAME baseline the last contest used,
-  // so experimenting with a different finish stays anchored to the real rating. ─
+  // ── What-if (demoted): re-run against the SAME baseline the last round used,
+  // so experimenting with a different finish stays anchored to the real rating.
+  // When a round is awaiting LeetCode's rating, rebase onto the CURRENT rating so
+  // dragging a finish projects that pending round directly. ─
   const [rank, setRank] = useState(820);
-  const whatIfBase = latest ? latest.oldRating : realRating;
-  const whatIfPlayed = latest
-    ? latest.played
-    : Math.max(0, (Number(user?.attendedContestsCount) || 1) - 1);
+  const whatIfBase = pending ? pending.base : latest ? latest.oldRating : realRating;
+  const whatIfPlayed = pending
+    ? pending.played
+    : latest
+      ? latest.played
+      : Math.max(0, (Number(user?.attendedContestsCount) || 1) - 1);
 
   const whatIf = useMemo(
     () => predictDelta({
@@ -318,12 +394,51 @@ export default function LeetCodeAnalytics() {
               </div>
             </div>
 
+            {pending && (
+              <article className="lca-contest lca-contest-pending">
+                <header className="lca-contest-head">
+                  <div className="lca-contest-title">
+                    <Hourglass size={16} aria-hidden />
+                    <span>{pending.title}</span>
+                  </div>
+                  <span className="lca-pending-pill">
+                    <Clock size={12} aria-hidden /> Awaiting LeetCode rating
+                  </span>
+                </header>
+
+                <div className="lca-facts">
+                  <div className="lca-fact">
+                    <span className="lca-fact-ico"><Calendar size={14} aria-hidden /></span>
+                    <span className="lca-fact-val lca-fact-date">{fmtDate(pending.startTime)}</span>
+                    <span className="lca-fact-lbl">Contest day</span>
+                  </div>
+                  <div className="lca-fact">
+                    <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
+                    <span className="lca-fact-val">—</span>
+                    <span className="lca-fact-lbl">Rank pending</span>
+                  </div>
+                  <div className="lca-fact">
+                    <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
+                    <span className="lca-fact-val">{pending.base}</span>
+                    <span className="lca-fact-lbl">Current rating</span>
+                  </div>
+                </div>
+
+                <p className="lca-pending-note">
+                  LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
+                  rated history. Your last confirmed rating is {pending.base}. Project the finish below to
+                  see the likely swing — it&apos;ll be confirmed once LeetCode posts the official change.
+                </p>
+              </article>
+            )}
+
             {latest && (
               <article className="lca-contest">
                 <header className="lca-contest-head">
                   <div className="lca-contest-title">
                     <Trophy size={16} aria-hidden />
                     <span>{latest.current.title}</span>
+                    {pending && <span className="lca-rated-tag">Last rated</span>}
                   </div>
                   <span className="lca-contest-date">
                     <Calendar size={13} aria-hidden />
@@ -419,17 +534,18 @@ export default function LeetCodeAnalytics() {
 
       {/* Demoted what-if: manual sliders for experimenting only */}
       <section className="lca-section">
-        <details className="lca-whatif" open={!!noContests}>
+        <details className="lca-whatif" open={!!noContests || !!pending}>
           <summary className="lca-whatif-summary">
             <SlidersHorizontal size={15} aria-hidden />
-            <span>What-if: try a different finish</span>
+            <span>{pending ? `Project your ${pending.title} finish` : 'What-if: try a different finish'}</span>
             <ChevronRight size={15} className="lca-whatif-caret" aria-hidden />
           </summary>
 
           <div className="lca-whatif-body">
             <p className="lca-whatif-note">
-              Hypothetical only — drag a finish rank to project the swing from a baseline rating of{' '}
-              {Math.round(whatIfBase)}.
+              {pending
+                ? `Drag your finish rank to project ${pending.title} from your current rating of ${Math.round(whatIfBase)}.`
+                : `Hypothetical only — drag a finish rank to project the swing from a baseline rating of ${Math.round(whatIfBase)}.`}
             </p>
 
             <div className="lca-predictor">
