@@ -573,6 +573,10 @@ def elbo(recon, x, mu, logvar):
   },
 ];
 
+import { getProjectCells } from './pgForgeProjectCells';
+
 export function getProject(slug) {
-  return PG_FORGE_PROJECTS.find((p) => p.slug === slug) || null;
+  const project = PG_FORGE_PROJECTS.find((p) => p.slug === slug) || null;
+  if (!project) return null;
+  return { ...project, cells: getProjectCells(slug) };
 }

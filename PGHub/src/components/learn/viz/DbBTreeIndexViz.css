@@ -1,0 +1,76 @@
+.dbbt { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.dbbt-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.dbbt-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.dbbt-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.dbbt-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.dbbt-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.dbbt-sub b { color: var(--text-main); }
+.dbbt-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbbt-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.dbbt-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+.dbbt-chip-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.dbbt-chip {
+  font-family: var(--mono); font-size: 0.7rem; font-weight: 600; min-width: 30px;
+  padding: 0.26rem 0.5rem; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.dbbt-chip:hover { border-color: var(--accent); color: var(--accent); }
+.dbbt-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+.dbbt-chip-empty { font-size: 0.68rem; color: var(--text-dim); font-style: italic; }
+
+.dbbt-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.dbbt-svg { width: 100%; height: auto; max-height: 40vh; display: block; }
+
+.dbbt-edge { stroke: var(--border); stroke-width: 1.4; }
+.dbbt-edge.is-path { stroke: var(--accent); stroke-width: 2.4; }
+.dbbt-chain { stroke: var(--hue-sky); stroke-width: 1.2; stroke-dasharray: 3 3; opacity: 0.7; }
+
+.dbbt-node { fill: var(--bg); stroke: var(--hue-violet); stroke-width: 1.4; transition: stroke var(--t), fill var(--t); }
+.dbbt-node.is-leaf { stroke: var(--border); }
+.dbbt-node.is-path { stroke: var(--accent); stroke-width: 2.2; fill: rgba(var(--accent-rgb), 0.1); }
+.dbbt-key { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.dbbt-key.is-hit { fill: var(--easy); }
+
+.dbbt-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.dbbt-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dbbt-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.dbbt-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dbbt-meta { font-size: 0.7rem; color: var(--text-dim); }
+
+.dbbt-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
+.dbbt-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.dbbt-stat-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.dbbt-stat-val { font-size: 0.82rem; color: var(--text-main); font-weight: 600; }
+.dbbt-accent { border-color: var(--accent); }
+.dbbt-accent .dbbt-stat-val { color: var(--accent); }
+.dbbt-pink { border-color: var(--hue-pink); }
+.dbbt-pink .dbbt-stat-val { color: var(--hue-pink); }
+
+.dbbt-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem;
+}
+.dbbt-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .dbbt-stats { grid-template-columns: 1fr; } }

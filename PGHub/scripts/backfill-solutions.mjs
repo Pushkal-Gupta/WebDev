@@ -26,6 +26,7 @@ import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { wrapWithDriver, buildStdin, compareOutput } from '../src/lib/driverCode.js';
 import { compareOutputSmart, ORDER_INSENSITIVE } from './sol-batches/grade-helpers.mjs';
+import { runLocal } from './local-grade.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 try {
@@ -62,6 +63,10 @@ const J0_HEADERS = JUDGE0_AUTH
   ? { 'content-type': 'application/json', 'X-Auth-Token': JUDGE0_AUTH }
   : { 'content-type': 'application/json' };
 const PAUSE_MS = Number(val("pause") || 200);
+// Default to host-toolchain execution; Judge0's emulated isolate is unreliable on
+// this arm64 VM and we author every solution, so a sandbox buys nothing.
+// Opt back into Judge0 with LOCAL_EXEC=0 (or --judge0-remote).
+const LOCAL_EXEC = process.env.LOCAL_EXEC !== '0' && !has('judge0-remote');
 
 const LANG_ID = { python: 71, javascript: 63, java: 62, cpp: 54 };
 const LANGS = ['python', 'javascript', 'java', 'cpp'];
@@ -1770,6 +1775,12 @@ public:
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
 async function judgeRun(languageId, sourceCode, stdin) {
+  if (LOCAL_EXEC) {
+    const r = runLocal(languageId, sourceCode, stdin, { timeoutMs: 8000 });
+    return r.ok
+      ? { ok: true, stdout: r.stdout, error: null }
+      : { ok: false, stdout: r.stdout || '', error: `${r.status}: ${(r.err || '').slice(0, 220)}` };
+  }
   const url = `${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`;
   let lastErr;
   for (let attempt = 1; attempt <= 4; attempt++) {
@@ -1815,12 +1826,21 @@ function isStub(code) {
   if (!code) return true;
   const body = code.trim();
   if (body.length < 12) return true;
-  const stripped = body
+  const noComments = body
     .replace(/(^|\n)\s*(#|\/\/).*/g, '')
-    .replace(/\/\*[\s\S]*?\*\//g, '')
-    .trim();
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+  const stripped = noComments.trim();
   if (stripped.length < 12) return true;
   if (/^\s*(pass|\.\.\.|return\s*(None|null|0|;)?\s*)$/i.test(stripped)) return true;
+  // Post-def stub: imports + class + a single `def`/`function` whose ENTIRE body is
+  // pass / ... / return None. These slipped through (they have structure around the
+  // empty body) and were wrongly counted "present", so the backfill skipped them.
+  const noImports = noComments.replace(/^\s*(from|import)\s.*$/gm, '');
+  const afterPyDef = noImports.split(/def\s+\w+\s*\([^)]*\)\s*(?:->[^:]+)?:/).slice(1).join('\n').trim();
+  if (afterPyDef !== '' && /^(pass|\.\.\.|return(\s+None)?)$/.test(afterPyDef)) return true;
+  // JS/Java/C++ empty body: the method's braces hold nothing (or just `return;`).
+  const braceBody = noComments.match(/\)\s*(?:->[^{]*|:[^{]*)?\{([\s\S]*)\}\s*;?\s*\}?\s*$/);
+  if (braceBody && /^\s*(return\s*;?)?\s*$/.test(braceBody[1])) return true;
   return false;
 }
 
@@ -1952,7 +1972,7 @@ async function processProblem(id) {
 async function main() {
   const ids = ONLY || Object.keys(CANONICALS);
   console.log(`backfill-solutions ${DRY ? '(DRY — no writes)' : '(LIVE — will UPDATE solutions)'}`);
-  console.log(`Judge0: ${JUDGE0_URL} | targets: ${ids.length}\n`);
+  console.log(`exec: ${LOCAL_EXEC ? 'LOCAL host toolchain' : 'Judge0 ' + JUDGE0_URL} | targets: ${ids.length}\n`);
 
   const results = [];
   for (const id of ids) {

@@ -1,0 +1,77 @@
+.cpc { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.cpc-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cpc-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.cpc-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.cpc-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cpc-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.cpc-sub .katex { font-size: 0.92em; color: var(--text-main); margin: 0 0.15em; }
+.cpc-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cpc-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.cpc-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.cpc-svg { width: 100%; height: auto; display: block; }
+
+.cpc-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.9rem; }
+.cpc-play {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 700;
+  padding: 0.42rem 0.85rem; border: 1px solid var(--accent); border-radius: 8px;
+  background: var(--hover-box); color: var(--accent); cursor: pointer;
+  transition: border-color var(--t), color var(--t), opacity var(--t);
+}
+.cpc-play:hover { color: var(--text-main); }
+.cpc-play:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.cpc-slider { flex: 1 1 220px; display: flex; align-items: center; gap: 0.55rem; font-size: 0.74rem; color: var(--text-dim); }
+.cpc-slider span:first-child { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+.cpc-slider input { flex: 1 1 auto; accent-color: var(--accent); }
+.cpc-slider-val { font-weight: 700; color: var(--accent); min-width: 3.4ch; text-align: right; }
+
+.cpc-seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.cpc-seg-btn {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 0.38rem 0.7rem;
+  background: var(--surface); color: var(--text-dim); border: none; cursor: pointer;
+  border-right: 1px solid var(--border); transition: color var(--t), background var(--t);
+}
+.cpc-seg-btn:last-child { border-right: none; }
+.cpc-seg-btn:hover { color: var(--accent); }
+.cpc-seg-on { background: var(--hover-box); color: var(--accent); }
+
+.cpc-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.cpc-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.cpc-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.cpc-stat-val { font-size: 0.82rem; color: var(--text-main); }
+.cpc-stat-val .katex { color: var(--text-main); }
+.cpc-accent { border-color: var(--accent); }
+.cpc-accent .katex { color: var(--accent); }
+.cpc-sky { border-color: var(--hue-sky); }
+.cpc-sky .katex { color: var(--hue-sky); }
+.cpc-pink { border-color: var(--hue-pink); }
+.cpc-pink .katex { color: var(--hue-pink); }
+.cpc-green { border-color: var(--easy); }
+.cpc-green .katex { color: var(--easy); }
+
+.cpc-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.cpc-trace-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.cpc-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.6; }
+.cpc-trace-body .katex { color: var(--text-main); margin: 0 0.1em; }
+.cpc-trace-sep { margin: 0 0.35em; color: var(--text-dim); }
+.cpc-trace-note { color: var(--text-dim); }
+
+@media (max-width: 640px) { .cpc-stats { grid-template-columns: repeat(2, 1fr); } }

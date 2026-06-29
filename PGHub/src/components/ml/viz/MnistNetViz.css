@@ -128,6 +128,8 @@
   width: 100%;
   max-width: 460px;
   aspect-ratio: 460 / 560;
+  /* Cap the portrait stage so the head + readout below it stay in view at 1440x900. */
+  max-height: 50vh;
   display: block;
   margin: 0 auto;
   user-select: none;

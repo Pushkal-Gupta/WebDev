@@ -1935,6 +1935,30 @@
   width: 100%;
   max-width: 100%;
 }
+/* A viz must FIT ON SCREEN with its controls (CLAUDE.md): cap the drawing
+   surface so the header + sliders/buttons + readouts below it stay in view at
+   1440x900. The SVG keeps its viewBox aspect ratio — the height cap shrinks the
+   rendered width to match; never an inner scrollbar, never clipping. Lucide
+   chrome icons (class "lucide", fixed px size) are excluded so they're never
+   distorted; only the plotting SVGs are capped. */
+.viz-detail-stage svg:not(.lucide) {
+  max-height: 42vh;
+}
+/* When a viz stacks SEVERAL drawing surfaces (multi-panel trees, an items rail
+   above a grid, side-by-side histograms), each surface gets a smaller share so
+   the whole stack + its readouts/controls still clear the viewport at 1440x900. */
+.viz-detail-stage .lhv-svg:not(.lucide),
+.viz-detail-stage .sa-viz-svg:not(.lucide),
+.viz-detail-stage .manacher-viz-svg:not(.lucide),
+.viz-detail-stage .knapsackviz-svg:not(.lucide),
+.viz-detail-stage .sev-svg:not(.lucide) {
+  max-height: 36vh;
+}
+/* Side-by-side histogram panels (CLT) also carry stat cards + a trace below;
+   cap the two surfaces tighter so the whole unit clears the viewport. */
+.viz-detail-stage .pscl-svg:not(.lucide) {
+  max-height: 30vh;
+}
 
 .viz-detail-section {
   background: var(--surface);

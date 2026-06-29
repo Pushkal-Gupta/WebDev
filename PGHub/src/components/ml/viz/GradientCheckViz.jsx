@@ -401,14 +401,13 @@ export default function GradientCheckViz() {
 
       <div className="mlviz-readout">
         {/* Formulas */}
-        <div className="mlviz-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: 4 }}>
-          <div style={{ color: 'var(--text-dim)', fontSize: 11, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Numerical gradient check</div>
+        <div className="mlviz-grid2">
           <div
             style={{ color: 'var(--hue-pink, #ff66cc)', fontSize: 13 }}
             dangerouslySetInnerHTML={{ __html: centralTex }}
           />
           <div
-            style={{ color: 'var(--text-dim)', fontSize: 12 }}
+            style={{ color: 'var(--text-dim)', fontSize: 12, alignSelf: 'center' }}
             dangerouslySetInnerHTML={{ __html: forwardTex }}
           />
         </div>
@@ -419,17 +418,19 @@ export default function GradientCheckViz() {
           <span className="mlviz-val">{fmtSci(analytic, 6)}</span>
           <span className="mlviz-sub">analytic, exact</span>
         </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-pink, #ff66cc)' }}>central</span>
-          <span className="mlviz-val">{fmtSci(numericCentral, 6)}</span>
-          <span className="mlviz-sub">err = {fmtSci(errCentral, 3)}</span>
-          <span className="mlviz-sub">rel = {fmtSci(relCentral, 3)}</span>
-        </div>
-        <div className="mlviz-row">
-          <span className="mlviz-tag" style={{ color: 'var(--hue-violet, #b48bff)' }}>forward</span>
-          <span className="mlviz-val">{fmtSci(numericForward, 6)}</span>
-          <span className="mlviz-sub">err = {fmtSci(errForward, 3)}</span>
-          <span className="mlviz-sub">O(ε) vs central O(ε²)</span>
+        <div className="mlviz-grid2">
+          <div className="mlviz-row">
+            <span className="mlviz-tag" style={{ color: 'var(--hue-pink, #ff66cc)' }}>central</span>
+            <span className="mlviz-val">{fmtSci(numericCentral, 6)}</span>
+            <span className="mlviz-sub">err = {fmtSci(errCentral, 3)}</span>
+            <span className="mlviz-sub">rel = {fmtSci(relCentral, 3)}</span>
+          </div>
+          <div className="mlviz-row">
+            <span className="mlviz-tag" style={{ color: 'var(--hue-violet, #b48bff)' }}>forward</span>
+            <span className="mlviz-val">{fmtSci(numericForward, 6)}</span>
+            <span className="mlviz-sub">err = {fmtSci(errForward, 3)}</span>
+            <span className="mlviz-sub">O(ε) vs central O(ε²)</span>
+          </div>
         </div>
 
         {/* Function picker */}
@@ -456,8 +457,8 @@ export default function GradientCheckViz() {
           })}
         </div>
 
-        {/* x slider */}
-        <div className="mlviz-row mlviz-controls">
+        {/* x + ε sliders side by side */}
+        <div className="mlviz-grid2">
           <label className="mlviz-slider" style={{ flex: 1 }}>
             <span className="mlviz-slider-label">x</span>
             <input
@@ -470,10 +471,6 @@ export default function GradientCheckViz() {
             />
             <span className="mlviz-slider-val">{fmtSci(x0, 3)}</span>
           </label>
-        </div>
-
-        {/* eps slider (log scale) */}
-        <div className="mlviz-row mlviz-controls">
           <label className="mlviz-slider" style={{ flex: 1 }}>
             <span className="mlviz-slider-label">ε</span>
             <input
@@ -494,20 +491,20 @@ export default function GradientCheckViz() {
           style={{
             border: `1px solid ${errBadge.color}`,
             borderRadius: 6,
-            padding: '6px 9px',
+            padding: '5px 9px',
             background: 'var(--bg)',
-            flexDirection: 'column',
-            alignItems: 'stretch',
-            gap: 4,
+            flexDirection: 'row',
+            alignItems: 'baseline',
+            gap: 8,
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 11, color: errBadge.color, fontWeight: 700, letterSpacing: '0.08em' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 11, color: errBadge.color, fontWeight: 700, letterSpacing: '0.08em', flexShrink: 0 }}>
             <span style={{
               display: 'inline-block', width: 8, height: 8, borderRadius: '50%', background: errBadge.color,
             }} />
             {errBadge.label}
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.45 }}>
+          </span>
+          <div style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.4 }}>
             {tooLarge && 'ε too large — secant slope misses curvature; truncation error dominates (O(ε²) on central).'}
             {sweetSpot && 'central difference is at the sweet spot: ε≈1e-4..1e-6 balances truncation and float roundoff.'}
             {tooSmall && 'ε too small — f(x+ε) and f(x-ε) collapse to nearly identical doubles; cancellation noise wrecks the estimate.'}

@@ -24,6 +24,17 @@ Audit at 1920×1080 desktop AND 1440×900 laptop. If there's a band of empty spa
 - This is distinct from NO EMPTY SPACE: that rule kills *large dead bands*; this rule guarantees a *small, deliberate* gap so content visibly "finishes". A page fills the viewport AND ends with breathing room — both are true at once.
 - When something looks "cut", first check it's not just below the fold (scroll reveals it); if it genuinely clips, the container is missing bottom padding or has an `overflow:hidden` + fixed height — fix the padding/height, never add an inner scrollbar.
 
+## A visualization must FIT ON SCREEN with its controls (HARD)
+
+**A viz and ALL of its controls must be visible at once, without scrolling and without any inner scrollbar.** If a reader has to scroll to reach the Play/Step/Reset buttons, the sliders, or the readouts under a visualization, that's a bug. The whole interactive unit — stage + controls + readouts — fits inside the viewport (audit at 1440×900 AND 1366×768).
+
+- Size the viz STAGE so that `stage height + controls height + readouts height ≤ usable viewport height`. The SVG scales down (viewBox) to leave room for the controls; never let the SVG push the controls off-screen.
+- Controls and readouts are NOT optional tails that fall below the fold — they're part of the viz. Cap the SVG/canvas (e.g. `max-height: 48–56vh`) so the controls always sit within view beneath it.
+- No inner scrollbar to reach any part of the viz (this is the no-scrollbar rule applied to viz specifically): shrink the stage, not scroll it.
+- This applies to ML lesson viz (`ml/viz/*`, `MLLesson`), concept viz (`learn/viz/*`, `ConceptPage`, `/visualize`), and the live notebook — everywhere a viz renders with controls.
+
+Audit: load the viz route headless at 1440×900, confirm the last control/readout's bottom edge is within the viewport. If it's cut off, the stage is too tall — reduce the SVG `max-height` until stage + controls fit.
+
 ## What this is
 
 PGcode is a single-author DSA / interview-prep platform aiming to be measurably better than NeetCode + GeeksforGeeks + Programiz combined — broader catalog, deeper editorial, more polished UI, server-side grading, multi-language support. Design quality and editorial depth outrank feature count.

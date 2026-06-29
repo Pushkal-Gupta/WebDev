@@ -28,18 +28,27 @@ When you notice an agent stalling, repeating a mistake, or producing the same bu
 
 | File | Topic |
 |---|---|
-| `00-orient.md` | Start here — routes you to the right page by task type |
-| `viz-component-patterns.md` | How to write a new SVG viz without tripping lint or scrollbars |
-| `large-file-edit-strategy.md` | Why `mlContent.js` writes stall — and what to do instead |
+| `00-orient.md` | Start here — routes you to the right page by task type (complete grouped index) |
+| `content-growth-pipeline.md` | The wave pattern for adding Learn concepts at scale (author → viz → register → import) |
+| `adding-a-learn-module.md` | Standing up a new subject area: the `PGcode_modules` row + idempotent migration + sub-modules |
 | `concept-audit-checklist.md` | How to add a new `content/concepts/*.md` without duplicating |
-| `test-coverage-pipeline.md` | The Stage 1–6 plan + which scripts do what |
 | `explained-samples-backfill.md` | How to write 60–120 word explanation paragraphs that teach |
-| `scrollbar-rule.md` | The single hardest rule — only the vertical page scroll exists |
+| `contest-seeding.md` | Seeding internal PGArena contests (`PGcode_contests` + `_contest_problems`, deterministic pick) |
+| `viz-component-patterns.md` | How to write a new SVG viz without tripping lint or scrollbars |
+| `premium-explorer-viz.md` | The premium ML "explorer" bar + central registration + lazy-mount |
+| `manim-style-animation.md` | 3B1B-style animation in React (SVG + rAF + KaTeX); not literal manim video |
+| `live-notebook.md` | The editable in-browser code → `step()` frames notebook on `/visualize/<slug>` |
+| `component-css-import.md` | The "giant black circle": route-mismatched CSS imports ship unstyled SVG |
+| `entranthub-visualgo-integration.md` | External contest-aggregation + VisuAlgo visualize-overhaul plan (and the "delete the references" rule) |
+| `large-file-edit-strategy.md` | Why `mlContent.js` writes stall — and what to do instead |
 | `judge0-and-backgrounds.md` | When to launch background processes + how to monitor them |
 | `agent-dispatch-recipes.md` | Wave templates that have worked (and ones that haven't) |
-| `pattern-1-quoting-bug.md` | The JSON-double-quoting storage bug + fix recipe |
-| `entranthub-visualgo-integration.md` | EntrantHub contest-aggregation + VisuAlgo visualize-overhaul plan (and the "delete the references" rule) |
+| `scrollbar-rule.md` | The single hardest rule — only the vertical page scroll exists |
 | `page-must-scroll.md` | The recurring "new page can't scroll" bug + the route-container fix + 5-pass UI verify |
+| `screenshot-qa-harness.md` | Headless screenshot QA — build-passing ≠ renders-correctly |
+| `test-coverage-pipeline.md` | The Stage 1–6 plan + which scripts do what |
+| `pattern-1-quoting-bug.md` | The JSON-double-quoting storage bug + fix recipe |
+| `pg-hub-rebrand.md` | The PG Hub rename + tab restructure (SubNav order, consolidations) |
 
 ## Authoring rules for wiki pages
 

@@ -1,0 +1,134 @@
+.pyscope { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.pyscope-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.pyscope-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.pyscope-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.pyscope-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.pyscope-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.pyscope-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pyscope-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.pyscope-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; }
+.pyscope-chips-label {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.2rem;
+}
+.pyscope-chip {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 700;
+  padding: 0.32rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.pyscope-chip:hover { border-color: var(--accent); color: var(--accent); }
+.pyscope-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.pyscope-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.pyscope-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.pyscope-arrow-head { fill: var(--accent); }
+
+/* nested scope rings */
+.pyscope-ring-box { fill: var(--bg); stroke-width: 1.6; transition: stroke var(--t), fill var(--t), opacity var(--t); }
+.pyscope-ring-label { font-size: 0.66rem; font-weight: 700; font-family: var(--mono); }
+.pyscope-ring-names { font-size: 0.66rem; font-weight: 700; font-family: var(--mono); }
+
+.pyscope-ring.is-local .pyscope-ring-box { stroke: var(--hue-pink); }
+.pyscope-ring.is-local .pyscope-ring-label,
+.pyscope-ring.is-local .pyscope-ring-names { fill: var(--hue-pink); }
+.pyscope-ring.is-enclosing .pyscope-ring-box { stroke: var(--hue-violet); }
+.pyscope-ring.is-enclosing .pyscope-ring-label,
+.pyscope-ring.is-enclosing .pyscope-ring-names { fill: var(--hue-violet); }
+.pyscope-ring.is-global .pyscope-ring-box { stroke: var(--hue-sky); }
+.pyscope-ring.is-global .pyscope-ring-label,
+.pyscope-ring.is-global .pyscope-ring-names { fill: var(--hue-sky); }
+.pyscope-ring.is-builtin .pyscope-ring-box { stroke: var(--hue-mint); }
+.pyscope-ring.is-builtin .pyscope-ring-label,
+.pyscope-ring.is-builtin .pyscope-ring-names { fill: var(--hue-mint); }
+
+/* state overlays — fill tints the ring by status */
+.pyscope-ring.is-pending .pyscope-ring-box { opacity: 0.45; }
+.pyscope-ring.is-cur .pyscope-ring-box {
+  fill: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 45%, transparent));
+  stroke-width: 2.4;
+}
+.pyscope-ring.is-miss .pyscope-ring-box { fill: var(--bg); opacity: 0.78; stroke-dasharray: 4 3; }
+.pyscope-ring.is-hit .pyscope-ring-box {
+  fill: color-mix(in srgb, var(--easy) 16%, var(--bg));
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--easy) 55%, transparent));
+  stroke: var(--easy); stroke-width: 2.6;
+}
+.pyscope-ring.is-hit .pyscope-ring-label,
+.pyscope-ring.is-hit .pyscope-ring-names { fill: var(--easy); }
+.pyscope-ring.is-miss .pyscope-ring-label,
+.pyscope-ring.is-miss .pyscope-ring-names { opacity: 0.6; }
+
+/* status badges */
+.pyscope-badge { transition: opacity var(--t); }
+.pyscope-badge-bg { fill: var(--surface); stroke: var(--border); stroke-width: 1; }
+.pyscope-ring.is-hit .pyscope-badge-bg { fill: color-mix(in srgb, var(--easy) 28%, var(--surface)); stroke: var(--easy); }
+.pyscope-ring.is-miss .pyscope-badge-bg,
+.pyscope-ring.is-cur .pyscope-badge-bg { fill: color-mix(in srgb, var(--warning) 24%, var(--surface)); stroke: var(--warning); }
+.pyscope-badge-icon { color: var(--text-main); }
+.pyscope-ring.is-hit .pyscope-badge-icon { color: var(--easy); }
+.pyscope-ring.is-miss .pyscope-badge-icon,
+.pyscope-ring.is-cur .pyscope-badge-icon { color: var(--warning); }
+
+/* lookup pointer */
+.pyscope-pointer-line { stroke: var(--accent); stroke-width: 2; }
+.pyscope-pointer-box { fill: color-mix(in srgb, var(--accent) 18%, var(--surface)); stroke: var(--accent); stroke-width: 1.6; }
+.pyscope-pointer-text { font-size: 0.74rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.pyscope-pointer.is-hit .pyscope-pointer-box { fill: color-mix(in srgb, var(--easy) 22%, var(--surface)); stroke: var(--easy); }
+.pyscope-pointer.is-hit .pyscope-pointer-line { stroke: var(--easy); }
+.pyscope-pointer.is-fail .pyscope-pointer-box { fill: color-mix(in srgb, var(--hard) 22%, var(--surface)); stroke: var(--hard); }
+.pyscope-pointer.is-fail .pyscope-pointer-line { stroke: var(--hard); }
+
+.pyscope-controls { display: flex; align-items: center; gap: 0.6rem; }
+.pyscope-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pyscope-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pyscope-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pyscope-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.pyscope-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pyscope-stat {
+  flex: 1 1 30%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.pyscope-stat.is-cur { border-left-color: var(--accent); color: var(--accent); }
+.pyscope-stat.is-hit { border-left-color: var(--easy); color: var(--easy); }
+.pyscope-stat.is-fail { border-left-color: var(--hard); color: var(--hard); }
+.pyscope-stat.is-idle { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.pyscope-stat.is-verdict { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.pyscope-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pyscope-stat-val { margin-left: auto; font-size: 0.9rem; font-weight: 700; text-align: right; }
+.pyscope-verdict { font-size: 0.74rem; }
+
+.pyscope-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-mint); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.pyscope-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pyscope-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pyscope-ring-box, .pyscope-badge { transition: none; }
+  .pyscope-ring.is-cur .pyscope-ring-box, .pyscope-ring.is-hit .pyscope-ring-box { filter: none; }
+}

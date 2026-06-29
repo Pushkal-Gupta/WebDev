@@ -1,0 +1,86 @@
+.psmle { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+
+.psmle-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.psmle-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.psmle-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.psmle-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.psmle-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.psmle-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.psmle-head-btns { flex: 0 0 auto; display: flex; gap: 0.4rem; }
+.psmle-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.psmle-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.psmle-controls { display: grid; grid-template-columns: 1fr; gap: 0.55rem; }
+.psmle-slider {
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.4rem 0.6rem;
+}
+.psmle-slider-key { flex: 0 0 auto; font-size: 0.72rem; color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.3rem; }
+.psmle-slider-key .katex { color: var(--accent); }
+.psmle-slider input[type="range"] { flex: 1 1 auto; min-width: 0; accent-color: var(--accent); cursor: pointer; }
+.psmle-slider-val { flex: 0 0 auto; font-size: 0.74rem; font-weight: 600; color: var(--text-main); min-width: 2.6em; text-align: right; }
+
+.psmle-panel {
+  display: flex; flex-direction: column; gap: 0.4rem;
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.55rem 0.6rem 0.45rem;
+}
+.psmle-panel-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.psmle-svg { width: 100%; height: auto; display: block; }
+
+.psmle-axis { stroke: var(--text-dim); stroke-width: 1; opacity: 0.6; }
+.psmle-tick { fill: var(--text-dim); font-size: 9px; font-family: var(--mono); }
+
+.psmle-trueline { stroke: var(--hue-mint); stroke-width: 1.2; stroke-dasharray: 3 4; opacity: 0.85; }
+.psmle-truetag { fill: var(--hue-mint); font-size: 9px; font-family: var(--mono); }
+
+.psmle-area { fill: url(#psmle-area-grad); stroke: none; }
+.psmle-curve { fill: none; stroke: url(#psmle-line-grad); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.psmle-curve-glow { fill: none; stroke: var(--accent); stroke-width: 3.4; opacity: 0.4; stroke-linecap: round; stroke-linejoin: round; }
+
+.psmle-peakline { stroke: var(--hue-violet); stroke-width: 1.2; stroke-dasharray: 5 4; opacity: 0.7; }
+.psmle-peakdot { fill: var(--hue-violet); stroke: var(--surface); stroke-width: 1.5; }
+
+.psmle-markerline { stroke: var(--accent); stroke-width: 1.4; opacity: 0.6; }
+.psmle-marker-halo { fill: rgba(var(--accent-rgb), 0.22); }
+.psmle-marker { fill: var(--accent); stroke: var(--surface); stroke-width: 1.5; }
+
+.psmle-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; align-items: stretch; }
+.psmle-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.psmle-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.psmle-stat-val { font-size: 0.84rem; color: var(--text-main); line-height: 1.45; }
+.psmle-stat-val .katex { color: var(--text-main); }
+.psmle-stat-sub { font-size: 0.78rem; color: var(--text-dim); }
+.psmle-stat-sub .katex { color: var(--text-dim); }
+.psmle-accent { border-color: var(--accent); }
+.psmle-accent .psmle-stat-val .katex { color: var(--accent); }
+.psmle-violet { border-color: var(--hue-violet); }
+.psmle-violet .psmle-stat-val .katex { color: var(--hue-violet); }
+
+.psmle-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.psmle-trace-label { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.psmle-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 720px) {
+  .psmle-stats { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .psmle-marker, .psmle-markerline, .psmle-marker-halo { transition: none; }
+}

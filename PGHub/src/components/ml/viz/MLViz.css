@@ -19,7 +19,12 @@
 .mlviz-svg {
   width: 100%;
   max-width: 720px;
+  /* A viz must fit on screen WITH its controls: cap the stage so header +
+     readout/controls stay in view at 1440x900. Height cap + aspect-ratio
+     shrinks the width to keep proportions — never an inner scrollbar. */
+  max-height: 42vh;
   aspect-ratio: 1;
+  margin: 0 auto;
   user-select: none;
   touch-action: none;
   display: block;
@@ -27,12 +32,14 @@
 
 .mlviz-svg-wide {
   aspect-ratio: 380 / 300;
+  max-height: 48vh;
 }
 
 /* Portrait architecture diagrams (vertical block flow): taller than wide. */
 .mlviz-svg-portrait {
   aspect-ratio: var(--mlviz-portrait-ar, 360 / 760);
   max-width: 420px;
+  max-height: 56vh;
   margin: 0 auto;
 }
 
@@ -1257,6 +1264,28 @@
 }
 .mlviz-statrow .mlviz-statcard-val {
   font-size: 1rem;
+}
+
+/* ===== Compact readout utilities — keep viz unit (svg + controls + readouts)
+   within 1440x900 without inner scrollbars. Layout only, theme tokens only. ===== */
+
+/* Two side-by-side control/slider columns instead of a tall single stack. */
+.mlviz-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.1rem 1.3rem;
+  align-items: start;
+}
+.mlviz-grid2col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+@media (max-width: 560px) {
+  .mlviz-grid2 {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 600px) {

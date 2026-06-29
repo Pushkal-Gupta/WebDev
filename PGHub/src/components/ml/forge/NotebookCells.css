@@ -1,0 +1,143 @@
+/* Jupyter-style interleaved notebook: markdown teaching cells + runnable code cells. */
+.nbc-notebook {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.nbc-notebook-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  background: color-mix(in srgb, var(--pjd-hue, var(--accent)) 6%, var(--surface));
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.nbc-notebook-head svg { color: var(--pjd-hue, var(--accent)); }
+.nbc-notebook-sub {
+  margin-left: auto;
+  color: var(--text-dim);
+  font-weight: 500;
+  font-size: 0.74rem;
+}
+
+.nbc-cells {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---------- cell frame ---------- */
+.nbc-cell {
+  display: grid;
+  grid-template-columns: 46px 1fr;
+  gap: 0;
+  padding: 1.1rem 1.1rem 1.1rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.nbc-cells > .nbc-cell:first-child { border-top: none; }
+
+.nbc-gutter {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.15rem;
+  user-select: none;
+}
+.nbc-gutter-md { color: var(--text-dim); }
+.nbc-gutter-code { padding-top: 0.45rem; }
+
+.nbc-exec {
+  font-family: 'Space Mono', var(--mono, monospace);
+  font-size: 0.74rem;
+  color: var(--pjd-hue, var(--accent));
+  white-space: nowrap;
+}
+.nbc-exec-n { font-weight: 700; }
+
+/* ---------- markdown cell ---------- */
+.nbc-cell-md {
+  background: transparent;
+}
+.nbc-md-body {
+  min-width: 0;
+}
+.nbc-p {
+  margin: 0 0 0.7rem;
+  color: var(--text-main);
+  line-height: 1.7;
+  font-size: 0.95rem;
+}
+.nbc-md-body > .nbc-p:last-child { margin-bottom: 0; }
+
+.nbc-h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.01em;
+}
+
+.nbc-ul, .nbc-ol {
+  margin: 0 0 0.7rem;
+  padding-left: 1.3rem;
+  color: var(--text-main);
+  line-height: 1.65;
+  font-size: 0.93rem;
+}
+.nbc-ul li, .nbc-ol li { margin: 0.2rem 0; }
+.nbc-md-body > .nbc-ul:last-child,
+.nbc-md-body > .nbc-ol:last-child { margin-bottom: 0; }
+
+.nbc-icode {
+  font-family: 'Space Mono', var(--mono, monospace);
+  font-size: 0.85em;
+  padding: 0.08em 0.36em;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--accent) 12%, var(--bg));
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  color: var(--text-main);
+}
+
+.nbc-imath .katex { font-size: 1em; color: var(--text-main); }
+.nbc-math {
+  margin: 0.4rem 0 0.8rem;
+  text-align: center;
+}
+.nbc-math .katex-display {
+  margin: 0;
+  max-width: 100%;
+  font-size: clamp(0.72rem, 2.1vw, 1rem);
+}
+.nbc-math .katex { color: var(--text-main); }
+
+.nbc-md-body a {
+  color: var(--pjd-hue, var(--accent));
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--pjd-hue, var(--accent)) 40%, transparent);
+}
+.nbc-md-body a:hover { border-bottom-color: var(--pjd-hue, var(--accent)); }
+
+/* ---------- code cell ---------- */
+.nbc-cell-code {
+  background: color-mix(in srgb, var(--pjd-hue, var(--accent)) 3%, transparent);
+}
+.nbc-code-body {
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .nbc-cell {
+    grid-template-columns: 32px 1fr;
+    padding: 0.9rem 0.7rem 0.9rem 0;
+  }
+  .nbc-gutter { padding-top: 0.1rem; }
+  .nbc-exec { font-size: 0.66rem; }
+}

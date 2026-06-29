@@ -1,6 +1,6 @@
 # PGcode
 
-A curated DSA learning platform that takes you from fundamentals to interview-ready. Not another problem dump — a structured system of ~200–500 problems designed to build pattern recognition, not memorization.
+A DSA / interview-prep platform that takes you from fundamentals to interview-ready: a **4,500+ problem catalog** with server-side grading in 4 languages, mutation-tested case suites, interactive visualizations for every concept, plus an ML/AI track — with curated roadmap tiers that build pattern recognition rather than rote memorization.
 
 **Live:** [pushkalgupta.com/PGcode](https://pushkalgupta.com/PGcode/dist/index.html)
 
@@ -10,12 +10,13 @@ A curated DSA learning platform that takes you from fundamentals to interview-re
 
 Most people fail DSA interviews after solving 300+ problems because they memorize solutions instead of learning patterns. PGcode fixes this with:
 
-- **Curated progression** — 200 / 300 / 500 problem tiers that build on each other
-- **Visual roadmap** — interactive DAG showing prerequisite dependencies between 22 topics
+- **Curated progression** — PGcode-N roadmap tiers (top-N problems, ≥1 per topic) over a 4,500+ problem catalog
+- **Visual roadmap** — interactive DAG showing prerequisite dependencies between topics
 - **Interactive dry runs** — step-through algorithm visualizations with embedded quiz questions
+- **Trustworthy grading** — server-side Judge0 grading; case suites are mutation-tested and constraint-checked so correct code passes and wrong code fails ([methodology](./docs/TEST_CASE_METHODOLOGY.md))
 - **Spaced repetition** — review queue surfaces problems before you forget them
 - **Pattern tags** — every problem tagged with its algorithmic technique, not just its topic
-- **Full workspace** — Monaco editor, 3-language support, real code execution via Judge0
+- **Full workspace** — Monaco editor, 4-language solutions (Python/JS/Java/C++), real code execution via Judge0
 
 ## Screenshots
 

@@ -300,16 +300,11 @@ export default function VisualizeIndex() {
 // an optional "write your own" disclosure rather than an empty default tab.
 
 function VizDetail({ slug }) {
-  const [showEditor, setShowEditor] = useState(true);
   const codePanelRef = useRef(null);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
-  useEffect(() => { setShowEditor(true); }, [slug]);
-
   // HashRouter treats href="#..." as a route change, so the chip programmatically
-  // scrolls to the panel (and expands the collapsed editor) instead of anchoring.
+  // scrolls to the code surface instead of anchoring.
   const scrollToCodePanel = () => {
-    setShowEditor(true);
     const node = codePanelRef.current;
     if (!node) return;
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
@@ -352,31 +347,20 @@ function VizDetail({ slug }) {
       : null);
   const hasEditor = Boolean(editorSlug);
   const hasWalkthrough = viz ? vizStepCount(viz) > 0 : false;
-  // The editable code surface, in priority order:
-  //   1. the concept's reference implementation (multi-language, from the DB)
-  //   2. the interactive template's starter code (JavaScript, runs in-browser)
-  // Whichever exists is rendered as a REAL editable + runnable RunnableCodePanel
-  // so the "Editable code" pill always reveals something the user can edit/run.
-  const templateCode = editorSlug ? INTERACTIVE_TEMPLATES[editorSlug]?.initialCode : null;
-  const panelCode = (concept?.code && typeof concept.code === 'object')
+  // Two distinct code surfaces:
+  //   1. LIVE NOTEBOOK (InteractiveVisualizer) — when an interactive template exists,
+  //      the reader edits the JS code AND the JSON data and the visualization
+  //      re-renders live in-browser. This is the star — surfaced prominently below.
+  //   2. REFERENCE implementation — the concept's canonical multi-language solution
+  //      (from the DB), shown as a runnable panel. NOT the template JS (that lives in
+  //      the live notebook), so there's no confusing duplicate / Judge0-harness path.
+  const refPanelCode = (concept?.code && typeof concept.code === 'object')
     ? concept.code
-    : (refCode ? refCode.body : templateCode);
-  const panelLang = refCode ? refCode.language : 'javascript';
-  // When the editable surface IS the interactive visualizer template (not a
-  // concept's DB reference code), its JS calls `input` / `step` / `log` — globals
-  // the visualizer supplies but Judge0 does not. Inject a run-time-only preamble
-  // that binds them so Run executes standalone and prints the step captions as a
-  // readable trace. Reference-implementation code paths get no preamble.
-  const isTemplatePanel = Boolean(editorSlug) && panelCode === templateCode;
-  const runPreamble = isTemplatePanel
-    ? `const input = ${JSON.stringify(INTERACTIVE_TEMPLATES[editorSlug]?.initialInput ?? {})};\n`
-      + `const __frames = [];\n`
-      + `function step(state, caption) { __frames.push(caption); if (caption !== undefined) console.log(String(caption)); }\n`
-      + `function log(...args) { console.log(...args); }`
-    : '';
-  // The "Editable code" badge must promise something real: it shows only when
-  // the page actually renders an editable surface.
-  const hasCodePanel = Boolean(panelCode) || hasEditor;
+    : (refCode ? refCode.body : null);
+  const refPanelLang = refCode ? refCode.language : 'python';
+  const hasRefCode = Boolean(refPanelCode);
+  // The "Editable code" badge promises something real: a live notebook or ref code.
+  const hasCodePanel = hasRefCode || hasEditor;
 
   const walkthrough = hasWalkthrough ? (
     <AlgoVisualizer
@@ -405,7 +389,7 @@ function VizDetail({ slug }) {
         </div>
         <div className="viz-detail-chips">
           {RichViz && <span className="viz-detail-chip primary"><Sparkles size={12} /> Interactive</span>}
-          {hasWalkthrough && <span className="viz-detail-chip"><Film size={12} /> {vizStepCount(viz)}-step walkthrough</span>}
+          {hasWalkthrough && !RichViz && !hasEditor && <span className="viz-detail-chip"><Film size={12} /> {vizStepCount(viz)}-step walkthrough</span>}
           {hasCodePanel && (
             <button type="button" onClick={scrollToCodePanel} className="viz-detail-chip viz-detail-chip-link">
               <Code2 size={12} /> Editable code
@@ -414,56 +398,48 @@ function VizDetail({ slug }) {
         </div>
       </header>
 
+      {/* One primary visualization, not three. When a polished interactive viz
+          exists it's the hero — the frame-walkthrough is redundant (the live
+          notebook below gives the editable step-through), so it's dropped.
+          Slugs WITHOUT an interactive viz fall back to the frame walkthrough. */}
       {RichViz ? (
-        <>
-          <section className="viz-detail-stage" aria-label="Interactive visualization">
-            <RichViz />
-          </section>
-          {walkthrough && (
-            <section className="viz-detail-section" aria-label="Step-by-step walkthrough">
-              <div className="viz-detail-section-head">
-                <Film size={14} />
-                <span>Step-by-step walkthrough</span>
-              </div>
-              {walkthrough}
-            </section>
-          )}
-        </>
-      ) : (
+        <section className="viz-detail-stage" aria-label="Interactive visualization">
+          <RichViz />
+        </section>
+      ) : !hasEditor ? (
         <section className="viz-detail-stage" aria-label="Step-by-step walkthrough">
           {walkthrough || (
             <p className="viz-detail-empty">This visualization has no frames yet.</p>
           )}
         </section>
-      )}
+      ) : null}
 
       {hasCodePanel && <div ref={codePanelRef} className="viz-detail-anchor" aria-hidden="true" />}
 
-      {panelCode && (
-        <section className="viz-detail-section" aria-label="Editable code">
+      {/* THE LIVE NOTEBOOK — edit the code AND the data; the visualization re-renders
+          live in your browser. This is the primary editable surface for any slug that
+          has an interactive template. */}
+      {hasEditor && (
+        <section className="viz-detail-section" aria-label="Live code notebook">
           <div className="viz-detail-section-head">
             <Code2 size={14} />
-            <span>Editable code — edit and run it</span>
+            <span>Live notebook — edit the code &amp; data, the visualization updates as you type</span>
           </div>
-          <RunnableCodePanel code={panelCode} lang={panelLang} runPreamble={runPreamble} />
+          <Suspense fallback={<div className="viz-detail-empty">Loading notebook…</div>}>
+            <InteractiveVisualizer slug={editorSlug} />
+          </Suspense>
         </section>
       )}
 
-      {hasEditor && (
-        <details className="viz-detail-advanced" open={showEditor} onToggle={(e) => setShowEditor(e.currentTarget.open)}>
-          <summary className="viz-detail-advanced-summary">
+      {/* Canonical multi-language reference implementation (runs via the grader). */}
+      {hasRefCode && (
+        <section className="viz-detail-section" aria-label="Reference code">
+          <div className="viz-detail-section-head">
             <Code2 size={14} />
-            <span>Trace it frame by frame — edit the visualizer code</span>
-            <span className="viz-detail-advanced-hint">JavaScript, runs in your browser</span>
-          </summary>
-          <div className="viz-detail-advanced-body">
-            {showEditor && (
-              <Suspense fallback={<div className="viz-detail-empty">Loading editor…</div>}>
-                <InteractiveVisualizer slug={editorSlug} />
-              </Suspense>
-            )}
+            <span>Reference implementation — run it in four languages</span>
           </div>
-        </details>
+          <RunnableCodePanel code={refPanelCode} lang={refPanelLang} />
+        </section>
       )}
 
       {meta.module && (

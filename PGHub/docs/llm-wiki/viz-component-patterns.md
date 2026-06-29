@@ -51,6 +51,31 @@ useEffect(() => {
 }, [isRunning]);
 ```
 
+## Colorful-by-value, teal-chrome (both at once)
+
+Two color rules the user enforces simultaneously (see [`premium-explorer-viz.md`](./premium-explorer-viz.md)):
+- **Chrome = brand teal `var(--accent)`** — accent stripe, icon-box, hover border, CTA.
+- **Data/visuals = COLORFUL** — curves, bars, segments use the `--hue-violet/sky/mint/pink`
+  palette + `color-mix`, not monochrome teal.
+
+"Where's the teal gone" = chrome drifted to rainbow. "Use colors not just teal" = the
+visuals went monochrome. Both are bugs. Still no hardcoded hex — theme tokens only.
+
+## No clipping (it's a scrollbar in disguise)
+
+A `viewBox` too small for its content clips strokes/labels at the edges; the reflex
+fix is an `overflow` wrapper — which is the scrollbar bug ([`scrollbar-rule.md`](./scrollbar-rule.md)).
+Instead size the `viewBox` to the *content bounds* (with padding) and let
+`width:100%` + `preserveAspectRatio="xMidYMid meet"` scale it. Architecture/pipeline
+diagrams flow **top-to-bottom**, never left-to-right (CLAUDE.md).
+
+## SVG defs ids are document-global — namespace them
+
+Every `<filter id>` / `<linearGradient id>` / `<clipPath id>` must be
+component-name-prefixed (or `useId()`-suffixed) and globally unique. Two viz sharing
+`id="glow"` collide when both render on one page. Audit:
+`grep -rhoE 'id="[a-z0-9-]+"' viz/*.jsx | sort | uniq -d`.
+
 ## CSS class naming convention
 
 Use the established `<prefix>-*` prefix that matches the component name. For `RabinKarpViz` → `rkv-stage`, `rkv-svg`, `rkv-controls`, `rkv-buttons`, `rkv-btn`, `rkv-btn-primary`, `rkv-metrics`, `rkv-arith`. Reference `RabinKarpViz.css` or `ZAlgorithmViz.css` as the canonical example.

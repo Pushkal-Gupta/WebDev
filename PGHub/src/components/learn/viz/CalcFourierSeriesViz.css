@@ -1,0 +1,64 @@
+.cfs { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+.cfs-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cfs-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.cfs-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.cfs-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cfs-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.cfs-sub .katex { font-size: 0.92em; color: var(--text-main); margin: 0 0.15em; }
+.cfs-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cfs-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.cfs-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.cfs-svg { width: 100%; height: auto; max-height: 46vh; display: block; margin: 0 auto; }
+.cfs-axis-lbl { fill: var(--text-dim); font-size: 0.7rem; font-family: var(--mono); }
+.cfs-inset-lbl { fill: var(--text-dim); font-size: 0.6rem; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.cfs-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+.cfs-play {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.42rem 0.85rem; border: 1px solid var(--accent); border-radius: 8px;
+  background: var(--hover-box); color: var(--accent); cursor: pointer;
+  transition: background var(--t), color var(--t);
+}
+.cfs-play:hover { background: var(--accent); color: var(--bg); }
+.cfs-slider { flex: 1 1 260px; display: flex; align-items: center; gap: 0.55rem; font-size: 0.74rem; color: var(--text-dim); }
+.cfs-slider span:first-child { display: inline-flex; align-items: center; gap: 0.3rem; white-space: nowrap; }
+.cfs-slider input { flex: 1 1 auto; accent-color: var(--accent); }
+.cfs-slider-val { font-weight: 700; color: var(--accent); min-width: 2.6ch; text-align: right; }
+
+.cfs-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+.cfs-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.cfs-stat-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.cfs-stat-val { font-size: 0.82rem; color: var(--text-main); }
+.cfs-stat-val .katex { color: var(--text-main); }
+.cfs-accent { border-color: var(--accent); }
+.cfs-accent .cfs-stat-val { color: var(--accent); }
+.cfs-violet { border-color: var(--hue-violet); }
+.cfs-violet .katex { color: var(--hue-violet); }
+.cfs-pink { border-color: var(--hue-pink); }
+.cfs-pink .katex { color: var(--hue-pink); }
+.cfs-mint { border-color: var(--hue-mint); }
+.cfs-mint .katex { color: var(--hue-mint); }
+
+.cfs-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.cfs-trace-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.cfs-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (max-width: 640px) { .cfs-stats { grid-template-columns: repeat(2, 1fr); } }

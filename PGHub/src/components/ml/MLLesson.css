@@ -668,6 +668,16 @@
   padding: 0.9rem;
 }
 
+/* A viz must FIT ON SCREEN with its controls (CLAUDE.md): bespoke/explorer viz
+   that draw with their own svg class (not the shared .mlviz-svg*) still need the
+   drawing surface capped so the header + readouts + sliders/buttons below stay in
+   view at 1440x900. The svg keeps its viewBox aspect ratio — the cap shrinks the
+   rendered width to match; never an inner scrollbar. Lucide chrome icons and the
+   shared, already-capped .mlviz-svg* surfaces are excluded. */
+.ml-viz-stage svg:not(.lucide):not(.mlviz-svg):not(.mlviz-svg-wide):not(.mlviz-svg-portrait) {
+  max-height: 42vh;
+}
+
 .ml-viz-placeholder {
   display: flex;
   align-items: center;

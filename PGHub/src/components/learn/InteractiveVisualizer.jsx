@@ -126,6 +126,13 @@ export default function InteractiveVisualizer({ slug }) {
     }
   }, [code, parsedInput]);
 
+  // Live: auto-run on mount and (debounced) whenever the code or input changes, so
+  // the visualization re-renders as the reader edits — no need to press Run.
+  useEffect(() => {
+    const t = setTimeout(() => { run(); }, 550);
+    return () => clearTimeout(t);
+  }, [run]);
+
   const reset = useCallback(() => {
     setPlaying(false);
     setCode(template.initialCode);

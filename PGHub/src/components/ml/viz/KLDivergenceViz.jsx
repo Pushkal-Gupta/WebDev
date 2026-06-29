@@ -395,53 +395,57 @@ export default function KLDivergenceViz() {
           </button>
         </div>
 
-        {/* p sliders */}
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: COLOR_P }}>p</span>
-          <span className="mlviz-sub">drag to set p(x); auto-normalised</span>
-        </div>
-        {p.map((pi, i) => (
-          <div className="mlviz-row" key={`pr${i}`}>
-            <span className="mlviz-tag" style={{ color: COLOR_P, fontSize: '0.78rem' }}>{`p${i + 1}`}</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={pRaw[i]}
-              onChange={(e) => updateP(i, parseFloat(e.target.value))}
-              style={{ flex: 1, minWidth: 80, accentColor: COLOR_P, cursor: 'pointer' }}
-            />
-            <span className="mlviz-val" style={{ minWidth: '3.2rem', textAlign: 'right', color: COLOR_P }}>
-              {pi.toFixed(3)}
-            </span>
+        {/* p / q sliders — two columns so the controls sit in 5 rows, not 10 */}
+        <div className="mlviz-grid2 mlviz-row-hi">
+          <div className="mlviz-grid2col">
+            <div className="mlviz-row">
+              <span className="mlviz-tag" style={{ color: COLOR_P }}>p</span>
+              <span className="mlviz-sub">drag to set p(x); auto-normalised</span>
+            </div>
+            {p.map((pi, i) => (
+              <div className="mlviz-row" key={`pr${i}`}>
+                <span className="mlviz-tag" style={{ color: COLOR_P, fontSize: '0.78rem' }}>{`p${i + 1}`}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={pRaw[i]}
+                  onChange={(e) => updateP(i, parseFloat(e.target.value))}
+                  style={{ flex: 1, minWidth: 60, accentColor: COLOR_P, cursor: 'pointer' }}
+                />
+                <span className="mlviz-val" style={{ minWidth: '3.2rem', textAlign: 'right', color: COLOR_P }}>
+                  {pi.toFixed(3)}
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
-
-        {/* q sliders */}
-        <div className="mlviz-row mlviz-row-hi">
-          <span className="mlviz-tag" style={{ color: COLOR_Q }}>q</span>
-          <span className="mlviz-sub">drag to set q(x); auto-normalised</span>
-        </div>
-        {q.map((qi, i) => (
-          <div className="mlviz-row" key={`qr${i}`}>
-            <span className="mlviz-tag" style={{ color: COLOR_Q, fontSize: '0.78rem' }}>{`q${i + 1}`}</span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={qRaw[i]}
-              onChange={(e) => updateQ(i, parseFloat(e.target.value))}
-              style={{ flex: 1, minWidth: 80, accentColor: COLOR_Q, cursor: 'pointer' }}
-            />
-            <span className="mlviz-val" style={{ minWidth: '3.2rem', textAlign: 'right', color: COLOR_Q }}>
-              {qi.toFixed(3)}
-            </span>
+          <div className="mlviz-grid2col">
+            <div className="mlviz-row">
+              <span className="mlviz-tag" style={{ color: COLOR_Q }}>q</span>
+              <span className="mlviz-sub">drag to set q(x); auto-normalised</span>
+            </div>
+            {q.map((qi, i) => (
+              <div className="mlviz-row" key={`qr${i}`}>
+                <span className="mlviz-tag" style={{ color: COLOR_Q, fontSize: '0.78rem' }}>{`q${i + 1}`}</span>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={qRaw[i]}
+                  onChange={(e) => updateQ(i, parseFloat(e.target.value))}
+                  style={{ flex: 1, minWidth: 60, accentColor: COLOR_Q, cursor: 'pointer' }}
+                />
+                <span className="mlviz-val" style={{ minWidth: '3.2rem', textAlign: 'right', color: COLOR_Q }}>
+                  {qi.toFixed(3)}
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
 
-        {/* readouts */}
+        {/* readouts — single wrapping row of all five metrics */}
         <div className="mlviz-statcol mlviz-statrow mlviz-row-hi">
           <div className="mlviz-statcard mlviz-statcard-accent">
             <span className="mlviz-statcard-label">D(p‖q) bits</span>
@@ -455,8 +459,6 @@ export default function KLDivergenceViz() {
             <span className="mlviz-statcard-label">JS(p,q) bits</span>
             <span className="mlviz-statcard-val">{js.toFixed(3)}</span>
           </div>
-        </div>
-        <div className="mlviz-statcol mlviz-statrow">
           <div className="mlviz-statcard mlviz-statcard-dim">
             <span className="mlviz-statcard-label">H(p) entropy</span>
             <span className="mlviz-statcard-val">{Hp.toFixed(3)}</span>
