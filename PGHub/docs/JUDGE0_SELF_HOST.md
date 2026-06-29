@@ -1,9 +1,18 @@
 # Self-hosting Judge0 — a developer's guide
 
-PGcode runs every piece of code execution through **Judge0**: grading a user's submission,
-verifying a generated test case against the canonical solution, and — the expensive one —
-**mutation testing** (running dozens of mutant solutions per problem to prove the test suite
-catches wrong code). See [`TEST_CASE_METHODOLOGY.md`](./TEST_CASE_METHODOLOGY.md).
+PGcode runs **untrusted** code execution through **Judge0**: grading a live user's submission in
+the Workspace, where the code could be anything and needs a sandbox. See
+[`TEST_CASE_METHODOLOGY.md`](./TEST_CASE_METHODOLOGY.md).
+
+> **Evolution note (2026-06-29).** The *offline* drives — generating/verifying test cases and
+> mutation testing — no longer use Judge0. Because **we author every canonical and mutant
+> ourselves**, the code isn't untrusted, so the sandbox adds only overhead. Those drives now run on
+> the **host toolchain** via `scripts/local-grade.mjs` (python3 / node / javac / clang++) with a
+> compile-once cache — far faster (C++ ~3.7 s → ~18 ms per case) and rate-limit-free. Set
+> `LOCAL_EXEC=0` to route a drive back through Judge0. This guide remains the reference for the
+> **sandboxed path** (untrusted user submissions) and for anyone who wants the drives sandboxed too.
+> On Apple silicon, isolate needs cgroup v1 (`systemd.unified_cgroup_hierarchy=0` on the VM) and the
+> amd64 image runs under emulation — the friction that motivated the local-exec default.
 
 ## Why self-host (instead of the public CE)
 

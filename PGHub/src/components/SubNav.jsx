@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { NavLink, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   Map, List, Terminal, Building2, Trophy, Swords,
-  GraduationCap, Brain, Vault, Bell, RotateCcw, ArrowRight,
+  GraduationCap, Brain, Vault,
 } from 'lucide-react';
-import { usePrefetch, useReviewDueItems, useReviewCount } from '../lib/queries';
+import { usePrefetch } from '../lib/queries';
 import './SubNav.css';
 
 // /assessments, /history, /achievements are intentionally absent — they were
@@ -36,120 +36,8 @@ const TABS = [
     matches: ['/vault', '/review', '/lists', '/notebook', '/progress'] },
 ];
 
-function overdueLabel(dateStr) {
-  if (!dateStr) return 'Due now';
-  const days = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000);
-  if (days <= 0) return 'Due today';
-  if (days === 1) return 'Overdue 1 day';
-  return `Overdue ${days} days`;
-}
 
-// Notifications bell — surfaces the spaced-repetition review queue (problems
-// solved that are now due for revisit). The count badge used to sit on the
-// PGVault tab with nowhere to view the items; this opens a panel listing them.
-function NotificationsBell({ userId }) {
-  const navigate = useNavigate();
-  const { data: dueItems = [] } = useReviewDueItems(userId);
-  const { data: count = 0 } = useReviewCount(userId);
-  const [open, setOpen] = useState(false);
-  const wrapRef = useRef(null);
-  const btnRef = useRef(null);
-
-  // dueItems is capped (panel preview); count is the true total due.
-  const more = count - dueItems.length;
-
-  const close = useCallback(() => setOpen(false), []);
-
-  useEffect(() => {
-    if (!open) return undefined;
-    const onPointer = (e) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target)) close();
-    };
-    const onKey = (e) => {
-      if (e.key === 'Escape') { close(); btnRef.current?.focus(); }
-    };
-    document.addEventListener('mousedown', onPointer);
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.removeEventListener('mousedown', onPointer);
-      document.removeEventListener('keydown', onKey);
-    };
-  }, [open, close]);
-
-  // Nothing due and signed-out users: no bell at all (no dead badge).
-  if (!userId) return null;
-
-  const go = (path) => { navigate(path); close(); };
-
-  return (
-    <div className="sub-nav-notif-wrap" ref={wrapRef}>
-      <button
-        ref={btnRef}
-        type="button"
-        className={`sub-nav-notif-btn ${open ? 'open' : ''}`}
-        aria-label={count > 0 ? `Notifications, ${count} review${count === 1 ? '' : 's'} due` : 'Notifications'}
-        aria-haspopup="menu"
-        aria-expanded={open}
-        onClick={() => setOpen(o => !o)}
-      >
-        <Bell size={16} />
-        {count > 0 && <span className="sub-nav-badge">{count}</span>}
-      </button>
-
-      {open && (
-        <div className="sub-nav-notif-panel" role="menu" aria-label="Notifications">
-          <div className="sub-nav-notif-head">
-            <span className="sub-nav-notif-title">Notifications</span>
-            {count > 0 && <span className="sub-nav-notif-count">{count} due</span>}
-          </div>
-
-          {count === 0 ? (
-            <div className="sub-nav-notif-empty">
-              <RotateCcw size={22} />
-              <p>You&apos;re all caught up.</p>
-              <span>No problems are due for review right now.</span>
-            </div>
-          ) : (
-            <>
-              <div className="sub-nav-notif-list">
-                {dueItems.map((item) => (
-                  <button
-                    key={item.problem_id}
-                    type="button"
-                    role="menuitem"
-                    className="sub-nav-notif-item"
-                    onClick={() => go(`/category/${item.problem.topic_id}/${item.problem.id}`)}
-                  >
-                    <span className="sub-nav-notif-item-icon"><RotateCcw size={14} /></span>
-                    <span className="sub-nav-notif-item-body">
-                      <span className="sub-nav-notif-item-name">{item.problem.name}</span>
-                      <span className="sub-nav-notif-item-meta">
-                        <span className="sub-nav-notif-item-topic">{item.problem.topic_id}</span>
-                        <span className="sub-nav-notif-item-time">{overdueLabel(item.next_review_at)}</span>
-                      </span>
-                    </span>
-                    <ArrowRight size={13} className="sub-nav-notif-item-arrow" />
-                  </button>
-                ))}
-              </div>
-              <button
-                type="button"
-                role="menuitem"
-                className="sub-nav-notif-foot"
-                onClick={() => go('/review')}
-              >
-                {more > 0 ? `View all ${count} in review queue` : 'View review queue'}
-                <ArrowRight size={13} />
-              </button>
-            </>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function SubNav({ userId }) {
+export default function SubNav() {
   const { prefetchProblems } = usePrefetch();
   const location = useLocation();
 
@@ -179,7 +67,6 @@ export default function SubNav({ userId }) {
             </NavLink>
           );
         })}
-        <NotificationsBell userId={userId} />
       </div>
     </nav>
   );

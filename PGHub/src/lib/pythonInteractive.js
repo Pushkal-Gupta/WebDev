@@ -47,6 +47,13 @@ export function loadPyodideOnce() {
 export async function runInteractive(code, { onStdout, onStdin, onError, onDone } = {}) {
   const py = await loadPyodideOnce();
 
+  // Auto-load any Pyodide-provided packages the code imports — numpy, pandas,
+  // scipy, scikit-learn, matplotlib, sympy, networkx, etc. all ship with Pyodide
+  // but aren't loaded until asked. Without this, `import numpy` raises
+  // ModuleNotFoundError even though it's available. Packages Pyodide doesn't have
+  // (torch, tensorflow) are skipped here and still error at import, as before.
+  try { await py.loadPackagesFromImports(code); } catch { /* best-effort; unknown imports error at runtime */ }
+
   const stdout = (chunk) => { try { onStdout?.(String(chunk)); } catch { /* ignore */ } };
   const stderr = (chunk) => { try { onError?.(String(chunk)); } catch { /* ignore */ } };
   const inputBridge = async (prompt) => {
@@ -128,4 +135,27 @@ finally:
   }
   onDone?.(exitCode);
   return exitCode;
+}
+
+// One-shot, non-interactive run used by the free-form lesson runners (RunnableCodePanel
+// / RunnableCodeBlock). Routes Python through Pyodide so scientific imports (numpy,
+// pandas, scipy, sklearn, matplotlib, sympy, networkx) resolve via
+// loadPackagesFromImports — Judge0's Python lacks them and isn't reachable from the
+// static-hosted deploy at all. Returns the same { status, output } shape as runCode.
+export async function runPythonInBrowser(code) {
+  let buffer = '';
+  let sawError = false;
+  try {
+    // onStdin returns '' so any input() call resolves immediately instead of hanging.
+    const exitCode = await runInteractive(code, {
+      onStdout: (text) => { buffer += text; },
+      onError: (text) => { buffer += text; sawError = true; },
+      onStdin: () => '',
+    });
+    const status = (exitCode !== 0 || sawError) ? 'runtime_error' : 'success';
+    return { status, output: buffer || '(No output)' };
+  } catch (err) {
+    const detail = err?.message ? String(err.message) : String(err);
+    return { status: 'runtime_error', output: buffer ? `${buffer}\n${detail}` : detail };
+  }
 }

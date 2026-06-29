@@ -86,14 +86,51 @@ branch coverage + boundary/adversarial generation shrink that to near-zero.
 The drive **does not stop at 50** — it keeps generating until the adequacy + coverage gates pass
 for that specific problem.
 
+## Grading executor — how we run code (evolved)
+
+The grader has two interchangeable back-ends; the comparison logic
+(`scripts/sol-batches/grade-helpers.mjs → compareOutputSmart`) is shared by both.
+
+- **Local host toolchain (default now).** `scripts/local-grade.mjs` runs each driver-wrapped
+  solution directly on the machine's `python3` / `node` / `javac`+`java` / `clang++`. Because **we
+  author every canonical ourselves**, the code isn't untrusted, so the Judge0 sandbox buys nothing —
+  and local exec is dramatically faster (a process-lifetime **compile-once cache** keyed on source
+  hash takes C++ from ~3.7 s/case to ~18 ms/case) with no rate limit. A `bits/stdc++.h` shim
+  (`scripts/cpp-shim/`) lets Apple clang compile competitive-style C++. Drives default to this;
+  `LOCAL_EXEC=0` (or `--judge0-remote`) flips back to Judge0.
+- **Self-hosted Judge0 (sandbox fallback).** Still the right answer for *untrusted* user
+  submissions in the live app. Kept documented in [`JUDGE0_SELF_HOST.md`](./JUDGE0_SELF_HOST.md).
+  (Note: on an Apple-silicon VM its v1-isolate needs cgroup v1 and the amd64 image runs under
+  emulation, which is why the offline drives moved to local exec.)
+
+**Output comparison** is tolerant where it must be and strict where it matters
+(`compareOutputSmart`): exact match → quote-stripped match (string returns) → **numeric match with
+1e-5 tolerance** that preserves order and bracket/nesting skeleton (so `0.6666…` == `0.66667` but
+`[1,2]` ≠ `[2,1]` and `[[1,2],[3]]` ≠ `[[1,2,3]]`) → opt-in order-insensitive (gated per problem).
+
+## Trusting the canonical, pruning corrupt cases
+
+A scraped catalog has corrupt cases (wrong/garbled `expected`). The authoring grader
+(`scripts/apply-pyxlate.mjs`) separates *solution-wrong* from *case-corrupt* so a correct solution
+is never blocked by bad data, and bad code is never let through:
+
+- A case is **independently corrupt** (auto-pruned) if it's malformed regardless of any solution:
+  `null`/empty `expected` for a non-nullable return, table-dump or `Explanation:`/operation-log
+  prose glued onto the answer, a complete literal followed by prose, zero-width chars.
+- A solution that fails a **well-formed SAMPLE case** (index 0–1, the trusted LC examples) is
+  **rejected** — that's a real bug, not bad data.
+- With `--prune-hidden`, a well-formed **hidden** case the solution fails is treated as suspect
+  **only once every sample passes** — the samples are ground truth, so a solution matching all of
+  them is a credible oracle and the lone disagreeing hidden case is the likely-corrupt one.
+- Problems whose cases are *all* corrupt go to `py-needs-expected-regen.json` for an
+  oracle-driven `expected` regeneration pass (you can't grade against nothing).
+
 ## Infrastructure
 
-- **Judge0** — code execution + grading oracle. Self-hosted via Docker/colima for unlimited
-  submissions (the public CE rate-limits and would make mutation testing infeasible). See
-  [`JUDGE0_SELF_HOST.md`](./JUDGE0_SELF_HOST.md).
-- **Scripts**: `bulk-grow-test-cases.js` (generate + verify-gate), `verify-prune-*` (soundness),
-  `mutation-test.mjs` (adequacy — generate/kill mutants), the `*-watchdog.sh` loops (continuous
-  regression), `audit-solutions.mjs` / `refresh-status.mjs` (coverage reporting).
+- **Scripts**: `build-author-queue.mjs` (the live stub queue), `dump-pyxlate-slice.mjs` (self-contained
+  agent slices), `apply-pyxlate.mjs` (author-grade-write with corrupt-case pruning), `local-grade.mjs`
+  (host executor + compile cache), `mutation-test.mjs` (adequacy — generate/kill mutants),
+  the `*-watchdog.sh` loops (continuous regression), `audit-solutions.mjs` (coverage reporting).
 
 ## How the work is run (the "scrum")
 
