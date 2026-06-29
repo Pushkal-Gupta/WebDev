@@ -1,0 +1,149 @@
+.pyexc { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.pyexc-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.pyexc-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.pyexc-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.pyexc-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.pyexc-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+
+.pyexc-chips { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; }
+.pyexc-chips-label { font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.2rem; }
+.pyexc-chip {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 700;
+  padding: 0.4rem 0.7rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.pyexc-chip.is-caught:hover { border-color: var(--easy); color: var(--easy); }
+.pyexc-chip.is-propagates:hover { border-color: var(--hard); color: var(--hard); }
+.pyexc-chip.is-caught.is-active { border-color: var(--easy); color: var(--easy); background: color-mix(in srgb, var(--easy) 12%, transparent); }
+.pyexc-chip.is-propagates.is-active { border-color: var(--hard); color: var(--hard); background: color-mix(in srgb, var(--hard) 12%, transparent); }
+
+.pyexc-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.pyexc-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.pyexc-edge-label { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); font-weight: 700; }
+.pyexc-gutter-label { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); letter-spacing: 0.04em; }
+.pyexc-gutter-line { stroke: var(--border); stroke-width: 1.6; }
+.pyexc-gutter-head { fill: var(--text-dim); }
+
+/* frames */
+.pyexc-frame-box {
+  fill: var(--bg); stroke: var(--border); stroke-width: 1.4;
+  transition: fill var(--t), stroke var(--t), stroke-width var(--t), filter var(--t);
+}
+.pyexc-frame-name { font-size: 0.84rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.pyexc-frame-handler { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); }
+
+.pyexc-frame.is-idle .pyexc-frame-box { fill: color-mix(in srgb, var(--hue-sky) 7%, var(--bg)); stroke: var(--border); }
+.pyexc-frame.is-popped .pyexc-frame-box { fill: var(--bg); stroke: var(--border); stroke-dasharray: 4 4; opacity: 0.5; }
+.pyexc-frame.is-popped .pyexc-frame-name,
+.pyexc-frame.is-popped .pyexc-frame-handler { opacity: 0.45; }
+
+.pyexc-frame.is-raising .pyexc-frame-box {
+  fill: color-mix(in srgb, var(--hard) 16%, transparent); stroke: var(--hard); stroke-width: 2.4;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hard) 55%, transparent));
+}
+.pyexc-frame.is-raising .pyexc-frame-name { fill: var(--hard); }
+
+.pyexc-frame.is-passing .pyexc-frame-box {
+  fill: color-mix(in srgb, var(--hue-sky) 14%, transparent); stroke: var(--hue-sky); stroke-width: 2.2;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--hue-sky) 45%, transparent));
+}
+.pyexc-frame.is-passing .pyexc-frame-name { fill: var(--hue-sky); }
+
+.pyexc-frame.is-mismatch .pyexc-frame-box {
+  fill: color-mix(in srgb, var(--warning) 16%, transparent); stroke: var(--warning); stroke-width: 2.4;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--warning) 50%, transparent));
+}
+.pyexc-frame.is-mismatch .pyexc-frame-name { fill: var(--warning); }
+.pyexc-frame.is-mismatch .pyexc-frame-handler { fill: var(--warning); }
+
+.pyexc-frame.is-caught .pyexc-frame-box {
+  fill: color-mix(in srgb, var(--easy) 16%, transparent); stroke: var(--easy); stroke-width: 2.6;
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--easy) 55%, transparent));
+}
+.pyexc-frame.is-caught .pyexc-frame-name { fill: var(--easy); }
+.pyexc-frame.is-caught .pyexc-frame-handler { fill: var(--easy); }
+
+.pyexc-frame.is-resumed .pyexc-frame-box {
+  fill: color-mix(in srgb, var(--easy) 9%, var(--bg)); stroke: var(--easy); stroke-width: 1.8;
+}
+
+.pyexc-frame.is-crash .pyexc-frame-box {
+  fill: color-mix(in srgb, var(--hard) 18%, transparent); stroke: var(--hard); stroke-width: 2.6;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--hard) 60%, transparent));
+}
+.pyexc-frame.is-crash .pyexc-frame-name { fill: var(--hard); }
+
+/* exception token */
+.pyexc-pill-box { fill: var(--surface); stroke: var(--text-dim); stroke-width: 1.6; transition: stroke var(--t), filter var(--t); }
+.pyexc-pill-text { font-size: 0.7rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.pyexc-pill-link { stroke: var(--text-dim); stroke-width: 1.4; stroke-dasharray: 3 3; transition: stroke var(--t); }
+
+.pyexc-pill.is-raising .pyexc-pill-box,
+.pyexc-pill.is-crash .pyexc-pill-box { stroke: var(--hard); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hard) 55%, transparent)); }
+.pyexc-pill.is-raising .pyexc-pill-text,
+.pyexc-pill.is-crash .pyexc-pill-text { fill: var(--hard); }
+.pyexc-pill.is-raising .pyexc-pill-link,
+.pyexc-pill.is-crash .pyexc-pill-link { stroke: var(--hard); }
+
+.pyexc-pill.is-passing .pyexc-pill-box { stroke: var(--hue-sky); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--hue-sky) 45%, transparent)); }
+.pyexc-pill.is-passing .pyexc-pill-text { fill: var(--hue-sky); }
+.pyexc-pill.is-passing .pyexc-pill-link { stroke: var(--hue-sky); }
+
+.pyexc-pill.is-mismatch .pyexc-pill-box { stroke: var(--warning); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--warning) 50%, transparent)); }
+.pyexc-pill.is-mismatch .pyexc-pill-text { fill: var(--warning); }
+.pyexc-pill.is-mismatch .pyexc-pill-link { stroke: var(--warning); }
+
+.pyexc-pill.is-caught .pyexc-pill-box,
+.pyexc-pill.is-resumed .pyexc-pill-box { stroke: var(--easy); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--easy) 50%, transparent)); }
+.pyexc-pill.is-caught .pyexc-pill-text,
+.pyexc-pill.is-resumed .pyexc-pill-text { fill: var(--easy); }
+.pyexc-pill.is-caught .pyexc-pill-link,
+.pyexc-pill.is-resumed .pyexc-pill-link { stroke: var(--easy); }
+
+.pyexc-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem; }
+.pyexc-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.pyexc-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.pyexc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pyexc-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.pyexc-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pyexc-stat {
+  flex: 1 1 30%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.pyexc-stat.is-raised { border-left-color: var(--hard); color: var(--hard); }
+.pyexc-stat.is-frame { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.pyexc-stat.is-status { border-left-color: var(--text-dim); color: var(--text-dim); }
+.pyexc-stat.is-status.is-caught { border-left-color: var(--easy); color: var(--easy); }
+.pyexc-stat.is-status.is-uncaught { border-left-color: var(--hard); color: var(--hard); }
+.pyexc-stat.is-status.is-searching { border-left-color: var(--warning); color: var(--warning); }
+.pyexc-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pyexc-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); text-align: right; }
+
+.pyexc-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.pyexc-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.pyexc-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+.pyexc-note-op { font-weight: 700; color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pyexc-frame-box, .pyexc-pill-box, .pyexc-pill-link { transition: none; }
+}

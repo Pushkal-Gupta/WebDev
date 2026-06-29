@@ -42,8 +42,11 @@ function looksCorrupt(c, returnType) {
   if (t === '') return true;
   if (!nullable && /^(null|None|undefined)$/i.test(t)) return true;
   if (/\+--|Users table|Transactions table|"headers"/.test(exp)) return true;
-  // table / operation-log prose glued onto an answer ("5 Operation Array 1 [..]")
-  if (/\b(Operation|Step|Index|Output|Input|Table|Row|Column|Explanation)\b/.test(exp) && /^\S+\s/.test(t)) return true;
+  // table / operation-log / explanation prose glued onto an answer
+  // ("5 Operation Array 1 [..]", "[1,6] Explantion: ..."). Match misspellings too.
+  if (/\b(Operation|Step|Index|Output|Input|Table|Row|Column|Expla[a-z]*|Example|Note)\b/.test(exp) && /^\S+\s/.test(t)) return true;
+  // a complete data literal (number / [..] / {..} / "..") immediately followed by prose words
+  if (/^(-?\d+(\.\d+)?|\[[^\]]*\]|\{[^}]*\}|"[^"]*")\s+[A-Za-z]{3,}/.test(t)) return true;
   // numeric/bool return whose expected carries alphabetic prose => answer + junk
   const rt = (returnType || '').toLowerCase();
   const numericRet = /\b(int|float|long|double|number)\b/.test(rt) && !/list|\[/.test(rt);

@@ -1,0 +1,145 @@
+.cppmem { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.cppmem-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cppmem-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.cppmem-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.cppmem-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cppmem-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.cppmem-sub code { font-family: var(--mono); color: var(--accent); font-size: 0.76rem; }
+.cppmem-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cppmem-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.cppmem-modes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.cppmem-mode {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.42rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.cppmem-mode:hover { color: var(--text-main); }
+.cppmem-mode.is-raii.is-active {
+  border-color: var(--hue-mint); color: var(--hue-mint);
+  background: color-mix(in srgb, var(--hue-mint) 14%, transparent);
+}
+.cppmem-mode.is-leak.is-active {
+  border-color: var(--warning); color: var(--warning);
+  background: color-mix(in srgb, var(--warning) 14%, transparent);
+}
+
+.cppmem-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.cppmem-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.cppmem-region { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; }
+.cppmem-region-icon { color: var(--text-dim); }
+.cppmem-region-label {
+  font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.cppmem-arrowfill { fill: var(--accent); }
+.cppmem-livestop-a { stop-color: var(--accent); }
+.cppmem-livestop-b { stop-color: var(--hue-sky); }
+
+.cppmem-own { stroke: var(--accent); stroke-width: 2; opacity: 0.9; transition: stroke var(--t); }
+
+.cppmem-frame-rect {
+  fill: var(--surface); stroke: var(--border); stroke-width: 1.5;
+  transition: stroke var(--t), filter var(--t);
+}
+.cppmem-frame-name { font-size: 0.86rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.cppmem-frame-vars { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); }
+.cppmem-frame-ptr { font-size: 0.72rem; font-weight: 700; fill: var(--accent); font-family: var(--mono); }
+.cppmem-frame.is-top .cppmem-frame-rect {
+  stroke: var(--accent); stroke-width: 2;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 40%, transparent));
+}
+
+.cppmem-block-rect { fill: var(--bg); stroke-width: 1.8; transition: stroke var(--t), fill var(--t), opacity var(--t); }
+.cppmem-block-label { font-size: 0.84rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.cppmem-block-tag { font-size: 0.62rem; font-family: var(--mono); fill: var(--text-dim); text-transform: uppercase; letter-spacing: 0.03em; }
+
+.cppmem-block.is-live .cppmem-block-rect {
+  stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 16%, transparent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-sky) 45%, transparent));
+}
+.cppmem-block.is-live .cppmem-block-tag { fill: var(--hue-sky); }
+
+.cppmem-block.is-leaked .cppmem-block-rect {
+  stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 16%, transparent);
+  stroke-dasharray: 5 3;
+}
+.cppmem-block.is-leaked .cppmem-block-tag { fill: var(--warning); }
+.cppmem-block.is-leaked .cppmem-block-badge { color: var(--warning); }
+
+.cppmem-block.is-freed .cppmem-block-rect {
+  stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 10%, transparent);
+  stroke-dasharray: 4 4; opacity: 0.6;
+}
+.cppmem-block.is-freed .cppmem-block-label { fill: var(--text-dim); }
+.cppmem-block.is-freed .cppmem-block-tag { fill: var(--hue-mint); }
+.cppmem-block.is-freed .cppmem-block-badge { color: var(--hue-mint); }
+
+.cppmem-empty { font-size: 0.7rem; fill: var(--text-dim); font-family: var(--mono); opacity: 0.7; }
+
+.cppmem-controls { display: flex; align-items: center; gap: 0.6rem; }
+.cppmem-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cppmem-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.cppmem-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cppmem-progress { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+.cppmem-curline {
+  margin-left: auto; font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  color: var(--accent); padding: 0.2rem 0.55rem; border-radius: 7px; background: var(--hover-box);
+  max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.cppmem-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cppmem-stat {
+  flex: 1 1 30%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.cppmem-stat-icon { flex: 0 0 auto; color: var(--text-dim); }
+.cppmem-stat-label { font-size: 0.7rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.03em; }
+.cppmem-stat-val { margin-left: auto; font-size: 1rem; font-weight: 700; color: var(--text-main); }
+.cppmem-stat.is-depth { border-left-color: var(--accent); }
+.cppmem-stat.is-depth .cppmem-stat-icon { color: var(--accent); }
+.cppmem-stat.is-live { border-left-color: var(--hue-sky); }
+.cppmem-stat.is-live .cppmem-stat-icon { color: var(--hue-sky); }
+.cppmem-stat.is-leak { border-left-color: var(--border); }
+.cppmem-stat.is-leak.is-hot { border-left-color: var(--warning); }
+.cppmem-stat.is-leak.is-hot .cppmem-stat-icon { color: var(--warning); }
+.cppmem-stat.is-leak.is-hot .cppmem-stat-val { color: var(--warning); }
+
+.cppmem-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-mint); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.2rem;
+}
+.cppmem-note.is-warn { border-left-color: var(--warning); }
+.cppmem-note-label {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);
+}
+.cppmem-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cppmem-frame-rect, .cppmem-block-rect, .cppmem-own,
+  .cppmem-mode, .cppmem-btn, .cppmem-reset { transition: none; }
+}

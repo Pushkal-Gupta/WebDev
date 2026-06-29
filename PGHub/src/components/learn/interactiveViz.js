@@ -307,6 +307,18 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import PyClassViz from './viz/PyClassViz';
+import PyImportViz from './viz/PyImportViz';
+import PyExceptionViz from './viz/PyExceptionViz';
+import PyGeneratorViz from './viz/PyGeneratorViz';
+import CppTypesViz from './viz/CppTypesViz';
+import CppPointerViz from './viz/CppPointerViz';
+import CppMemoryViz from './viz/CppMemoryViz';
+import CppStlViz from './viz/CppStlViz';
+import JsScopeViz from './viz/JsScopeViz';
+import JsClosureViz from './viz/JsClosureViz';
+import JsEventLoopViz from './viz/JsEventLoopViz';
+import JsPrototypeViz from './viz/JsPrototypeViz';
 import NetEncapsulationViz from './viz/NetEncapsulationViz';
 import NetTcpHandshakeViz from './viz/NetTcpHandshakeViz';
 import NetRoutingViz from './viz/NetRoutingViz';
@@ -989,6 +1001,20 @@ export const INTERACTIVE_VIZ = {
   'py-control-flow': PyControlFlowViz,
   'py-functions-scope': PyScopeViz,
   'py-data-structures': PyDataStructuresViz,
+
+  // --- waves 12-14 (python depth + cpp + javascript) ---
+  'py-classes-oop': PyClassViz,
+  'py-modules-imports': PyImportViz,
+  'py-errors-exceptions': PyExceptionViz,
+  'py-iterators-generators': PyGeneratorViz,
+  'cpp-basics-types': CppTypesViz,
+  'cpp-pointers-references': CppPointerViz,
+  'cpp-memory-management': CppMemoryViz,
+  'cpp-stl-containers': CppStlViz,
+  'js-variables-scoping': JsScopeViz,
+  'js-functions-closures': JsClosureViz,
+  'js-async-promises': JsEventLoopViz,
+  'js-objects-prototypes': JsPrototypeViz,
 };
 
 export default INTERACTIVE_VIZ;

@@ -60,6 +60,16 @@ next wave. Never idle; on rate-limit/token-out, **retry after a cooldown** and r
 - **Next:** Sprint 2 — T4 ML/DL depth (CNN feature maps, optimizer comparison, transformer attention,
   RL gridworld) building on the MNIST viz. Then T2 CS core (OS/DBMS/Networks).
 
+## Waves 12-14 — SHIPPED (2026-06-29): T3 Languages expand
+- **Wave 12** Python depth (4): classes/OOP, modules/imports, errors/exceptions, iterators/generators + viz.
+- **Wave 13** C++ course (4): types, pointers/references, memory/RAII, STL + viz. All code compiles+runs.
+- **Wave 14** JavaScript course (4): scoping/hoisting, closures/this, async/event-loop, prototypes + viz.
+- **547 concepts live.** eslint 0, build green.
+- **NOTEBOOK STATE BUG FIXED:** PGForge project notebook cells now ACCUMULATE prior cells' live code
+  (real Jupyter top-to-bottom state) — cell 2 can use names from cell 1 (was NameError). Plus a clear
+  "depends on a name from an earlier cell" hint. `RunnableCodePanel.getRunPrefix` + `NotebookCells`
+  per-cell refs reading `getCode()`. Verified live: cell 2 prints closed-form slope/bias, no NameError.
+
 ## Waves 10-11 — SHIPPED (2026-06-29): T2 done + T3 started
 - **Wave 10** Computer Networks module (4): OSI/TCP-IP layers, TCP reliability, IP routing, DNS/HTTP + viz.
   → **T2 CS-core trio complete** (Databases + OS + Networks).

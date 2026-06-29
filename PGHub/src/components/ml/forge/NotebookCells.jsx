@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { FileText, Hash } from 'lucide-react';
@@ -170,7 +170,7 @@ function MarkdownCell({ cell, idx }) {
   );
 }
 
-function CodeCell({ cell, execCount, slug }) {
+const CodeCell = React.forwardRef(function CodeCell({ cell, execCount, slug, getRunPrefix }, ref) {
   const lang = cell.lang || 'python';
   return (
     <div className="nbc-cell nbc-cell-code">
@@ -179,19 +179,25 @@ function CodeCell({ cell, execCount, slug }) {
       </div>
       <div className="nbc-code-body">
         <RunnableCodePanel
+          ref={ref}
           code={cell.code}
           lang={lang}
           storageKey={`nbc-${slug}-${execCount}`}
           minLines={4}
+          getRunPrefix={getRunPrefix}
         />
       </div>
     </div>
   );
-}
+});
 
 // Renders a Jupyter-style sequence of interleaved markdown + runnable code cells.
 // `cells`: [{ type:'markdown', content } | { type:'code', lang, code }]
 export default function NotebookCells({ cells, slug = 'project' }) {
+  // One imperative-handle ref per CODE cell, in code-cell order, so a cell can
+  // read the LIVE (possibly edited) source of every cell above it.
+  const codeRefs = useRef([]);
+
   const prepared = useMemo(() => {
     const out = [];
     (cells || []).forEach((cell, i) => {
@@ -200,6 +206,7 @@ export default function NotebookCells({ cells, slug = 'project' }) {
         cell,
         key: i,
         execCount: cell.type === 'code' ? priorCode + 1 : null,
+        codeIdx: cell.type === 'code' ? priorCode : null, // 0-based index among code cells
       });
     });
     return out;
@@ -207,17 +214,38 @@ export default function NotebookCells({ cells, slug = 'project' }) {
 
   if (!prepared.length) return null;
 
+  // Accumulate the live source of every code cell BEFORE `codeIdx` so the run
+  // sees names defined earlier — Jupyter-style top-to-bottom state.
+  const makeGetPrefix = (codeIdx) => () => {
+    const parts = [];
+    for (let i = 0; i < codeIdx; i++) {
+      const panel = codeRefs.current[i];
+      const src = panel?.getCode?.();
+      if (src && src.trim()) parts.push(src);
+    }
+    return parts.join('\n\n');
+  };
+
   return (
     <div className="nbc-notebook">
       <div className="nbc-notebook-head">
         <Hash size={14} />
         <span>Notebook</span>
-        <span className="nbc-notebook-sub">{prepared.filter((p) => p.cell.type === 'code').length} runnable cells</span>
+        <span className="nbc-notebook-sub">{prepared.filter((p) => p.cell.type === 'code').length} runnable cells · each cell can use names from the cells above</span>
       </div>
       <div className="nbc-cells">
-        {prepared.map(({ cell, key, execCount }) =>
+        {prepared.map(({ cell, key, execCount, codeIdx }) =>
           cell.type === 'code'
-            ? <CodeCell key={key} cell={cell} execCount={execCount} slug={slug} />
+            ? (
+              <CodeCell
+                key={key}
+                ref={(el) => { codeRefs.current[codeIdx] = el; }}
+                cell={cell}
+                execCount={execCount}
+                slug={slug}
+                getRunPrefix={makeGetPrefix(codeIdx)}
+              />
+            )
             : <MarkdownCell key={key} cell={cell} idx={key} />
         )}
       </div>
