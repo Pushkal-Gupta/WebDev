@@ -1,0 +1,237 @@
+/* Animated previews for the PGForge hub pillar cards. All classes prefixed
+   `fht-`; colours are theme tokens only; each thumb honours prefers-reduced-
+   motion by resting on a determinate static frame at the bottom of this file. */
+
+.fht-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  --fht-hue: var(--accent);
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.forge-pillar:hover .fht-thumb,
+.forge-feature-card:hover .fht-thumb { transform: scale(1.04); }
+
+.fht-bg { fill: color-mix(in srgb, var(--fht-hue) 12%, var(--bg)); }
+.fht-stripe { fill: var(--accent); opacity: 0.9; }
+
+/* shared primitives — coloured from the thumb hue */
+.fht-grid  { stroke: color-mix(in srgb, var(--fht-hue) 18%, var(--surface)); stroke-width: 1; }
+.fht-axis  { stroke: color-mix(in srgb, var(--fht-hue) 42%, var(--surface)); stroke-width: 2; stroke-linecap: round; }
+.fht-edge  { stroke: color-mix(in srgb, var(--fht-hue) 30%, var(--surface)); stroke-width: 1.4; }
+.fht-node-soft { fill: color-mix(in srgb, var(--fht-hue) 18%, var(--surface)); stroke: color-mix(in srgb, var(--fht-hue) 46%, var(--surface)); stroke-width: 1.6; }
+.fht-node-done { fill: var(--fht-hue); stroke: color-mix(in srgb, var(--fht-hue) 72%, var(--surface)); stroke-width: 1.8; }
+.fht-accent-dot { fill: var(--fht-hue); }
+
+/* ============ Foundations — rotating coordinate frame ============ */
+.fht-found-orbit {
+  fill: none; stroke: color-mix(in srgb, var(--fht-hue) 26%, var(--surface));
+  stroke-width: 1.4; stroke-dasharray: 3 4; opacity: 0.6;
+}
+.fht-found-frame { animation: fht-spin 9s linear infinite; }
+.fht-found-vec1 { stroke: var(--fht-hue); stroke-width: 3; stroke-linecap: round; }
+.fht-found-vec2 { stroke: color-mix(in srgb, var(--fht-hue) 60%, var(--surface)); stroke-width: 2.6; stroke-linecap: round; }
+@keyframes fht-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============ Lessons — signals flow layer to layer ============ */
+.fht-net-signal {
+  fill: var(--fht-hue);
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fht-hue) 70%, transparent));
+}
+
+/* ============ Projects — blocks assemble, build bar fills ============ */
+.fht-block { fill: color-mix(in srgb, var(--fht-hue) 34%, var(--surface)); animation: fht-build 4.6s ease-in-out infinite; }
+.fht-block-0 { animation-delay: 0s; }   .fht-block-1 { animation-delay: 0.22s; }
+.fht-block-2 { animation-delay: 0.44s; } .fht-block-3 { animation-delay: 0.78s; }
+.fht-block-4 { animation-delay: 1s; }    .fht-block-5 { animation-delay: 1.34s; }
+@keyframes fht-build {
+  0% { opacity: 0; transform: translateY(11px) scale(0.7); }
+  16%, 86% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(11px) scale(0.7); }
+}
+.fht-buildtrack { fill: color-mix(in srgb, var(--fht-hue) 16%, var(--surface)); }
+.fht-buildfill {
+  fill: var(--fht-hue); transform-origin: 40px 77px;
+  animation: fht-buildfill 4.6s ease-in-out infinite;
+}
+@keyframes fht-buildfill {
+  0% { transform: scaleX(0); }
+  86%, 100% { transform: scaleX(1); }
+}
+
+/* ============ Problems — test bars rise, a check stamps ============ */
+.fht-bracket { fill: none; stroke: color-mix(in srgb, var(--fht-hue) 50%, var(--surface)); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; }
+.fht-testbar { fill: color-mix(in srgb, var(--fht-hue) 28%, var(--surface)); animation: fht-rise 4.4s ease-in-out infinite; }
+.fht-testbar-0 { animation-delay: 0.1s; } .fht-testbar-1 { animation-delay: 0.5s; }
+.fht-testbar-2 { animation-delay: 0.9s; } .fht-testbar-3 { animation-delay: 1.3s; }
+.fht-testbar-4 { animation-delay: 1.7s; }
+@keyframes fht-rise {
+  0% { transform: scaleY(0.08); fill: color-mix(in srgb, var(--fht-hue) 22%, var(--surface)); }
+  20%, 86% { transform: scaleY(1); fill: var(--fht-hue); }
+  100% { transform: scaleY(0.08); fill: color-mix(in srgb, var(--fht-hue) 22%, var(--surface)); }
+}
+.fht-pass-circle { fill: none; stroke: var(--fht-hue); stroke-width: 2; }
+.fht-pass-check { fill: none; stroke: var(--fht-hue); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 16; stroke-dashoffset: 16; }
+.fht-pass-badge { animation: fht-pass 4.4s ease-in-out infinite; }
+.fht-pass-badge .fht-pass-check { animation: fht-pass-check 4.4s ease-in-out infinite; }
+@keyframes fht-pass {
+  0%, 40% { opacity: 0; transform: scale(0.6); }
+  52%, 86% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.6); }
+}
+.fht-pass-badge { transform-origin: 160px 22px; }
+@keyframes fht-pass-check {
+  0%, 44% { stroke-dashoffset: 16; }
+  62%, 100% { stroke-dashoffset: 0; }
+}
+
+/* ============ Papers — lines write on, highlight sweeps ============ */
+.fht-page { fill: color-mix(in srgb, var(--fht-hue) 10%, var(--surface)); stroke: color-mix(in srgb, var(--fht-hue) 34%, var(--surface)); stroke-width: 1.6; }
+.fht-paperline {
+  fill: none; stroke: color-mix(in srgb, var(--fht-hue) 60%, var(--surface)); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100;
+  animation: fht-write 5s ease-in-out infinite;
+}
+.fht-paperline-0 { stroke: var(--fht-hue); animation-delay: 0.2s; }
+.fht-paperline-1 { animation-delay: 0.6s; } .fht-paperline-2 { animation-delay: 1s; }
+.fht-paperline-3 { animation-delay: 1.4s; } .fht-paperline-4 { animation-delay: 1.8s; }
+@keyframes fht-write {
+  0% { stroke-dashoffset: 100; }
+  26%, 88% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 100; }
+}
+.fht-highlight {
+  fill: color-mix(in srgb, var(--fht-hue) 30%, transparent); opacity: 0;
+  animation: fht-sweep 5s ease-in-out infinite;
+}
+@keyframes fht-sweep {
+  0%, 30% { transform: translateY(0); opacity: 0; }
+  40% { opacity: 0.55; }
+  80% { transform: translateY(44px); opacity: 0.55; }
+  92%, 100% { transform: translateY(44px); opacity: 0; }
+}
+
+/* ============ CUDA — diagonal warp sweep across the thread grid ============ */
+.fht-thread { fill: color-mix(in srgb, var(--fht-hue) 22%, var(--surface)); animation: fht-warp 3.4s ease-in-out infinite; }
+.fht-thread-w0 { animation-delay: 0s; }    .fht-thread-w1 { animation-delay: 0.16s; }
+.fht-thread-w2 { animation-delay: 0.32s; } .fht-thread-w3 { animation-delay: 0.48s; }
+.fht-thread-w4 { animation-delay: 0.64s; } .fht-thread-w5 { animation-delay: 0.8s; }
+.fht-thread-w6 { animation-delay: 0.96s; } .fht-thread-w7 { animation-delay: 1.12s; }
+.fht-thread-w8 { animation-delay: 1.28s; } .fht-thread-w9 { animation-delay: 1.44s; }
+.fht-thread-w10 { animation-delay: 1.6s; }
+@keyframes fht-warp {
+  0%, 70%, 100% { fill: color-mix(in srgb, var(--fht-hue) 22%, var(--surface)); }
+  18% { fill: var(--fht-hue); }
+  34% { fill: color-mix(in srgb, var(--fht-hue) 48%, var(--surface)); }
+}
+
+/* ============ Roadmaps — marker travels, nodes light ============ */
+.fht-road-track { fill: none; stroke: color-mix(in srgb, var(--fht-hue) 22%, var(--surface)); stroke-width: 3; stroke-linecap: round; }
+.fht-road-fill {
+  fill: none; stroke: var(--fht-hue); stroke-width: 3; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100;
+  animation: fht-road-draw 5s ease-in-out infinite;
+}
+@keyframes fht-road-draw { 0% { stroke-dashoffset: 100; } 90%, 100% { stroke-dashoffset: 0; } }
+.fht-road-dot { fill: var(--surface); }
+.fht-road-node { animation: fht-road-pop 5s ease-in-out infinite; }
+.fht-road-node-0 { animation-delay: 0s; }   .fht-road-node-1 { animation-delay: 1.5s; }
+.fht-road-node-2 { animation-delay: 3s; }   .fht-road-node-3 { animation-delay: 4.4s; }
+@keyframes fht-road-pop { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.35); } }
+.fht-road-node .fht-road-dot { animation: fht-road-dot-on 5s ease-in-out infinite; animation-delay: inherit; }
+.fht-road-node-1 .fht-road-dot { animation-delay: 1.5s; } .fht-road-node-2 .fht-road-dot { animation-delay: 3s; }
+.fht-road-node-3 .fht-road-dot { animation-delay: 4.4s; }
+@keyframes fht-road-dot-on { 0% { fill: var(--surface); } 12%, 100% { fill: var(--fht-hue); } }
+.fht-road-marker { fill: var(--fht-hue); filter: drop-shadow(0 0 4px color-mix(in srgb, var(--fht-hue) 70%, transparent)); }
+
+/* ============ Study Plans — checklist fills row by row ============ */
+.fht-plan-box { fill: color-mix(in srgb, var(--fht-hue) 8%, var(--surface)); stroke: color-mix(in srgb, var(--fht-hue) 32%, var(--surface)); stroke-width: 1.5; }
+.fht-plan-check { fill: none; stroke: var(--surface); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 14; stroke-dashoffset: 14; }
+.fht-plan-line { fill: color-mix(in srgb, var(--fht-hue) 26%, var(--surface)); }
+.fht-plan-row .fht-plan-box { animation: fht-plan-box 5.2s ease-in-out infinite; animation-delay: inherit; }
+.fht-plan-row .fht-plan-check { animation: fht-plan-check 5.2s ease-in-out infinite; animation-delay: inherit; }
+.fht-plan-row .fht-plan-line { animation: fht-plan-line 5.2s ease-in-out infinite; animation-delay: inherit; }
+.fht-plan-row-0 { animation-delay: 0s; } .fht-plan-row-1 { animation-delay: 0.7s; }
+.fht-plan-row-2 { animation-delay: 1.4s; } .fht-plan-row-3 { animation-delay: 2.1s; }
+.fht-plan-row { animation-delay: 0s; }
+@keyframes fht-plan-box {
+  0%, 8%, 96%, 100% { fill: color-mix(in srgb, var(--fht-hue) 8%, var(--surface)); stroke: color-mix(in srgb, var(--fht-hue) 32%, var(--surface)); }
+  16%, 90% { fill: var(--fht-hue); stroke: var(--fht-hue); }
+}
+@keyframes fht-plan-check {
+  0%, 10% { stroke-dashoffset: 14; }
+  20%, 100% { stroke-dashoffset: 0; }
+}
+@keyframes fht-plan-line {
+  0%, 8% { fill: color-mix(in srgb, var(--fht-hue) 16%, var(--surface)); }
+  18%, 100% { fill: color-mix(in srgb, var(--fht-hue) 40%, var(--surface)); }
+}
+
+/* ============ Progress — ring fills, streak heatmap pulses ============ */
+.fht-ring-track { fill: none; stroke: color-mix(in srgb, var(--fht-hue) 16%, var(--surface)); stroke-width: 7; }
+.fht-ring-fill {
+  fill: none; stroke: var(--fht-hue); stroke-width: 7; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100;
+  animation: fht-ring 4.6s ease-in-out infinite;
+}
+@keyframes fht-ring {
+  0% { stroke-dashoffset: 100; }
+  62%, 84% { stroke-dashoffset: 26; }
+  100% { stroke-dashoffset: 100; }
+}
+.fht-heat { fill: color-mix(in srgb, var(--fht-hue) 20%, var(--surface)); animation: fht-heatpulse 3.6s ease-in-out infinite; }
+.fht-heat-0 { animation-delay: 0s; }    .fht-heat-1 { animation-delay: 0.3s; }
+.fht-heat-2 { animation-delay: 0.6s; }  .fht-heat-3 { animation-delay: 0.9s; }
+.fht-heat-4 { animation-delay: 1.2s; }  .fht-heat-5 { animation-delay: 1.5s; }
+.fht-heat-6 { animation-delay: 1.8s; }
+@keyframes fht-heatpulse {
+  0%, 100% { fill: color-mix(in srgb, var(--fht-hue) 18%, var(--surface)); }
+  50% { fill: color-mix(in srgb, var(--fht-hue) 72%, var(--surface)); }
+}
+
+/* ============ Sheets — reference rows slide in ============ */
+.fht-sheet-head { fill: color-mix(in srgb, var(--fht-hue) 44%, var(--surface)); }
+.fht-sheet-cell { fill: color-mix(in srgb, var(--fht-hue) 20%, var(--surface)); }
+.fht-sheet-cell-strong { fill: color-mix(in srgb, var(--fht-hue) 38%, var(--surface)); }
+.fht-sheet-row { animation: fht-slidein 4.8s ease-in-out infinite; }
+.fht-sheet-row-0 { animation-delay: 0.2s; } .fht-sheet-row-1 { animation-delay: 0.6s; }
+.fht-sheet-row-2 { animation-delay: 1s; }
+@keyframes fht-slidein {
+  0% { opacity: 0; transform: translateX(26px); }
+  14%, 88% { opacity: 1; transform: translateX(0); }
+  100% { opacity: 0; transform: translateX(26px); }
+}
+
+/* ============ reduced motion — rest on a representative static frame ============ */
+@media (prefers-reduced-motion: reduce) {
+  .fht-thumb { transition: none; }
+  .forge-pillar:hover .fht-thumb,
+  .forge-feature-card:hover .fht-thumb { transform: none; }
+  .fht-found-frame, .fht-block, .fht-buildfill, .fht-testbar, .fht-pass-badge,
+  .fht-pass-badge .fht-pass-check, .fht-paperline, .fht-highlight, .fht-thread,
+  .fht-road-fill, .fht-road-node, .fht-road-node .fht-road-dot,
+  .fht-plan-row .fht-plan-box, .fht-plan-row .fht-plan-check, .fht-plan-row .fht-plan-line,
+  .fht-ring-fill, .fht-heat, .fht-sheet-row {
+    animation: none !important;
+  }
+  .fht-motion { display: none; }
+  .fht-block { opacity: 1; transform: none; }
+  .fht-buildfill { transform: scaleX(1); }
+  .fht-testbar { transform: scaleY(1); fill: var(--fht-hue); }
+  .fht-pass-badge { opacity: 1; transform: none; }
+  .fht-pass-badge .fht-pass-check { stroke-dashoffset: 0; }
+  .fht-paperline { stroke-dashoffset: 0; }
+  .fht-highlight { opacity: 0; }
+  .fht-thread { fill: color-mix(in srgb, var(--fht-hue) 40%, var(--surface)); }
+  .fht-road-fill { stroke-dashoffset: 0; }
+  .fht-road-node .fht-road-dot { fill: var(--fht-hue); }
+  .fht-plan-row .fht-plan-box { fill: var(--fht-hue); stroke: var(--fht-hue); }
+  .fht-plan-row .fht-plan-check { stroke-dashoffset: 0; }
+  .fht-plan-row .fht-plan-line { fill: color-mix(in srgb, var(--fht-hue) 40%, var(--surface)); }
+  .fht-ring-fill { stroke-dashoffset: 26; }
+  .fht-heat { fill: color-mix(in srgb, var(--fht-hue) 46%, var(--surface)); }
+  .fht-sheet-row { opacity: 1; transform: none; }
+}

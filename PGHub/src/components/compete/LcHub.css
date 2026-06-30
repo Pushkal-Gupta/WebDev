@@ -293,6 +293,58 @@
   line-height: 1.5;
   color: var(--text-dim);
 }
+/* Predicted-swing display for the unrated round (current -> predicted) */
+.lch-move {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.2rem 0 0.9rem;
+  font-family: var(--mono, monospace);
+  font-size: 1.05rem;
+}
+.lch-move svg { color: var(--text-dim); }
+.lch-move-from { color: var(--text-dim); }
+.lch-move-to { color: var(--text-main); font-weight: 700; }
+.lch-move-delta { font-weight: 700; font-size: 0.9rem; }
+.lch-move-delta.up { color: var(--easy); }
+.lch-move-delta.down { color: var(--hard); }
+.lch-predict-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.7rem;
+}
+.lch-predict-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--surface) 92%, var(--text-main));
+}
+.lch-predict-card.is-predicted {
+  border-color: color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: rgba(var(--accent-rgb), 0.06);
+}
+.lch-predict-lbl {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.lch-predict-card.is-predicted .lch-predict-lbl svg { color: var(--accent); }
+.lch-predict-val {
+  font-family: var(--mono, monospace);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1;
+}
+.lch-predict-card.is-predicted .lch-predict-val { color: var(--accent); }
+.lch-predict-sub { font-size: 0.74rem; color: var(--text-dim); }
 .lch-rated-tag {
   padding: 0.12rem 0.5rem;
   border: 1px solid var(--border);

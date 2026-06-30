@@ -263,6 +263,7 @@ export const qk = {
   lcQuestions: ['lcQuestions'],
   lcQuestion: (slug) => ['lcQuestion', slug],
   lcContestRanking: (slug, page) => ['lcContestRanking', slug || '', page || 1],
+  lcUserContestRank: (slug, user) => ['lcUserContestRank', slug || '', (user || '').toLowerCase()],
 };
 
 // ---- Home dashboard RPCs (migrate-29) --------------------------------------
@@ -593,6 +594,26 @@ export function useLcContestRanking(slug, page = 1, enabled = true) {
     enabled: !!slug && enabled,
     retry: false,
     staleTime: 5 * 60 * 1000,
+  });
+}
+
+// Finds a user's RANK in a specific contest (scans LeetCode's ranking via the
+// lc-user-contest-rank edge function). Used to predict the rating swing for a
+// contest LeetCode has published rankings for but not yet officially rated.
+// Returns { ok, found, rank, score, finishTime, totalUsers } or { ok:false }.
+export function useLcUserContestRank(slug, username, enabled = true) {
+  return useQuery({
+    queryKey: qk.lcUserContestRank(slug, username),
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('lc-user-contest-rank', {
+        body: { contest: slug, username },
+      });
+      if (error) return { ok: false, error: error.message };
+      return data;
+    },
+    enabled: !!slug && !!username && enabled,
+    retry: false,
+    staleTime: 10 * 60 * 1000,
   });
 }
 

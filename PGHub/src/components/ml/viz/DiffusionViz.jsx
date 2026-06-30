@@ -242,7 +242,7 @@ function ImageGrid({ image }) {
           y={PAD}
           width={SVG - PAD * 2}
           height={SVG - PAD * 2}
-          preserveAspectRatio="none"
+          preserveAspectRatio="xMidYMid meet"
           style={{ imageRendering: 'pixelated' }}
         />
       ) : (
