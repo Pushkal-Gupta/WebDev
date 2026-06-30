@@ -1,0 +1,254 @@
+/* Animated thumbnails for the PGBattle / Compete hub cards.
+   Theme tokens only; hue per component via --cht-hue. The whole-page scroll is
+   the only scrollbar — these SVGs scale via viewBox to fill their frame. */
+
+.cht-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  --cht-hue: var(--accent);
+  background:
+    radial-gradient(130% 130% at 72% 0%, rgba(255, 255, 255, 0.04), transparent 60%),
+    color-mix(in srgb, var(--cht-hue) 13%, var(--bg));
+}
+
+/* shared primitives */
+.cht-fill        { fill: color-mix(in srgb, var(--cht-hue) 26%, var(--surface)); }
+.cht-fill-strong { fill: color-mix(in srgb, var(--cht-hue) 46%, var(--surface)); }
+.cht-soft-fill   { fill: color-mix(in srgb, var(--cht-hue) 16%, var(--surface)); }
+.cht-accent      { fill: var(--cht-hue); }
+.cht-accent-fill { fill: var(--cht-hue); }
+.cht-axis {
+  stroke: color-mix(in srgb, var(--cht-hue) 34%, var(--surface));
+  stroke-width: 1.6; stroke-linecap: round;
+}
+
+/* ============ User lookup ============ */
+.cht-pl-track {
+  fill: none; stroke: color-mix(in srgb, var(--cht-hue) 20%, var(--surface)); stroke-width: 4;
+}
+.cht-pl-prog {
+  fill: none; stroke: var(--cht-hue); stroke-width: 4; stroke-linecap: round;
+  transform: rotate(-90deg);
+  animation: cht-pl-sweep 3.8s ease-in-out infinite;
+}
+@keyframes cht-pl-sweep {
+  0% { stroke-dashoffset: 163; } 55%, 78% { stroke-dashoffset: 30; } 100% { stroke-dashoffset: 163; }
+}
+.cht-pl-pop { animation: cht-pop 3.8s ease-in-out infinite; }
+@keyframes cht-pop {
+  0% { transform: scale(0.4); opacity: 0; } 14%, 90% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.4); opacity: 0; }
+}
+.cht-pl-bar { animation: cht-pl-grow 3.8s ease-in-out infinite; }
+.cht-pl-bar-0 { animation-delay: 0.3s; } .cht-pl-bar-1 { animation-delay: 0.55s; } .cht-pl-bar-2 { animation-delay: 0.8s; }
+@keyframes cht-pl-grow {
+  0%, 12% { transform: scaleX(0); } 40%, 90% { transform: scaleX(1); } 100% { transform: scaleX(0); }
+}
+
+/* ============ Rating predictor ============ */
+.cht-rp-hist {
+  fill: none; stroke: var(--cht-hue); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100; animation: cht-draw 4s ease-in-out infinite;
+}
+.cht-rp-fore {
+  fill: none; stroke: var(--cht-hue); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 5 5; animation: cht-rp-fore 4s ease-in-out infinite;
+}
+@keyframes cht-draw { 0% { stroke-dashoffset: 100; } 45%, 92% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 100; } }
+@keyframes cht-rp-fore {
+  0%, 45% { opacity: 0; } 55% { opacity: 1; } 92% { opacity: 1; } 100% { opacity: 0; }
+}
+.cht-rp-target { animation: cht-rp-ping 4s ease-in-out infinite; }
+@keyframes cht-rp-ping {
+  0%, 60% { transform: scale(0); opacity: 0; transform-box: fill-box; transform-origin: center; }
+  72% { transform: scale(1.4); opacity: 1; transform-box: fill-box; transform-origin: center; }
+  82%, 92% { transform: scale(1); opacity: 1; transform-box: fill-box; transform-origin: center; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* ============ Contest calendar ============ */
+.cht-cc-cell { fill: color-mix(in srgb, var(--cht-hue) 14%, var(--surface)); animation: cht-cc-blink 4.4s ease-in-out infinite; }
+.cht-cc-cell-0 { animation-delay: 0s; } .cht-cc-cell-1 { animation-delay: 0.3s; }
+.cht-cc-cell-2 { animation-delay: 0.6s; } .cht-cc-cell-3 { animation-delay: 0.9s; }
+.cht-cc-cell-4 { animation-delay: 1.2s; } .cht-cc-cell-5 { animation-delay: 1.5s; }
+@keyframes cht-cc-blink {
+  0%, 100% { fill: color-mix(in srgb, var(--cht-hue) 14%, var(--surface)); }
+  50% { fill: color-mix(in srgb, var(--cht-hue) 40%, var(--surface)); }
+}
+.cht-cc-hotcell { fill: var(--cht-hue); }
+.cht-cc-pulse {
+  fill: none; stroke: var(--cht-hue); stroke-width: 2;
+  transform-box: fill-box; transform-origin: center; animation: cht-ring 2.6s ease-out infinite;
+}
+@keyframes cht-ring { 0% { transform: scale(0.7); opacity: 0.8; } 70%, 100% { transform: scale(2); opacity: 0; } }
+
+/* ============ Problems ============ */
+.cht-pr-bar { animation: cht-pr-rise 3.4s ease-in-out infinite; }
+.cht-pr-bar-0 { animation-delay: 0s; } .cht-pr-bar-1 { animation-delay: 0.14s; } .cht-pr-bar-2 { animation-delay: 0.28s; }
+.cht-pr-bar-3 { animation-delay: 0.42s; } .cht-pr-bar-4 { animation-delay: 0.56s; }
+.cht-pr-bar-5 { animation-delay: 0.7s; } .cht-pr-bar-6 { animation-delay: 0.84s; }
+@keyframes cht-pr-rise {
+  0%, 100% { transform: scaleY(0.25); } 40%, 78% { transform: scaleY(1); }
+}
+.cht-pr-check { animation: cht-pr-stamp 3.4s ease-in-out infinite; }
+@keyframes cht-pr-stamp {
+  0%, 40% { transform: scale(0); opacity: 0; } 52% { transform: scale(1.2); opacity: 1; }
+  62%, 88% { transform: scale(1); opacity: 1; } 100% { transform: scale(0); opacity: 0; }
+}
+.cht-pr-tick {
+  fill: none; stroke: var(--surface); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* ============ Contests ============ */
+.cht-co-line {
+  fill: none; stroke: var(--cht-hue); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100; animation: cht-draw 4.2s ease-in-out infinite;
+}
+.cht-co-dot { fill: var(--cht-hue); transform-box: fill-box; transform-origin: center; animation: cht-co-dot 4.2s ease-in-out infinite; }
+.cht-co-dot-0 { animation-delay: 1s; } .cht-co-dot-1 { animation-delay: 1.9s; } .cht-co-dot-2 { animation-delay: 2.9s; }
+@keyframes cht-co-dot { 0%, 18% { transform: scale(0); } 26%, 100% { transform: scale(1); } }
+.cht-co-handle { fill: none; stroke: var(--cht-hue); stroke-width: 2; }
+.cht-co-trophy { animation: cht-pr-stamp 4.2s ease-in-out infinite; animation-delay: 0.4s; }
+
+/* ============ Competitions ============ */
+.cht-cm-rail { stroke: color-mix(in srgb, var(--cht-hue) 22%, var(--surface)); stroke-width: 2; stroke-linecap: round; }
+.cht-cm-block-0 { fill: color-mix(in srgb, var(--cht-hue) 42%, var(--surface)); }
+.cht-cm-block-1 { fill: color-mix(in srgb, var(--hue-sky) 46%, var(--surface)); }
+.cht-cm-block-2 { fill: color-mix(in srgb, var(--hue-violet) 46%, var(--surface)); }
+.cht-cm-block { animation: cht-cm-glow 3.6s linear infinite; }
+@keyframes cht-cm-glow { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+.cht-cm-scan {
+  stroke: var(--cht-hue); stroke-width: 2.5; stroke-linecap: round;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--cht-hue) 70%, transparent));
+  animation: cht-cm-scan 3.6s linear infinite;
+}
+@keyframes cht-cm-scan {
+  0% { transform: translateX(14px); opacity: 0; } 8%, 90% { opacity: 0.9; }
+  100% { transform: translateX(186px); opacity: 0; }
+}
+
+/* ============ Hackathons ============ */
+.cht-hk-ring {
+  fill: none; stroke: var(--cht-hue); stroke-width: 4; stroke-linecap: round;
+  transform: rotate(-90deg); animation: cht-hk-count 4s linear infinite;
+}
+@keyframes cht-hk-count { 0% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 176; } }
+.cht-hk-hand { stroke: var(--cht-hue); stroke-width: 2.4; stroke-linecap: round; animation: cht-hk-spin 4s linear infinite; }
+@keyframes cht-hk-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.cht-hk-blk { fill: color-mix(in srgb, var(--cht-hue) 40%, var(--surface)); animation: cht-hk-stack 4s ease-in-out infinite; }
+.cht-hk-blk-0 { animation-delay: 0.2s; } .cht-hk-blk-1 { animation-delay: 0.7s; }
+.cht-hk-blk-2 { animation-delay: 1.2s; } .cht-hk-blk-3 { animation-delay: 1.7s; }
+@keyframes cht-hk-stack {
+  0%, 8% { transform: translateY(20px) scaleY(0); opacity: 0; }
+  24%, 88% { transform: translateY(0) scaleY(1); opacity: 1; }
+  100% { transform: translateY(20px) scaleY(0); opacity: 0; }
+}
+
+/* ============ Conferences ============ */
+.cht-cf-screen {
+  fill: color-mix(in srgb, var(--cht-hue) 10%, var(--surface));
+  stroke: color-mix(in srgb, var(--cht-hue) 36%, var(--surface)); stroke-width: 1.6;
+}
+.cht-cf-slide { animation: cht-cf-adv 6s ease-in-out infinite; opacity: 0; }
+.cht-cf-slide-0 { animation-delay: 0s; } .cht-cf-slide-1 { animation-delay: 2s; } .cht-cf-slide-2 { animation-delay: 4s; }
+@keyframes cht-cf-adv {
+  0% { transform: translateX(20px); opacity: 0; }
+  5%, 28% { transform: translateX(0); opacity: 1; }
+  33%, 100% { transform: translateX(-20px); opacity: 0; }
+}
+.cht-cf-dot { fill: color-mix(in srgb, var(--cht-hue) 24%, var(--surface)); animation: cht-cf-dot 6s ease-in-out infinite; }
+.cht-cf-dot-0 { animation-delay: 0s; } .cht-cf-dot-1 { animation-delay: 2s; } .cht-cf-dot-2 { animation-delay: 4s; }
+@keyframes cht-cf-dot { 0%, 28% { fill: var(--cht-hue); } 34%, 100% { fill: color-mix(in srgb, var(--cht-hue) 24%, var(--surface)); } }
+
+/* ============ ML competitions (leaderboard) ============ */
+.cht-kg-rank { fill: color-mix(in srgb, var(--cht-hue) 30%, var(--surface)); }
+.cht-kg-row { animation: cht-kg-climb 5s ease-in-out infinite; }
+.cht-kg-row-0 { animation-delay: 0s; --kg-d: 54px; }
+.cht-kg-row-1 { animation-delay: 0s; --kg-d: -18px; }
+.cht-kg-row-2 { animation-delay: 0s; --kg-d: -18px; }
+.cht-kg-row-3 { animation-delay: 0s; --kg-d: -18px; }
+@keyframes cht-kg-climb {
+  0%, 30% { transform: translateY(0); } 50%, 80% { transform: translateY(var(--kg-d, 0)); } 100% { transform: translateY(0); }
+}
+.cht-kg-medal { animation: cht-kg-medal 5s ease-in-out infinite; }
+@keyframes cht-kg-medal {
+  0%, 30% { transform: translateY(54px); } 50%, 80% { transform: translateY(0); } 100% { transform: translateY(54px); }
+}
+
+/* ============ GSoC timeline ============ */
+.cht-gs-rail { stroke: color-mix(in srgb, var(--cht-hue) 20%, var(--surface)); stroke-width: 4; stroke-linecap: round; }
+.cht-gs-fill {
+  stroke: var(--cht-hue); stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 100; stroke-dashoffset: 100; animation: cht-draw 5s ease-in-out infinite;
+}
+.cht-gs-ring { fill: var(--surface); stroke: color-mix(in srgb, var(--cht-hue) 36%, var(--surface)); stroke-width: 2; }
+.cht-gs-core { fill: color-mix(in srgb, var(--cht-hue) 20%, var(--surface)); }
+.cht-gs-node .cht-gs-core { animation: cht-gs-light 5s ease-in-out infinite; }
+.cht-gs-node-0 .cht-gs-core { animation-delay: 0.4s; } .cht-gs-node-1 .cht-gs-core { animation-delay: 1.5s; }
+.cht-gs-node-2 .cht-gs-core { animation-delay: 2.6s; } .cht-gs-node-3 .cht-gs-core { animation-delay: 3.7s; }
+@keyframes cht-gs-light {
+  0%, 100% { fill: color-mix(in srgb, var(--cht-hue) 20%, var(--surface)); }
+  20%, 96% { fill: var(--cht-hue); }
+}
+
+/* ============ LLMs solve-rate race ============ */
+.cht-lm-spine { fill: color-mix(in srgb, var(--cht-hue) 24%, var(--surface)); }
+.cht-lm-node { fill: var(--cht-hue); }
+.cht-lm-bar { fill: color-mix(in srgb, var(--cht-hue) 50%, var(--surface)); animation: cht-lm-race 4s ease-in-out infinite; }
+.cht-lm-bar-0 { animation-delay: 0s; } .cht-lm-bar-1 { animation-delay: 0.18s; }
+.cht-lm-bar-2 { animation-delay: 0.36s; } .cht-lm-bar-3 { animation-delay: 0.54s; }
+@keyframes cht-lm-race { 0%, 8% { transform: scaleX(0); } 45%, 88% { transform: scaleX(1); } 100% { transform: scaleX(0); } }
+
+/* ============ Resources shelf ============ */
+.cht-rs-box {
+  fill: color-mix(in srgb, var(--cht-hue) 12%, var(--surface));
+  stroke: color-mix(in srgb, var(--cht-hue) 28%, var(--surface)); stroke-width: 1.2;
+}
+.cht-rs-link { fill: none; stroke: var(--surface); stroke-width: 1.4; stroke-linecap: round; }
+.cht-rs-card { animation: cht-rs-slide 4.6s ease-in-out infinite; }
+.cht-rs-card-0 { animation-delay: 0.2s; } .cht-rs-card-1 { animation-delay: 0.55s; } .cht-rs-card-2 { animation-delay: 0.9s; }
+@keyframes cht-rs-slide {
+  0%, 6% { transform: translateX(-60px); opacity: 0; }
+  22%, 88% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(-60px); opacity: 0; }
+}
+
+/* ============ reduced motion — rest in a built, legible state ============ */
+@media (prefers-reduced-motion: reduce) {
+  .cht-pl-prog, .cht-pl-pop, .cht-pl-bar,
+  .cht-rp-hist, .cht-rp-fore, .cht-rp-target,
+  .cht-cc-cell, .cht-cc-pulse,
+  .cht-pr-bar, .cht-pr-check,
+  .cht-co-line, .cht-co-dot, .cht-co-trophy,
+  .cht-cm-block, .cht-cm-scan,
+  .cht-hk-ring, .cht-hk-hand, .cht-hk-blk,
+  .cht-cf-slide, .cht-cf-dot,
+  .cht-kg-row, .cht-kg-medal,
+  .cht-gs-fill, .cht-gs-node .cht-gs-core,
+  .cht-lm-bar,
+  .cht-rs-card {
+    animation: none !important;
+  }
+  .cht-pl-prog { stroke-dashoffset: 30; }
+  .cht-pl-pop { transform: scale(1); opacity: 1; }
+  .cht-pl-bar { transform: scaleX(1); }
+  .cht-rp-hist { stroke-dashoffset: 0; }
+  .cht-rp-fore { opacity: 1; }
+  .cht-rp-target { transform: scale(1); opacity: 1; }
+  .cht-cc-pulse { opacity: 0; }
+  .cht-pr-bar { transform: scaleY(1); }
+  .cht-pr-check { transform: scale(1); opacity: 1; }
+  .cht-co-line { stroke-dashoffset: 0; }
+  .cht-co-dot { transform: scale(1); }
+  .cht-co-trophy { transform: scale(1); opacity: 1; }
+  .cht-cm-scan { opacity: 0; }
+  .cht-cm-block { opacity: 0.85; }
+  .cht-hk-blk { transform: translateY(0) scaleY(1); opacity: 1; }
+  .cht-cf-slide-0 { opacity: 1; transform: translateX(0); }
+  .cht-cf-dot-0 { fill: var(--cht-hue); }
+  .cht-gs-fill { stroke-dashoffset: 0; }
+  .cht-gs-node .cht-gs-core { fill: var(--cht-hue); }
+  .cht-lm-bar { transform: scaleX(1); }
+  .cht-rs-card { transform: translateX(0); opacity: 1; }
+}

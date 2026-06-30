@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { createClient } from '@supabase/supabase-js';
 import { wrapWithDriver, buildStdin } from '../src/lib/driverCode.js';
 import { compareOutputSmart } from './sol-batches/grade-helpers.mjs';
+import { runLocal } from './local-grade.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 for (const l of fs.readFileSync(path.join(__dirname, '..', '.env'), 'utf8').split('\n')) {
@@ -34,7 +35,12 @@ const HDRS = AUTH ? { 'content-type': 'application/json', 'X-Auth-Token': AUTH }
 const LANG_ID = { python: 71, javascript: 63, java: 62, cpp: 54 };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+const LOCAL_EXEC = process.env.LOCAL_EXEC !== '0';
 async function run(langId, src, stdin) {
+  if (LOCAL_EXEC) {
+    const r = runLocal(langId, src, stdin, { timeoutMs: 8000 });
+    return { ok: r.ok, stdout: r.stdout || '', status: r.status, err: r.err };
+  }
   for (let a = 1; a <= 3; a++) {
     try {
       const r = await fetch(`${JUDGE0_URL}/submissions?base64_encoded=false&wait=true`, { method: 'POST', headers: HDRS, body: JSON.stringify({ language_id: langId, source_code: src, stdin, cpu_time_limit: 6, wall_time_limit: 10 }) });

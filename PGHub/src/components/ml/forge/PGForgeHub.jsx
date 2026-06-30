@@ -8,7 +8,7 @@ import { PILLARS } from '../../../content/mlContent';
 import { MATH_MODULES } from './pgForgeMathData';
 import { PG_FORGE_PROBLEMS } from './pgForgeProblemsData';
 import { PAPERS } from './pgForgePapersData';
-import ForgeThumb from './ForgeThumb';
+import ForgeHubThumb, { PapersThumb } from './ForgeHubThumbs';
 import './PGForgeHub.css';
 
 // The eight surfaces of PGForge. ML Math owns the foundations; Lessons owns the
@@ -141,7 +141,7 @@ export default function PGForgeHub() {
             return (
               <Link key={s.to} to={s.to} className="forge-pillar">
                 <div className="forge-thumb-frame forge-pillar-thumb">
-                  <ForgeThumb kind={s.thumb} seed={s.title} />
+                  <ForgeHubThumb to={s.to} />
                   <span className="forge-pillar-badge"><Icon size={15} /></span>
                 </div>
                 <div className="forge-pillar-body">
@@ -164,7 +164,7 @@ export default function PGForgeHub() {
           {featured && (
             <Link to="/ml/papers" className="forge-feature-card">
               <div className="forge-thumb-frame forge-feature-thumb">
-                <ForgeThumb kind="paper" seed={featured.title} />
+                <PapersThumb />
               </div>
               <div className="forge-feature-text">
                 <h3 className="forge-feature-title">{featured.title}</h3>

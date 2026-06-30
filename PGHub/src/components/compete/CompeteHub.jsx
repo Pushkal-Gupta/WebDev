@@ -4,7 +4,7 @@ import {
   Swords, UserSearch, CalendarRange, LineChart, Code2,
   GitBranch, ListOrdered, Gauge, ArrowRight, ArrowLeft, Trophy, Brain, Cpu, BookOpen,
 } from 'lucide-react';
-import ForgeThumb from '../ml/forge/ForgeThumb';
+import CompeteHubThumb from './CompeteHubThumbs';
 import LeetCodeProfile from './LeetCodeProfile';
 import ExternalContestsCalendar from '../contests/ExternalContestsCalendar';
 import LeetCodeAnalytics from '../contests/LeetCodeAnalytics';
@@ -36,51 +36,52 @@ const SECTIONS = {
 
 const TAB_ORDER = ['profile', 'analytics', 'calendar'];
 
-// Each entry maps to a distinct ForgeThumb motif via `kind` so every card draws
-// a visibly different mini-visual; chrome stays on the teal brand accent.
+// Each entry maps to a distinct animated thumb via `thumbKey` (see
+// CompeteHubThumbs) so every card draws an on-topic, moving mini-visual; chrome
+// stays on the teal brand accent.
 const EXPLORE = [
   {
-    to: '/compete/leetcode/problems', icon: ListOrdered, kind: 'bars', thumbLabel: 'problems',
+    to: '/compete/leetcode/problems', icon: ListOrdered, thumbKey: 'problems',
     title: 'LeetCode problems', chip: 'Rated set',
     sub: 'Every rated contest problem — difficulty rating, solve-rate estimate, and per-contest charts.',
   },
   {
-    to: '/compete/leetcode/contests', icon: Trophy, kind: 'rings', thumbLabel: 'contests',
+    to: '/compete/leetcode/contests', icon: Trophy, thumbKey: 'contests',
     title: 'LeetCode contests', chip: 'Weekly + biweekly',
     sub: 'Every weekly and biweekly round with live countdowns and status.',
   },
   {
-    to: '/compete/competitions', icon: Gauge, kind: 'wave', thumbLabel: 'judges',
+    to: '/compete/competitions', icon: Gauge, thumbKey: 'competitions',
     title: 'Competitions', chip: 'CF · AtCoder · CC',
     sub: 'Codeforces, AtCoder, CodeChef rounds — one timeline with countdowns to the next start.',
   },
   {
-    to: '/compete/hackathons', icon: Code2, kind: 'network', thumbLabel: 'hackathons',
+    to: '/compete/hackathons', icon: Code2, thumbKey: 'hackathons',
     title: 'Hackathons', chip: 'Open sprints',
     sub: 'Weekend build sprints with prizes — themed challenges and open submission windows.',
   },
   {
-    to: '/compete/conferences', icon: GitBranch, kind: 'cards', thumbLabel: 'conferences',
+    to: '/compete/conferences', icon: GitBranch, thumbKey: 'conferences',
     title: 'Conferences', chip: 'Deadlines',
     sub: 'Talks, deadlines, and program windows across the research and open-source calendar.',
   },
   {
-    to: '/compete/kaggle', icon: Brain, kind: 'scatter', thumbLabel: 'ml comps',
+    to: '/compete/kaggle', icon: Brain, thumbKey: 'kaggle',
     title: 'ML competitions', chip: 'Prize pools',
     sub: 'Live data-science and machine-learning contests — prize pools, deadlines, and fields at a glance.',
   },
   {
-    to: '/compete/gsoc', icon: Code2, kind: 'tree', thumbLabel: 'gsoc',
+    to: '/compete/gsoc', icon: Code2, thumbKey: 'gsoc',
     title: 'GSoC explorer', chip: 'Orgs + ideas',
     sub: 'Mentoring organizations and their project ideas, filterable by domain and tech.',
   },
   {
-    to: '/compete/leetcode/llms', icon: Cpu, kind: 'cuda', thumbLabel: 'llms',
+    to: '/compete/leetcode/llms', icon: Cpu, thumbKey: 'llms',
     title: 'LLMs on LeetCode', chip: 'Solve rate',
     sub: 'How language models score on rated problems — solve rate by difficulty and projected rating.',
   },
   {
-    to: '/compete/resources', icon: BookOpen, kind: 'paper', thumbLabel: 'resources',
+    to: '/compete/resources', icon: BookOpen, thumbKey: 'resources',
     title: 'Resources', chip: 'One shelf',
     sub: 'Foundations, practice, interview prep, and open-source paths — linked in one shelf.',
   },
@@ -90,28 +91,28 @@ const EXPLORE = [
 // rather than navigating to another route.
 const SECTION_CARDS = [
   {
-    section: 'profile', icon: UserSearch, kind: 'network', thumbLabel: 'lookup', chip: 'Any coder',
+    section: 'profile', icon: UserSearch, thumbKey: 'lookup', chip: 'Any coder',
     title: 'User lookup',
     sub: 'Pull any LeetCode profile — solved counts, streak, and contest history at a glance.',
   },
   {
-    section: 'analytics', icon: LineChart, kind: 'descent', thumbLabel: 'rating', chip: 'Elo model',
+    section: 'analytics', icon: LineChart, thumbKey: 'predictor', chip: 'Elo model',
     title: 'Rating predictor',
     sub: 'Per-contest stats, per-question rating estimates, and a projected rating change from your rank.',
   },
   {
-    section: 'calendar', icon: CalendarRange, kind: 'wave', thumbLabel: 'calendar', chip: 'Every judge',
+    section: 'calendar', icon: CalendarRange, thumbKey: 'calendar', chip: 'Every judge',
     title: 'Contest calendar',
     sub: 'Every judge and competition in one timeline, filtered by platform with live countdowns.',
   },
 ];
 
 function CardFace({ entry }) {
-  const { icon: Icon, thumbLabel, kind, title, sub, chip } = entry;
+  const { icon: Icon, thumbKey, title, sub, chip } = entry;
   return (
     <>
       <div className="compete-card-thumb" aria-hidden="true">
-        <ForgeThumb kind={kind} seed={title} label={thumbLabel} />
+        <CompeteHubThumb thumbKey={thumbKey} />
       </div>
       <div className="compete-card-head">
         <span className="compete-card-iconbox"><Icon size={18} /></span>

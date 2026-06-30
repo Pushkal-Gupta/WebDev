@@ -188,11 +188,14 @@ function ordinal(n) {
 
 // ── SVG bar chart ──────────────────────────────────────────────
 
-const VIEW_W = 100;
-const VIEW_PAD_X = 3;
+// Wide viewBox (~3:1) so the bar chart fills the stage with `preserveAspectRatio
+// "meet"` instead of being horizontally STRETCHED by "none". Horizontal constants
+// are scaled ~3x from the old 100-wide space; vertical rows are unchanged.
+const VIEW_W = 300;
+const VIEW_PAD_X = 9;
 const BAR_AREA_TOP = 8;
 const BAR_AREA_H = 56;
-const BAR_GAP = 0.6;
+const BAR_GAP = 1.8;
 const LABEL_ROW_H = 16;
 const POINTER_ROW_H = 9;
 
@@ -230,7 +233,7 @@ function BarChart({ frame, maxVal }) {
     <svg
       className="qsv-svg"
       viewBox={`0 0 ${VIEW_W} ${totalH}`}
-      preserveAspectRatio="none"
+      preserveAspectRatio="xMidYMid meet"
       role="img"
       aria-label="QuickSelect array state"
     >

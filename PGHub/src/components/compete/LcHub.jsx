@@ -7,7 +7,7 @@ import {
   Hourglass, Clock,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { useLeetCodeUser, useProfile } from '../../lib/queries';
+import { useLeetCodeUser, useProfile, useLcUserContestRank } from '../../lib/queries';
 import { predictDelta, pendingContestSince, SAMPLE_FIELD, TOTAL_PARTICIPANTS } from '../contests/LeetCodeAnalytics';
 import Breadcrumb from '../common/Breadcrumb';
 import './LcHub.css';
@@ -122,9 +122,28 @@ export default function LcHub() {
   const pending = pendingRaw
     ? {
         ...pendingRaw,
+        // slug for the ranking fetch: "Weekly Contest 508" -> "weekly-contest-508"
+        slug: pendingRaw.title.toLowerCase().replace(/\s+/g, '-'),
         base: Math.round(Number(latest.newRating) || realRating),
         played: Math.max(0, Number(user?.attendedContestsCount) || latest.played + 1),
       }
+    : null;
+
+  // LeetCode publishes the contest RANKING immediately (before the official
+  // rating change), so fetch the user's rank in the pending round and PREDICT the
+  // swing now — exactly what the predictor is for.
+  const { data: pendingRankData } = useLcUserContestRank(pending?.slug, handle, !!pending);
+  const pendingRank = pendingRankData?.ok && pendingRankData?.found
+    ? Math.max(1, Number(pendingRankData.rank) || 0)
+    : null;
+  const pendingPrediction = pending && pendingRank
+    ? predictDelta({
+        rating: pending.base,
+        actualRank: pendingRank,
+        contestsPlayed: pending.played,
+        fieldRatings: SAMPLE_FIELD,
+        fieldSize: TOTAL_PARTICIPANTS,
+      })
     : null;
 
   // What-if re-runs against the SAME baseline the latest round used: the
@@ -283,7 +302,7 @@ export default function LcHub() {
                     <span>{pending.title}</span>
                   </div>
                   <span className="lch-pending-pill">
-                    <Clock size={12} aria-hidden /> Awaiting LeetCode rating
+                    <Clock size={12} aria-hidden /> Predicted · not yet rated by LeetCode
                   </span>
                 </header>
 
@@ -295,8 +314,8 @@ export default function LcHub() {
                   </div>
                   <div className="lch-fact">
                     <span className="lch-fact-ico"><Hash size={14} aria-hidden /></span>
-                    <span className="lch-fact-val">—</span>
-                    <span className="lch-fact-lbl">Rank pending</span>
+                    <span className="lch-fact-val">{pendingRank ? `#${pendingRank.toLocaleString()}` : '…'}</span>
+                    <span className="lch-fact-lbl">{pendingRank ? 'Your rank' : 'Fetching rank'}</span>
                   </div>
                   <div className="lch-fact">
                     <span className="lch-fact-ico"><Award size={14} aria-hidden /></span>
@@ -305,11 +324,38 @@ export default function LcHub() {
                   </div>
                 </div>
 
-                <p className="lch-pending-note">
-                  LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
-                  rated history. Your last confirmed rating is {pending.base}. Project the finish below to
-                  see the likely swing — it&apos;ll be confirmed once LeetCode posts the official change.
-                </p>
+                {pendingPrediction != null ? (
+                  <>
+                    <div className="lch-move">
+                      <span className="lch-move-from">{pending.base}</span>
+                      <ArrowRight size={15} aria-hidden />
+                      <span className="lch-move-to">{pending.base + pendingPrediction}</span>
+                      <span className={`lch-move-delta ${pendingPrediction >= 0 ? 'up' : 'down'}`}>
+                        {pendingPrediction >= 0 ? '+' : ''}{pendingPrediction}
+                      </span>
+                    </div>
+                    <div className="lch-predict-grid">
+                      <div className="lch-predict-card">
+                        <span className="lch-predict-lbl"><Award size={13} aria-hidden /> Current rating</span>
+                        <span className="lch-predict-val">{pending.base}</span>
+                        <span className="lch-predict-sub">last confirmed by LeetCode</span>
+                      </div>
+                      <div className="lch-predict-card is-predicted">
+                        <span className="lch-predict-lbl"><Sparkles size={13} aria-hidden /> Predicted rating</span>
+                        <span className="lch-predict-val">{pending.base + pendingPrediction}</span>
+                        <span className="lch-predict-sub">
+                          {pendingPrediction >= 0 ? '+' : ''}{pendingPrediction} from rank #{pendingRank.toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <p className="lch-pending-note">
+                    {pendingRank === null
+                      ? `Fetching your rank in ${pending.title} from LeetCode to predict the swing…`
+                      : `Couldn't find you in ${pending.title}'s ranking. Enter a finish below to project from rank.`}
+                  </p>
+                )}
               </article>
             )}
 

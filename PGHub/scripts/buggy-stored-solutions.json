@@ -1,0 +1,34 @@
+[
+  {
+    "slug": "absolute-difference-between-maximum-and-minimum-k-elements",
+    "issue": "method_name absDifference vs code minimumDifference"
+  },
+  {
+    "slug": "angles-of-a-triangle",
+    "issue": "method_name internalAngles vs code triangleAngles"
+  },
+  {
+    "slug": "add-two-numbers-ii",
+    "issue": "ListNode I/O mismatch in stored code"
+  },
+  {
+    "slug": "all-oone-data-structure",
+    "issue": "design-class: method_name inc is inner method"
+  },
+  {
+    "slug": "apply-discount-every-n-orders",
+    "issue": "design-class: method_name getBill is inner method"
+  },
+  {
+    "slug": "all-nodes-distance-k-in-binary-tree",
+    "issue": "TreeNode target handling"
+  },
+  {
+    "slug": "all-possible-full-binary-trees",
+    "issue": "TreeNode(0) unresolvable in grader"
+  },
+  {
+    "slug": "add-two-promises",
+    "issue": "async/Promise not gradeable in python harness"
+  }
+]
