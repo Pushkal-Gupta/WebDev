@@ -99,6 +99,7 @@ export default function DFSViz() {
   const [start, setStart] = useState('A');
   const [step, setStep] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const frames = useMemo(() => computeFrames(start), [start]);
@@ -119,9 +120,9 @@ export default function DFSViz() {
   // Auto-advance loop. Stops at the final frame.
   useEffect(() => {
     if (!playing) return;
-    timer.current = setTimeout(() => setStep(s => s + 1), 700);
+    timer.current = setTimeout(() => setStep(s => s + 1), Math.round(700 / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, frames.length]);
+  }, [playing, frames.length, safeStep, speed]);
 
   const handleStep = () => {
     setPlaying(false);
@@ -269,6 +270,20 @@ export default function DFSViz() {
           <RotateCcw size={14} />
           Reset
         </button>
+        <label className="dfsviz-speed">
+          <span className="dfsviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="dfsviz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="dfsviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="dfsviz-legend">

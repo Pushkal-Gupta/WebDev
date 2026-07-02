@@ -293,6 +293,41 @@
   line-height: 1.5;
   color: var(--text-dim);
 }
+/* Manual rank entry for a not-yet-rated round (Cloudflare blocks auto-fetch) */
+.lch-rank-entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.2rem 0 0.9rem;
+}
+.lch-rank-entry-lbl {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.lch-rank-input {
+  width: 12rem;
+  max-width: 100%;
+  padding: 0.5rem 0.7rem;
+  font-family: var(--mono, monospace);
+  font-size: 1rem;
+  color: var(--text-main);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.lch-rank-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.18);
+}
+.lch-rank-entry-hint { font-size: 0.74rem; color: var(--text-dim); }
+.lch-rank-entry-hint a { color: var(--accent); }
+
 /* Predicted-swing display for the unrated round (current -> predicted) */
 .lch-move {
   display: flex;

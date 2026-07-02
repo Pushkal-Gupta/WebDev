@@ -299,7 +299,7 @@ export default function RabinKarpViz() {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [isRunning, speedMs, frames.length]);
+  }, [isRunning, speedMs, frames.length, step]);
 
   const handleStep = useCallback(() => {
     setIsRunningRaw(false);

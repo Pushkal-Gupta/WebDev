@@ -206,6 +206,7 @@ export default function HeapSortViz() {
   const [frames, setFrames] = useState(() => buildFrames(DEFAULT_ARRAY));
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const playRef = useRef(null);
 
   const currentFrame = frames[idx] || frames[0];
@@ -235,9 +236,9 @@ export default function HeapSortViz() {
 
   useEffect(() => {
     if (!playing) return;
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => setIdx((i) => i + 1), Math.round(STEP_MS / speed));
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, idx, frames, speed]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) setIdx(idx + 1);
@@ -335,6 +336,20 @@ export default function HeapSortViz() {
           <SkipForward size={14} />
           <span className="hsv-btn-label">Step</span>
         </button>
+        <label className="hsv-speed">
+          <span className="hsv-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="hsv-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="hsv-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="hsv-stage">

@@ -35,6 +35,153 @@
   font-weight: 600;
 }
 
+/* ---------------------------------------------------------------------------
+   Looping motif animations. Subtle + slow so ~20 index/list pages feel alive
+   without distraction. Every animated shape carries a `ft-anim-*` utility class
+   (colours still come from the per-card c1/c2 inline fills — never hardcoded).
+   Motion rests on a clean static frame under prefers-reduced-motion.
+--------------------------------------------------------------------------- */
+
+/* opacity shimmer for grid/heat/matrix/attention cells + bits + chain links */
+.forge-thumb .ft-anim-twinkle {
+  animation: ft-twinkle 3s ease-in-out infinite;
+}
+@keyframes ft-twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.92; }
+}
+
+/* points that gently float + twinkle (scatter / diffusion / cluster / cards) */
+.forge-thumb .ft-anim-drift {
+  animation: ft-drift 4s ease-in-out infinite, ft-twinkle 3.4s ease-in-out infinite;
+}
+@keyframes ft-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2.5px); }
+}
+
+/* nodes / markers that swell (network, tree, orbit centre, flow, sequence) */
+.forge-thumb .ft-anim-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ft-pulse 2.8s ease-in-out infinite;
+}
+@keyframes ft-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.24); }
+}
+
+/* bars breathing up from their baseline */
+.forge-thumb .ft-anim-rise {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: ft-rise 3.2s ease-in-out infinite;
+}
+@keyframes ft-rise {
+  0%, 100% { transform: scaleY(0.66); }
+  50% { transform: scaleY(1); }
+}
+
+/* a density curve breathing around its baseline */
+.forge-thumb .ft-anim-breathe {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: ft-breathe 4s ease-in-out infinite;
+}
+@keyframes ft-breathe {
+  0%, 100% { transform: scaleY(0.9); }
+  50% { transform: scaleY(1.06); }
+}
+
+/* set circles pulsing about their own centre (venn) */
+.forge-thumb .ft-anim-venn {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ft-vpulse 4.5s ease-in-out infinite;
+}
+@keyframes ft-vpulse {
+  0%, 100% { transform: scale(0.95); }
+  50% { transform: scale(1.05); }
+}
+
+/* a signal travelling along an edge (network / tree / recommender / sequence) */
+.forge-thumb .ft-anim-flow {
+  stroke-dasharray: 4 4;
+  animation: ft-flow 1.2s linear infinite;
+}
+@keyframes ft-flow {
+  to { stroke-dashoffset: -16; }
+}
+
+/* a lit segment sweeping along a plotted line (timeseries / schedule) */
+.forge-thumb .ft-anim-draw {
+  stroke-dasharray: 26 260;
+  animation: ft-draw 2.8s linear infinite;
+}
+@keyframes ft-draw {
+  to { stroke-dashoffset: -286; }
+}
+
+/* full slow revolution (spiral path, orbiting bodies) */
+.forge-thumb .ft-anim-rotate {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ft-rotate 16s linear infinite;
+}
+.forge-thumb .ft-m-orbit .ft-anim-rotate,
+.forge-thumb .ft-m-spiral .ft-anim-rotate {
+  transform-box: view-box;
+  transform-origin: 60px 40px;
+}
+@keyframes ft-rotate {
+  to { transform: rotate(360deg); }
+}
+
+/* an arrow / needle rocking in place (vectors, field, gauge, metrics) */
+.forge-thumb .ft-anim-sway {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ft-sway 4s ease-in-out infinite;
+}
+.forge-thumb .ft-m-vectors .ft-anim-sway {
+  transform-box: view-box;
+  transform-origin: 14px 66px;
+}
+@keyframes ft-sway {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+
+/* rings expanding outward and fading */
+.forge-thumb .ft-anim-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ft-ripple 3.4s ease-out infinite;
+}
+@keyframes ft-ripple {
+  0% { transform: scale(0.55); opacity: 0.85; }
+  70% { opacity: 0.2; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* a wave undulating side to side */
+.forge-thumb .ft-anim-scroll {
+  animation: ft-scroll 5s ease-in-out infinite;
+}
+@keyframes ft-scroll {
+  0%, 100% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .forge-thumb .ft-m,
+  .forge-thumb .ft-m * {
+    animation: none !important;
+  }
+  /* rest the sweep lines as a clean, fully-drawn stroke */
+  .forge-thumb .ft-anim-draw { stroke-dasharray: none; }
+}
+
 /* Standard wrapper a card can use to frame the thumb with the right aspect. */
 .forge-thumb-frame {
   position: relative;

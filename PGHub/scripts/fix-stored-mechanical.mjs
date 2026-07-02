@@ -26,9 +26,28 @@ const codeOf = (e) => !e ? '' : (typeof e === 'string' ? e : e.code || '');
 
 // collect candidate slugs
 const slugs = new Set();
-try { JSON.parse(fs.readFileSync(path.join(__dirname, 'buggy-stored-solutions.json'), 'utf8')).forEach((x) => slugs.add(x.slug || x)); } catch { /* none */ }
-for (const dir of ['/tmp/ed', '/tmp/author']) {
-  try { for (const f of fs.readdirSync(dir)) { if (/\.fails\.json$/.test(f)) { try { JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).forEach((x) => slugs.add(x.slug || x)); } catch { /* skip */ } } } } catch { /* skip */ }
+const ALL = process.argv.includes('--all');
+function isStubPy(code) {
+  if (!code) return true; const b = code.trim(); if (b.length < 12) return true;
+  const nc = b.replace(/(^|\n)\s*#.*/g, ''); const ni = nc.replace(/^\s*(from|import)\s.*$/gm, '');
+  const a = ni.split(/def\s+\w+\s*\([^)]*\)\s*(?:->[^:]+)?:/).slice(1).join('\n').trim();
+  if (a === '' || /^(pass|\.\.\.|return(\s+None)?)$/.test(a)) return true;
+  if (/Reference skeleton|See the Editorial/i.test(code)) return true;
+  return false;
+}
+if (ALL) {
+  const co = (e) => !e ? '' : (typeof e === 'string' ? e : e.code || '');
+  for (let off = 0; ; off += 1000) {
+    const { data } = await sb.from('PGcode_problems').select('id,solutions').order('id').range(off, off + 999);
+    if (!data || !data.length) break;
+    for (const p of data) { if (!isStubPy(co(p.solutions?.python))) slugs.add(p.id); }
+    if (data.length < 1000) break;
+  }
+} else {
+  try { JSON.parse(fs.readFileSync(path.join(__dirname, 'buggy-stored-solutions.json'), 'utf8')).forEach((x) => slugs.add(x.slug || x)); } catch { /* none */ }
+  for (const dir of ['/tmp/ed', '/tmp/author']) {
+    try { for (const f of fs.readdirSync(dir)) { if (/\.fails\.json$/.test(f)) { try { JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')).forEach((x) => slugs.add(x.slug || x)); } catch { /* skip */ } } } } catch { /* skip */ }
+  }
 }
 const argList = process.argv.indexOf('--slugs');
 if (argList >= 0) { slugs.clear(); process.argv[argList + 1].split(',').forEach((s) => slugs.add(s.trim())); }
@@ -36,6 +55,22 @@ if (argList >= 0) { slugs.clear(); process.argv[argList + 1].split(',').forEach(
 function stripFences(code) {
   let c = code.replace(/^\s*```(?:python|py)?\s*\n?/i, '').replace(/\n?```\s*$/i, '');
   return c;
+}
+// Prepend imports for stdlib names the code uses but never imports (a large class of
+// stored solutions NZEC purely because of a missing `from collections import ...`).
+function addMissingImports(code) {
+  const adds = [];
+  const used = (n) => new RegExp(`(?<![.\\w])${n}\\s*\\(`).test(code) && !new RegExp(`import[^\\n]*\\b${n}\\b`).test(code);
+  const collFrom = ['deque', 'defaultdict', 'Counter', 'OrderedDict', 'namedtuple'].filter(used);
+  if (collFrom.length) adds.push(`from collections import ${collFrom.join(', ')}`);
+  if (/(\bheapq\.\w|(?<![.\w])(heappush|heappop|heapify|heapreplace|nlargest|nsmallest)\s*\()/.test(code) && !/import\s+heapq|from\s+heapq/.test(code)) adds.push('import heapq');
+  if (/(\bbisect\.\w|(?<![.\w])(bisect_left|bisect_right|insort|insort_left|insort_right)\s*\()/.test(code) && !/import\s+bisect|from\s+bisect/.test(code)) adds.push('import bisect');
+  if (used('reduce')) adds.push('from functools import reduce');
+  const itFrom = ['combinations', 'permutations', 'accumulate', 'product', 'groupby', 'chain'].filter(used);
+  if (itFrom.length) adds.push(`from itertools import ${itFrom.join(', ')}`);
+  if (/\bmath\.\w+/.test(code) && !/import\s+math/.test(code)) adds.push('import math');
+  if (!adds.length) return code;
+  return adds.join('\n') + '\n' + code;
 }
 // top-level (column-0) def names, in order
 function topLevelDefs(code) {
@@ -55,10 +90,11 @@ async function processOne(slug) {
   const orig = codeOf(data.solutions?.python);
   if (!orig) return { slug, skip: 'no code' };
 
-  let code = stripFences(orig);
-  const fenced = code !== orig;
-  let repaired = code;
-  let how = fenced ? 'unfenced' : '';
+  let repaired = stripFences(orig);
+  let how = repaired !== orig ? 'unfenced' : '';
+  const withImports = addMissingImports(repaired);
+  if (withImports !== repaired) { repaired = withImports; how = how ? how + '+imports' : 'imports'; }
+  const code = repaired;
 
   if (!hasSolutionMethod(code, data.method_name)) {
     const defs = topLevelDefs(code);

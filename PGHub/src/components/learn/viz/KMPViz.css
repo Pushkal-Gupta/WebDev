@@ -417,3 +417,31 @@
     flex: 1 1 calc(33.333% - 0.4rem);
   }
 }
+
+.kmp-viz-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.kmp-viz-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.kmp-viz-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.kmp-viz-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 2.8em;
+  text-align: right;
+}

@@ -187,6 +187,7 @@ export default function DijkstraViz() {
   const steps = useMemo(() => buildSteps(start), [start]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prevStart, setPrevStart] = useState(start);
@@ -215,11 +216,11 @@ export default function DijkstraViz() {
     }
     timerRef.current = setInterval(() => {
       next();
-    }, 1000);
+    }, Math.round(1000 / speed));
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, speed]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -505,6 +506,20 @@ export default function DijkstraViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="dijkviz-speed">
+          <span className="dijkviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="dijkviz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="dijkviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

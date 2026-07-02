@@ -130,12 +130,20 @@ export default function LcHub() {
     : null;
 
   // LeetCode publishes the contest RANKING immediately (before the official
-  // rating change), so fetch the user's rank in the pending round and PREDICT the
-  // swing now — exactly what the predictor is for.
+  // rating change). We TRY to auto-fetch the user's rank server-side, but
+  // LeetCode's ranking REST API is behind Cloudflare and blocks server fetches,
+  // so we also let the user type the rank they see on the contest page — either
+  // way we PREDICT the swing now (Current -> Predicted), which is the point.
   const { data: pendingRankData } = useLcUserContestRank(pending?.slug, handle, !!pending);
-  const pendingRank = pendingRankData?.ok && pendingRankData?.found
+  const fetchedRank = pendingRankData?.ok && pendingRankData?.found
     ? Math.max(1, Number(pendingRankData.rank) || 0)
     : null;
+  const [manualRank, setManualRank] = useState('');
+  // Reset the typed rank whenever the pending contest changes.
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setManualRank(''); }, [pending?.slug]);
+  const pendingRank = fetchedRank
+    ?? (manualRank.trim() && Number(manualRank) > 0 ? Math.round(Number(manualRank)) : null);
   const pendingPrediction = pending && pendingRank
     ? predictDelta({
         rating: pending.base,
@@ -324,6 +332,27 @@ export default function LcHub() {
                   </div>
                 </div>
 
+                {/* Rank source: auto-fetched (if Cloudflare lets us) or typed in. */}
+                {!fetchedRank && (
+                  <label className="lch-rank-entry">
+                    <span className="lch-rank-entry-lbl">
+                      <Hash size={13} aria-hidden /> Your rank in {pending.title}
+                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      inputMode="numeric"
+                      className="lch-rank-input"
+                      placeholder="e.g. 798"
+                      value={manualRank}
+                      onChange={(e) => setManualRank(e.target.value)}
+                    />
+                    <span className="lch-rank-entry-hint">
+                      Find it on your <a href={`https://leetcode.com/contest/${pending.slug}/ranking/`} target="_blank" rel="noreferrer noopener">contest ranking page</a> — we&apos;ll predict the swing.
+                    </span>
+                  </label>
+                )}
+
                 {pendingPrediction != null ? (
                   <>
                     <div className="lch-move">
@@ -351,9 +380,8 @@ export default function LcHub() {
                   </>
                 ) : (
                   <p className="lch-pending-note">
-                    {pendingRank === null
-                      ? `Fetching your rank in ${pending.title} from LeetCode to predict the swing…`
-                      : `Couldn't find you in ${pending.title}'s ranking. Enter a finish below to project from rank.`}
+                    Enter your rank above and we&apos;ll project {pending.title} from your current {pending.base} —
+                    LeetCode will confirm the official change in a day or two.
                   </p>
                 )}
               </article>
