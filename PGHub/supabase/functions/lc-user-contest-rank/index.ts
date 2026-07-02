@@ -41,23 +41,39 @@ function rowUsername(r: any): string {
   return String(r?.username || r?.user_slug || "");
 }
 
+let LAST_DIAG = "";
+
 async function fetchPage(contest: string, page: number): Promise<{ rows: any[]; userNum: number } | null> {
-  const url = `https://leetcode.com/contest/api/ranking/${contest}/?pagination=${page}&region=global`;
-  const res = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Referer": `https://leetcode.com/contest/${contest}/ranking/`,
-      "Origin": "https://leetcode.com",
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
-      "Accept": "application/json",
-    },
-  });
-  if (!res.ok) return null;
-  const payload = await res.json();
-  const rows = Array.isArray(payload?.total_rank) ? payload.total_rank : [];
-  const userNum = Number(payload?.user_num ?? 0);
-  return { rows, userNum };
+  // LeetCode's ranking REST API — try both region variants (the web app uses
+  // global_v2). Whichever returns rows wins.
+  for (const region of ["global_v2", "global"]) {
+    const url = `https://leetcode.com/contest/api/ranking/${contest}/?pagination=${page}&region=${region}`;
+    try {
+      const res = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Referer": `https://leetcode.com/contest/${contest}/ranking/`,
+          "Origin": "https://leetcode.com",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "Accept": "application/json",
+          "Accept-Language": "en-US,en;q=0.9",
+          "x-requested-with": "XMLHttpRequest",
+        },
+      });
+      const text = await res.text();
+      if (page === 1) LAST_DIAG = `region=${region} status=${res.status} ct=${res.headers.get("content-type")} body[0:120]=${text.slice(0, 120).replace(/\s+/g, " ")}`;
+      if (!res.ok) continue;
+      let payload: any;
+      try { payload = JSON.parse(text); } catch { continue; }
+      const rows = Array.isArray(payload?.total_rank) ? payload.total_rank : [];
+      const userNum = Number(payload?.user_num ?? 0);
+      if (rows.length > 0 || userNum > 0) return { rows, userNum };
+    } catch (e) {
+      if (page === 1) LAST_DIAG = `region=${region} fetch-threw ${(e as Error).message}`;
+    }
+  }
+  return null;
 }
 
 function matchRow(rows: any[], target: string): any | null {
@@ -109,7 +125,7 @@ serve(async (req) => {
     // Page 1 also gives us user_num so we know how far to scan.
     const first = await fetchPage(contest, 1);
     if (!first || first.rows.length === 0) {
-      return jsonResponse({ ok: false, error: "No ranking data returned" });
+      return jsonResponse({ ok: false, error: "No ranking data returned", diag: LAST_DIAG });
     }
     const totalUsers = first.userNum;
     const hitFirst = matchRow(first.rows, username);

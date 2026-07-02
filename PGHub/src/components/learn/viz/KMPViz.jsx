@@ -155,6 +155,7 @@ export default function KMPViz() {
 
   const [step, setStep] = useState(0);
   const [runningRaw, setRunning] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   // Reset playhead when the input changes. Comparing prev state during render is
@@ -179,11 +180,11 @@ export default function KMPViz() {
     }
     timerRef.current = setTimeout(() => {
       setStep((s) => Math.min(s + 1, frames.length - 1));
-    }, TICK_MS);
+    }, Math.round(TICK_MS / speed));
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [running, frames.length]);
+  }, [running, frames.length, step, speed]);
 
   const handleStep = useCallback(() => {
     setRunning(false);
@@ -496,6 +497,20 @@ export default function KMPViz() {
         <button type="button" className="kmp-viz-btn" onClick={handleReset}>
           Reset
         </button>
+        <label className="kmp-viz-speed">
+          <span className="kmp-viz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="kmp-viz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="kmp-viz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

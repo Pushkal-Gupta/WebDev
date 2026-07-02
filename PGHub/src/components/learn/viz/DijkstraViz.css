@@ -501,3 +501,31 @@
   .dijkviz-btn-secondary:hover,
   .dijkviz-btn-primary:hover { transform: none !important; }
 }
+
+.dijkviz-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dijkviz-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.dijkviz-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.dijkviz-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 2.8em;
+  text-align: right;
+}

@@ -269,7 +269,7 @@ function Motif({ name, c1, c2, rand }) {
       // 2-3 arrows from a shared origin at seed-varied angles/lengths.
       const n = 2 + Math.floor(rand() * 2);
       return (
-        <g>
+        <g className="ft-m ft-m-vectors">
           <line x1="14" y1="66" x2="14" y2="12" className="ft-axis" />
           <line x1="14" y1="66" x2="108" y2="66" className="ft-axis" />
           {Array.from({ length: n }).map((_, i) => {
@@ -277,7 +277,8 @@ function Motif({ name, c1, c2, rand }) {
             const ang = (0.12 + rand() * 0.55) * Math.PI;
             return (
               <line key={i} x1="14" y1="66" x2={14 + Math.cos(ang) * len} y2={66 - Math.sin(ang) * len}
-                stroke={i % 2 ? c2 : c1} strokeWidth="3" markerEnd={`url(#ft-a${i % 2 ? 2 : 1})`} />
+                stroke={i % 2 ? c2 : c1} strokeWidth="3" markerEnd={`url(#ft-a${i % 2 ? 2 : 1})`}
+                className="ft-anim-sway" style={{ animationDelay: `${i * 0.6}s` }} />
             );
           })}
         </g>
@@ -287,12 +288,13 @@ function Motif({ name, c1, c2, rand }) {
       // A labelled cell grid wrapped in matrix brackets — reads as "a matrix",
       // distinct from the borderless heat/cuda grids.
       return (
-        <g>
+        <g className="ft-m ft-m-matrix">
           <path d="M16 14 L11 14 L11 66 L16 66" fill="none" stroke={c2} strokeWidth="2.5" strokeLinecap="round" />
           <path d="M104 14 L109 14 L109 66 L104 66" fill="none" stroke={c2} strokeWidth="2.5" strokeLinecap="round" />
           {[0, 1, 2].map((r) => [0, 1, 2, 3].map((col) => (
             <rect key={`${r}-${col}`} x={20 + col * 20} y={18 + r * 16} width="15" height="12" rx="2"
-              fill={rand() > 0.5 ? c1 : c2} opacity={0.35 + rand() * 0.55} />
+              fill={rand() > 0.5 ? c1 : c2} opacity={0.35 + rand() * 0.55}
+              className="ft-anim-twinkle" style={{ animationDelay: `${(r + col) * 0.24}s` }} />
           )))}
         </g>
       );
@@ -306,11 +308,15 @@ function Motif({ name, c1, c2, rand }) {
       });
       const dip = 0.4 + rand() * 0.2;
       return (
-        <g>
+        <g className="ft-m ft-m-descent">
           <path d={`M6 18 Q${10 + dip * 100} 96 114 24`} fill="none" stroke={c2} strokeWidth="2" opacity="0.3" />
           <path d={`M10 20 Q${10 + dip * 100} 92 110 26`} fill="none" stroke={c2} strokeWidth="2.5" opacity="0.55" />
-          {pts.map(([x, y], i) => <circle key={i} cx={x} cy={y} r="4.5" fill={c1} opacity={1 - i * 0.18} />)}
-          <path d={`M${pts.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c1} strokeWidth="2" strokeDasharray="3 3" />
+          {pts.map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="4.5" fill={c1} opacity={1 - i * 0.18}
+              className="ft-anim-pulse" style={{ animationDelay: `${i * 0.5}s` }} />
+          ))}
+          <path d={`M${pts.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c1} strokeWidth="2"
+            strokeDasharray="3 3" className="ft-anim-flow" />
         </g>
       );
     }
@@ -318,14 +324,15 @@ function Motif({ name, c1, c2, rand }) {
       // A QK attention map: the diagonal + its neighbours light up, off-diagonal
       // cells stay faint — a recognisable diagonal band, not a random grid.
       return (
-        <g>
+        <g className="ft-m ft-m-attention">
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3].map((col) => {
             const onDiag = col === r;
             const near = Math.abs(col - r) === 1;
             return (
               <rect key={`${r}-${col}`} x={30 + col * 15} y={14 + r * 15} width="13" height="13" rx="2"
                 fill={onDiag ? c1 : c2}
-                opacity={onDiag ? 0.92 : near ? 0.5 : 0.14 + rand() * 0.12} />
+                opacity={onDiag ? 0.92 : near ? 0.5 : 0.14 + rand() * 0.12}
+                className="ft-anim-twinkle" style={{ animationDelay: `${(r + col) * 0.2}s` }} />
             );
           }))}
         </g>
@@ -337,15 +344,18 @@ function Motif({ name, c1, c2, rand }) {
       const counts = [2 + Math.floor(rand() * 2), 2 + Math.floor(rand() * 2), 1 + Math.floor(rand() * 2)];
       const ys = counts.map((c) => Array.from({ length: c }, (_, i) => 22 + (i + 0.5) * (40 / c)));
       return (
-        <g>
+        <g className="ft-m ft-m-network">
           {ys[0].map((y, i) => ys[1].map((y2, j) => (
-            <line key={`e0${i}${j}`} x1={cols[0]} y1={y} x2={cols[1]} y2={y2} className="ft-edge" />
+            <line key={`e0${i}${j}`} x1={cols[0]} y1={y} x2={cols[1]} y2={y2} className="ft-edge ft-anim-flow"
+              style={{ animationDelay: `${(i + j) * 0.15}s` }} />
           )))}
           {ys[1].map((y, i) => ys[2].map((y2, j) => (
-            <line key={`e1${i}${j}`} x1={cols[1]} y1={y} x2={cols[2]} y2={y2} className="ft-edge" />
+            <line key={`e1${i}${j}`} x1={cols[1]} y1={y} x2={cols[2]} y2={y2} className="ft-edge ft-anim-flow"
+              style={{ animationDelay: `${0.4 + (i + j) * 0.15}s` }} />
           )))}
           {ys.map((layer, li) => layer.map((y, i) => (
-            <circle key={`n${li}${i}`} cx={cols[li]} cy={y} r="4.5" fill={li === 1 ? c2 : c1} />
+            <circle key={`n${li}${i}`} cx={cols[li]} cy={y} r="4.5" fill={li === 1 ? c2 : c1}
+              className="ft-anim-pulse" style={{ animationDelay: `${(li * 2 + i) * 0.22}s` }} />
           )))}
         </g>
       );
@@ -362,10 +372,12 @@ function Motif({ name, c1, c2, rand }) {
         pts.push(`${x} ${y.toFixed(1)}`);
       }
       return (
-        <g>
+        <g className="ft-m ft-m-distribution">
           <line x1="12" y1={base} x2="108" y2={base} className="ft-axis" />
-          <path d={`M12 ${base} L${pts.join(' L')} L108 ${base} Z`} fill={c1} opacity="0.26" />
-          <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+          <g className="ft-anim-breathe">
+            <path d={`M12 ${base} L${pts.join(' L')} L108 ${base} Z`} fill={c1} opacity="0.26" />
+            <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+          </g>
           <line x1={mu} y1={base} x2={mu} y2={base - 50} stroke={c2} strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
         </g>
       );
@@ -384,10 +396,11 @@ function Motif({ name, c1, c2, rand }) {
         return { x: x0, w: Math.max(2, w - 1.5), i };
       });
       return (
-        <g>
+        <g className="ft-m ft-m-entropy">
           {segs.map(({ x, w, i }) => (
             <rect key={i} x={x} y="32" width={w} height="18" rx="2"
-              fill={i % 2 ? c2 : c1} opacity={0.4 + (i / 4) * 0.5} />
+              fill={i % 2 ? c2 : c1} opacity={0.4 + (i / 4) * 0.5}
+              className="ft-anim-twinkle" style={{ animationDelay: `${i * 0.3}s` }} />
           ))}
           <rect x="14" y="32" width={total} height="18" rx="2.5" fill="none" stroke={c2} strokeWidth="1" opacity="0.4" />
         </g>
@@ -402,7 +415,7 @@ function Motif({ name, c1, c2, rand }) {
         return `${x} ${y.toFixed(1)}`;
       });
       return (
-        <g>
+        <g className="ft-m ft-m-wave ft-anim-scroll">
           <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
           <path d={`M${pts.join(' L')}`} fill="none" stroke={c2} strokeWidth="2" opacity="0.4" transform="translate(0 14)" />
         </g>
@@ -412,14 +425,15 @@ function Motif({ name, c1, c2, rand }) {
       // Points strung along a fading diagonal trail — dense + bright at the
       // origin, growing and dissolving toward the far corner.
       return (
-        <g>
+        <g className="ft-m ft-m-diffusion">
           {Array.from({ length: 22 }).map((_, i) => {
             const t = i / 21;
             const x = 16 + t * 84 + (rand() - 0.5) * 11;
             const y = 60 - t * 46 + (rand() - 0.5) * 11;
             return (
               <circle key={i} cx={x} cy={y} r={1.4 + t * 3.4}
-                fill={i % 2 ? c1 : c2} opacity={0.85 - t * 0.6} />
+                fill={i % 2 ? c1 : c2} opacity={0.85 - t * 0.6}
+                className="ft-anim-drift" style={{ animationDelay: `${i * 0.13}s` }} />
             );
           })}
         </g>
@@ -429,12 +443,14 @@ function Motif({ name, c1, c2, rand }) {
       // Concentric ellipses with a body at the focus + dots riding the orbits.
       const ang = rand() * Math.PI * 2;
       return (
-        <g>
+        <g className="ft-m ft-m-orbit">
           <ellipse cx="60" cy="40" rx="36" ry="16" fill="none" stroke={c2} strokeWidth="1.5" opacity="0.45" />
           <ellipse cx="60" cy="40" rx="22" ry="10" fill="none" stroke={c1} strokeWidth="1.5" opacity="0.6" strokeDasharray="3 3" />
-          <circle cx="60" cy="40" r="7" fill={c1} />
-          <circle cx={60 + Math.cos(ang) * 36} cy={40 + Math.sin(ang) * 16} r="4" fill={c2} />
-          <circle cx={60 + Math.cos(ang + 2.2) * 22} cy={40 + Math.sin(ang + 2.2) * 10} r="3" fill={c1} opacity="0.8" />
+          <circle cx="60" cy="40" r="7" fill={c1} className="ft-anim-pulse" />
+          <g className="ft-anim-rotate">
+            <circle cx={60 + Math.cos(ang) * 36} cy={40 + Math.sin(ang) * 16} r="4" fill={c2} />
+            <circle cx={60 + Math.cos(ang + 2.2) * 22} cy={40 + Math.sin(ang + 2.2) * 10} r="3" fill={c1} opacity="0.8" />
+          </g>
         </g>
       );
     }
@@ -443,12 +459,13 @@ function Motif({ name, c1, c2, rand }) {
       // the random heatmap and the bracketed matrix.
       const warp = Math.floor(rand() * 4);
       return (
-        <g>
+        <g className="ft-m ft-m-cuda">
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4, 5].map((col) => {
             const isWarp = r === warp;
             return (
               <rect key={`${r}-${col}`} x={16 + col * 15} y={16 + r * 12} width="12" height="9" rx="1.5"
-                fill={isWarp ? c1 : c2} opacity={isWarp ? 0.85 : 0.2 + rand() * 0.18} />
+                fill={isWarp ? c1 : c2} opacity={isWarp ? 0.85 : 0.2 + rand() * 0.18}
+                className="ft-anim-twinkle" style={{ animationDelay: `${col * 0.16 + r * 0.05}s` }} />
             );
           }))}
         </g>
@@ -456,19 +473,21 @@ function Motif({ name, c1, c2, rand }) {
     }
     case 'paper':
       return (
-        <g>
+        <g className="ft-m ft-m-paper">
           <rect x="34" y="12" width="52" height="56" rx="4" fill="none" stroke={c2} strokeWidth="2" />
           {[22, 30, 38, 46, 54].map((y, i) => (
-            <line key={y} x1="42" y1={y} x2={42 + 18 + rand() * 18} y2={y} stroke={c1} strokeWidth="2.5" opacity={i === 0 ? 0.9 : 0.45} />
+            <line key={y} x1="42" y1={y} x2={42 + 18 + rand() * 18} y2={y} stroke={c1} strokeWidth="2.5" opacity={i === 0 ? 0.9 : 0.45}
+              className="ft-anim-twinkle" style={{ animationDelay: `${i * 0.35}s` }} />
           ))}
         </g>
       );
     case 'bits':
       return (
-        <g>
+        <g className="ft-m ft-m-bits">
           {Array.from({ length: 24 }).map((_, i) => (
             <text key={i} x={18 + (i % 8) * 12} y={24 + Math.floor(i / 8) * 18}
-              fill={rand() > 0.5 ? c1 : c2} opacity="0.7" fontSize="11" fontFamily="var(--mono, monospace)">
+              fill={rand() > 0.5 ? c1 : c2} opacity="0.7" fontSize="11" fontFamily="var(--mono, monospace)"
+              className="ft-anim-twinkle" style={{ animationDelay: `${((i % 8) + Math.floor(i / 8)) * 0.18}s` }}>
               {rand() > 0.5 ? 1 : 0}
             </text>
           ))}
@@ -478,27 +497,29 @@ function Motif({ name, c1, c2, rand }) {
       // Loose, full-bleed random points spread across the whole frame — no
       // grouping (that's `cluster`), no trail (that's `diffusion`).
       return (
-        <g>
+        <g className="ft-m ft-m-scatter">
           {Array.from({ length: 24 }).map((_, i) => (
             <circle key={i} cx={12 + rand() * 96} cy={10 + rand() * 56} r={1.8 + rand() * 2.2}
-              fill={rand() > 0.5 ? c1 : c2} opacity={0.55 + rand() * 0.4} />
+              fill={rand() > 0.5 ? c1 : c2} opacity={0.55 + rand() * 0.4}
+              className="ft-anim-drift" style={{ animationDelay: `${i * 0.11}s` }} />
           ))}
         </g>
       );
     case 'bars':
       return (
-        <g>
+        <g className="ft-m ft-m-bars">
           <line x1="14" y1="66" x2="106" y2="66" className="ft-axis" />
           {Array.from({ length: 7 }).map((_, i) => {
             const h = 12 + rand() * 50;
             return <rect key={i} x={18 + i * 13} y={66 - h} width="9" height={h} rx="1.5"
-              fill={i % 2 ? c2 : c1} opacity={0.45 + rand() * 0.5} />;
+              fill={i % 2 ? c2 : c1} opacity={0.45 + rand() * 0.5}
+              className="ft-anim-rise" style={{ animationDelay: `${i * 0.16}s` }} />;
           })}
         </g>
       );
     case 'field':
       return (
-        <g>
+        <g className="ft-m ft-m-field">
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4].map((col) => {
             const x = 18 + col * 21;
             const y = 16 + r * 16;
@@ -508,17 +529,19 @@ function Motif({ name, c1, c2, rand }) {
             return (
               <line key={`${r}-${col}`} x1={x - dx} y1={y - dy} x2={x + dx} y2={y + dy}
                 stroke={(r + col) % 2 ? c1 : c2} strokeWidth="2" opacity="0.7"
-                markerEnd={`url(#ft-a${(r + col) % 2 ? 1 : 2})`} />
+                markerEnd={`url(#ft-a${(r + col) % 2 ? 1 : 2})`}
+                className="ft-anim-sway" style={{ animationDelay: `${(r + col) * 0.14}s` }} />
             );
           }))}
         </g>
       );
     case 'rings':
       return (
-        <g>
+        <g className="ft-m ft-m-rings">
           {[26, 19, 12, 6].map((rad, i) => (
             <circle key={rad} cx="60" cy="40" r={rad} fill={i === 3 ? c1 : 'none'}
-              stroke={i % 2 ? c1 : c2} strokeWidth="2.5" opacity={0.4 + i * 0.15} />
+              stroke={i % 2 ? c1 : c2} strokeWidth="2.5" opacity={0.4 + i * 0.15}
+              className="ft-anim-ripple" style={{ animationDelay: `${i * 0.7}s` }} />
           ))}
         </g>
       );
@@ -527,16 +550,16 @@ function Motif({ name, c1, c2, rand }) {
       const hot = Math.floor(rand() * 4);
       const leaves = [24, 48, 72, 96];
       return (
-        <g>
-          <line x1="60" y1="18" x2="36" y2="40" className="ft-edge" />
-          <line x1="60" y1="18" x2="84" y2="40" className="ft-edge" />
-          <line x1="36" y1="40" x2="24" y2="62" className="ft-edge" />
-          <line x1="36" y1="40" x2="48" y2="62" className="ft-edge" />
-          <line x1="84" y1="40" x2="72" y2="62" className="ft-edge" />
-          <line x1="84" y1="40" x2="96" y2="62" className="ft-edge" />
-          <circle cx="60" cy="18" r="5" fill={c1} />
-          {[36, 84].map((x) => <circle key={x} cx={x} cy="40" r="4.5" fill={c2} />)}
-          {leaves.map((x, i) => <circle key={x} cx={x} cy="62" r="3.5" fill={i === hot ? c1 : c2} opacity={i === hot ? 1 : 0.6} />)}
+        <g className="ft-m ft-m-tree">
+          <line x1="60" y1="18" x2="36" y2="40" className="ft-edge ft-anim-flow" />
+          <line x1="60" y1="18" x2="84" y2="40" className="ft-edge ft-anim-flow" style={{ animationDelay: '0.2s' }} />
+          <line x1="36" y1="40" x2="24" y2="62" className="ft-edge ft-anim-flow" style={{ animationDelay: '0.4s' }} />
+          <line x1="36" y1="40" x2="48" y2="62" className="ft-edge ft-anim-flow" style={{ animationDelay: '0.5s' }} />
+          <line x1="84" y1="40" x2="72" y2="62" className="ft-edge ft-anim-flow" style={{ animationDelay: '0.6s' }} />
+          <line x1="84" y1="40" x2="96" y2="62" className="ft-edge ft-anim-flow" style={{ animationDelay: '0.7s' }} />
+          <circle cx="60" cy="18" r="5" fill={c1} className="ft-anim-pulse" />
+          {[36, 84].map((x, i) => <circle key={x} cx={x} cy="40" r="4.5" fill={c2} className="ft-anim-pulse" style={{ animationDelay: `${0.3 + i * 0.2}s` }} />)}
+          {leaves.map((x, i) => <circle key={x} cx={x} cy="62" r="3.5" fill={i === hot ? c1 : c2} opacity={i === hot ? 1 : 0.6} className="ft-anim-pulse" style={{ animationDelay: `${0.6 + i * 0.15}s` }} />)}
         </g>
       );
     }
@@ -544,12 +567,13 @@ function Motif({ name, c1, c2, rand }) {
       // A gap-free heatmap: each cell colour-mixes c1/c2 by its value, so the
       // grid reads as a continuous temperature field, not spaced tiles.
       return (
-        <g>
+        <g className="ft-m ft-m-heat">
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4, 5].map((col) => {
             const v = Math.round(rand() * 100);
             return (
               <rect key={`${r}-${col}`} x={15 + col * 15} y={14 + r * 13} width="15" height="13"
-                fill={`color-mix(in srgb, ${c1} ${v}%, ${c2})`} opacity="0.88" />
+                fill={`color-mix(in srgb, ${c1} ${v}%, ${c2})`} opacity="0.88"
+                className="ft-anim-twinkle" style={{ animationDelay: `${(r + col) * 0.15}s` }} />
             );
           }))}
         </g>
@@ -558,10 +582,11 @@ function Motif({ name, c1, c2, rand }) {
       // Interlocking chain links — overlapping rounded outlines, a physical
       // "chain" silhouette distinct from `sequence`'s filled token boxes.
       return (
-        <g>
+        <g className="ft-m ft-m-chain">
           {[0, 1, 2, 3, 4].map((i) => (
             <rect key={i} x={14 + i * 19} y="30" width="26" height="20" rx="10"
-              fill="none" stroke={i % 2 ? c1 : c2} strokeWidth="3.5" opacity="0.85" />
+              fill="none" stroke={i % 2 ? c1 : c2} strokeWidth="3.5" opacity="0.85"
+              className="ft-anim-twinkle" style={{ animationDelay: `${i * 0.28}s` }} />
           ))}
         </g>
       );
@@ -569,13 +594,14 @@ function Motif({ name, c1, c2, rand }) {
       const a = Math.floor(rand() * 20);
       const b = Math.floor(rand() * 20);
       return (
-        <g>
+        <g className="ft-m ft-m-grid">
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4].map((col) => {
             const idx = r * 5 + col;
             const on = idx === a || idx === b;
             return (
               <rect key={`${r}-${col}`} x={20 + col * 16} y={16 + r * 13} width="14" height="11" rx="2"
-                fill={on ? c1 : 'none'} stroke={c2} strokeWidth="1.5" opacity={on ? 0.9 : 0.5} />
+                fill={on ? c1 : 'none'} stroke={c2} strokeWidth="1.5" opacity={on ? 0.9 : 0.5}
+                className="ft-anim-twinkle" style={{ animationDelay: `${(r + col) * 0.17}s` }} />
             );
           }))}
         </g>
@@ -588,16 +614,17 @@ function Motif({ name, c1, c2, rand }) {
       const kx = Math.floor(rand() * 4);
       const ky = Math.floor(rand() * 2);
       return (
-        <g>
+        <g className="ft-m ft-m-convolution">
           {[0, 1, 2, 3].map((r) => [0, 1, 2, 3, 4, 5].map((col) => {
             const inWin = col >= kx && col < kx + 2 && r >= ky && r < ky + 2;
             return (
               <rect key={`${r}-${col}`} x={16 + col * 15} y={14 + r * 13} width="13" height="11" rx="1.5"
-                fill={inWin ? c1 : c2} opacity={inWin ? 0.9 : 0.22 + rand() * 0.18} />
+                fill={inWin ? c1 : c2} opacity={inWin ? 0.9 : 0.22 + rand() * 0.18}
+                className="ft-anim-twinkle" style={{ animationDelay: `${(r + col) * 0.13}s` }} />
             );
           }))}
           <rect x={16 + kx * 15 - 1.5} y={14 + ky * 13 - 1.5} width="32" height="28" rx="3"
-            fill="none" stroke={c1} strokeWidth="2" />
+            fill="none" stroke={c1} strokeWidth="2" className="ft-anim-pulse" />
         </g>
       );
     }
@@ -605,7 +632,7 @@ function Motif({ name, c1, c2, rand }) {
       // A row of three small dial gauges, each filled to a seed-varied fraction.
       const cy = 50; const rad = 15;
       return (
-        <g>
+        <g className="ft-m ft-m-metrics">
           {[28, 60, 92].map((cx, i) => {
             const frac = 0.28 + rand() * 0.6;
             const end = Math.PI * (1 - frac);
@@ -615,7 +642,8 @@ function Motif({ name, c1, c2, rand }) {
               <g key={i}>
                 <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(0)}`} fill="none" stroke={c2} strokeWidth="3.5" opacity="0.22" strokeLinecap="round" />
                 <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(end)}`} fill="none" stroke={col} strokeWidth="3.5" strokeLinecap="round" />
-                <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 3)} y2={cy - Math.sin(end) * (rad - 3)} stroke={col} strokeWidth="1.8" />
+                <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 3)} y2={cy - Math.sin(end) * (rad - 3)} stroke={col} strokeWidth="1.8"
+                  className="ft-anim-sway" style={{ transformBox: 'view-box', transformOrigin: `${cx}px ${cy}px`, animationDelay: `${i * 0.4}s` }} />
                 <circle cx={cx} cy={cy} r="2.4" fill={col} />
               </g>
             );
@@ -630,14 +658,15 @@ function Motif({ name, c1, c2, rand }) {
       const items = [26, 46, 66];
       const ux = 26; const ix = 94;
       return (
-        <g>
+        <g className="ft-m ft-m-recommender">
           {users.map((uy, ui) => items.map((iy, ii) => (
             rand() > 0.5
-              ? <line key={`e${ui}${ii}`} x1={ux} y1={uy} x2={ix} y2={iy} stroke={c2} strokeWidth="1" opacity="0.35" />
+              ? <line key={`e${ui}${ii}`} x1={ux} y1={uy} x2={ix} y2={iy} stroke={c2} strokeWidth="1" opacity="0.35"
+                  className="ft-anim-flow" style={{ animationDelay: `${(ui + ii) * 0.18}s` }} />
               : null
           )))}
-          {users.map((uy, i) => <circle key={`u${i}`} cx={ux} cy={uy} r="4.5" fill={c1} />)}
-          {items.map((iy, i) => <rect key={`i${i}`} x={ix - 4.5} y={iy - 4.5} width="9" height="9" rx="2" fill={c2} />)}
+          {users.map((uy, i) => <circle key={`u${i}`} cx={ux} cy={uy} r="4.5" fill={c1} className="ft-anim-pulse" style={{ animationDelay: `${i * 0.22}s` }} />)}
+          {items.map((iy, i) => <rect key={`i${i}`} x={ix - 4.5} y={iy - 4.5} width="9" height="9" rx="2" fill={c2} className="ft-anim-pulse" style={{ animationDelay: `${0.5 + i * 0.22}s` }} />)}
         </g>
       );
     }
@@ -647,10 +676,10 @@ function Motif({ name, c1, c2, rand }) {
       const last = hist[hist.length - 1];
       const fc = Array.from({ length: 4 }, (_, i) => [last[0] + (i + 1) * 8, last[1] - (i + 1) * (2 + rand() * 3)]);
       return (
-        <g>
+        <g className="ft-m ft-m-timeseries">
           <line x1="12" y1="66" x2="108" y2="66" className="ft-axis" />
-          <path d={`M${hist.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
-          <path d={`M${last.join(' ')} L${fc.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c2} strokeWidth="2" strokeDasharray="3 3" />
+          <path d={`M${hist.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" className="ft-anim-draw" />
+          <path d={`M${last.join(' ')} L${fc.map((p) => p.join(' ')).join(' L')}`} fill="none" stroke={c2} strokeWidth="2" strokeDasharray="3 3" className="ft-anim-flow" />
         </g>
       );
     }
@@ -658,12 +687,14 @@ function Motif({ name, c1, c2, rand }) {
       // A row of token boxes, one highlighted as the "next" prediction.
       const next = 3 + Math.floor(rand() * 2);
       return (
-        <g>
+        <g className="ft-m ft-m-sequence">
           {Array.from({ length: 5 }).map((_, i) => (
             <g key={i}>
               <rect x={12 + i * 21} y="30" width="16" height="20" rx="3"
-                fill={i === next ? c1 : c2} opacity={i === next ? 0.9 : 0.4 + rand() * 0.2} />
-              {i < 4 && <line x1={12 + i * 21 + 16} y1="40" x2={12 + (i + 1) * 21} y2="40" stroke={c2} strokeWidth="2" markerEnd="url(#ft-a2)" />}
+                fill={i === next ? c1 : c2} opacity={i === next ? 0.9 : 0.4 + rand() * 0.2}
+                className={i === next ? 'ft-anim-pulse' : 'ft-anim-twinkle'} style={{ animationDelay: `${i * 0.2}s` }} />
+              {i < 4 && <line x1={12 + i * 21 + 16} y1="40" x2={12 + (i + 1) * 21} y2="40" stroke={c2} strokeWidth="2" markerEnd="url(#ft-a2)"
+                className="ft-anim-flow" style={{ animationDelay: `${i * 0.2}s` }} />}
             </g>
           ))}
         </g>
@@ -677,15 +708,18 @@ function Motif({ name, c1, c2, rand }) {
       const topY = 12 + gap * 0.5;
       const botY = 12 + (n - 1) * gap + gap * 0.5;
       return (
-        <g>
-          <path d={`M44 ${topY} C26 ${topY}, 26 ${botY}, 44 ${botY}`} fill="none" stroke={c2} strokeWidth="2" opacity="0.7" />
+        <g className="ft-m ft-m-transformer">
+          <path d={`M44 ${topY} C26 ${topY}, 26 ${botY}, 44 ${botY}`} fill="none" stroke={c2} strokeWidth="2" opacity="0.7"
+            strokeDasharray="4 4" className="ft-anim-flow" />
           {Array.from({ length: n }).map((_, i) => (
             <rect key={i} x="44" y={12 + i * gap} width="42" height={gap - 5} rx="3"
-              fill={i % 2 ? c1 : c2} opacity={0.5 + (i / n) * 0.4} />
+              fill={i % 2 ? c1 : c2} opacity={0.5 + (i / n) * 0.4}
+              className="ft-anim-twinkle" style={{ animationDelay: `${i * 0.35}s` }} />
           ))}
           {Array.from({ length: n - 1 }).map((_, i) => (
             <line key={`a${i}`} x1="65" y1={12 + (i + 1) * gap - 5} x2="65" y2={12 + (i + 1) * gap}
-              stroke={c1} strokeWidth="2" markerEnd="url(#ft-a1)" />
+              stroke={c1} strokeWidth="2" markerEnd="url(#ft-a1)"
+              className="ft-anim-pulse" style={{ animationDelay: `${i * 0.4}s` }} />
           ))}
         </g>
       );
@@ -701,9 +735,9 @@ function Motif({ name, c1, c2, rand }) {
         pts.push(`${x} ${y.toFixed(1)}`);
       }
       return (
-        <g>
+        <g className="ft-m ft-m-schedule">
           <line x1="12" y1="66" x2="108" y2="66" className="ft-axis" />
-          <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+          <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" className="ft-anim-draw" />
           <line x1={peakX} y1="20" x2={peakX} y2="66" stroke={c2} strokeWidth="1.5" strokeDasharray="3 3" opacity="0.5" />
         </g>
       );
@@ -714,17 +748,20 @@ function Motif({ name, c1, c2, rand }) {
       const k = 2 + Math.floor(rand() * 2);
       const centers = Array.from({ length: k }, () => [28 + rand() * 64, 22 + rand() * 36]);
       return (
-        <g>
+        <g className="ft-m ft-m-cluster">
           {centers.map(([cx, cy], ci) => {
             const col = ci === 1 ? c2 : c1;
             return (
               <g key={ci}>
                 {Array.from({ length: 7 }).map((_, i) => (
                   <circle key={i} cx={cx + (rand() - 0.5) * 17} cy={cy + (rand() - 0.5) * 17} r="2.4"
-                    fill={col} opacity="0.6" />
+                    fill={col} opacity="0.6"
+                    className="ft-anim-drift" style={{ animationDelay: `${(ci * 7 + i) * 0.12}s` }} />
                 ))}
-                <line x1={cx - 4} y1={cy - 4} x2={cx + 4} y2={cy + 4} stroke={col} strokeWidth="2.5" />
-                <line x1={cx - 4} y1={cy + 4} x2={cx + 4} y2={cy - 4} stroke={col} strokeWidth="2.5" />
+                <line x1={cx - 4} y1={cy - 4} x2={cx + 4} y2={cy + 4} stroke={col} strokeWidth="2.5"
+                  className="ft-anim-pulse" style={{ animationDelay: `${ci * 0.3}s` }} />
+                <line x1={cx - 4} y1={cy + 4} x2={cx + 4} y2={cy - 4} stroke={col} strokeWidth="2.5"
+                  className="ft-anim-pulse" style={{ animationDelay: `${ci * 0.3}s` }} />
               </g>
             );
           })}
@@ -737,7 +774,7 @@ function Motif({ name, c1, c2, rand }) {
       const ax = [60 + Math.cos(axAng) * 44, 40 - Math.sin(axAng) * 26];
       const ax2 = [60 - Math.cos(axAng) * 44, 40 + Math.sin(axAng) * 26];
       return (
-        <g>
+        <g className="ft-m ft-m-project">
           <line x1={ax[0]} y1={ax[1]} x2={ax2[0]} y2={ax2[1]} stroke={c2} strokeWidth="2" opacity="0.6" />
           {Array.from({ length: 12 }).map((_, i) => {
             const px = 22 + rand() * 76;
@@ -748,9 +785,12 @@ function Motif({ name, c1, c2, rand }) {
             const fy = 40 - t * Math.sin(axAng);
             return (
               <g key={i}>
-                <line x1={px} y1={py} x2={fx} y2={fy} stroke={c1} strokeWidth="0.8" opacity="0.3" />
-                <circle cx={px} cy={py} r="2.6" fill={c1} opacity="0.8" />
-                <circle cx={fx} cy={fy} r="2" fill={c2} />
+                <line x1={px} y1={py} x2={fx} y2={fy} stroke={c1} strokeWidth="0.8" opacity="0.3"
+                  className="ft-anim-twinkle" style={{ animationDelay: `${i * 0.2}s` }} />
+                <circle cx={px} cy={py} r="2.6" fill={c1} opacity="0.8"
+                  className="ft-anim-drift" style={{ animationDelay: `${i * 0.2}s` }} />
+                <circle cx={fx} cy={fy} r="2" fill={c2}
+                  className="ft-anim-pulse" style={{ animationDelay: `${i * 0.2}s` }} />
               </g>
             );
           })}
@@ -764,7 +804,7 @@ function Motif({ name, c1, c2, rand }) {
       const end = Math.PI * (1 - frac);
       const p = (ang, r = rad) => `${cx + Math.cos(ang) * r} ${cy - Math.sin(ang) * r}`;
       return (
-        <g>
+        <g className="ft-m ft-m-gauge">
           <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(0)}`} fill="none" stroke={c2} strokeWidth="5" opacity="0.22" strokeLinecap="round" />
           <path d={`M${p(Math.PI)} A${rad} ${rad} 0 0 1 ${p(end)}`} fill="none" stroke={c1} strokeWidth="5" strokeLinecap="round" />
           {Array.from({ length: 7 }).map((_, i) => {
@@ -775,7 +815,8 @@ function Motif({ name, c1, c2, rand }) {
                 stroke={c2} strokeWidth="1.5" opacity="0.5" />
             );
           })}
-          <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 6)} y2={cy - Math.sin(end) * (rad - 6)} stroke={c1} strokeWidth="2.5" />
+          <line x1={cx} y1={cy} x2={cx + Math.cos(end) * (rad - 6)} y2={cy - Math.sin(end) * (rad - 6)} stroke={c1} strokeWidth="2.5"
+            className="ft-anim-sway" style={{ transformBox: 'view-box', transformOrigin: `${cx}px ${cy}px` }} />
           <circle cx={cx} cy={cy} r="4" fill={c1} />
         </g>
       );
@@ -792,8 +833,10 @@ function Motif({ name, c1, c2, rand }) {
         pts.push(`${(60 + Math.cos(ang) * r).toFixed(1)} ${(40 + Math.sin(ang) * r).toFixed(1)}`);
       }
       return (
-        <g>
-          <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+        <g className="ft-m ft-m-spiral">
+          <g className="ft-anim-rotate">
+            <path d={`M${pts.join(' L')}`} fill="none" stroke={c1} strokeWidth="2.5" />
+          </g>
           <circle cx="60" cy="40" r="3" fill={c2} />
         </g>
       );
@@ -802,10 +845,13 @@ function Motif({ name, c1, c2, rand }) {
       // Overlapping set circles — two, sometimes three.
       const three = rand() > 0.5;
       return (
-        <g>
-          <circle cx="48" cy={three ? 32 : 40} r="20" fill={c1} fillOpacity="0.35" stroke={c1} strokeWidth="1.5" />
-          <circle cx="72" cy={three ? 32 : 40} r="20" fill={c2} fillOpacity="0.35" stroke={c2} strokeWidth="1.5" />
-          {three && <circle cx="60" cy="52" r="20" fill={c1} fillOpacity="0.28" stroke={c1} strokeWidth="1.5" />}
+        <g className="ft-m ft-m-venn">
+          <circle cx="48" cy={three ? 32 : 40} r="20" fill={c1} fillOpacity="0.35" stroke={c1} strokeWidth="1.5"
+            className="ft-anim-venn" />
+          <circle cx="72" cy={three ? 32 : 40} r="20" fill={c2} fillOpacity="0.35" stroke={c2} strokeWidth="1.5"
+            className="ft-anim-venn" style={{ animationDelay: '0.6s' }} />
+          {three && <circle cx="60" cy="52" r="20" fill={c1} fillOpacity="0.28" stroke={c1} strokeWidth="1.5"
+            className="ft-anim-venn" style={{ animationDelay: '1.2s' }} />}
         </g>
       );
     }
@@ -813,12 +859,13 @@ function Motif({ name, c1, c2, rand }) {
       // Widening stacked tiers — a pyramid / funnel silhouette.
       const n = 4;
       return (
-        <g>
+        <g className="ft-m ft-m-pyramid">
           {Array.from({ length: n }).map((_, i) => {
             const w = 18 + i * 20;
             return (
               <rect key={i} x={60 - w / 2} y={16 + i * 13} width={w} height="10" rx="2"
-                fill={i % 2 ? c2 : c1} opacity={0.5 + (i / n) * 0.42} />
+                fill={i % 2 ? c2 : c1} opacity={0.5 + (i / n) * 0.42}
+                className="ft-anim-twinkle" style={{ animationDelay: `${i * 0.3}s` }} />
             );
           })}
         </g>
@@ -827,27 +874,27 @@ function Motif({ name, c1, c2, rand }) {
     case 'flow': {
       // A top-to-bottom flowchart that branches in two then rejoins.
       return (
-        <g>
-          <rect x="48" y="10" width="24" height="13" rx="3" fill={c1} opacity="0.85" />
+        <g className="ft-m ft-m-flow">
+          <rect x="48" y="10" width="24" height="13" rx="3" fill={c1} opacity="0.85" className="ft-anim-pulse" />
           <line x1="60" y1="23" x2="60" y2="32" stroke={c2} strokeWidth="2" />
           <line x1="34" y1="32" x2="86" y2="32" stroke={c2} strokeWidth="2" />
           <line x1="34" y1="32" x2="34" y2="41" stroke={c2} strokeWidth="2" markerEnd="url(#ft-a2)" />
           <line x1="86" y1="32" x2="86" y2="41" stroke={c2} strokeWidth="2" markerEnd="url(#ft-a2)" />
-          <rect x="22" y="43" width="24" height="13" rx="3" fill={c2} opacity="0.7" />
-          <rect x="74" y="43" width="24" height="13" rx="3" fill={c2} opacity="0.7" />
+          <rect x="22" y="43" width="24" height="13" rx="3" fill={c2} opacity="0.7" className="ft-anim-pulse" style={{ animationDelay: '0.4s' }} />
+          <rect x="74" y="43" width="24" height="13" rx="3" fill={c2} opacity="0.7" className="ft-anim-pulse" style={{ animationDelay: '0.4s' }} />
           <line x1="34" y1="56" x2="60" y2="65" stroke={c1} strokeWidth="2" />
           <line x1="86" y1="56" x2="60" y2="65" stroke={c1} strokeWidth="2" />
-          <rect x="48" y="65" width="24" height="13" rx="3" fill={c1} opacity="0.85" />
+          <rect x="48" y="65" width="24" height="13" rx="3" fill={c1} opacity="0.85" className="ft-anim-pulse" style={{ animationDelay: '0.8s' }} />
         </g>
       );
     }
     case 'cards':
     default:
       return (
-        <g>
-          <rect x="22" y="20" width="34" height="40" rx="4" fill={c1} opacity="0.85" />
-          <rect x="50" y="26" width="34" height="40" rx="4" fill={c2} opacity="0.6" />
-          <rect x="40" y="14" width="34" height="40" rx="4" fill="none" stroke={c1} strokeWidth="2" />
+        <g className="ft-m ft-m-cards">
+          <rect x="22" y="20" width="34" height="40" rx="4" fill={c1} opacity="0.85" className="ft-anim-drift" />
+          <rect x="50" y="26" width="34" height="40" rx="4" fill={c2} opacity="0.6" className="ft-anim-drift" style={{ animationDelay: '0.7s' }} />
+          <rect x="40" y="14" width="34" height="40" rx="4" fill="none" stroke={c1} strokeWidth="2" className="ft-anim-drift" style={{ animationDelay: '1.4s' }} />
         </g>
       );
   }

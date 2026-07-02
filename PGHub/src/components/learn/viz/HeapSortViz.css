@@ -486,3 +486,31 @@
     display: none;
   }
 }
+
+.hsv-speed {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.hsv-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+.hsv-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.hsv-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 2.8em;
+  text-align: right;
+}

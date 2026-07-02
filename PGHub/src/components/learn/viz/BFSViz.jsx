@@ -122,6 +122,7 @@ export default function BFSViz() {
   const steps = useMemo(() => buildSteps(start), [start]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prevSteps, setPrevSteps] = useState(steps);
@@ -150,11 +151,11 @@ export default function BFSViz() {
     }
     timerRef.current = setInterval(() => {
       next();
-    }, 900);
+    }, Math.round(900 / speed));
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, speed]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -356,6 +357,20 @@ export default function BFSViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="bfsviz-speed">
+          <span className="bfsviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="bfsviz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="bfsviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );
