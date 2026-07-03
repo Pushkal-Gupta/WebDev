@@ -209,6 +209,7 @@ export default function CountMinSketchViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [, setPendingTok] = useState(null);
   const [operation, setOperation] = useState('Pre-loaded with an 11-token stream.');
   const [verdict, setVerdict] = useState(null);
@@ -235,16 +236,16 @@ export default function CountMinSketchViz() {
   }, []);
 
   useEffect(() => {
-    if (!playing) return;
+    if (!playing) return undefined;
     playRef.current = setTimeout(() => {
       setIdx((i) => {
         const next = i + 1;
         if (next === frames.length - 1) commitPendingTok();
         return next;
       });
-    }, STEP_MS);
+    }, Math.round(STEP_MS / speed));
     return () => clearTimeout(playRef.current);
-  }, [playing, frames, commitPendingTok]);
+  }, [playing, idx, speed, frames, commitPendingTok]);
 
   const startFrames = useCallback(
     (newFrames) => {
@@ -483,6 +484,21 @@ export default function CountMinSketchViz() {
         )}
 
         <div className="cms-control-spacer" />
+
+        <label className="cms-speed">
+          <span className="cms-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="cms-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="cms-speed-value">{speed.toFixed(1)}×</span>
+        </label>
 
         <button
           type="button"

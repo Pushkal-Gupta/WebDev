@@ -48,6 +48,7 @@ export default function PriorityInversionViz() {
   const cells = useMemo(() => buildTimeline(inherit), [inherit]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prev, setPrev] = useState(cells);
@@ -66,16 +67,14 @@ export default function PriorityInversionViz() {
   }, [cells.length]);
 
   useEffect(() => {
-    if (!playing) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      timerRef.current = null;
-      return undefined;
-    }
-    timerRef.current = setInterval(next, TICK_MS);
+    if (!playing) return undefined;
+    timerRef.current = setTimeout(() => {
+      setIdx((i) => Math.min(i + 1, cells.length - 1));
+    }, Math.round(TICK_MS / speed));
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     };
-  }, [playing, next]);
+  }, [playing, idx, speed, cells.length]);
 
   const colW = 44;
   const laneH = 40;
@@ -230,6 +229,14 @@ export default function PriorityInversionViz() {
           <SkipForward size={15} aria-hidden="true" />
           <span>Step</span>
         </button>
+        <label className="piviz-speed">
+          <span className="piviz-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="piviz-speed-range"
+          />
+          <span className="piviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="piviz-step-count">
           t = {cell.t} · {idx} / {cells.length - 1}
         </span>

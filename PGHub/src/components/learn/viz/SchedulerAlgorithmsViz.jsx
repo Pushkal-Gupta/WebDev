@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Play, Pause, RotateCcw, Cpu, Clock, ListOrdered,
-  Gauge, Layers, ArrowRight,
+  Gauge, Layers, ArrowRight, StepForward,
 } from 'lucide-react';
 import './SchedulerAlgorithmsViz.css';
 
@@ -204,6 +204,7 @@ export default function SchedulerAlgorithmsViz() {
   const [bursts, setBursts] = useState(() => JOB_SETS.classic.jobs.map((j) => j.burst));
   const [playing, setPlaying] = useState(false);
   const [playhead, setPlayhead] = useState(0);
+  const [speed, setSpeed] = useState(1);
   const [tone, setTone] = useState('init');
 
   const playTimer = useRef(null);
@@ -236,9 +237,9 @@ export default function SchedulerAlgorithmsViz() {
         }
         return p + 1;
       });
-    }, 520);
+    }, Math.round(520 / speed));
     return () => { if (playTimer.current) { clearTimeout(playTimer.current); playTimer.current = null; } };
-  }, [playing, playhead, totalTime]);
+  }, [playing, playhead, totalTime, speed]);
 
   const currentSlice = useMemo(() => {
     if (!playing && playhead === 0) return null;
@@ -264,6 +265,12 @@ export default function SchedulerAlgorithmsViz() {
       if (!v && playhead >= totalTime) setPlayhead(0);
       return !v;
     });
+  };
+
+  const stepOnce = () => {
+    setTone('run');
+    setPlaying(false);
+    setPlayhead((p) => (p >= totalTime ? 0 : Math.min(totalTime, p + 1)));
   };
 
   const bump = (i, delta) => {
@@ -358,9 +365,21 @@ export default function SchedulerAlgorithmsViz() {
             {playing ? <Pause size={14} /> : <Play size={14} />}
             {playing ? 'Pause' : 'Play'}
           </button>
+          <button type="button" className="sch-btn" onClick={stepOnce} disabled={playhead >= totalTime}>
+            <StepForward size={14} /> Step
+          </button>
           <button type="button" className="sch-btn" onClick={reset}>
             <RotateCcw size={14} /> Reset
           </button>
+          <label className="sch-speed">
+            <span className="sch-speed-label">speed</span>
+            <input
+              type="range" min={0.5} max={4} step={0.5} value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))} className="sch-speed-range"
+              aria-label="Playback speed"
+            />
+            <span className="sch-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

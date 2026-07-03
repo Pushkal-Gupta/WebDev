@@ -356,6 +356,7 @@ export default function QuickSelectViz() {
   const [k, setK] = useState(() => Math.ceil(ARR_SIZE / 2));
   const [stepIdx, setStepIdx] = useState(0);
   const [isRunningRaw, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const runTimer = useRef(null);
 
   const { frames, finalValue, finalIdx } = useMemo(
@@ -392,12 +393,12 @@ export default function QuickSelectViz() {
     if (!isRunning) return;
     runTimer.current = setTimeout(() => {
       setStepIdx(i => Math.min(i + 1, totalSteps - 1));
-    }, RUN_DELAY_MS);
+    }, Math.round(RUN_DELAY_MS / speed));
     return () => {
       if (runTimer.current) clearTimeout(runTimer.current);
       runTimer.current = null;
     };
-  }, [isRunning, totalSteps]);
+  }, [isRunning, stepIdx, totalSteps, speed]);
 
   const stop = useCallback(() => {
     if (runTimer.current) {
@@ -506,6 +507,15 @@ export default function QuickSelectViz() {
           >
             <Shuffle size={14} /> New array
           </button>
+          <label className="qsv-speed">
+            <span className="qsv-speed-label">speed</span>
+            <input
+              type="range" min={0.5} max={4} step={0.5} value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))} className="qsv-speed-range"
+              aria-label="Playback speed"
+            />
+            <span className="qsv-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

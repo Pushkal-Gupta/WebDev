@@ -1,0 +1,135 @@
+.javatypes { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.javatypes-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.javatypes-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.javatypes-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.javatypes-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.javatypes-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.javatypes-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javatypes-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.javatypes-code { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.javatypes-code-line {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.3rem 0.6rem; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--surface); color: var(--text-dim);
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.javatypes-code-line.is-done { color: var(--text-main); }
+.javatypes-code-line.is-cur {
+  border-color: var(--accent); color: var(--accent); background: var(--hover-box);
+}
+
+.javatypes-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.javatypes-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.javatypes-region-label {
+  font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700;
+}
+
+.javatypes-arrowfill { fill: var(--text-dim); }
+.javatypes-slotbg { fill: var(--bg); stroke: var(--border); stroke-width: 1; opacity: 0.55; }
+
+.javatypes-slot-rect { fill: var(--bg); stroke-width: 1.8; transition: filter var(--t), stroke var(--t); }
+.javatypes-slot-name { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.javatypes-slot-type { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.03em; }
+.javatypes-slot-val { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.javatypes-slot-val.is-ref { fill: var(--text-dim); font-style: italic; }
+.javatypes-reficon { color: var(--text-dim); }
+
+.javatypes-slot.is-int .javatypes-slot-rect { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 16%, transparent); }
+.javatypes-slot.is-int .javatypes-slot-name { fill: var(--hue-violet); }
+.javatypes-slot.is-double .javatypes-slot-rect { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 16%, transparent); }
+.javatypes-slot.is-double .javatypes-slot-name { fill: var(--hue-sky); }
+.javatypes-slot.is-boolean .javatypes-slot-rect { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 16%, transparent); }
+.javatypes-slot.is-boolean .javatypes-slot-name { fill: var(--hue-mint); }
+.javatypes-slot.is-char .javatypes-slot-rect { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 16%, transparent); }
+.javatypes-slot.is-char .javatypes-slot-name { fill: var(--warning); }
+.javatypes-slot.is-string .javatypes-slot-rect { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 12%, transparent); }
+.javatypes-slot.is-string .javatypes-slot-name { fill: var(--hue-pink); }
+.javatypes-slot.is-boxed .javatypes-slot-rect { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 12%, transparent); }
+.javatypes-slot.is-boxed .javatypes-slot-name { fill: var(--accent); }
+.javatypes-slot.is-new .javatypes-slot-rect {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 45%, transparent));
+  stroke-width: 2.6;
+}
+
+.javatypes-arrow { stroke-width: 1.8; fill: none; opacity: 0.85; transition: stroke-width var(--t); }
+.javatypes-arrow.is-string { stroke: var(--hue-pink); }
+.javatypes-arrow.is-boxed { stroke: var(--accent); }
+.javatypes-arrow.is-new { stroke-width: 2.6; opacity: 1; }
+
+.javatypes-heap-rect { fill: var(--bg); stroke-width: 1.8; transition: filter var(--t); }
+.javatypes-heap-label { font-size: 0.78rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.javatypes-heap-sub { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.javatypes-heap-icon { color: var(--text-dim); }
+.javatypes-heap.is-string .javatypes-heap-rect { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, transparent); }
+.javatypes-heap.is-boxed .javatypes-heap-rect { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 14%, transparent); }
+.javatypes-heap.is-new .javatypes-heap-rect {
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--accent) 45%, transparent));
+}
+
+.javatypes-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.javatypes-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javatypes-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.javatypes-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.javatypes-progress { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+
+.javatypes-speed { display: inline-flex; align-items: center; gap: 0.35rem; }
+.javatypes-speed-icon { color: var(--text-dim); flex: 0 0 auto; }
+.javatypes-speed-range { width: 92px; accent-color: var(--accent); cursor: pointer; }
+.javatypes-speed-val { font-size: 0.7rem; font-weight: 700; color: var(--text-dim); min-width: 2.1em; }
+
+.javatypes-curline {
+  margin-left: auto; font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  color: var(--accent); padding: 0.2rem 0.55rem; border-radius: 7px; background: var(--hover-box);
+}
+
+.javatypes-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.javatypes-stat {
+  flex: 1 1 22%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.javatypes-stat.is-empty { border-left-color: var(--border); }
+.javatypes-stat.is-int { border-left-color: var(--hue-violet); }
+.javatypes-stat.is-double { border-left-color: var(--hue-sky); }
+.javatypes-stat.is-boolean { border-left-color: var(--hue-mint); }
+.javatypes-stat.is-char { border-left-color: var(--warning); }
+.javatypes-stat.is-string { border-left-color: var(--hue-pink); }
+.javatypes-stat.is-boxed { border-left-color: var(--accent); }
+.javatypes-stat.is-prim { border-left-color: var(--hue-violet); }
+.javatypes-stat.is-heap { border-left-color: var(--hue-pink); }
+.javatypes-stat-icon { color: var(--text-dim); flex: 0 0 auto; }
+.javatypes-stat-key { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.javatypes-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+
+.javatypes-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.javatypes-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.javatypes-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .javatypes-slot-rect, .javatypes-heap-rect, .javatypes-arrow,
+  .javatypes-btn, .javatypes-reset, .javatypes-code-line { transition: none; }
+}

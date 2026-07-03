@@ -91,6 +91,7 @@ export default function OsSchedulingViz() {
   const [algo, setAlgo] = useState('fcfs');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const { slices, complete } = useMemo(() => simulate(algo), [algo]);
@@ -105,9 +106,9 @@ export default function OsSchedulingViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 320 : 720);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 320 : 720) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const shownEnd = step > 0 ? slices[step - 1].end : 0;
   const completedJobs = useMemo(
@@ -208,6 +209,14 @@ export default function OsSchedulingViz() {
         <button type="button" className="ossch-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="ossch-speed">
+          <span className="ossch-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="ossch-speed-range"
+          />
+          <span className="ossch-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="ossch-progress">{step} / {total} slices</span>
       </div>
 

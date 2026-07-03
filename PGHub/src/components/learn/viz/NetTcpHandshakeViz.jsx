@@ -55,6 +55,7 @@ export default function NetTcpHandshakeViz() {
   const [loss, setLoss] = useState(false);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const msgs = loss ? LOSSY : CLEAN;
@@ -69,9 +70,9 @@ export default function NetTcpHandshakeViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 360 : 820);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 360 : 820) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const finished = step >= total;
   const showPause = playing && step < total;
@@ -202,6 +203,14 @@ export default function NetTcpHandshakeViz() {
         <button type="button" className="nettcp-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="nettcp-speed">
+          <span className="nettcp-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="nettcp-speed-range"
+          />
+          <span className="nettcp-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="nettcp-progress">{step} / {total} messages</span>
       </div>
 

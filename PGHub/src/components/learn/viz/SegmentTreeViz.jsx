@@ -255,8 +255,10 @@ export default function SegmentTreeViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const playRef = useRef(null);
 
+  const delay = Math.round(STEP_MS / speed);
   const playing = playingRaw && idx >= 0 && idx < frames.length - 1;
 
   const { tree: baseTree, range: baseRange, n } = useMemo(() => buildTree(arr), [arr]);
@@ -323,9 +325,9 @@ export default function SegmentTreeViz() {
         const last = frames[nextIdx];
         if (last && last.kind === 'update') setArr(last.arr);
       }
-    }, STEP_MS);
+    }, delay);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, idx, frames, delay]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) {
@@ -479,6 +481,19 @@ export default function SegmentTreeViz() {
           >
             <SkipForward size={14} />
           </button>
+          <label className="stv-speed">
+            <span className="stv-speed-label">speed</span>
+            <input
+              type="range"
+              min={0.5}
+              max={4}
+              step={0.5}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="stv-speed-range"
+            />
+            <span className="stv-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

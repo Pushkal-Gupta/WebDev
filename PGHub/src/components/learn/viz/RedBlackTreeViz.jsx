@@ -485,10 +485,13 @@ export default function RedBlackTreeViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [insertVal, setInsertVal] = useState('10');
   const [opLabel, setOpLabel] = useState('Empty tree. Insert a value or run the default sequence.');
   const playRef = useRef(null);
   const pendingTreeRef = useRef(null);
+
+  const delay = Math.round(STEP_MS / speed);
 
   const currentFrame = idx >= 0 && idx < frames.length ? frames[idx] : null;
   const displayTree = currentFrame ? currentFrame.tree : tree;
@@ -548,9 +551,9 @@ export default function RedBlackTreeViz() {
       setPlaying(false);
       return;
     }
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => setIdx((i) => i + 1), delay);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, idx, frames, delay]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) {
@@ -678,6 +681,19 @@ export default function RedBlackTreeViz() {
         >
           <SkipForward size={14} />
         </button>
+        <label className="rbviz-speed">
+          <span className="rbviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="rbviz-speed-range"
+          />
+          <span className="rbviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="rbviz-stage">

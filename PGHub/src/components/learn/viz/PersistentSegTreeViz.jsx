@@ -168,8 +168,10 @@ export default function PersistentSegTreeViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const playRef = useRef(null);
 
+  const delay = Math.round(STEP_MS / speed);
   const n = INITIAL_ARRAY.length;
   const logn = Math.ceil(Math.log2(n)) + 1; // nodes copied per update
 
@@ -359,9 +361,9 @@ export default function PersistentSegTreeViz() {
 
   useEffect(() => {
     if (!playing) return;
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => setIdx((i) => i + 1), delay);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx]);
+  }, [playing, idx, delay]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) setIdx(idx + 1);
@@ -516,6 +518,19 @@ export default function PersistentSegTreeViz() {
           >
             <SkipForward size={14} />
           </button>
+          <label className="pstv-speed">
+            <span className="pstv-speed-label">speed</span>
+            <input
+              type="range"
+              min={0.5}
+              max={4}
+              step={0.5}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="pstv-speed-range"
+            />
+            <span className="pstv-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

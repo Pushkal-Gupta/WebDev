@@ -218,6 +218,7 @@ export default function HuffmanViz() {
   const [{ frames, nodes, codes }, setData] = useState(() => buildFrames(DEFAULT_INPUT));
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const playRef = useRef(null);
 
   const currentFrame = frames[idx] || frames[frames.length - 1] || null;
@@ -243,11 +244,13 @@ export default function HuffmanViz() {
     rebuild(DEFAULT_INPUT);
   }, [rebuild]);
 
+  const delay = Math.round(STEP_MS / speed);
+
   useEffect(() => {
     if (!playing) return;
-    playRef.current = setTimeout(() => setIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => setIdx((i) => i + 1), delay);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, idx, frames, delay]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) setIdx(idx + 1);
@@ -452,6 +455,19 @@ export default function HuffmanViz() {
         >
           <SkipForward size={14} />
         </button>
+        <label className="hfv-speed">
+          <span className="hfv-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="hfv-speed-range"
+          />
+          <span className="hfv-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="hfv-stage">

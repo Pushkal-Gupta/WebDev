@@ -82,3 +82,27 @@
 .osdl-verdict.is-bad { border-color: var(--hard); color: var(--hard); background: color-mix(in srgb, var(--hard) 8%, transparent); }
 .osdl-verdict.is-good { border-color: var(--easy); color: var(--easy); background: color-mix(in srgb, var(--easy) 8%, transparent); }
 .osdl-verdict-idle { color: var(--text-main); font-weight: 500; }
+
+.osdl-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.osdl-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.osdl-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+.osdl-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}

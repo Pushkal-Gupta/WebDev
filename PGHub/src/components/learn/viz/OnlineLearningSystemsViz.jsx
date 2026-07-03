@@ -45,6 +45,7 @@ export default function OnlineLearningSystemsViz({ seed = 9 }) {
 
   const [t, setT] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prev, setPrev] = useState(errs);
@@ -62,16 +63,14 @@ export default function OnlineLearningSystemsViz({ seed = 9 }) {
   }, []);
 
   useEffect(() => {
-    if (!playing) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      timerRef.current = null;
-      return undefined;
-    }
-    timerRef.current = setInterval(next, TICK_MS);
+    if (!playing) return undefined;
+    timerRef.current = setTimeout(() => {
+      setT((x) => Math.min(x + 1, N - 1));
+    }, Math.round(TICK_MS / speed));
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     };
-  }, [playing, next]);
+  }, [playing, t, speed]);
 
   const threshold = 0.25;
   const driftFired = withDrift && t >= 11 && errs[t] > threshold;
@@ -255,6 +254,14 @@ export default function OnlineLearningSystemsViz({ seed = 9 }) {
           <SkipForward size={15} aria-hidden="true" />
           <span>Step</span>
         </button>
+        <label className="olsviz-speed">
+          <span className="olsviz-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="olsviz-speed-range"
+          />
+          <span className="olsviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="olsviz-step">{t + 1} / {N}</span>
       </div>
     </div>

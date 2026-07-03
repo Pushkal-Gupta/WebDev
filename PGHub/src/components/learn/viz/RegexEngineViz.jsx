@@ -127,6 +127,7 @@ export default function RegexEngineViz() {
   const [input, setInput] = useState(PRESETS[0].inputs[0]);
   const [pos, setPos] = useState(0); // 0 = before first char; len = consumed all
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const preset = PRESETS[presetIdx];
@@ -192,9 +193,9 @@ export default function RegexEngineViz() {
         if (np >= input.length) setPlaying(false);
         return np;
       });
-    }, reduce ? 750 : 700);
+    }, Math.round((reduce ? 750 : 700) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, pos, input.length]);
+  }, [playing, pos, input.length, speed]);
 
   // SVG geometry
   const W = 640;
@@ -268,6 +269,15 @@ export default function RegexEngineViz() {
         <button type="button" className="rgx-btn" onClick={reset}>
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="rgx-speed">
+          <span className="rgx-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="rgx-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="rgx-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="rgx-tape">

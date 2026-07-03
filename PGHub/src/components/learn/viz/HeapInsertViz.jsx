@@ -95,8 +95,10 @@ export default function HeapInsertViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const playRef = useRef(null);
 
+  const delay = Math.round(STEP_MS / speed);
   const currentFrame = idx >= 0 && idx < frames.length ? frames[idx] : null;
   const displayHeap = currentFrame ? currentFrame.heap : heap;
   // Derive `playing` from the raw toggle + bounds so the auto-run effect never
@@ -129,9 +131,9 @@ export default function HeapInsertViz() {
       setIdx(nextIdx);
       // Commit the final heap when the animation lands on the last frame.
       if (nextIdx === frames.length - 1) setHeap(frames[nextIdx].heap);
-    }, STEP_MS);
+    }, delay);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, idx, frames, delay]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) {
@@ -232,6 +234,19 @@ export default function HeapInsertViz() {
         >
           <SkipForward size={14} />
         </button>
+        <label className="hiv-speed">
+          <span className="hiv-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="hiv-speed-range"
+          />
+          <span className="hiv-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="hiv-stage">

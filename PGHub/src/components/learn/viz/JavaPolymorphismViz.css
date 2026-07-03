@@ -1,0 +1,99 @@
+.javapoly { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.javapoly-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.javapoly-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.javapoly-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.javapoly-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.javapoly-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.javapoly-sub code {
+  font-family: var(--mono); font-size: 0.74rem; color: var(--accent);
+  background: var(--hover-box); padding: 0.02rem 0.28rem; border-radius: 5px;
+}
+.javapoly-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javapoly-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.javapoly-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.javapoly-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.javapoly-label { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+.javapoly-arrowfill { fill: var(--accent); }
+.javapoly-callstop-a { stop-color: var(--accent); }
+.javapoly-callstop-b { stop-color: var(--hue-violet); }
+
+.javapoly-ref-rect { fill: color-mix(in srgb, var(--accent) 12%, transparent); stroke: var(--accent); stroke-width: 2; }
+.javapoly-ref-type { font-size: 0.9rem; font-weight: 700; fill: var(--accent); font-family: var(--mono); }
+.javapoly-ref-name { font-size: 0.72rem; fill: var(--text-dim); font-family: var(--mono); }
+
+.javapoly-call-path { stroke: url(#javapoly-callgrad); stroke-width: 2.4; stroke-linecap: round; }
+.javapoly-call-label { font-size: 0.68rem; font-weight: 700; fill: var(--accent); font-family: var(--mono); }
+
+.javapoly-obj-rect { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: stroke var(--t), filter var(--t); }
+.javapoly-obj-cls { font-size: 0.72rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); }
+.javapoly-obj-sig { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); }
+.javapoly-obj-body { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+
+.javapoly-obj.is-sky .javapoly-obj-cls { fill: var(--hue-sky); }
+.javapoly-obj.is-violet .javapoly-obj-cls { fill: var(--hue-violet); }
+.javapoly-obj.is-pink .javapoly-obj-cls { fill: var(--hue-pink); }
+
+.javapoly-obj.is-active.is-sky .javapoly-obj-rect { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 14%, transparent); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-sky) 55%, transparent)); }
+.javapoly-obj.is-active.is-violet .javapoly-obj-rect { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, transparent); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-violet) 55%, transparent)); }
+.javapoly-obj.is-active.is-pink .javapoly-obj-rect { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, transparent); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--hue-pink) 55%, transparent)); }
+.javapoly-obj.is-active .javapoly-obj-body { fill: var(--text-main); }
+
+.javapoly-obj-badge-bg { fill: var(--accent); }
+.javapoly-obj-badge-icon { color: var(--bg); }
+
+.javapoly-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.javapoly-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javapoly-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.javapoly-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.javapoly-progress { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+
+.javapoly-speed { margin-left: auto; display: inline-flex; align-items: center; gap: 0.45rem; }
+.javapoly-speed-key { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.javapoly-speed-range { accent-color: var(--accent); width: 96px; cursor: pointer; }
+.javapoly-speed-val { font-size: 0.72rem; font-weight: 700; color: var(--text-main); min-width: 2.2ch; }
+
+.javapoly-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.javapoly-stat {
+  flex: 1 1 22%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.javapoly-stat.is-empty { border-left-color: var(--border); }
+.javapoly-stat.is-sky { border-left-color: var(--hue-sky); }
+.javapoly-stat.is-violet { border-left-color: var(--hue-violet); }
+.javapoly-stat.is-pink { border-left-color: var(--hue-pink); }
+.javapoly-stat.is-decl { border-left-color: var(--accent); }
+.javapoly-stat-icon { color: var(--text-dim); flex: 0 0 auto; }
+.javapoly-stat-key { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.javapoly-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+
+.javapoly-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.javapoly-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.javapoly-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .javapoly-obj-rect, .javapoly-call-path { transition: none; }
+}

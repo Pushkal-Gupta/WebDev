@@ -197,7 +197,10 @@ export default function TopoSortViz() {
   const steps = useMemo(() => buildSteps(edges), [edges]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
+
+  const delay = Math.round(950 / speed);
 
   const [prevSteps, setPrevSteps] = useState(steps);
   if (prevSteps !== steps) {
@@ -226,11 +229,11 @@ export default function TopoSortViz() {
     }
     timerRef.current = setInterval(() => {
       next();
-    }, 950);
+    }, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -514,6 +517,19 @@ export default function TopoSortViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="tsviz-speed">
+          <span className="tsviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="tsviz-speed-range"
+          />
+          <span className="tsviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

@@ -138,6 +138,7 @@ export default function KnapsackViz() {
   const { steps, finalDp } = built;
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   // Reset playhead when the input changes (prev-state-during-render pattern).
@@ -155,6 +156,7 @@ export default function KnapsackViz() {
   const atEnd = idx >= total - 1;
   const finalAnswer = finalDp[items.length][W];
   const playing = playingRaw && idx < total - 1;
+  const delay = Math.round(TICK_MS / speed);
 
   const next = useCallback(() => {
     setIdx((i) => Math.min(i + 1, total - 1));
@@ -170,11 +172,11 @@ export default function KnapsackViz() {
     }
     timerRef.current = setInterval(() => {
       next();
-    }, TICK_MS);
+    }, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -597,6 +599,19 @@ export default function KnapsackViz() {
         >
           <span>Skip to end</span>
         </button>
+        <label className="knapsackviz-speed">
+          <span className="knapsackviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="knapsackviz-speed-range"
+          />
+          <span className="knapsackviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

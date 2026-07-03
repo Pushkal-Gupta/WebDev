@@ -79,6 +79,7 @@ export default function PipelineParallelViz() {
 
   const [tick, setTick] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prev, setPrev] = useState(grid);
@@ -96,16 +97,14 @@ export default function PipelineParallelViz() {
   }, [total]);
 
   useEffect(() => {
-    if (!playing) {
-      if (timerRef.current) clearInterval(timerRef.current);
-      timerRef.current = null;
-      return undefined;
-    }
-    timerRef.current = setInterval(next, TICK_MS);
+    if (!playing) return undefined;
+    timerRef.current = setTimeout(() => {
+      setTick((t) => Math.min(t + 1, total - 1));
+    }, Math.round(TICK_MS / speed));
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
     };
-  }, [playing, next]);
+  }, [playing, tick, speed, total]);
 
   // bubble: idle cells / total cells up to now
   let busy = 0;
@@ -289,6 +288,14 @@ export default function PipelineParallelViz() {
           <SkipForward size={15} aria-hidden="true" />
           <span>Step</span>
         </button>
+        <label className="ppviz-speed">
+          <span className="ppviz-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="ppviz-speed-range"
+          />
+          <span className="ppviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="ppviz-legend">
           <span className="ppviz-leg ppviz-leg-f">forward</span>
           <span className="ppviz-leg ppviz-leg-b">backward</span>

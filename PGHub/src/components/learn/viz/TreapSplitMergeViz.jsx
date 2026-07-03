@@ -346,6 +346,7 @@ export default function TreapSplitMergeViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [insVal, setInsVal] = useState('45');
   const [delVal, setDelVal] = useState('30');
   const [lastPriority, setLastPriority] = useState(priorityFor(60));
@@ -367,6 +368,7 @@ export default function TreapSplitMergeViz() {
 
   const atEnd = frames.length === 0 || idx >= frames.length - 1;
   const playing = playingRaw && frames.length > 0 && idx < frames.length - 1;
+  const delay = Math.round(STEP_MS / speed);
 
   const commitPending = useCallback(() => {
     if (pendingRef.current && frames.length > 0) {
@@ -390,9 +392,9 @@ export default function TreapSplitMergeViz() {
       if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
       return;
     }
-    timerRef.current = setInterval(() => { next(); }, STEP_MS);
+    timerRef.current = setInterval(() => { next(); }, delay);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const parseKey = (raw) => {
     const v = Number.parseInt(raw, 10);
@@ -628,6 +630,19 @@ export default function TreapSplitMergeViz() {
           <SkipForward size={14} />
           <span>Step</span>
         </button>
+        <label className="trpviz-speed">
+          <span className="trpviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="trpviz-speed-range"
+          />
+          <span className="trpviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

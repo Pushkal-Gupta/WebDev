@@ -266,3 +266,8 @@
     transition: none;
   }
 }
+
+.pbtviz-speed { display: flex; align-items: center; gap: 0.5rem; }
+.pbtviz-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.pbtviz-speed-range { width: 110px; accent-color: var(--accent); }
+.pbtviz-speed-value { font-family: var(--mono); font-size: 0.78rem; color: var(--text-main); min-width: 3em; text-align: right; }

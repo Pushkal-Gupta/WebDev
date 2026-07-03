@@ -534,3 +534,8 @@
     min-width: 96px;
   }
 }
+
+.rtv-speed { display: flex; align-items: center; gap: 0.5rem; }
+.rtv-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.rtv-speed-range { width: 110px; accent-color: var(--accent); }
+.rtv-speed-value { font-family: var(--mono); font-size: 0.78rem; color: var(--text-main); min-width: 3em; text-align: right; }

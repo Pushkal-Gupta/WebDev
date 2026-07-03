@@ -75,6 +75,7 @@ export default function NetRoutingViz() {
   const [destId, setDestId] = useState('A');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const dest = useMemo(() => DESTS.find((d) => d.id === destId), [destId]);
@@ -89,9 +90,9 @@ export default function NetRoutingViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 380 : 820);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 380 : 820) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const curKey = dest.path[step];
   const cur = NODES[curKey];
@@ -207,6 +208,14 @@ export default function NetRoutingViz() {
         >
           <SkipForward size={14} /> Step
         </button>
+        <label className="netrt-speed">
+          <span className="netrt-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="netrt-speed-range"
+          />
+          <span className="netrt-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="netrt-progress">hop {step} / {total}</span>
       </div>
 
