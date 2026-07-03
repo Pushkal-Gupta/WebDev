@@ -40,7 +40,17 @@
 .dbrel-link { stroke: var(--accent); stroke-width: 2.2; }
 .dbrel-nullnote { font-size: 0.68rem; fill: var(--hue-pink); font-weight: 600; font-family: var(--mono); }
 
-.dbrel-controls { display: flex; align-items: center; gap: 0.6rem; }
+.dbrel-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.dbrel-speed { display: flex; align-items: center; gap: 0.5rem; }
+.dbrel-speed-label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.dbrel-speed-range { width: 110px; accent-color: var(--accent); }
+.dbrel-speed-value {
+  font-family: var(--mono); font-size: 0.78rem; color: var(--text-main);
+  min-width: 3em; text-align: right;
+}
 .dbrel-btn {
   display: inline-flex; align-items: center; gap: 0.35rem;
   font-family: var(--mono); font-size: 0.72rem; font-weight: 600;

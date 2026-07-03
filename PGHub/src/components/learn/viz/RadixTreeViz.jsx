@@ -394,6 +394,7 @@ export default function RadixTreeViz() {
   const [frameIdx, setFrameIdx] = useState(-1);
   const [mode, setMode] = useState('idle'); // 'idle' | 'insert' | 'search'
   const [isPlayingRaw, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
 
   // The layout we render: during INSERT we render the "after" layout the
   // whole time so the reader watches the new structure appear; during SEARCH
@@ -408,13 +409,15 @@ export default function RadixTreeViz() {
     frameIdx >= 0 && frameIdx < frames.length ? frames[frameIdx] : null;
 
   const isPlaying = isPlayingRaw && frameIdx >= 0 && frameIdx < frames.length - 1;
+  const delay = Math.round(STEP_MS / speed);
 
-  // Auto-advance frames when playing.
+  // Auto-advance frames when playing. frameIdx + delay in deps so each advanced
+  // frame re-schedules the next tick (without them the loop stops after one step).
   useEffect(() => {
     if (!isPlaying) return;
-    playRef.current = setTimeout(() => setFrameIdx((i) => i + 1), STEP_MS);
+    playRef.current = setTimeout(() => setFrameIdx((i) => i + 1), delay);
     return () => clearTimeout(playRef.current);
-  }, [isPlaying]);
+  }, [isPlaying, frameIdx, delay]);
 
   // Derive the search result from the final frame instead of mirroring it in
   // state — avoids a setState-in-effect cascade after the animation lands.
@@ -628,6 +631,19 @@ export default function RadixTreeViz() {
           <button type="button" className="rtv-btn" onClick={onReset}>
             <RotateCcw size={14} /> Reset
           </button>
+          <label className="rtv-speed">
+            <span className="rtv-speed-label">speed</span>
+            <input
+              type="range"
+              min={0.5}
+              max={4}
+              step={0.5}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="rtv-speed-range"
+            />
+            <span className="rtv-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

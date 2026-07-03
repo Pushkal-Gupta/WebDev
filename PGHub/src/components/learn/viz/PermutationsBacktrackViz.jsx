@@ -66,6 +66,7 @@ export default function PermutationsBacktrackViz() {
 
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prev, setPrev] = useState(steps);
@@ -83,17 +84,19 @@ export default function PermutationsBacktrackViz() {
     setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
   }, [steps.length]);
 
+  const delay = Math.round(TICK_MS / speed);
+
   useEffect(() => {
     if (!playing) {
       if (timerRef.current) clearInterval(timerRef.current);
       timerRef.current = null;
       return undefined;
     }
-    timerRef.current = setInterval(next, TICK_MS);
+    timerRef.current = setInterval(next, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   return (
     <div className="pbtviz">
@@ -207,6 +210,19 @@ export default function PermutationsBacktrackViz() {
           <SkipForward size={15} aria-hidden="true" />
           <span>Step</span>
         </button>
+        <label className="pbtviz-speed">
+          <span className="pbtviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pbtviz-speed-range"
+          />
+          <span className="pbtviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pbtviz-step-count">
           {idx} / {steps.length - 1}
         </span>

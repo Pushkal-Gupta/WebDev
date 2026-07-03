@@ -268,6 +268,7 @@ export default function WaveletTreeViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const A = PRESETS[presetIdx].arr;
@@ -277,6 +278,7 @@ export default function WaveletTreeViz() {
   const currentFrame = frames.length > 0 ? frames[idx] : null;
   const atEnd = frames.length === 0 || idx >= frames.length - 1;
   const playing = playingRaw && frames.length > 0 && idx < frames.length - 1;
+  const delay = Math.round(STEP_MS / speed);
 
   const next = useCallback(() => {
     setIdx((i) => (i >= frames.length - 1 ? i : i + 1));
@@ -290,11 +292,11 @@ export default function WaveletTreeViz() {
       }
       return;
     }
-    timerRef.current = setInterval(() => next(), STEP_MS);
+    timerRef.current = setInterval(() => next(), delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const parseInRange = (raw, min, max) => {
     const v = Number.parseInt(raw, 10);
@@ -567,6 +569,19 @@ export default function WaveletTreeViz() {
           <SkipForward size={14} />
           <span>Step</span>
         </button>
+        <label className="wtviz-speed">
+          <span className="wtviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="wtviz-speed-range"
+          />
+          <span className="wtviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <div className="wtviz-step-count">
           {frames.length === 0 ? '—' : `${idx + 1} / ${frames.length}`}
         </div>

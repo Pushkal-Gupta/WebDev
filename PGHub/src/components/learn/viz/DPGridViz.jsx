@@ -107,6 +107,7 @@ export default function DPGridViz() {
   const steps = useMemo(() => buildSteps(m, n), [m, n]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const [prevSteps, setPrevSteps] = useState(steps);
@@ -128,6 +129,8 @@ export default function DPGridViz() {
     setIdx((i) => (i >= total - 1 ? i : i + 1));
   }, [total]);
 
+  const delay = Math.round(TICK_MS / speed);
+
   useEffect(() => {
     if (!playing) {
       if (timerRef.current) {
@@ -138,11 +141,11 @@ export default function DPGridViz() {
     }
     timerRef.current = setInterval(() => {
       next();
-    }, TICK_MS);
+    }, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -448,6 +451,19 @@ export default function DPGridViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="dpgridviz-speed">
+          <span className="dpgridviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="dpgridviz-speed-range"
+          />
+          <span className="dpgridviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

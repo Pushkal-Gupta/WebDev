@@ -222,6 +222,7 @@ export default function HyperLogLogViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const [, setPendingTok] = useState(null);
   const [operation, setOperation] = useState(
     'Pre-loaded with 8 tokens (6 distinct). Add a token to watch its bits split into an index and a rank.',
@@ -278,9 +279,9 @@ export default function HyperLogLogViz() {
         if (next === frames.length - 1) commitPendingTok();
         return next;
       });
-    }, STEP_MS);
+    }, Math.round(STEP_MS / speed));
     return () => clearTimeout(playRef.current);
-  }, [playing, frames, commitPendingTok]);
+  }, [playing, idx, speed, frames, commitPendingTok]);
 
   const startFrames = useCallback(
     (newFrames) => {
@@ -443,6 +444,21 @@ export default function HyperLogLogViz() {
         </button>
 
         <div className="hll-control-spacer" />
+
+        <label className="hll-speed">
+          <span className="hll-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="hll-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="hll-speed-value">{speed.toFixed(1)}×</span>
+        </label>
 
         <button
           type="button"

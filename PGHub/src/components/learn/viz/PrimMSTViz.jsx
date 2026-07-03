@@ -176,6 +176,7 @@ export default function PrimMSTViz() {
   const [steps, setSteps] = useState(() => buildSteps(0));
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   // Reset state when start changes (prev-state-during-render pattern).
@@ -197,18 +198,21 @@ export default function PrimMSTViz() {
   useEffect(() => {
     if (!playing) {
       if (timerRef.current) {
-        clearInterval(timerRef.current);
+        clearTimeout(timerRef.current);
         timerRef.current = null;
       }
-      return;
+      return undefined;
     }
-    timerRef.current = setInterval(() => {
+    timerRef.current = setTimeout(() => {
       next();
-    }, 1100);
+    }, Math.round(1100 / speed));
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [playing, next]);
+  }, [playing, idx, speed, next]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -463,6 +467,20 @@ export default function PrimMSTViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="primviz-speed">
+          <span className="primviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="primviz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="primviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

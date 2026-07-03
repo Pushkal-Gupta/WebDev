@@ -405,3 +405,8 @@
   .wtviz-btn-primary:hover,
   .wtviz-btn-ghost:hover { transform: none !important; }
 }
+
+.wtviz-speed { display: flex; align-items: center; gap: 0.5rem; }
+.wtviz-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.wtviz-speed-range { width: 110px; accent-color: var(--accent); }
+.wtviz-speed-value { font-family: var(--mono); font-size: 0.78rem; color: var(--text-main); min-width: 3em; text-align: right; }

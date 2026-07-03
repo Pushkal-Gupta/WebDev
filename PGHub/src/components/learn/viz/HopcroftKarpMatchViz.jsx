@@ -219,6 +219,7 @@ export default function HopcroftKarpMatchViz() {
 
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const current = frames[idx];
@@ -231,12 +232,12 @@ export default function HopcroftKarpMatchViz() {
 
   useEffect(() => {
     if (!playing) {
-      if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-      return;
+      if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; }
+      return undefined;
     }
-    timerRef.current = setInterval(() => next(), STEP_MS);
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [playing, next]);
+    timerRef.current = setTimeout(() => next(), Math.round(STEP_MS / speed));
+    return () => { if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null; } };
+  }, [playing, idx, speed, next]);
 
   const selectPreset = (key) => {
     setPlaying(false);
@@ -436,6 +437,20 @@ export default function HopcroftKarpMatchViz() {
           <SkipForward size={14} />
           <span>Step</span>
         </button>
+        <label className="hkviz-speed">
+          <span className="hkviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="hkviz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="hkviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <div className="hkviz-legend">
           <span className="hkviz-legend-item"><GitMerge size={13} /> matched edge</span>
         </div>

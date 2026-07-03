@@ -277,8 +277,10 @@ export default function FenwickTreeViz() {
   const [frames, setFrames] = useState([]);
   const [idx, setIdx] = useState(-1);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const playRef = useRef(null);
 
+  const delay = Math.round(STEP_MS / speed);
   const n = arr.length;
   const baseBIT = useMemo(() => buildBIT(arr), [arr]);
 
@@ -356,9 +358,9 @@ export default function FenwickTreeViz() {
         const last = frames[nextIdx];
         if (last && last.kind === 'update') setArr(last.arr);
       }
-    }, STEP_MS);
+    }, delay);
     return () => clearTimeout(playRef.current);
-  }, [playing, idx, frames]);
+  }, [playing, idx, frames, delay]);
 
   const stepNext = () => {
     if (idx < frames.length - 1) {
@@ -553,6 +555,19 @@ export default function FenwickTreeViz() {
           >
             <SkipForward size={14} />
           </button>
+          <label className="ftv-speed">
+            <span className="ftv-speed-label">speed</span>
+            <input
+              type="range"
+              min={0.5}
+              max={4}
+              step={0.5}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="ftv-speed-range"
+            />
+            <span className="ftv-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

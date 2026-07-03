@@ -134,7 +134,10 @@ export default function PalindromeEertreeViz() {
   const steps = useMemo(() => buildEertree(word), [word]);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
+
+  const delay = Math.round(TICK_MS / speed);
 
   const [prev, setPrev] = useState(steps);
   if (prev !== steps) {
@@ -157,11 +160,11 @@ export default function PalindromeEertreeViz() {
       timerRef.current = null;
       return undefined;
     }
-    timerRef.current = setInterval(next, TICK_MS);
+    timerRef.current = setInterval(next, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const { pos, height } = useMemo(() => layout(step.nodes), [step.nodes]);
   const W = 480;
@@ -313,6 +316,19 @@ export default function PalindromeEertreeViz() {
           <SkipForward size={15} aria-hidden="true" />
           <span>Step</span>
         </button>
+        <label className="eerviz-speed">
+          <span className="eerviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="eerviz-speed-range"
+          />
+          <span className="eerviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="eerviz-step">{idx} / {steps.length - 1}</span>
       </div>
     </div>

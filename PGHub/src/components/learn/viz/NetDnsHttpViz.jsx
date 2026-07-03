@@ -60,6 +60,7 @@ export default function NetDnsHttpViz() {
   const [mode, setMode] = useState('first');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const steps = mode === 'first' ? FIRST : CACHED;
@@ -74,9 +75,9 @@ export default function NetDnsHttpViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 360 : 880);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 360 : 880) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const current = step > 0 ? steps[step - 1] : null;
   const elapsed = useMemo(
@@ -186,6 +187,14 @@ export default function NetDnsHttpViz() {
         <button type="button" className="netdns-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="netdns-speed">
+          <span className="netdns-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="netdns-speed-range"
+          />
+          <span className="netdns-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="netdns-progress">{step} / {total} hops</span>
       </div>
 

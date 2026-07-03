@@ -1,0 +1,129 @@
+.javacoll { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.javacoll-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.javacoll-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.javacoll-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.javacoll-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.javacoll-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.javacoll-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javacoll-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.javacoll-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.javacoll-tab {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.42rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.javacoll-tab:hover { border-color: var(--accent); color: var(--text-main); }
+.javacoll-tab.is-active.is-list { border-color: var(--hue-sky); color: var(--hue-sky); background: color-mix(in srgb, var(--hue-sky) 12%, transparent); }
+.javacoll-tab.is-active.is-map { border-color: var(--hue-violet); color: var(--hue-violet); background: color-mix(in srgb, var(--hue-violet) 12%, transparent); }
+.javacoll-tab.is-active.is-set { border-color: var(--hue-mint); color: var(--hue-mint); background: color-mix(in srgb, var(--hue-mint) 12%, transparent); }
+
+.javacoll-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.javacoll-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.javacoll-axis { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+.javacoll-arrowfill { fill: var(--text-dim); }
+
+/* per-mode hue: --mode-hue set by the hue class */
+.is-list { --mode-hue: var(--hue-sky); }
+.is-map { --mode-hue: var(--hue-violet); }
+.is-set { --mode-hue: var(--hue-mint); }
+
+/* ArrayList slots */
+.javacoll-slot-rect { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: stroke var(--t), fill var(--t); }
+.javacoll-slot-val { font-size: 0.9rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.javacoll-slot-idx { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.javacoll-slot.is-filled .javacoll-slot-rect {
+  stroke: var(--mode-hue);
+  fill: color-mix(in srgb, var(--mode-hue) 15%, transparent);
+}
+.javacoll-slot.is-hit .javacoll-slot-rect {
+  stroke: var(--accent); stroke-width: 2.6;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 55%, transparent));
+}
+.javacoll-getptr-line { stroke: var(--accent); stroke-width: 2; }
+.javacoll-getptr-label { font-size: 0.68rem; font-weight: 700; fill: var(--accent); font-family: var(--mono); }
+
+/* Hash buckets */
+.javacoll-bkt-rect { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: stroke var(--t), fill var(--t); }
+.javacoll-bkt-label { font-size: 0.72rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); }
+.javacoll-bkt-link { stroke: var(--border); stroke-width: 1.4; }
+.javacoll-bkt.is-active .javacoll-bkt-rect {
+  stroke: var(--accent); stroke-width: 2.4;
+  fill: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+.javacoll-bkt.is-active .javacoll-bkt-label { fill: var(--accent); }
+.javacoll-bkt.is-active .javacoll-bkt-link { stroke: var(--accent); }
+
+.javacoll-entry-rect {
+  fill: color-mix(in srgb, var(--mode-hue) 16%, transparent);
+  stroke: var(--mode-hue); stroke-width: 1.6; transition: stroke var(--t);
+}
+.javacoll-entry-val { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.javacoll-chain { stroke: var(--mode-hue); stroke-width: 1.4; }
+.javacoll-entry.is-new .javacoll-entry-rect {
+  stroke: var(--accent); stroke-width: 2.6;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 50%, transparent));
+}
+.javacoll-reject { font-size: 0.66rem; font-weight: 700; fill: var(--hard); font-family: var(--mono); }
+
+.javacoll-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.javacoll-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javacoll-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.javacoll-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.javacoll-progress { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+
+.javacoll-speed { display: inline-flex; align-items: center; gap: 0.4rem; }
+.javacoll-speed-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); font-weight: 700; }
+.javacoll-speed-range { width: 84px; accent-color: var(--accent); cursor: pointer; }
+.javacoll-speed-val { font-size: 0.7rem; font-weight: 700; color: var(--text-main); min-width: 2.1em; }
+
+.javacoll-curline {
+  margin-left: auto; font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  color: var(--accent); padding: 0.2rem 0.55rem; border-radius: 7px; background: var(--hover-box);
+}
+
+.javacoll-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.javacoll-stat {
+  flex: 1 1 22%; min-width: 150px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.javacoll-stat.is-empty { border-left-color: var(--border); }
+.javacoll-stat.is-list { border-left-color: var(--hue-sky); }
+.javacoll-stat.is-map { border-left-color: var(--hue-violet); }
+.javacoll-stat.is-set { border-left-color: var(--hue-mint); }
+.javacoll-stat.is-size { border-left-color: var(--accent); }
+.javacoll-stat-key { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.javacoll-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+
+.javacoll-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.javacoll-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.javacoll-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .javacoll-slot-rect, .javacoll-bkt-rect, .javacoll-entry-rect { transition: none; }
+}

@@ -254,6 +254,7 @@ export default function BoyerMooreVotingViz() {
   const [draft, setDraft] = useState(DEFAULT_MAJORITY.join(','));
   const [stepIdx, setStepIdx] = useState(0);
   const [isRunningRaw, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const runTimer = useRef(null);
 
   const isExt = mode === 'extended';
@@ -265,6 +266,7 @@ export default function BoyerMooreVotingViz() {
     current.phase === 'done-no-majority' ||
     current.phase === 'done-empty';
   const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
+  const delay = Math.round(RUN_DELAY_MS / speed);
 
   const candidates = current.candidates;
   const counts = current.counts;
@@ -301,14 +303,14 @@ export default function BoyerMooreVotingViz() {
     if (!isRunning) return;
     runTimer.current = setTimeout(() => {
       setStepIdx((i) => Math.min(i + 1, totalSteps - 1));
-    }, RUN_DELAY_MS);
+    }, delay);
     return () => {
       if (runTimer.current) {
         clearTimeout(runTimer.current);
         runTimer.current = null;
       }
     };
-  }, [isRunning, totalSteps]);
+  }, [isRunning, stepIdx, delay, totalSteps]);
 
   const handleRunToggle = () => {
     if (isRunning) {
@@ -579,6 +581,19 @@ export default function BoyerMooreVotingViz() {
         <button type="button" className="bmvv-btn bmvv-btn-danger" onClick={reset}>
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="bmvv-speed">
+          <span className="bmvv-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="bmvv-speed-range"
+          />
+          <span className="bmvv-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
 
       <div className="bmvv-stage-wrap">

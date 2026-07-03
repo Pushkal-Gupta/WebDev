@@ -68,6 +68,7 @@ export default function OsDeadlockViz() {
   const [mode, setMode] = useState('deadlock');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const m = MODES[mode];
@@ -81,9 +82,9 @@ export default function OsDeadlockViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 360 : 950);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 360 : 950) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const cur = step > 0 ? steps[step - 1] : null;
   const activeEdges = cur ? cur.edges : [];
@@ -200,6 +201,15 @@ export default function OsDeadlockViz() {
         <button type="button" className="osdl-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="osdl-speed">
+          <span className="osdl-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="osdl-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="osdl-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="osdl-progress">{step} / {total} steps</span>
       </div>
 

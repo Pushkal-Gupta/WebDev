@@ -46,7 +46,17 @@
 .dbtx-op.is-wait .dbtx-op-box { stroke: var(--warning); stroke-dasharray: 4 3; }
 .dbtx-op-text { font-size: 0.6rem; fill: var(--text-main); font-family: var(--mono); font-weight: 600; }
 
-.dbtx-controls { display: flex; align-items: center; gap: 0.6rem; }
+.dbtx-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.dbtx-speed { display: flex; align-items: center; gap: 0.5rem; }
+.dbtx-speed-label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.dbtx-speed-range { width: 110px; accent-color: var(--accent); }
+.dbtx-speed-value {
+  font-family: var(--mono); font-size: 0.78rem; color: var(--text-main);
+  min-width: 3em; text-align: right;
+}
 .dbtx-btn {
   display: inline-flex; align-items: center; gap: 0.35rem;
   font-family: var(--mono); font-size: 0.72rem; font-weight: 600;

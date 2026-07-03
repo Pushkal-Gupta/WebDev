@@ -54,7 +54,11 @@
 .ossch-seg.is-cur .ossch-seg-box { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 55%, transparent)); stroke-width: 2.4; }
 .ossch-seg-text { font-size: 0.78rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; }
 
-.ossch-controls { display: flex; align-items: center; gap: 0.6rem; }
+.ossch-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.ossch-speed { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.ossch-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.ossch-speed-range { width: 96px; accent-color: var(--accent); }
+.ossch-speed-value { font-family: var(--mono); font-size: 0.72rem; color: var(--text-main); min-width: 2.6em; text-align: right; }
 .ossch-btn {
   display: inline-flex; align-items: center; gap: 0.35rem;
   font-family: var(--mono); font-size: 0.72rem; font-weight: 600;

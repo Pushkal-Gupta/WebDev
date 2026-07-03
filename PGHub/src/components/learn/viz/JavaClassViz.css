@@ -1,0 +1,124 @@
+.javaclass { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.javaclass-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.javaclass-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.javaclass-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.javaclass-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.javaclass-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.javaclass-sub code {
+  font-family: var(--mono); font-size: 0.74rem; color: var(--accent);
+  background: var(--hover-box); padding: 0.02rem 0.28rem; border-radius: 5px;
+}
+.javaclass-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javaclass-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.javaclass-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.javaclass-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.javaclass-arrowfill { fill: var(--text-dim); }
+.javaclass-classstop-a { stop-color: color-mix(in srgb, var(--accent) 20%, transparent); }
+.javaclass-classstop-b { stop-color: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+.javaclass-classbox { stroke: var(--accent); stroke-width: 1.8; }
+.javaclass-classname { font-size: 0.9rem; font-weight: 700; fill: var(--accent); font-family: var(--mono); }
+.javaclass-divider { stroke: var(--border); stroke-width: 1; }
+.javaclass-fieldrow { font-size: 0.76rem; fill: var(--text-main); font-family: var(--mono); }
+.javaclass-blueprint-tag {
+  font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+
+.javaclass-staticbox {
+  fill: color-mix(in srgb, var(--warning) 14%, transparent);
+  stroke: var(--warning); stroke-width: 1.6;
+}
+.javaclass-staticlink { stroke: var(--warning); stroke-width: 1.6; stroke-dasharray: 4 3; }
+.javaclass-staticlabel {
+  font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.javaclass-staticval { font-size: 1rem; font-weight: 700; fill: var(--warning); font-family: var(--mono); }
+
+.javaclass-stamplink { stroke: var(--border); stroke-width: 1.4; stroke-dasharray: 3 3; }
+.javaclass-instbox { fill: var(--bg); stroke-width: 1.8; transition: filter var(--t), stroke var(--t); }
+.javaclass-insttitle {
+  font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.javaclass-instkey { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); }
+.javaclass-instval { font-size: 0.8rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.javaclass-insttag {
+  font-size: 0.58rem; fill: var(--text-dim); font-family: var(--mono);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+
+.javaclass-inst.is-sky .javaclass-instbox { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 14%, transparent); }
+.javaclass-inst.is-sky .javaclass-insttitle { fill: var(--hue-sky); }
+.javaclass-inst.is-violet .javaclass-instbox { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, transparent); }
+.javaclass-inst.is-violet .javaclass-insttitle { fill: var(--hue-violet); }
+.javaclass-inst.is-pink .javaclass-instbox { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, transparent); }
+.javaclass-inst.is-pink .javaclass-insttitle { fill: var(--hue-pink); }
+.javaclass-inst.is-new .javaclass-instbox {
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 50%, transparent));
+  stroke-width: 2.6;
+}
+
+.javaclass-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.javaclass-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.javaclass-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.javaclass-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.javaclass-speed { display: inline-flex; align-items: center; gap: 0.4rem; }
+.javaclass-speed-key { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.javaclass-speed-range { width: 92px; accent-color: var(--accent); cursor: pointer; }
+.javaclass-speed-val { font-size: 0.7rem; font-weight: 700; color: var(--text-main); min-width: 2.2ch; }
+.javaclass-progress { margin-left: auto; font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+
+.javaclass-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.javaclass-stat {
+  flex: 1 1 28%; min-width: 160px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.javaclass-stat.is-empty { border-left-color: var(--border); }
+.javaclass-stat.is-sky { border-left-color: var(--hue-sky); }
+.javaclass-stat.is-violet { border-left-color: var(--hue-violet); }
+.javaclass-stat.is-pink { border-left-color: var(--hue-pink); }
+.javaclass-stat.is-shared { border-left-color: var(--warning); }
+.javaclass-stat-icon { color: var(--text-dim); flex: 0 0 auto; }
+.javaclass-stat-key { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.javaclass-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+
+.javaclass-code {
+  display: flex; align-items: center; gap: 0.6rem;
+  border: 1px solid var(--border); border-radius: 9px;
+  background: var(--surface); padding: 0.45rem 0.7rem;
+}
+.javaclass-code-label {
+  flex: 0 0 auto; font-size: 0.58rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.05em; color: var(--text-dim);
+}
+.javaclass-code-line { font-family: var(--mono); font-size: 0.72rem; font-weight: 600; color: var(--accent); line-height: 1.4; }
+
+.javaclass-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.javaclass-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.javaclass-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }

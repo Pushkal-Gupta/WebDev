@@ -53,6 +53,7 @@ export default function DbRelationalViz() {
   const [join, setJoin] = useState('INNER');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const plan = useMemo(() => buildPlan(join), [join]);
@@ -65,9 +66,9 @@ export default function DbRelationalViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 280 : 760);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 280 : 760) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const showPause = playing && step < total;
 
@@ -169,6 +170,14 @@ export default function DbRelationalViz() {
         <button type="button" className="dbrel-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={step >= total}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="dbrel-speed">
+          <span className="dbrel-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="dbrel-speed-range"
+          />
+          <span className="dbrel-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="dbrel-progress">{step} / {total} matches</span>
       </div>
 

@@ -206,6 +206,7 @@ export default function SieveOfEratosthenesViz() {
   const [n, setN] = useState(50);
   const [stepIdx, setStepIdx] = useState(0);
   const [isRunningRaw, setIsRunning] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const runTimer = useRef(null);
 
   const { frames, primes } = useMemo(() => sieveFrames(n), [n]);
@@ -215,6 +216,7 @@ export default function SieveOfEratosthenesViz() {
   const frame = frames[safeStep];
   const isTerminal = safeStep >= totalSteps - 1;
   const isRunning = isRunningRaw && stepIdx < totalSteps - 1;
+  const delay = Math.round(RUN_DELAY_MS / speed);
 
   // Count primes so far at the current frame, by looking at confirmed primes.
   const primesSoFar = useMemo(() => {
@@ -250,12 +252,12 @@ export default function SieveOfEratosthenesViz() {
     if (!isRunning) return;
     runTimer.current = setTimeout(() => {
       setStepIdx((i) => Math.min(i + 1, totalSteps - 1));
-    }, RUN_DELAY_MS);
+    }, delay);
     return () => {
       if (runTimer.current) clearTimeout(runTimer.current);
       runTimer.current = null;
     };
-  }, [isRunning, totalSteps]);
+  }, [isRunning, safeStep, delay, totalSteps]);
 
   const stop = useCallback(() => {
     if (runTimer.current) {
@@ -335,6 +337,19 @@ export default function SieveOfEratosthenesViz() {
           >
             <RotateCcw size={14} /> Reset
           </button>
+          <label className="sev-speed">
+            <span className="sev-speed-label">speed</span>
+            <input
+              type="range"
+              min={0.5}
+              max={4}
+              step={0.5}
+              value={speed}
+              onChange={(e) => setSpeed(Number(e.target.value))}
+              className="sev-speed-range"
+            />
+            <span className="sev-speed-value">{speed.toFixed(1)}×</span>
+          </label>
         </div>
       </div>
 

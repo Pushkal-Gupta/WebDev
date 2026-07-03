@@ -150,6 +150,7 @@ export default function PrimVsKruskalViz() {
 
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const atEnd = idx >= maxLen - 1;
@@ -164,15 +165,15 @@ export default function PrimVsKruskalViz() {
 
   useEffect(() => {
     if (!playing) {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = null;
       return undefined;
     }
-    timerRef.current = setInterval(next, TICK_MS);
+    timerRef.current = setTimeout(next, Math.round(TICK_MS / speed));
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, idx, speed, next]);
 
   return (
     <div className="pkviz">
@@ -247,6 +248,20 @@ export default function PrimVsKruskalViz() {
           <SkipForward size={15} aria-hidden="true" />
           <span>Step</span>
         </button>
+        <label className="pkviz-speed">
+          <span className="pkviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pkviz-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="pkviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

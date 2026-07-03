@@ -101,11 +101,13 @@ export default function KahnTopoSortViz() {
   const steps = useMemo(() => buildSteps(), []);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   const step = steps[idx];
   const playing = playingRaw && idx < steps.length - 1;
   const atEnd = idx >= steps.length - 1;
+  const delay = Math.round(950 / speed);
 
   const next = useCallback(() => {
     setIdx((i) => (i >= steps.length - 1 ? i : i + 1));
@@ -116,9 +118,9 @@ export default function KahnTopoSortViz() {
       if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
       return;
     }
-    timerRef.current = setInterval(next, 950);
+    timerRef.current = setInterval(next, delay);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const handleReset = () => { setPlaying(false); setIdx(0); };
 
@@ -326,6 +328,19 @@ export default function KahnTopoSortViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="ktsviz-speed">
+          <span className="ktsviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="ktsviz-speed-range"
+          />
+          <span className="ktsviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

@@ -76,6 +76,7 @@ function reduced() {
 export default function NetEncapsulationViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
   const total = STEPS.length - 1;
 
@@ -87,9 +88,9 @@ export default function NetEncapsulationViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 360 : 900);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 360 : 900) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   // Build the composite bar segments (outermost header first ... payload ... trailer).
   const segments = useMemo(() => {
@@ -188,6 +189,14 @@ export default function NetEncapsulationViz() {
         <button type="button" className="neten-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={step >= total}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="neten-speed">
+          <span className="neten-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="neten-speed-range"
+          />
+          <span className="neten-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="neten-progress">{step} / {total}</span>
         <span className={`neten-phase neten-phase-${cur.dir}`}>
           <PhaseIcon size={13} /> {phase}

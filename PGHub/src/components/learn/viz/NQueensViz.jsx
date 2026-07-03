@@ -148,6 +148,7 @@ export default function NQueensViz() {
   const [steps, setSteps] = useState(() => buildSteps(5));
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
   // Reset state when n changes (prev-state-during-render pattern).
@@ -166,6 +167,8 @@ export default function NQueensViz() {
     setIdx((i) => Math.min(i + 1, steps.length - 1));
   }, [steps.length]);
 
+  const delay = Math.round(STEP_MS / speed);
+
   useEffect(() => {
     if (!playing) {
       if (timerRef.current) {
@@ -176,11 +179,11 @@ export default function NQueensViz() {
     }
     timerRef.current = setInterval(() => {
       next();
-    }, STEP_MS);
+    }, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const handleReset = () => {
     setPlaying(false);
@@ -386,6 +389,19 @@ export default function NQueensViz() {
           <SkipForward size={16} />
           <span>Step</span>
         </button>
+        <label className="nqviz-speed">
+          <span className="nqviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="nqviz-speed-range"
+          />
+          <span className="nqviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );

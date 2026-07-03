@@ -307,6 +307,14 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import JavaTypesViz from './viz/JavaTypesViz';
+import JavaClassViz from './viz/JavaClassViz';
+import JavaPolymorphismViz from './viz/JavaPolymorphismViz';
+import JavaCollectionsViz from './viz/JavaCollectionsViz';
+import WebDomTreeViz from './viz/WebDomTreeViz';
+import WebBoxModelViz from './viz/WebBoxModelViz';
+import WebRequestLifecycleViz from './viz/WebRequestLifecycleViz';
+import WebRenderingPathViz from './viz/WebRenderingPathViz';
 import PyClassViz from './viz/PyClassViz';
 import PyImportViz from './viz/PyImportViz';
 import PyExceptionViz from './viz/PyExceptionViz';
@@ -1015,6 +1023,16 @@ export const INTERACTIVE_VIZ = {
   'js-functions-closures': JsClosureViz,
   'js-async-promises': JsEventLoopViz,
   'js-objects-prototypes': JsPrototypeViz,
+
+  // --- java + web fundamentals ---
+  'java-basics-types': JavaTypesViz,
+  'java-classes-objects': JavaClassViz,
+  'java-inheritance-interfaces': JavaPolymorphismViz,
+  'java-collections-generics': JavaCollectionsViz,
+  'web-html-dom-tree': WebDomTreeViz,
+  'web-css-box-layout': WebBoxModelViz,
+  'web-http-lifecycle': WebRequestLifecycleViz,
+  'web-rendering-path': WebRenderingPathViz,
 };
 
 export default INTERACTIVE_VIZ;

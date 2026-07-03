@@ -38,6 +38,7 @@ export default function OsContextSwitchViz() {
   const [nProc, setNProc] = useState(2);
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const segs = useMemo(() => buildTimeline(nProc), [nProc]);
@@ -61,9 +62,9 @@ export default function OsContextSwitchViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 300 : 760);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 300 : 760) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const shownTime = useMemo(
     () => segs.slice(0, step).reduce((s, x) => s + x.dur, 0),
@@ -169,6 +170,15 @@ export default function OsContextSwitchViz() {
         <button type="button" className="oscs-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="oscs-speed">
+          <span className="oscs-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="oscs-speed-range"
+            aria-label="Playback speed"
+          />
+          <span className="oscs-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="oscs-progress">{step} / {total} segments</span>
       </div>
 

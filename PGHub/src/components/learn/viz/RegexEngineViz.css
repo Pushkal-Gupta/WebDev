@@ -397,3 +397,27 @@
     transition: none;
   }
 }
+
+.rgx-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.rgx-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.rgx-speed-range {
+  width: 110px;
+  accent-color: var(--accent);
+}
+.rgx-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}

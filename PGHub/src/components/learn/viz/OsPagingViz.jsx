@@ -55,6 +55,7 @@ export default function OsPagingViz() {
   const [scen, setScen] = useState('hit');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const s = SCEN[scen];
@@ -68,9 +69,9 @@ export default function OsPagingViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s2) => Math.min(total, s2 + 1)), reduced() ? 340 : 900);
+    timer.current = setTimeout(() => setStep((s2) => Math.min(total, s2 + 1)), Math.round((reduced() ? 340 : 900) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const revealed = steps.slice(0, step);
   const cur = step > 0 ? steps[step - 1] : null;
@@ -208,6 +209,14 @@ export default function OsPagingViz() {
         <button type="button" className="ospg-btn" onClick={() => setStep((x) => Math.min(total, x + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="ospg-speed">
+          <span className="ospg-speed-label">speed</span>
+          <input
+            type="range" min={0.5} max={4} step={0.5} value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} className="ospg-speed-range"
+          />
+          <span className="ospg-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="ospg-progress">{step} / {total} steps</span>
       </div>
 

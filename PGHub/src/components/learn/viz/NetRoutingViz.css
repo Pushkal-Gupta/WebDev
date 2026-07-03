@@ -65,7 +65,11 @@
 .netrt-packet-halo { animation: netrt-breathe 1.6s ease-in-out infinite; transform-origin: center; }
 @keyframes netrt-breathe { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.9; } }
 
-.netrt-controls { display: flex; align-items: center; gap: 0.6rem; }
+.netrt-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.netrt-speed { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.netrt-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.netrt-speed-range { width: 96px; accent-color: var(--accent); }
+.netrt-speed-value { font-family: var(--mono); font-size: 0.72rem; color: var(--text-main); min-width: 2.6em; text-align: right; }
 .netrt-btn {
   display: inline-flex; align-items: center; gap: 0.35rem;
   font-family: var(--mono); font-size: 0.72rem; font-weight: 600;

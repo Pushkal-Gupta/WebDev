@@ -196,8 +196,10 @@ export default function FloydTortoiseHareViz() {
   const [acyclic, setAcyclic] = useState(false);
   const [idx, setIdx] = useState(0);
   const [playingRaw, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timerRef = useRef(null);
 
+  const delay = Math.round(STEP_MS / speed);
   const effectiveEntry = acyclic ? -1 : Math.min(entry, n - 1);
 
   const built = useMemo(() => buildFrames(n, effectiveEntry), [n, effectiveEntry]);
@@ -222,11 +224,11 @@ export default function FloydTortoiseHareViz() {
       }
       return;
     }
-    timerRef.current = setInterval(next, STEP_MS);
+    timerRef.current = setInterval(next, delay);
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [playing, next]);
+  }, [playing, next, delay]);
 
   const resetRun = useCallback(() => {
     setPlaying(false);
@@ -573,6 +575,19 @@ export default function FloydTortoiseHareViz() {
           <SkipForward size={14} />
           <span>Step</span>
         </button>
+        <label className="fthviz-speed">
+          <span className="fthviz-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="fthviz-speed-range"
+          />
+          <span className="fthviz-speed-value">{speed.toFixed(1)}×</span>
+        </label>
       </div>
     </div>
   );
