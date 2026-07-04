@@ -1,0 +1,101 @@
+.rsv { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.rsv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.rsv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.rsv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.rsv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.rsv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.rsv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.rsv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.rsv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.rsv-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* edges */
+.rsv-edge { stroke: var(--border); stroke-width: 2; transition: stroke var(--t); }
+.rsv-edge.is-hot { stroke: var(--accent); }
+.rsv-arrow-head { fill: var(--border); }
+.rsv-arrow-head-hot { fill: var(--accent); }
+
+/* nodes */
+.rsv-node-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: stroke var(--t), fill var(--t), stroke-width var(--t); }
+.rsv-node-label { font-size: 0.82rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.rsv-node-sub { font-size: 0.58rem; fill: var(--text-dim); font-family: var(--mono); }
+
+/* per-node accent hues (data = colorful) */
+.rsv-node.is-btn.is-done .rsv-node-box { stroke: color-mix(in srgb, var(--hue-sky) 55%, var(--border)); }
+.rsv-node.is-set.is-done .rsv-node-box { stroke: color-mix(in srgb, var(--hue-violet) 55%, var(--border)); }
+.rsv-node.is-react.is-done .rsv-node-box { stroke: color-mix(in srgb, var(--warning) 55%, var(--border)); }
+.rsv-node.is-comp.is-done .rsv-node-box { stroke: color-mix(in srgb, var(--hue-mint) 55%, var(--border)); }
+
+/* idle stages: dimmed + dashed */
+.rsv-node.is-idle .rsv-node-box { stroke-dasharray: 5 4; opacity: 0.6; }
+.rsv-node.is-idle .rsv-node-label,
+.rsv-node.is-idle .rsv-node-sub,
+.rsv-node.is-idle .rsv-comp-title { opacity: 0.5; }
+
+/* active stage: colored fill + thicker stroke */
+.rsv-node.is-active .rsv-node-box { stroke-width: 2.8; }
+.rsv-node.is-btn.is-active .rsv-node-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 20%, var(--bg)); }
+.rsv-node.is-set.is-active .rsv-node-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 20%, var(--bg)); }
+.rsv-node.is-react.is-active .rsv-node-box { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 20%, var(--bg)); }
+.rsv-node.is-comp.is-active .rsv-node-box { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 16%, var(--bg)); }
+
+/* component internals */
+.rsv-comp-title { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.rsv-cell { fill: color-mix(in srgb, var(--hue-mint) 14%, var(--surface)); stroke: color-mix(in srgb, var(--hue-mint) 55%, var(--border)); stroke-width: 1.4; }
+.rsv-ui { fill: color-mix(in srgb, var(--accent) 12%, var(--surface)); stroke: color-mix(in srgb, var(--accent) 55%, var(--border)); stroke-width: 1.4; }
+.rsv-cell-label { font-size: 0.56rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.rsv-cell-val { font-size: 1.5rem; font-weight: 800; fill: var(--hue-mint); font-family: var(--mono); }
+.rsv-ui-val { font-size: 1.5rem; font-weight: 800; fill: var(--accent); font-family: var(--mono); }
+
+/* controls */
+.rsv-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.rsv-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.rsv-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.rsv-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.rsv-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.rsv-speed-range { accent-color: var(--accent); }
+.rsv-speed-value { font-weight: 700; color: var(--text-main); }
+.rsv-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.rsv-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.rsv-stat {
+  flex: 1 1 28%; min-width: 120px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.rsv-stat.is-stage { border-left-color: var(--hue-violet); }
+.rsv-stat.is-count { border-left-color: var(--hue-mint); }
+.rsv-stat.is-renders { border-left-color: var(--warning); }
+.rsv-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.rsv-stat-val { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+.rsv-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; align-items: flex-start; gap: 0.5rem;
+}
+.rsv-note-icon { flex: 0 0 auto; color: var(--accent); display: inline-flex; margin-top: 0.1rem; }
+.rsv-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rsv-node-box, .rsv-edge { transition: none; }
+}

@@ -1,0 +1,101 @@
+.ngan { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.ngan-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.ngan-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.ngan-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.ngan-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.ngan-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.ngan-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.ngan-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.ngan-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.ngan-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; }
+.ngan-btn {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.ngan-btn-primary { border-color: var(--accent); color: var(--accent); }
+.ngan-btn-primary:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+
+.ngan-slider {
+  flex: 1 1 220px; min-width: 180px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 0.4rem 0.6rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.ngan-slider-lab { display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; color: var(--text-main); }
+.ngan-slider-val { font-size: 0.78rem; font-weight: 700; color: var(--accent); }
+.ngan-slider input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+.ngan-body { display: grid; grid-template-columns: 1.4fr 0.9fr; gap: 0.7rem; align-items: stretch; }
+.ngan-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.4rem; display: flex;
+}
+.ngan-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.ngan-plot { fill: var(--bg); stroke: var(--border); stroke-width: 1.1; }
+.ngan-real-line { fill: none; stroke: var(--hue-mint); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ngan-fake-line { fill: none; stroke: var(--hue-pink); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.ngan-dot-real { fill: var(--hue-mint); }
+.ngan-dot-fake { fill: var(--hue-pink); }
+.ngan-lab { font-size: 8.5px; font-family: var(--mono); font-weight: 700; }
+.ngan-lab-real { fill: var(--hue-mint); }
+.ngan-lab-fake { fill: var(--hue-pink); }
+
+.ngan-side { display: flex; flex-direction: column; gap: 0.5rem; }
+.ngan-net {
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.45rem 0.55rem; border-left: 3px solid var(--border);
+}
+.ngan-net-ico { display: grid; place-items: center; }
+.ngan-net-name { font-size: 0.76rem; font-weight: 700; flex: 1 1 auto; }
+.ngan-net-val { font-size: 0.72rem; font-weight: 600; color: var(--text-main); }
+.ngan-net-g { border-left-color: var(--hue-pink); }
+.ngan-net-g .ngan-net-ico, .ngan-net-g .ngan-net-name { color: var(--hue-pink); }
+.ngan-net-d { border-left-color: var(--hue-mint); }
+.ngan-net-d .ngan-net-ico, .ngan-net-d .ngan-net-name { color: var(--hue-mint); }
+
+.ngan-metric {
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.4rem;
+  border-top: 2px solid var(--accent);
+}
+.ngan-metric-row { display: flex; align-items: baseline; justify-content: space-between; }
+.ngan-metric-lab { font-size: 0.66rem; color: var(--text-dim); }
+.ngan-metric-num { font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+.ngan-metric-accent { color: var(--accent); }
+.ngan-bar { height: 7px; border-radius: 999px; background: var(--hover-box); overflow: hidden; }
+.ngan-bar-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--hue-pink), var(--hue-mint));
+  transition: width var(--t);
+}
+
+.ngan-note {
+  border: 1px solid var(--border); border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  padding: 0.55rem 0.65rem; font-size: 0.71rem; color: var(--text-dim); line-height: 1.55;
+}
+.ngan-note .katex { font-size: 0.9em; color: var(--text-main); }
+
+@media (prefers-reduced-motion: reduce) {
+  .ngan-bar-fill { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .ngan-body { grid-template-columns: 1fr; }
+}

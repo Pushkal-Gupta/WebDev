@@ -1,0 +1,131 @@
+.rev { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.rev-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.rev-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.rev-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.rev-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.rev-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.rev-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.rev-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.rev-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.rev-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* edges */
+.rev-edge { stroke: var(--border); stroke-width: 2; transition: stroke var(--t); }
+.rev-edge.is-hot { stroke: var(--accent); }
+.rev-arrow-head { fill: var(--border); }
+.rev-arrow-head-hot { fill: var(--accent); }
+
+/* nodes */
+.rev-node-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: stroke var(--t), fill var(--t), stroke-width var(--t); }
+.rev-node-label { font-size: 0.78rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.rev-node-sub { font-size: 0.58rem; fill: var(--text-dim); font-family: var(--mono); }
+.rev-node-kind { font-size: 0.56rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.rev-node-dot { fill: var(--border); transition: fill var(--t); }
+
+/* kind accent colors on the dot */
+.rev-node.is-render .rev-node-dot { fill: var(--hue-sky); }
+.rev-node.is-commit .rev-node-dot { fill: var(--hue-violet); }
+.rev-node.is-setup .rev-node-dot { fill: var(--hue-mint); }
+.rev-node.is-cleanup .rev-node-dot { fill: var(--hue-pink); }
+.rev-node.is-unmount .rev-node-dot { fill: var(--warning); }
+
+/* pending: neutral, slightly dimmed */
+.rev-node.is-pending .rev-node-box { opacity: 0.85; }
+.rev-node.is-pending .rev-node-sub, .rev-node.is-pending .rev-node-kind { opacity: 0.7; }
+
+/* done: filled by kind tint */
+.rev-node.is-done.is-render .rev-node-box { fill: color-mix(in srgb, var(--hue-sky) 10%, var(--bg)); stroke: color-mix(in srgb, var(--hue-sky) 45%, var(--border)); }
+.rev-node.is-done.is-commit .rev-node-box { fill: color-mix(in srgb, var(--hue-violet) 10%, var(--bg)); stroke: color-mix(in srgb, var(--hue-violet) 45%, var(--border)); }
+.rev-node.is-done.is-setup .rev-node-box { fill: color-mix(in srgb, var(--hue-mint) 10%, var(--bg)); stroke: color-mix(in srgb, var(--hue-mint) 45%, var(--border)); }
+.rev-node.is-done.is-cleanup .rev-node-box { fill: color-mix(in srgb, var(--hue-pink) 10%, var(--bg)); stroke: color-mix(in srgb, var(--hue-pink) 45%, var(--border)); }
+.rev-node.is-done.is-unmount .rev-node-box { fill: color-mix(in srgb, var(--warning) 10%, var(--bg)); stroke: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+
+/* active: strong tint + thicker stroke */
+.rev-node.is-active .rev-node-box { stroke-width: 2.8; }
+.rev-node.is-active.is-render .rev-node-box { fill: color-mix(in srgb, var(--hue-sky) 22%, var(--bg)); stroke: var(--hue-sky); }
+.rev-node.is-active.is-commit .rev-node-box { fill: color-mix(in srgb, var(--hue-violet) 22%, var(--bg)); stroke: var(--hue-violet); }
+.rev-node.is-active.is-setup .rev-node-box { fill: color-mix(in srgb, var(--hue-mint) 22%, var(--bg)); stroke: var(--hue-mint); }
+.rev-node.is-active.is-cleanup .rev-node-box { fill: color-mix(in srgb, var(--hue-pink) 22%, var(--bg)); stroke: var(--hue-pink); }
+.rev-node.is-active.is-unmount .rev-node-box { fill: color-mix(in srgb, var(--warning) 22%, var(--bg)); stroke: var(--warning); }
+
+/* skipped conditional events (empty deps): dashed + dimmed */
+.rev-node.is-skip .rev-node-box, .rev-node.is-skip-active .rev-node-box { stroke-dasharray: 5 4; opacity: 0.5; fill: var(--bg); }
+.rev-node.is-skip .rev-node-label, .rev-node.is-skip .rev-node-sub, .rev-node.is-skip .rev-node-kind,
+.rev-node.is-skip-active .rev-node-label, .rev-node.is-skip-active .rev-node-sub, .rev-node.is-skip-active .rev-node-kind { opacity: 0.45; }
+.rev-node.is-skip .rev-node-dot, .rev-node.is-skip-active .rev-node-dot { opacity: 0.45; }
+.rev-node.is-skip-active .rev-node-box { stroke-width: 2.4; opacity: 0.7; }
+
+/* mode toggle */
+.rev-modes { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.rev-mode-btn {
+  flex: 1 1 30%; min-width: 130px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 0.1rem;
+  padding: 0.45rem 0.7rem; border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); cursor: pointer; font-family: var(--mono);
+  transition: border-color var(--t), background var(--t);
+}
+.rev-mode-label { font-size: 0.78rem; font-weight: 700; color: var(--text-main); }
+.rev-mode-tag { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.rev-mode-empty { border-left-color: var(--hue-sky); }
+.rev-mode-id { border-left-color: var(--hue-mint); }
+.rev-mode-none { border-left-color: var(--hue-pink); }
+.rev-mode-btn:hover { border-color: var(--accent); }
+.rev-mode-empty.is-on { background: color-mix(in srgb, var(--hue-sky) 12%, var(--surface)); border-color: var(--hue-sky); }
+.rev-mode-id.is-on { background: color-mix(in srgb, var(--hue-mint) 12%, var(--surface)); border-color: var(--hue-mint); }
+.rev-mode-none.is-on { background: color-mix(in srgb, var(--hue-pink) 12%, var(--surface)); border-color: var(--hue-pink); }
+
+/* controls */
+.rev-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.rev-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.rev-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.rev-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.rev-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.rev-speed-range { accent-color: var(--accent); }
+.rev-speed-value { font-weight: 700; color: var(--text-main); }
+.rev-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.rev-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.rev-stat {
+  flex: 1 1 28%; min-width: 120px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.rev-stat.is-phase { border-left-color: var(--hue-mint); }
+.rev-stat.is-deps { border-left-color: var(--hue-sky); }
+.rev-stat.is-rerun { border-left-color: var(--hue-pink); }
+.rev-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.rev-stat-val { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+.rev-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.rev-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.rev-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+.rev-note-body strong { color: var(--hue-pink); }
+.rev-note-body em { color: var(--text-main); font-style: normal; font-weight: 700; }
+.rev-note-eg { color: var(--text-dim); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rev-node-box, .rev-edge, .rev-node-dot { transition: none; }
+}

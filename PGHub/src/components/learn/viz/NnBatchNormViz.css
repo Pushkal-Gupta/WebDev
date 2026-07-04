@@ -1,0 +1,89 @@
+.nbn { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.nbn-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.nbn-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.nbn-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.nbn-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.nbn-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.nbn-sub .katex { font-size: 0.9em; color: var(--text-main); }
+.nbn-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.nbn-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.nbn-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.nbn-btn {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.nbn-btn-primary { border-color: var(--accent); color: var(--accent); }
+.nbn-btn-primary:hover { background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+
+.nbn-chip {
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.7rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.nbn-chip:not(.is-on) { opacity: 0.72; }
+.nbn-chip:not(.is-on):hover { opacity: 1; }
+
+.nbn-slider {
+  flex: 1 1 180px; min-width: 150px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 0.4rem 0.6rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.nbn-slider-lab { display: flex; align-items: center; justify-content: space-between; font-size: 0.7rem; color: var(--text-main); }
+.nbn-slider-val { font-size: 0.76rem; font-weight: 700; color: var(--accent); }
+.nbn-slider input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+.nbn-body { display: grid; grid-template-columns: 1.5fr 0.85fr; gap: 0.7rem; align-items: stretch; }
+.nbn-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.4rem; display: flex;
+}
+.nbn-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.nbn-plot { fill: var(--bg); stroke: var(--border); stroke-width: 1.1; }
+.nbn-axis { stroke: var(--text-dim); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0.7; }
+.nbn-betaline { stroke: var(--hue-mint); stroke-width: 1; stroke-dasharray: 2 4; opacity: 0.8; }
+.nbn-dropx { stroke: var(--hue-pink); stroke-width: 1.4; opacity: 0.55; }
+.nbn-bar-g { transition: opacity var(--t); }
+.nbn-axlab { font-size: 8.5px; fill: var(--text-dim); font-family: var(--mono); }
+
+.nbn-side { display: flex; flex-direction: column; gap: 0.5rem; }
+.nbn-stat {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.42rem 0.55rem; display: flex; align-items: center; justify-content: space-between;
+  border-top: 2px solid var(--border); gap: 0.4rem;
+}
+.nbn-stat-name { font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; }
+.nbn-dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.nbn-stat-vals { font-size: 0.72rem; font-weight: 600; color: var(--text-main); white-space: nowrap; }
+
+.nbn-note {
+  border: 1px solid var(--border); border-radius: 10px;
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+  padding: 0.55rem 0.65rem; font-size: 0.71rem; color: var(--text-dim); line-height: 1.5; margin-top: auto;
+}
+.nbn-note b { color: var(--text-main); }
+
+@media (prefers-reduced-motion: reduce) {
+  .nbn-bar-g { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .nbn-body { grid-template-columns: 1fr; }
+}

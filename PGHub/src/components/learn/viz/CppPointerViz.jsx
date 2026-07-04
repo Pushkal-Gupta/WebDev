@@ -83,6 +83,7 @@ function targetBox(target) {
 export default function CppPointerViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const total = STEPS.length;
@@ -95,11 +96,13 @@ export default function CppPointerViz() {
     if (finished) { setStep(0); setPlaying(true); } else setPlaying((p) => !p);
   }
 
+  const delay = Math.round((reduced() ? 400 : 1300) / speed);
+
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 360 : 1300);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), delay);
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, delay]);
 
   const mode = state ? state.mode : 'idle';
   const target = state ? state.target : null;
@@ -227,6 +230,19 @@ export default function CppPointerViz() {
         <button type="button" className="cpptr-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="cpptr-speed">
+          <span className="cpptr-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="cpptr-speed-range"
+          />
+          <span className="cpptr-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="cpptr-progress">{step} / {total}</span>
         <code className="cpptr-curline">{codeLine}</code>
       </div>

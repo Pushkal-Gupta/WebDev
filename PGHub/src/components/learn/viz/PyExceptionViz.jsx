@@ -116,6 +116,7 @@ export default function PyExceptionViz() {
   const [scenId, setScenId] = useState('caught');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const active = useMemo(() => SCENARIOS.find((s) => s.id === scenId), [scenId]);
@@ -143,9 +144,9 @@ export default function PyExceptionViz() {
         if (next >= total - 1) setPlaying(false);
         return next;
       });
-    }, reduced() ? 560 : 1250);
+    }, Math.round((reduced() ? 560 : 1250) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const curFrameName = cur.active >= 0 ? active.frames[cur.active].name : '—';
   const pillState = cur.active >= 0 ? cur.states[cur.active] : 'idle';
@@ -248,6 +249,19 @@ export default function PyExceptionViz() {
         >
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="pyexc-speed">
+          <span className="pyexc-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pyexc-speed-range"
+          />
+          <span className="pyexc-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pyexc-progress">{step + 1} / {total} steps</span>
       </div>
 

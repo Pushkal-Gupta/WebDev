@@ -53,6 +53,7 @@ function reduced() {
 export default function PyVariablesViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const total = STEPS.length;
@@ -89,9 +90,9 @@ export default function PyVariablesViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 320 : 1100);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 320 : 1100) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const noteText = state ? state.note : 'press Step or Play to run the script line by line';
   const codeLine = state ? state.code : 'x = 5';
@@ -223,6 +224,19 @@ export default function PyVariablesViz() {
         <button type="button" className="pyvar-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="pyvar-speed">
+          <span className="pyvar-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pyvar-speed-range"
+          />
+          <span className="pyvar-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pyvar-progress">{step} / {total}</span>
         <code className="pyvar-curline">{codeLine}</code>
       </div>

@@ -116,3 +116,28 @@
 @media (prefers-reduced-motion: reduce) {
   .cppstl-cell-rect, .cppstl-node-circle, .cppstl-pick, .cppstl-btn, .cppstl-reset { transition: none; }
 }
+
+.cppstl-controls { flex-wrap: wrap; }
+.cppstl-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cppstl-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.cppstl-speed-range {
+  width: 96px;
+  accent-color: var(--accent);
+}
+.cppstl-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}

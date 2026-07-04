@@ -113,6 +113,7 @@ export default function PyImportViz() {
   const [modeId, setModeId] = useState('import');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const active = useMemo(() => MODES.find((m) => m.id === modeId), [modeId]);
@@ -140,9 +141,9 @@ export default function PyImportViz() {
         if (next >= total - 1) setPlaying(false);
         return next;
       });
-    }, reduced() ? 560 : 1200);
+    }, Math.round((reduced() ? 560 : 1200) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const bindsStr = useMemo(
     () => cur.binds.map((b) => b.name).join(', ') || '(none)',
@@ -290,6 +291,19 @@ export default function PyImportViz() {
         >
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="pyimp-speed">
+          <span className="pyimp-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pyimp-speed-range"
+          />
+          <span className="pyimp-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pyimp-progress">{step + 1} / {total} steps</span>
       </div>
 

@@ -89,6 +89,7 @@ export default function PyDataStructuresViz() {
   const [structId, setStructId] = useState('list');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const active = useMemo(() => STRUCTS.find((s) => s.id === structId), [structId]);
@@ -116,9 +117,9 @@ export default function PyDataStructuresViz() {
         if (next >= total - 1) setPlaying(false);
         return next;
       });
-    }, reduced() ? 520 : 1150);
+    }, Math.round((reduced() ? 520 : 1150) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const contentsStr = useMemo(() => {
     if (structId === 'list') return `[${cur.items.join(', ')}]`;
@@ -275,6 +276,19 @@ export default function PyDataStructuresViz() {
         >
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="pyds-speed">
+          <span className="pyds-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pyds-speed-range"
+          />
+          <span className="pyds-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pyds-progress">{step + 1} / {total} steps</span>
       </div>
 

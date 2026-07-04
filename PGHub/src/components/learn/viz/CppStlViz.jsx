@@ -90,6 +90,7 @@ export default function CppStlViz() {
   const [mode, setMode] = useState('vector');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const conf = MODES[mode];
@@ -109,11 +110,13 @@ export default function CppStlViz() {
     if (finished) { setStep(0); setPlaying(true); } else setPlaying((p) => !p);
   }
 
+  const delay = Math.round((reduced() ? 400 : 1150) / speed);
+
   useEffect(() => {
     if (!playing || step >= total - 1) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total - 1, s + 1)), reduced() ? 360 : 1150);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total - 1, s + 1)), delay);
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, delay]);
 
   const visited = cur.visited || [];
 
@@ -219,6 +222,19 @@ export default function CppStlViz() {
         <button type="button" className="cppstl-btn" onClick={() => setStep((s) => Math.min(total - 1, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="cppstl-speed">
+          <span className="cppstl-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="cppstl-speed-range"
+          />
+          <span className="cppstl-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="cppstl-progress">{step + 1} / {total}</span>
         <code className="cppstl-chip">{cur.complexity}</code>
       </div>

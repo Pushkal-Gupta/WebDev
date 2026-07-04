@@ -101,6 +101,7 @@ export default function CppMemoryViz() {
   const [mode, setMode] = useState('raii');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const steps = SCENARIOS[mode].steps;
@@ -126,11 +127,13 @@ export default function CppMemoryViz() {
     if (finished) { setStep(0); setPlaying(true); } else setPlaying((p) => !p);
   }
 
+  const delay = Math.round((reduced() ? 400 : 1200) / speed);
+
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 360 : 1200);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), delay);
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, delay]);
 
   const noteText = state ? state.note : 'Pick a path, then press Play or Step to walk a function call from new to cleanup.';
   const codeLine = state ? state.code : (mode === 'raii' ? 'auto up = make_unique<Widget>(99);' : 'int* p = new int(42);');
@@ -275,6 +278,19 @@ export default function CppMemoryViz() {
         >
           <SkipForward size={14} /> Step
         </button>
+        <label className="cppmem-speed">
+          <span className="cppmem-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="cppmem-speed-range"
+          />
+          <span className="cppmem-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="cppmem-progress">{step} / {total}</span>
         <code className="cppmem-curline">{codeLine}</code>
       </div>

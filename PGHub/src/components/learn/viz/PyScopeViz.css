@@ -105,6 +105,17 @@
 .pyscope-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pyscope-progress { font-size: 0.7rem; color: var(--text-dim); }
 
+.pyscope-speed { display: flex; align-items: center; gap: 0.5rem; }
+.pyscope-speed-label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.pyscope-speed-range { width: 110px; accent-color: var(--accent); }
+.pyscope-speed-value {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-main);
+  min-width: 3em; text-align: right;
+}
+
 .pyscope-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .pyscope-stat {
   flex: 1 1 30%; min-width: 150px;

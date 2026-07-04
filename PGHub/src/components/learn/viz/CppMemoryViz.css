@@ -143,3 +143,28 @@
   .cppmem-frame-rect, .cppmem-block-rect, .cppmem-own,
   .cppmem-mode, .cppmem-btn, .cppmem-reset { transition: none; }
 }
+
+.cppmem-controls { flex-wrap: wrap; }
+.cppmem-speed {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.cppmem-speed-label {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+.cppmem-speed-range {
+  width: 96px;
+  accent-color: var(--accent);
+}
+.cppmem-speed-value {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--text-main);
+  min-width: 3em;
+  text-align: right;
+}
