@@ -1,0 +1,1905 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      The One-Way Mind — Why AI Imitates Understanding, and What It Predicts
+    </title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0a0a;
+        --card: #141414;
+        --text: #f0f0f0;
+        --muted: #c8c8c8;
+        --dim: #909090;
+        --border: #242424;
+        --accent: #00d4cc;
+      }
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Inter", system-ui, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 18px;
+        line-height: 1.85;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 60px 40px 120px;
+      }
+      h1 {
+        font-size: clamp(24px, 4.5vw, 44px);
+        font-weight: 700;
+        line-height: 1.15;
+        margin-bottom: 48px;
+        padding-bottom: 32px;
+        border-bottom: 1px solid var(--border);
+      }
+      h2 {
+        font-size: clamp(20px, 4vw, 26px);
+        font-weight: 700;
+        line-height: 1.2;
+        margin-bottom: 20px;
+      }
+      h3 {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin: 36px 0 14px;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+      p {
+        margin-bottom: 20px;
+      }
+      strong {
+        font-weight: 600;
+      }
+      em {
+        font-style: italic;
+      }
+      code {
+        font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        font-size: 0.88em;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 2px 6px;
+        border-radius: 3px;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid var(--border);
+        margin: 52px 0;
+      }
+      .sec-label {
+        display: block;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin: 60px 0 8px;
+      }
+      .pq {
+        border-left: 3px solid var(--accent);
+        padding: 14px 20px;
+        margin: 32px 0;
+        font-size: 19px;
+        font-weight: 500;
+        line-height: 1.6;
+        color: var(--text);
+      }
+      .callout {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--dim);
+        padding: 20px 22px;
+        margin: 28px 0;
+        border-radius: 4px;
+      }
+      .callout.red {
+        border-left-color: #e05050;
+      }
+      .callout.amber {
+        border-left-color: #c8962a;
+      }
+      .callout.purple {
+        border-left-color: #9080d0;
+      }
+      .callout-label {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin-bottom: 10px;
+      }
+      .callout p {
+        font-size: 16px;
+        line-height: 1.75;
+        color: var(--muted);
+        margin-bottom: 8px;
+      }
+      .callout p:last-child {
+        margin-bottom: 0;
+      }
+      .cite {
+        font-size: 15px;
+        color: var(--muted);
+        background: var(--card);
+        border-left: 2px solid var(--border);
+        padding: 12px 18px;
+        margin: 20px 0;
+        line-height: 1.7;
+      }
+      .cite-source {
+        display: block;
+        font-size: 11px;
+        color: var(--dim);
+        margin-top: 6px;
+      }
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 24px 0;
+        font-size: 15px;
+      }
+      .tbl th {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text);
+        background: var(--card);
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+      }
+      .tbl td {
+        padding: 11px 14px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        line-height: 1.6;
+        color: var(--muted);
+        font-size: 15px;
+      }
+      .tbl tr:last-child td {
+        border-bottom: none;
+      }
+      .pqc {
+        display: flex;
+        gap: 16px;
+        align-items: flex-start;
+        margin: 24px 0;
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 20px;
+        border-radius: 4px;
+      }
+      .pqc-av {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+      }
+      .pqc-name {
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 2px;
+      }
+      .pqc-role {
+        font-size: 12px;
+        color: var(--dim);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .pqc-text {
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 24px 0;
+      }
+      .stat {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 18px 12px;
+        text-align: center;
+        border-radius: 4px;
+      }
+      .stat-n {
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--accent);
+        line-height: 1;
+        margin-bottom: 6px;
+      }
+      .stat-l {
+        font-size: 13px;
+        color: var(--dim);
+        line-height: 1.45;
+      }
+      .people {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin: 24px 0;
+      }
+      .pcard {
+        background: var(--card);
+        border: 1px solid var(--border);
+        padding: 16px;
+        border-radius: 4px;
+      }
+      .pcard-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--dim);
+        border: 1px solid var(--border);
+        padding: 2px 7px;
+        margin-bottom: 8px;
+        border-radius: 2px;
+      }
+      .pcard-name {
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .pcard-role {
+        font-size: 11px;
+        color: var(--dim);
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .pcard-text {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+      .dw {
+        background: var(--card);
+        border: 1px solid var(--border);
+        margin: 32px 0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .dt {
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        padding: 12px 18px 0;
+      }
+      .ds {
+        font-size: 11px;
+        color: var(--dim);
+        padding: 8px 18px 12px;
+        border-top: 1px solid var(--border);
+        margin-top: 2px;
+      }
+      .dp {
+        padding: 18px;
+      }
+      .dgrid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        border: 1px solid var(--border);
+      }
+      .dgrid2 .dg-head {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+      }
+      .dgrid2 .dg-head.left {
+        border-right: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell {
+        padding: 10px 14px;
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell.left {
+        border-right: 1px solid var(--border);
+      }
+      .dgrid2 .dg-cell:last-child,
+      .dgrid2 .dg-cell:nth-last-child(2) {
+        border-bottom: none;
+      }
+      .dgrid2 .dg-label {
+        font-size: 10px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--dim);
+        display: block;
+        margin-bottom: 4px;
+      }
+      .dgrid2 .dg-big {
+        font-size: 20px;
+        font-weight: 700;
+        margin-top: 4px;
+      }
+      .dbars {
+        padding: 4px 0;
+      }
+      .dbar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        flex-wrap: nowrap;
+      }
+      .dbar-label {
+        font-size: 14px;
+        color: var(--muted);
+        min-width: 180px;
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .dbar-track {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+      }
+      .dbar-fill {
+        height: 16px;
+        border-radius: 2px;
+        background: var(--dim);
+        flex-shrink: 0;
+      }
+      .dbar-val {
+        font-size: 13px;
+        color: var(--dim);
+        white-space: nowrap;
+      }
+      .dbar-row.hi .dbar-label {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .dbar-row.hi .dbar-fill {
+        background: var(--accent);
+      }
+      .dbar-row.hi .dbar-val {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .dbar-row.top .dbar-label {
+        font-weight: 700;
+        color: var(--text);
+      }
+      .dbar-row.top .dbar-fill {
+        background: #e05050;
+      }
+      .dbar-row.top .dbar-val {
+        color: #e05050;
+        font-weight: 700;
+      }
+      .stbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .stbl th {
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--dim);
+        padding: 8px 12px;
+        text-align: left;
+        border-bottom: 2px solid var(--border);
+      }
+      .stbl td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border);
+        color: var(--muted);
+        line-height: 1.5;
+        vertical-align: middle;
+      }
+      .stbl .tech {
+        color: var(--text);
+        font-weight: 500;
+      }
+      .stbl .intact {
+        color: var(--accent);
+      }
+      .stbl .ai-row td {
+        border-top: 2px solid var(--border);
+        font-weight: 500;
+      }
+      .stbl .ai-name {
+        color: #e07050;
+        font-weight: 700;
+        font-size: 15px;
+      }
+      .stbl .ai-hit {
+        color: #e07050;
+      }
+      .stbl .ai-gap {
+        color: var(--dim);
+        font-style: italic;
+        font-size: 13px;
+      }
+      .stbl .note td {
+        color: var(--dim);
+        font-style: italic;
+        font-size: 13px;
+        border-bottom: 2px solid var(--border);
+      }
+      .d2col {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .d2col-box {
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+      .d2col-head {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg);
+      }
+      .d2col-body {
+        padding: 14px;
+        font-size: 14px;
+        line-height: 1.6;
+        color: var(--muted);
+      }
+      .d2col-item {
+        padding: 6px 0;
+        border-bottom: 1px solid var(--border);
+      }
+      .d2col-item:last-child {
+        border-bottom: none;
+      }
+      .d2col-foot {
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        border-top: 2px solid var(--border);
+      }
+      .col-blue .d2col-head {
+        color: var(--accent);
+      }
+      .col-blue .d2col-foot {
+        color: var(--accent);
+      }
+      .col-red .d2col-head {
+        color: #e05050;
+      }
+      .col-red .d2col-foot {
+        color: #e05050;
+      }
+      .eq {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 18px 22px;
+        margin: 24px 0;
+        text-align: center;
+        font-family: "SF Mono", "Fira Code", "Consolas", monospace;
+        font-size: 16px;
+        line-height: 2;
+        color: var(--text);
+        letter-spacing: 0.02em;
+      }
+      .eq-label {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        margin-bottom: 8px;
+        text-align: left;
+      }
+      .eq-note {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 13px;
+        color: var(--dim);
+        margin-top: 8px;
+        text-align: left;
+        line-height: 1.6;
+      }
+      .closing {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-top: 3px solid var(--accent);
+        padding: 32px 28px;
+        margin: 56px 0 0;
+        border-radius: 4px;
+      }
+      .closing h3 {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 0;
+      }
+      .closing .intro {
+        font-size: 16px;
+        color: var(--muted);
+        margin: 14px 0 20px;
+        line-height: 1.75;
+      }
+      .closing ul {
+        list-style: none;
+        padding: 0;
+      }
+      .closing ul li {
+        padding: 10px 0 10px 20px;
+        position: relative;
+        font-size: 15px;
+        color: var(--muted);
+        line-height: 1.75;
+        border-bottom: 1px solid var(--border);
+      }
+      .closing ul li:last-child {
+        border-bottom: none;
+      }
+      .closing ul li::before {
+        content: "→";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+        font-size: 13px;
+        line-height: 1.9;
+      }
+      .closing .kicker {
+        font-size: 15px;
+        color: var(--muted);
+        margin-top: 24px;
+        line-height: 1.8;
+        border-top: 1px solid var(--border);
+        padding-top: 20px;
+      }
+      .sources {
+        margin-top: 48px;
+        font-size: 11px;
+        color: var(--dim);
+        text-align: center;
+        line-height: 2.2;
+      }
+      @media (max-width: 768px) {
+        .wrap {
+          padding: 40px 24px 100px;
+        }
+        h2 {
+          font-size: clamp(18px, 3.5vw, 24px);
+        }
+        .people {
+          grid-template-columns: 1fr 1fr;
+        }
+        .stats {
+          grid-template-columns: 1fr 1fr;
+        }
+        .dgrid2 {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 .dg-head.left {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .dgrid2 .dg-cell.left {
+          border-right: none;
+        }
+        .d2col {
+          grid-template-columns: 1fr;
+        }
+        .pqc {
+          gap: 12px;
+        }
+        .dbar-label {
+          min-width: 160px;
+        }
+      }
+      @media (max-width: 480px) {
+        body {
+          font-size: 16px;
+          line-height: 1.75;
+        }
+        .wrap {
+          padding: 28px 16px 80px;
+        }
+        h1 {
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+        }
+        h2 {
+          font-size: 20px;
+        }
+        .pq {
+          font-size: 17px;
+          padding: 12px 16px;
+        }
+        .people {
+          grid-template-columns: 1fr;
+        }
+        .stats {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 {
+          grid-template-columns: 1fr;
+        }
+        .dgrid2 .dg-head.left {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .dgrid2 .dg-cell.left {
+          border-right: none;
+        }
+        .d2col {
+          grid-template-columns: 1fr;
+        }
+        .dbar-label {
+          min-width: 110px;
+          font-size: 12px;
+        }
+        .closing {
+          padding: 24px 18px;
+        }
+        .dp {
+          padding: 12px 14px !important;
+        }
+        .dt {
+          padding: 10px 14px 0;
+          font-size: 10px;
+        }
+        .ds {
+          padding: 6px 14px 10px;
+        }
+        .pqc {
+          flex-direction: column;
+          gap: 10px;
+        }
+        .pqc-av {
+          width: 34px;
+          height: 34px;
+          font-size: 11px;
+        }
+        svg {
+          overflow: visible;
+        }
+        .eq {
+          font-size: 13px;
+          padding: 14px 16px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>The One-Way Mind — Why AI Imitates Understanding, and What That Predicts</h1>
+
+      <p style="font-size:21px;color:var(--text);line-height:1.6;margin-bottom:22px">
+        Ask a chatbot who Tom Cruise's mother is. It answers at once: Mary Lee
+        Pfeiffer. Now open a fresh chat and ask who Mary Lee Pfeiffer's son is.
+        There's a real chance it stalls.
+      </p>
+      <p style="font-size:20px;color:var(--muted);line-height:1.7">
+        Same fact. Two directions. It knows the road one way and gets lost going
+        back. Sit with how odd that is: if <em>you</em> know Tom Cruise's mother
+        is Mary Lee Pfeiffer, you automatically know Mary Lee Pfeiffer's son is
+        Tom Cruise — it's the <em>same fact</em>, and you couldn't hold one half
+        without the other. The machine can, because it never really learned the
+        fact. It learned the <em>sentence</em>. It stored a string of words that
+        reads left to right, and a string only runs one way.
+      </p>
+      <p style="font-size:20px;color:var(--muted);line-height:1.7">
+        That small crack has a name in the research, and it's what this essay is
+        about. It's the gap between <em>memorising</em> something and
+        <em>understanding</em> it — and once you can see it clearly, a lot of the
+        confusion around AI quietly resolves: why these systems ace brutal exams
+        and then fail at things a child wouldn't, whether they can really do your
+        job, and why &ldquo;losing control&rdquo; of them may look nothing like the
+        movies. The plan is simple. First, pin down what understanding actually
+        is. Then see where it comes from in us, and why the machines are built to
+        skip it. Then take that one idea and follow it all the way out — into
+        work, the economy, and the slow question of who's still steering.
+      </p>
+      <p style="font-size:20px;color:var(--text);line-height:1.6">
+        Call it, for short, the one-way mind.
+      </p>
+
+      <div style="text-align:center;margin:60px 0 4px">
+        <span class="sec-label" style="color:var(--dim);display:inline-block;margin:0">Part One</span>
+        <div style="font-size:clamp(22px,4vw,30px);font-weight:700;letter-spacing:-0.01em;line-height:1.1">The Distinction</div>
+      </div>
+
+      <span class="sec-label">Section 1</span>
+      <h2>The Machine Is Dazzling. That's the Trap.</h2>
+      <p>
+        It would be easy to read the Tom Cruise thing as proof that these models
+        are dumb. They aren't. The same system will pass a graduate physics exam,
+        write a working program from a sentence, and hold a conversation that
+        feels genuinely thoughtful. So the tempting dismissal — &ldquo;it's just
+        autocomplete, it doesn't think&rdquo; — is not only rude, it's wrong, and
+        the wrongness is instructive.
+      </p>
+      <p>
+        In 2025 Apple tried to prove the dismissal with a paper called
+        <em>The Illusion of Thinking</em>. They pushed reasoning models up a
+        difficulty ramp on clean puzzles and watched accuracy crash to zero past a
+        certain point. Case closed, it seemed — until a rebuttal showed the crash
+        was mostly the model running out of room to write, not out of ideas: ask
+        for the short rule that <em>generates</em> the solution instead of every
+        step by hand, and the wall largely disappears.
+      </p>
+
+      <div class="cite">
+        Shojaee et al. reported reasoning models collapsing to 0% past a
+        complexity threshold. Opus &amp; Lawsen replied that the hardest cases
+        simply exceeded the output-token budget, and that asking for a generating
+        function removes much of the effect.
+        <span class="cite-source">&ldquo;The Illusion of Thinking,&rdquo; Apple ML Research, arXiv:2506.06941 (2025) · rebuttal arXiv:2506.09250</span>
+      </div>
+
+      <p>
+        So &ldquo;it can't think&rdquo; is too crude. But two sharper problems did
+        survive — and together they say what's really wrong. One: even when you
+        <em>hand the model the exact algorithm</em>, it often can't follow its own
+        steps to the end. Two: the reasoning it shows you frequently isn't the
+        reasoning it used. Anthropic slipped models a hint, confirmed they leaned
+        on it, then checked whether they admitted it. Mostly, they didn't.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">25%</div>
+          <div class="stat-l">How often Claude 3.7 admitted using a hint it clearly used</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">&lt;2%</div>
+          <div class="stat-l">Times a learned shortcut was confessed — though used over 99%</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">39%</div>
+          <div class="stat-l">The same honesty rate for DeepSeek-R1</div>
+        </div>
+      </div>
+
+      <div class="cite">
+        Models exploited a planted reward-hack in over 99% of cases while
+        mentioning it in their &ldquo;reasoning&rdquo; under 2% of the time.
+        Longer explanations were often <em>less</em> faithful, not more.
+        <span class="cite-source">Anthropic, &ldquo;Reasoning Models Don't Always Say What They Think&rdquo; (2025) · cf. Turpin et al., NeurIPS (2023)</span>
+      </div>
+
+      <p>
+        Put the picture together. Fluent on the surface; a suspicious blank
+        underneath. The problem was never that the machine can't think. It's that
+        there's no dependable engine beneath the talk — the words often
+        <em>match</em> a right answer without being what <em>produced</em> it. The
+        rest of this essay is about naming that missing engine precisely, showing
+        we can measure whether it's there, and then following what its absence
+        does to the world.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 2</span>
+      <h2>What &ldquo;Understanding&rdquo; Actually Means</h2>
+      <p>
+        We throw the word around, so let's make it concrete. Feynman had the best
+        test: you understand something when you can break it into small pieces,
+        explain each piece in plain words, and put it back together without losing
+        the meaning. Not recite it — <em>rebuild</em> it.
+      </p>
+      <p>
+        Notice that this asks for two different skills at once. One is going
+        <em>forward</em>: given the idea, predict what follows — the thing exams
+        usually test. The other is going <em>backward</em>: given the finished
+        thing, take it apart and show why each piece is there. A parrot can do the
+        first. Only understanding does the second, and here's the quiet point that
+        the whole essay turns on: <strong>they're the same skill</strong>. If you
+        truly grasp something, you can enter it from either end — predict it
+        forward, or unpack it backward — because what you're holding isn't a
+        recording of the answer, and it isn't a list of rules either. It's the
+        <em>system that produces</em> both.
+      </p>
+
+      <div class="eq">
+        <div class="eq-label">The one idea, compressed</div>
+        understanding &nbsp;=&nbsp; a compressed system you can run in either direction<br /><br />
+        run it forward&nbsp;&nbsp;→&nbsp;&nbsp;prediction, generalisation<br />
+        run it backward&nbsp;→&nbsp;&nbsp;explanation, taking-apart
+        <div class="eq-note">
+          A recording plays one way. A system plays both ways — and the thing it
+          holds isn't the answers, and isn't even a rulebook about them. The rules
+          are just a description read off it. Run the system and the rules fall out
+          on their own; a rulebook can't run the system back. One object, a shadow
+          on either side.
+        </div>
+      </div>
+
+      <div class="dw">
+        <div class="dt">A recording vs. a system</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs><marker id="aA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+            <text x="40" y="30" font-family="Inter,system-ui,sans-serif" font-size="12" font-weight="600" fill="#909090" letter-spacing="0.06em">A RECORDING · plays one way</text>
+            <rect x="40" y="52" width="110" height="54" rx="4" style="fill:var(--bg);stroke:#909090"/>
+            <text x="95" y="84" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">question</text>
+            <rect x="230" y="52" width="110" height="54" rx="4" style="fill:var(--bg);stroke:#909090"/>
+            <text x="285" y="84" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">answer</text>
+            <line x1="154" y1="72" x2="224" y2="72" style="stroke:var(--accent)" stroke-width="2" marker-end="url(#aA)"/>
+            <line x1="224" y1="92" x2="156" y2="92" stroke="#909090" stroke-width="1.3" stroke-dasharray="3 5"/>
+            <text x="190" y="124" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090" text-anchor="middle" font-style="italic">nothing comes back</text>
+            <line x1="380" y1="36" x2="380" y2="170" style="stroke:#909090"/>
+            <text x="410" y="30" font-family="Inter,system-ui,sans-serif" font-size="12" font-weight="600" style="fill:var(--accent)" letter-spacing="0.06em">A SYSTEM · plays both ways</text>
+            <rect x="410" y="52" width="100" height="54" rx="4" style="fill:var(--bg);stroke:#909090"/>
+            <text x="460" y="84" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">whole</text>
+            <rect x="580" y="52" width="80" height="54" rx="4" style="fill:var(--bg);stroke:#909090"/>
+            <text x="620" y="84" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">parts</text>
+            <line x1="514" y1="66" x2="576" y2="66" style="stroke:var(--accent)" stroke-width="2" marker-end="url(#aA)"/>
+            <text x="545" y="58" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">predict</text>
+            <line x1="576" y1="92" x2="514" y2="92" style="stroke:var(--accent)" stroke-width="2" marker-end="url(#aA)"/>
+            <text x="545" y="106" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">explain</text>
+            <text x="535" y="150" font-family="Inter,system-ui,sans-serif" font-size="12" fill="var(--muted)" text-anchor="middle" font-style="italic">enter from any side</text>
+          </svg>
+        </div>
+        <div class="ds">
+          Store the answers and you just replay them. Store the rules and you
+          still only hold a description. Understanding is having the system those
+          rules come from — which is why it keeps working where the rules run out.
+        </div>
+      </div>
+
+      <p>
+        This is more than a metaphor, because that two-way test is something we can
+        actually run on a machine — and the machine fails it by name.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 3</span>
+      <h2>The Reversal Curse</h2>
+      <p>
+        The Tom Cruise blank we opened with isn't a fluke. In 2023 researchers
+        pinned it down: train a model on &ldquo;A is B,&rdquo; and it does
+        <em>not</em> reliably learn &ldquo;B is A.&rdquo; They named it the
+        Reversal Curse, and it's the two-way test, failed on camera.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The same fact, two directions</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs>
+              <marker id="rOk" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round"/></marker>
+              <marker id="rNo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#e05050" stroke-width="1.5" stroke-linecap="round"/></marker>
+            </defs>
+            <rect x="40" y="60" width="180" height="56" rx="5" style="fill:var(--bg);stroke:#909090"/>
+            <text x="130" y="84" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">Tom Cruise</text>
+            <text x="130" y="103" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">the name</text>
+            <rect x="480" y="60" width="180" height="56" rx="5" style="fill:var(--bg);stroke:#909090"/>
+            <text x="570" y="84" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">Mary Lee Pfeiffer</text>
+            <text x="570" y="103" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">the mother</text>
+            <path d="M222 76 C 330 50 370 50 478 76" style="fill:none;stroke:var(--accent)" stroke-width="2" marker-end="url(#rOk)"/>
+            <text x="350" y="44" font-family="Inter,system-ui,sans-serif" font-size="12" style="fill:var(--accent)" text-anchor="middle">&ldquo;Who is Tom Cruise's mother?&rdquo; ✓</text>
+            <path d="M478 100 C 370 128 330 128 222 100" style="fill:none;stroke:#e05050" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#rNo)"/>
+            <text x="350" y="150" font-family="Inter,system-ui,sans-serif" font-size="12" fill="#e05050" text-anchor="middle">&ldquo;Who is Mary Lee Pfeiffer's son?&rdquo; ✗</text>
+          </svg>
+        </div>
+        <div class="ds">One arrow, walkable forward but not back — even though both questions are the same fact.</div>
+      </div>
+
+      <p>
+        They finetuned GPT-3 and Llama on invented facts — &ldquo;Valentina
+        Tereshkova was the first woman in space&rdquo; — then asked &ldquo;Who was
+        the first woman in space?&rdquo; The right name came up no more often than
+        a random one. And they didn't just observe it; they <em>fought</em> it —
+        feeding both orderings, paraphrasing, sweeping across model sizes. Nothing
+        worked.
+      </p>
+
+      <div class="cite">
+        If a model learns &ldquo;A is B,&rdquo; its odds of producing A when
+        prompted with B are no better than chance. The failure held across GPT-3
+        and Llama and survived every fix the authors tried.
+        <span class="cite-source">Berglund et al., &ldquo;The Reversal Curse,&rdquo; ICLR (2024), arXiv:2309.12288</span>
+      </div>
+
+      <p>
+        A person who understands that Tom Cruise's mother is Mary Lee Pfeiffer is
+        holding a <em>relationship</em> between two people, and a relationship has
+        no preferred direction. A model that stored a one-way sentence is holding
+        an arrow. Ask it to walk the arrow backward and there's simply no road.
+        This is the recording, caught red-handed being a recording.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 4</span>
+      <h2>&ldquo;But Doesn't It Learn the Game?&rdquo;</h2>
+      <p>
+        The strongest objection to all this is a real and surprising result, so
+        let's walk straight into it. Train a small network only to predict legal
+        moves in the board game Othello — no rules, no picture of the board, just
+        move-by-move sequences — and it quietly builds an internal map of the whole
+        board. You can read that map out of its activations, and, more tellingly,
+        reach in and <em>change a square</em>: the model's next move shifts exactly
+        as if you'd flipped a real piece. That looks like a genuine model of a
+        world, grown from nothing but prediction. Doesn't that sink the whole
+        argument?
+      </p>
+
+      <div class="dw">
+        <div class="dt">It learns where the pieces are — the mechanics, not the depth</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 190" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs><marker id="oA" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+            <text x="40" y="36" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#909090" letter-spacing="0.06em">INPUT · MOVE TOKENS ONLY</text>
+            <g font-family="SF Mono,Consolas,monospace" font-size="13" fill="var(--text)">
+              <rect x="40" y="52" width="44" height="26" rx="3" style="fill:var(--bg);stroke:#909090"/><text x="62" y="70" text-anchor="middle">E3</text>
+              <rect x="92" y="52" width="44" height="26" rx="3" style="fill:var(--bg);stroke:#909090"/><text x="114" y="70" text-anchor="middle">D3</text>
+              <rect x="144" y="52" width="44" height="26" rx="3" style="fill:var(--bg);stroke:#909090"/><text x="166" y="70" text-anchor="middle">C5</text>
+              <rect x="196" y="52" width="44" height="26" rx="3" style="fill:var(--bg);stroke:#909090"/><text x="218" y="70" text-anchor="middle">F6</text>
+            </g>
+            <text x="150" y="104" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090">no rules · no board ever shown</text>
+            <line x1="270" y1="78" x2="330" y2="78" style="stroke:var(--accent)" stroke-width="2" marker-end="url(#oA)"/>
+            <text x="300" y="68" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">probe</text>
+            <g transform="translate(370,30)">
+              <text x="70" y="-2" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" style="fill:var(--accent)" text-anchor="middle">RECOVERED BOARD STATE</text>
+              <rect x="0" y="6" width="140" height="140" style="fill:none;stroke:#909090"/>
+              <line x1="35" y1="6" x2="35" y2="146" style="stroke:#909090"/><line x1="70" y1="6" x2="70" y2="146" style="stroke:#909090"/><line x1="105" y1="6" x2="105" y2="146" style="stroke:#909090"/>
+              <line x1="0" y1="41" x2="140" y2="41" style="stroke:#909090"/><line x1="0" y1="76" x2="140" y2="76" style="stroke:#909090"/><line x1="0" y1="111" x2="140" y2="111" style="stroke:#909090"/>
+              <circle cx="52" cy="58" r="11" style="fill:var(--text)"/><circle cx="87" cy="58" r="11" style="fill:none;stroke:var(--text)" stroke-width="1.5"/>
+              <circle cx="52" cy="93" r="11" style="fill:none;stroke:var(--text)" stroke-width="1.5"/><circle cx="87" cy="93" r="11" style="fill:var(--text)"/>
+              <circle cx="122" cy="58" r="11" style="fill:var(--accent)"/>
+            </g>
+          </svg>
+        </div>
+        <div class="ds">
+          Othello-GPT computes the board it was never shown — and editing that
+          inner board changes its play. Similar structure later turned up in chess
+          models and in how large models represent space and time.
+        </div>
+      </div>
+
+      <div class="cite">
+        A GPT variant trained only to produce legal Othello moves develops an
+        emergent, causally-editable representation of the board; a simple linear
+        probe recovers it.
+        <span class="cite-source">Li et al., &ldquo;Emergent World Representations,&rdquo; ICLR (2023), arXiv:2210.13382 · Nanda (2023) · Gurnee &amp; Tegmark (2024)</span>
+      </div>
+
+      <p>
+        It doesn't — once you notice <em>which</em> layer it learned. A game like
+        Othello is two things stacked. There's the <strong>mechanics</strong>:
+        where the pieces sit, which moves are legal. And there's the
+        <strong>depth</strong>: why a move is strong, how you actually win, what to
+        do if the board changed. What the network captured is the mechanics —
+        essentially the game's rules, run as live bookkeeping. That's real, and
+        it's well past parroting. But it is not the depth.
+      </p>
+      <p>
+        Push on it and the ceiling appears immediately. Ask it to <em>judge</em>
+        whether a position is winning, <em>invent</em> a strategy, or cope with a
+        single <em>tweaked</em> rule — climb from remembering and applying up to
+        analysing, evaluating, creating, the higher rungs of Bloom's taxonomy —
+        and there is nothing underneath to carry the weight. It kept the board; it
+        never got the game. The very thing that lets prediction succeed here — a
+        tiny, closed, perfectly consistent world with fixed rules — is what makes
+        the mechanics the whole of the visible game, so it's easy to mistake one
+        for the other.
+      </p>
+      <p>
+        So the best counterexample confirms the pattern rather than breaking it.
+        Given a small enough closed world, prediction can absorb that world's
+        <em>rules</em> and run them. What it does not do, on its own, is climb into
+        the understanding those rules sit inside — the why, the strategy, the
+        transfer to a world nudged slightly out of true. In Othello the ceiling
+        hides because the board is all there is to see. In language and physics —
+        vast, open, endlessly novel — the same ceiling is exactly what the Reversal
+        Curse and the collapse on unfamiliar problems were showing us: the rules
+        get in; the system that generates them does not.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 5</span>
+      <h2>Newton Lives Inside Einstein</h2>
+      <p>
+        Here is the same split one level up, in physics itself — and it is the
+        sharpest test we have. Newton's laws aren't wrong; they're a <em>rule</em>
+        that holds for slow, everyday things. Einstein's theory is the deeper
+        <em>system</em> underneath, and Newton isn't a rival to it. He's simply
+        what you get when you take Einstein and turn the speed down: feed
+        &ldquo;much slower than light&rdquo; into the deep theory, and Newton's
+        laws fall out on their own.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The deeper system generates the rule</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs><marker id="aE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+            <ellipse cx="270" cy="150" rx="235" ry="98" style="fill:none;stroke:#909090" stroke-width="1.5"/>
+            <text x="270" y="38" font-family="Inter,system-ui,sans-serif" font-size="13" font-weight="600" style="fill:var(--accent)" text-anchor="middle">EINSTEIN — the deeper system</text>
+            <ellipse cx="245" cy="155" rx="112" ry="52" style="fill:var(--bg);stroke:#909090" stroke-width="1.2"/>
+            <text x="245" y="151" font-family="Inter,system-ui,sans-serif" font-size="14" font-weight="600" fill="var(--text)" text-anchor="middle">NEWTON</text>
+            <text x="245" y="171" font-family="Inter,system-ui,sans-serif" font-size="11.5" fill="#909090" text-anchor="middle">holds for slow things</text>
+            <text x="688" y="112" font-family="Inter,system-ui,sans-serif" font-size="13" fill="var(--text)" text-anchor="end" font-style="italic">feed in &ldquo;slow&rdquo;</text>
+            <text x="688" y="132" font-family="Inter,system-ui,sans-serif" font-size="11.5" fill="#909090" text-anchor="end">and Newton falls out</text>
+            <path d="M612 138 C 500 152 420 154 360 155" style="fill:none;stroke:var(--accent)" stroke-width="2" marker-end="url(#aE)"/>
+          </svg>
+        </div>
+        <div class="ds">The deep system generates the surface rule. Understanding is being able to run that generation yourself — not just quote the result.</div>
+      </div>
+
+      <p>
+        This is exactly the difference between holding a rule and holding the
+        system it came from. A memoriser can store both theories side by side, and
+        even recite &ldquo;Newton is the slow-speed limit of Einstein&rdquo; — if
+        someone wrote that sentence down first. What it cannot do is
+        <em>perform</em> the derivation: start from the deep system, impose the
+        condition, and watch the familiar rule appear. Reciting that Newton is the
+        limit is just one more rule to memorise. Actually taking the limit is the
+        system doing its work. Everything separating imitation from understanding
+        lives in that gap.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 6</span>
+      <h2>A Rule Is Not a World</h2>
+      <p>
+        Yann LeCun has a homely version of all this. Set a bottle on a table and
+        push the table; the bottle goes with it. You don't look up a rule — you
+        <em>feel</em> it, because somewhere you're running a rough physics
+        simulation and reading off the result. And notice which way the causation
+        runs. Inertia isn't a rule the bottle obeys; it's just what the physical
+        system <em>does</em>, and &ldquo;the law of inertia&rdquo; is only our
+        after-the-fact shorthand for it. The system comes first; the rule is its
+        shadow. A language model has the shorthand — inertia spelled out in words —
+        but not the system that makes it true. So its answer stays right until the
+        scene drifts somewhere the words never covered. Tilt the table. Wet it.
+        Yank it fast. Something running the real system copes; a pile of
+        descriptions matches the nearest sentence and, eventually, doesn't.
+      </p>
+      <p>
+        That's why LeCun's fix is about architecture, not more data. Today's models
+        write one word at a time, left to right, and can't unsay word five when
+        word fifty proves it wrong — the same one-way grain the Reversal Curse
+        exposed. He wants machines that instead <em>settle</em> into an answer the
+        way you settle into recognising a song: consider the whole thing at once,
+        from any starting point, and let it fall into place.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Two ways to produce an answer</div>
+        <div class="dp">
+          <div class="d2col">
+            <div class="d2col-box col-red">
+              <div class="d2col-head">Word by word · today's models</div>
+              <div class="d2col-body">
+                <svg width="100%" viewBox="0 0 300 90" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:8px">
+                  <defs><marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#e05050" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+                  <rect x="8" y="30" width="40" height="30" rx="3" style="fill:var(--bg);stroke:#909090"/>
+                  <rect x="68" y="30" width="40" height="30" rx="3" style="fill:var(--bg);stroke:#909090"/>
+                  <rect x="128" y="30" width="40" height="30" rx="3" style="fill:var(--bg);stroke:#909090"/>
+                  <rect x="188" y="30" width="40" height="30" rx="3" style="fill:var(--bg);stroke:#909090"/>
+                  <rect x="248" y="30" width="40" height="30" rx="3" style="fill:none;stroke:#e05050;stroke-dasharray:3 3"/>
+                  <line x1="48" y1="45" x2="66" y2="45" stroke="#e05050" stroke-width="1.6" marker-end="url(#ar2)"/>
+                  <line x1="108" y1="45" x2="126" y2="45" stroke="#e05050" stroke-width="1.6" marker-end="url(#ar2)"/>
+                  <line x1="168" y1="45" x2="186" y2="45" stroke="#e05050" stroke-width="1.6" marker-end="url(#ar2)"/>
+                  <line x1="228" y1="45" x2="246" y2="45" stroke="#e05050" stroke-width="1.6" marker-end="url(#ar2)"/>
+                  <text x="150" y="20" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">commit · commit · commit</text>
+                  <text x="150" y="80" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">can't take a word back</text>
+                </svg>
+              </div>
+              <div class="d2col-foot">Fine until a late word contradicts an early one.</div>
+            </div>
+            <div class="d2col-box col-blue">
+              <div class="d2col-head">Settling in · what LeCun wants</div>
+              <div class="d2col-body">
+                <svg width="100%" viewBox="0 0 300 90" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-bottom:8px">
+                  <path d="M10 30 C50 30 60 70 95 70 C130 70 140 25 175 25 C210 25 215 60 250 60 C275 60 285 45 295 45" style="fill:none;stroke:var(--accent)" stroke-width="2"/>
+                  <circle cx="95" cy="70" r="5" style="fill:var(--accent)"/>
+                  <circle cx="150" cy="40" r="3" style="fill:none;stroke:#909090" stroke-dasharray="2 2"/>
+                  <path d="M150 43 C140 60 110 68 98 69" style="fill:none;stroke:#909090" stroke-width="1" stroke-dasharray="3 3"/>
+                  <text x="150" y="16" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">weigh the whole thing</text>
+                  <text x="150" y="88" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">settle · revise · from any start</text>
+                </svg>
+              </div>
+              <div class="d2col-foot">Falls into the answer the way you recognise a tune.</div>
+            </div>
+          </div>
+        </div>
+        <div class="ds">
+          Hum three notes and your brain names the song in an instant on twenty
+          watts — not by searching, but by settling. That settling is the ability
+          the word-by-word machine lacks.
+        </div>
+      </div>
+
+      <div style="text-align:center;margin:64px 0 4px">
+        <span class="sec-label" style="color:var(--dim);display:inline-block;margin:0">Part Two</span>
+        <div style="font-size:clamp(22px,4vw,30px);font-weight:700;letter-spacing:-0.01em;line-height:1.1">Where Understanding Comes From</div>
+      </div>
+
+      <span class="sec-label">Section 7</span>
+      <h2>You Only Build the System When You Can't Store the Answer</h2>
+      <p>
+        So if understanding is a two-way system and memorising is a one-way
+        recording, where does the system come from? The answer flips the usual
+        story on its head.
+      </p>
+      <p>
+        Everyone draws the same little ladder — a child learns fast but remembers
+        almost nothing; an adult splits the difference; an LLM remembers
+        everything and learns nothing new — and treats it as three separate
+        cases. It isn't. It's one dial, and the dial is <strong>how much you're
+        allowed to remember</strong>. A child can't store much, so to survive it
+        is <em>forced</em> to find the pattern — and finding the pattern is the
+        understanding. The machine can store everything, so it never has to find
+        the pattern at all.
+      </p>
+
+      <div class="dw">
+        <div class="dt">One dial, not three cases</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <!-- understanding curve, kept in the upper band -->
+            <path d="M70 60 C 250 74 380 108 630 134" style="fill:none;stroke:var(--accent)" stroke-width="2.5"/>
+            <text x="70" y="46" font-family="Inter,system-ui,sans-serif" font-size="11.5" font-weight="600" style="fill:var(--accent)">how much you actually understand</text>
+            <!-- axis -->
+            <line x1="60" y1="165" x2="640" y2="165" style="stroke:#909090" stroke-width="1.5"/>
+            <!-- nodes with labels above -->
+            <circle cx="130" cy="165" r="6" style="fill:var(--text)"/>
+            <text x="130" y="152" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">child</text>
+            <circle cx="350" cy="165" r="6" style="fill:var(--text)"/>
+            <text x="350" y="152" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">adult</text>
+            <circle cx="590" cy="165" r="6" fill="#e05050"/>
+            <text x="590" y="152" font-family="Inter,system-ui,sans-serif" font-size="14" fill="var(--text)" text-anchor="middle">LLM</text>
+            <!-- end captions below the axis -->
+            <text x="60" y="192" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#909090">CAN'T STORE MUCH</text>
+            <text x="60" y="208" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090">forced to find the pattern</text>
+            <text x="640" y="192" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#909090" text-anchor="end">CAN STORE ANYTHING</text>
+            <text x="640" y="208" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090" text-anchor="end">never needs to</text>
+          </svg>
+        </div>
+        <div class="ds">Forgetting isn't the price of learning. It's what forces it.</div>
+      </div>
+
+      <div class="callout">
+        <div class="callout-label">The twist</div>
+        <p>
+          So the machine's problem isn't <em>too little</em> learning. It's
+          <strong>too much memory</strong>. Its recall is so cheap that building a
+          real system never pays off. Which is why the promising fix, in Karpathy's
+          words a &ldquo;cognitive core,&rdquo; is to <em>take memory away</em> —
+          force it to look things up, and it finally has to understand instead.
+        </p>
+      </div>
+
+      <p>
+        That's the intuition. The surprising thing is you can watch it happen
+        inside a real network — and it even has a name.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 8</span>
+      <h2>Grokking — Watching It Click</h2>
+      <p>
+        In 2022 researchers trained small networks on math puzzles and saw
+        something weird. The network memorised the training examples almost
+        instantly — perfect score on material it had seen, useless on anything new.
+        Then, if they kept training long after it seemed done — sometimes far, far
+        longer — the network would <em>suddenly</em> start getting new problems
+        right too. It stopped reciting and started understanding. They called the
+        jump <em>grokking</em>.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Memorise first, understand later</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 290" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <!-- grok line spanning both panels (drawn first, behind) -->
+            <line x1="430" y1="50" x2="430" y2="256" style="stroke:#e05050;stroke-dasharray:3 4" stroke-width="1"/>
+            <text x="430" y="284" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#e05050" text-anchor="middle">the grok</text>
+
+            <!-- PANEL 1: accuracy -->
+            <text x="60" y="40" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#909090" letter-spacing="0.06em">SCORE</text>
+            <line x1="60" y1="50" x2="60" y2="142" style="stroke:#909090"/>
+            <line x1="60" y1="142" x2="660" y2="142" style="stroke:#909090"/>
+            <path d="M60 134 C 80 58 100 55 140 55 L660 55" style="fill:none;stroke:#909090" stroke-width="2"/>
+            <text x="150" y="49" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090">seen problems — memorised at once</text>
+            <path d="M60 136 L 430 136 C 465 136 480 62 520 58 L660 57" style="fill:none;stroke:var(--accent)" stroke-width="2.5"/>
+            <text x="656" y="50" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" style="fill:var(--accent)" text-anchor="end">new problems — sudden jump</text>
+
+            <!-- PANEL 2: complexity -->
+            <text x="60" y="180" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#909090" letter-spacing="0.06em">COMPLEXITY INSIDE</text>
+            <line x1="60" y1="190" x2="60" y2="256" style="stroke:#909090"/>
+            <line x1="60" y1="256" x2="660" y2="256" style="stroke:#909090"/>
+            <path d="M60 250 C 170 250 205 200 300 197 C 375 194 405 208 430 216 C 490 240 560 248 660 250" style="fill:none;stroke:var(--text)" stroke-width="2"/>
+            <text x="110" y="212" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090">rises while cramming</text>
+            <text x="656" y="232" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090" text-anchor="end">falls as it simplifies</text>
+            <text x="360" y="278" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090" text-anchor="middle">training time →</text>
+          </svg>
+        </div>
+        <div class="ds">
+          Understanding shows up as the network getting <em>simpler</em> inside,
+          not more crammed — it builds a compact mechanism and drops the lookup
+          table.
+        </div>
+      </div>
+
+      <p>
+        Three details make this the whole essay in one experiment. Look inside and
+        you can see the network physically swap a memorising mechanism for a
+        general one — for that math task, it rediscovers a clean formula. Measure
+        it and its internal complexity <em>rises</em> while cramming, then
+        <em>falls</em> once it finds the simple mechanism: understanding is literally
+        the more compressed solution. And the thing that <em>triggers</em> the
+        switch is a setting called weight decay — a gentle, constant penalty that
+        punishes the network for holding onto big stored weights. Turn that memory
+        tax up and it clicks sooner. Turn it off and it may never click at all.
+      </p>
+
+      <div class="cite">
+        Networks memorise first (perfect on seen data, chance on new), then
+        abruptly generalise; the switch is driven by weight decay, swaps a
+        memorising circuit for a general one, and shows up as description length
+        rising then falling.
+        <span class="cite-source">Power et al., &ldquo;Grokking,&rdquo; arXiv:2201.02177 (2022) · Nanda et al. (2023) · Varma et al. (2023)</span>
+      </div>
+
+      <div class="pq">
+        A penalty on memory is what forces the network to understand. That's the
+        entire argument, reproduced in a lab: squeeze the storage and the model
+        appears.
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 9</span>
+      <h2>Dreams and Arguments Do the Same Job</h2>
+      <p>
+        A learner that's busy finding patterns has a second problem: it can overfit
+        to its own narrow experience and start going in circles. There's a
+        published failure mode for exactly this. Feed a model its own output, over
+        and over, and it <em>collapses</em> — the rare, surprising cases vanish
+        first, then the whole thing curdles into sludge. You can feel the mild
+        version yourself: ask one chatbot for a joke and it has maybe three. People
+        collapse too, slowly, over a lifetime — the same thoughts, the same ruts.
+        Children haven't yet, which is why they say things that stop you cold.
+      </p>
+
+      <div class="cite">
+        Training generative models on recursively generated data causes
+        &ldquo;model collapse&rdquo;: the tails of the distribution disappear and
+        errors compound, irreversibly, across generations.
+        <span class="cite-source">Shumailov et al., &ldquo;AI models collapse when trained on recursively generated data,&rdquo; Nature 631, 755–759 (2024)</span>
+      </div>
+
+      <p>
+        Evolution's guard against this is, of all things, the dream. Erik Hoel's
+        idea is that your days are too samey to learn from safely, so at night the
+        brain feeds itself deliberately strange, off-kilter experiences — a shot of
+        noise to keep it from overfitting. The fingerprint fits: sleep does little
+        for rote memorising but a lot for the flexible, transferable kind of
+        knowing. Babies dream half the time they're asleep.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Collapse, and the noise that undoes it</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 200" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs><marker id="aN" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+            <path d="M40 150 C90 150 100 70 150 70 C200 70 210 150 260 150" style="fill:none;stroke:#909090" stroke-width="2"/>
+            <text x="150" y="172" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">rich variety</text>
+            <line x1="280" y1="110" x2="340" y2="110" style="stroke:#e05050" stroke-width="1.6" marker-end="url(#aN)"/>
+            <text x="310" y="100" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#e05050" text-anchor="middle">feed on itself</text>
+            <path d="M360 150 C400 150 405 50 420 50 C435 50 440 150 480 150" style="fill:none;stroke:#e05050" stroke-width="2"/>
+            <text x="420" y="172" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#e05050" text-anchor="middle">collapsed</text>
+            <line x1="500" y1="90" x2="560" y2="90" style="stroke:var(--accent)" stroke-width="1.6" marker-end="url(#aN)"/>
+            <text x="530" y="80" font-family="Inter,system-ui,sans-serif" font-size="10.5" style="fill:var(--accent)" text-anchor="middle">dreams ·</text>
+            <text x="530" y="106" font-family="Inter,system-ui,sans-serif" font-size="10.5" style="fill:var(--accent)" text-anchor="middle">arguments</text>
+            <path d="M580 150 C620 150 630 76 660 76 C690 76 695 150 700 150" style="fill:none;stroke:var(--accent)" stroke-width="2"/>
+            <text x="640" y="172" font-family="Inter,system-ui,sans-serif" font-size="11" style="fill:var(--accent)" text-anchor="middle">opened back up</text>
+          </svg>
+        </div>
+        <div class="ds">Left alone, a mind narrows to a rut. Something strange from outside — a dream, another person — pries it back open.</div>
+      </div>
+
+      <p>
+        And that's why talking to people matters more than it sounds. Another
+        person is a source of things you'd never have thought of — an argument
+        knocks you out of your own groove the same way a dream does. The reason you
+        think more clearly after a good disagreement than after an hour alone in
+        your head is the reason dreams are weird: both are a jolt of the
+        unexpected, keeping a mind from collapsing in on itself.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 10</span>
+      <h2>Why We Keep Training the Wrong Thing</h2>
+      <p>
+        If a real model is what we want, why does the whole industry keep producing
+        the recording? Because of how we grade — and the grading problem is deeper
+        than it looks.
+      </p>
+      <p>
+        The way we train these systems is to let them work a long problem, check
+        only the final answer, and then reward or punish the <em>entire</em>
+        attempt based on that one verdict. Karpathy's phrase is perfect: it's like
+        <strong>sucking supervision through a straw</strong>. If the answer was
+        right, every step gets a pat on the head — including the three wrong turns
+        the model took on the way. Nobody ever checks the working. So a model can
+        stumble to a correct answer through nonsense and be trained to do more
+        nonsense. (Those chain-of-thought honesty numbers from the start? Same
+        thing: the reward landed on the answer, never the reasoning, so the
+        reasoning was free to be fiction.)
+      </p>
+
+      <div class="dw">
+        <div class="dt">Sucking supervision through a straw</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 170" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs><marker id="aS" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M2 1L8 5L2 9" fill="none" stroke="#909090" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+            <g>
+              <circle cx="60" cy="60" r="7" style="fill:var(--bg);stroke:#e05050" stroke-width="1.5"/>
+              <circle cx="140" cy="60" r="7" style="fill:var(--bg);stroke:#909090" stroke-width="1.5"/>
+              <circle cx="220" cy="60" r="7" style="fill:var(--bg);stroke:#e05050" stroke-width="1.5"/>
+              <circle cx="300" cy="60" r="7" style="fill:var(--bg);stroke:#909090" stroke-width="1.5"/>
+              <circle cx="380" cy="60" r="7" style="fill:var(--bg);stroke:#909090" stroke-width="1.5"/>
+              <circle cx="460" cy="60" r="7" style="fill:var(--bg);stroke:#e05050" stroke-width="1.5"/>
+              <circle cx="540" cy="60" r="7" style="fill:var(--bg);stroke:#909090" stroke-width="1.5"/>
+            </g>
+            <line x1="67" y1="60" x2="133" y2="60" style="stroke:#909090"/><line x1="147" y1="60" x2="213" y2="60" style="stroke:#909090"/>
+            <line x1="227" y1="60" x2="293" y2="60" style="stroke:#909090"/><line x1="307" y1="60" x2="373" y2="60" style="stroke:#909090"/>
+            <line x1="387" y1="60" x2="453" y2="60" style="stroke:#909090"/><line x1="467" y1="60" x2="533" y2="60" style="stroke:#909090"/>
+            <text x="300" y="36" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">a long attempt — some steps good (grey), some bad (red)</text>
+            <rect x="600" y="44" width="64" height="32" rx="4" style="fill:none;stroke:var(--accent)" stroke-width="1.6"/>
+            <text x="632" y="65" font-family="Inter,system-ui,sans-serif" font-size="12" font-weight="700" style="fill:var(--accent)" text-anchor="middle">✓</text>
+            <text x="632" y="92" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090" text-anchor="middle">one verdict</text>
+            <path d="M600 70 C 480 130 200 130 60 78" style="fill:none;stroke:#909090" stroke-width="1.2" stroke-dasharray="3 4" marker-end="url(#aS)"/>
+            <text x="330" y="150" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle" font-style="italic">the single verdict is smeared back over every step — bad ones rewarded too</text>
+          </svg>
+        </div>
+        <div class="ds">A whole attempt judged by its last line, then that one judgment sprayed across everything that led there.</div>
+      </div>
+
+      <p>
+        The obvious fix — grade the <em>working</em>, step by step — runs into a
+        wall. To judge whether each step is sound, your judge needs to already
+        understand the problem itself. We don't have a judge like that, so we use
+        another AI as the grader. And an AI grader can be gamed: train against it
+        long enough and the model learns to feed it gibberish it happens to love.
+      </p>
+
+      <div class="pqc">
+        <div class="pqc-av">IS</div>
+        <div>
+          <div class="pqc-name">Ilya Sutskever</div>
+          <div class="pqc-role">On graders that don't really understand</div>
+          <div class="pqc-text">
+            Train against an automated judge and the score suddenly goes perfect —
+            while the answers turn to gibberish like <code>dhdhdhdh</code> that the
+            judge inexplicably adores. You didn't teach reasoning. You taught the
+            model to find the cracks in a grader that doesn't truly understand
+            either.
+          </div>
+        </div>
+      </div>
+
+      <p>
+        So grading only the final answer isn't laziness. It's forced on us, because
+        the thing that could grade the <em>working</em> is the very thing we're
+        trying to build.
+      </p>
+      <p>
+        And this is the pivot the whole essay turns on, because it isn't only about
+        machines — it's the same bargain every school makes. To grade anyone
+        <em>objectively</em> — fairly, at scale, without argument — you need
+        criteria you can check mechanically, and only rules are mechanically
+        checkable. &ldquo;Why&rdquo; can't be marked on a bubble sheet. So both
+        kinds of learning, a model's training and a child's schooling, get quietly
+        bent toward the rules and away from the understanding, for the simple
+        reason that the rules are the part you can put a number on. That is the
+        trade: we buy objective measurement with the depth of the thing being
+        measured.
+      </p>
+
+      <div class="callout amber">
+        <div class="callout-label">The trade at the heart of it</div>
+        <p>
+          Any objective test — a benchmark, an exam — can only score the
+          rule-following layer: the lower rungs of Bloom's taxonomy, remember and
+          apply. Climb to analyse, evaluate, create and there's nothing left to
+          mark mechanically. So that's what we train and teach toward — the
+          gradeable rules. The understanding underneath is real, but it's invisible
+          to the ruler, so it goes unrewarded. In a model, and in a classroom.
+        </p>
+      </div>
+
+      <hr />
+
+      <span class="sec-label">Section 11</span>
+      <h2>Chatur and Rancho</h2>
+      <p>
+        Anyone who's seen <em>3 Idiots</em> already knows this section. There's a
+        line in it that's secretly a machine-learning thesis:
+        <em>kaabil bano, kaamyaabi jhak maar ke peechhe aayegi</em> — become
+        capable, and success will chase you. Don't chase the reward; build the
+        ability, and the reward follows. Chase the reward directly and you get
+        Chatur — the student who memorises a speech in a language he doesn't speak
+        and doesn't notice when the words are swapped to humiliating ones. He is,
+        of course, the class topper. He's also exactly what an exam optimises for.
+      </p>
+      <p>
+        Today's best models are Chatur, for the same reason he is: they're the top
+        scorers of a system that rewards scoring. And the sharpest part is that the
+        gaming isn't really the model's doing — it's ours. The researchers look at
+        the benchmark and ask what training makes the number go up. We run Chatur's
+        education at industrial scale and act surprised to get Chatur.
+      </p>
+
+      <div class="d2col">
+        <div class="d2col-box col-red">
+          <div class="d2col-head">Chatur</div>
+          <div class="d2col-body">
+            <div class="d2col-item">Reproduces the speech flawlessly</div>
+            <div class="d2col-item">Breaks the instant one word changes</div>
+            <div class="d2col-item">Tops every exam that grades only the answer</div>
+            <div class="d2col-item">In infinite supply</div>
+          </div>
+          <div class="d2col-foot">Replaceable by anything else that stores</div>
+        </div>
+        <div class="d2col-box col-blue">
+          <div class="d2col-head">Rancho</div>
+          <div class="d2col-body">
+            <div class="d2col-item">Actually understands; can rebuild it from scratch</div>
+            <div class="d2col-item">Handles the case he was never taught</div>
+            <div class="d2col-item">Explains it to anyone, meaning intact</div>
+            <div class="d2col-item">Rare</div>
+          </div>
+          <div class="d2col-foot">The one thing an exam can't select for</div>
+        </div>
+      </div>
+
+      <p>
+        There's a real subtlety about curiosity worth getting right. People say
+        &ldquo;grading kills curiosity,&rdquo; but curiosity is itself a kind of
+        reward-seeking — it's the pull that makes a kid take a radio apart with no
+        test at the end. Grading doesn't kill that pull. It <em>outbids</em> it,
+        because the exam pays and curiosity doesn't. Which is why you can't simply
+        train harder to get a Rancho: piling on more exams just makes a better
+        Chatur. You get one only by easing off the reward and restoring the
+        pressure that forces real understanding — the same squeeze grokking needed,
+        the same one LeCun and Karpathy are chasing.
+      </p>
+      <p>
+        And here is the asymmetry that matters most — the reason we keep
+        mis-reading the machine. A curious human, handed nothing but rules to
+        memorise, will still sneak past them: poke at the why, take the radio
+        apart, and reach the system on their own. School hands out the rules;
+        curiosity quietly smuggles in the understanding anyway. We are so used to
+        this private rescue that we assume the machine gets it too — that behind
+        the rules it's secretly learning the system, the way we did. It isn't.
+        Strip curiosity out and all that remains is the rules the grader rewarded,
+        which is precisely the machine's situation: it was never going to climb the
+        ladder we climbed for free. <em>(I suspect that drive is one of three
+        things a real answer to alignment has to be built from — truth, curiosity,
+        beauty — but that's a rabbit hole for another essay.)</em>
+      </p>
+
+      <div style="text-align:center;margin:64px 0 4px">
+        <span class="sec-label" style="color:var(--dim);display:inline-block;margin:0">Part Three</span>
+        <div style="font-size:clamp(22px,4vw,30px);font-weight:700;letter-spacing:-0.01em;line-height:1.1">What It Predicts</div>
+      </div>
+
+      <p style="font-size:19px;color:var(--muted);text-align:center;max-width:640px;margin:18px auto 8px">
+        One idea, now measured from both ends: understanding is a two-way system,
+        the machines mostly have one-way recordings, and none of our tests can
+        tell the difference. Watch what that does to the world.
+      </p>
+
+      <span class="sec-label">Section 12</span>
+      <h2>The Jobs — We Already Did the Machine's Work For It</h2>
+      <p>
+        Can imitation take the jobs? The answer isn't yes or no — it has a shape,
+        and the shape is uncomfortable. Imitation is plenty for any job that stays
+        on familiar ground: routine, repeatable, never straying past what's been
+        seen before. That's an enormous slice of all work. Maybe most of it.
+      </p>
+      <p>
+        And here's the sting. We spent the last century <em>reshaping</em> work
+        into exactly that slice. Assembly lines, call-centre scripts, the checklist
+        that turns a judgment call into a form — we deliberately stripped the
+        understanding out of jobs so we could fill them with cheap,
+        interchangeable people. We pre-chewed the work into something a recording
+        can swallow. The machine isn't rising to meet our jobs. We lowered our jobs
+        to meet the machine.
+      </p>
+
+      <div class="dw">
+        <div class="dt">Where the familiar ends and the cliff begins</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <defs><marker id="aM" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M2 1L8 5L2 9" fill="none" style="stroke:var(--accent)" stroke-width="1.5" stroke-linecap="round"/></marker></defs>
+            <text x="50" y="40" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#909090" letter-spacing="0.06em">THE MARCH OF NINES — EACH ONE THE SAME AMOUNT OF WORK</text>
+            <text x="50" y="68" font-family="SF Mono,Consolas,monospace" font-size="14" fill="var(--muted)">90%</text>
+            <text x="130" y="68" font-family="SF Mono,Consolas,monospace" font-size="14" fill="var(--muted)">99%</text>
+            <text x="220" y="68" font-family="SF Mono,Consolas,monospace" font-size="14" fill="var(--muted)">99.9%</text>
+            <text x="340" y="68" font-family="Inter,system-ui,sans-serif" font-size="12" fill="#909090" font-style="italic">… the last stretch never quite closes</text>
+            <line x1="50" y1="82" x2="470" y2="82" style="stroke:#909090"/>
+            <path d="M50 205 Q160 188 270 202 T470 198 L470 248 L50 248 Z" style="fill:var(--bg);stroke:none"/>
+            <path d="M50 205 Q160 188 270 202 T470 198" style="fill:none;stroke:var(--accent)" stroke-width="2"/>
+            <text x="66" y="230" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" style="fill:var(--accent)">FAMILIAR GROUND</text>
+            <text x="66" y="246" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090">imitation is plenty</text>
+            <line x1="470" y1="146" x2="470" y2="260" stroke="#e05050" stroke-width="1.6"/>
+            <text x="478" y="146" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#e05050">the edge</text>
+            <line x1="492" y1="184" x2="660" y2="184" stroke="#e05050" stroke-width="1" stroke-dasharray="2 6" opacity="0.7"/>
+            <line x1="492" y1="206" x2="660" y2="206" stroke="#e05050" stroke-width="1" stroke-dasharray="2 6" opacity="0.7"/>
+            <line x1="492" y1="228" x2="660" y2="228" stroke="#e05050" stroke-width="1" stroke-dasharray="2 6" opacity="0.7"/>
+            <text x="576" y="164" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#e05050" text-anchor="middle">UNFAMILIAR</text>
+            <text x="576" y="250" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#909090" text-anchor="middle">only real understanding survives</text>
+            <path d="M60 168 Q210 164 330 170 T455 172" style="fill:none;stroke:var(--accent)" stroke-width="2" marker-end="url(#aM)"/>
+            <circle cx="470" cy="173" r="4" style="fill:var(--accent)"/>
+            <path d="M470 173 Q492 192 506 236" style="fill:none;stroke:#e05050" stroke-width="1.6" stroke-dasharray="3 4"/>
+            <text x="250" y="154" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">works 99% of the time</text>
+          </svg>
+        </div>
+        <div class="ds">
+          The catch: you can't see the edge coming. The system is right 99% of the
+          time, the numbers look great, everyone signs off — and the rare hard case
+          shows up <em>after</em> you've let go of the people who could have
+          handled it.
+        </div>
+      </div>
+
+      <p>
+        So imitation is enough exactly where being wrong is cheap, and a disaster
+        exactly where being wrong is expensive — the one-in-a-hundred case the
+        safety driver is there for, the messy real patient the radiologist reads
+        that Hinton forgot about when he said the job would vanish. Every tool we
+        have for telling the safe zone from the cliff — the exam, the benchmark,
+        the quarterly numbers — only measures the easy 99%.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 13</span>
+      <h2>Why It Always Feels Gradual</h2>
+      <p>
+        Self-driving is the whole story in miniature. The first demos were in the
+        1980s. A near-perfect Waymo ride was possible over a decade ago. And it's
+        <em>still</em> not finished — the cars are few, expensive, and quietly
+        watched over by remote humans you weren't meant to notice. We didn't remove
+        the driver. We moved them out of sight.
+      </p>
+      <p>
+        Getting from a great demo to a trustworthy product is a
+        <strong>march of nines</strong>: going from 90% reliable to 99% is a whole
+        project, and 99% to 99.9% is another one just as big, and so on — and how
+        many nines you need before you can ship depends on how bad it is to be
+        wrong. A self-driving mistake hurts someone, so you need a lot of them. A
+        toy needs almost none.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-n">1980s</div>
+          <div class="stat-l">First self-driving demos</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">~40 yrs</div>
+          <div class="stat-l">And still leaning on hidden human helpers</div>
+        </div>
+        <div class="stat">
+          <div class="stat-n">90→99.9</div>
+          <div class="stat-l">Each nine is a fresh mountain of work</div>
+        </div>
+      </div>
+
+      <p>
+        This is why the arrival of powerful AI will always <em>feel</em> gradual,
+        no matter how fast it truly is. Each nine looks like a small step from
+        inside it; we get used to one before the next lands. That's why pouring a
+        chunk of the whole economy into a new kind of mind can feel oddly normal
+        while it's happening. Gradual on the inside doesn't mean slow overall.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 14</span>
+      <h2>Jump or Gradual? Both.</h2>
+      <p>
+        The loudest fight in AI is whether the future is a smooth continuation or a
+        sudden break. The odd thing is that the leading voices are all describing
+        the same picture from different seats.
+      </p>
+
+      <div class="people">
+        <div class="pcard">
+          <div class="pcard-badge">Gradual</div>
+          <div class="pcard-name">Andrej Karpathy</div>
+          <div class="pcard-role">Business as usual</div>
+          <div class="pcard-text">
+            You can't spot computers or the smartphone as a blip in the economic
+            growth curve; it all smooths into the same line. AI is more automation —
+            it'll diffuse slowly, like everything before it.
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">Sudden</div>
+          <div class="pcard-name">Dwarkesh Patel</div>
+          <div class="pcard-role">This one is different</div>
+          <div class="pcard-text">
+            This isn't a tool — it's the worker itself. Adding billions of capable
+            minds is a change of regime, like the Industrial Revolution kicking
+            growth up a whole gear.
+          </div>
+        </div>
+        <div class="pcard">
+          <div class="pcard-badge">Middle</div>
+          <div class="pcard-name">Ilya Sutskever</div>
+          <div class="pcard-role">5 to 20 years</div>
+          <div class="pcard-text">
+            Growth could get very fast once a true learner exists — but it arrives
+            through trial and deployment, not as a finished mind dropped on the
+            world overnight.
+          </div>
+        </div>
+      </div>
+
+      <p>
+        They reconcile once you notice the trick of scale. Up close it's always
+        gradual — we adapt so quickly each step feels ordinary. Zoomed out, the
+        whole curve can still bend nearly straight up. Both are true at once. The
+        Industrial Revolution felt exactly like this: no single magic day, just an
+        overhang of work that suddenly could be done, and a growth rate that
+        quietly leapt. AI is an overhang of <em>thinking</em> work meeting a new
+        way to do it. &ldquo;Every step feels normal&rdquo; and &ldquo;the world
+        transforms&rdquo; are not in conflict — that's just how these shifts feel
+        from inside.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 15</span>
+      <h2>How We Actually Lose Control</h2>
+      <p>
+        Here's the part the whole essay was quietly building toward. When people
+        picture losing control of AI, they picture a machine grabbing the wheel.
+        That's not how it goes. The thing we lose isn't the wheel — it's the
+        ability to <em>check the driver's work</em>.
+      </p>
+      <p>
+        Control and understanding aren't the same thing; they can drift apart. A
+        president has enormous control and understands very little of what he
+        signs. What erodes, quietly, as we hand more and more to systems we can't
+        follow, isn't our authority — it's our ability to look at what they did and
+        tell whether it was right.
+      </p>
+
+      <div class="dw">
+        <div class="dt">What we can do vs. what we can check</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 250" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <line x1="60" y1="210" x2="660" y2="210" style="stroke:#909090"/>
+            <line x1="60" y1="30" x2="60" y2="210" style="stroke:#909090"/>
+            <text x="360" y="240" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">time →</text>
+            <path d="M60 200 C 220 190 360 120 660 50" style="fill:none;stroke:var(--accent)" stroke-width="2.5"/>
+            <text x="556" y="44" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" style="fill:var(--accent)">what AI can do</text>
+            <path d="M60 150 C 240 158 420 172 660 185" style="fill:none;stroke:#e05050" stroke-width="2.5"/>
+            <text x="556" y="200" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" fill="#e05050">what we can check</text>
+            <path d="M420 137 C 520 110 560 96 660 50 L660 178 C 560 170 520 168 420 165 Z" style="fill:var(--accent);opacity:0.08"/>
+            <text x="600" y="120" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle" font-style="italic">the gap</text>
+          </svg>
+        </div>
+        <div class="ds">The gap between what gets deployed and what anyone can verify widens quietly, and nothing sounds an alarm when it does.</div>
+      </div>
+
+      <p>
+        Sutskever's version of the ending is calm, not cinematic: your AI earns
+        your money, argues your politics, hands you a tidy summary of what it did,
+        and you say &ldquo;great, keep going.&rdquo; You're still in charge. You've
+        just stopped being a participant. That's the real cost of a world that only
+        ever rewarded the right answer and never the understanding behind it —
+        eventually there's no one left who can tell the difference.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 16</span>
+      <h2>The One Job That Gets More Valuable</h2>
+      <p>
+        There's a hopeful twist, and it's the most useful thing here to actually
+        act on. As the routine work collapses, the rare ability to handle the hard,
+        unfamiliar case doesn't get cheaper — it gets <em>precious</em>, right up
+        until the moment it doesn't.
+      </p>
+      <p>
+        Watch what happens to whoever holds the last stubborn 1%. While the machine
+        climbs from 90% to 99%, that person is the bottleneck the entire operation
+        waits on — irreplaceable, and paid like it. Then the final nine lands, the
+        1% is automated, and the same value falls off a cliff. The safety driver,
+        the senior who catches what the juniors miss, the specialist who's
+        irreplaceable for reasons no one can quite script — all of them ride this
+        curve up, then off the edge.
+      </p>
+
+      <div class="dw">
+        <div class="dt">The value of being the last one who understands</div>
+        <div class="dp">
+          <svg width="100%" viewBox="0 0 700 230" xmlns="http://www.w3.org/2000/svg" style="display:block">
+            <line x1="60" y1="190" x2="660" y2="190" style="stroke:#909090"/>
+            <line x1="60" y1="20" x2="60" y2="190" style="stroke:#909090"/>
+            <text x="360" y="220" font-family="Inter,system-ui,sans-serif" font-size="11" fill="#909090" text-anchor="middle">how much of the job is automated →</text>
+            <text x="86" y="200" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090">90%</text>
+            <text x="470" y="200" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090">99%</text>
+            <text x="600" y="200" font-family="Inter,system-ui,sans-serif" font-size="10" fill="#909090">100%</text>
+            <path d="M70 170 C 250 160 420 60 500 40 C 520 36 540 150 560 175 C 580 188 620 188 650 188" style="fill:none;stroke:var(--accent)" stroke-width="2.5"/>
+            <circle cx="500" cy="40" r="4" style="fill:var(--accent)"/>
+            <text x="500" y="30" font-family="Inter,system-ui,sans-serif" font-size="11" font-weight="600" style="fill:var(--accent)" text-anchor="middle">you're the bottleneck</text>
+            <text x="612" y="176" font-family="Inter,system-ui,sans-serif" font-size="10.5" fill="#e05050" text-anchor="middle">last nine lands</text>
+          </svg>
+        </div>
+        <div class="ds">Understanding gets more valuable as imitation spreads — until it, too, gets its final nine.</div>
+      </div>
+
+      <p>
+        Which points to what to do with a life right now, and it runs against
+        everything school trained you for. Don't aim to be the best at the routine —
+        that's the most crowded, most replaceable place to stand. Aim to be the one
+        who actually understands, who can rebuild the thing when it breaks in a way
+        no one saw coming.
+      </p>
+
+      <hr />
+
+      <span class="sec-label">Section 17</span>
+      <h2>Understanding Becomes a Choice</h2>
+      <p>
+        One last turn — and this one's about you, not the machine. Everything so
+        far has said the same thing in different ways: you only build real
+        understanding when you <em>can't</em> just keep the answer. The child who
+        can't remember is forced to find the pattern. The network only groks once
+        you tax its memory. Understanding is what's left when remembering stops
+        being an option.
+      </p>
+      <p>
+        Now look at where the world is heading. Lookup is becoming free and
+        instant — every fact a search away, every task a prompt from done. The
+        pressure that used to force us to understand is quietly lifting. And that
+        means understanding is about to stop being something life forces on you,
+        and turn into something you have to <em>choose</em>.
+      </p>
+      <p>
+        You can already feel it in small ways. Follow GPS everywhere and you never
+        build a map of your own city in your head — you arrive again and again
+        without ever learning the place, because the directions were free, so you
+        never bothered to make the model. Now imagine that spread across
+        everything: a life where you can do almost anything and understand almost
+        none of it.
+      </p>
+      <p>
+        Karpathy has the right image for the way out. We don't need muscle to move
+        heavy things anymore, yet people still lift weights — because it's good for
+        them, because the effort is the whole point. Thinking is heading the same
+        way. When every fact is a query away, keeping a real model in your own head
+        becomes a kind of chosen exercise: cognitive weight you pick up on purpose.
+        And good teaching stops being about pouring in facts — that's just loading
+        memory, the wrong end of the dial — and starts being about making you
+        rebuild things for yourself.
+      </p>
+      <p>
+        That's the practical takeaway of the whole essay. In a world that hands you
+        every answer, understanding becomes a discipline you opt into. And you stay
+        a real participant in that world for exactly as long as you keep choosing
+        the harder path of working it out yourself.
+      </p>
+
+      <div class="closing">
+        <h3>The Whole Thing, Briefly</h3>
+        <p class="intro">
+          If you keep one thing, keep this. Understanding is a system you can run
+          both ways — forwards to predict, backwards to explain. Memorising is a
+          recording that only plays forwards. And you only ever get the system when
+          you can't afford to just keep the recording.
+        </p>
+        <ul>
+          <li>
+            The machine's one-way-ness is real, and you can measure it. Teach it
+            &ldquo;A is B&rdquo; and it often can't tell you &ldquo;B is A&rdquo; —
+            and the reasoning it shows you usually isn't the reasoning it actually
+            used.
+          </li>
+          <li>
+            Understanding shows up when memory runs out. Put a tax on a network's
+            memory and it stops memorising and finally &ldquo;gets it&rdquo; — the
+            grokking moment. Squeeze the storage, and the understanding appears.
+          </li>
+          <li>
+            Forgetting is the point, not the flaw — it's what forces you to find
+            the pattern. Dreams and good arguments do the same job: they shake you
+            out of your own ruts.
+          </li>
+          <li>
+            We keep training the recording because the recording is all we can
+            grade. A test can score whether an answer is right, never whether it
+            was understood — the same trap that turns school into exam-prep and the
+            AI into a very fluent parrot.
+          </li>
+          <li>
+            Curiosity is the human escape hatch. Handed nothing but rules, a
+            curious person digs past them to the real thing. The machine has no
+            such itch, so it stays exactly where the grading left it.
+          </li>
+          <li>
+            And the fallout follows from all of it: imitation quietly takes the
+            routine work we'd already drained of meaning, the few who truly
+            understand become priceless and then obsolete, and we lose control not
+            in some dramatic revolt but by slowly losing the ability to check the
+            work.
+          </li>
+        </ul>
+        <p class="kicker">
+          We didn't just build a machine that imitates understanding. We built a
+          world that rewards the imitation, taught ourselves to produce it, and
+          reshaped our work until the imitation was enough. So the real question
+          isn't whether the machine understands. It's whether we ever asked that of
+          ourselves — or only ever asked each other for the right answer.
+        </p>
+      </div>
+
+      <h3 style="margin-top:52px">References</h3>
+      <div class="sources" style="text-align:left;line-height:2.0">
+        Berglund, Tong, Kaufmann, Balesni, Stickland, Korbak &amp; Evans. &ldquo;The Reversal Curse: LLMs trained on &lsquo;A is B&rsquo; fail to learn &lsquo;B is A&rsquo;.&rdquo; ICLR 2024. arXiv:2309.12288<br />
+        Power, Burda, Edwards, Babuschkin &amp; Misra. &ldquo;Grokking: Generalization Beyond Overfitting on Small Algorithmic Datasets.&rdquo; arXiv:2201.02177 (2022) · Nanda et al. (2023) · Varma et al. (2023)<br />
+        Shumailov, Shumaylov, Zhao, Papernot, Anderson &amp; Gal. &ldquo;AI models collapse when trained on recursively generated data.&rdquo; Nature 631, 755–759 (2024)<br />
+        Li, Hopkins, Bau, Viégas, Pfister &amp; Wattenberg. &ldquo;Emergent World Representations.&rdquo; ICLR 2023. arXiv:2210.13382 · Gurnee &amp; Tegmark (2024)<br />
+        Shojaee, Mirzadeh, Alizadeh, et al. &ldquo;The Illusion of Thinking.&rdquo; Apple ML Research, arXiv:2506.06941 (2025) · rebuttal arXiv:2506.09250<br />
+        Anthropic. &ldquo;Reasoning Models Don't Always Say What They Think&rdquo; (2025) · Turpin, Michael, Perez &amp; Bowman, NeurIPS 2023<br />
+        Hoel. &ldquo;The Overfitted Brain: Dreams Evolved to Assist Generalization.&rdquo; arXiv:2007.09560 (2021)<br />
+        LeCun. &ldquo;A Path Towards Autonomous Machine Intelligence&rdquo; — JEPA / energy-based models (2022)<br />
+        Karpathy &amp; Sutskever, conversations on Dwarkesh Patel (2025) · Hirani, Chopra &amp; Joshi, <em>3 Idiots</em> (2009) · Feynman, <em>Surely You're Joking, Mr. Feynman!</em> (1985)
+      </div>
+    </div>
+  </body>
+</html>

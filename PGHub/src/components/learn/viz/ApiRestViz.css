@@ -1,0 +1,136 @@
+.arv { display: flex; flex-direction: column; gap: 0.7rem; font-family: var(--mono); }
+
+.arv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.arv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.arv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.arv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.arv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.arv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.arv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* verb selector */
+.arv-verbs { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.arv-verb {
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 700; letter-spacing: 0.03em;
+  padding: 0.35rem 0.75rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.arv-verb:hover { color: var(--text-main); }
+.arv-verb.is-get.is-on { border-color: var(--hue-sky); color: var(--hue-sky); background: color-mix(in srgb, var(--hue-sky) 12%, var(--surface)); }
+.arv-verb.is-post.is-on { border-color: var(--hue-mint); color: var(--hue-mint); background: color-mix(in srgb, var(--hue-mint) 12%, var(--surface)); }
+.arv-verb.is-put.is-on { border-color: var(--hue-violet); color: var(--hue-violet); background: color-mix(in srgb, var(--hue-violet) 12%, var(--surface)); }
+.arv-verb.is-patch.is-on { border-color: var(--warning); color: var(--warning); background: color-mix(in srgb, var(--warning) 12%, var(--surface)); }
+.arv-verb.is-delete.is-on { border-color: var(--hue-pink); color: var(--hue-pink); background: color-mix(in srgb, var(--hue-pink) 12%, var(--surface)); }
+
+.arv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.arv-svg { width: 100%; height: auto; max-height: 40vh; display: block; }
+
+/* the accent hue tracks the selected verb, used for live message + packet */
+.arv.is-get { --arv-hue: var(--hue-sky); }
+.arv.is-post { --arv-hue: var(--hue-mint); }
+.arv.is-put { --arv-hue: var(--hue-violet); }
+.arv.is-patch { --arv-hue: var(--warning); }
+.arv.is-delete { --arv-hue: var(--hue-pink); }
+
+/* lifelines + lanes */
+.arv-lifeline { stroke: var(--border); stroke-width: 2; stroke-dasharray: 4 4; }
+.arv-lane-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; }
+.arv-lane-box.is-server { fill: color-mix(in srgb, var(--accent) 8%, var(--bg)); }
+.arv-lane-head.is-busy .arv-lane-box.is-server { stroke: var(--accent); stroke-width: 2.4; }
+.arv-lane-name { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+
+/* messages */
+.arv-msg-line { stroke: var(--border); stroke-width: 2; transition: stroke var(--t); }
+.arv-arrow-head { fill: var(--border); }
+.arv-arrow-head.is-back { fill: var(--border); }
+.arv-msg-label { font-size: 0.68rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); transition: fill var(--t); }
+.arv-msg-label.is-back { fill: var(--text-dim); }
+
+.arv-msg.is-past .arv-msg-line { stroke: color-mix(in srgb, var(--arv-hue) 45%, var(--border)); }
+.arv-msg.is-req.is-live .arv-msg-line { stroke: var(--arv-hue); }
+.arv-msg.is-req.is-live .arv-msg-label { fill: var(--arv-hue); }
+.arv-msg.is-resp.is-live .arv-msg-line.is-back { stroke: var(--accent); }
+.arv-msg.is-resp.is-live .arv-msg-label.is-back { fill: var(--accent); }
+
+.arv-packet { fill: var(--arv-hue); stroke: var(--bg); stroke-width: 2; }
+.arv-packet.is-back { fill: var(--accent); }
+
+/* server activation bar on its lifeline */
+.arv-activation { fill: color-mix(in srgb, var(--accent) 18%, var(--bg)); stroke: var(--border); stroke-width: 1; opacity: 0; transition: opacity var(--t); }
+.arv-activation.is-on { opacity: 1; stroke: var(--accent); }
+
+/* lower: table + readouts side by side */
+.arv-lower { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+.arv-table {
+  flex: 1 1 52%; min-width: 230px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  padding: 0.5rem 0.6rem; display: flex; flex-direction: column; gap: 0.4rem;
+}
+.arv-table-head { display: flex; align-items: baseline; gap: 0.5rem; }
+.arv-table-title { font-size: 0.78rem; font-weight: 700; color: var(--text-main); }
+.arv-table-count { margin-left: auto; font-size: 0.66rem; color: var(--text-dim); }
+.arv-rows { display: flex; flex-direction: column; gap: 0.3rem; }
+.arv-row {
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.35rem 0.55rem; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--bg); transition: border-color var(--t), background var(--t), opacity var(--t);
+}
+.arv-cell-id { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); min-width: 16px; }
+.arv-cell-name { font-size: 0.76rem; color: var(--text-main); }
+.arv-row.is-new { border-color: var(--hue-mint); background: color-mix(in srgb, var(--hue-mint) 12%, var(--bg)); }
+.arv-row.is-edited { border-color: var(--hue-violet); background: color-mix(in srgb, var(--hue-violet) 12%, var(--bg)); }
+.arv-row.is-removed { border-color: var(--hue-pink); background: color-mix(in srgb, var(--hue-pink) 10%, var(--bg)); opacity: 0.55; }
+.arv-row.is-removed .arv-cell-name,
+.arv-row.is-removed .arv-cell-id { text-decoration: line-through; color: var(--text-dim); }
+
+/* readouts */
+.arv-readout { flex: 1 1 40%; min-width: 180px; display: flex; flex-direction: column; gap: 0.4rem; }
+.arv-stat {
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.45rem 0.7rem;
+}
+.arv-stat.is-method { border-left-color: var(--hue-violet); }
+.arv-stat.is-status { border-left-color: var(--accent); }
+.arv-stat.is-rows { border-left-color: var(--hue-mint); }
+.arv-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.arv-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+/* controls */
+.arv-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.arv-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.arv-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.arv-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.arv-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.arv-speed-range { accent-color: var(--accent); width: 90px; }
+.arv-speed-value { font-weight: 700; color: var(--text-main); }
+.arv-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* narrative note */
+.arv-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.arv-note-icon { flex: 0 0 auto; color: var(--accent); display: inline-flex; }
+.arv-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .arv-msg-line, .arv-msg-label, .arv-activation, .arv-row, .arv-lane-box { transition: none; }
+}

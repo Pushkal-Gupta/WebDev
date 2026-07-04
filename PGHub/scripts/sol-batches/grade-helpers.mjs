@@ -48,6 +48,9 @@ export const ORDER_INSENSITIVE = new Set([
   'k-closest-points-to-origin',
   'find-all-duplicates-in-an-array',
   'permutations',
+  // "return any valid grouping, any order" — the stored cases fix one arbitrary
+  // ordering, so a correct-but-differently-ordered answer needs canonicalized compare.
+  'convert-an-array-into-a-2d-array-with-conditions',
   // N-Queens proper (board lists) would belong here, but the stored `n-queens`
   // tests expect the integer COUNT, so it grades order-sensitively as a scalar.
 ]);

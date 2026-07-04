@@ -307,6 +307,14 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import DmTruthTableViz from './viz/DmTruthTableViz';
+import DmSetOpsViz from './viz/DmSetOpsViz';
+import DmCombinatoricsViz from './viz/DmCombinatoricsViz';
+import DmGraphTheoryViz from './viz/DmGraphTheoryViz';
+import ApiRestViz from './viz/ApiRestViz';
+import ApiAuthFlowViz from './viz/ApiAuthFlowViz';
+import ApiCrudViz from './viz/ApiCrudViz';
+import ApiCachingViz from './viz/ApiCachingViz';
 import ReactComponentTreeViz from './viz/ReactComponentTreeViz';
 import ReactStateViz from './viz/ReactStateViz';
 import ReactReconcileViz from './viz/ReactReconcileViz';
@@ -1051,6 +1059,16 @@ export const INTERACTIVE_VIZ = {
   'nn-cnn-architectures': NnCnnArchViz,
   'nn-gans': NnGanViz,
   'nn-embeddings-word2vec': NnEmbeddingViz,
+
+  // --- discrete math + apis-backend ---
+  'dm-logic-proofs': DmTruthTableViz,
+  'dm-sets-relations': DmSetOpsViz,
+  'dm-combinatorics': DmCombinatoricsViz,
+  'dm-graph-theory': DmGraphTheoryViz,
+  'api-rest-design': ApiRestViz,
+  'api-auth-sessions-jwt': ApiAuthFlowViz,
+  'api-crud-database': ApiCrudViz,
+  'api-caching-ratelimiting': ApiCachingViz,
 };
 
 export default INTERACTIVE_VIZ;
