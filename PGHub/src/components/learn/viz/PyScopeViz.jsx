@@ -39,6 +39,7 @@ export default function PyScopeViz() {
   const [name, setName] = useState('factor');
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const hitIdx = useMemo(() => resolveAt(name), [name]);
@@ -52,9 +53,9 @@ export default function PyScopeViz() {
 
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 320 : 820);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), Math.round((reduced() ? 320 : 820) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const checkedDepth = step; // number of scopes checked so far (0..total)
   const finished = step >= total;
@@ -189,6 +190,19 @@ export default function PyScopeViz() {
         <button type="button" className="pyscope-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="pyscope-speed">
+          <span className="pyscope-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pyscope-speed-range"
+          />
+          <span className="pyscope-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pyscope-progress">{step} / {total} scopes searched</span>
       </div>
 

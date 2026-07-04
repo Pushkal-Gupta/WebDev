@@ -307,6 +307,14 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import ReactComponentTreeViz from './viz/ReactComponentTreeViz';
+import ReactStateViz from './viz/ReactStateViz';
+import ReactReconcileViz from './viz/ReactReconcileViz';
+import ReactEffectViz from './viz/ReactEffectViz';
+import NnBatchNormViz from './viz/NnBatchNormViz';
+import NnCnnArchViz from './viz/NnCnnArchViz';
+import NnGanViz from './viz/NnGanViz';
+import NnEmbeddingViz from './viz/NnEmbeddingViz';
 import JavaTypesViz from './viz/JavaTypesViz';
 import JavaClassViz from './viz/JavaClassViz';
 import JavaPolymorphismViz from './viz/JavaPolymorphismViz';
@@ -1033,6 +1041,16 @@ export const INTERACTIVE_VIZ = {
   'web-css-box-layout': WebBoxModelViz,
   'web-http-lifecycle': WebRequestLifecycleViz,
   'web-rendering-path': WebRenderingPathViz,
+
+  // --- react + nn depth ---
+  'react-components-props': ReactComponentTreeViz,
+  'react-state-hooks': ReactStateViz,
+  'react-rendering-reconciliation': ReactReconcileViz,
+  'react-data-fetching-effects': ReactEffectViz,
+  'nn-batchnorm-dropout': NnBatchNormViz,
+  'nn-cnn-architectures': NnCnnArchViz,
+  'nn-gans': NnGanViz,
+  'nn-embeddings-word2vec': NnEmbeddingViz,
 };
 
 export default INTERACTIVE_VIZ;

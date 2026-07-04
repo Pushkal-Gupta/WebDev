@@ -81,6 +81,17 @@
 .pyvar-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .pyvar-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pyvar-progress { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); }
+
+.pyvar-speed { display: flex; align-items: center; gap: 0.5rem; }
+.pyvar-speed-label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.pyvar-speed-range { width: 110px; accent-color: var(--accent); }
+.pyvar-speed-value {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-main);
+  min-width: 3em; text-align: right;
+}
 .pyvar-curline {
   margin-left: auto; font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
   color: var(--accent); padding: 0.2rem 0.55rem; border-radius: 7px; background: var(--hover-box);

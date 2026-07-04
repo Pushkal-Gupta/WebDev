@@ -118,6 +118,10 @@
 }
 .pyexc-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .pyexc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pyexc-speed { display: flex; align-items: center; gap: 0.5rem; }
+.pyexc-speed-label { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.pyexc-speed-range { width: 96px; accent-color: var(--accent); }
+.pyexc-speed-value { font-family: var(--mono); font-size: 0.72rem; color: var(--text-main); min-width: 2.6em; text-align: right; }
 .pyexc-progress { font-size: 0.7rem; color: var(--text-dim); }
 
 .pyexc-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }

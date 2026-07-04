@@ -77,6 +77,7 @@ function reduced() {
 export default function CppTypesViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const total = STEPS.length;
@@ -94,11 +95,13 @@ export default function CppTypesViz() {
     if (finished) { setStep(0); setPlaying(true); } else setPlaying((p) => !p);
   }
 
+  const delay = Math.round((reduced() ? 380 : 1150) / speed);
+
   useEffect(() => {
     if (!playing || step >= total) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), reduced() ? 320 : 1150);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total, s + 1)), delay);
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, delay]);
 
   const noteText = cur ? cur.note : 'press Step or Play to lay each typed variable into memory, one declaration at a time.';
   const codeLine = cur ? cur.code : "char c = 'A';";
@@ -234,6 +237,19 @@ export default function CppTypesViz() {
         <button type="button" className="cpptypes-btn" onClick={() => setStep((s) => Math.min(total, s + 1))} disabled={finished}>
           <SkipForward size={14} /> Step
         </button>
+        <label className="cpptypes-speed">
+          <span className="cpptypes-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="cpptypes-speed-range"
+          />
+          <span className="cpptypes-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="cpptypes-progress">{step} / {total}</span>
         <code className="cpptypes-curline">{codeLine}</code>
       </div>

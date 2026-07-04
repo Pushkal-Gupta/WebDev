@@ -66,6 +66,17 @@
 .pygen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .pygen-progress { font-size: 0.7rem; color: var(--text-dim); }
 
+.pygen-speed { display: flex; align-items: center; gap: 0.5rem; }
+.pygen-speed-label {
+  font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.pygen-speed-range { width: 110px; accent-color: var(--accent); }
+.pygen-speed-value {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-main);
+  min-width: 3em; text-align: right;
+}
+
 .pygen-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .pygen-stat {
   flex: 1 1 30%; min-width: 160px;

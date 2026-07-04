@@ -68,6 +68,7 @@ function reduced() {
 export default function PyClassViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const total = STEPS.length;
@@ -86,9 +87,9 @@ export default function PyClassViz() {
         if (next >= total - 1) setPlaying(false);
         return next;
       });
-    }, reduced() ? 560 : 1250);
+    }, Math.round((reduced() ? 560 : 1250) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const instCount = cur.instances.length;
   const classCount = cur.showSub ? 2 : 1;
@@ -214,6 +215,19 @@ export default function PyClassViz() {
         >
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="pycls-speed">
+          <span className="pycls-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pycls-speed-range"
+          />
+          <span className="pycls-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pycls-progress">{step + 1} / {total} steps</span>
       </div>
 

@@ -52,6 +52,10 @@
 }
 .pycls-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .pycls-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.pycls-speed { display: flex; align-items: center; gap: 0.5rem; }
+.pycls-speed-label { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.pycls-speed-range { width: 96px; accent-color: var(--accent); }
+.pycls-speed-value { font-family: var(--mono); font-size: 0.72rem; color: var(--text-main); min-width: 2.6em; text-align: right; }
 .pycls-progress { font-size: 0.7rem; color: var(--text-dim); }
 
 .pycls-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }

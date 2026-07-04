@@ -89,7 +89,17 @@
 }
 .jsel-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
 .jsel-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.jsel-progress { font-size: 0.7rem; color: var(--text-dim); }
+.jsel-speed { display: flex; align-items: center; gap: 0.5rem; }
+.jsel-speed-label {
+  font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.jsel-speed-range { width: 96px; accent-color: var(--accent); }
+.jsel-speed-value {
+  font-family: var(--mono); font-size: 0.72rem; color: var(--text-main);
+  min-width: 2.6em; text-align: right;
+}
+.jsel-progress { font-size: 0.7rem; color: var(--text-dim); margin-left: auto; }
 
 .jsel-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .jsel-stat {

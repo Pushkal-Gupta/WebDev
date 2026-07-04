@@ -163,6 +163,7 @@ function Column({ x, w, title, icon, items, accent, highlight }) {
 export default function JsEventLoopViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
   const timer = useRef(null);
 
   const trace = useMemo(() => buildTrace(), []);
@@ -174,9 +175,10 @@ export default function JsEventLoopViz() {
 
   useEffect(() => {
     if (!playing || step >= total - 1) return undefined;
-    timer.current = setTimeout(() => setStep((s) => Math.min(total - 1, s + 1)), reduced() ? 360 : 1000);
+    const delay = Math.round((reduced() ? 360 : 1000) / speed);
+    timer.current = setTimeout(() => setStep((s) => Math.min(total - 1, s + 1)), delay);
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   const cur = trace[step];
   const finished = step >= total - 1;
@@ -276,6 +278,19 @@ export default function JsEventLoopViz() {
         >
           <SkipForward size={14} /> Step
         </button>
+        <label className="jsel-speed">
+          <span className="jsel-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="jsel-speed-range"
+          />
+          <span className="jsel-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="jsel-progress">step {step + 1} / {total}</span>
       </div>
 

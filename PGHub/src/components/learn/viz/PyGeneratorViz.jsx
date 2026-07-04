@@ -28,6 +28,7 @@ function noteFor(produced) {
 export default function PyGeneratorViz() {
   const [step, setStep] = useState(0);
   const [playing, setPlaying] = useState(false);
+  const [speed, setSpeed] = useState(2);
   const timer = useRef(null);
 
   const total = N + 1;            // step 0 = created/paused, then one yield per step
@@ -48,9 +49,9 @@ export default function PyGeneratorViz() {
         if (next >= total - 1) setPlaying(false);
         return next;
       });
-    }, reduced() ? 520 : 1150);
+    }, Math.round((reduced() ? 520 : 1150) / speed));
     return () => clearTimeout(timer.current);
-  }, [playing, step, total]);
+  }, [playing, step, total, speed]);
 
   // ---- list lane (eager) — all boxes filled from the start ----
   const cw = 76;
@@ -163,6 +164,19 @@ export default function PyGeneratorViz() {
         >
           <RotateCcw size={14} /> Reset
         </button>
+        <label className="pygen-speed">
+          <span className="pygen-speed-label">speed</span>
+          <input
+            type="range"
+            min={0.5}
+            max={4}
+            step={0.5}
+            value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))}
+            className="pygen-speed-range"
+          />
+          <span className="pygen-speed-value">{speed.toFixed(1)}×</span>
+        </label>
         <span className="pygen-progress">{step + 1} / {total} pulls</span>
       </div>
 
