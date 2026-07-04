@@ -36,6 +36,14 @@ const POSTS = [
     lightFile: "ebm-reasoning-light.html",
   },
   {
+    id: "one-way-mind",
+    date: "29.06.2026",
+    title:
+      "The One-Way Mind — Why AI Imitates Understanding, and What That Predicts",
+    darkFile: "the-one-way-mind-dark.html",
+    lightFile: "the-one-way-mind-light.html",
+  },
+  {
     id: "upcoming",
     date: "xx.xx.2026",
     title: "How Data Reaches You(A first Principles Approach)",

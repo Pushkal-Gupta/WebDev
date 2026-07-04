@@ -1,0 +1,108 @@
+.aav { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.aav-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.aav-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.aav-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.aav-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.aav-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.aav-sub b { color: var(--text-main); font-weight: 700; }
+.aav-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.aav-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.aav-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.aav-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* lifelines + lane headers */
+.aav-life { stroke: var(--border); stroke-width: 2; stroke-dasharray: 4 4; }
+.aav-head-box { fill: var(--hover-box); stroke: var(--border); stroke-width: 1.4; }
+.aav-head-label { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); letter-spacing: 0.06em; }
+
+/* client-held credential box */
+.aav-hold-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.3; transition: stroke var(--t), fill var(--t); }
+.aav-hold-text { font-size: 0.62rem; font-weight: 600; fill: var(--text-dim); font-family: var(--mono); }
+.aav-hold.is-full .aav-hold-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 12%, var(--bg)); }
+.aav-hold.is-full .aav-hold-text { fill: var(--text-main); }
+
+/* server store box */
+.aav-store-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.3; transition: stroke var(--t), fill var(--t); }
+.aav-store-text { font-size: 0.62rem; font-weight: 600; fill: var(--text-dim); font-family: var(--mono); }
+.aav-store.is-full .aav-store-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, var(--bg)); }
+.aav-store.is-full .aav-store-text { fill: var(--text-main); }
+.aav-store.is-stateless .aav-store-box { stroke-dasharray: 3 3; opacity: 0.7; }
+
+/* messages */
+.aav-msg-line { stroke: var(--border); stroke-width: 1.6; transition: stroke var(--t); }
+.aav-msg-label { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); transition: fill var(--t); }
+.aav-arrow-head { fill: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+
+.aav-msg.is-done .aav-msg-line { stroke: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.aav-msg.is-done .aav-msg-label { fill: var(--text-dim); }
+.aav-msg:not(.is-done):not(.is-active) .aav-msg-line { opacity: 0.4; }
+.aav-msg:not(.is-done):not(.is-active) .aav-msg-label { opacity: 0.4; }
+
+.aav-msg.is-active .aav-msg-line { stroke: var(--accent); stroke-width: 2.4; }
+.aav-msg.is-active .aav-msg-label { fill: var(--text-main); font-weight: 700; }
+.aav-msg.is-active.is-err .aav-msg-line { stroke: var(--hard); }
+.aav-msg.is-active.is-err .aav-msg-label { fill: var(--hard); }
+
+/* the credential packet */
+.aav-packet { fill: var(--accent); stroke: var(--bg); stroke-width: 2; transition: cx var(--t), cy var(--t); }
+.aav-packet.is-none { fill: var(--text-dim); }
+.aav-packet.is-valid { fill: var(--hue-mint); }
+.aav-packet.is-expired { fill: var(--hard); }
+.aav-packet.is-refreshed { fill: var(--hue-sky); }
+
+/* controls */
+.aav-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.aav-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.aav-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.aav-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.aav-mode.is-jwt { border-color: var(--hue-violet); color: var(--hue-violet); }
+.aav-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.aav-speed-range { accent-color: var(--accent); width: 90px; }
+.aav-speed-value { font-weight: 700; color: var(--text-main); }
+.aav-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.aav-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.aav-stat {
+  flex: 1 1 28%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.aav-stat.is-mode { border-left-color: var(--hue-violet); }
+.aav-stat.is-phase { border-left-color: var(--accent); }
+.aav-stat.is-token { border-left-color: var(--border); }
+.aav-stat.is-token.tok-valid { border-left-color: var(--hue-mint); }
+.aav-stat.is-token.tok-expired { border-left-color: var(--hard); }
+.aav-stat.is-token.tok-refreshed { border-left-color: var(--hue-sky); }
+.aav-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.aav-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+.aav-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.aav-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.aav-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .aav-packet, .aav-msg-line, .aav-msg-label, .aav-hold-box, .aav-store-box { transition: none; }
+}
