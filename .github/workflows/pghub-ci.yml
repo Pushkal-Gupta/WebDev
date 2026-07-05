@@ -1,0 +1,63 @@
+name: PGHub CI
+
+# Blocks broken code before it reaches the deployed site. Runs on every push and
+# PR that touches PGHub/. Scoped to PGHub/ because this is a monorepo — changes to
+# the other sub-projects never trigger it. If any step fails, the run is red and
+# (with branch protection on) the merge is blocked.
+
+on:
+  push:
+    paths:
+      - 'PGHub/**'
+      - '.github/workflows/pghub-ci.yml'
+  pull_request:
+    paths:
+      - 'PGHub/**'
+      - '.github/workflows/pghub-ci.yml'
+
+# A newer push to the same branch cancels the older, still-running check.
+concurrency:
+  group: pghub-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: PGHub
+
+jobs:
+  checks:
+    name: lint · guards · build · concept-parse
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: PGHub/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint (eslint — zero errors)
+        run: npm run lint
+
+      - name: Guard — no NUL bytes in concept markdown
+        run: node scripts/ci-guards.mjs nul
+
+      - name: Guard — no emoji in source
+        run: node scripts/ci-guards.mjs emoji
+
+      - name: Build (production)
+        run: npm run build
+        env:
+          # Public client-side keys (already baked into the shipped bundle).
+          # Add them as repo secrets so the CI bundle matches production; the
+          # build still compiles without them, so the check is valid regardless.
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Concept markdown parses (dry, no DB write)
+        run: node scripts/import-concepts.js --dry > /dev/null

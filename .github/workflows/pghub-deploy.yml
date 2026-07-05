@@ -1,0 +1,75 @@
+name: PGHub Deploy
+
+# The site is GitHub Pages serving this repo as-is, and PGHub/dist/ is the
+# committed build that Pages serves at pushkalgupta.com/PGHub/dist/. This workflow
+# removes the manual "build + commit dist" chore: on a push to main that changes
+# PGHub SOURCE, it rebuilds and commits the fresh dist/ back to main for you.
+#
+# After it runs you will need to `git pull` to pick up the auto-committed dist/.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      # Rebuild only when SOURCE changes — never on a dist-only commit (avoids a
+      # loop). The auto-commit below also carries [skip ci] as a second guard.
+      - 'PGHub/src/**'
+      - 'PGHub/index.html'
+      - 'PGHub/package.json'
+      - 'PGHub/package-lock.json'
+      - 'PGHub/vite.config.js'
+      - 'PGHub/public/**'
+      - 'PGHub/content/**'
+  workflow_dispatch: {}
+
+# Never let two deploys race the same branch; let a running one finish so its
+# push isn't clobbered.
+concurrency:
+  group: pghub-deploy
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: PGHub
+
+jobs:
+  build-and-commit:
+    name: build → commit dist
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: PGHub/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (production)
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Commit dist/ if it changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          if git diff --cached --quiet; then
+            echo "dist/ unchanged — nothing to deploy."
+            exit 0
+          fi
+          git commit -m "chore(PGHub): rebuild dist [skip ci]"
+          # Rebase onto any commits that landed while we were building, then push.
+          git pull --rebase origin main
+          git push origin HEAD:main
