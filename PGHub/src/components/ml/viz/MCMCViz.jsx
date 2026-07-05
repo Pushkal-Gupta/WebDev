@@ -151,7 +151,7 @@ function Axes({ yAxisBase, xRight, label }) {
         return (
           <g key={`xt${tx}`}>
             <line x1={px} y1={yAxisBase} x2={px} y2={yAxisBase + 4} stroke="var(--border)" strokeWidth="1" />
-            <text x={px} y={yAxisBase + 13} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle">{tx}</text>
+            <text x={px} y={yAxisBase + 15} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="middle">{tx}</text>
           </g>
         );
       })}
@@ -160,12 +160,12 @@ function Axes({ yAxisBase, xRight, label }) {
         return (
           <g key={`yt${ty}`}>
             <line x1={PAD_L - 4} y1={py} x2={PAD_L} y2={py} stroke="var(--border)" strokeWidth="1" />
-            <text x={PAD_L - 6} y={py + 3} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="end">{ty}</text>
+            <text x={PAD_L - 6} y={py + 3} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)" textAnchor="end">{ty}</text>
           </g>
         );
       })}
-      <text x={xRight} y={yAxisBase + 22} fontSize="11" fill="var(--text-dim)" fontFamily="var(--serif, serif)" fontStyle="italic" textAnchor="end">{label || 'x'}</text>
-      <text x={PAD_L - 4} y={PAD_T + 2} fontSize="10.5" fill="var(--text-dim)" fontFamily="var(--serif, serif)" fontStyle="italic" textAnchor="end">y</text>
+      <text x={xRight} y={yAxisBase + 24} fontSize="13" fill="var(--text-dim)" fontFamily="var(--serif, serif)" fontStyle="italic" textAnchor="end">{label || 'x'}</text>
+      <text x={PAD_L - 4} y={PAD_T + 2} fontSize="12.5" fill="var(--text-dim)" fontFamily="var(--serif, serif)" fontStyle="italic" textAnchor="end">y</text>
     </g>
   );
 }
@@ -355,21 +355,21 @@ export default function MCMCViz() {
             <div>
               <div style={{
                 fontFamily: 'var(--serif, serif)',
-                fontSize: 13,
+                fontSize: 14.5,
                 fontWeight: 600,
                 color: 'var(--text-main)',
                 letterSpacing: '0.2px',
               }}>Target  p(x, y)  +  chain trail</div>
               <div style={{
                 fontFamily: 'var(--mono, monospace)',
-                fontSize: 10,
+                fontSize: 11.5,
                 color: 'var(--text-dim)',
                 marginTop: 1,
               }}>3-mode mixture · last {TRAIL_MAX} positions of the walk</div>
             </div>
             <div style={{
               fontFamily: 'var(--mono, monospace)',
-              fontSize: 10,
+              fontSize: 11.5,
               color: 'var(--text-dim)',
             }}>
               step {proposed}
@@ -468,15 +468,15 @@ export default function MCMCViz() {
             ))}
 
             {/* legend */}
-            <g transform={`translate(${PAD_L + 6}, ${PAD_T + 4})`}>
+            <g transform={`translate(${PAD_L + 4}, ${PAD_T + 4})`}>
               <rect x={0} y={2} width={10} height={8} fill="var(--accent)" fillOpacity="0.55" />
-              <text x={14} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">target density</text>
-              <circle cx={102} cy={6} r={2.4} fill="var(--easy, #2ecc71)" />
-              <text x={108} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">accept</text>
-              <circle cx={150} cy={6} r={2.4} fill="var(--hard, #ff5e5e)" />
-              <text x={156} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">reject</text>
-              <circle cx={196} cy={6} r={2.4} fill="var(--hue-pink, #ff66cc)" />
-              <text x={202} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">proposal σ</text>
+              <text x={15} y={10} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">target</text>
+              <circle cx={72} cy={6} r={2.8} fill="var(--easy, #2ecc71)" />
+              <text x={79} y={10} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">accept</text>
+              <circle cx={136} cy={6} r={2.8} fill="var(--hard, #ff5e5e)" />
+              <text x={143} y={10} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">reject</text>
+              <circle cx={196} cy={6} r={2.8} fill="var(--hue-pink, #ff66cc)" />
+              <text x={203} y={10} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">proposal σ</text>
             </g>
           </svg>
         </div>
@@ -493,21 +493,21 @@ export default function MCMCViz() {
             <div>
               <div style={{
                 fontFamily: 'var(--serif, serif)',
-                fontSize: 13,
+                fontSize: 14.5,
                 fontWeight: 600,
                 color: 'var(--text-main)',
                 letterSpacing: '0.2px',
               }}>Sampled distribution  q̂(x, y)</div>
               <div style={{
                 fontFamily: 'var(--mono, monospace)',
-                fontSize: 10,
+                fontSize: 11.5,
                 color: 'var(--text-dim)',
                 marginTop: 1,
               }}>2D histogram of every kept chain state</div>
             </div>
             <div style={{
               fontFamily: 'var(--mono, monospace)',
-              fontSize: 10,
+              fontSize: 11.5,
               color: 'var(--text-dim)',
             }}>
               N = {samples.length}
@@ -541,9 +541,9 @@ export default function MCMCViz() {
             {/* legend */}
             <g transform={`translate(${PAD_L + 6}, ${PAD_T + 4})`}>
               <rect x={0} y={2} width={10} height={8} fill="color-mix(in srgb, var(--hue-mint) 65%, transparent)" />
-              <text x={14} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">samples</text>
-              <circle cx={68} cy={6} r={3} fill="none" stroke="var(--accent)" strokeWidth="1.2" />
-              <text x={75} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">mode μ</text>
+              <text x={15} y={10} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">samples</text>
+              <circle cx={84} cy={6} r={3.2} fill="none" stroke="var(--accent)" strokeWidth="1.2" />
+              <text x={91} y={10} fontSize="11" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">mode μ</text>
             </g>
           </svg>
         </div>

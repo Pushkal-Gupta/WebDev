@@ -127,7 +127,7 @@ export default function MonteCarloIntegrationViz() {
                              fill={p[2] ? 'var(--accent)' : 'var(--hue-pink)'} opacity="0.8" />;
             })}
           </g>
-          <text x={sx0 + sSize / 2} y={sy0 + sSize + 14} fontSize="7.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+          <text x={sx0 + sSize / 2} y={sy0 + sSize + 15} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
             {insideCount} inside / {n} total  ·  area ratio ≈ π/4
           </text>
 
@@ -138,7 +138,7 @@ export default function MonteCarloIntegrationViz() {
           <rect x={cx0} y={cy0} width={cw} height={ch} fill="none" stroke="var(--border)" strokeWidth="0.6" />
           {/* true pi line */}
           <line x1={cx0} y1={yToPx(TRUE_PI)} x2={cx0 + cw} y2={yToPx(TRUE_PI)} stroke="var(--easy)" strokeWidth="1" strokeDasharray="4 3" />
-          <text x={cx0 + cw - 2} y={yToPx(TRUE_PI) - 4} fontSize="7.5" fill="var(--easy)" fontFamily="var(--mono)" textAnchor="end">π = 3.1416</text>
+          <text x={cx0 + cw - 2} y={yToPx(TRUE_PI) - 4} fontSize="9" fill="var(--easy)" fontFamily="var(--mono)" textAnchor="end">π = 3.1416</text>
           {/* error band */}
           <path d={bandPath} fill="rgba(var(--accent-rgb), 0.10)" stroke="none" />
           {/* running estimate */}
@@ -149,10 +149,10 @@ export default function MonteCarloIntegrationViz() {
           {[10, 100, 1000].map((tick) => (
             <g key={tick}>
               <line x1={xPx(tick)} y1={cy0 + ch} x2={xPx(tick)} y2={cy0 + ch + 3} stroke="var(--text-dim)" strokeWidth="0.6" />
-              <text x={xPx(tick)} y={cy0 + ch + 12} fontSize="7" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">{tick}</text>
+              <text x={xPx(tick)} y={cy0 + ch + 13} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">{tick}</text>
             </g>
           ))}
-          <text x={cx0 + cw / 2} y={cy0 + ch + 24} fontSize="7.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">N (log)</text>
+          <text x={cx0 + cw / 2} y={cy0 + ch + 25} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">N (log)</text>
         </svg>
       </div>
 
