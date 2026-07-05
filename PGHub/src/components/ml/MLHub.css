@@ -98,15 +98,8 @@
 .mlhub-pillars-auto {
   flex: 1 1 auto;
   min-height: 0;
-  align-content: stretch;
+  align-content: start;
   align-items: stretch;
-}
-
-/* In the auto-fill hub grid, lesson cards stretch to fill the row height so
-   the page reaches the viewport bottom instead of bottoming out at ~35%. */
-.mlhub-pillars-auto .mlhub-lesson-card {
-  min-height: 320px;
-  height: 100%;
 }
 
 .mlhub-pillars-auto .mlhub-lesson-thumb {
@@ -117,6 +110,52 @@
 
 .mlhub-pillars-auto .mlhub-lesson-card .mlhub-pillar-stripe {
   inset: 140px auto 0 0;
+}
+
+/* Group summary grid on /ml/learn (only two cards): size to content and pack
+   the body top-to-bottom so there's no dead vertical band between the summary
+   and the count/module chips. Slightly taller thumb gives the pair presence. */
+.mlhub-pillars-auto.mlhub-pillars-2 .mlhub-lesson-card {
+  min-height: 0;
+  height: auto;
+}
+
+.mlhub-pillars-auto.mlhub-pillars-2 .mlhub-lesson-thumb {
+  flex: 0 0 168px;
+  height: 168px;
+  min-height: 168px;
+}
+
+.mlhub-pillars-auto.mlhub-pillars-2 .mlhub-lesson-card .mlhub-pillar-stripe {
+  inset: 168px auto 0 0;
+}
+
+.mlhub-pillars-auto.mlhub-pillars-2 .mlhub-pillar-chips {
+  margin-top: 0.35rem;
+}
+
+.mlhub-pillars-auto.mlhub-pillars-2 .mlhub-group-modules {
+  margin-top: 0.55rem;
+}
+
+/* Concept grid on the pillar pages (/ml/foundations etc.): wider, readable
+   cards with a larger title. Sized to content so no forced-height void. */
+.mlhub-pillars-auto:not(.mlhub-pillars-2) {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+.mlhub-pillars-auto:not(.mlhub-pillars-2) .mlhub-lesson-card {
+  min-height: 246px;
+  height: auto;
+}
+
+.mlhub-pillars-auto:not(.mlhub-pillars-2) .mlhub-lesson-title {
+  font-size: 1.16rem;
+  line-height: 1.28;
+}
+
+.mlhub-pillars-auto:not(.mlhub-pillars-2) .mlhub-lesson-summary {
+  font-size: 0.82rem;
 }
 
 .mlhub-pillars-3 {

@@ -11,6 +11,9 @@
     "guards": "node scripts/ci-guards.mjs all",
     "ci": "npm run lint && npm run guards && npm run build && node scripts/import-concepts.js --dry > /dev/null && echo \"CI checks passed\""
   },
+  "overrides": {
+    "dompurify": "^3.4.11"
+  },
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@supabase/supabase-js": "^2.101.1",

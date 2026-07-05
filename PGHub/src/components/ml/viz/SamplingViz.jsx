@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Play, RotateCcw } from 'lucide-react';
+import { Play, RotateCcw, Dices } from 'lucide-react';
 import './MLViz.css';
 
-// Stage geometry. Each panel renders into its own SVG, side by side via flex.
-const W = 380;
+// Stage geometry. One wide SVG fills the container; the two methods share it
+// via a mode toggle, so text and readouts stay large and legible.
+const W = 600;
 const H = 300;
-const PAD_L = 36;
-const PAD_R = 14;
-const PAD_T = 18;
-const PAD_B = 34;
+const PAD_L = 46;
+const PAD_R = 22;
+const PAD_T = 24;
+const PAD_B = 42;
 const PLOT_W = W - PAD_L - PAD_R;
 const PLOT_H = H - PAD_T - PAD_B;
 
@@ -158,39 +159,44 @@ function Panel({
   const latest = trail.length ? trail[trail.length - 1] : null;
 
   return (
-    <div className="mlviz-stage" style={{ flex: '1 1 0', minWidth: 0 }}>
+    <div className="mlviz-stage" style={{ display: 'block', minWidth: 0, padding: '0.2rem 0.6rem 0.4rem' }}>
       <div style={{
         display: 'flex',
         alignItems: 'baseline',
         justifyContent: 'space-between',
-        padding: '4px 8px 6px',
-        gap: 12,
+        padding: '6px 6px 8px',
+        gap: 14,
       }}>
         <div>
           <div style={{
             fontFamily: 'var(--serif, serif)',
-            fontSize: 13,
+            fontSize: 15,
             fontWeight: 600,
             color: 'var(--text-main)',
             letterSpacing: '0.2px',
           }}>{title}</div>
           <div style={{
             fontFamily: 'var(--mono, monospace)',
-            fontSize: 10,
+            fontSize: 12,
             color: 'var(--text-dim)',
-            marginTop: 1,
+            marginTop: 2,
           }}>{subtitle}</div>
         </div>
         <div style={{
           fontFamily: 'var(--mono, monospace)',
-          fontSize: 10,
+          fontSize: 12.5,
           color: 'var(--text-dim)',
+          whiteSpace: 'nowrap',
         }}>
           {samples.length} / {TOTAL_SAMPLES} kept
         </div>
       </div>
 
-      <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="mlviz-svg mlviz-svg-wide"
+        style={{ maxWidth: 760, aspectRatio: `${W} / ${H}`, maxHeight: '44vh' }}
+      >
         <defs>
           <linearGradient id={`samp-fill-${trailKind}`} x1="0" x2="0" y1="0" y2="1">
             <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.22" />
@@ -238,8 +244,8 @@ function Panel({
             />
             <text
               x={xToPx(X_MAX) - 4}
-              y={yToPx(TARGET_PEAK * 1.05, Y_MAX) - 4}
-              fontSize="9.5"
+              y={yToPx(TARGET_PEAK * 1.05, Y_MAX) - 5}
+              fontSize="13"
               fill="var(--hue-pink, #ff66cc)"
               fontFamily="var(--mono, monospace)"
               textAnchor="end"
@@ -306,8 +312,8 @@ function Panel({
               <line x1={px} y1={yAxisBase} x2={px} y2={yAxisBase + 4} stroke="var(--border)" strokeWidth="1" />
               <text
                 x={px}
-                y={yAxisBase + 15}
-                fontSize="9.5"
+                y={yAxisBase + 18}
+                fontSize="13"
                 fill="var(--text-dim)"
                 fontFamily="var(--mono, monospace)"
                 textAnchor="middle"
@@ -321,8 +327,8 @@ function Panel({
         {/* axis labels */}
         <text
           x={W - PAD_R}
-          y={yAxisBase + 26}
-          fontSize="11"
+          y={yAxisBase + 32}
+          fontSize="14"
           fill="var(--text-dim)"
           fontFamily="var(--serif, serif)"
           fontStyle="italic"
@@ -331,9 +337,9 @@ function Panel({
           x
         </text>
         <text
-          x={PAD_L - 4}
+          x={PAD_L - 6}
           y={PAD_T + 2}
-          fontSize="10.5"
+          fontSize="13"
           fill="var(--text-dim)"
           fontFamily="var(--serif, serif)"
           fontStyle="italic"
@@ -434,13 +440,13 @@ function Panel({
         )}
 
         {/* legend strip */}
-        <g transform={`translate(${PAD_L + 6}, ${PAD_T + 4})`}>
-          <circle cx={4} cy={6} r={3} fill="var(--easy, #2ecc71)" />
-          <text x={12} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">accept</text>
-          <circle cx={56} cy={6} r={3} fill="var(--hard, #ff5e5e)" />
-          <text x={64} y={9} fontSize="9.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">reject</text>
-          <line x1={102} y1={6} x2={120} y2={6} stroke={`url(#samp-curve-grad-${trailKind})`} strokeWidth="2" strokeLinecap="round" />
-          <text x={124} y={9} fontSize="9.5" fill="var(--accent)" fontFamily="var(--mono, monospace)">target</text>
+        <g transform={`translate(${PAD_L + 8}, ${PAD_T + 6})`}>
+          <circle cx={5} cy={7} r={3.4} fill="var(--easy, #2ecc71)" />
+          <text x={14} y={11} fontSize="12.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">accept</text>
+          <circle cx={82} cy={7} r={3.4} fill="var(--hard, #ff5e5e)" />
+          <text x={91} y={11} fontSize="12.5" fill="var(--text-dim)" fontFamily="var(--mono, monospace)">reject</text>
+          <line x1={152} y1={7} x2={176} y2={7} stroke={`url(#samp-curve-grad-${trailKind})`} strokeWidth="2.4" strokeLinecap="round" />
+          <text x={182} y={11} fontSize="12.5" fill="var(--accent)" fontFamily="var(--mono, monospace)">target</text>
         </g>
       </svg>
 
@@ -482,6 +488,7 @@ function Panel({
 
 export default function SamplingViz() {
   const [seed, setSeed] = useState(42);
+  const [mode, setMode] = useState('reject'); // 'reject' | 'mcmc'
 
   // Rejection state.
   const [rejSamples, setRejSamples] = useState([]);
@@ -671,56 +678,111 @@ export default function SamplingViz() {
   const rejAcceptRate = rejProposed > 0 ? rejSamples.length / rejProposed : 0;
   const mcAcceptRate = mcProposed > 0 ? mcAccepted / mcProposed : 0;
 
+  const anyRunning = rejRunning || mcRunning;
+  const isReject = mode === 'reject';
+  const chipProposed = isReject ? rejProposed : mcProposed;
+  const chipRate = isReject ? rejAcceptRate : mcAcceptRate;
+
+  const panel = isReject ? (
+    <Panel
+      title="Rejection sampling"
+      subtitle="q(x) = Uniform[-5, 5];  α = p(x) / (M · q(x))"
+      target={targetPath}
+      fill={targetFill}
+      yAxisBase={yAxisBase}
+      samples={rejSamples}
+      trail={rejTrail}
+      trailKind="reject"
+      proposalMarker={rejProposal}
+      histogram={rejHist}
+      acceptRate={rejAcceptRate}
+      totalProposed={rejProposed}
+      runLabel="Run 100 samples"
+      onRun={runRejection}
+      onReset={resetRej}
+      running={rejRunning}
+      done={rejSamples.length >= TOTAL_SAMPLES}
+      uniformBox
+    />
+  ) : (
+    <Panel
+      title="Metropolis-Hastings"
+      subtitle={`x' = x + N(0, ${PROPOSAL_SIGMA});  α = min(1, p(x') / p(x))`}
+      target={targetPath}
+      fill={targetFill}
+      yAxisBase={yAxisBase}
+      samples={mcSamples}
+      trail={mcTrail}
+      trailKind="mcmc"
+      proposalMarker={mcProposal}
+      histogram={mcHist}
+      acceptRate={mcAcceptRate}
+      totalProposed={mcProposed}
+      runLabel="Run 100 samples"
+      onRun={runMcmc}
+      onReset={resetMc}
+      running={mcRunning}
+      done={mcSamples.length >= TOTAL_SAMPLES}
+      uniformBox={false}
+    />
+  );
+
   return (
     <div className="mlviz-wrap">
-      <div
-        className="mlviz-row"
-        style={{ display: 'flex', flexWrap: 'wrap', gap: 18, alignItems: 'stretch' }}
-      >
-        <Panel
-          title="Rejection sampling"
-          subtitle="q(x) = Uniform[-5, 5];  α = p(x) / (M · q(x))"
-          target={targetPath}
-          fill={targetFill}
-          yAxisBase={yAxisBase}
-          samples={rejSamples}
-          trail={rejTrail}
-          trailKind="reject"
-          proposalMarker={rejProposal}
-          histogram={rejHist}
-          acceptRate={rejAcceptRate}
-          totalProposed={rejProposed}
-          runLabel="Run 100 samples"
-          onRun={runRejection}
-          onReset={resetRej}
-          running={rejRunning}
-          done={rejSamples.length >= TOTAL_SAMPLES}
-          uniformBox
-        />
-
-        <Panel
-          title="Metropolis-Hastings"
-          subtitle={`x' = x + N(0, ${PROPOSAL_SIGMA});  α = min(1, p(x') / p(x))`}
-          target={targetPath}
-          fill={targetFill}
-          yAxisBase={yAxisBase}
-          samples={mcSamples}
-          trail={mcTrail}
-          trailKind="mcmc"
-          proposalMarker={mcProposal}
-          histogram={mcHist}
-          acceptRate={mcAcceptRate}
-          totalProposed={mcProposed}
-          runLabel="Run 100 samples"
-          onRun={runMcmc}
-          onReset={resetMc}
-          running={mcRunning}
-          done={mcSamples.length >= TOTAL_SAMPLES}
-          uniformBox={false}
-        />
+      {/* header: icon + title + live accept-rate chip */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '0.7rem 0.9rem 0.55rem' }}>
+        <div style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          width: 34, height: 34, borderRadius: 9, flex: '0 0 auto',
+          background: 'color-mix(in srgb, var(--accent) 14%, transparent)',
+          color: 'var(--accent)',
+        }}>
+          <Dices size={18} />
+        </div>
+        <div style={{ minWidth: 0, flex: '1 1 auto' }}>
+          <div style={{ fontFamily: 'var(--serif, serif)', fontSize: 16, fontWeight: 600, color: 'var(--text-main)' }}>
+            Sampling a bimodal target
+          </div>
+          <div style={{ fontFamily: 'var(--mono, monospace)', fontSize: 12, color: 'var(--text-dim)', marginTop: 2 }}>
+            p(x) = ½·N(-2, 0.8) + ½·N(2, 0.8) — draw 100 samples two ways
+          </div>
+        </div>
+        <div style={{
+          fontFamily: 'var(--mono, monospace)', fontSize: 13, whiteSpace: 'nowrap', flex: '0 0 auto',
+          color: 'var(--accent)', borderRadius: 999, padding: '0.28rem 0.7rem',
+          background: 'color-mix(in srgb, var(--accent) 12%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--accent) 30%, transparent)',
+        }}>
+          accept {chipProposed > 0 ? snap(chipRate, 3) : '—'}
+        </div>
       </div>
 
-      <div className="mlviz-readout" style={{ marginTop: 10 }}>
+      {/* mode toggle */}
+      <div className="mlviz-toggles">
+        <button
+          type="button"
+          className={`mlviz-toggle ${isReject ? 'is-on' : ''}`}
+          onClick={() => setMode('reject')}
+          disabled={anyRunning}
+        >
+          <span className="mlviz-toggle-dot" />
+          Rejection sampling
+        </button>
+        <button
+          type="button"
+          className={`mlviz-toggle ${!isReject ? 'is-on' : ''}`}
+          style={{ '--toggle-color': 'var(--hue-violet)' }}
+          onClick={() => setMode('mcmc')}
+          disabled={anyRunning}
+        >
+          <span className="mlviz-toggle-dot" />
+          Metropolis-Hastings
+        </button>
+      </div>
+
+      {panel}
+
+      <div className="mlviz-readout">
         <div className="mlviz-row mlviz-controls">
           <label className="mlviz-slider">
             <span className="mlviz-slider-label">seed</span>
@@ -731,15 +793,16 @@ export default function SamplingViz() {
               step="1"
               value={seed}
               onChange={(e) => setSeed(parseInt(e.target.value, 10))}
-              disabled={rejRunning || mcRunning}
+              disabled={anyRunning}
             />
             <span className="mlviz-slider-val">{seed}</span>
           </label>
         </div>
 
         <div className="mlviz-hint">
-          Rejection: uniform proposals get screened by the envelope M·q(x) — flat support means many wasted draws.
-          Metropolis-Hastings: a random walk that biases toward higher density — proposals near the modes accept often, jumps across the valley rarely.
+          {isReject
+            ? 'Uniform proposals get screened by the envelope M·q(x). Because the support is flat and the target is peaked, most draws land above the curve and are thrown away — a lot of wasted samples.'
+            : 'A random walk that biases toward higher density. Proposals near a mode accept often; jumps across the low-density valley between the two modes are rare, so the chain lingers in one mode before crossing.'}
         </div>
       </div>
     </div>
