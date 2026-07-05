@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
-  Hash, CheckCircle2, Award, Globe, Sparkles, Target, SlidersHorizontal,
+  Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,
   ChevronRight, Minus, Hourglass, Clock,
 } from 'lucide-react';
 import katex from 'katex';
@@ -35,9 +35,17 @@ function TexBlock({ tex }) {
 // contests (new accounts move fast, veterans move slowly):
 //     f(k) = 1 / (1 + sum_{t=1..min(k,K)} 0.9^t / GAMMA), with a floor.
 // new_rating = R_i + f(k) * rawDelta.
-// Calibrated against a real result: rating 2148, rank 760 in a ~24k field with
-// 14 contests played → +25 (LeetCode's actual delta there was +20). A veteran's
-// swings land in the tens; a 1-3 contest newcomer's land in the hundreds.
+// Calibrated against a real result: rating 2168, rank 798 in a ~24,180 field with
+// ~15 contests played → LeetCode's actual delta was +16; this model returns +16.5
+// (GAMMA=0.48, floor=0.03). A veteran's swings land in the tens; a 1-3 contest
+// newcomer's land in the hundreds. Hand-verified points (fieldSize 24,180,
+// SAMPLE_FIELD below):
+//   2168 / rank 798  / k15 → +16.5   (LeetCode actual +16)   ← calibration
+//   2168 / rank 1    / k15 → +45     (rank-1 veteran, big gain)
+//   2168 / rank 24180/ k15 → -18     (last place, a loss)
+//   1500 / rank 100  / k2  → +157    (newcomer still swings in the hundreds)
+//   1500 / rank 50   / k1  → +271    (debut swing)
+//   1800 / rank 500  / k30 → +23     (seasoned, moderate gain)
 
 // Expected rank (seed) of a player with rating R against the whole field.
 // `ratings` is a REPRESENTATIVE SAMPLE of the field; `fieldSize` is the true
@@ -65,16 +73,18 @@ function ratingForRank(targetRank, ratings, fieldSize) {
 }
 
 // Shrink factor by contests played (more contests -> smaller swings).
-// The weighted sum saturates at ~9 as k grows; GAMMA=0.7 tunes the curve so a
-// 14-contest veteran lands at f≈0.09 (tens-of-points swings) while a 1-3 contest
-// newcomer stays near f≈0.45 (hundreds). Calibrated to the 2148/rank-760/k14
-// data point — do not raise GAMMA without re-checking that case.
+// The weighted sum saturates at ~9 as k grows; GAMMA=0.48 tunes the curve so a
+// 15-contest veteran lands at f≈0.063 (tens-of-points swings) while a 1-3 contest
+// newcomer stays near f≈0.22–0.35 (hundreds). Calibrated to the 2168/rank-798/k15
+// data point (LeetCode actual +16) — do not raise GAMMA without re-checking that
+// case, it over-predicted (+24) at the old GAMMA=0.7.
+const DAMPING_GAMMA = 0.48;
 function dampingFactor(contestsPlayed) {
   let weighted = 0;
   const cap = Math.min(Math.max(contestsPlayed, 0), 100);
   for (let t = 1; t <= cap; t++) weighted += Math.pow(0.9, t);
-  const f = 1 / (1 + weighted / 0.7);
-  return Math.max(f, 0.06); // floor so seasoned players still move a little
+  const f = 1 / (1 + weighted / DAMPING_GAMMA);
+  return Math.max(f, 0.03); // floor so seasoned players still move a little
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -289,39 +299,61 @@ export default function LeetCodeAnalytics() {
 
   const noContests = handle && !isLoading && !isError && user && !latest;
 
-  // ── What-if (demoted): re-run against the SAME baseline the last round used,
-  // so experimenting with a different finish stays anchored to the real rating.
-  // When a round is awaiting LeetCode's rating, rebase onto the CURRENT rating so
-  // dragging a finish projects that pending round directly. ─
-  const [rank, setRank] = useState(820);
-  const whatIfBase = pending ? pending.base : latest ? latest.oldRating : realRating;
-  const whatIfPlayed = pending
-    ? pending.played
-    : latest
-      ? latest.played
-      : Math.max(0, (Number(user?.attendedContestsCount) || 1) - 1);
+  // ── Predict a just-finished (not-yet-rated) round from a manual rank ─────────
+  // The hero flow: type the finishing rank you just got, confirm the rating you
+  // carried in (auto-filled from a lookup, or typed by hand), and read the
+  // projected new rating + delta. LeetCode rates purely on rank, so rank is the
+  // load-bearing input; the advanced fields (contests played, field size) refine
+  // the swing, and problems-solved is context only.
+  const [rank, setRank] = useState(800);
+  const [ratingDraft, setRatingDraft] = useState('');
+  const [playedDraft, setPlayedDraft] = useState('');
+  const [solvedDraft, setSolvedDraft] = useState('');
+  const [totalDraft, setTotalDraft] = useState(String(TOTAL_PARTICIPANTS));
+  const [advOpen, setAdvOpen] = useState(false);
+  const [prefillSig, setPrefillSig] = useState('');
 
-  const whatIf = useMemo(
+  // Auto-fill the moment a lookup resolves: the rating carried into the next
+  // round + how many contests are already behind you, and seed the rank from the
+  // round awaiting rating / last finish when LeetCode exposes one.
+  const liveSig = user ? `${user.username}|${Math.round(realRating)}|${user.attendedContestsCount ?? ''}` : '';
+  if (liveSig && liveSig !== prefillSig) {
+    setPrefillSig(liveSig);
+    setRatingDraft(String(Math.round(realRating)));
+    setPlayedDraft(String(Math.max(0, Number(user?.attendedContestsCount) || 0)));
+    const seedRank = Number(latest?.current?.ranking);
+    if (Number.isFinite(seedRank) && seedRank > 0) {
+      setRank(clamp(Math.round(seedRank), 1, TOTAL_PARTICIPANTS));
+    }
+  }
+
+  const effTotal = clamp(Math.round(Number(totalDraft)) || TOTAL_PARTICIPANTS, 100, 5_000_000);
+  const effRating = clamp(Math.round(Number(ratingDraft)) || Math.round(realRating), 500, 4000);
+  // Empty "contests played" ⇒ assume a seasoned account (tens-of-points swings)
+  // rather than a debut, so a bare rank+rating entry doesn't over-swing.
+  const effPlayed = playedDraft.trim() === '' ? 10 : Math.max(0, Math.round(Number(playedDraft)) || 0);
+  const effRank = clamp(Math.round(rank) || 1, 1, effTotal);
+
+  const predict = useMemo(
     () => predictDelta({
-      rating: whatIfBase,
-      actualRank: Math.max(1, rank),
-      contestsPlayed: whatIfPlayed,
+      rating: effRating,
+      actualRank: effRank,
+      contestsPlayed: effPlayed,
       fieldRatings: SAMPLE_FIELD,
-      fieldSize: TOTAL_PARTICIPANTS,
+      fieldSize: effTotal,
     }),
-    [whatIfBase, rank, whatIfPlayed],
+    [effRating, effRank, effPlayed, effTotal],
   );
-  const wUp = whatIf.delta >= 0;
-  const percentile = clamp((1 - rank / TOTAL_PARTICIPANTS) * 100, 0, 100);
+  const pUp = predict.delta >= 0;
+  const percentile = clamp((1 - effRank / effTotal) * 100, 0, 100);
 
   return (
     <div className="lca-wrap">
       <p className="ctx-sub lca-intro">
-        Enter your LeetCode username to pull your latest rated round, see how it actually moved your
-        rating, and compare it against what our model expected.
+        Type the rank you just finished and read the projected rating change — before LeetCode publishes it.
       </p>
 
-      {/* Primary: username → last contest → prediction */}
+      {/* Username lookup — auto-fills your rating into the predictor below */}
       <section className="lca-section">
         <form className="lca-lookup" onSubmit={submit}>
           <div className="lca-lookup-input">
@@ -330,7 +362,7 @@ export default function LeetCodeAnalytics() {
               type="text"
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
-              placeholder="LeetCode username"
+              placeholder="LeetCode username (optional — auto-fills your rating)"
               aria-label="LeetCode username"
               spellCheck={false}
               autoComplete="off"
@@ -340,13 +372,6 @@ export default function LeetCodeAnalytics() {
             Look up
           </button>
         </form>
-
-        {!handle && (
-          <p className="lca-empty">
-            We&apos;ll find your most recent contest and turn its finish into a rating prediction —
-            no manual entry needed.
-          </p>
-        )}
 
         {handle && isLoading && <div className="lca-skel" aria-hidden />}
 
@@ -358,256 +383,310 @@ export default function LeetCodeAnalytics() {
         )}
 
         {handle && !isLoading && !isError && user && (
-          <>
-            <div className="lca-profile">
-              {user.avatar ? (
-                <img className="lca-avatar" src={user.avatar} alt="" />
-              ) : (
-                <span className="lca-avatar lca-avatar-fb">
-                  {(user.username || handle).slice(0, 1).toUpperCase()}
-                </span>
+          <div className="lca-profile">
+            {user.avatar ? (
+              <img className="lca-avatar" src={user.avatar} alt="" />
+            ) : (
+              <span className="lca-avatar lca-avatar-fb">
+                {(user.username || handle).slice(0, 1).toUpperCase()}
+              </span>
+            )}
+            <div className="lca-profile-meta">
+              <span className="lca-profile-name">{user.realName || user.username || handle}</span>
+              {user.username && user.realName && (
+                <span className="lca-profile-handle">@{user.username}</span>
               )}
-              <div className="lca-profile-meta">
-                <span className="lca-profile-name">{user.realName || user.username || handle}</span>
-                {user.username && user.realName && (
-                  <span className="lca-profile-handle">@{user.username}</span>
-                )}
+            </div>
+            <div className="lca-stat-grid">
+              <div className="lca-stat">
+                <span className="lca-stat-ico"><Award size={14} aria-hidden /></span>
+                <span className="lca-stat-val">{Math.round(realRating)}</span>
+                <span className="lca-stat-lbl">Rating</span>
               </div>
-              <div className="lca-stat-grid">
-                <div className="lca-stat">
-                  <span className="lca-stat-ico"><Award size={14} aria-hidden /></span>
-                  <span className="lca-stat-val">{Math.round(realRating)}</span>
-                  <span className="lca-stat-lbl">Rating</span>
-                </div>
-                <div className="lca-stat">
-                  <span className="lca-stat-ico"><Hash size={14} aria-hidden /></span>
-                  <span className="lca-stat-val">{user.attendedContestsCount ?? 0}</span>
-                  <span className="lca-stat-lbl">Contests</span>
-                </div>
-                <div className="lca-stat">
-                  <span className="lca-stat-ico"><Globe size={14} aria-hidden /></span>
-                  <span className="lca-stat-val">
-                    {user.globalRanking ? Number(user.globalRanking).toLocaleString() : '—'}
-                  </span>
-                  <span className="lca-stat-lbl">Global rank</span>
-                </div>
+              <div className="lca-stat">
+                <span className="lca-stat-ico"><Hash size={14} aria-hidden /></span>
+                <span className="lca-stat-val">{user.attendedContestsCount ?? 0}</span>
+                <span className="lca-stat-lbl">Contests</span>
+              </div>
+              <div className="lca-stat">
+                <span className="lca-stat-ico"><Globe size={14} aria-hidden /></span>
+                <span className="lca-stat-val">
+                  {user.globalRanking ? Number(user.globalRanking).toLocaleString() : '—'}
+                </span>
+                <span className="lca-stat-lbl">Global rank</span>
               </div>
             </div>
-
-            {pending && (
-              <article className="lca-contest lca-contest-pending">
-                <header className="lca-contest-head">
-                  <div className="lca-contest-title">
-                    <Hourglass size={16} aria-hidden />
-                    <span>{pending.title}</span>
-                  </div>
-                  <span className="lca-pending-pill">
-                    <Clock size={12} aria-hidden /> Awaiting LeetCode rating
-                  </span>
-                </header>
-
-                <div className="lca-facts">
-                  <div className="lca-fact">
-                    <span className="lca-fact-ico"><Calendar size={14} aria-hidden /></span>
-                    <span className="lca-fact-val lca-fact-date">{fmtDate(pending.startTime)}</span>
-                    <span className="lca-fact-lbl">Contest day</span>
-                  </div>
-                  <div className="lca-fact">
-                    <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
-                    <span className="lca-fact-val">—</span>
-                    <span className="lca-fact-lbl">Rank pending</span>
-                  </div>
-                  <div className="lca-fact">
-                    <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
-                    <span className="lca-fact-val">{pending.base}</span>
-                    <span className="lca-fact-lbl">Current rating</span>
-                  </div>
-                </div>
-
-                <p className="lca-pending-note">
-                  LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
-                  rated history. Your last confirmed rating is {pending.base}. Project the finish below to
-                  see the likely swing — it&apos;ll be confirmed once LeetCode posts the official change.
-                </p>
-              </article>
-            )}
-
-            {latest && (
-              <article className="lca-contest">
-                <header className="lca-contest-head">
-                  <div className="lca-contest-title">
-                    <Trophy size={16} aria-hidden />
-                    <span>{latest.current.title}</span>
-                    {pending && <span className="lca-rated-tag">Last rated</span>}
-                  </div>
-                  <span className="lca-contest-date">
-                    <Calendar size={13} aria-hidden />
-                    {fmtDate(latest.current.startTime)}
-                  </span>
-                </header>
-
-                <div className="lca-facts">
-                  <div className="lca-fact">
-                    <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
-                    <span className="lca-fact-val">
-                      {latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : '—'}
-                    </span>
-                    <span className="lca-fact-lbl">Rank</span>
-                  </div>
-                  <div className="lca-fact">
-                    <span className="lca-fact-ico"><CheckCircle2 size={14} aria-hidden /></span>
-                    <span className="lca-fact-val">
-                      {latest.current.problemsSolved ?? 0}
-                      <span className="lca-fact-of">/{latest.current.totalProblems ?? '—'}</span>
-                    </span>
-                    <span className="lca-fact-lbl">Solved</span>
-                  </div>
-                  <div className="lca-fact">
-                    <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
-                    <span className="lca-fact-val">
-                      {Math.round(latest.oldRating)}
-                      {latest.isDebut && <span className="lca-fact-of"> (debut)</span>}
-                    </span>
-                    <span className="lca-fact-lbl">Old rating</span>
-                  </div>
-                </div>
-
-                <div className="lca-move-track">
-                  <span className="lca-move-old">{Math.round(latest.oldRating)}</span>
-                  <span className="lca-move-arrow" aria-hidden>→</span>
-                  {latest.ratingPending ? (
-                    <>
-                      <span className="lca-move-new" style={{ color: chgColor(latest.expected.delta) }}>
-                        ~{Math.round(latest.expected.newRating)}
-                      </span>
-                      <span className="lca-move-chip" style={{ color: 'var(--text-dim)' }}>
-                        rating pending on LeetCode
-                      </span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="lca-move-new" style={{ color: chgColor(latest.actualChange) }}>
-                        {Math.round(latest.newRating)}
-                      </span>
-                      <span className="lca-move-chip" style={{ color: chgColor(latest.actualChange) }}>
-                        {changeIcon(latest.actualChange)}
-                        {fmtChange(latest.actualChange)}
-                      </span>
-                    </>
-                  )}
-                </div>
-
-                <div className="lca-compare">
-                  <div className="lca-compare-cell">
-                    <span className="lca-compare-lbl">
-                      <Sparkles size={12} aria-hidden /> Expected rating
-                    </span>
-                    <span className="lca-compare-val">{Math.round(latest.expected.newRating)}</span>
-                    <span className="lca-compare-sub" style={{ color: chgColor(latest.expected.delta) }}>
-                      {fmtChange(latest.expected.delta)} projected
-                    </span>
-                  </div>
-                  <div className="lca-compare-cell">
-                    <span className="lca-compare-lbl">
-                      <Target size={12} aria-hidden /> Actual rating
-                    </span>
-                    <span className="lca-compare-val">
-                      {latest.ratingPending ? '—' : Math.round(latest.newRating)}
-                    </span>
-                    <span className="lca-compare-sub" style={{ color: latest.ratingPending ? 'var(--text-dim)' : chgColor(latest.actualChange) }}>
-                      {latest.ratingPending ? 'pending LeetCode update' : `${fmtChange(latest.actualChange)} on LeetCode`}
-                    </span>
-                  </div>
-                </div>
-              </article>
-            )}
-
-            {noContests && (
-              <p className="lca-empty">
-                <strong>{user.username || handle}</strong> hasn&apos;t finished a rated contest yet. Open
-                the what-if below to project a finish from the current rating of {Math.round(realRating)}.
-              </p>
-            )}
-          </>
+          </div>
         )}
       </section>
 
-      {/* Demoted what-if: manual sliders for experimenting only */}
+      {/* HERO: predict a just-finished (not-yet-rated) round from your rank */}
       <section className="lca-section">
-        <details className="lca-whatif" open={!!noContests || !!pending}>
-          <summary className="lca-whatif-summary">
-            <SlidersHorizontal size={15} aria-hidden />
-            <span>{pending ? `Project your ${pending.title} finish` : 'What-if: try a different finish'}</span>
-            <ChevronRight size={15} className="lca-whatif-caret" aria-hidden />
-          </summary>
+        <div className="lca-predict-hero">
+          <header className="lca-hero-head">
+            <span className="lca-hero-ico"><Sparkles size={18} aria-hidden /></span>
+            <div className="lca-hero-heading">
+              <h2 className="lca-hero-title">Predict your latest contest</h2>
+              <p className="lca-hero-sub">
+                {user
+                  ? `Rating auto-filled from @${user.username || handle} — set the rank you just finished.`
+                  : 'Enter your finishing rank and the rating you carried in. Look up a username above to auto-fill the rating.'}
+              </p>
+            </div>
+          </header>
 
-          <div className="lca-whatif-body">
-            <p className="lca-whatif-note">
-              {pending
-                ? `Drag your finish rank to project ${pending.title} from your current rating of ${Math.round(whatIfBase)}.`
-                : `Hypothetical only — drag a finish rank to project the swing from a baseline rating of ${Math.round(whatIfBase)}.`}
-            </p>
+          <div className="lca-predictor">
+            <div className="lca-inputs">
+              <Slider
+                label="Finishing rank"
+                value={effRank}
+                min={1}
+                max={effTotal}
+                step={1}
+                onChange={setRank}
+                unit={`of ${effTotal.toLocaleString()}`}
+              />
 
-            <div className="lca-predictor">
-              <div className="lca-inputs">
-                <Slider
-                  label="Finish rank"
-                  value={rank}
-                  min={1}
-                  max={TOTAL_PARTICIPANTS}
-                  step={1}
-                  onChange={setRank}
-                  unit={`of ${TOTAL_PARTICIPANTS.toLocaleString()}`}
-                />
+              <label className="lca-field">
+                <span className="lca-field-name">Current rating</span>
+                <span className="lca-field-entry">
+                  <input
+                    className="lca-field-num"
+                    type="number"
+                    min={500}
+                    max={4000}
+                    step={1}
+                    value={ratingDraft}
+                    onChange={(e) => setRatingDraft(e.target.value)}
+                    placeholder={String(Math.round(realRating))}
+                    aria-label="Current rating"
+                  />
+                  {user && <span className="lca-field-hint">from @{user.username || handle}</span>}
+                </span>
+              </label>
 
-                <div className="lca-pctl">
-                  <div className="lca-pctl-head">
-                    <span>Top {(100 - percentile).toFixed(1)}%</span>
-                    <span>{rank.toLocaleString()} / {TOTAL_PARTICIPANTS.toLocaleString()}</span>
-                  </div>
-                  <div className="lca-pctl-track">
-                    <div className="lca-pctl-fill" style={{ width: `${percentile}%` }} />
-                    <div className="lca-pctl-marker" style={{ left: `${percentile}%` }} />
-                  </div>
+              <div className="lca-pctl">
+                <div className="lca-pctl-head">
+                  <span>Top {(100 - percentile).toFixed(1)}%</span>
+                  <span>{effRank.toLocaleString()} / {effTotal.toLocaleString()}</span>
+                </div>
+                <div className="lca-pctl-track">
+                  <div className="lca-pctl-fill" style={{ width: `${percentile}%` }} />
+                  <div className="lca-pctl-marker" style={{ left: `${percentile}%` }} />
                 </div>
               </div>
 
-              <div className="lca-result">
-                <span className="lca-result-cap">Projected new rating</span>
-                <div className="lca-result-rating">{Math.round(whatIf.newRating).toLocaleString()}</div>
-                <div className={`lca-result-chip ${wUp ? 'up' : 'down'}`}>
-                  {wUp ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                  {fmtChange(whatIf.delta)}
+              <button
+                type="button"
+                className="lca-adv-toggle"
+                onClick={() => setAdvOpen((o) => !o)}
+                aria-expanded={advOpen}
+              >
+                <SlidersHorizontal size={13} aria-hidden />
+                {advOpen ? 'Hide advanced' : 'Advanced inputs'}
+                <ChevronRight size={14} className={`lca-adv-caret ${advOpen ? 'open' : ''}`} aria-hidden />
+              </button>
+
+              {advOpen && (
+                <div className="lca-adv">
+                  <label className="lca-field">
+                    <span className="lca-field-name">Contests played</span>
+                    <span className="lca-field-entry">
+                      <input
+                        className="lca-field-num" type="number" min={0} max={500} step={1}
+                        value={playedDraft} onChange={(e) => setPlayedDraft(e.target.value)}
+                        placeholder="10" aria-label="Contests played"
+                      />
+                      <span className="lca-field-hint">damps the swing</span>
+                    </span>
+                  </label>
+                  <label className="lca-field">
+                    <span className="lca-field-name">Total participants</span>
+                    <span className="lca-field-entry">
+                      <input
+                        className="lca-field-num" type="number" min={100} step={100}
+                        value={totalDraft} onChange={(e) => setTotalDraft(e.target.value)}
+                        placeholder={String(TOTAL_PARTICIPANTS)} aria-label="Total participants"
+                      />
+                    </span>
+                  </label>
+                  <label className="lca-field">
+                    <span className="lca-field-name">Problems solved</span>
+                    <span className="lca-field-entry">
+                      <input
+                        className="lca-field-num" type="number" min={0} max={4} step={1}
+                        value={solvedDraft} onChange={(e) => setSolvedDraft(e.target.value)}
+                        placeholder="—" aria-label="Problems solved"
+                      />
+                      <span className="lca-field-hint">context only — rank drives the rating</span>
+                    </span>
+                  </label>
                 </div>
-                <RatingSpark from={Math.round(whatIfBase)} to={Math.round(whatIf.newRating)} up={wUp} />
-                <div className="lca-result-foot">
-                  <span>{Math.round(whatIfBase).toLocaleString()}</span>
-                  <span className="lca-result-foot-dim">base</span>
-                  <span className="lca-result-foot-arrow">→</span>
-                  <span className="lca-result-foot-dim">after</span>
-                  <span>{Math.round(whatIf.newRating).toLocaleString()}</span>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Rank → delta curve — click anywhere on it to set the finish rank */}
-            <div className="lca-curve-head">
-              <h2 className="lca-section-title">Rank to rating change</h2>
-              <span className="lca-curve-hint">
-                <MousePointerClick size={12} />
-                Click the curve to set the finish rank
-              </span>
+            <div className="lca-result">
+              <span className="lca-result-cap">Projected new rating</span>
+              <div className="lca-result-rating">{Math.round(predict.newRating).toLocaleString()}</div>
+              <div className={`lca-result-chip ${pUp ? 'up' : 'down'}`}>
+                {pUp ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                {fmtChange(predict.delta)} projected
+              </div>
+              <RatingSpark from={effRating} to={Math.round(predict.newRating)} up={pUp} />
+              <div className="lca-result-foot">
+                <span>{effRating.toLocaleString()}</span>
+                <span className="lca-result-foot-arrow">→</span>
+                <span>{Math.round(predict.newRating).toLocaleString()}</span>
+                <span className="lca-result-foot-dim">· top {(100 - percentile).toFixed(1)}%</span>
+              </div>
             </div>
-            <RankDeltaCurve
-              rating={whatIfBase}
-              played={whatIfPlayed}
-              rank={rank}
-              total={TOTAL_PARTICIPANTS}
-              onPick={(r) => setRank(clamp(Math.round(r), 1, TOTAL_PARTICIPANTS))}
-            />
           </div>
-        </details>
+
+          {/* Rank → delta curve — click anywhere on it to set the finishing rank */}
+          <div className="lca-curve-head">
+            <h3 className="lca-section-title">Rank to rating change</h3>
+            <span className="lca-curve-hint">
+              <MousePointerClick size={12} />
+              Click the curve to set the finishing rank
+            </span>
+          </div>
+          <RankDeltaCurve
+            rating={effRating}
+            played={effPlayed}
+            rank={effRank}
+            total={effTotal}
+            onPick={(r) => setRank(clamp(Math.round(r), 1, effTotal))}
+          />
+        </div>
       </section>
+
+      {/* Reference: recent contest history (already rated → NOT a prediction) */}
+      {handle && !isLoading && !isError && user && (
+        <section className="lca-section">
+          <span className="lca-ref-cap">
+            <Trophy size={14} aria-hidden /> Your recent contest history
+          </span>
+
+          {pending && (
+            <article className="lca-contest lca-contest-pending">
+              <header className="lca-contest-head">
+                <div className="lca-contest-title">
+                  <Hourglass size={16} aria-hidden />
+                  <span>{pending.title}</span>
+                </div>
+                <span className="lca-pending-pill">
+                  <Clock size={12} aria-hidden /> Awaiting LeetCode rating
+                </span>
+              </header>
+
+              <div className="lca-facts">
+                <div className="lca-fact">
+                  <span className="lca-fact-ico"><Calendar size={14} aria-hidden /></span>
+                  <span className="lca-fact-val lca-fact-date">{fmtDate(pending.startTime)}</span>
+                  <span className="lca-fact-lbl">Contest day</span>
+                </div>
+                <div className="lca-fact">
+                  <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
+                  <span className="lca-fact-val">—</span>
+                  <span className="lca-fact-lbl">Rank pending</span>
+                </div>
+                <div className="lca-fact">
+                  <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
+                  <span className="lca-fact-val">{pending.base}</span>
+                  <span className="lca-fact-lbl">Current rating</span>
+                </div>
+              </div>
+
+              <p className="lca-pending-note">
+                LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
+                rated history. Your last confirmed rating is {pending.base}. Enter the rank you finished in
+                the predictor above to see the likely swing — it&apos;ll be confirmed once LeetCode posts the
+                official change.
+              </p>
+            </article>
+          )}
+
+          {latest && (
+            <article className="lca-contest">
+              <header className="lca-contest-head">
+                <div className="lca-contest-title">
+                  <Trophy size={16} aria-hidden />
+                  <span>{latest.current.title}</span>
+                  <span className="lca-rated-tag">{latest.ratingPending ? 'Rating pending' : 'Rated'}</span>
+                </div>
+                <span className="lca-contest-date">
+                  <Calendar size={13} aria-hidden />
+                  {fmtDate(latest.current.startTime)}
+                </span>
+              </header>
+
+              <div className="lca-facts">
+                <div className="lca-fact">
+                  <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
+                  <span className="lca-fact-val">
+                    {latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : '—'}
+                  </span>
+                  <span className="lca-fact-lbl">Rank</span>
+                </div>
+                <div className="lca-fact">
+                  <span className="lca-fact-ico"><CheckCircle2 size={14} aria-hidden /></span>
+                  <span className="lca-fact-val">
+                    {latest.current.problemsSolved ?? 0}
+                    <span className="lca-fact-of">/{latest.current.totalProblems ?? '—'}</span>
+                  </span>
+                  <span className="lca-fact-lbl">Solved</span>
+                </div>
+                <div className="lca-fact">
+                  <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
+                  <span className="lca-fact-val">
+                    {Math.round(latest.oldRating)}
+                    {latest.isDebut && <span className="lca-fact-of"> (debut)</span>}
+                  </span>
+                  <span className="lca-fact-lbl">Old rating</span>
+                </div>
+              </div>
+
+              <div className="lca-move-track">
+                <span className="lca-move-old">{Math.round(latest.oldRating)}</span>
+                <span className="lca-move-arrow" aria-hidden>→</span>
+                {latest.ratingPending ? (
+                  <>
+                    <span className="lca-move-new" style={{ color: chgColor(latest.expected.delta) }}>
+                      ~{Math.round(latest.expected.newRating)}
+                    </span>
+                    <span className="lca-move-chip" style={{ color: 'var(--text-dim)' }}>
+                      projected · rating pending
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="lca-move-new" style={{ color: chgColor(latest.actualChange) }}>
+                      {Math.round(latest.newRating)}
+                    </span>
+                    <span className="lca-move-chip" style={{ color: chgColor(latest.actualChange) }}>
+                      {changeIcon(latest.actualChange)}
+                      {fmtChange(latest.actualChange)}
+                    </span>
+                  </>
+                )}
+              </div>
+
+              <p className="lca-ref-note">
+                {latest.ratingPending
+                  ? `LeetCode hasn't posted the official rating for ${latest.current.title} yet — this is our projection from your rank of ${latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : 'the round'}. Use the predictor above to try other finishes.`
+                  : `Already rated on LeetCode — shown for reference, not a prediction. LeetCode moved you ${fmtChange(latest.actualChange)} (${Math.round(latest.oldRating)} → ${Math.round(latest.newRating)}).`}
+              </p>
+            </article>
+          )}
+
+          {noContests && (
+            <p className="lca-empty">
+              <strong>{user.username || handle}</strong> hasn&apos;t finished a rated contest yet. Use the
+              predictor above to project a finish from the current rating of {Math.round(realRating)}.
+            </p>
+          )}
+        </section>
+      )}
 
       {/* Per-question solve rate */}
       <section className="lca-section">
@@ -688,7 +767,7 @@ function RankDeltaCurve({ rating, played, rank, total, onPick }) {
     for (let i = 0; i <= N; i++) {
       const frac = i / N;
       const r = Math.round(Math.pow(10, lrMin + frac * (lrMax - lrMin)));
-      const d = predictDelta({ rating, actualRank: r, contestsPlayed: played, fieldRatings: SAMPLE_FIELD, fieldSize: TOTAL_PARTICIPANTS }).delta;
+      const d = predictDelta({ rating, actualRank: r, contestsPlayed: played, fieldRatings: SAMPLE_FIELD, fieldSize: total }).delta;
       samples.push({ r, d });
     }
     let mn = Infinity, mx = -Infinity;
@@ -711,14 +790,14 @@ function RankDeltaCurve({ rating, played, rank, total, onPick }) {
   const areaPath = `${linePath} L${xOf(pts[pts.length - 1].r).toFixed(1)},${zeroY.toFixed(1)} L${xOf(pts[0].r).toFixed(1)},${zeroY.toFixed(1)} Z`;
 
   // Marker for the current finish rank.
-  const curD = predictDelta({ rating, actualRank: rank, contestsPlayed: played, fieldRatings: SAMPLE_FIELD, fieldSize: TOTAL_PARTICIPANTS }).delta;
+  const curD = predictDelta({ rating, actualRank: rank, contestsPlayed: played, fieldRatings: SAMPLE_FIELD, fieldSize: total }).delta;
   const curX = xOf(rank);
   const curY = yOf(curD);
 
   // Hover read-out (snapped to the cursor's rank).
   const hover = hoverX != null ? (() => {
     const r = clamp(Math.round(rankAtX(hoverX)), 1, total);
-    const d = predictDelta({ rating, actualRank: r, contestsPlayed: played, fieldRatings: SAMPLE_FIELD, fieldSize: TOTAL_PARTICIPANTS }).delta;
+    const d = predictDelta({ rating, actualRank: r, contestsPlayed: played, fieldRatings: SAMPLE_FIELD, fieldSize: total }).delta;
     return { r, d, x: xOf(r), y: yOf(d) };
   })() : null;
 

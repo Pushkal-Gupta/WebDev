@@ -51,6 +51,11 @@ export const ORDER_INSENSITIVE = new Set([
   // "return any valid grouping, any order" — the stored cases fix one arbitrary
   // ordering, so a correct-but-differently-ordered answer needs canonicalized compare.
   'convert-an-array-into-a-2d-array-with-conditions',
+  // root-to-leaf path lists — stored cases mix DFS-order and sorted-order, so compare
+  // order-insensitively (the set of paths is what matters).
+  'binary-tree-paths',
+  // "return any array with these sums" — the stored expected fixes one permutation.
+  'find-missing-observations',
   // N-Queens proper (board lists) would belong here, but the stored `n-queens`
   // tests expect the integer COUNT, so it grades order-sensitively as a scalar.
 ]);

@@ -1234,6 +1234,139 @@
   letter-spacing: -0.01em;
 }
 
+/* Hero predictor: the primary "enter your rank → project the change" card. */
+.lca-predict-hero {
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.05), transparent 42%), var(--surface);
+  padding: 1.5rem 1.6rem 1.7rem;
+}
+.lca-predict-hero .lca-predictor {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+.lca-predict-hero .lca-curve-head { margin-top: 1.5rem; }
+.lca-hero-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  margin-bottom: 1.4rem;
+}
+.lca-hero-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.lca-hero-heading { min-width: 0; }
+.lca-hero-title {
+  font-size: 1.12rem;
+  font-weight: 800;
+  color: var(--text-main);
+  margin: 0 0 0.2rem;
+  letter-spacing: -0.02em;
+}
+.lca-hero-sub {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+/* Labeled numeric field (rating / advanced inputs). */
+.lca-field { display: flex; flex-direction: column; gap: 0.4rem; }
+.lca-field-name {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+.lca-field-entry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+  transition: border-color var(--t), background var(--t);
+}
+.lca-field-entry:focus-within {
+  border-color: rgba(var(--accent-rgb), 0.55);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+.lca-field-num {
+  font-family: var(--mono);
+  color: var(--text-main);
+  font-weight: 700;
+  font-size: 0.85rem;
+  width: 7ch;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+.lca-field-num:focus { outline: none; }
+.lca-field-num::-webkit-outer-spin-button,
+.lca-field-num::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.lca-field-hint { font-size: 0.68rem; color: var(--text-dim); }
+
+/* Advanced inputs disclosure. */
+.lca-adv-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  align-self: flex-start;
+  padding: 0.25rem 0.1rem;
+  border: none;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lca-adv-toggle:hover { opacity: 0.85; }
+.lca-adv-caret { transition: transform var(--t); }
+.lca-adv-caret.open { transform: rotate(90deg); }
+.lca-adv {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem 1.2rem;
+}
+
+/* Reference contest-history caption + note. */
+.lca-ref-cap {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: fit-content;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  margin-bottom: 0.6rem;
+}
+.lca-ref-cap svg { color: var(--accent); }
+.lca-ref-note {
+  margin: 0.9rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
 /* Predictor dashboard: inputs on the left, one result block on the right. */
 .lca-predictor {
   display: grid;
