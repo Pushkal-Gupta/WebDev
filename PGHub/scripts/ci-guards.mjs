@@ -54,7 +54,35 @@ function guardEmoji() {
   return hits;
 }
 
-const GUARDS = { nul: guardNul, emoji: guardEmoji };
+// A leaked Supabase service_role key (full DB access, bypasses RLS) once sat in
+// committed scripts and tripped GitHub secret scanning. This guard fails if any
+// code file embeds a JWT that decodes to role "service_role". Scoped to source
+// code — the JWT *lesson* markdown (which contains example tokens on purpose) is
+// never scanned, and public anon keys don't trip it.
+const JWT_RE = /eyJ[A-Za-z0-9_-]{8,}\.(eyJ[A-Za-z0-9_-]+)\.[A-Za-z0-9_-]+/g;
+
+function guardSecret() {
+  const dirs = ['src', 'scripts'].map((d) => path.join(ROOT, d)).filter((d) => fs.existsSync(d));
+  const files = dirs.flatMap((d) => walk(d, ['.js', '.jsx', '.mjs', '.cjs', '.ts', '.tsx']));
+  const hits = [];
+  for (const f of files) {
+    if (f.endsWith('ci-guards.mjs')) continue; // this file names the pattern
+    const text = fs.readFileSync(f, 'utf8');
+    let m;
+    while ((m = JWT_RE.exec(text)) !== null) {
+      let role;
+      try { role = JSON.parse(Buffer.from(m[1], 'base64').toString('utf8')).role; } catch { role = null; }
+      if (role === 'service_role') {
+        const line = text.slice(0, m.index).split('\n').length;
+        hits.push(`${path.relative(ROOT, f)}:${line}: a hardcoded service_role key — move it to an env var (SUPABASE_SERVICE_ROLE_KEY) and rotate the leaked key`);
+      }
+    }
+    JWT_RE.lastIndex = 0;
+  }
+  return hits;
+}
+
+const GUARDS = { nul: guardNul, emoji: guardEmoji, secret: guardSecret };
 
 const arg = process.argv[2] || 'all';
 const toRun = arg === 'all' ? Object.keys(GUARDS) : [arg];

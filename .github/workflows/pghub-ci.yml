@@ -50,6 +50,9 @@ jobs:
       - name: Guard — no emoji in source
         run: node scripts/ci-guards.mjs emoji
 
+      - name: Guard — no hardcoded service_role key
+        run: node scripts/ci-guards.mjs secret
+
       - name: Build (production)
         run: npm run build
         env:
