@@ -310,7 +310,7 @@ if (failures.length === 0) {
   for (const f of failures) {
     if (f.kind === 'wrong_answer') {
       const ff = f.firstFail;
-      const inp = (ff.inputs || []).join(' \\| ').replace(/\|/g, '\\|');
+      const inp = (ff.inputs || []).join(' | ').replace(/\\/g, '\\\\').replace(/\|/g, '\\|');
       md.push(`| \`${f.id}\` | ${f.passedCount}/${f.totalCases} | #${ff.idx + 1} | ${inp} | \`${ff.expected}\` | \`${ff.got}\` |`);
     } else {
       const re = f.runtimeError;

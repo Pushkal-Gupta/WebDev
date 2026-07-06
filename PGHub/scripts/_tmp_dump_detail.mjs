@@ -1,6 +1,6 @@
 import fs from 'fs';
 const data=JSON.parse(fs.readFileSync('/tmp/slice_data.json','utf8'));
-function clean(s){return (s||'').replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/\n{3,}/g,'\n\n').trim();}
+function clean(s){let out=(s||'');let prev;do{prev=out;out=out.replace(/<[^>]+>/g,'');}while(out!==prev);return out.replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/\n{3,}/g,'\n\n').trim();}
 let buf='';
 for(const p of data){
   if(p.err){buf+=`\n##### ${p.id} ERROR ${p.err}\n`;continue;}

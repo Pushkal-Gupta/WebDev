@@ -11,14 +11,33 @@ import { ACHIEVEMENT_BY_ID } from '../../lib/achievements';
 import { primaryTopicLabel } from '../../lib/topicLabel';
 import './PublicProfile.css';
 
-// Map a URL host to a Lucide icon. Falls back to ExternalLink.
+// Known hosts → Lucide icon. Matched against the parsed hostname (suffix), not a
+// raw substring, so "evil-github.com" can't masquerade as GitHub.
+const HOST_ICONS = [
+  [['github.com', 'gitlab.com', 'bitbucket.org'], Code],
+  [['twitter.com', 'x.com'], AtSign],
+  [['linkedin.com'], Briefcase],
+];
+
+function hostOf(url) {
+  try { return new URL(url).hostname.toLowerCase().replace(/^www\./, ''); } catch { return ''; }
+}
+
+// Map a URL to a Lucide icon. Falls back to ExternalLink.
 function iconForUrl(url, label) {
-  const s = `${url || ''} ${label || ''}`.toLowerCase();
-  if (s.includes('github') || s.includes('gitlab') || s.includes('bitbucket')) return Code;
-  if (s.includes('twitter') || s.includes('x.com')) return AtSign;
-  if (s.includes('linkedin')) return Briefcase;
-  if ((url || '').startsWith('mailto') || s.includes('@')) return Mail;
-  if (/^https?:\/\//.test(url || '')) return Globe;
+  const raw = (url || '').trim();
+  if (raw.startsWith('mailto:') || (!/^https?:\/\//i.test(raw) && raw.includes('@'))) return Mail;
+  const host = hostOf(raw);
+  if (host) {
+    for (const [hosts, Icon] of HOST_ICONS) {
+      if (hosts.some((h) => host === h || host.endsWith(`.${h}`))) return Icon;
+    }
+    return Globe;
+  }
+  // No parseable URL — fall back to a loose label hint for the icon only.
+  const lbl = (label || '').toLowerCase();
+  if (['github', 'gitlab', 'bitbucket'].some((k) => lbl.includes(k))) return Code;
+  if (lbl.includes('linkedin')) return Briefcase;
   return ExternalLink;
 }
 

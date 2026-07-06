@@ -271,7 +271,7 @@ export default function EigenvectorViz() {
   return (
     <div className="mlviz-wrap">
       <div className="mlviz-stage">
-        <svg ref={svgRef} viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg">
+        <svg ref={svgRef} viewBox={`0 0 ${SIZE} ${SIZE}`} className="mlviz-svg" style={{ maxHeight: '36vh' }}>
           <defs>
             <filter id="eig-glow" x="-40%" y="-40%" width="180%" height="180%">
               <feGaussianBlur stdDeviation="2.6" />
@@ -361,7 +361,7 @@ export default function EigenvectorViz() {
         </svg>
       </div>
 
-      <div className="mt-controls">
+      <div className="mt-controls" style={{ padding: '0.55rem 1rem' }}>
         <div className="mt-matrix">
           <span className="mt-bracket mt-bracket-l">[</span>
           <div className="mt-grid">
@@ -387,7 +387,7 @@ export default function EigenvectorViz() {
         </div>
       </div>
 
-      <div className="mlviz-readout mlviz-btn-row" style={{ flexDirection: 'row', gap: '0.4rem', flexWrap: 'wrap' }}>
+      <div className="mlviz-readout mlviz-btn-row" style={{ flexDirection: 'row', gap: '0.4rem', flexWrap: 'wrap', padding: '0.5rem 1rem' }}>
         <button
           type="button"
           className="mlviz-btn mlviz-btn-primary"
@@ -409,7 +409,7 @@ export default function EigenvectorViz() {
         </span>
       </div>
 
-      <div className="mlviz-readout">
+      <div className="mlviz-readout" style={{ padding: '0.5rem 1rem 0.7rem' }}>
         {!eig.real && (
           <div className="mlviz-row mlviz-row-hi">
             <span className="mlviz-tag">no real eigvecs</span>

@@ -30,14 +30,16 @@ function methodNameFromTitle(name) {
 }
 
 function decodeHtml(s) {
-  return String(s)
+  let out = String(s)
     .replace(/&nbsp;/g, ' ')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/<[^>]+>/g, '');
+    .replace(/&amp;/g, '&');
+  let prev;
+  do { prev = out; out = out.replace(/<[^>]+>/g, ''); } while (out !== prev);
+  return out;
 }
 
 function inferPyType(v) {

@@ -104,8 +104,9 @@ function parseFrontmatter(md) {
 
 function buildReferencesYaml(refs) {
   return refs.map(r => {
-    const lines = [`  - title: "${r.title.replace(/"/g, '\\"')}"`];
-    lines.push(`    url: "${r.url}"`);
+    const yamlEsc = s => String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+    const lines = [`  - title: "${yamlEsc(r.title)}"`];
+    lines.push(`    url: "${yamlEsc(r.url)}"`);
     if (r.type) lines.push(`    type: ${r.type}`);
     return lines.join('\n');
   }).join('\n');

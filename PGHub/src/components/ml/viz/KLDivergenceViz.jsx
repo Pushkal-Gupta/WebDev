@@ -169,7 +169,7 @@ export default function KLDivergenceViz() {
           viewBox={`0 0 ${W} ${H}`}
           className="mlviz-svg mlviz-svg-wide"
           preserveAspectRatio="xMidYMid meet"
-          style={{ aspectRatio: `${W} / ${H}` }}
+          style={{ aspectRatio: `${W} / ${H}`, maxHeight: '37vh' }}
         >
           <defs>
             <linearGradient id="kl-grad-p" x1="0" y1="0" x2="0" y2="1">
@@ -445,8 +445,8 @@ export default function KLDivergenceViz() {
           </div>
         </div>
 
-        {/* readouts — single wrapping row of all five metrics */}
-        <div className="mlviz-statcol mlviz-statrow mlviz-row-hi">
+        {/* readouts — single row of all five metrics */}
+        <div className="mlviz-statcol mlviz-statrow mlviz-row-hi kl-cards">
           <div className="mlviz-statcard mlviz-statcard-accent">
             <span className="mlviz-statcard-label">D(p‖q) bits</span>
             <span className="mlviz-statcard-val">{klPQ.toFixed(3)}</span>

@@ -43,9 +43,14 @@ function htmlEscape(str) {
 // such as onerror= / onload= on a tag. Benign text and inert tags ( <b> ) do not.
 function hasActiveMarkup(str) {
   const lower = str.toLowerCase();
-  const scriptTag = /<script[\s>]/.test(lower);
+  // Match the opening of an executable/embedding tag regardless of what follows
+  // (`<script>`, `<script `, `<script\n`, `<script>` at end of input, iframe,
+  // object, embed) — a name-boundary check, not a full ">"-terminated tag, so it
+  // can't be slipped past by omitting the closing bracket.
+  const dangerousTag = /<\s*(script|iframe|object|embed)\b/.test(lower);
   const eventHandler = /<[^>]+\son\w+\s*=/.test(lower);
-  return scriptTag || eventHandler;
+  const jsUri = /(?:href|src)\s*=\s*['"]?\s*javascript:/.test(lower);
+  return dangerousTag || eventHandler || jsUri;
 }
 
 // Soft-wrap a long string into lines that fit the SVG column without an inner

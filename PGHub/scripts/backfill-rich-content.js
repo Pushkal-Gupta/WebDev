@@ -56,17 +56,23 @@ function decodeEntities(s) {
   if (!s) return s;
   return s
     .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&apos;/g, "'");
+    .replace(/&apos;/g, "'")
+    .replace(/&amp;/g, '&');
+}
+
+function removeTags(s) {
+  let prev;
+  do { prev = s; s = s.replace(/<[^>]+>/g, ''); } while (s !== prev);
+  return s;
 }
 
 function stripTags(html) {
   if (!html) return '';
-  return decodeEntities(html.replace(/<[^>]+>/g, '')).replace(/\s+/g, ' ').trim();
+  return decodeEntities(removeTags(html)).replace(/\s+/g, ' ').trim();
 }
 
 // Find a section starting with one of the headers. Returns the slice from the
@@ -126,7 +132,7 @@ function parseExamples(html) {
   let m;
   while ((m = re.exec(html))) {
     const raw = m[2];
-    const text = decodeEntities(raw.replace(/<\/?[^>]+>/g, ''));
+    const text = decodeEntities(removeTags(raw));
     const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
     let input = '', output = '', explanation = '';
     let mode = null;

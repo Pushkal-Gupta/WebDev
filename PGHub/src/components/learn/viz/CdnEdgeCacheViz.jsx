@@ -165,8 +165,12 @@ export default function CdnEdgeCacheViz() {
     setStep(totalSteps);
   };
 
+  // Cycle through the demo users deterministically — no need for randomness, and
+  // it keeps the walkthrough reproducible.
+  const demoIdxRef = useRef(0);
   const demoRequest = () => {
-    const u = USERS[Math.floor(Math.random() * USERS.length)];
+    const u = USERS[demoIdxRef.current % USERS.length];
+    demoIdxRef.current += 1;
     issueRequest(u.id);
   };
 

@@ -23,14 +23,16 @@ const sb = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERV
 const dry = process.argv.includes('--dry');
 
 function decodeHtml(s) {
-  return String(s || '')
+  let out = String(s || '')
     .replace(/&nbsp;/g, ' ')
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
     .replace(/&gt;/g, '>')
-    .replace(/<[^>]+>/g, '');
+    .replace(/&amp;/g, '&');
+  let prev;
+  do { prev = out; out = out.replace(/<[^>]+>/g, ''); } while (out !== prev);
+  return out;
 }
 
 // Extract all "Input: ... Output: ..." example pairs from the description.

@@ -930,9 +930,11 @@
 
 .dps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-  padding: 0.5rem;
+  /* keep all three panels on ONE row down to a ~440px container so the unit
+     stays short — a stacked column would push the slider below the fold. */
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.45rem;
+  padding: 0.45rem;
   background:
     radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb, 0,255,245), 0.05), transparent 60%),
     var(--bg);
@@ -945,21 +947,23 @@
   border: 1px solid var(--viz-line);
   border-radius: 10px;
   background: var(--viz-card);
-  padding: 0.5rem 0.4rem 0.6rem;
+  padding: 0.4rem 0.3rem 0.45rem;
+  min-width: 0;
 }
 
 .dps-panel-label {
   font-family: var(--mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 700;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.15rem;
 }
 
 .dps-svg {
   width: 100%;
-  max-width: 220px;
+  max-width: 158px;
+  max-height: 158px;
   aspect-ratio: 1;
   display: block;
 }
@@ -968,8 +972,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
-  margin-top: 0.3rem;
+  gap: 0.1rem;
+  margin-top: 0.2rem;
 }
 
 .dps-readout-num {
@@ -1360,17 +1364,49 @@
   min-width: 6rem;
 }
 
-/* EigenvectorViz premium cards */
+/* EigenvectorViz premium cards — keep all five on one compact row so the
+   unit (svg + matrix controls + cards) stays within the fold at 1366x768. */
 .eig-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
-  gap: 0.45rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.4rem;
+}
+.eig-cards .mlviz-statcard {
+  padding: 0.4rem 0.5rem;
+  gap: 0.12rem;
+  min-width: 0;
+}
+.eig-cards .mlviz-statcard-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
 }
 .eig-card-sub {
   font-family: var(--mono);
-  font-size: 0.66rem;
+  font-size: 0.62rem;
   color: var(--text-dim);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 560px) {
+  .eig-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* KLDivergenceViz premium cards — five metrics on one compact row. */
+.kl-cards.mlviz-statrow .mlviz-statcard {
+  padding: 0.4rem 0.5rem;
+  gap: 0.12rem;
+  min-width: 64px;
+}
+.kl-cards .mlviz-statcard-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.06em;
+}
+.kl-cards.mlviz-statrow .mlviz-statcard-val {
+  font-size: 0.9rem;
 }
 
 /* GANViz premium cards (additive) */

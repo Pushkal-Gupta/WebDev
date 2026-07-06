@@ -172,12 +172,18 @@ function defaultReturnCpp(t) {
   return 'return {};';
 }
 
+function stripHtmlTags(s) {
+  let out = String(s || ''), prev;
+  do { prev = out; out = out.replace(/<[^>]+>/g, ''); } while (out !== prev);
+  return out;
+}
+
 // === Templated editorial ===
 function buildEditorial(p) {
   const tags = Array.isArray(p.tags) ? p.tags : [];
   const hints = Array.isArray(p.hints) ? p.hints : [];
   const topic = p.topic_id || tags[0] || 'algorithms';
-  const desc = (p.description || '').replace(/<[^>]+>/g, '').slice(0, 300).trim();
+  const desc = stripHtmlTags(p.description || '').slice(0, 300).trim();
 
   const sections = [];
   sections.push(`## Approach`);

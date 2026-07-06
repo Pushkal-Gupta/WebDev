@@ -143,7 +143,7 @@ export default function DotProductSignViz() {
         ))}
       </div>
 
-      <div className="mlviz-readout">
+      <div className="mlviz-readout" style={{ padding: '0.5rem 1rem' }}>
         <div className="mlviz-row">
           <span className="mlviz-tag" style={{ color: 'var(--accent)' }}>u</span>
           <span className="mlviz-val">= [{u[0].toFixed(1)}, {u[1].toFixed(1)}] is fixed.</span>
@@ -151,7 +151,7 @@ export default function DotProductSignViz() {
         </div>
       </div>
 
-      <div className="mlviz-controls" style={{ padding: '0.85rem 1rem 0.85rem', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+      <div className="mlviz-controls" style={{ padding: '0.6rem 1rem', borderTop: '1px solid var(--border)', background: 'var(--surface)', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <div className="mlviz-slider" style={{ flex: 1, minWidth: 0 }}>
           <span className="mlviz-slider-label">rotate v</span>
           <input

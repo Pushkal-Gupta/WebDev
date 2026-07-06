@@ -1,0 +1,12 @@
+# CodeQL scope for the WebDev monorepo.
+# Exclude build output and vendored code — these are committed only because the
+# site is served straight from the repo (GitHub Pages), NOT hand-written source.
+# Scanning them just surfaces third-party library findings (e.g. Three.js using
+# Math.random inside PG.Play/dist) that aren't ours to fix.
+name: "WebDev CodeQL config"
+
+paths-ignore:
+  - "**/dist/**"          # built bundles (minified, third-party inlined)
+  - "**/node_modules/**"
+  - "**/*.min.js"
+  - "**/vendor/**"
