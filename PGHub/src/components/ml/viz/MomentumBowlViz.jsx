@@ -246,7 +246,7 @@ export default function MomentumBowlViz() {
 
           {/* start marker */}
           <circle cx={xToPx(START_X)} cy={yToPx(START_Y)} r={5} fill="none" stroke="var(--text-dim)" strokeWidth="1.5" />
-          <text x={xToPx(START_X) + 8} y={yToPx(START_Y) - 6} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)">start</text>
+          <text x={xToPx(START_X) + 8} y={yToPx(START_Y) - 6} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)">start</text>
 
           {/* velocity arrow (momentum) */}
           {vMag > 0.05 && (
@@ -271,11 +271,11 @@ export default function MomentumBowlViz() {
             <rect x="-6" y="-6" width="178" height="46" rx="6" fill="var(--surface)" opacity="0.88" stroke="var(--border)" />
             <g transform="translate(0, 6)">
               <line x1="0" y1="4" x2="18" y2="4" stroke={COLOR_SGD} strokeWidth="1.8" />
-              <text x="24" y="7" fontSize="9.5" fill="var(--text-main)" fontFamily="var(--mono)">Vanilla SGD</text>
+              <text x="24" y="7" fontSize="11.5" fill="var(--text-main)" fontFamily="var(--mono)">Vanilla SGD</text>
             </g>
             <g transform="translate(0, 22)">
               <line x1="0" y1="4" x2="18" y2="4" stroke={COLOR_MOM} strokeWidth="2.2" />
-              <text x="24" y="7" fontSize="9.5" fill="var(--text-main)" fontFamily="var(--mono)">Momentum (β={snap(beta, 2)})</text>
+              <text x="24" y="7" fontSize="11.5" fill="var(--text-main)" fontFamily="var(--mono)">Momentum (β={snap(beta, 2)})</text>
             </g>
           </g>
         </svg>

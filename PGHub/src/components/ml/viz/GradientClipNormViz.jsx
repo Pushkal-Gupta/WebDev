@@ -120,7 +120,7 @@ export default function GradientClipNormViz() {
           </defs>
 
           {/* ===== left: geometric panel ===== */}
-          <text x={GX} y={16} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.12em">NORM-BALL GEOMETRY</text>
+          <text x={GX} y={16} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.12em">NORM-BALL GEOMETRY</text>
 
           {/* clip-by-value box */}
           <rect x={GCX - boxHalf} y={GCY - boxHalf} width={boxHalf * 2} height={boxHalf * 2} fill="none" stroke={COLOR_VAL} strokeWidth="1.1" strokeDasharray="4 3" opacity="0.7" />
@@ -138,7 +138,7 @@ export default function GradientClipNormViz() {
           {/* clip-by-norm result */}
           <line x1={GCX} y1={GCY} x2={normTx} y2={normTy} stroke={COLOR_NORM} strokeWidth="2.4" markerEnd="url(#gcn-norm)" opacity="0.95" />
 
-          <text x={GCX} y={H - 8} fontSize="8.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+          <text x={GCX} y={H - 8} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
             ‖g‖ {snap(norm, 2)} {fires ? `→ clip fires (×${snap(scale, 2)})` : '→ under threshold'}
           </text>
 
@@ -146,13 +146,13 @@ export default function GradientClipNormViz() {
           <line x1={TX - 12} y1={12} x2={TX - 12} y2={H - 12} stroke="var(--border)" strokeWidth="0.6" strokeDasharray="2 4" opacity="0.6" />
 
           {/* ===== right: spiky timeline ===== */}
-          <text x={TX} y={16} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.12em">GRADIENT NORM OVER STEPS</text>
+          <text x={TX} y={16} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.12em">GRADIENT NORM OVER STEPS</text>
 
           {/* baseline */}
           <line x1={TX} y1={TPAD_T + TH} x2={TX + TW} y2={TPAD_T + TH} stroke="var(--border)" strokeWidth="0.8" opacity="0.6" />
           {/* clip ceiling */}
           <line x1={TX} y1={clipY} x2={TX + TW} y2={clipY} stroke={COLOR_NORM} strokeWidth="1.2" strokeDasharray="5 3" opacity="0.8" />
-          <text x={TX + TW} y={clipY - 4} fontSize="8" fill={COLOR_NORM} fontFamily="var(--mono)" textAnchor="end">clip c = {snap(clip, 1)}</text>
+          <text x={TX + TW} y={clipY - 4} fontSize="11.5" fill={COLOR_NORM} fontFamily="var(--mono)" textAnchor="end">clip c = {snap(clip, 1)}</text>
 
           {/* raw spiky norm */}
           <path d={timelinePath} fill="none" stroke={COLOR_RAW} strokeWidth="1.4" opacity="0.55" strokeLinejoin="round" />
@@ -166,7 +166,7 @@ export default function GradientClipNormViz() {
             ) : null
           ))}
 
-          <text x={TX + TW / 2} y={H - 8} fontSize="8.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+          <text x={TX + TW / 2} y={H - 8} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
             {spikesTamed} spike{spikesTamed === 1 ? '' : 's'} flattened to the cap
           </text>
         </svg>

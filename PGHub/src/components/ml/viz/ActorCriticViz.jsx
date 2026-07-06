@@ -144,7 +144,7 @@ export default function ActorCriticViz() {
       <div className="mlviz-stage">
         <svg viewBox={`0 0 ${W} ${H}`} className="mlviz-svg mlviz-svg-wide" style={{ maxWidth: '840px' }}>
           {/* ---------- ACTOR: corridor + action probabilities ---------- */}
-          <text x={PAD} y={40} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
+          <text x={PAD} y={40} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
             ACTOR · π(right | s) drives the move · episode {episode}
           </text>
 
@@ -180,15 +180,15 @@ export default function ActorCriticViz() {
                     />
                   </>
                 )}
-                <text x={cx + cellW / 2} y={corrY + 18} fontSize="8" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+                <text x={cx + cellW / 2} y={corrY + 18} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
                   s{i}
                 </text>
                 {isGoal ? (
-                  <text x={cx + cellW / 2} y={corrY + 33} fontSize="7.5" fill="var(--accent)" fontFamily="var(--mono)" textAnchor="middle">
+                  <text x={cx + cellW / 2} y={corrY + 33} fontSize="11.5" fill="var(--accent)" fontFamily="var(--mono)" textAnchor="middle">
                     goal
                   </text>
                 ) : (
-                  <text x={cx + cellW / 2} y={corrY + 33} fontSize="7" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+                  <text x={cx + cellW / 2} y={corrY + 33} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
                     →{snap(pr, 2)}
                   </text>
                 )}
@@ -200,7 +200,7 @@ export default function ActorCriticViz() {
           })}
 
           {/* ---------- CRITIC: value estimate bars ---------- */}
-          <text x={PAD} y={valY0 - 10} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
+          <text x={PAD} y={valY0 - 10} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
             CRITIC · V(s) estimate
           </text>
           <line x1={PAD} y1={valY0 + valH} x2={W - PAD} y2={valY0 + valH} stroke="var(--border)" strokeWidth="0.8" />
@@ -212,10 +212,10 @@ export default function ActorCriticViz() {
             return (
               <g key={`v-${i}`}>
                 <rect x={cx + cellW * 0.18} y={by} width={cellW * 0.64} height={Math.max(1, bh)} fill="var(--hue-sky)" opacity={isAgent ? 0.9 : 0.55} rx="2" />
-                <text x={cx + cellW / 2} y={by - 4} fontSize="7.5" fill={isAgent ? 'var(--accent)' : 'var(--text-dim)'} fontFamily="var(--mono)" textAnchor="middle" fontWeight="700">
+                <text x={cx + cellW / 2} y={by - 4} fontSize="11.5" fill={isAgent ? 'var(--accent)' : 'var(--text-dim)'} fontFamily="var(--mono)" textAnchor="middle" fontWeight="700">
                   {snap(v, 2)}
                 </text>
-                <text x={cx + cellW / 2} y={valY0 + valH + 12} fontSize="7" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
+                <text x={cx + cellW / 2} y={valY0 + valH + 12} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">
                   s{i}
                 </text>
               </g>
@@ -223,7 +223,7 @@ export default function ActorCriticViz() {
           })}
 
           {/* ---------- advantage signal arrow ---------- */}
-          <text x={PAD} y={valY0 + valH + 34} fontSize="9" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
+          <text x={PAD} y={valY0 + valH + 34} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" letterSpacing="0.1em">
             ADVANTAGE δ
           </text>
           <rect
@@ -235,7 +235,7 @@ export default function ActorCriticViz() {
             opacity="0.8"
             rx="3"
           />
-          <text x={W - PAD} y={valY0 + valH + 35} fontSize="8.5" fill={advHue} fontFamily="var(--mono)" textAnchor="end" fontWeight="700">
+          <text x={W - PAD} y={valY0 + valH + 35} fontSize="11.5" fill={advHue} fontFamily="var(--mono)" textAnchor="end" fontWeight="700">
             {delta >= 0 ? '+' : ''}{snap(delta, 3)} {delta >= 0 ? '(action ↑)' : '(action ↓)'}
           </text>
         </svg>

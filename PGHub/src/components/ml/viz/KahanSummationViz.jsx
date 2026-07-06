@@ -120,7 +120,7 @@ export default function KahanSummationViz() {
           <text
             x={plotX}
             y={plotY - 16}
-            fontSize="9"
+            fontSize="11.5"
             fill="var(--text-dim)"
             fontFamily="var(--mono)"
             letterSpacing="0.12em"
@@ -147,7 +147,7 @@ export default function KahanSummationViz() {
                 <text
                   x={plotX - 6}
                   y={gy + 3}
-                  fontSize="7"
+                  fontSize="11.5"
                   fill="var(--text-dim)"
                   fontFamily="var(--mono)"
                   textAnchor="end"
@@ -181,7 +181,7 @@ export default function KahanSummationViz() {
           <text
             x={naiveBarX + barW / 2}
             y={plotY + plotH - naiveBarH - 5}
-            fontSize="8"
+            fontSize="11.5"
             fill="var(--hard)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -192,7 +192,7 @@ export default function KahanSummationViz() {
           <text
             x={naiveBarX + barW / 2}
             y={plotY + plotH + 14}
-            fontSize="8"
+            fontSize="11.5"
             fill="var(--text-dim)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -213,7 +213,7 @@ export default function KahanSummationViz() {
           <text
             x={kahanBarX + barW / 2}
             y={plotY + plotH - kahanBarH - 5}
-            fontSize="8"
+            fontSize="11.5"
             fill="var(--accent)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -224,7 +224,7 @@ export default function KahanSummationViz() {
           <text
             x={kahanBarX + barW / 2}
             y={plotY + plotH + 14}
-            fontSize="8"
+            fontSize="11.5"
             fill="var(--text-dim)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -237,7 +237,7 @@ export default function KahanSummationViz() {
             <text
               x={plotX + plotW}
               y={plotY - 16}
-              fontSize="8"
+              fontSize="11.5"
               fill="var(--text-main)"
               fontFamily="var(--mono)"
               textAnchor="end"

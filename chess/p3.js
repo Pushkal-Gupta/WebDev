@@ -17,7 +17,7 @@ dataReload();
 mobileResponsiveMaxWidth = 850;
 // ─── Supabase (shared auth across all PG sites) ───────────────────────────────
 const SB_URL = "https://ykpjmvoyatcrlqyqbgfu.supabase.co";
-const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q";
+const SB_KEY = "sb_publishable__qbY0vXkNpH_rLhb4GYkAA_efhWihBH";
 const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
 // ─── Supabase chess DB (game storage) ────────────────────────────────────────
 const SB_CHESS_URL = "https://yzrhvdyvvplimcwfiorh.supabase.co";

@@ -74,10 +74,18 @@ function guardSecret() {
       try { role = JSON.parse(Buffer.from(m[1], 'base64').toString('utf8')).role; } catch { role = null; }
       if (role === 'service_role') {
         const line = text.slice(0, m.index).split('\n').length;
-        hits.push(`${path.relative(ROOT, f)}:${line}: a hardcoded service_role key — move it to an env var (SUPABASE_SERVICE_ROLE_KEY) and rotate the leaked key`);
+        hits.push(`${path.relative(ROOT, f)}:${line}: a hardcoded service_role JWT — move it to an env var (SUPABASE_SERVICE_ROLE_KEY)`);
       }
     }
     JWT_RE.lastIndex = 0;
+    // New Supabase secret API keys (sb_secret_...) are as dangerous as the old
+    // service_role JWT — they must never be committed. (sb_publishable_... is
+    // public and allowed.)
+    const si = text.indexOf('sb_secret_');
+    if (si !== -1) {
+      const line = text.slice(0, si).split('\n').length;
+      hits.push(`${path.relative(ROOT, f)}:${line}: a hardcoded sb_secret_ key — move it to a gitignored .env (never commit)`);
+    }
   }
   return hits;
 }

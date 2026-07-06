@@ -39,7 +39,7 @@ function clearAnalysisState() {
 
 
 const _openingCache = new Map();
-const _ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q';
+const _ANON_KEY = 'sb_publishable__qbY0vXkNpH_rLhb4GYkAA_efhWihBH';
 async function fetchOpeningName(fen) {
   if (_openingCache.has(fen)) return _openingCache.get(fen);
   try {

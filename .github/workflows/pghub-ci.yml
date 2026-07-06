@@ -20,6 +20,11 @@ concurrency:
   group: pghub-ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Least privilege — CodeQL flags workflows without an explicit permissions block.
+# CI only needs to read the repo.
+permissions:
+  contents: read
+
 defaults:
   run:
     working-directory: PGHub

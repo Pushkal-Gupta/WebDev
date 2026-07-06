@@ -58,8 +58,8 @@ export async function fetchExplorerData(fen, db = 'lichess') {
       const res = await fetch(`${PROXY_URL}?${params}`, {
         headers: {
           Accept: 'application/json',
-          apikey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q',
-          Authorization: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlrcGptdm95YXRjcmxxeXFiZ2Z1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNzgyNTEsImV4cCI6MjA4OTk1NDI1MX0.LgSbUHB93i5S61jp5d_0sAUWosZzDWWWv7jwoU6X-3Q',
+          apikey: 'sb_publishable__qbY0vXkNpH_rLhb4GYkAA_efhWihBH',
+          Authorization: 'Bearer sb_publishable__qbY0vXkNpH_rLhb4GYkAA_efhWihBH',
         },
         signal: AbortSignal.timeout(8000),
       });

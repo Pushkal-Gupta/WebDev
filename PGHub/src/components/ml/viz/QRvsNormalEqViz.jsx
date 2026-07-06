@@ -230,7 +230,7 @@ export default function QRvsNormalEqViz() {
           <text
             x={plotX}
             y={plotY - 12}
-            fontSize="9"
+            fontSize="11.5"
             fill="var(--text-dim)"
             fontFamily="var(--mono)"
             letterSpacing="0.12em"
@@ -280,10 +280,10 @@ export default function QRvsNormalEqViz() {
             />
           ))}
 
-          <text x={plotX} y={plotY + plotH + 14} fontSize="8" fill="var(--text-dim)" fontFamily="var(--mono)">
+          <text x={plotX} y={plotY + plotH + 14} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)">
             x = 0
           </text>
-          <text x={plotX + plotW} y={plotY + plotH + 14} fontSize="8" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="end">
+          <text x={plotX + plotW} y={plotY + plotH + 14} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="end">
             x = 1
           </text>
         </svg>

@@ -130,7 +130,7 @@ export default function LRScheduleShapesViz() {
               <text
                 x={PAD_L - 8}
                 y={lrToPx(g) + 3}
-                fontSize="8"
+                fontSize="11.5"
                 fill="var(--text-dim)"
                 fontFamily="var(--mono)"
                 textAnchor="end"
@@ -146,7 +146,7 @@ export default function LRScheduleShapesViz() {
               key={`xt-${p}`}
               x={pToPx(p)}
               y={H - PAD_B + 14}
-              fontSize="8"
+              fontSize="11.5"
               fill="var(--text-dim)"
               fontFamily="var(--mono)"
               textAnchor="middle"
@@ -157,7 +157,7 @@ export default function LRScheduleShapesViz() {
           <text
             x={PAD_L + PLOT_W / 2}
             y={H - 6}
-            fontSize="8.5"
+            fontSize="11.5"
             fill="var(--text-dim)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -168,7 +168,7 @@ export default function LRScheduleShapesViz() {
           <text
             x={14}
             y={PAD_T + PLOT_H / 2}
-            fontSize="8.5"
+            fontSize="11.5"
             fill="var(--text-dim)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -230,7 +230,7 @@ export default function LRScheduleShapesViz() {
           <text
             x={mx}
             y={PAD_T - 6}
-            fontSize="8.5"
+            fontSize="11.5"
             fill="var(--text-main)"
             fontFamily="var(--mono)"
             textAnchor="middle"
@@ -245,7 +245,7 @@ export default function LRScheduleShapesViz() {
             {SCHEDULES.map((s, i) => (
               <g key={`lg-${s.key}`} transform={`translate(0, ${i * 14 + 6})`}>
                 <line x1="0" y1="3" x2="18" y2="3" stroke={s.color} strokeWidth="2.2" strokeDasharray={s.dash} />
-                <text x="24" y="6" fontSize="8.5" fill="var(--text-main)" fontFamily="var(--mono)">
+                <text x="24" y="6" fontSize="11.5" fill="var(--text-main)" fontFamily="var(--mono)">
                   {s.label}
                 </text>
               </g>

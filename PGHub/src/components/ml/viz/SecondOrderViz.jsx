@@ -131,14 +131,14 @@ export default function SecondOrderViz() {
 
           {/* baseline (minimum x) */}
           <line x1={xToPx(cfg.m)} y1={PAD_T} x2={xToPx(cfg.m)} y2={H - PAD_B} stroke="var(--accent)" strokeWidth="0.8" strokeDasharray="3 3" opacity="0.45" />
-          <text x={xToPx(cfg.m) + 4} y={PAD_T + 10} fontSize="8.5" fill="var(--accent)" fontFamily="var(--mono)">min</text>
+          <text x={xToPx(cfg.m) + 4} y={PAD_T + 10} fontSize="11.5" fill="var(--accent)" fontFamily="var(--mono)">min</text>
 
           {/* axis */}
           <line x1={PAD_L} y1={H - PAD_B} x2={W - PAD_R} y2={H - PAD_B} stroke="var(--border)" strokeWidth="1" opacity="0.6" />
           {[-3, -2, -1, 0, 1, 2, 3].map((tx) => (
-            <text key={`xt${tx}`} x={xToPx(tx)} y={H - PAD_B + 14} fontSize="8" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">{tx}</text>
+            <text key={`xt${tx}`} x={xToPx(tx)} y={H - PAD_B + 14} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle">{tx}</text>
           ))}
-          <text x={PAD_L + PLOT_W / 2} y={H - 4} fontSize="8.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle" letterSpacing="0.1em">parameter x</text>
+          <text x={PAD_L + PLOT_W / 2} y={H - 4} fontSize="11.5" fill="var(--text-dim)" fontFamily="var(--mono)" textAnchor="middle" letterSpacing="0.1em">parameter x</text>
 
           {/* Newton's local parabola fit */}
           <path d={parabPath} fill="none" stroke={COLOR_NEWTON} strokeWidth="1.4" strokeDasharray="4 4" opacity="0.65" />
@@ -163,11 +163,11 @@ export default function SecondOrderViz() {
             <rect x="-4" y="-4" width="196" height="50" rx="6" fill="var(--surface)" opacity="0.86" stroke="var(--border)" />
             <g transform="translate(0,6)">
               <line x1="0" y1="3" x2="18" y2="3" stroke={COLOR_GD} strokeWidth="2" strokeDasharray="2 3" />
-              <text x="24" y="6" fontSize="8.5" fill="var(--text-main)" fontFamily="var(--mono)">GD: step along tangent</text>
+              <text x="24" y="6" fontSize="11.5" fill="var(--text-main)" fontFamily="var(--mono)">GD: step along tangent</text>
             </g>
             <g transform="translate(0,22)">
               <line x1="0" y1="3" x2="18" y2="3" stroke={COLOR_NEWTON} strokeWidth="2" strokeDasharray="4 4" />
-              <text x="24" y="6" fontSize="8.5" fill="var(--text-main)" fontFamily="var(--mono)">Newton: jump to parabola min</text>
+              <text x="24" y="6" fontSize="11.5" fill="var(--text-main)" fontFamily="var(--mono)">Newton: jump to parabola min</text>
             </g>
           </g>
         </svg>
