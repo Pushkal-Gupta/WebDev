@@ -1,0 +1,104 @@
+.clex { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.clex-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.clex-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.clex-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.clex-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.clex-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.clex-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.clex-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.clex-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.clex-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.clex-strip-label { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.05em; }
+
+/* source characters */
+.clex-char-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: fill var(--t), stroke var(--t); }
+.clex-char-text { font-size: 0.85rem; fill: var(--text-dim); font-family: var(--mono); font-weight: 600; }
+.clex-char.is-consumed .clex-char-box { fill: var(--hover-box); }
+.clex-char.is-consumed .clex-char-text { fill: var(--text-main); }
+.clex-char.is-cursor .clex-char-box { stroke: var(--accent); stroke-width: 2.4; fill: color-mix(in srgb, var(--accent) 16%, var(--bg)); }
+.clex-char.is-cursor .clex-char-text { fill: var(--text-main); }
+.clex-cursor-arrow { fill: var(--accent); }
+
+/* state machine row */
+.clex-state-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: fill var(--t), stroke var(--t), stroke-width var(--t); }
+.clex-state-text { font-size: 0.62rem; fill: var(--text-dim); font-family: var(--mono); font-weight: 700; }
+.clex-state.is-active .clex-state-box { stroke-width: 2.6; }
+.clex-state.is-active .clex-state-text { fill: var(--text-main); }
+.clex-state-start.is-active .clex-state-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 18%, var(--bg)); }
+.clex-state-ident.is-active .clex-state-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 18%, var(--bg)); }
+.clex-state-number.is-active .clex-state-box { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 18%, var(--bg)); }
+.clex-state-op.is-active .clex-state-box { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 18%, var(--bg)); }
+.clex-state-emit.is-active .clex-state-box { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 18%, var(--bg)); }
+.clex-building { font-size: 0.8rem; fill: var(--accent); font-family: var(--mono); font-weight: 700; }
+
+/* token chips */
+.clex-tokens { display: flex; flex-direction: column; gap: 0.35rem; }
+.clex-tokens-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.clex-tokens-row { display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 30px; align-items: center; }
+.clex-token-empty { font-size: 0.72rem; color: var(--text-dim); font-style: italic; }
+.clex-token {
+  display: inline-flex; flex-direction: column; align-items: flex-start;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 7px;
+  padding: 0.22rem 0.5rem; background: var(--surface);
+}
+.clex-token-kind { font-size: 0.54rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.clex-token-text { font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+.clex-token-keyword { border-left-color: var(--hue-pink); background: color-mix(in srgb, var(--hue-pink) 9%, var(--surface)); }
+.clex-token-ident { border-left-color: var(--hue-violet); background: color-mix(in srgb, var(--hue-violet) 9%, var(--surface)); }
+.clex-token-number { border-left-color: var(--hue-mint); background: color-mix(in srgb, var(--hue-mint) 9%, var(--surface)); }
+.clex-token-op { border-left-color: var(--warning); background: color-mix(in srgb, var(--warning) 9%, var(--surface)); }
+.clex-token-eof { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+
+/* controls */
+.clex-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.clex-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.clex-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.clex-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.clex-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.clex-speed-range { accent-color: var(--accent); }
+.clex-speed-value { font-weight: 700; color: var(--text-main); }
+.clex-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.clex-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.clex-stat {
+  flex: 1 1 28%; min-width: 120px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.clex-stat.is-state { border-left-color: var(--hue-violet); }
+.clex-stat.is-cursor { border-left-color: var(--hue-sky); }
+.clex-stat.is-count { border-left-color: var(--hue-mint); }
+.clex-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.clex-stat-val { margin-left: auto; font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+
+.clex-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.clex-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.clex-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .clex-char-box, .clex-char-text, .clex-state-box, .clex-state-text { transition: none; }
+}

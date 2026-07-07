@@ -1,0 +1,94 @@
+.archpl { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.archpl-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.archpl-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.archpl-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.archpl-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.archpl-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.archpl-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.archpl-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.archpl-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem; }
+.archpl-chip {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+  padding: 0.34rem 0.75rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.archpl-chip:hover { border-color: var(--accent); color: var(--accent); }
+.archpl-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.archpl-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 0.55rem; margin-left: auto; }
+.archpl-legend-item {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.64rem; font-weight: 600; color: var(--text-dim);
+}
+.archpl-legend-swatch { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--border); }
+
+.archpl-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.archpl-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.archpl-cyc { font-size: 0.66rem; fill: var(--text-dim); font-family: var(--mono); font-weight: 600; opacity: 0.5; transition: opacity var(--t), fill var(--t); }
+.archpl-cyc.is-done { opacity: 1; }
+.archpl-cyc.is-now { fill: var(--accent); }
+
+.archpl-nowcol { fill: color-mix(in srgb, var(--accent) 8%, transparent); stroke: color-mix(in srgb, var(--accent) 40%, transparent); stroke-width: 1.2; }
+
+.archpl-instr { font-size: 0.68rem; fill: var(--text-main); font-family: var(--mono); font-weight: 600; }
+
+.archpl-cell { opacity: 0.35; transition: opacity var(--t); }
+.archpl-cell.is-on { opacity: 1; }
+.archpl-stagecell { stroke-width: 1.4; transition: fill var(--t); }
+.archpl-stage-t { font-size: 0.62rem; font-weight: 700; font-family: var(--mono); }
+
+.archpl-bubble { stroke: var(--warning); stroke-width: 1.4; }
+.archpl-bubble-t { font-size: 0.54rem; font-weight: 700; fill: var(--warning); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.03em; }
+.archpl-hatch-bg { fill: color-mix(in srgb, var(--warning) 10%, transparent); }
+.archpl-hatch-line { stroke: color-mix(in srgb, var(--warning) 55%, transparent); stroke-width: 1.6; }
+
+.archpl-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.archpl-speed { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.archpl-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.archpl-speed-range { width: 96px; accent-color: var(--accent); }
+.archpl-speed-value { font-family: var(--mono); font-size: 0.72rem; color: var(--text-main); min-width: 2.6em; text-align: right; }
+.archpl-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.archpl-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.archpl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.archpl-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+.archpl-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.archpl-stat {
+  flex: 1 1 22%; min-width: 128px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.archpl-stat.is-cycle { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.archpl-stat.is-good { border-left-color: var(--easy); color: var(--easy); }
+.archpl-stat.is-warn { border-left-color: var(--warning); color: var(--warning); }
+.archpl-stat.is-cpi { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.archpl-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.archpl-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; }
+
+.archpl-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.archpl-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.archpl-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }

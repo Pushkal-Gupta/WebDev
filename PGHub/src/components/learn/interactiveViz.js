@@ -307,6 +307,14 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import DataEtlPipelineViz from './viz/DataEtlPipelineViz';
+import DataStreamWindowViz from './viz/DataStreamWindowViz';
+import DataStarSchemaViz from './viz/DataStarSchemaViz';
+import DataKafkaLogViz from './viz/DataKafkaLogViz';
+import ArchPipelineViz from './viz/ArchPipelineViz';
+import ArchMemoryHierarchyViz from './viz/ArchMemoryHierarchyViz';
+import ArchCacheViz from './viz/ArchCacheViz';
+import ArchFloatBitsViz from './viz/ArchFloatBitsViz';
 import GitCommitDagViz from './viz/GitCommitDagViz';
 import GitBranchMergeViz from './viz/GitBranchMergeViz';
 import GitRebaseViz from './viz/GitRebaseViz';
@@ -1105,6 +1113,18 @@ export const INTERACTIVE_VIZ = {
   'cloud-orchestration-k8s': CloudK8sReconcileViz,
   'cloud-networking-storage': CloudNetVolumeViz,
   'cloud-cicd-deploy': CloudDeployStrategyViz,
+
+  // --- computer architecture ---
+  'arch-cpu-pipeline': ArchPipelineViz,
+  'arch-memory-hierarchy': ArchMemoryHierarchyViz,
+  'arch-cache-mechanics': ArchCacheViz,
+  'arch-numbers-representation': ArchFloatBitsViz,
+
+  // --- data engineering ---
+  'data-etl-pipelines': DataEtlPipelineViz,
+  'data-batch-streaming': DataStreamWindowViz,
+  'data-warehouse-modeling': DataStarSchemaViz,
+  'data-messaging-queues': DataKafkaLogViz,
 };
 
 export default INTERACTIVE_VIZ;

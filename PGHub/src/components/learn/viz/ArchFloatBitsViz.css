@@ -1,0 +1,126 @@
+.archfb { display: flex; flex-direction: column; gap: 0.85rem; font-family: var(--mono); }
+
+.archfb-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.archfb-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.archfb-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.archfb-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.archfb-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.archfb-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.archfb-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.archfb-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.archfb-chip {
+  font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+  padding: 0.34rem 0.75rem; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.archfb-chip:hover { border-color: var(--accent); color: var(--accent); }
+.archfb-chip.is-active { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.archfb-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.archfb-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* field labels */
+.archfb-fieldlab { opacity: 0.5; transition: opacity var(--t); }
+.archfb-fieldlab.is-shown { opacity: 0.85; }
+.archfb-fieldlab.is-active { opacity: 1; }
+.archfb-lab { font-size: 0.72rem; font-weight: 700; font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+.archfb-labsub { font-size: 0.56rem; fill: var(--text-dim); font-family: var(--mono); }
+.archfb-l-sign .archfb-lab { fill: var(--hue-pink); }
+.archfb-l-exp .archfb-lab { fill: var(--hue-sky); }
+.archfb-l-mant .archfb-lab { fill: var(--hue-violet); }
+
+/* bit cells */
+.archfb-cell { transition: opacity var(--t); }
+.archfb-cell.is-dim { opacity: 0.45; }
+.archfb-cell.is-active { opacity: 1; }
+.archfb-cell-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.2; transition: fill var(--t), stroke var(--t); }
+.archfb-cell-t { font-size: 0.64rem; font-weight: 700; font-family: var(--mono); fill: var(--text-dim); }
+
+.archfb-c-sign.is-set .archfb-cell-box { fill: color-mix(in srgb, var(--hue-pink) 34%, var(--surface)); stroke: var(--hue-pink); }
+.archfb-c-sign.is-set .archfb-cell-t { fill: var(--text-main); }
+.archfb-c-sign.is-clear .archfb-cell-box { stroke: color-mix(in srgb, var(--hue-pink) 45%, var(--border)); }
+
+.archfb-c-exp.is-set .archfb-cell-box { fill: color-mix(in srgb, var(--hue-sky) 34%, var(--surface)); stroke: var(--hue-sky); }
+.archfb-c-exp.is-set .archfb-cell-t { fill: var(--text-main); }
+.archfb-c-exp.is-clear .archfb-cell-box { stroke: color-mix(in srgb, var(--hue-sky) 45%, var(--border)); }
+
+.archfb-c-mant.is-set .archfb-cell-box { fill: color-mix(in srgb, var(--hue-violet) 34%, var(--surface)); stroke: var(--hue-violet); }
+.archfb-c-mant.is-set .archfb-cell-t { fill: var(--text-main); }
+.archfb-c-mant.is-clear .archfb-cell-box { stroke: color-mix(in srgb, var(--hue-violet) 45%, var(--border)); }
+
+.archfb-cell.is-tail .archfb-cell-box { stroke: var(--warning); stroke-width: 1.7; }
+.archfb-cell.is-diff .archfb-cell-box { stroke: var(--hard); stroke-width: 1.9; fill: color-mix(in srgb, var(--hard) 26%, var(--surface)); }
+
+/* annotations */
+.archfb-ann { opacity: 0; transition: opacity var(--t); }
+.archfb-ann.is-shown { opacity: 1; }
+.archfb-ann-t { font-size: 0.62rem; font-weight: 700; font-family: var(--mono); }
+.archfb-t-sign { fill: var(--hue-pink); }
+.archfb-t-exp { fill: var(--hue-sky); }
+.archfb-t-mant { fill: var(--hue-violet); }
+
+/* decoded value line */
+.archfb-decode { opacity: 0; transition: opacity var(--t); }
+.archfb-decode.is-shown { opacity: 1; }
+.archfb-decode-box { fill: var(--hover-box); stroke: var(--accent); stroke-width: 1.2; }
+.archfb-decode-t { font-size: 0.72rem; font-weight: 700; font-family: var(--mono); fill: var(--text-main); }
+.archfb-decode-e { font-size: 0.62rem; font-family: var(--mono); }
+.archfb-decode-e.is-exact { fill: var(--easy); }
+.archfb-decode-e.is-off { fill: var(--warning); }
+
+/* controls */
+.archfb-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.archfb-speed { display: flex; align-items: center; gap: 0.5rem; margin-left: auto; }
+.archfb-speed-label { font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.archfb-speed-range { width: 96px; accent-color: var(--accent); }
+.archfb-speed-value { font-family: var(--mono); font-size: 0.72rem; color: var(--text-main); min-width: 2.6em; text-align: right; }
+.archfb-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.archfb-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.archfb-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.archfb-progress { font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.archfb-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.archfb-stat {
+  flex: 1 1 22%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.archfb-stat.is-sign { border-left-color: var(--hue-pink); color: var(--hue-pink); }
+.archfb-stat.is-exp { border-left-color: var(--hue-sky); color: var(--hue-sky); }
+.archfb-stat.is-mant { border-left-color: var(--hue-violet); color: var(--hue-violet); }
+.archfb-stat.is-good { border-left-color: var(--easy); color: var(--easy); }
+.archfb-stat.is-bad { border-left-color: var(--hard); color: var(--hard); }
+.archfb-stat-label { font-size: 0.66rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.archfb-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; }
+
+.archfb-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--hue-sky); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.archfb-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.archfb-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+.archfb-code {
+  font-family: var(--mono); font-size: 0.74rem; padding: 0.05rem 0.3rem;
+  border-radius: 5px; background: var(--hover-box); color: var(--accent);
+  border: 1px solid var(--border);
+}

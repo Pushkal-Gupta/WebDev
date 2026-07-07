@@ -1,0 +1,91 @@
+.detl { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.detl-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.detl-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.detl-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.detl-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.detl-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.detl-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.detl-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.detl-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.detl-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+.detl-trunk { stroke: var(--border); stroke-width: 2; }
+.detl-trunk-seg { stroke: color-mix(in srgb, var(--accent) 55%, var(--border)); stroke-width: 2; }
+.detl-arrow-head { fill: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+.detl-arrow-head-dlq { fill: var(--hard); }
+
+.detl-dlq-edge { stroke: var(--border); stroke-width: 1.6; stroke-dasharray: 4 4; opacity: 0.5; transition: stroke var(--t), opacity var(--t); }
+.detl-dlq-edge.is-active { stroke: var(--hard); opacity: 1; }
+.detl-dlq-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t), fill var(--t); }
+.detl-dlq-ic { color: var(--text-dim); transition: color var(--t); }
+.detl-dlq-label { font-size: 0.56rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); }
+.detl-dlq.is-active .detl-dlq-box { stroke: var(--hard); fill: color-mix(in srgb, var(--hard) 14%, var(--bg)); }
+.detl-dlq.is-active .detl-dlq-ic { color: var(--hard); }
+.detl-dlq.is-active .detl-dlq-label { fill: var(--hard); }
+
+.detl-row-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t), fill var(--t); }
+.detl-row-name { font-size: 0.8rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.detl-row-detail { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); }
+.detl-row-ic { color: var(--accent); }
+
+.detl-row.is-done .detl-row-box { stroke-dasharray: 3 3; }
+.detl-row.is-active .detl-row-box { stroke-width: 2.6; }
+.detl-row.is-source.is-active .detl-row-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 14%, var(--bg)); }
+.detl-row.is-extract.is-active .detl-row-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, var(--bg)); }
+.detl-row.is-transform.is-active .detl-row-box { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, var(--bg)); }
+.detl-row.is-load.is-active .detl-row-box { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 14%, var(--bg)); }
+.detl-row.is-warehouse.is-active .detl-row-box { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 14%, var(--bg)); }
+
+.detl-chip { fill: var(--hue-mint); stroke: var(--bg); stroke-width: 1.4; transition: cy var(--t); }
+
+.detl-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.detl-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.detl-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.detl-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.detl-poison.is-on { border-color: var(--hard); color: var(--hard); }
+.detl-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.detl-speed-range { accent-color: var(--accent); width: 90px; }
+.detl-speed-value { font-weight: 700; color: var(--text-main); }
+.detl-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+.detl-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.detl-stat {
+  flex: 1 1 28%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.detl-stat.is-stage { border-left-color: var(--hue-violet); }
+.detl-stat.is-healthy { border-left-color: var(--hue-mint); }
+.detl-stat.is-dead { border-left-color: var(--hard); }
+.detl-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.detl-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+.detl-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.detl-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.detl-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .detl-row-box, .detl-chip, .detl-dlq-box, .detl-dlq-edge { transition: none; }
+}
