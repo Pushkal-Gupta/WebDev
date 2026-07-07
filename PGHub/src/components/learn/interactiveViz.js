@@ -307,6 +307,22 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import GitCommitDagViz from './viz/GitCommitDagViz';
+import GitBranchMergeViz from './viz/GitBranchMergeViz';
+import GitRebaseViz from './viz/GitRebaseViz';
+import GitRemoteFlowViz from './viz/GitRemoteFlowViz';
+import CloudImageLayersViz from './viz/CloudImageLayersViz';
+import CloudK8sReconcileViz from './viz/CloudK8sReconcileViz';
+import CloudNetVolumeViz from './viz/CloudNetVolumeViz';
+import CloudDeployStrategyViz from './viz/CloudDeployStrategyViz';
+import SecXssViz from './viz/SecXssViz';
+import SecCsrfViz from './viz/SecCsrfViz';
+import SecInjectionViz from './viz/SecInjectionViz';
+import SecKeyRotationViz from './viz/SecKeyRotationViz';
+import TestTddCycleViz from './viz/TestTddCycleViz';
+import TestPyramidViz from './viz/TestPyramidViz';
+import TestMockingViz from './viz/TestMockingViz';
+import TestCiPipelineViz from './viz/TestCiPipelineViz';
 import DmTruthTableViz from './viz/DmTruthTableViz';
 import DmSetOpsViz from './viz/DmSetOpsViz';
 import DmCombinatoricsViz from './viz/DmCombinatoricsViz';
@@ -1069,6 +1085,26 @@ export const INTERACTIVE_VIZ = {
   'api-auth-sessions-jwt': ApiAuthFlowViz,
   'api-crud-database': ApiCrudViz,
   'api-caching-ratelimiting': ApiCachingViz,
+
+  // --- web-security + testing-swe ---
+  'sec-xss': SecXssViz,
+  'sec-csrf': SecCsrfViz,
+  'sec-injection': SecInjectionViz,
+  'sec-secrets-keys': SecKeyRotationViz,
+  'test-unit-tdd': TestTddCycleViz,
+  'test-integration-e2e': TestPyramidViz,
+  'test-mocking-doubles': TestMockingViz,
+  'test-coverage-ci': TestCiPipelineViz,
+
+  // --- git-vcs + cloud-containers ---
+  'git-model-commits': GitCommitDagViz,
+  'git-branching-merging': GitBranchMergeViz,
+  'git-rebase-history': GitRebaseViz,
+  'git-remotes-workflow': GitRemoteFlowViz,
+  'cloud-containers-images': CloudImageLayersViz,
+  'cloud-orchestration-k8s': CloudK8sReconcileViz,
+  'cloud-networking-storage': CloudNetVolumeViz,
+  'cloud-cicd-deploy': CloudDeployStrategyViz,
 };
 
 export default INTERACTIVE_VIZ;

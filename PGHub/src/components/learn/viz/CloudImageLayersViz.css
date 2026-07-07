@@ -1,0 +1,101 @@
+.cil { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.cil-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cil-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.cil-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.cil-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cil-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.cil-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cil-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.cil-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.cil-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* union-mount bracket */
+.cil-union-bar { stroke: color-mix(in srgb, var(--accent) 60%, var(--border)); stroke-width: 2.5; stroke-linecap: round; }
+.cil-union-label { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); letter-spacing: 0.05em; text-transform: uppercase; }
+
+/* layer boxes */
+.cil-layer-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t), fill var(--t), opacity var(--t); }
+.cil-layer-name { font-size: 0.78rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.cil-layer-instr { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); }
+.cil-layer-tag { font-size: 0.62rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); letter-spacing: 0.03em; }
+
+.cil-layer.is-pending .cil-layer-box { opacity: 0.28; stroke-dasharray: 4 4; }
+.cil-layer.is-pending .cil-layer-name,
+.cil-layer.is-pending .cil-layer-instr,
+.cil-layer.is-pending .cil-layer-tag { opacity: 0.32; }
+
+/* per-layer active tint (data = colorful) */
+.cil-layer.is-active .cil-layer-box { stroke-width: 2.6; }
+.cil-layer.is-base.is-active .cil-layer-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 14%, var(--bg)); }
+.cil-layer.is-deps.is-active .cil-layer-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, var(--bg)); }
+.cil-layer.is-manifest.is-active .cil-layer-box { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 14%, var(--bg)); }
+.cil-layer.is-modules.is-active .cil-layer-box { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, var(--bg)); }
+.cil-layer.is-app.is-active .cil-layer-box { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 14%, var(--bg)); }
+.cil-layer.is-write.is-active .cil-layer-box { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 16%, var(--bg)); }
+
+/* placed but resting: subtle brand tint on the read-only stack */
+.cil-layer.is-placed .cil-layer-box { fill: color-mix(in srgb, var(--accent) 5%, var(--bg)); }
+
+/* the writable top layer: dashed, distinct */
+.cil-layer.is-writable .cil-layer-box { stroke-dasharray: 5 3; }
+.cil-layer.is-writable.is-placed .cil-layer-box { fill: color-mix(in srgb, var(--accent) 10%, var(--surface)); }
+
+/* cache states override the resting tint */
+.cil-layer.is-cached .cil-layer-box { stroke: var(--hue-mint); stroke-dasharray: none; fill: color-mix(in srgb, var(--hue-mint) 12%, var(--bg)); }
+.cil-layer.is-cached .cil-layer-tag { fill: var(--hue-mint); }
+.cil-layer.is-rebuilt .cil-layer-box { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 12%, var(--bg)); }
+.cil-layer.is-rebuilt .cil-layer-tag { fill: var(--warning); }
+
+/* controls */
+.cil-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.cil-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cil-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.cil-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cil-rebuild.is-on { border-color: var(--hue-mint); color: var(--hue-mint); }
+.cil-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.cil-speed-range { accent-color: var(--accent); width: 90px; }
+.cil-speed-value { font-weight: 700; color: var(--text-main); }
+.cil-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.cil-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cil-stat {
+  flex: 1 1 28%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.cil-stat.is-layer { border-left-color: var(--hue-violet); }
+.cil-stat.is-size { border-left-color: var(--hue-sky); }
+.cil-stat.is-cache { border-left-color: var(--hue-mint); }
+.cil-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.cil-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+.cil-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.cil-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.cil-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cil-layer-box { transition: none; }
+}

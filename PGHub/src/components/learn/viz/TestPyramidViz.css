@@ -1,0 +1,105 @@
+.tpy { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.tpy-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.tpy-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.tpy-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.tpy-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.tpy-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.tpy-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.tpy-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.tpy-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.tpy-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* axes */
+.tpy-axis { font-size: 0.58rem; fill: var(--text-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* pyramid bands */
+.tpy-band { cursor: pointer; }
+.tpy-band-shape {
+  stroke: var(--border); stroke-width: 1.6;
+  transition: fill var(--t), stroke var(--t), stroke-width var(--t), opacity var(--t);
+  opacity: 0.62;
+}
+.tpy-band-label { font-size: 0.9rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); pointer-events: none; }
+.tpy-band-count { font-size: 0.64rem; fill: var(--text-dim); font-family: var(--mono); pointer-events: none; }
+
+.tpy-band.is-unit .tpy-band-shape { fill: color-mix(in srgb, var(--hue-mint) 22%, var(--bg)); stroke: color-mix(in srgb, var(--hue-mint) 55%, var(--border)); }
+.tpy-band.is-integration .tpy-band-shape { fill: color-mix(in srgb, var(--hue-sky) 22%, var(--bg)); stroke: color-mix(in srgb, var(--hue-sky) 55%, var(--border)); }
+.tpy-band.is-e2e .tpy-band-shape { fill: color-mix(in srgb, var(--hue-pink) 22%, var(--bg)); stroke: color-mix(in srgb, var(--hue-pink) 55%, var(--border)); }
+
+.tpy-band.is-on .tpy-band-shape { opacity: 1; stroke-width: 2.6; }
+.tpy-band.is-unit.is-on .tpy-band-shape { fill: color-mix(in srgb, var(--hue-mint) 42%, var(--bg)); stroke: var(--hue-mint); }
+.tpy-band.is-integration.is-on .tpy-band-shape { fill: color-mix(in srgb, var(--hue-sky) 42%, var(--bg)); stroke: var(--hue-sky); }
+.tpy-band.is-e2e.is-on .tpy-band-shape { fill: color-mix(in srgb, var(--hue-pink) 42%, var(--bg)); stroke: var(--hue-pink); }
+
+/* tradeoff bars */
+.tpy-bars { display: flex; flex-direction: column; gap: 0.4rem; }
+.tpy-bar { display: flex; align-items: center; gap: 0.6rem; }
+.tpy-bar-head {
+  flex: 0 0 auto; width: 108px; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.68rem; font-weight: 600; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.03em;
+}
+.tpy-bar-track {
+  flex: 1 1 auto; height: 9px; border-radius: 6px;
+  background: var(--hover-box); border: 1px solid var(--border); overflow: hidden;
+}
+.tpy-bar-fill { display: block; height: 100%; border-radius: 6px; transition: width var(--t); }
+.tpy-bar.is-speed .tpy-bar-fill { background: color-mix(in srgb, var(--hue-mint) 70%, var(--accent)); }
+.tpy-bar.is-confidence .tpy-bar-fill { background: color-mix(in srgb, var(--hue-violet) 70%, var(--accent)); }
+.tpy-bar.is-cost .tpy-bar-fill { background: color-mix(in srgb, var(--warning) 75%, var(--hard)); }
+.tpy-bar-val { flex: 0 0 auto; width: 40px; text-align: right; font-size: 0.7rem; font-weight: 700; color: var(--text-main); }
+
+/* controls */
+.tpy-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.tpy-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.tpy-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.tpy-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.tpy-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.tpy-speed-range { accent-color: var(--accent); }
+.tpy-speed-value { font-weight: 700; color: var(--text-main); }
+.tpy-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.tpy-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.tpy-stat {
+  flex: 1 1 22%; min-width: 118px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.tpy-stat.is-layer { border-left-color: var(--hue-mint); }
+.tpy-stat.is-count { border-left-color: var(--hue-sky); }
+.tpy-stat.is-speed { border-left-color: var(--accent); }
+.tpy-stat.is-conf { border-left-color: var(--hue-violet); }
+.tpy-stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.tpy-stat-val { margin-left: auto; font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
+
+.tpy-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.tpy-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.tpy-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+.tpy-note-body em { color: var(--text-dim); font-style: italic; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tpy-band-shape, .tpy-bar-fill { transition: none; }
+}

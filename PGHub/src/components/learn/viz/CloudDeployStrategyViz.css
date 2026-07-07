@@ -1,0 +1,109 @@
+.cds { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.cds-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cds-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.cds-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.cds-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cds-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.cds-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cds-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.cds-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.cds-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* trunk + arrows */
+.cds-trunk { stroke: var(--border); stroke-width: 2; }
+.cds-trunk-seg { stroke: color-mix(in srgb, var(--accent) 55%, var(--border)); stroke-width: 2; }
+.cds-arrow-head { fill: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+
+/* pipeline rows (build -> registry -> deploy), all completed context */
+.cds-pipe-box { fill: color-mix(in srgb, var(--accent) 9%, var(--bg)); stroke: color-mix(in srgb, var(--accent) 45%, var(--border)); stroke-width: 1.4; }
+.cds-pipe-name { font-size: 0.78rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.cds-pipe-detail { font-size: 0.6rem; fill: var(--text-dim); font-family: var(--mono); }
+.cds-pipe.is-deploy .cds-pipe-box { stroke: var(--accent); stroke-width: 2; }
+
+/* section + fleet labels */
+.cds-section-label { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.cds-fleet-label { font-size: 0.6rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); letter-spacing: 0.05em; }
+
+/* fleet instance boxes */
+.cds-box-rect { stroke-width: 1.6; transition: fill var(--t), stroke var(--t); }
+.cds-box-text { font-size: 0.7rem; font-weight: 700; font-family: var(--mono); }
+
+.cds-box.is-old .cds-box-rect { fill: color-mix(in srgb, var(--hue-mint) 20%, var(--bg)); stroke: var(--hue-mint); }
+.cds-box.is-old .cds-box-text { fill: var(--hue-mint); }
+
+.cds-box.is-new .cds-box-rect { fill: color-mix(in srgb, var(--accent) 22%, var(--bg)); stroke: var(--accent); }
+.cds-box.is-new .cds-box-text { fill: var(--accent); }
+
+.cds-box.is-fail .cds-box-rect { fill: color-mix(in srgb, var(--hard) 22%, var(--bg)); stroke: var(--hard); }
+.cds-box.is-fail .cds-box-text { fill: var(--hard); }
+
+.cds-box.is-boot .cds-box-rect { fill: var(--bg); stroke: var(--warning); stroke-dasharray: 4 3; }
+.cds-box.is-boot .cds-box-text { fill: var(--warning); }
+
+.cds-box.is-empty .cds-box-rect { fill: var(--bg); stroke: var(--border); stroke-dasharray: 2 3; opacity: 0.7; }
+.cds-box.is-empty .cds-box-text { fill: var(--text-dim); opacity: 0.6; }
+
+.cds-fleetrow.is-dim { opacity: 0.45; }
+
+/* live-traffic pointer (blue-green) */
+.cds-traffic-text { font-size: 0.72rem; font-weight: 700; fill: var(--accent); font-family: var(--mono); }
+
+/* controls */
+.cds-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.cds-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cds-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.cds-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cds-strat { border-color: color-mix(in srgb, var(--hue-violet) 55%, var(--border)); color: var(--hue-violet); }
+.cds-strat:hover:not(:disabled) { border-color: var(--hue-violet); color: var(--hue-violet); }
+.cds-err.is-on { border-color: var(--hard); color: var(--hard); }
+.cds-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.cds-speed-range { accent-color: var(--accent); width: 90px; }
+.cds-speed-value { font-weight: 700; color: var(--text-main); }
+.cds-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.cds-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cds-stat {
+  flex: 1 1 28%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.cds-stat.is-strat { border-left-color: var(--hue-violet); }
+.cds-stat.is-new { border-left-color: var(--accent); }
+.cds-stat.is-status { border-left-color: var(--hue-mint); }
+.cds-stat.is-status.is-bad { border-left-color: var(--hard); }
+.cds-stat.is-status.is-warn { border-left-color: var(--warning); }
+.cds-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.cds-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+.cds-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.cds-note.is-bad { border-left-color: var(--hard); }
+.cds-note.is-warn { border-left-color: var(--warning); }
+.cds-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.cds-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cds-box-rect, .cds-pipe-box { transition: none; }
+}
