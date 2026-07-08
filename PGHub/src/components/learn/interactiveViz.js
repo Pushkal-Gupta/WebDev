@@ -307,6 +307,14 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import CompilerTypeCheckViz from './viz/CompilerTypeCheckViz';
+import CompilerCodegenViz from './viz/CompilerCodegenViz';
+import DistQuorumViz from './viz/DistQuorumViz';
+import DistRaftElectionViz from './viz/DistRaftElectionViz';
+import CompilerLexerViz from './viz/CompilerLexerViz';
+import CompilerParseTreeViz from './viz/CompilerParseTreeViz';
+import DistCapViz from './viz/DistCapViz';
+import DistLamportClockViz from './viz/DistLamportClockViz';
 import DataEtlPipelineViz from './viz/DataEtlPipelineViz';
 import DataStreamWindowViz from './viz/DataStreamWindowViz';
 import DataStarSchemaViz from './viz/DataStarSchemaViz';
@@ -1125,6 +1133,18 @@ export const INTERACTIVE_VIZ = {
   'data-batch-streaming': DataStreamWindowViz,
   'data-warehouse-modeling': DataStarSchemaViz,
   'data-messaging-queues': DataKafkaLogViz,
+
+  // --- compilers + distributed systems (partial viz) ---
+  'compiler-lexing': CompilerLexerViz,
+  'compiler-parsing': CompilerParseTreeViz,
+  'dist-cap-consistency': DistCapViz,
+  'dist-time-clocks': DistLamportClockViz,
+
+  // --- compilers + distributed (completed viz) ---
+  'compiler-semantics-types': CompilerTypeCheckViz,
+  'compiler-codegen-interpret': CompilerCodegenViz,
+  'dist-replication': DistQuorumViz,
+  'dist-consensus-raft': DistRaftElectionViz,
 };
 
 export default INTERACTIVE_VIZ;

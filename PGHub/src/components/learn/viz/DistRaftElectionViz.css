@@ -1,0 +1,43 @@
+.drf { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.drf-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.drf-head-icon { flex: 0 0 auto; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--hover-box); color: var(--accent); border: 1px solid var(--border); }
+.drf-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.drf-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.drf-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.drf-reset { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main); cursor: pointer; transition: border-color var(--t), color var(--t); }
+.drf-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.drf-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; display: grid; place-items: center; }
+.drf-svg { width: auto; height: auto; max-height: 42vh; max-width: 100%; display: block; }
+
+.drf-edge { stroke-width: 1.8; fill: none; }
+.drf-edge.is-heartbeat { stroke: var(--hue-mint); stroke-dasharray: 2 3; }
+.drf-edge.is-request { stroke: var(--hue-sky); stroke-dasharray: 4 3; }
+.drf-edge.is-grant { stroke: var(--border); }
+.drf-edge.is-grant.is-granting { stroke: var(--accent); stroke-width: 2.2; }
+
+.drf-node-circle { fill: var(--bg); stroke: var(--border); stroke-width: 1.8; transition: fill var(--t), stroke var(--t); }
+.drf-node-id { font-size: 0.62rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; text-anchor: middle; }
+.drf-node-role { font-size: 0.5rem; fill: var(--text-dim); font-family: var(--mono); text-anchor: middle; text-transform: uppercase; letter-spacing: 0.03em; }
+.drf-node.is-l .drf-node-circle { stroke: var(--accent); stroke-width: 2.8; fill: color-mix(in srgb, var(--accent) 20%, var(--bg)); }
+.drf-node.is-c .drf-node-circle { stroke: var(--hue-sky); stroke-width: 2.4; fill: color-mix(in srgb, var(--hue-sky) 18%, var(--bg)); }
+.drf-node.is-x .drf-node-circle { stroke: var(--hard); stroke-dasharray: 3 2; fill: color-mix(in srgb, var(--hard) 12%, var(--bg)); }
+.drf-node.is-x .drf-node-id, .drf-node.is-x .drf-node-role { fill: var(--text-dim); }
+.drf-node.is-voted .drf-node-circle { stroke: var(--hue-mint); }
+
+.drf-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.drf-btn { display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main); cursor: pointer; transition: border-color var(--t), color var(--t); }
+.drf-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.drf-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.drf-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.drf-speed-range { accent-color: var(--accent); }
+.drf-speed-value { font-weight: 700; color: var(--text-main); }
+.drf-term { font-size: 0.7rem; font-weight: 700; color: var(--accent); padding: 0.1rem 0.45rem; border: 1px solid var(--border); border-radius: 6px; }
+.drf-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+.drf-note { display: flex; flex-direction: column; gap: 0.25rem; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px; background: var(--surface); padding: 0.55rem 0.75rem; }
+.drf-note-label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.drf-note-body { font-size: 0.82rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) { .drf-node-circle, .drf-reset, .drf-btn { transition: none; } }

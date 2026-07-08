@@ -1,0 +1,73 @@
+.dlc { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.dlc-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.dlc-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.dlc-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.dlc-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.dlc-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.dlc-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dlc-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* stage / timeline svg */
+.dlc-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.dlc-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+.dlc-timeline { stroke: var(--border); stroke-width: 1.6; }
+.dlc-lane-name { font-size: 0.72rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; }
+.dlc-lane { fill: none; }
+
+/* messages between processes */
+.dlc-msg { stroke: var(--hue-sky); stroke-width: 1.8; fill: none; transition: opacity var(--t); }
+.dlc-arrow { stroke: var(--accent); stroke-width: 1.8; fill: none; }
+.dlc-arrow-head { fill: var(--accent); }
+
+/* events + logical-clock counters */
+.dlc-event-dot { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: fill var(--t), stroke var(--t), stroke-width var(--t); }
+.dlc-event-l { font-size: 0.72rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; text-anchor: middle; }
+.dlc-event.is-active .dlc-event-dot { stroke: var(--accent); stroke-width: 2.8; fill: color-mix(in srgb, var(--accent) 20%, var(--bg)); }
+.dlc-event.is-send .dlc-event-dot { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 16%, var(--bg)); }
+.dlc-event.is-recv .dlc-event-dot { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 16%, var(--bg)); }
+.dlc-glow { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--accent) 55%, transparent)); }
+
+/* controls */
+.dlc-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.dlc-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.dlc-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.dlc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.dlc-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.dlc-speed-range { accent-color: var(--accent); }
+.dlc-speed-value { font-weight: 700; color: var(--text-main); }
+.dlc-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.dlc-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.dlc-stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.dlc-stat-val { font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+/* narration note */
+.dlc-note {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 9px; background: var(--surface); padding: 0.55rem 0.75rem;
+}
+.dlc-note-label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.dlc-note-body { font-size: 0.82rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .dlc-event-dot, .dlc-msg, .dlc-reset, .dlc-btn { transition: none; }
+}

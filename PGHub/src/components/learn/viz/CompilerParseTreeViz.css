@@ -1,0 +1,67 @@
+.cptv { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.cptv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.cptv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.cptv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.cptv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.cptv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.cptv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cptv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+/* token stream */
+.cptv-tokenbar { display: flex; flex-wrap: wrap; gap: 0.4rem; min-height: 30px; align-items: center; }
+
+/* stage / svg tree */
+.cptv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.cptv-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+.cptv-node-circle { fill: var(--bg); stroke: var(--border); stroke-width: 1.6; transition: fill var(--t), stroke var(--t), stroke-width var(--t); }
+.cptv-node-text { font-size: 0.8rem; fill: var(--text-main); font-family: var(--mono); font-weight: 700; text-anchor: middle; }
+.cptv-node.is-op .cptv-node-circle { stroke: var(--warning); fill: color-mix(in srgb, var(--warning) 16%, var(--bg)); }
+.cptv-node.is-leaf .cptv-node-circle { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 16%, var(--bg)); }
+.cptv-node.is-active .cptv-node-circle { stroke: var(--accent); stroke-width: 2.8; fill: color-mix(in srgb, var(--accent) 18%, var(--bg)); }
+.cptv-edge { stroke: var(--border); stroke-width: 1.6; fill: none; }
+.cptv-edge.is-active { stroke: var(--accent); stroke-width: 2.4; }
+
+/* controls */
+.cptv-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.cptv-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.cptv-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.cptv-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.cptv-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.cptv-speed-range { accent-color: var(--accent); }
+.cptv-speed-value { font-weight: 700; color: var(--text-main); }
+.cptv-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.cptv-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.cptv-stat-label { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.cptv-stat-val { font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+/* narration note */
+.cptv-note {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 9px; background: var(--surface); padding: 0.55rem 0.75rem;
+}
+.cptv-note-label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.cptv-note-body { font-size: 0.82rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cptv-node-circle, .cptv-edge, .cptv-reset, .cptv-btn { transition: none; }
+}

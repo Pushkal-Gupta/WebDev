@@ -1,0 +1,43 @@
+.ccg { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.ccg-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.ccg-head-icon { flex: 0 0 auto; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 9px; background: var(--hover-box); color: var(--accent); border: 1px solid var(--border); }
+.ccg-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.ccg-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.ccg-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.ccg-reset { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main); cursor: pointer; transition: border-color var(--t), color var(--t); }
+.ccg-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.ccg-body { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+.ccg-col { flex: 1 1 45%; min-width: 150px; display: flex; flex-direction: column; gap: 0.4rem; }
+.ccg-col-title { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+
+.ccg-bytecode { display: flex; flex-direction: column; gap: 0.3rem; }
+.ccg-ins { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.55rem; border: 1px solid var(--border); border-left-width: 3px; border-left-color: var(--border); border-radius: 7px; background: var(--surface); opacity: 0.35; transition: opacity var(--t), border-color var(--t); }
+.ccg-ins.is-shown { opacity: 1; }
+.ccg-ins.is-running { border-left-color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--surface)); }
+.ccg-ins.is-done { border-left-color: var(--hue-mint); }
+.ccg-ins-i { font-size: 0.6rem; color: var(--text-dim); width: 1.1rem; }
+.ccg-ins-op { font-weight: 700; color: var(--text-main); }
+.ccg-ins-arg { color: var(--hue-sky); font-weight: 600; }
+
+.ccg-stack { display: flex; flex-direction: column; gap: 0.3rem; min-height: 60px; justify-content: flex-end; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); padding: 0.5rem; }
+.ccg-stack-empty { font-size: 0.75rem; color: var(--text-dim); font-style: italic; text-align: center; }
+.ccg-cell { text-align: center; font-weight: 700; color: var(--text-main); padding: 0.28rem 0.5rem; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); }
+.ccg-cell.is-top { border-color: var(--accent); color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--bg)); }
+.ccg-result { font-size: 0.82rem; font-weight: 700; color: var(--hue-mint); }
+
+.ccg-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.ccg-btn { display: inline-flex; align-items: center; gap: 0.35rem; font-family: var(--mono); font-size: 0.72rem; font-weight: 600; padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text-main); cursor: pointer; transition: border-color var(--t), color var(--t); }
+.ccg-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.ccg-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.ccg-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.ccg-speed-range { accent-color: var(--accent); }
+.ccg-speed-value { font-weight: 700; color: var(--text-main); }
+.ccg-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+.ccg-note { display: flex; flex-direction: column; gap: 0.25rem; border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px; background: var(--surface); padding: 0.55rem 0.75rem; }
+.ccg-note-label { font-size: 0.58rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; }
+.ccg-note-body { font-size: 0.82rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) { .ccg-ins, .ccg-reset, .ccg-btn { transition: none; } }
