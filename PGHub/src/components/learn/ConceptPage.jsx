@@ -436,13 +436,13 @@ export default function ConceptPage({ session }) {
                 {showComplexityTime && (
                   <div className="learn-complexity-cell">
                     <span className="learn-complexity-label">Time</span>
-                    <code className="learn-complexity-value">{body.complexity.time}</code>
+                    <code className="learn-complexity-value"><Markdown inline>{body.complexity.time}</Markdown></code>
                   </div>
                 )}
                 {showComplexitySpace && (
                   <div className="learn-complexity-cell">
                     <span className="learn-complexity-label">Space</span>
-                    <code className="learn-complexity-value">{body.complexity.space}</code>
+                    <code className="learn-complexity-value"><Markdown inline>{body.complexity.space}</Markdown></code>
                   </div>
                 )}
               </div>

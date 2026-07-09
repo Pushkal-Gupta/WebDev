@@ -307,6 +307,22 @@ import SqlInjectionViz from './viz/SqlInjectionViz';
 import XssPreventionViz from './viz/XssPreventionViz';
 import SecretsManagementViz from './viz/SecretsManagementViz';
 import SamlVsOidcViz from './viz/SamlVsOidcViz';
+import CryptoHashViz from './viz/CryptoHashViz';
+import CryptoSymmetricViz from './viz/CryptoSymmetricViz';
+import CryptoRsaViz from './viz/CryptoRsaViz';
+import CryptoTlsHandshakeViz from './viz/CryptoTlsHandshakeViz';
+import GfxTransformViz from './viz/GfxTransformViz';
+import GfxRasterizeViz from './viz/GfxRasterizeViz';
+import GfxShadingViz from './viz/GfxShadingViz';
+import GfxRaytraceViz from './viz/GfxRaytraceViz';
+import FpPureFunctionViz from './viz/FpPureFunctionViz';
+import FpMapReduceViz from './viz/FpMapReduceViz';
+import FpRecursionViz from './viz/FpRecursionViz';
+import FpMaybeViz from './viz/FpMaybeViz';
+import NumCancellationViz from './viz/NumCancellationViz';
+import NumNewtonViz from './viz/NumNewtonViz';
+import NumQuadratureViz from './viz/NumQuadratureViz';
+import NumBisectionViz from './viz/NumBisectionViz';
 import CompilerTypeCheckViz from './viz/CompilerTypeCheckViz';
 import CompilerCodegenViz from './viz/CompilerCodegenViz';
 import DistQuorumViz from './viz/DistQuorumViz';
@@ -1145,6 +1161,26 @@ export const INTERACTIVE_VIZ = {
   'compiler-codegen-interpret': CompilerCodegenViz,
   'dist-replication': DistQuorumViz,
   'dist-consensus-raft': DistRaftElectionViz,
+
+  // --- functional programming + numerical methods ---
+  'fp-pure-immutability': FpPureFunctionViz,
+  'fp-higher-order-functions': FpMapReduceViz,
+  'fp-recursion-lazy': FpRecursionViz,
+  'fp-algebraic-types': FpMaybeViz,
+  'num-floating-point-error': NumCancellationViz,
+  'num-root-finding': NumNewtonViz,
+  'num-interpolation-integration': NumQuadratureViz,
+  'num-linear-systems': NumBisectionViz,
+
+  // --- cryptography + computer graphics ---
+  'crypto-hashing': CryptoHashViz,
+  'crypto-symmetric': CryptoSymmetricViz,
+  'crypto-asymmetric-rsa': CryptoRsaViz,
+  'crypto-signatures-tls': CryptoTlsHandshakeViz,
+  'gfx-transforms-matrices': GfxTransformViz,
+  'gfx-rasterization': GfxRasterizeViz,
+  'gfx-shading-lighting': GfxShadingViz,
+  'gfx-raytracing': GfxRaytraceViz,
 };
 
 export default INTERACTIVE_VIZ;

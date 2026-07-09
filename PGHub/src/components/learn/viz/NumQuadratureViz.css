@@ -1,0 +1,153 @@
+.numquad { display: flex; flex-direction: column; gap: 0.9rem; font-family: var(--mono); }
+
+.numquad-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.numquad-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.numquad-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.numquad-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.numquad-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.numquad-sub .katex { font-size: 0.92em; color: var(--text-main); }
+.numquad-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.numquad-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.numquad-toggle {
+  display: inline-flex; gap: 0.3rem; padding: 0.25rem;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface);
+  align-self: flex-start;
+}
+.numquad-seg {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.76rem; font-weight: 600;
+  padding: 0.4rem 0.85rem; border: 1px solid transparent; border-radius: 8px;
+  background: transparent; color: var(--text-dim); cursor: pointer;
+  transition: background var(--t), color var(--t), border-color var(--t);
+}
+.numquad-seg:hover { color: var(--text-main); }
+.numquad-seg.is-active {
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  border-color: var(--accent); color: var(--accent);
+}
+.numquad-seg-tag .katex { font-size: 0.82em; }
+.numquad-seg.is-active .numquad-seg-tag .katex { color: var(--accent); }
+
+.numquad-controls { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.55rem; }
+.numquad-slider {
+  flex: 1 1 220px; display: flex; align-items: center; gap: 0.5rem;
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.4rem 0.6rem;
+}
+.numquad-speed { flex: 1 1 170px; }
+.numquad-slider-key {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.72rem; color: var(--text-dim);
+}
+.numquad-slider-key .katex { color: var(--accent); }
+.numquad-slider input[type="range"] {
+  flex: 1 1 auto; min-width: 0; accent-color: var(--accent); cursor: pointer;
+}
+.numquad-slider-val { flex: 0 0 auto; font-size: 0.72rem; color: var(--text-main); min-width: 4.2em; text-align: right; }
+
+.numquad-play {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono); font-size: 0.74rem; font-weight: 600;
+  padding: 0.4rem 0.9rem; border: 1px solid var(--border); border-radius: 9px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t), background var(--t);
+}
+.numquad-play:hover { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.numquad-stage {
+  border: 1px solid var(--border); border-radius: 12px; background: var(--surface);
+  padding: 0.5rem;
+}
+.numquad-svg { width: 100%; height: auto; display: block; max-height: 44vh; }
+
+.numquad-axis { stroke: var(--border); stroke-width: 1.2; }
+.numquad-truefill { fill: color-mix(in srgb, var(--accent) 8%, transparent); stroke: none; }
+.numquad-curve { fill: none; stroke: url(#numquad-curve-grad); stroke-width: 2.4; stroke-linecap: round; }
+
+.numquad-panel { stroke-width: 1.1; }
+.numquad-panel-trap {
+  fill: color-mix(in srgb, var(--hue-sky) 30%, transparent);
+  stroke: color-mix(in srgb, var(--hue-sky) 70%, transparent);
+}
+.numquad-panel-simp {
+  fill: color-mix(in srgb, var(--hue-mint) 30%, transparent);
+  stroke: color-mix(in srgb, var(--hue-mint) 72%, transparent);
+}
+.numquad-anim { transition: d 0.35s ease; }
+
+.numquad-node { fill: var(--surface); stroke: var(--accent); stroke-width: 1.6; }
+
+.numquad-tick { font-size: 11px; fill: var(--text-dim); font-family: var(--mono); }
+
+.numquad-stats { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 0.6rem; align-items: stretch; }
+.numquad-statcard {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.55rem 0.65rem; display: flex; flex-direction: column; gap: 0.3rem;
+}
+.numquad-stat-label {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim);
+}
+.numquad-stat-val { font-size: 0.95rem; color: var(--text-main); font-weight: 600; }
+.numquad-stat-sub { font-size: 0.68rem; color: var(--text-dim); }
+.numquad-approx { border-color: color-mix(in srgb, var(--hue-mint) 55%, var(--border)); }
+.numquad-approx .numquad-stat-val { color: color-mix(in srgb, var(--hue-mint) 70%, var(--text-main)); }
+.numquad-true { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.numquad-true .numquad-stat-val { color: var(--accent); }
+.numquad-err { border-color: color-mix(in srgb, var(--warning) 50%, var(--border)); }
+.numquad-err .numquad-stat-val { color: var(--warning); }
+
+.numquad-errbar {
+  height: 7px; border-radius: 999px; margin-top: 0.15rem;
+  background: var(--hover-box); overflow: hidden;
+}
+.numquad-errbar-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--hue-mint) 70%, transparent),
+    var(--warning));
+}
+.numquad-anim-w { transition: width 0.35s ease; }
+
+.numquad-formula {
+  border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+  padding: 0.6rem 0.75rem; display: flex; flex-direction: column; gap: 0.4rem; align-items: center;
+}
+.numquad-formula-label {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);
+}
+.numquad-formula-math { max-width: 100%; }
+.numquad-formula-math .katex-display { margin: 0; }
+.numquad-formula-math .katex { color: var(--text-main); font-size: 0.9em; }
+
+.numquad-trace {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.7rem 0.85rem; display: flex; flex-direction: column; gap: 0.25rem;
+}
+.numquad-trace-label {
+  display: inline-flex; align-items: center; gap: 0.3rem;
+  font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim);
+}
+.numquad-trace-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .numquad-anim, .numquad-anim-w { transition: none; }
+}
+
+@media (max-width: 720px) {
+  .numquad-controls { flex-direction: column; }
+  .numquad-slider, .numquad-speed, .numquad-play { flex: 1 1 auto; }
+  .numquad-stats { grid-template-columns: 1fr; }
+}

@@ -1,0 +1,101 @@
+.crv { display: flex; flex-direction: column; gap: 0.8rem; font-family: var(--mono); }
+
+.crv-head { display: flex; align-items: flex-start; gap: 0.7rem; }
+.crv-head-icon {
+  flex: 0 0 auto; display: grid; place-items: center;
+  width: 34px; height: 34px; border-radius: 9px;
+  background: var(--hover-box); color: var(--accent); border: 1px solid var(--border);
+}
+.crv-head-text { flex: 1 1 auto; display: flex; flex-direction: column; gap: 0.2rem; }
+.crv-title { font-family: var(--serif); font-size: 1.1rem; font-weight: 700; color: var(--text-main); margin: 0; }
+.crv-sub { font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; margin: 0; }
+.crv-reset {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.38rem 0.65rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.crv-reset:hover { border-color: var(--accent); color: var(--accent); }
+
+.crv-stage { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 0.5rem; }
+.crv-svg { width: 100%; height: auto; max-height: 44vh; display: block; }
+
+/* key pair panel */
+.crv-key-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t), fill var(--t); }
+.crv-key-kind { font-size: 0.66rem; font-weight: 700; fill: var(--text-dim); font-family: var(--mono); letter-spacing: 0.06em; }
+.crv-key-val { font-size: 0.74rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.crv-key-glyph { color: var(--text-dim); }
+.crv-key-pub .crv-key-box { stroke: color-mix(in srgb, var(--hue-sky) 60%, var(--border)); }
+.crv-key-priv .crv-key-box { stroke: color-mix(in srgb, var(--hue-pink) 60%, var(--border)); }
+.crv-keys.is-ready .crv-key-pub .crv-key-box { fill: color-mix(in srgb, var(--hue-sky) 12%, var(--bg)); stroke: var(--hue-sky); }
+.crv-keys.is-ready .crv-key-priv .crv-key-box { fill: color-mix(in srgb, var(--hue-pink) 12%, var(--bg)); stroke: var(--hue-pink); }
+.crv-keys.is-ready .crv-key-pub .crv-key-glyph { color: var(--hue-sky); }
+.crv-keys.is-ready .crv-key-priv .crv-key-glyph { color: var(--hue-pink); }
+
+/* trunk + arrows */
+.crv-trunk { stroke: var(--border); stroke-width: 2; }
+.crv-trunk-seg { stroke: color-mix(in srgb, var(--accent) 55%, var(--border)); stroke-width: 2; }
+.crv-arrow-head { fill: color-mix(in srgb, var(--accent) 55%, var(--border)); }
+
+/* flow nodes */
+.crv-node-box { fill: var(--bg); stroke: var(--border); stroke-width: 1.4; transition: stroke var(--t), fill var(--t), stroke-width var(--t); }
+.crv-node-title { font-size: 0.72rem; font-weight: 700; fill: var(--text-main); font-family: var(--mono); }
+.crv-node-val { font-size: 0.68rem; fill: var(--text-dim); font-family: var(--mono); }
+.crv-node-glyph { color: var(--text-dim); }
+
+.crv-node.is-done .crv-node-box { stroke-dasharray: 3 3; }
+.crv-node.is-active .crv-node-box { stroke-width: 2.6; }
+.crv-node-msg.is-active .crv-node-box { stroke: var(--hue-mint); fill: color-mix(in srgb, var(--hue-mint) 14%, var(--bg)); }
+.crv-node-enc.is-active .crv-node-box { stroke: var(--hue-sky); fill: color-mix(in srgb, var(--hue-sky) 14%, var(--bg)); }
+.crv-node-enc.is-active .crv-node-glyph { color: var(--hue-sky); }
+.crv-node-cipher.is-active .crv-node-box { stroke: var(--hue-violet); fill: color-mix(in srgb, var(--hue-violet) 14%, var(--bg)); }
+.crv-node-dec.is-active .crv-node-box { stroke: var(--hue-pink); fill: color-mix(in srgb, var(--hue-pink) 14%, var(--bg)); }
+.crv-node-dec.is-active .crv-node-glyph { color: var(--hue-pink); }
+.crv-node-box.is-match { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 16%, var(--bg)); }
+
+/* travelling token */
+.crv-token-dot { fill: var(--accent); stroke: var(--bg); stroke-width: 2; transition: cy var(--t), cx var(--t); }
+.crv-token-label { font-size: 0.7rem; font-weight: 700; fill: var(--bg); font-family: var(--mono); }
+.crv-token.is-match .crv-token-dot { fill: var(--hue-mint); }
+
+/* controls */
+.crv-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.crv-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-family: var(--mono); font-size: 0.72rem; font-weight: 600;
+  padding: 0.4rem 0.8rem; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--surface); color: var(--text-main); cursor: pointer;
+  transition: border-color var(--t), color var(--t);
+}
+.crv-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.crv-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.crv-speed { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.7rem; }
+.crv-speed-range { accent-color: var(--accent); width: 90px; }
+.crv-speed-value { font-weight: 700; color: var(--text-main); }
+.crv-progress { margin-left: auto; font-size: 0.7rem; color: var(--text-dim); }
+
+/* readouts */
+.crv-readout { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.crv-stat {
+  flex: 1 1 28%; min-width: 130px;
+  display: flex; align-items: center; gap: 0.45rem;
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 9px;
+  background: var(--surface); padding: 0.5rem 0.7rem;
+}
+.crv-stat.is-mod { border-left-color: var(--hue-violet); }
+.crv-stat.is-exp { border-left-color: var(--hue-sky); }
+.crv-stat.is-cur { border-left-color: var(--accent); }
+.crv-stat-label { font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.crv-stat-val { margin-left: auto; font-size: 0.82rem; font-weight: 700; color: var(--text-main); }
+
+.crv-note {
+  border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 9px;
+  background: var(--surface); padding: 0.55rem 0.8rem; display: flex; flex-direction: column; gap: 0.15rem;
+}
+.crv-note-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); }
+.crv-note-body { font-size: 0.78rem; color: var(--text-main); line-height: 1.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .crv-key-box, .crv-node-box, .crv-token-dot { transition: none; }
+}

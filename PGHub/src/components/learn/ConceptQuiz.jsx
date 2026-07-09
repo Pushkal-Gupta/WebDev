@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { CheckCircle2, XCircle, Sparkles, Loader2, RefreshCw, ArrowRight } from 'lucide-react';
 import { isAiEnabled } from '../../lib/ai';
+import Markdown from './MarkdownRenderer';
 
 const TIME_DISTRACTORS = ['O(1)', 'O(n)', 'O(n log n)', 'O(n^2)'];
 const SPACE_DISTRACTORS = ['O(1)', 'O(n)', 'O(log n)', 'O(n^2)'];
@@ -83,7 +84,7 @@ function StaticQuiz({ questions }) {
           {idx + 1} / {questions.length}
         </span>
       </div>
-      <p className="quiz-question">{q.question}</p>
+      <p className="quiz-question"><Markdown inline>{q.question}</Markdown></p>
       <ul className="quiz-options">
         {q.options.map((opt, i) => {
           const isPicked = picked === i;
@@ -97,7 +98,7 @@ function StaticQuiz({ questions }) {
                 disabled={revealed}
               >
                 <span className="quiz-opt-letter">{String.fromCharCode(65 + i)}</span>
-                <span className="quiz-opt-text">{opt}</span>
+                <span className="quiz-opt-text"><Markdown inline>{opt}</Markdown></span>
                 {isCorrect && <CheckCircle2 size={13} className="quiz-opt-icon ok" />}
                 {isWrong && <XCircle size={13} className="quiz-opt-icon bad" />}
               </button>
@@ -201,7 +202,7 @@ export default function ConceptQuiz({ concept }) {
           <RefreshCw size={12} />
         </button>
       </div>
-      <p className="quiz-question">{quiz.question}</p>
+      <p className="quiz-question"><Markdown inline>{quiz.question}</Markdown></p>
       <ul className="quiz-options">
         {quiz.options.map((opt, i) => {
           const isPicked = picked === i;
@@ -215,7 +216,7 @@ export default function ConceptQuiz({ concept }) {
                 disabled={revealed}
               >
                 <span className="quiz-opt-letter">{String.fromCharCode(65 + i)}</span>
-                <span className="quiz-opt-text">{opt}</span>
+                <span className="quiz-opt-text"><Markdown inline>{opt}</Markdown></span>
                 {isCorrect && <CheckCircle2 size={13} className="quiz-opt-icon ok" />}
                 {isWrong && <XCircle size={13} className="quiz-opt-icon bad" />}
               </button>
@@ -224,7 +225,7 @@ export default function ConceptQuiz({ concept }) {
         })}
       </ul>
       {revealed && quiz.explanation && (
-        <p className="quiz-explanation">{quiz.explanation}</p>
+        <p className="quiz-explanation"><Markdown inline>{quiz.explanation}</Markdown></p>
       )}
     </div>
   );
