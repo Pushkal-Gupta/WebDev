@@ -28,10 +28,27 @@ Given an array of size n and a window size k, report the median of the values cu
 Streaming statistics — median latency, p50 of a rolling traffic window, online anomaly detection — all reduce to "what is the median of the last k values?" The two-heap technique extends naturally to any rank-based query (k-th smallest in a window) and is the standard answer when an order-statistic tree feels like overkill. It is also a great showcase for lazy deletion, a pattern that returns in many streaming algorithms.
 
 ## intuition
-Split the k values into two halves. The lower half lives in a max-heap (the largest of the small values sits on top); the upper half lives in a min-heap (the smallest of the large values sits on top). Keep their sizes balanced — equal for even k, lower-heap one larger for odd k. The median is then either lower.top() (odd k) or the average of lower.top() and upper.top() (even k). Inserting a new element and removing the outgoing one each cost O(log k); rebalancing is amortized O(log k).
+Picture the k values in the window laid out sorted on a number line, then cut the line in half. Everything to the left of the cut is the "small" half, everything to the right is the "big" half, and the median sits right at the cut. The two heaps are just a way to keep that cut in place without ever fully sorting: the lower half lives in a max-heap (the largest of the small values sits on top, right at the cut); the upper half lives in a min-heap (the smallest of the large values sits on top, right at the cut). The two heap tops are the two values that hug the cut from either side, which is exactly what the median is made of. Keep their sizes balanced — equal for even k, lower-heap one larger for odd k. The median is then either lower.top() (odd k) or the average of lower.top() and upper.top() (even k).
+
+What's actually happening as the window slides: one value walks in on the right and one value walks out on the left, and the cut nudges by at most one slot, so you only ever need to move a single element across the divide to restore balance. Concrete micro-example with [1, 3, -1] and k=3, sorted view [-1, 1, 3]: the cut lands after `1`, so lower = {1, -1} (max-heap top 1), upper = {3} (min-heap top 3); k is odd and lower is the bigger heap, so median = lower.top() = 1. Slide off the `1`, slide in `-3`: sorted view becomes [-3, -1, 3], cut moves to after `-1`, lower = {-1, -3} (top -1), upper = {3}, median = -1. Only the removed and inserted elements plus one possible rebalance move touched a heap. Inserting a new element and removing the outgoing one each cost O(log k); rebalancing is amortized O(log k).
 
 ## visualization
 Array [1, 3, -1, -3, 5, 3, 6, 7], k=3. Window [1,3,-1]: lower=[1,-1], upper=[3], median=1. Slide: remove 1, add -3 → lower=[-1,-3], upper=[3], median=-1. Slide: remove 3, add 5 → lower=[-1,-3], upper=[5], median=-1. Continue similarly to produce medians [1, -1, -1, 3, 5, 6].
+
+Full trace. `lower` is the max-heap (lower half, its top is the largest small value); `upper` is the min-heap (upper half, its top is the smallest large value). For k=3 the invariant keeps size(lower)=2, size(upper)=1, so the median is always lower.top().
+
+```text
+step  window        sorted view   lower (max-heap) top  upper (min) top  sizes  median
+ 1    [ 1, 3,-1]    [-1, 1, 3]    {-1, 1}        1      {3}         3    2/1     1
+ 2    [ 3,-1,-3]    [-3,-1, 3]    {-3,-1}       -1      {3}         3    2/1    -1
+ 3    [-1,-3, 5]    [-3,-1, 5]    {-3,-1}       -1      {5}         5    2/1    -1
+ 4    [-3, 5, 3]    [-3, 3, 5]    {-3, 3}        3      {5}         5    2/1     3
+ 5    [ 5, 3, 6]    [ 3, 5, 6]    { 3, 5}        5      {6}         6    2/1     5
+ 6    [ 3, 6, 7]    [ 3, 6, 7]    { 3, 6}        6      {7}         7    2/1     6
+medians = [1, -1, -1, 3, 5, 6]
+```
+
+Each slide inserts one value, tags one departing value for lazy deletion, and moves at most one element across the cut to restore the 2/1 size split before the median is read.
 
 ## bruteForce
 For each of the n−k+1 windows, copy its k elements into a list, sort, and take the middle. O(n k log k) time, O(k) scratch per window. Acceptable for small k; collapses under any realistic streaming load.
@@ -42,7 +59,9 @@ Two heaps with lazy deletion:
 - "Remove" the outgoing element by tagging it (e.g. in a hash-multiset of pending removals); whenever a heap's top matches a pending tag, pop it for real.
 - After each slide, rebalance until size invariants hold, then read the median from the heap tops.
 
-This costs O(log k) per slide and O(n log k) overall. The lazy-deletion trick is essential: heaps do not support O(log k) removal of arbitrary elements directly.
+The two invariants that must hold every time you read the median are the ordering invariant — every value in lower is `<=` every value in upper — and the size invariant — `0 <= size(lower) - size(upper) <= 1`. Together they force lower.top() and upper.top() to be the two middle elements of the window, so the median read is O(1) and correct. The insert step preserves ordering by pushing into lower then shuffling its max across to upper; the rebalance step restores the size invariant by moving at most one element back. Both invariants are re-established after every slide before any median is reported.
+
+The subtlety is deletion. A binary heap can only cheaply remove its top, not an arbitrary buried element, and the value leaving the window is almost never on top. Lazy deletion sidesteps this: mark the outgoing value as "owed" in a count map and leave it physically in the heap; the value only actually gets popped once it bubbles to a top and is recognized as stale. To keep the size logic honest you decrement the logical size of whichever heap the outgoing value belonged to at tag time, then prune stale tops before trusting any `top()`. Because each element is pushed once, tagged once, and eventually popped once, the amortized cost stays O(log k) per slide. This costs O(log k) per slide and O(n log k) overall. The lazy-deletion trick is essential: heaps do not support O(log k) removal of arbitrary elements directly.
 
 ## complexity
 time: O(n log k)

@@ -34,7 +34,11 @@ Comes up directly when:
 The extra state is one integer per node; the asymptotic is the same O(α(n)) as plain DSU.
 
 ## intuition
-Standard DSU's `find(x)` returns the root of x. We extend it to ALSO return the offset of x from that root. `parent[x]` = parent node; `weight[x]` = `value(x) - value(parent[x])`. Path compression carries the offset along: when you flatten the path, sum weights along the way.
+Picture each component as a hanging mobile: the root floats at some unknown "height," and every other node hangs a fixed vertical distance below it. You never learn the absolute height of anyone — but because every node's distance to the root is pinned down, the distance between ANY two nodes in the same mobile is just the difference of their two drops. That is the whole idea: absolute values are unknowable, but relative offsets compose.
+
+Standard DSU's `find(x)` returns the root of x. We extend it to ALSO track the offset of x from that root. `parent[x]` = parent node; `weight[x]` = `value(x) - value(parent[x])`, the drop from x to its immediate parent. To get x's total offset from the root, you sum the drops along the path. Path compression carries that offset along: when you flatten the path so every node points straight at the root, each `weight[x]` is rewritten to the full accumulated sum, so future `find`s are O(1) and still correct.
+
+Concrete micro-example. Say the real (secret) values are `value(a)=10`, `value(b)=7`, `value(c)=5`. We are never told these — only relationships. Call `union(a, b, 3)` meaning `a - b = 3`: a becomes root, b hangs 3 below it, so `weight[b] = -3` (since `value(b) - value(a) = -3`). Now `union(b, c, 2)` meaning `b - c = 2`: b's root is a, c is its own root, so we hang c under a with `weight[c] = weight[b] - weight[c_old] - 2 = -3 - 0 - 2 = -5`. Ask `diff(a, c)`: both share root a, answer is `weight[a] - weight[c] = 0 - (-5) = 5`, exactly `10 - 5`. The secret absolute values dropped out; only the offsets mattered.
 
 For `union(x, y, diff)` ("set value(x) - value(y) = diff"):
 1. Find roots rx, ry. If same, check consistency (`weight[x] - weight[y] == diff`).
@@ -62,6 +66,14 @@ find(x).weight - find(z).weight = 0 - (-5) = 5. → x - z = 5. ✓
 Store equations as edges; BFS/DFS to answer each query. O(V + E) per query. Useless for many queries.
 
 ## optimal
+The invariant that makes everything work: **for every non-root node, `weight[x]` always equals `value(x) - value(parent[x])`, and the sum of weights along the path from x to its root equals `value(x) - value(root)`.** Keep that true through both operations and correctness is automatic.
+
+Why the union formula is right. When linking `ry` under `rx`, we want the sum from y up to the new root rx to encode `value(y) - value(rx)`. We already know `weight[x] = value(x) - value(rx)` and `weight[y] = value(y) - value(ry)` after the two `find`s compress their paths. The caller asserts `value(x) - value(y) = diff`. Solving for the single edge we are adding, `weight[ry] = value(ry) - value(rx) = weight[x] - weight[y] - diff`. That is exactly line 97. If instead `rx == ry`, no edge is added; we only verify the already-implied relationship `weight[x] - weight[y] == diff`, which is the consistency check that catches contradictory input.
+
+Why `find` stays correct under compression. Walking up, we collect the path `[x, ..., last-before-root]`, then replay it from the top down. Processing a node whose parent has ALREADY been re-pointed to the root, `weight[node] += weight[parent]` telescopes the two drops into one total drop to the root before we set `parent[node] = root`. Doing it top-down (reversed path) is essential — each node folds in its parent's already-finalized offset.
+
+Step-by-step on `diff(0, 2)` after `union(0,1,3)`, `union(1,2,2)`: `find(0)=0`, `find(2)` compresses 2 straight to root 0 with `weight[2] = -5`, roots match, return `weight[0] - weight[2] = 0 - (-5) = 5`. Complexity intuition: every `find` touches only the nodes on one root-path, and compression plus union-by-rank keeps those paths near-flat, so the amortized cost is the inverse-Ackermann `O(α(n))` — under 5 for any input that fits in memory.
+
 ```
 class WeightedDSU:
     def __init__(self, n):

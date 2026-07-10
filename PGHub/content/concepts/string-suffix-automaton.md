@@ -30,14 +30,38 @@ SAM is the most compact full-substring index in computer science. Where a suffix
 ## intuition
 Every substring of s corresponds to a class of "right-extensions" (the endpos set: which positions of s does this substring end at?). Two substrings with the same endpos set behave identically going forward, so they share one SAM state. Each state represents the equivalence class of substrings sharing an endpos set. A "suffix link" from state u to state v means v's substrings are the longest proper suffixes of u's that fall into a different (larger) endpos class. The result is a DAG of transitions and a tree of suffix links — both linear-size.
 
+Geometrically, think of it as folding a trie. A trie of all suffixes has one leaf per suffix and blows up to O(n^2) nodes because it never reuses shared structure; the SAM glues together every path that has an identical future, so branches that end at the same set of positions become one node. That gluing is exactly the endpos equivalence, and it is what caps the machine at 2n - 1 states.
+
+Concrete micro-example on s = "aba". Look at where each substring ends (1-indexed positions): "a" ends at {1, 3}, "b" ends at {2}, "ab" ends at {2}, "ba" ends at {3}, "aba" ends at {3}. Now group by identical endpos set: {2} is shared by "b" and "ab", so they collapse into one state; {3} is shared by "ba" and "aba", another single state; "a" with {1,3} stands alone. So the whole automaton needs just the root plus states for endpos {1,3}, {2}, and {3} — four states for a length-3 string, well under 2n - 1 = 5. What's actually happening: a state's `len` records the longest string in its class, and the difference `len[state] - len[link[state]]` counts exactly how many distinct substrings that class contributes, before any formula is invoked.
+
 ## visualization
 s = "abb". States after building: q0 (empty), q1 ("a"), q2 ("ab"), q3 ("abb","bb","b"). Transitions: q0 -a-> q1, q0 -b-> q3, q1 -b-> q2, q2 -b-> q3. Suffix links: q1 -> q0, q2 -> q3, q3 -> q0. Counting distinct substrings: sum over states of (state.len - link.len) = (1-0) + (2-1) + (3-0) = 5 → "a","b","ab","bb","abb".
+
+The table below traces the actual online build of the code (with the clone state the algorithm really creates when appending the second 'b'):
+
+```
+add | new/clone | state | len | link | transitions after step
+----+-----------+-------+-----+------+------------------------------
+ a  | create    |   1   |  1  |  0   | 0:{a->1}                 1:{}
+ b  | create    |   2   |  2  |  0   | 0:{a->1,b->2} 1:{b->2}   2:{}
+ b  | create    |   3   |  3  |  ?   | 2:{b->3}  (walking links...)
+ b  | clone q=2 |   4   |  1  |  0   | 4:{b->3}  copy of 2's edges
+ b  | redirect  |   -   |  -  |  -   | 0:{a->1,b->4}  (was b->2)
+ b  | relink    |   -   |  -  |  2->4, 3->4 | last = 3
+----+-----------+-------+-----+------+------------------------------
+final: 0(len0,link-1) 1(len1,link0) 2(len2,link4) 3(len3,link2) 4(len1,link0)
+distinct = sum(len-len[link]) = (1)+( -)+... over non-root = 5 substrings
+```
 
 ## bruteForce
 Insert every substring of s into a set or trie. O(n^2) substrings, O(n) each to insert: O(n^3) time, O(n^2) memory. Trie of substrings ("substring trie") is already 2n-state but is harder to build online than SAM and offers nothing extra.
 
 ## optimal
 Online extension: keep `last` = state for the prefix so far. To append character c: create a new state `cur` with len = last.len + 1. Walk suffix links from `last` while there is no c-transition; add transition to `cur`. If we hit the root with no c-transition, set cur.link = root. Otherwise let p be the first node with a c-transition to q. If q.len == p.len + 1, cur.link = q. Else clone q into q', copy q's transitions and link, set q'.len = p.len + 1, redirect p's (and ancestors') c-transitions from q to q', set q.link = cur.link = q'. The amortized cost per character is O(alphabet); total O(n * alphabet).
+
+Why this is correct rests on one invariant: the chain of suffix links from `last` back to the root enumerates exactly the suffixes of the current prefix, in strictly decreasing length. Adding character c must extend every one of those suffixes by c that does not already have such an extension — that is precisely the set of states visited by the link-walk that lack a c-transition, and pointing them all at `cur` records the newly appearing substrings. The delicate case is when some ancestor p already reads c into an existing state q. If q's longest string is exactly p.len + 1, then q's endpos class simply grows to include the new position and cur.link = q is valid. But if q is longer, its class is about to split: the strings of length up to p.len + 1 now end at the new position while the longer ones do not. Cloning q into q' with len = p.len + 1 performs that split — q' inherits q's outgoing transitions and link so both halves keep the same future, and every ancestor transition that pointed to q for c is rerouted to q'. Skipping the clone is the classic bug: suffix links would then point into a class whose endpos set strictly contains the new substring, violating the tree structure.
+
+Step by step per character: (1) allocate `cur`; (2) climb links from `last`, wiring missing c-edges to `cur`; (3) resolve the link of `cur` via the root / direct-q / clone-q cases above; (4) set `last = cur`. Complexity intuition: each character adds one (sometimes two) states, and the total number of link-walk steps and transition redirections is amortized O(1) per character by a potential argument on link depth — so the whole build is linear in n up to the per-transition map factor.
 
 ## complexity
 time: O(n * alphabet) construction; O(|t|) per "is t a substring?" query

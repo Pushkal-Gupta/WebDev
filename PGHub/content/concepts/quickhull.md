@@ -28,6 +28,8 @@ Quickhull is a divide-and-conquer convex hull algorithm. Start with the leftmost
 Conceptually parallel to Quicksort — easy to remember once you see the analogy. Real-world geometric kernels (CGAL, qhull) use Quickhull or its 3D generalization for triangulation, Voronoi-diagram precursors, and collision-hull computation. In interviews, knowing both **Graham scan / Andrew monotone chain** (Θ(n log n) deterministic) AND **Quickhull** (faster in practice, randomized) shows depth.
 
 ## intuition
+Picture stretching a rubber band around a scatter of nails on a board: it snaps taut against the outermost nails and ignores everything tucked inside. Quickhull finds those outer nails by repeatedly asking "who sticks out farthest?" — the same pivot-and-partition instinct as Quicksort, but the pivot is a *geometric extreme* instead of a numeric median.
+
 - Find extremes: leftmost L, rightmost R. Both definitely on the hull.
 - Split remaining points by which side of the line LR they lie on.
 - For each side, find the farthest point F from LR. F is on the hull.
@@ -35,6 +37,8 @@ Conceptually parallel to Quicksort — easy to remember once you see the analogy
 - Points "inside" any final triangle are not on the hull — discard.
 
 The "discard interior" step is where the speed comes from: on average, half the points are discarded each recursion.
+
+What's actually happening: the farthest point from a chord is guaranteed to be a hull vertex, because no point can lie beyond it while still being on that side — it defines the extreme bulge of the cloud in that direction. Every triangle L-F-R we form swallows all the points inside it, and those can never be on the hull, so each recursion sheds a chunk of the cloud. Work a concrete micro-example: points {L=(0,0), R=(4,0), A=(2,3), B=(2,1), C=(1,1)}. The chord LR is the x-axis; A, B, C all sit above it. The farthest from LR is A at height 3, so A is a hull vertex. Now recurse on the sub-chord LA with points strictly left of the directed line L→A, and on AR with points right of A→R. Both B=(2,1) and C=(1,1) fall *inside* triangle L-A-R, so neither survives — they get discarded in one shot. The hull is L, A, R (plus the lower chain, empty here). Notice we never sorted by angle or compared all pairs; we only ever asked "which side?" and "how far?", both answered by a single cross-product sign or magnitude.
 
 ## visualization
 ```
@@ -77,6 +81,12 @@ def farthest_recurse(A, B, S):
 `cross(o, a, b) = (a.x - o.x)(b.y - o.y) - (a.y - o.y)(b.x - o.x)`. Positive = counter-clockwise, negative = clockwise.
 
 For the farthest-from-line test, you can compare cross-products directly (no square root needed).
+
+**Why it is correct.** The invariant carried through the recursion is that `farthest_recurse(A, B, S)` returns, in order, all hull vertices strictly outside the directed segment A→B, where S already holds exactly the points on that outer side. The base case is sound: if S is empty, no hull vertex lies beyond A→B, so return nothing. The inductive step rests on the geometric fact that the point F maximizing distance from line AB must be a hull vertex — if some other point lay outside the triangle A-F-B it would be farther, contradicting F's maximality. Splitting S by `cross(A,F,·) > 0` and `cross(F,B,·) > 0` sends each remaining point to the one sub-region whose outer edge it can still bulge past; any point failing both tests sits inside triangle A-F-B and is correctly discarded, never to appear on the hull.
+
+**Step-by-step.** Deduplicate and sort points so L and R are the x-extremes. Partition the rest into the upper set (`cross(L,R,p) > 0`) and lower set (`cross(L,R,p) < 0`). Emit L, then recurse on the upper chain L→R, then R, then the lower chain R→L. Each recursion picks the farthest point, promotes it to the output, and re-partitions — so the answer is assembled in boundary order.
+
+**Tradeoff and complexity intuition.** The whole thing is Quicksort's recursion tree in disguise: the farthest point is the pivot, and interior points are the elements that "fall out" instead of being sorted. When splits are balanced each level touches O(n) points across O(log n) levels for O(n log n) expected work; on adversarial inputs (points hugging one side) a recursion can retain nearly all points, degrading to O(n²) — the price of trading Graham scan's deterministic guarantee for better average-case constants and cache behavior. Using integer cross-products avoids square roots and floating-point drift, keeping the side and distance tests exact.
 
 ## complexity
 - **Expected time**: O(n log n) — assuming balanced splits.

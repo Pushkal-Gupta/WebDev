@@ -31,9 +31,13 @@ The two terms sound identical but mean different things. An **iterable** is "som
 - Understanding this clarifies `itertools.tee`, `zip`, `map`, async iteration, and most "lazy sequence" libraries.
 
 ## intuition
+Reframe it as a book and a bookmark. The **iterable** is the book — it holds the content and can be read as many times as you like. The **iterator** is a bookmark placed in that book — it remembers exactly one position and advances as you read. Asking the book for a reader (`iter(iterable)`) hands you a brand-new bookmark parked at page one. Ask twice and you get two independent bookmarks that move on their own. But a bookmark is not a book: once it reaches the last page it stays there, and asking a bookmark for "a reader" just gives you back the same bookmark, still at the end.
+
 **Iterable**: an object whose `__iter__()` returns a fresh iterator each call. Stateless from the caller's view; iterable can be looped multiple times.
 
 **Iterator**: an object with `__next__()` that produces values until raising StopIteration. Stateful — every `next(it)` consumes one value. Iterating again only continues from where you left off.
+
+Concrete micro-example. Take the list `[10, 20, 30]`. It is an iterable, so `iter([10,20,30])` gives a bookmark `it`; `next(it)` returns 10, again 20, again 30, and a fourth call raises `StopIteration`. Now the subtle part — what's actually happening when you write `for x in [10,20,30]` twice: each `for` silently calls `iter()` on the LIST, getting a fresh bookmark, so both loops see all three values. But if you write `g = (x for x in [10,20,30])`, `g` is already a bookmark, not a book. The first `for x in g` walks it to exhaustion; the second `for x in g` calls `iter(g)`, which for an iterator returns `g` itself — still parked at the end — so the loop body never runs and you silently get zero iterations. That single distinction is the root cause of nearly every "my loop ran once and then stopped working" bug.
 
 ```
 iterable = [1, 2, 3]    # list IS an iterable
@@ -89,6 +93,12 @@ Single iterator (e.g., a generator):
 **Wrap a generator in a class with a fresh `__iter__`**: lazy AND re-iterable.
 
 ## optimal
+The reliable design rule: **if you want something re-iterable, expose an iterable (a fresh-bookmark factory), not a bare iterator.** The key tradeoff is laziness versus repeatability. A raw generator is maximally lazy — it computes values on demand and holds no history — but that same statelessness is exactly why it cannot be replayed. Wrapping the generator inside a class whose `__iter__` builds a NEW generator each call buys you both: still lazy per pass, yet every pass starts clean. That is why `Squares` and `CountUp` below can be `list()`-ed twice, while the bare `count_up_gen(3)` gives `[0,1,2]` then `[]`.
+
+Why the wrapper is correct: `for` and `list()` always begin by calling `iter()` on their argument. When that argument is a factory whose `__iter__` returns a freshly-constructed generator, the loop can never observe a partially-drained cursor — each consumer gets its own. When the argument is already an iterator, `iter()` returns the same object, so consumers share and race over one cursor.
+
+Step-by-step recognizing the two: an object with `__iter__` but no `__next__` is an iterable (list, str, dict, the `Squares` wrapper); an object with BOTH, whose `__iter__` returns `self`, is an iterator (generators, file handles, `zip`/`map` objects, DB cursors). Complexity intuition: one full iteration is O(N) either way; the difference is that an iterable's second pass is another O(N) of real work, whereas an iterator's second pass is O(1) and yields nothing. `tee` trades memory to fake repeatability — it buffers every value until all branches consume it, so if consumers drift apart it can hold O(N) in memory.
+
 **Test if something is iterable**: `hasattr(obj, '__iter__')` in Python; `Symbol.iterator in obj` in JS.
 
 **Test if something is an iterator**: in Python, iterators must have BOTH `__iter__` AND `__next__`. An iterator's `__iter__` returns itself.

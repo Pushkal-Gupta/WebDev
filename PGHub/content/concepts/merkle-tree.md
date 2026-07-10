@@ -35,12 +35,16 @@ Foundational for tamper-evident systems:
 The trick is the O(log n) inclusion proof: a light client doesn't need the full dataset to verify a single entry.
 
 ## intuition
+A Merkle root is a single fingerprint that stands in for a whole dataset the way a checksum stands in for a file — except it is *structured* so you can also prove one piece belongs without shipping the rest. Picture a knockout tournament bracket: each match's winner is determined by the two players beneath it, and the champion at the top implicitly depends on every first-round result. Swap out any single first-round player and a different name propagates all the way up to the final. Hashing behaves the same way — change one byte in one block, its leaf hash changes, that changes its parent, which changes *its* parent, all the way to a root that no longer matches. Tampering cannot hide.
+
 Pair adjacent leaves, hash each pair → internal nodes. Pair those, hash again → upper internals. Repeat until one root remains.
 
 To prove "block B is in the tree with root R":
 - Receiver knows: B and R.
 - Sender sends: log n sibling hashes along B's path to root.
 - Receiver recomputes hashes upward; if final == R, B is present and untampered.
+
+Make it concrete with four blocks. Compute leaf hashes `h0..h3`, then `h01 = H(h0 ‖ h1)` and `h23 = H(h2 ‖ h3)`, then `R = H(h01 ‖ h23)`. Now a light client that holds only block `B2` and the trusted root `R` wants proof `B2` belongs. The server ships just two hashes: `h3` (B2's sibling) and `h01` (the sibling one level up). The client recomputes `h2 = H(B2)`, then `h23' = H(h2 ‖ h3)`, then `R' = H(h01 ‖ h23')`, and accepts iff `R' == R`. What's actually happening: each supplied sibling is a *compressed stand-in* for an entire subtree the client never has to download, so a dataset of a billion blocks still needs only ~30 sibling hashes to prove one membership — the log n that makes the structure worth building.
 
 ## visualization
 ```
@@ -101,6 +105,10 @@ def verify(block, i, proof, root, H):
         i //= 2
     return h == root
 ```
+
+The three routines share one invariant: at every level, `layers[k]` holds the hashes of a contiguous partition of the data, and `layers[k+1][j] = H(layers[k][2j] ‖ layers[k][2j+1])`. Build establishes it bottom-up, padding an odd layer by duplicating its last element so pairing is always well-defined. `proof(i)` walks that same partition upward: at each level the sibling of position `i` is `i ^ 1` (flip the low bit), and integer-dividing `i` by two moves to the parent's index — so the proof is exactly one sibling per level, O(log n) hashes. `verify` replays the build along that single path, folding the claimed block with each supplied sibling *in the correct left/right order* (decided by the parity of `i` at that level); if the recomputed root equals the trusted root, the block is authentic.
+
+Why it is secure reduces to collision resistance: producing a different block that hashes into the same root would require a hash collision somewhere on the path, which is computationally infeasible for SHA-256. Complexity intuition: build does one hash per node across O(n) nodes, so O(n) time and space; a proof is O(log n) hashes to generate, transmit, and verify; and updating a single block re-hashes only its root path, again O(log n). That logarithmic proof size is the whole reason light clients can trust a dataset they never fully hold.
 
 For append-only logs (certificate transparency), use a **Merkle Mountain Range** so old roots remain provable.
 

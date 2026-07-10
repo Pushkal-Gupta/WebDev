@@ -30,6 +30,10 @@ A plain BST can degrade to a linked list under sorted input — O(n) per operati
 ## intuition
 Read the colors as a "weight" system. Black nodes contribute to a path's "black height"; red nodes are free. Rule: every path from a node down to any descendant null leaf must contain the same number of black nodes. Combine that with "no two reds in a row" and the tree cannot become twisted enough for one path to be more than 2x the other. Rotations and recoloring during insert and delete are the moves you make to keep the black-height equal everywhere after a local violation.
 
+Geometrically, imagine measuring every root-to-leaf path with a ruler that only counts black nodes. The black-height rule says every one of those rulers reads the same value — call it `bh`. So the shortest possible path is all black, length `bh`, and the longest possible path alternates black-red-black-red, length at most `2*bh`. No path can be more than twice another; the tree is "bushy" rather than stringy. That is the entire reason worst-case height is bounded by `2 log2(n+1)`.
+
+What's actually happening when you insert: you drop the new node in as RED so you do NOT disturb any black-height count (red is free weight). The only rule you can break is "no two reds in a row." Fixing that is local surgery near the new node, and which fix you pick depends on ONE thing — the color of the uncle. Work a concrete micro-example. Start with black root 10, red children 5 and 15. Insert 1: BST-place it as the left child of 5, colored red. Now 5 (red) has a red child 1 — a red-red violation. Look at 1's uncle, which is 15. The uncle is RED, so we do the cheap recolor: paint parent 5 and uncle 15 black, paint grandparent 10 red, then move attention to 10. Since 10 is the root we force it back to black. Every path still crosses the same number of black nodes (10 went red but 5 and 15 went black, so the count below 10 is unchanged), and the red-red pair is gone. Now instead insert 3 under that same shape into a subtree where the uncle is BLACK: the fix is a rotation plus a recolor rather than a recolor cascade, because there is no red uncle to "absorb" the extra red. The mental model is: red uncle = repaint and push the problem up two levels; black uncle = rotate to rebalance and stop. That single distinction, before any formula, is the whole insert algorithm.
+
 ## visualization
 ```
         [10B]
@@ -40,11 +44,32 @@ Read the colors as a "weight" system. Black nodes contribute to a path's "black 
 ```
 All paths from root to null leaves visit exactly two black nodes (root counts plus one leaf-side black). Insert 4 as a red child of 3 — no violation. Insert 6 as red child of 7 — now 7 (black) is fine, but if 7 had been red, we would have hit the "red-red" rule and triggered a rotation or recolor.
 
+The table traces inserting 10, 20, 30, 15, 25 into an empty tree. Each row shows the node placed, its color at insert, whether a red-red violation appeared, the uncle's color (which selects the fix), the action taken, and the resulting tree. R = red, B = black.
+
+```
+step  insert  placed  violation?   uncle   action                      tree after (color)
+----  ------  ------  -----------  ------  --------------------------  ------------------------
+ 1     10     root R  root not B   -       recolor root black          10B
+ 2     20     R@rt10  none         -       none                        10B (20R right)
+ 3     30     R@rt20  20R-30R red  BLACK   left-rotate 10, recolor     20B / 10R  30R
+ 4     15     R@10rt  10R-15R red  RED     recolor 10&30 B, 20 R->B    20B / 10B(15R) / 30B
+ 5     25     R@30lf  none         -       none                        20B /10B(15R)/30B(25R)
+----  ------  ------  -----------  ------  --------------------------  ------------------------
+final black-height = 2 on every root->null path; longest path (20-10-15-nil)
+is 3 edges, shortest (20-10-nil, left of 10) is 2 -- within the <=2x bound.
+```
+
 ## bruteForce
 The "naive" baseline is a plain BST: insert in O(h) where h can be n. Many systems wrap that with periodic rebuilds — every k operations, rebuild a balanced tree from sorted keys. That amortizes nicely but kills worst-case latency, which is exactly what databases and kernels cannot tolerate. Red-black gives true worst-case O(log n) per operation, no global rebuild needed.
 
 ## optimal
 The five invariants: (1) every node is red or black; (2) root is black; (3) every null leaf is black; (4) a red node's children are both black; (5) every root-to-leaf path has the same black count. Insert as red at a BST position, then fix violations bottom-up: if uncle is red, recolor parent + uncle black and grandparent red, recurse on grandparent. If uncle is black, rotate (LL, LR, RR, RL cases) and recolor. Delete is harder — replace by successor, then resolve "double-black" via six symmetric cases.
+
+WHY inserting red is the right first move: red carries zero black-weight, so a fresh red node cannot break invariant 5 (the black-count rule), no matter where it lands. The ONLY invariant it can violate is 4 — a red node under a red parent. That reduces the whole insert problem to "eliminate one red-red edge without changing any path's black count," which is a purely local repair.
+
+The fix-up loop keeps a precise INVARIANT at the top of each iteration: node `z` is red, and the only possible defect in the entire tree is that `z`'s parent might also be red; black-heights are already correct everywhere. Each iteration either terminates or restores that invariant one level higher. Case analysis on the uncle: if the uncle is RED, painting parent and uncle black and grandparent red keeps every downward black-count identical (one black gained at parent/uncle level, one lost at grandparent level) while moving the potential red-red conflict up to the grandparent — so `z` climbs two levels and the loop repeats. If the uncle is BLACK, a red uncle cannot absorb the recolor, so we rotate the grandparent (first straightening an "inner" child with a preliminary rotation) and swap the parent/grandparent colors; this rebalances locally, produces a black node on top with two red children, leaves black-heights untouched, and terminates because the top of the rebalanced triangle is black.
+
+Step by step: BST-insert, color red; while the parent is red, apply the uncle case; on exit force the root black. Termination is guaranteed because the red-uncle case strictly decreases `z`'s depth by two each time and the black-uncle case ends immediately. The complexity intuition: recoloring can cascade the full height of the tree, but that is still `O(log n)` recolor steps, and crucially at most TWO rotations ever happen per insert (the black-uncle case fires once and stops). Delete mirrors the structure with a "double-black" token that stands for a missing black on a path; it propagates upward via at most three rotations plus recolors until a red node can absorb it or the root swallows it, again `O(log n)`.
 
 ```
 insert(x):

@@ -34,6 +34,8 @@ Used in:
 The trick is that any path crosses exactly one "level" in the centroid tree — so summing contributions across levels covers every path exactly once.
 
 ## intuition
+Centroid decomposition is merge-sort's divide-and-conquer transplanted onto a tree. Merge sort works because splitting an array at its midpoint guarantees each half is size n/2, so the recursion is only log n deep. A tree has no obvious midpoint — but it has a *centroid*: the one node whose removal leaves every remaining piece at most half the tree. Delete it and you get the same log-n-deep recursion, now over connected components instead of array halves. The centroid is the tree's balance point.
+
 1. Find the centroid c of the tree.
 2. Process all paths that pass through c (contribution to whatever you're counting).
 3. Remove c. The tree splits into ≤ k connected components, each at most half the original size.
@@ -42,6 +44,8 @@ The trick is that any path crosses exactly one "level" in the centroid tree — 
 Total work: at each level, every node belongs to one component, and there are O(log n) levels → O(n log n) total.
 
 Finding centroid is O(n) per call: compute subtree sizes, pick the root that minimizes max-subtree-size after removal.
+
+Trace a straight path graph `1-2-3-4-5-6-7` to see the "each path captured exactly once" guarantee. The centroid is node 4 — remove it and you get `{1,2,3}` and `{5,6,7}`, each size 3 ≤ 7/2. At this level you account for *every path that touches 4*: `2->6`, `1->7`, `3->5`, and so on. Any path that does *not* touch 4 — say `1->3` — lies entirely inside one half, untouched for now, and gets handled later when node 2 becomes the centroid of `{1,2,3}`. No path is ever counted twice, because a path's "owner" is the single highest centroid lying on it, and once that centroid is removed the two endpoints fall into different components and can never meet again in the recursion. That single-owner property is what turns an O(n^2) all-pairs problem into O(n log n): each of the O(n) nodes contributes work at each of the O(log n) levels it survives.
 
 ## visualization
 ```
@@ -113,6 +117,10 @@ process_centroid(c):
             counter[d] += 1
     # Result accumulated; paths through c are now counted exactly once.
 ```
+
+Two invariants keep this correct. First, `find_centroid` must operate only over *unprocessed* nodes: after a centroid is removed, its component is a smaller tree, and the next centroid is found within that component alone — walking back into an already-removed region would double-count paths or loop forever. The centroid itself is located by starting at any node, computing subtree sizes, then repeatedly stepping toward the heaviest neighbor until no neighbor's subtree exceeds half the current size; that descent is guaranteed to terminate at a balancing node and costs O(component size) per call.
+
+Second, the per-centroid path count uses a *two-pass* accumulation to avoid counting pairs that live in the same subtree of `c` — those pairs form a path that does not actually pass *through* `c`. For each child subtree, first query the running counter for the complement of every distance, *then* add that subtree's distances into the counter, so a distance is only ever matched against distances from *earlier* subtrees, never its own. Complexity intuition: summed over the whole decomposition, each node appears in O(log n) centroid components (one per level of the centroid tree) and does O(1) hashmap work in each, giving O(n log n) total time; caching distances costs O(n log n) memory, or O(n) if you stream them.
 
 ## complexity
 - **Build (centroid decomposition)**: O(n log n) — finding each centroid is O(subtree-size); total work across levels is O(n) per level × O(log n) levels.

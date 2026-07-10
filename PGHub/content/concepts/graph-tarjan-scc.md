@@ -36,11 +36,15 @@ Slightly more elegant than Kosaraju's two-pass approach; the classic interview a
 Every directed-graph problem with "cycles" or "reachability classes" reduces to SCCs.
 
 ## intuition
+Think of the DFS as pouring water down a tree of streets, numbering each vertex the moment you first step on it — that number is `disc[v]`. As you explore, you keep asking one question at every vertex: "from here, following one back-edge, what is the earliest-numbered street I can escape back up to?" That escape number is `low[v]`. A vertex that cannot escape any higher than its own number is trapped at the top of its cycle — it is the entry point, the **root** of a strongly connected component. Everything visited after it and still waiting on the stack fell into the same trap and forms one SCC. What's actually happening is that `disc` freezes the tree structure while `low` propagates cycle-reachability upward, and the equality `low[v] == disc[v]` is the exact signal that no descendant found a way around `v`.
+
 Run DFS, assigning each vertex a discovery time `disc[v]`. Maintain `low[v]` = the smallest `disc` reachable from v's DFS subtree (via tree edges + at most one back-edge). Push each visited vertex onto a stack.
 
 When we finish processing v and find `low[v] == disc[v]`, v is the **root** of an SCC. Pop the stack down to v — those popped vertices are one SCC.
 
 The "low-link" captures: can we reach back to an ancestor? If yes → we're in a cycle (same SCC). If no → v is the SCC root.
+
+Trace a concrete triangle `1 → 2 → 3 → 1`. Enter 1: `disc[1] = low[1] = 0`, stack `[1]`. Enter 2: `disc[2] = low[2] = 1`, stack `[1,2]`. Enter 3: `disc[3] = low[3] = 2`, stack `[1,2,3]`. From 3 the edge `3 → 1` points to a vertex still on the stack, so it is a back-edge and pulls `low[3] = min(2, disc[1]) = 0`. Finishing 3, `low[3] = 0 != disc[3] = 2`, so 3 is not a root; it propagates `low[2] = min(1, 0) = 0`, then `low[1] = min(0, 0) = 0`. Only when we return to 1 do we see `low[1] == disc[1] == 0` — the root. We pop 3, 2, 1 off the stack and emit them as the single SCC `{1, 2, 3}`. The three vertices are grouped precisely because each could reach back to street 0.
 
 ## visualization
 ```
@@ -83,6 +87,10 @@ Result: 2 SCCs: {1,2,3}, {4,5}.
 Tarjan is the standard interview answer.
 
 ## optimal
+Tarjan performs one depth-first traversal, and every SCC is emitted the instant its root's recursion returns — no second pass, no graph reversal. **Why it's correct** rests on a precise claim about `low`: for a root `r`, `low[r] == disc[r]` holds if and only if no vertex reachable from `r`'s DFS subtree can escape via a back-edge to a vertex discovered before `r`. If some descendant could escape higher, its `low` would propagate up and force `low[r] < disc[r]`; conversely, if `low[r] == disc[r]`, the subtree is sealed and every vertex still on the stack above `r` is mutually reachable with `r` — that is the definition of a strongly connected component. **The key invariant** is the `on_stack` set: a neighbour's `disc` may only lower `low[v]` when that neighbour is still on the stack, because an off-stack neighbour already belongs to a completed SCC and offers no path back into the current one. Confusing an off-stack cross edge for a back-edge is the classic bug that corrupts later components.
+
+**The mechanism, step by step:** on entry, stamp `disc[v] = low[v]` with the running counter, push `v`, and mark it on-stack. For each out-edge, either recurse into an undiscovered neighbour and afterward absorb its `low` (a tree edge), or, if the neighbour is on the stack, tighten `low[v]` with the neighbour's `disc` (a back-edge). After the loop, test `low[v] == disc[v]`; if true, pop the stack down to and including `v`, clearing each popped vertex's on-stack flag, and record those vertices as one SCC. **The central tradeoff** versus Kosaraju is elegance for subtlety: Tarjan is a single pass and cache-friendly, but it demands careful `low`/`disc` bookkeeping, whereas Kosaraju's two passes are easier to reason about at the cost of building the reversed graph. **Complexity intuition:** the outer loop starts a DFS from each undiscovered vertex, and inside the traversal every vertex is pushed and popped exactly once and every edge is inspected exactly once, so the total work is `O(V + E)` with `O(V)` auxiliary space for the stack and the `disc`/`low`/`on_stack` structures.
+
 **Tarjan's iterative pseudocode**:
 ```
 def tarjan(graph):

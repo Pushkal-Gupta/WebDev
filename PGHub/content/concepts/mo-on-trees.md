@@ -28,16 +28,46 @@ Mo's algorithm answers a batch of range queries on an array in O((N + Q) sqrt N)
 Path queries on a tree are normally tackled with heavy-light decomposition, link-cut trees, or persistent segment trees — each powerful but conceptually heavier. When queries are aggregate (counts, mode, sum of squares of frequencies) and can be processed offline, Mo's on trees is much shorter to write and competitive on speed: a few hundred lines of code answer millions of path queries.
 
 ## intuition
-Imagine walking the tree pre-order. Each node is entered and later exited, so each appears twice in the walk — call these positions `in[v]` and `out[v]`. The subtree of `v` is a contiguous range `[in[v], out[v]]`. For a path `(u, v)` with `in[u] ≤ in[v]`, two cases: if `u` is an ancestor of `v`, the path corresponds to `[in[u], in[v]]`. Otherwise the path is `[out[u], in[v]]` plus the LCA. The trick: a node appears twice in the range iff it lies in a subtree that the path crosses but the path itself does not include — toggling its presence on each occurrence (XOR) elegantly removes those nodes.
+Imagine walking the tree pre-order. Each node is entered and later exited, so each appears twice in the walk — call these positions `in[v]` and `out[v]`. The subtree of `v` is a contiguous range `[in[v], out[v]]`. The physical reframe: unrolling the tree into this flat Euler array of length 2N turns a path query into a range query, which is precisely the shape Mo's algorithm already conquers on plain arrays. For a path `(u, v)` with `in[u] ≤ in[v]`, two cases: if `u` is an ancestor of `v`, the path corresponds to `[in[u], in[v]]`. Otherwise the path is `[out[u], in[v]]` plus the LCA. The trick: a node appears twice in the range iff it lies in a subtree that the path crosses but the path itself does not include — toggling its presence on each occurrence (XOR) elegantly removes those nodes.
+
+What's actually happening: a node's two occurrences act like a pair of parentheses. If both the open and the close of a node fall inside your range, that node was fully "opened and closed" without the path ever leaving through it, so it is a side-subtree, not on the path — and toggling it twice (add then remove) cancels it out to zero net presence. If only one occurrence falls in the range, the path genuinely enters or leaves through that node, so it stays counted once. Concrete micro-example on tree 1-{2,3}, 2-{4,5}: the Euler tour by enter/exit is [1,2,4,4,5,5,2,3,3,1] at positions 0..9, giving `in=[0,1,7,2,4]` and `out=[9,6,8,3,5]` for nodes 1..5 (node index = value here). Query path (4,5): neither is the other's ancestor, LCA is 2, so use `[out[4], in[5]] = [3,4]`. Positions 3 and 4 are the exit of `4` and the enter of `5`; each of nodes 4 and 5 appears exactly once inside `[3,4]`, so both stay counted — correctly, since the path 4->2->5 includes both endpoints. The LCA, node 2, has its enter at position 1 and exit at position 6, so neither falls in `[3,4]`: it is counted zero times by the range and must be added manually at query time. This is exactly the boundary the LCA correction fixes — the range recovers the path minus its top vertex, and any full side-subtree crossed on the way (both occurrences inside the range) cancels to zero via the double toggle.
 
 ## visualization
 Tree: 1 is root, children 2 and 3; 2 has children 4 and 5. Euler tour positions: enter 1, enter 2, enter 4, exit 4, enter 5, exit 5, exit 2, enter 3, exit 3, exit 1. Path (4, 5): `in[4]=2, in[5]=4`; LCA is 2. Use range `[in[4], in[5]] = [2..4]` since 4 is not an ancestor of 5; that range contains 4, 4 (exit), 5 — XOR-toggling drops 4 (appears twice), leaving {5}. Path also includes 4 and the LCA 2, added manually at query time.
+
+Euler array (position: node), block size = 3, so blocks are [0,1,2],[3,4,5],[6,7,8],[9]:
+
+```text
+pos:   0  1  2  3  4  5  6  7  8  9
+node:  1  2  4  4  5  5  2  3  3  1
+```
+
+Three queries map to ranges: Q1=(1,4) -> [0,2] lca=none (ancestor case); Q0=(4,5) -> [3,4] lca=2; Q2=(4,3) -> [3,7] lca=1. Sorted by (l/block, r) the order is Q1, Q0, Q2. The two-pointer walk (L starts 0, R starts -1), toggling each position's node in or out of the visited set:
+
+```text
+query  op            pos node   visited set        distinct
+Q1     add R->0       0   1      {1}                -
+Q1     add R->1       1   2      {1,2}              -
+Q1     add R->2       2   4      {1,2,4}            3   (report Q1)
+Q0     add R->3       3   4      {1,2}              -
+Q0     add R->4       4   5      {1,2,5}            -
+Q0     rm  L->0..2    0-2 1,2,4  {5,4}              -
+Q0     +lca 2         1   2      {5,4,2}            3   (report Q0, then -lca)
+Q2     add R->5..7    5-7 5,2,3  {4,2,3}            -
+Q2     +lca 1         0   1      {4,2,3,1}          4   (report Q2, then -lca)
+```
+
+Each add/remove toggles the node's visited bit: a node whose Euler positions both fall inside the window nets to absent (a side-subtree), a node with one position inside stays counted. Report values match the true paths: 1-2-4, 4-2-5, 4-2-1-3. The LCA is toggled in only to read `distinct`, then toggled back out before the next query.
 
 ## bruteForce
 For each query walk the path explicitly, accumulating the aggregate. Worst-case path length is O(N), Q queries → O(NQ). For N = Q = 100,000 that is 10^10 operations — far beyond a second. Heavy-light decomposition + segment tree gets to O((N + Q) log² N) but is a big implementation and requires per-query state that often does not compose for "count distinct" types.
 
 ## optimal
 Build the Euler tour with enter/exit positions. Precompute LCA via binary lifting in O(N log N). For each query (u, v): pick `[l, r]` per the case above and store an aux LCA. Sort queries by `(block_of_l, r)` with block size `sqrt(2N)`. Maintain a counter array `cnt[value]` and a running answer. To "add" or "remove" a position you toggle its visited bit; if toggling makes it visited, increment `cnt[val[pos]]` and update the answer; if it makes it unvisited, decrement and update. After settling the range, separately add the LCA contribution (and remove it after answering). The toggle pattern is what makes the Euler-tour mapping correct.
+
+Why it is correct: the toggle keeps the invariant that a node contributes to the current answer iff exactly one of its two Euler positions lies inside `[L, R]`. Nodes fully swallowed by the window (both positions inside) get toggled twice and net to absent — those are the off-path side-subtrees — while nodes on the path have exactly one endpoint inside and stay present. That is why the flattened range answers a path query at all. The LCA is the single node whose both occurrences can fall outside the chosen range even though it is on the path, so it is patched in by hand around each query.
+
+Step by step per query after sorting: move `R` outward or inward one position at a time toggling as you go, then do the same for `L`; each move is O(1) amortised against `cnt`. Toggle in the LCA, read the running `distinct` (or whatever aggregate), then toggle the LCA back out so it does not leak into the next query. Complexity intuition: sorting into `sqrt(2N)`-wide blocks bounds `L`'s total travel at O(Q · sqrt N) — it only jumps within or between adjacent blocks — and within each block `R` moves monotonically, so `R`'s total travel is O(N) per block times O(sqrt N) blocks = O(N sqrt N). Adding the O(1) LCA touch per query, the whole batch is O((N + Q) sqrt N · cost-per-toggle).
 
 ## complexity
 time: O((N + Q) sqrt N · cost-per-add) with cost-per-add typically O(1)

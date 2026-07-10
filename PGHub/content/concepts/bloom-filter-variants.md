@@ -28,7 +28,11 @@ A classic Bloom filter answers "have I seen this key?" using a bit array and k h
 Bloom-family filters are the membership check in front of disk-heavy systems: RocksDB SSTables, Cassandra read paths, Chrome's safe-browsing list, CDN cache deduplication. Picking the wrong variant means either silently leaking deletes (classic Bloom), wasting RAM (Counting Bloom set too large), or paying a 2x hash-cost penalty (Cuckoo) for a workload that never deletes. Interview signal: do you know that the *delete* requirement alone forces you off the classic structure.
 
 ## intuition
+Picture a long row of light switches, all off. To remember a key you flip on the k switches its k hash functions point at. To check a key later you look at its k switches: if any one is still off, the key was definitely never stored — you would have flipped it on — and if all k are on, the key is *probably* stored, but those switches may have been flipped on by other keys, which is exactly where a false positive comes from. Absence is certain, presence is only a strong hint. That asymmetry — zero false negatives, a small tunable false-positive rate — is the entire personality of the structure, and every variant just renegotiates its price.
+
 A classic Bloom is k bit-flips per insert; any zero bit on lookup proves absence. Counting Bloom replaces each bit with a small counter so decrement-on-delete becomes possible (at 4x to 8x the memory). Scalable Bloom chains a sequence of filters with geometrically tightening false-positive rates, so the union stays under a target. Cuckoo filters store short fingerprints in two candidate buckets and evict cuckoo-style on collision — they support delete *and* often beat Bloom at low false-positive rates.
+
+Concrete numbers make the sharing visible. Take m = 16 bits, k = 3. Insert `"cat"` and suppose its three hashes land on positions 3, 9, 14 — those bits go to 1, the other 13 stay 0. Query `"cat"` and all three read 1, so it reports present. Now query `"dog"` and suppose *its* three hashes also happen to land on 3, 9, 14: every bit is already 1, so `"dog"` reads present though it was never inserted — a false positive born entirely from bit sharing. Query `"fox"` whose hashes hit 3, 9, 7: bit 7 is still 0, so `"fox"` is reported absent with certainty. A Counting Bloom would store the number 1 at each of 3, 9, 14 instead of a bare bit, so deleting `"cat"` decrements them back toward 0 without erasing evidence another key still depends on — which is precisely the capability a bare bit array cannot offer.
 
 ## visualization
 ```
@@ -75,6 +79,10 @@ CuckooFilter(buckets, slots=4, fp_bits=8):
     rebuild_bigger()
   delete(x): remove fingerprint(x) from i1 or i2
 ```
+
+These four variants are one decision tree, not four unrelated structures. Start from the requirements. **Do you ever delete?** If no, classic Bloom is strictly best — smallest memory, simplest code. If yes, classic is off the table immediately: clearing the k bits of one key silently clears bits that other keys rely on, injecting unbounded false *negatives*. That single requirement forks you to Counting Bloom (bit becomes a small counter, decrement on delete) or Cuckoo (delete a whole fingerprint from one of its two buckets). **Do you know the final key count up front?** Classic and Counting must be sized in advance, and overshooting the load pushes the false-positive rate past target; if the count is unbounded, Scalable Bloom chains fresh filters, each with a geometrically tighter target so the union bound over all layers stays under the global budget.
+
+Sizing is mechanical: fix the target false-positive rate `f`, compute `m = -n·ln(f)/(ln 2)^2` bits, then the optimal hash count `k = (m/n)·ln 2`. The constant worth memorizing is ~1.44·log2(1/f) bits per key — about 10 bits per key buys ~1% false positives. The Kirsch-Mitzenmacher trick derives all k indices from just two base hashes as `h1 + i·h2`, so you pay for two real hashes rather than k. Cuckoo's invariant is different: a fingerprint always lives in one of two XOR-linked buckets (`i2 = i1 XOR h(fingerprint)`), so an insert that finds both full evicts a resident and re-homes it along that chain — which is what yields O(1) amortized inserts until the load nears ~95%, where eviction chains lengthen and force a rebuild.
 
 ## complexity
 time: O(k) insert and query for Bloom / Counting; O(1) amortized for Cuckoo (worst case O(MAX_KICKS)).

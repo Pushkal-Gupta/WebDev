@@ -30,14 +30,30 @@ Once you have more than one consumer of "what changed in the orders table," dual
 ## intuition
 Your database already writes every change to a durable log before acknowledging the commit — that is what crash recovery replays. CDC says: open a replication slot, read the same log, decode the binary records back into row tuples using the table schema, and forward each transaction's row changes to a broker in commit order. Because you read what was actually committed, you get exactly-once-into-the-broker delivery and the same ordering the database saw. No application code changes, no dual-writes, no consistency window.
 
+What's actually happening is that you are reusing a log the database was already forced to write for durability, so CDC adds almost nothing to the write path. Contrast it with the naive alternative — the "dual write," where the application writes to Postgres and then publishes to Kafka itself. Those are two independent operations with no shared transaction: if the process crashes between them, or the Kafka write times out after the Postgres commit already landed, the two systems permanently disagree, and there is no clean way to reconcile after the fact. CDC removes that failure mode by construction, because the event *is* the committed WAL record — if the write is durable, the event exists; if the write rolled back, no record was ever written to tail. Put numbers on the scale it unlocks: one orders table generating 20,000 row changes/sec can feed a search-index sync, a cache invalidator, a Snowflake loader, and three event-driven microservices from a single replication slot, each consumer tracking its own log offset and replaying from any point. End-to-end latency is typically sub-second under normal load — seconds, not microseconds — because the log is tailed, decoded, and shipped through a broker. That budget is the whole tradeoff: CDC buys you decoupling and correctness, not real-time.
+
 ## visualization
-A user updates `orders.status` from `pending` to `shipped`. Postgres writes a WAL record: `txn 4711: UPDATE orders pk=42 status pending->shipped`. Debezium's logical decoding plugin (`pgoutput`) parses that record and produces a Kafka message on topic `db.public.orders`: `{"op":"u","before":{"id":42,"status":"pending"},"after":{"id":42,"status":"shipped"},"ts_ms":...,"source":{"lsn":"0/16B3780","txid":4711}}`. The search-index consumer reads it and reindexes order 42. The analytics consumer reads the same message minutes later and merges it into Snowflake. Same event, many destinations, zero coupling.
+One committed UPDATE fans out to many consumers from a single WAL slot:
+
+```
+app: UPDATE orders SET status='shipped' WHERE id=42     (commit, txid 4711)
+WAL: [ ... txid=4711  UPDATE orders pk=42  status: pending->shipped  lsn=0/16B3780 ]
+        |  Debezium tails the slot, pgoutput decodes the record
+        v
+Kafka topic db.public.orders:
+  { "op":"u", "before":{"id":42,"status":"pending"},
+    "after":{"id":42,"status":"shipped"}, "source":{"lsn":"0/16B3780","txid":4711} }
+   |-> search-indexer   consumer -> reindex order 42     (t+0.2s)
+   +-> snowflake-loader consumer -> merge order 42       (t+5m, own offset)
+```
 
 ## bruteForce
 Poll a `updated_at` column every minute and ship rows whose timestamp changed. Easy to write — and broken in five different ways. It misses deletes (the row is gone, you cannot SELECT it). It misses intermediate states (a row updated twice in a minute appears once). It cannot guarantee transaction boundaries (you see half a multi-row transaction). It puts read load on the primary. And clock skew between app servers makes `updated_at` non-monotonic. Polling is fine for nightly batch; it is unfit for any real CDC need.
 
 ## optimal
 Run a log-based connector (Debezium or equivalent) against a replication slot. On Postgres: `CREATE PUBLICATION dbz_pub FOR ALL TABLES;`, set `wal_level = logical`, set `REPLICA IDENTITY FULL` on tables where you need the full `before` image, and create the connector pointing at the `pgoutput` plugin. Debezium does a consistent snapshot of existing rows (so consumers see history), then streams new changes from the LSN where the snapshot finished. Use the Outbox pattern when you want to publish business events instead of raw row diffs: write to an `outbox` table in the same transaction as the business change; the CDC stream becomes your event bus.
+
+The reasoning to lead with: CDC works because it makes the database's own durability log the single source of truth for change events, so there is exactly one ordering and exactly one commit decision, and every consumer derives from it independently. Reach for it the moment more than one downstream cares about "what changed" — one consumer is a dual-write you can maybe get away with, two is where dual-writes start silently diverging. The operational failure modes are specific and worth designing for up front. A replication slot pins WAL on disk until the consumer acknowledges the LSN, so a stopped or slow consumer accumulates WAL indefinitely and can fill the disk and take the primary down — alert on `pg_replication_slots` lag as a first-class metric, not an afterthought. The initial snapshot is O(N) rows across all tables and is usually the slowest single operation, hours on a TB-scale database, so plan parallel or skip-snapshot backfill. Delivery is exactly-once into the broker but at-least-once out to consumers, so consumers must be idempotent — upsert keyed by primary key plus LSN, never blind insert. And DDL is not part of the logical stream on Postgres, so schema changes need a separate signal (Debezium's schema-change topics, or Avro plus a Schema Registry) or consumers will deserialize against a stale schema.
 
 ## complexity
 time: Throughput is bounded by WAL write rate (typically tens to hundreds of MB/s on modern Postgres). End-to-end latency is sub-second under normal load.

@@ -30,14 +30,30 @@ SI is the default isolation level in Postgres ("Read Committed" and "Repeatable 
 ## intuition
 Think of each transaction as taking a Polaroid of the database the moment it starts. It reads from the photo regardless of what others do. When it commits, the engine checks: did anyone overwrite a row I also wrote? If yes, abort with "first-committer-wins". Reads never wait for writes because they never look at the live database — only at their personal photo. The cost is keeping multiple versions of each row until no live snapshot references the old one — vacuum/garbage-collection pressure.
 
+What's actually happening under the photo metaphor is that the database never overwrites data in place; every UPDATE appends a new version tagged with the writing transaction's id, and a reader is handed a snapshot — really a set of transaction ids that had committed at its start — that acts as a visibility filter over those versions. A reader asking for row 42 walks its version chain and returns the newest version whose creator is in its snapshot and whose deleter is not, so two transactions that began at different instants can each read a different, internally consistent value for the same row at the same wall-clock moment, with neither blocking the other. Put numbers on the win: in a read-heavy OLTP workload at, say, 50,000 reads/sec against 2,000 writes/sec on overlapping rows, strict two-phase locking would stall readers behind every writer's lock and serialize the hot rows, while SI lets all 50,000 reads proceed against their snapshots and pays a cost only on the small fraction of writes that actually collide. The bill comes due in two places: old versions must be retained until the oldest live snapshot no longer needs them (so a single long-running reporting query can pin versions and bloat the table), and a write-write collision is resolved by aborting the later committer, which the client must catch and retry.
+
 ## visualization
-Two doctors on call, invariant "at least one doctor must be on duty". Alice is on, Bob is on. T1 (Alice goes off): reads `on_count = 2`, sees 2 >= 1, writes `alice.on=false`. T2 (Bob goes off, concurrent): reads its own snapshot — also sees `on_count = 2`, writes `bob.on=false`. Both commit. No row was overwritten by both transactions, so SI passes — but the invariant is now broken: zero doctors on call. That is **write skew**: each transaction read a set the other invalidated.
+Write skew: invariant "at least 1 doctor on call"; Alice and Bob both on duty.
+
+```
+version chain per row, shown as (value @ creator_txid):
+  alice.on = [ true@t0 ]     bob.on = [ true@t0 ]     on_call count = 2
+
+T1 (Alice off)        snapshot={t0}      T2 (Bob off)   snapshot={t0}
+  read on_call = 2  (2 >= 1, ok)           read on_call = 2  (2 >= 1, ok)
+  write alice.on=false                     write bob.on=false
+  COMMIT ok (only row alice.on written)    COMMIT ok (only row bob.on written)
+no row written by BOTH -> no write-write conflict -> plain SI admits both
+result: on_call = 0  -- invariant broken; SSI would abort one via RW-edge cycle
+```
 
 ## bruteForce
 Strict Two-Phase Locking gives serializability but blocks readers behind writers and vice versa, capping throughput in read-heavy workloads. Pure pessimistic locking also has high deadlock rates. Take-a-snapshot-and-check-on-commit (SI) gives most of the benefits with non-blocking reads — and only pays the abort cost on actual conflicts. The brute-force fallback when SI is wrong is to mark every read with `SELECT ... FOR UPDATE`, which is just simulating 2PL inside an SI engine.
 
 ## optimal
 **MVCC**: each row carries (xmin, xmax) — the txids that created and deleted the version. A reader with snapshot S sees row version v iff `xmin in S.committed and xmax not in S.committed`. **First-committer-wins**: on commit, the engine checks for write-write conflicts on any row this transaction modified; if a concurrent transaction committed first on the same row, abort. **Serializable Snapshot Isolation (SSI)** (Cahill 2008, used by Postgres SERIALIZABLE) adds tracking of **read-write dependencies (RW antidependencies)**: it watches for "dangerous structures" of two such edges and aborts one transaction. The cost is bookkeeping, not blocking. **Predicate locking** at SI level is needed for the doctors example — Postgres' SIREAD locks materialize ranges read so write skew can be detected.
+
+The tradeoff to state plainly: SI buys non-blocking reads and non-blocking writes by giving up true serializability, and the gap between the two is exactly **write skew** — two transactions each read an overlapping set, each write a *different* row, so no write-write conflict fires, yet together they violate an invariant that spanned the rows they read (the doctors-on-call example). Reach for plain SI when your invariants are per-row (a balance cannot go negative is enforced by the single row's version check) and reach for Serializable Snapshot Isolation when invariants span rows the transactions read but do not both write. SSI (Cahill 2008, Postgres SERIALIZABLE) closes the gap by tracking read-write antidependency edges and aborting one transaction when it detects the "dangerous structure" of two such edges forming a cycle — it costs bookkeeping proportional to read-set size, not blocking, but can run out of memory under huge analytic reads. The operational failure modes are the ones to design around: long-running transactions pin old versions and defeat vacuum, so bound transaction lifetime; and any transaction can abort at commit with a serialization failure, so every write path needs a retry-with-backoff loop — an ORM that swallows that exception turns a safe abort into silent data loss.
 
 ## complexity
 time: O(1) per read (lookup live version chain); commit check is O(rows_written) per transaction

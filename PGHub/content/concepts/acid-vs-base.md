@@ -30,23 +30,20 @@ Almost every system-design interview boils down to "what consistency do you need
 ## intuition
 ACID is a notary public: every write is witnessed, stamped, and recorded; you wait in line, but the record is unimpeachable. BASE is a gossip network: tell anyone, they tell everyone, eventually everyone has the same story — but mid-gossip, different people quote different versions. The notary blocks if disconnected (CP); the gossip never blocks (AP). Neither is "wrong" — they answer different questions, and many real architectures use one model for the source of truth and the other for derived views.
 
+Ground it in numbers. Say your service does 200k reads/sec and 5k writes/sec across three datacenters. Under an ACID/CP store like a single-region Postgres or Spanner, a write to the order ledger waits for a quorum to durably ack — perhaps 8–15 ms cross-AZ, more cross-region — but every subsequent read is guaranteed to see it. Under a BASE/AP store like Cassandra at consistency ONE, that same write returns in under a millisecond to the nearest replica and gossips outward; a read hitting a lagging replica 20–200 ms later may still return the old value. For a bank balance, that 200 ms stale window is a defect you cannot ship. For a "likes" counter or a viewer count, it is invisible to users and buys you an order of magnitude more availability and throughput. The senior move is to notice that one product surface contains both: the money ledger wants ACID, the engagement metrics fanned out from it want BASE, and you route each to the store that matches its consistency need instead of forcing one model on the whole system.
+
 ## visualization
-Bank transfer (ACID, single Postgres node):
+Same logical op, two consistency models, side by side:
 
 ```
-BEGIN;
-UPDATE accounts SET balance = balance - 100 WHERE id = 1;
-UPDATE accounts SET balance = balance + 100 WHERE id = 2;
-COMMIT;  -- both succeed or neither does; no other tx sees the half-state
-```
-
-Social-graph follow (BASE, Cassandra):
-
-```
-INSERT INTO follows (follower, followee) VALUES ('A', 'B');  -- replica 1: ok
-                                                              -- replica 2: pending
-read from replica 2 a moment later -> may not see the row yet
-read from replica 2 a second later -> sees it (converged)
+ACID (single Postgres node)              BASE (Cassandra, CL=ONE, N=3)
+---------------------------------        ---------------------------------
+BEGIN;                                   INSERT follows(A,B) -> replica1: OK  (t=0ms)
+ UPDATE accounts SET bal=bal-100 id=1                        -> replica2: pending
+ UPDATE accounts SET bal=bal+100 id=2    read replica2 @t=1ms  -> row NOT visible (stale)
+COMMIT;  -- both writes durable --       gossip replicates ...        (t~5ms)
+ no tx ever sees the half-state          read replica2 @t=50ms -> row visible (converged)
+result: linearizable, waits on fsync     result: available always, converges eventually
 ```
 
 ## bruteForce
@@ -57,6 +54,8 @@ read from replica 2 a second later -> sees it (converged)
 - Use BASE *across* service boundaries (Kafka outbox, eventual replication to read-replicas, CDC to a search index). Reach for the **Saga pattern** (orchestrated or choreographed) for multi-service workflows with compensating actions on failure.
 - Where availability matters more than latency, pick AP stores (DynamoDB, Cassandra, Riak) and design the application for idempotent writes + last-write-wins or CRDT-style merges.
 - Where correctness matters most, pick CP stores (Postgres, Spanner, CockroachDB). Spanner and CockroachDB give you ACID *across* shards using Paxos/Raft — they are the modern "have both" answer, at the price of higher write latency.
+
+The through-line: pick the consistency model per **invariant**, not per system. Any invariant whose violation is unrecoverable — money, inventory that cannot go negative, a unique username — belongs inside one ACID transaction on one store. Any state that is derived, aggregated, or cosmetic — counts, feeds, search indexes, recommendations — tolerates BASE and should never hold up a write on the critical path. The dominant failure mode of over-choosing ACID is coupling: a 2PC or distributed lock across services means one slow or crashed participant blocks all of them, and tail latency becomes the max over every hop. The dominant failure mode of over-choosing BASE is the silent stale read — a user updates their profile, a load-balanced read hits a lagging replica, and their own change appears to vanish. Guard the first with sagas plus idempotency keys; guard the second with read-your-writes routing (pin the user to the primary or a session-consistent replica for a few seconds after they write). Spanner and CockroachDB are the "refuse to choose" answer: ACID across shards via Paxos/Raft and synchronized clocks, paying higher write latency to give you strong consistency at scale.
 
 ## complexity
 time: ACID commit — disk fsync per group commit, ~100–500 µs. BASE write — local memory + async replication, ~µs. Read latency — comparable for both within one datacenter; ACID's coordination shows up under contention.

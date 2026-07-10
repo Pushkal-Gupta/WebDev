@@ -28,16 +28,38 @@ An Eulerian circuit traverses every edge of a graph exactly once and returns to 
 Eulerian paths solve "reconstruct itinerary" (LeetCode 332), DNA sequence reconstruction from k-mers via de Bruijn graphs, snowplough and street-sweeper routing, and printer-circuit single-stroke etching. The de Bruijn application powers modern genome assemblers — every read is broken into overlapping k-mers, an Eulerian path on the resulting graph is the assembled sequence. It is also a natural lead-in to the harder Chinese Postman Problem.
 
 ## intuition
-For an undirected graph: an Eulerian circuit exists iff every vertex has even degree (and the graph is connected ignoring isolated vertices). An Eulerian path exists iff exactly 0 or 2 vertices have odd degree; if 2, the path must start at one and end at the other. For a directed graph: a circuit needs equal in-degree and out-degree everywhere; a path allows one vertex with out - in = 1 (start) and one with in - out = 1 (end). Hierholzer's algorithm starts at the right vertex, walks edges deleting them as it goes, and stitches sub-circuits in along the way.
+Picture yourself as a mail carrier who must walk every street exactly once. Every time you enter a junction you must also leave it, so each visit consumes two street-ends. That pairing is the whole secret: for an undirected graph an Eulerian circuit exists iff every vertex has even degree (and the graph is connected ignoring isolated vertices), because only even degree lets you always pair an entry with an exit. An Eulerian path exists iff exactly 0 or 2 vertices have odd degree; if 2, the path must start at one and end at the other — those two odd vertices are the only places allowed a leftover unpaired street-end (the start has one extra exit, the end one extra entry). For a directed graph: a circuit needs equal in-degree and out-degree everywhere; a path allows one vertex with out - in = 1 (start) and one with in - out = 1 (end).
+
+What's actually happening in Hierholzer's algorithm: you take a naive walk, deleting edges as you cross them, until you get stuck. You can only ever get stuck back at the start (in a balanced graph every other vertex still has a free exit whenever you arrive). That first loop probably missed some edges, so you rewind to the earliest vertex on your walk that still has unused edges and splice a second loop in at that spot — repeating until nothing is left. Concrete micro-example: vertices A, B, C, D with directed edges A->B, B->C, C->A, A->D, D->A. Out-degrees all equal in-degrees, so a circuit exists. Start at A, walk A->B->C->A and get stuck (A's edge to B is gone). A still has the unused A->D, so splice the loop A->D->A in at A, giving A->D->A->B->C->A — all five edges used exactly once. Hierholzer's algorithm starts at the right vertex, walks edges deleting them as it goes, and stitches sub-circuits in along the way.
 
 ## visualization
 Directed graph: edges A->B, B->C, C->A, A->D, D->A. Out-degrees: A=2, B=1, C=1, D=1. In-degrees: A=2, B=1, C=1, D=1. All balanced -> Eulerian circuit. Start at A. Walk A->B->C->A (stack: A,B,C,A; remaining edges: A->D, D->A). At A, unused edge A->D remains. Walk A->D->A. Splice: A->D->A->B->C->A. All 5 edges used exactly once.
+
+The Hierholzer stack trace below shows every step. "peek" is the top of stack; "action" is either follow (push a neighbour, delete the edge) or pop (top has no unused edges, append it to path). Adjacency starts as A:[B,D], B:[C], C:[A], D:[A].
+
+```text
+step  stack            peek  unused@peek   action              path (popped)
+ 0    [A]              A     B,D           follow A->B         []
+ 1    [A,B]            B     C             follow B->C         []
+ 2    [A,B,C]          C     A             follow C->A         []
+ 3    [A,B,C,A]        A     D             follow A->D         []
+ 4    [A,B,C,A,D]      D     A             follow D->A         []
+ 5    [A,B,C,A,D,A]    A     -             pop A               [A]
+ 6    [A,B,C,A,D]      D     -             pop D               [A,D]
+ 7    [A,B,C,A]        A     -             pop A               [A,D,A]
+ 8    [A,B,C]          C     -             pop C               [A,D,A,C]
+ 9    [A,B]            B     -             pop B               [A,D,A,C,B]
+10    [A]              A     -             pop A               [A,D,A,C,B,A]
+reverse(path) = A->B->C->A->D->A   (all 5 edges, each once)
+```
 
 ## bruteForce
 Enumerate all permutations of the edge list and check whether each forms a valid walk. Factorial in edge count — useless past 7-8 edges. A DFS-with-backtracking solution tries every order of out-edges at each vertex and rolls back; worst case still exponential but works for very small graphs in interview warmups.
 
 ## optimal
-Hierholzer's algorithm. Maintain per-vertex pointers (e.g., iterators) into the adjacency lists so each edge is examined at most once. Push the start vertex on a stack and an empty path list. While the stack is non-empty: peek the top vertex; if it still has an unused edge, follow it (push the neighbour and advance the pointer); otherwise pop and append to the path. Reverse the path at the end for the forward order. Linear time in V + E because each edge is consumed exactly once and the stack-pop step is amortised O(1) per edge.
+Hierholzer's algorithm. First pick the correct start: for a directed path it is the vertex with out - in = 1, otherwise any vertex with an outgoing edge; for an undirected path it is one of the two odd-degree vertices. Maintain per-vertex pointers (e.g., iterators) into the adjacency lists so each edge is examined at most once. Push the start vertex on a stack and an empty path list. While the stack is non-empty: peek the top vertex; if it still has an unused edge, follow it (push the neighbour and advance the pointer); otherwise pop and append to the path. Reverse the path at the end for the forward order.
+
+Why it is correct rests on one invariant: the stack always holds a valid partial walk from the start down to the current vertex, and every edge that has been advanced past is either already on the stack or already flushed into the path. When you peek a vertex with no remaining edges you have hit a dead end — in a graph satisfying the degree conditions that dead end can only be the natural end of a sub-tour — so you retire that vertex to the output. Popping it exposes the vertex you came from, and if that predecessor still has unused edges the loop immediately starts a fresh sub-tour there, which is exactly the "splice a cycle in at the first vertex with spare edges" step done implicitly by the stack. Because the output is built in reverse (dead ends first), the final reversal yields the edges in true traversal order. Complexity intuition: the pointer advance means every edge is pushed exactly once and every vertex is popped exactly once, so the total work is a constant number of operations per edge plus per vertex — linear time in V + E, with the stack pops amortised O(1) per edge.
 
 ## complexity
 time: O(V + E) for both existence check (degree count + connectivity) and Hierholzer's construction

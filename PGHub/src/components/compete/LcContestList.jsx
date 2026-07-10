@@ -34,8 +34,8 @@ const FILTERS = [
 // rounds can be projected forward purely from the current time.
 const CONTEST_DURATION_MIN = 90;
 const CONTEST_PROBLEMS = 4;
-const WEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 8, 29, 2, 30), number: 419 }; // Sun 2024-09-29
-const BIWEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 9, 5, 14, 30), number: 142 }; // Sat 2024-10-05
+const WEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 8, 29, 2, 30), number: 417 }; // Sun 2024-09-29 = Weekly Contest 417
+const BIWEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 9, 5, 14, 30), number: 141 }; // Sat 2024-10-05 = Biweekly Contest 141
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
 
@@ -368,9 +368,9 @@ export default function LcContestList() {
                   </Link>
                   {r.status === 'finished' && (
                     <Link
-                      to="/compete/leetcode"
+                      to={`/compete/leetcode/contests/${(r.name || '').toLowerCase().replace(/\s+/g, '-')}/analytics`}
                       className="lcc-act lcc-act-ghost"
-                      title="View contest analytics"
+                      title="Per-question ratings & solve rates"
                     >
                       <BarChart3 size={13} />
                       Analytics

@@ -36,7 +36,9 @@ Used in succinct text indexing (FM-index), database column-store optimizations, 
 ## intuition
 Build a sequence of **bitvectors** (one per bit level). At each level, the bit `b` partitions current elements into "0-bits" (left) and "1-bits" (right) — reordering the sequence stably so 0s come before 1s. To answer a query for value `v` and range `[l, r]`, walk bits from MSB to LSB: at each level, follow the partition (left or right) based on the bit of `v`, mapping `[l, r]` accordingly via rank operations on the bitvector.
 
-A wavelet matrix is essentially "rank operations on log σ stacked bitvectors". Each rank is O(1) with succinct support (additional o(n) bits).
+Think of it geometrically as a **radix sort caught mid-flight and frozen at every stage**. A full binary radix sort on the high-to-low bits would eventually land every element in sorted order; the wavelet matrix keeps a photograph of the array after each single-bit pass and stores just the bit that decided each move. Nothing else is stored — no values, only the partition decisions. Because the reorder is *stable*, an element's relative order among its equal-bit peers is preserved across levels, and that is precisely what lets a range `[l, r]` be tracked downward: the count of 0-bits inside `[l, r]` tells you both how many elements go left and exactly where they land in the next level's array.
+
+What is actually happening is a top-down walk of an implicit binary trie of values, where each node's membership is answered by a rank query instead of a pointer chase. Consider `A = [3,1,4,1,5,9,2,6]` with 4 bits. At the MSB level only `9` has bit 3 set, so its bit row is `0 0 0 0 0 1 0 0`; the stable reorder sends the seven zero-elements to the front and `9` to the back. To find the 4th smallest over the whole array, count the zeros in the range: there are 7, and since `k = 4 <= 7` the answer carries a 0 bit here and we descend into the zero-block. Repeating for bits 2, 1, 0 accumulates the answer's bits one at a time and shrinks `[l, r]` at every step, reconstructing the value `3` after four rank-guided hops. Each rank is O(1) with succinct support (additional o(n) bits), so the whole query is O(log σ). A wavelet matrix is essentially "rank operations on log σ stacked bitvectors".
 
 ## visualization
 ```
@@ -108,6 +110,12 @@ def kth(layers, l, r, k):
 ```
 
 For production: use a **succinct rank/select bitvector** (~o(n) extra bits, O(1) queries) instead of recomputing counts.
+
+**Why it's correct.** The controlling invariant is that after each level's stable partition, the sub-range `[l, r)` of the current array always contains *exactly* the elements of the original query range whose value bits seen so far match the path we have taken. Descending into the zero-block preserves membership because a stable partition keeps zero-bit elements in their original relative order, so `rank_zero(l)` and `rank_zero(r)` map the endpoints to their new positions without ever mixing in an out-of-range element. The one-block map is the mirror image: all zeros of the level come first (there are `total_zeros` of them), then the ones in stable order, so a one-bit element lands at `total_zeros + rank_one(position)`. Because these two maps partition the level exactly and lose nothing, the count of zeros inside the mapped range is the count of query-range elements whose next bit is 0 — which is exactly the number of candidates smaller (at this bit) than any one-bit value. That count is what the kth-smallest walk compares `k` against.
+
+**The mechanism, step by step.** Start with `[l, r)` over the top bitvector and `k` unchanged. At each level compute `z`, the number of zeros in `[l, r)`. If `k <= z`, the kth element has a 0 in this bit: append 0 to the answer and remap `[l, r)` into the zero-block. Otherwise it has a 1: OR the bit into `val`, subtract `z` from `k` (we skip past all the smaller zero-block elements), and remap into the one-block. After processing all `log σ` levels, `val` holds the reconstructed value.
+
+**The central tradeoff** is immutability for speed: the structure is built once and answers every range statistic in a single top-down pass, but a single insertion or value change would force re-partitioning cascading levels, so updates are effectively unsupported. **Complexity intuition:** the bound holds because the walk visits each of the `log σ` levels exactly once and does O(1) work per level (two rank calls plus a compare) when backed by a succinct rank index, giving O(log σ) per query independent of the range width `r - l`.
 
 ## complexity
 - **Build**: O(n log σ) time, O(n log σ) space.

@@ -30,8 +30,22 @@ At fleet scale, "build a ring, scatter virtual nodes, binary-search" is hundreds
 ## intuition
 Imagine you have one bucket. The key obviously goes there. Add a second bucket; with probability 1/2 the key jumps to the new bucket, else stays. Add a third; with probability 1/3 it jumps to bucket 2, else stays. The trick: with a deterministic pseudo-random sequence derived from the key, you can skip ahead — directly computing the *last* bucket where the key would have moved — without iterating every step. That's the "jump" in jump hash.
 
+What's actually happening is that each key runs the same thought-experiment independently, and the probabilities are chosen precisely so that load stays balanced at every bucket count. When the table grows from n to n+1 buckets, a key should move to the new bucket with probability exactly 1/(n+1) — that is the only rate that keeps all n+1 buckets equally loaded. Jump hash reproduces this without a ring, without virtual nodes, and without storing anything: it seeds a fast integer PRNG with the key, then uses the distribution of the random draws to leap directly to the next bucket index where a "jump" would occur, so it touches only about ln(N) candidate counts instead of all N. Put numbers on it. For N=10,000 buckets the loop runs ~14 iterations; for N=1,000,000 it runs ~24 — and it uses zero bytes of state beyond two local variables, versus a classic hash ring that stores O(N·K) virtual-node tokens (hundreds of bytes to megabytes) and does a binary search per lookup. The catch falls straight out of the "add a bucket at the end" framing: jump hash only knows buckets 0..N-1, so it makes trailing add/remove nearly free but has no cheap way to drop an interior bucket.
+
 ## visualization
-key = 7, buckets = 1 → b=0. Add bucket → maybe jump (random < 1/2). Add bucket → maybe jump (random < 1/3). With the algorithm's jump formula, the loop visits only O(log N) candidate bucket counts instead of N. For N=10000 buckets, that's ~14 iterations regardless of key.
+Same key, growing bucket count. Key stays put unless a 1/(n+1) draw says "jump":
+
+```
+buckets N   jump prob    key=7 lands on   moved?
+   1           -              0            (only choice)
+   2          1/2             0            no
+   3          1/3             2            JUMP
+   4          1/4             2            no
+   ...
+loop visits only ~ln(N) candidate counts, not N:
+   N=10,000     -> ~14 iterations,  O(1) memory
+   N=1,000,000  -> ~24 iterations,  vs ring: O(N*K) tokens + binary search
+```
 
 ## bruteForce
 Classic ring: hash each physical node K times (virtual nodes), sort the tokens, on lookup hash the key and binary-search the next token. Memory: O(N × K). Resize cost: rebuild the ring or splice in K new tokens and remap the keys that now fall between them. Works, but you pay ring memory and a binary search per key forever.
@@ -40,6 +54,8 @@ Classic ring: hash each physical node K times (virtual nodes), sort the tokens, 
 Jump hash takes a 64-bit key and a bucket count `num_buckets`, returns a bucket index in [0, num_buckets). The loop maintains a candidate `b` and a probability `j`, advancing only when the random draw says "jump." The crucial property: the same key always lands on the same bucket for the same count, and increasing the count from N to N+1 reassigns exactly the keys that newly fall on bucket N — perfect minimal disruption.
 
 Limits: jump hash assumes buckets are numbered 0..N-1 contiguously. If you want named nodes or weighted buckets, you wrap it (compose with rendezvous hashing for arbitrary node sets). Removing a non-trailing bucket is not free — you have to reshard the keys it owned.
+
+Reach for jump hash when three conditions hold: your key is (or can be made) a well-distributed 64-bit integer, your buckets are naturally numbered 0..N-1, and you resize by growing or shrinking at the tail. Under those conditions it dominates ring hashing on every axis — constant memory, a dozen arithmetic ops per lookup, and provably minimal disruption where growing N to N+1 moves exactly the ~1/(N+1) of keys that now belong on the new bucket and touches no others. The tradeoffs are where it stops fitting. It has no concept of named or weighted nodes, so if servers have identities that come and go, or unequal capacities, you compose it: hash the node set with rendezvous (highest-random-weight) hashing for arbitrary membership, or map contiguous jump-hash indexes through an indirection manifest so bucket 7 can point at whichever physical server currently owns slot 7. Removing an interior bucket is the real limitation — you must reshard the keys it owned, because the algorithm's balance depends on the 0..N-1 contiguity. Two correctness traps close the list: feed it non-uniform keys and the balance breaks, so pre-mix weak keys through xxhash or murmur; and implement the inner loop in 64-bit integer arithmetic with the exact LCG constant, because float drift or a weak RNG silently ruins the distribution the whole scheme relies on.
 
 ## complexity
 time: O(log N) per lookup

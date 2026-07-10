@@ -35,6 +35,8 @@ Once you have O(1) substring equality, a swarm of problems become easy:
 For senior interviews, hashing is the elegant alternative to suffix array / KMP / Z. Three lines of preprocessing, one line per query.
 
 ## intuition
+Think of a string the way you think of a decimal number. `"347"` means 3·10² + 4·10¹ + 7·10⁰ — the digits are the same symbols everywhere, but their *position* scales them by powers of the base. A polynomial rolling hash does exactly this with letters instead of digits and a chosen base `b` instead of 10: each character contributes its code times a power of `b`, so two strings can only collapse to the same number if they agree symbol-for-symbol (until the modulus folds two genuinely different strings together, which is the rare collision we accept).
+
 Treat the string as a polynomial in some base `b` (e.g., 31 or 53), evaluated mod a large prime p:
 ```
 hash(s) = s[0]·b^(n-1) + s[1]·b^(n-2) + ... + s[n-1]·b^0  (mod p)
@@ -44,6 +46,8 @@ Build prefix hashes `H[i] = hash(s[0..i-1])`. Then
 hash(s[l..r-1]) = (H[r] - H[l] · b^(r-l)) mod p
 ```
 is O(1) after the prefix array and a power-of-b table are precomputed.
+
+Work a tiny example in base 10 to *see* what the subtraction is doing. For `s = "1234"`, the prefix values are `H[2] = 12` and `H[4] = 1234`. The substring `"34"` has hash `34`, and the formula recovers it exactly: `H[4] - H[2]·10^(4-2) = 1234 - 12·100 = 34`. That is what's actually happening — `H[r]` still carries the whole prefix `s[0..l-1]` sitting in its high-order positions, and multiplying `H[l]` by `b^(r-l)` re-aligns that prefix to the *same* high-order positions so the subtraction cancels it cleanly, leaving only the digits of the window shifted down to position zero. No matter how long the window is, one multiply and one subtract expose its hash.
 
 To reduce collision risk, **use two different (base, mod) pairs** and compare the pair — false positive probability becomes ~1/p² ≈ 10^-18 with p ≈ 10^9.
 
@@ -84,6 +88,10 @@ def equal(H, P, mod, l1, r1, l2, r2):
     if r1 - l1 != r2 - l2: return False
     return substring_hash(H, P, mod, l1, r1) == substring_hash(H, P, mod, l2, r2)
 ```
+
+Correctness rests on one invariant: `H[i]` is the base-`b` value of the prefix `s[0..i-1]` reduced mod `p`, built by Horner's rule `H[i+1] = H[i]·b + ord(s[i])`. Because Horner multiplies the running total by `b` *before* adding each new character, every earlier character has already been shifted up by exactly the right power by the time the loop ends. Two equal substrings therefore always produce equal hashes — there are no false negatives; two unequal substrings collide only when their difference happens to be a multiple of `p`, which for random inputs is ~1/p. The `P` table caches `b^k mod p` so a query never recomputes a power.
+
+Complexity intuition: the build loop touches each character once, giving O(n) time and two O(n) arrays of space; each query is a fixed handful of multiplies plus one subtraction, so it is O(1) regardless of the window length. That constant-time query is precisely what collapses an O(n·q) naive-comparison workload down to O(n + q) — you pay the linear preprocessing once, then answer every substring question for free.
 
 For double hashing, run two independent (b, mod) instances and compare both. Twice the storage, near-zero collision probability.
 

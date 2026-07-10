@@ -30,8 +30,32 @@ Heavy-hitter detection ("top URLs," "top spenders," "top error sources") in a hi
 ## intuition
 Imagine d people independently writing tally marks in d different ledgers, each with w columns. When key x arrives, each person uses their own hash function to pick a column and adds a mark. To look up x, ask all d people for the value in x's column — the smallest is closest to the truth, because other keys could only have *added* marks (no one ever subtracts), and the min cell is the one with the fewest collisions.
 
-## visualization
-d=3 rows, w=5 cols. Insert "a" → h1(a)=2, h2(a)=4, h3(a)=1 → row[0][2]+=1, row[1][4]+=1, row[2][1]+=1. Insert "b" 5 times → cells incremented by 5. Insert "a" twice more. Estimate("a") = min(row[0][2], row[1][4], row[2][1]) = min(3, 3+5_if_collision, 3) = 3. If "b" collided with "a" in row 1, that row reads 8 — we still take min = 3.
+Here is the reframe that makes the "take the minimum" trick click. A single hash table with collisions is a *liar that only ever exaggerates*: when two keys land in the same bucket, that bucket's count is the sum of both, so it over-reports each of them but can never under-report — nobody's marks vanish. One such table is too noisy to trust. But if you keep d independent tables, key x gets a *different* set of collision partners in each row. For x's count to be wrong in every row, x would have to be unlucky d separate times. Taking the minimum across rows keeps only x's least-polluted estimate, and the odds of high pollution in all d rows shrink geometrically.
+
+Concrete micro-example, d=3 rows, w=5 columns, all cells start at 0. Stream: "a","a","a","b","b","b","b","b" (a appears 3 times, b appears 5). Say the hashes are h0(a)=2, h1(a)=4, h2(a)=1 and h0(b)=0, h1(b)=4, h2(b)=3. After inserting all a's and b's, row 0 col 2 = 3, row 1 col 4 = 3+5 = 8 (a and b collide here!), row 2 col 1 = 3. To estimate a we read those three cells: min(3, 8, 3) = 3 — exactly right, because the poisoned row 1 got discarded by the min. What's actually happening: collisions only ever inflate a cell, so every row is an upper bound on the truth, and the tightest upper bound (the minimum) is our answer. That is why the estimate is one-sided: it can equal or exceed the true count, never fall below it.
+
+Grid d=3 rows x w=5 cols, all zero. Hashes: a->(col2,col4,col1), b->(col0,col4,col3).
+Stream: three "a" then five "b". Bracketed [n] marks the cell an insert just touched.
+
+```
+state           col0  col1  col2  col3  col4
+------------------------------------------------
+initial      r0   0     0     0     0     0
+             r1   0     0     0     0     0
+             r2   0     0     0     0     0
+
++3x "a"      r0   0     0    [3]    0     0     h0(a)=2
+             r1   0     0     0     0    [3]    h1(a)=4
+             r2   0    [3]    0     0     0     h2(a)=1
+
++5x "b"      r0  [5]    0     3     0     0     h0(b)=0
+             r1   0     0     0     0    [8]    h1(b)=4  <- collides with a
+             r2   0     3     0    [5]    0     h2(b)=3
+
+estimate("a") = min( r0[2], r1[4], r2[1] ) = min(3, 8, 3) = 3   (exact; row1 noise dropped)
+estimate("b") = min( r0[0], r1[4], r2[3] ) = min(5, 8, 5) = 5   (exact)
+```
+Every read is an upper bound; the min discards the collided row and recovers the truth here.
 
 ## bruteForce
 Exact frequency map: hash table from key to int. Linear memory in distinct keys. For a stream of 10^10 events over 10^8 distinct keys, that's gigabytes. Impossible on a single server; even distributed it's expensive to maintain.
@@ -45,6 +69,8 @@ Operations:
 - Heavy hitters: keep a small heap of the top-k by estimate, updated on every insert.
 
 Variations: **Conservative update** (only increment cells whose minimum equals the queried min) shrinks bias. **Count-Mean-Min** subtracts the expected noise contribution per row to reduce overestimation.
+
+Why the sizing works, step by step. Fix any row i. The cell key x maps to accumulates x's true count plus the counts of every *other* key that hashed to the same column. With w columns and pairwise-independent hashing, each other unit of mass lands in x's column with probability 1/w, so the expected noise added to x's cell is total_count / w. Set w = e/ε and that expected noise is ε·total_count/e. Markov's inequality then says a single row exceeds ε·total_count noise with probability at most 1/e. The **key invariant** is that every row over-reports independently, so all d rows exceed the error bound simultaneously with probability at most (1/e)^d; choosing d = ln(1/δ) drives that joint failure probability below δ. Taking the min is what turns "any one row might be noisy" into "all rows must be noisy to fail." The **central tradeoff** is memory versus accuracy and confidence: widening w tightens the per-query error ε linearly, while deepening d tightens the failure probability δ exponentially — so you buy confidence cheaply (a few extra rows) but pay linearly for precision (many extra columns). Operation cost stays O(d) hashes and O(d) cell touches for both update and query regardless of stream size, and memory is a flat w·d counters that never grows with the number of distinct keys — the property that makes it viable on unbounded streams.
 
 ## complexity
 time: O(d) per update and query

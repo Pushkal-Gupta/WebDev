@@ -28,16 +28,37 @@ CORDIC — COordinate Rotation DIgital Computer, invented by Jack Volder at Conv
 On hardware without a floating-point unit (microcontrollers, FPGAs, GPUs in the early days), Taylor / polynomial approximations of trig need multipliers — expensive. CORDIC needs only shifts and adds. It converges by one bit of accuracy per iteration, so 32 iterations give 32-bit precision. Interviewers ask about it under "how would you implement sin without using the math library?" and in embedded / quant contexts.
 
 ## intuition
-Rotate the vector (1, 0) through θ in many tiny pre-baked rotations of magnitude atan(2^-i). Each micro-rotation by ±atan(2^-i) requires only multiplying by tan(atan(2^-i)) = 2^-i, which is just a right shift. The signs are chosen greedily to drive the remaining angle toward zero. After n iterations, the cumulative rotation matches θ to within atan(2^-n), and the resulting vector is (cos θ, sin θ) scaled by a known constant K = product of cos(atan(2^-i)) (~0.6072529350 for many iterations). Multiply once by K at the end (or pre-scale the initial vector).
+Think of an old combination-lock dial that you can only nudge by a fixed set of click sizes — a big click, then a click half as wide, then a quarter, and so on. You cannot type the target angle directly; you can only add or subtract the next preset click. But by always clicking *toward* the target, each nudge halves the remaining error, so after enough clicks the dial sits essentially on the number you wanted. CORDIC is that dial applied to a rotating 2D vector instead of a lock.
 
-## visualization
-Start at (x, y) = (K, 0), z = θ (in radians). At step i: if z >= 0, rotate by +atan(2^-i): x' = x - y * 2^-i, y' = y + x * 2^-i, z -= atan(2^-i). Else rotate the other way: x' = x + y * 2^-i, y' = y - x * 2^-i, z += atan(2^-i). After ~30 iterations, x is cos θ and y is sin θ.
+Here is what is actually happening, in plain terms before any formula. You hold a vector and want to spin it by θ. Instead of one exact rotation (which needs sin and cos — the very things you are trying to compute), you spin it by a fixed staircase of angles atan(1), atan(1/2), atan(1/4), atan(1/8), ..., each either added or subtracted. The magic is that rotating by exactly atan(2^-i) means the tangent of that step is 2^-i, so the rotation update multiplies coordinates by 2^-i — a pure right shift on hardware, no multiplier at all. You choose each step's sign greedily to shrink a running remainder z that starts at θ and should reach 0.
+
+Concrete micro-example, θ = 0.7854 rad (45°), tracking z. Step 0: z ≥ 0 so add atan(1) = 0.7854, remainder z → 0.0000. Step 1: z < 0? No, z = 0, so add atan(0.5) = 0.4636, overshooting to z → -0.4636. Step 2: z < 0 so subtract atan(0.25) = 0.2450, z → -0.2186. Step 3: still negative, subtract atan(0.125) = 0.1244, z → -0.0942. The remainder keeps zig-zagging tighter around 0. After n iterations the cumulative rotation matches θ to within atan(2^-n), and the vector — which started at (1, 0) — lands on (cos θ, sin θ) but stretched by a fixed gain K = product of cos(atan(2^-i)) ≈ 0.6072529350. Because K is the same for every input, you cancel it once: either multiply the final coordinates by K, or simply start the vector at (K, 0) so it comes out unit length.
+
+Iteration trace for theta = 0.7854 rad (45 deg), start (x,y)=(K,0)=(0.60725, 0), z=theta.
+Each row: pick sigma = +1 if z>=0 else -1; x -= sigma*y*2^-i; y += sigma*x_old*2^-i; z -= sigma*atan(2^-i).
+
+```
+ i | atan(2^-i) | sigma |         x |         y |         z
+---+------------+-------+-----------+-----------+-----------
+ 0 |   0.785398 |   +1  |  0.607253 |  0.607253 |  0.000000
+ 1 |   0.463648 |   +1  |  0.303626 |  0.910879 | -0.463648
+ 2 |   0.244979 |   -1  |  0.531346 |  0.834972 | -0.218669
+ 3 |   0.124355 |   -1  |  0.635718 |  0.768554 | -0.094314
+ 4 |   0.062419 |   -1  |  0.683752 |  0.728822 | -0.031895
+ 5 |   0.031240 |   -1  |  0.706527 |  0.707455 | -0.000655
+ 6 |   0.015624 |   -1  |  0.717581 |  0.696417 |  0.014969
+ ..|    ...     |  ...  |    ...    |    ...    |    ...
+30 |   0.000000 |  ...  |  0.707107 |  0.707107 | ~0.000000
+```
+Final: x = cos(45 deg) = 0.707107, y = sin(45 deg) = 0.707107 (z driven to ~0).
 
 ## bruteForce
 Taylor series: sin θ = θ - θ^3/6 + θ^5/120 - ... — needs multiplications and divisions and converges slowly outside [-π/2, π/2]. Polynomial approximations (Chebyshev, minimax) are common in software libraries but still require a multiplier. CORDIC's selling point is "no multiplier needed" — strictly different design constraint.
 
 ## optimal
 Pre-store the table atan_table[i] = atan(2^-i) for i in 0..n-1, and the scaling constant K. To compute sin and cos for any θ in [-π/2, π/2], initialize x = K, y = 0, z = θ. Loop i from 0 to n-1: choose d = +1 if z >= 0 else -1; x_new = x - d * y * 2^-i; y_new = y + d * x * 2^-i; z = z - d * atan_table[i]. After the loop, return (x, y) = (cos θ, sin θ). For θ outside [-π/2, π/2], reduce modulo 2π and use cos / sin identities (e.g., cos(π + φ) = -cos φ) to map into the convergence range.
+
+Why this is correct: each step applies a genuine 2D rotation matrix scaled by 1/cos(atan(2^-i)) — the pseudo-rotation. Because we predivide by K up front, all the per-step 1/cos gains multiply back to exactly 1, leaving a true rotation of the accumulated angle. The **key invariant** is on z: it holds the still-unrotated part of θ, and the greedy sign choice d = sign(z) guarantees |z| strictly shrinks toward 0, bounded after step i by atan(2^-(i+1)) plus the tail sum of remaining step angles. That tail is what makes the staircase reach any target inside the convergence range — the steps overlap enough that a positive step can always be "undone" by later negative ones. The **core tradeoff** is fixed work for fixed precision: you spend exactly n shift-add rounds regardless of θ, gaining one bit of accuracy per round, so runtime is fully deterministic (attractive for real-time DSP and constant-time crypto-adjacent code). Step operations are three adds and two shifts — no data-dependent branches beyond the sign test. Complexity intuition: n iterations, each O(1) shift-add work, so O(n) total; the atan table and K are computed once at init and reused across every evaluation, making per-call space O(1).
 
 ## complexity
 time: O(n) per evaluation where n is the iteration count (typically 16-32)

@@ -38,14 +38,18 @@ Direct interview classics:
 The three-color trick is interview gold — it generalizes to topological-sort and SCC algorithms.
 
 ## intuition
-**Undirected**: DFS from any node. For each neighbor, if it's already visited AND it's not the immediate parent, you've found a cycle.
+Think of DFS as exploring a cave while unspooling a thread behind you. The thread is your current recursion stack — the exact chain of rooms from the entrance to where you stand right now. A cycle exists precisely when you step through a doorway and find your own thread already lying there: you've reached a room that is still on the path behind you, so there's a loop back to it. The whole difficulty is telling "my thread is here" apart from "I merely visited this room earlier and already backed out."
+
+**Undirected**: DFS from any node. For each neighbor, if it's already visited AND it's not the immediate parent, you've found a cycle. The parent exception matters because an undirected edge `u—v` is stored twice; standing on v you will always see u again, but that is just the edge you walked in on, not a genuine loop.
 
 **Directed**: a node has three states during DFS:
 - **white**: not yet visited.
-- **gray**: visited, still on the current DFS recursion stack.
-- **black**: visited, popped off the recursion stack.
+- **gray**: visited, still on the current DFS recursion stack (on the thread).
+- **black**: visited, popped off the recursion stack (fully explored, thread reeled back in).
 
 Encountering an edge to a **gray** node = back edge = cycle. An edge to a **black** node is fine (cross or forward edge).
+
+Concrete micro-example, directed edges `0→1, 1→2, 2→0, 0→3`. Start `dfs(0)`: color[0]=gray. Descend `dfs(1)`: color[1]=gray. Descend `dfs(2)`: color[2]=gray. Now 2's neighbor is 0, and color[0] is GRAY — 0 is still on our thread — so we report a cycle immediately. Contrast a DAG `0→1, 0→2, 1→2`: visiting 2 from 0 paints it black; later when 1 also points at 2, color[2] is BLACK, not gray, so no false alarm. What's actually happening: gray = "an ancestor of me in this DFS tree," and an edge to an ancestor is the definition of a back edge, which is the definition of a directed cycle.
 
 ## visualization
 ```
@@ -70,6 +74,14 @@ DFS from 0:
 Naive: for each pair of nodes, BFS to see if there's a back-path to the start. O(V² · (V + E)). Useless for n = 10^4.
 
 ## optimal
+Both variants are a single DFS pass; the only real design choice is what "already-seen" state you track. Undirected needs one boolean per node plus the incoming parent; directed needs a three-value color per node. The shared invariant: **a node is only reported as a cycle when a neighbor is confirmed to lie on the current root-to-here path**, never merely "seen before."
+
+Why the undirected version is correct. In a DFS tree of an undirected graph, every non-tree edge is a back edge (there are no cross edges), so any edge to a visited non-parent node closes a loop through the tree. The lone false positive would be the edge you arrived on; excluding `nb == parent` removes exactly that one and nothing else. Multi-edges break this (two distinct edges to the parent), which is why they need deduping.
+
+Why the directed version is correct. Coloring a node gray on entry and black on exit means "gray" holds for precisely the interval it sits on the recursion stack. An edge to a gray node therefore points to an ancestor — a back edge — which in a directed graph is exactly a cycle. Edges to black nodes (already finished) are forward or cross edges and are safe.
+
+Step-by-step, directed `has_cycle_directed(3, [(0,1),(1,2),(2,0)])`: color starts all white; `dfs(0)` grays 0, recurses to gray 1, recurses to gray 2; 2's neighbor 0 is gray → return True up the chain. If the graph were acyclic each node would eventually turn black and the outer loop would exhaust all whites returning False. Complexity intuition: each vertex is colored/visited once and each edge is examined once from its tail, giving O(V + E); the color array and recursion stack are O(V). For V past ~10^5 swap recursion for an explicit stack to avoid overflow.
+
 **Undirected**:
 ```
 def has_cycle_undirected(n, edges):

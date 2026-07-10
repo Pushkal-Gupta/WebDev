@@ -30,8 +30,28 @@ Without MVC, UI code accumulates: a button handler reads the database, formats t
 ## intuition
 Picture a restaurant kitchen. The **Model** is the kitchen — recipes, ingredients, prep state. The **View** is the dining room — plated dishes presented to customers. The **Controller** is the waiter — takes orders from the diner, relays them to the kitchen, and signals the dining room when food is ready. Each role has one job; replace the dining room (new decor) without retraining the chefs; hire a new chef (new model) without rebuilding the dining room.
 
+The reframe that makes MVC click is that these three roles change for *different reasons on different schedules*. Marketing wants a redesign — that touches only the View. A tax law changes how totals are computed — that touches only the Model. You add keyboard shortcuts — that touches only the Controller. When the three are tangled in one file, every one of those unrelated pressures forces you to reread and risk breaking the other two.
+
+Walk a concrete micro-example: a shopping cart. The user clicks "Add to cart" on product `42`. That click is a *View event* — the View knows nothing except that a button was pressed, so it forwards `onAddToCart(42)` to the Controller. The Controller is the decision-maker: it validates that `42` is in stock, then calls `model.addItem(42)`. The **Model** is where the truth lives — it appends the line item, recomputes `subtotal = 84.00`, applies a `10%` coupon to reach `total = 75.60`, and then broadcasts "I changed" to its listeners. The View is one of those listeners; it re-reads the model's current state and repaints the cart badge to `1` and the total to `$75.60`. Notice what each part did *not* do: the View never computed the discount, the Model never touched HTML, and the Controller never formatted a price.
+
+What's actually happening is a strict one-directional data flow — input goes View → Controller → Model, and change notification flows Model → View. The Model is the single source of truth; everything else is either an input adapter or an output projection of that truth. Hold that flow in your head and the code writes itself: any line that computes a business number belongs in the Model, any line that produces markup belongs in the View, and the thin glue that maps a gesture to a method call belongs in the Controller.
+
 ## visualization
-Draw three boxes. Model in the center holding state (`{user, cart, products}`). Controller on the left receiving events from the user (`onAddToCart(productId)`). View on the right reading model state and producing HTML/UI. Arrows: Controller → Model (mutate); Model → View (notify of change); View → Controller (forward user events). The user only touches the View; the View never touches the database; the Model never knows whether the user is on web or mobile.
+A request/response trace of a shopping cart. Each row is one user gesture flowing View to Controller to Model, then the Model notifying the View to re-render. Watch how state lives only in the Model column and rendered output only in the View column:
+
+```
+STEP  USER EVENT (View)      CONTROLLER ACTION            MODEL STATE                    VIEW RENDER
+----  ---------------------  ---------------------------  -----------------------------  -----------------------
+1     load page              index()  -> model.load()     cart=[]           total=0.00   "Cart (0)   $0.00"
+2     click Add #42          onAdd(42)-> model.add(42)    cart=[42]         total=12.00   "Cart (1)   $12.00"
+3     click Add #42          onAdd(42)-> model.add(42)    cart=[42,42]      total=24.00   "Cart (2)   $24.00"
+4     click Add #7           onAdd(7) -> model.add(7)     cart=[42,42,7]    total=39.00   "Cart (3)   $39.00"
+5     apply "SAVE10"         onCoupon -> model.coupon()   cart=[...] disc=10%  total=35.10 "Cart (3)   $35.10"
+6     click Remove #7        onDel(7) -> model.remove(7)  cart=[42,42] disc=10% total=21.60 "Cart (2)  $21.60"
+7     click Checkout         checkout()-> model.submit()  order#1001 cart=[] total=0.00   "Order #1001 placed"
+----  ---------------------  ---------------------------  -----------------------------  -----------------------
+      View forwards gestures  Controller only routes       Model owns all numbers         View only reads+paints
+```
 
 ## bruteForce
 The non-MVC baseline is "code in the view" — a JSP, PHP page, or React component that opens the database, formats the result, handles the button click, and writes back, all in one file. It works for a prototype; it collapses by the second feature. Every behavior change risks layout regressions, every layout change risks data corruption, and the file becomes the union of every concern in the app.
@@ -40,6 +60,12 @@ The non-MVC baseline is "code in the view" — a JSP, PHP page, or React compone
 - **Model**: pure domain objects and a repository for persistence. No knowledge of HTTP, HTML, or the view.
 - **View**: receives model data through a well-defined interface and emits user events. No business logic.
 - **Controller**: handles requests/events, calls the model, picks a view, hands it the data. Thin by design.
+
+The correctness argument rests on a single invariant: **the Model is the only source of truth, and dependencies point inward toward it.** The View depends on the Model's read interface; the Controller depends on the Model's write interface; the Model depends on *neither*. If you ever find the Model importing a view class or reaching for the request object, the arrow has reversed and the whole benefit collapses. Enforce it mechanically — the Model package should not compile against any UI or transport type.
+
+Step by step, a well-formed interaction is: (1) the View captures a raw gesture and forwards it untranslated; (2) the Controller validates and maps that gesture to exactly one domain call, deciding *which* view renders next but never *what the numbers are*; (3) the Model executes the business rule, mutates state atomically, and emits a change notification; (4) the View re-reads current state and repaints. Keeping the Controller thin is the discipline that pays off — the moment a controller computes a total or formats currency, that logic is now untestable without a fake request and undiscoverable by the rest of the app.
+
+**When to reach for it:** any application with non-trivial state and more than one way to present or trigger it — web apps, desktop GUIs, anything you expect to grow past a couple of features. **When to avoid it:** a throwaway script, a 100-line CLI, or a purely static page. The three-role ceremony is pure overhead when there is no state worth protecting and no second presentation to support.
 
 Variants tailor the split to context. **MVP** (Model-View-Presenter) lets the presenter render the view explicitly — common in desktop. **MVVM** (Model-View-ViewModel) adds a view-model that exposes observable state, leveraged by data-binding (WPF, SwiftUI, Vue). **Flux/Redux** invert ownership so a single store dispatches actions back to views. Pick the variant that matches your toolchain; the underlying separation is the same.
 

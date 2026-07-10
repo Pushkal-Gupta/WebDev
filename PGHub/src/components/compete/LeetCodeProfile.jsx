@@ -348,7 +348,7 @@ function ProfileBody({ data }) {
   const stats = [
     { icon: Swords, label: 'Rating', value: data.rating != null ? Math.round(data.rating) : '—', hue: 'var(--accent)', big: true },
     { icon: Globe, label: 'Global rank', value: data.globalRanking != null ? `#${data.globalRanking.toLocaleString()}` : '—' },
-    { icon: Percent, label: 'Top', value: data.topPercentage != null ? `${data.topPercentage.toFixed(1)}%` : '—' },
+    { icon: Percent, label: 'Top', value: data.topPercentage != null ? `${data.topPercentage.toFixed(2)}%` : '—' },
     { icon: Trophy, label: 'Attended', value: data.attendedContestsCount ?? history.length },
     { icon: Check, label: 'Solved', value: num(submit?.total) != null ? submit.total.toLocaleString() : '—' },
   ];
@@ -982,7 +982,7 @@ const STAT_ROWS = [
   { key: 'rating', label: 'Current rating', icon: Swords, better: 'high', av: (d) => num(d.rating), fmt: (v) => Math.round(v).toLocaleString() },
   { key: 'peak', label: 'Peak rating', icon: TrendingUp, better: 'high', av: peakRating, fmt: (v) => Math.round(v).toLocaleString() },
   { key: 'grank', label: 'Global ranking', icon: Globe, better: 'low', av: (d) => num(d.globalRanking), fmt: (v) => `#${Math.round(v).toLocaleString()}` },
-  { key: 'top', label: 'Top percentage', icon: Percent, better: 'low', av: (d) => num(d.topPercentage), fmt: (v) => `${v.toFixed(1)}%` },
+  { key: 'top', label: 'Top percentage', icon: Percent, better: 'low', av: (d) => num(d.topPercentage), fmt: (v) => `${v.toFixed(2)}%` },
   { key: 'solved', label: 'Total solved', icon: ListChecks, better: 'high', av: (d) => num(d.submitStats?.total), fmt: (v) => Math.round(v).toLocaleString() },
   { key: 'easy', label: 'Easy solved', icon: Check, hue: 'var(--easy)', better: 'high', av: (d) => num(d.submitStats?.easy), fmt: (v) => Math.round(v).toLocaleString() },
   { key: 'medium', label: 'Medium solved', icon: Check, hue: 'var(--medium)', better: 'high', av: (d) => num(d.submitStats?.medium), fmt: (v) => Math.round(v).toLocaleString() },

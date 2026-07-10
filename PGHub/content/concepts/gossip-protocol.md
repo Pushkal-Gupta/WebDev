@@ -30,14 +30,40 @@ Centralized membership (a master keeping the cluster roster) is a single point o
 ## intuition
 Picture a high-school rumor mill. Every kid talks to one random other kid every minute and shares the juicy news. After round 1, two people know; round 2, four; round 3, eight. In O(log n) rounds, the whole school knows. Now replace "rumor" with "node 7 is down" or "configuration version is now 42" and you have gossip. The convergence is probabilistic, not guaranteed at any specific moment — but reaches eventual consistency very fast and very robustly.
 
+Here is what's *actually* happening under the hood, before any formula. Every node holds a tiny table: for each key it remembers a `(version, value)` pair. A round is not a broadcast — it is one node waking on its own local timer, picking a random peer, and reconciling tables. Reconciliation is dead simple: for each key, keep whichever side has the higher version number. No coordinator decides anything; the merge rule alone drives the whole cluster to agreement.
+
+Walk a concrete 100-node cluster with real numbers. Node 0 sets `config = v42` at version 1; every other node still has version 0. Round 1: node 0 gossips to node 37, so 2 nodes now carry v42. But node 37 also gossips this round to node 61, and any node that already heard it re-shares — so the informed set does not just add one, it roughly *doubles*: 1 → 2 → 4 → 8 → 16 → 32 → 64 → 100. That is 7 rounds for 100 nodes, and \(\log_2 100 \approx 6.6\), which matches. With a fanout of 3 (each node tells three peers per round) the base of the logarithm climbs and convergence roughly halves to 3–4 rounds.
+
+The crucial mental shift: no single node ever sees the whole plan, no node is special, and messages that arrive late or out of order still merge correctly because the version number — not arrival time — decides the winner. That is why gossip survives partitions, restarts, and dropped packets while a broadcast tree would stall the moment one relay dies.
+
 ## visualization
-8 nodes labeled A through H. Round 0: only A knows the update. Round 1: A tells C (random). 2 nodes know: {A, C}. Round 2: A→F, C→H. 4 nodes know: {A, C, F, H}. Round 3: A→B, C→D, F→E, H→G. All 8 nodes know. log_2(8) = 3 rounds — exactly the expected upper bound. In practice each round picks `fanout=3` peers to cut convergence in half again.
+Infection-spread trace for an 8-node cluster (A..H), fanout 1, update `config=v42` seeded at A:
+
+```
+round | informed | newly told this round      | who told them
+------|----------|----------------------------|----------------------
+  0   |    1     | A (seeded)                 | -
+  1   |    2     | C                          | A -> C
+  2   |    4     | F, H                       | A -> F,  C -> H
+  3   |    8     | B, D, E, G                 | A -> B,  C -> D,
+      |          |                            | F -> E,  H -> G
+------|----------|----------------------------|----------------------
+converged in 3 rounds   log2(8) = 3   (fanout 3 would finish in ~2)
+```
+
+Each round the "informed" count roughly doubles: 1, 2, 4, 8. The last column shows a random pairing per round — different seeds pick different peers, but the doubling shape holds with high probability.
 
 ## bruteForce
 Heartbeat to a central coordinator every second; coordinator owns truth about who is alive. Simple, but the coordinator becomes a bottleneck, a failure point, and a target for every membership query. Alternative brute-force: every node pings every other node ("all-to-all"). Quadratic in messages: 1000 nodes = 1 million heartbeats per round. Burns network for almost no information. Gossip cuts that to O(n log n) with the same convergence quality.
 
 ## optimal
 Three flavors. **Anti-entropy push**: pick random peer, send my whole state. **Anti-entropy pull**: pick random peer, ask for theirs. **Push-pull**: do both in one round-trip. Push-pull converges fastest (still O(log n) but with a smaller constant). For failure detection, **SWIM** (Scalable Weakly-consistent Infection-style Membership) refines plain gossip: a node failing to respond to a ping is indirectly probed via k other peers before being declared suspect, then dead — dramatically lowering false-positive rate. To stop infinite chatter about old news, each update carries a **version vector** or **logical clock**; on exchange, only newer versions per key are sent. Cassandra uses a heartbeat counter + generation number; Consul uses SWIM (memberlist library).
+
+Why push-pull is the sweet spot: pure push wastes work near the end of convergence — once almost everyone is infected, most pushes land on already-informed peers and change nothing. Pure pull is slow at the start, when almost nobody has the news to hand out. Push-pull gets the fast early spread of push *and* the fast tail of pull, so the number of rounds to blanket the cluster stays close to \(\log_{1+f} n\) with fanout f, and the residual fraction of uninformed nodes shrinks doubly-exponentially per round.
+
+The load-bearing invariant is **monotone merge**: reconciliation only ever moves a key to a strictly higher version, never backward. Because "keep the max version" is commutative, associative, and idempotent, the per-key state is a CRDT-style lattice — the order peers gossip in, duplicate deliveries, and delayed messages cannot corrupt the final value. That is precisely why the protocol is safe under packet loss and reordering.
+
+Step-by-step for one exchange: node A picks random peer B; A sends its `(key, version)` digest; B replies with any keys where its version is higher plus a request for keys where A's is higher; both apply the max-version merge; both bump nothing that is already current. Complexity intuition: each round at least (1+f) times more nodes hold the value than before, so \(O(\log n)\) rounds cover the cluster; per node the message cost is O(fanout x state-size), independent of cluster size, which is exactly what lets gossip scale to thousands of nodes where all-to-all heartbeating (O(n^2) messages) collapses.
 
 ## complexity
 time: O(log n) rounds to full convergence with high probability

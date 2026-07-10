@@ -35,6 +35,10 @@ Dijkstra is the right answer whenever weights are non-negative. (For negative we
 ## intuition
 Greedy: at each step, finalize the closest-unvisited node. Once finalized, its distance can't improve (with non-negative weights). Use a min-heap keyed by tentative distance. Pop the smallest, relax its outgoing edges, push neighbors with new tentative distances. If you pop a node whose `dist` field is already smaller than the popped entry's, skip — it's a stale entry from before a better path was found.
 
+Physical picture: imagine flooding the graph with water from the source, where every edge is a pipe whose length equals its weight. The water reaches nodes in increasing order of distance, and the moment a node gets wet, the shortest time-of-arrival to it is fixed forever — nothing arriving later can be faster. The min-heap is just the schedule of "next wavefront to arrive." What's actually happening before any formula: because all pipes have non-negative length, the frontier can only expand outward, never fold back to improve a node already reached. That monotonic frontier is exactly why finalizing the current-closest node is safe.
+
+Trace it on real numbers. Source 0 with edges 0->1 weight 3, 0->2 weight 4, 1->3 weight 1, 2->3 weight 2. Start `dist = [0, inf, inf, inf]`, heap `[(0,0)]`. Pop (0,0): relax to get dist[1]=3, dist[2]=4, heap `[(3,1),(4,2)]`. Pop (3,1): relax 1->3 giving dist[3]=3+1=4, heap `[(4,2),(4,3)]`. Pop (4,2): relax 2->3 gives 4+2=6, which does not beat dist[3]=4, so nothing changes, heap `[(4,3),(6,3)]`. Pop (4,3): finalize node 3. Pop (6,3): here `d=6 > dist[3]=4`, so it is stale and we skip it. Final `dist = [0, 3, 4, 4]`. Notice node 3 landed in the heap twice — the lazy-deletion trick lets the stale (6,3) sit there harmlessly until it pops and is discarded, avoiding any decrease-key surgery.
+
 ## visualization
 ```
 Graph: source = 0
@@ -59,6 +63,10 @@ Final: [0, 3, 4, 4]
 Bellman-Ford (O(V·E)) handles non-negative weights too but is asymptotically slower. Naive Dijkstra with an array (O(V²)) is fine for dense graphs but loses to the heap version for sparse ones.
 
 ## optimal
+The optimal method keeps a min-heap of `(tentative_distance, node)` pairs and a `dist` array of the best distance found so far. The correctness invariant is the crux: every time a node is popped with `d == dist[u]`, that `dist[u]` is already the true shortest distance and will never change again. This holds because weights are non-negative — any alternative path to u must pass through some node still on the frontier whose tentative distance is at least `d`, and adding more non-negative edges can only make it larger. So the first, smallest pop of a node is final; all later pops of the same node are stale and discarded by the `d > dist[u]` guard.
+
+The central tradeoff is the lazy-deletion design itself: instead of locating and lowering an existing heap entry (a decrease-key that needs an index-tracking heap), you simply push a fresh, smaller entry and let the obsolete one linger. This trades a little extra heap space and a few redundant pops for a dramatically simpler implementation that uses any plain binary heap.
+
 ```
 def dijkstra(n, edges, source):
     adj = [[] for _ in range(n)]
@@ -77,6 +85,8 @@ def dijkstra(n, edges, source):
                 heappush(pq, (nd, v))
     return dist
 ```
+
+Step through the mechanism: pop the closest frontier node, skip it if stale, otherwise relax each outgoing edge and push any neighbor whose distance strictly improved. Every improvement adds one heap entry, and each edge can improve a neighbor at most once per relaxation of its source, so the heap holds at most O(E) entries over the run. The complexity intuition: there are O(E) pushes and pops, each costing O(log V) because the heap never exceeds V + E entries (and log(V+E) is O(log V) for simple graphs), plus O(V) initialization — giving the O((V + E) log V) bound. The stale-skip check is what keeps the pop count proportional to the number of pushes rather than blowing up.
 
 **Stop-early variant**: if you only want the distance to a single target `t`, return as soon as you pop `(d, t)`.
 

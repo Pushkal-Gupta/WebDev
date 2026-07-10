@@ -28,7 +28,11 @@ Dinic's algorithm computes the maximum flow from source `s` to sink `t` in a cap
 Max-flow is the universal hammer for bipartite matching, edge-disjoint paths, project selection, image segmentation, baseball elimination, and any reduction from "find an assignment that satisfies these capacities." Dinic gives a polynomial bound — O(V²E) generally, O(E sqrt(V)) on unit-capacity / bipartite graphs — without the integer-capacity restriction of plain Ford-Fulkerson. It is the algorithm most competitive-programming libraries and production solvers default to.
 
 ## intuition
-Ford-Fulkerson picks any augmenting path; if you pick badly the path length keeps swinging up and down, and on irrational capacities it can fail to terminate. Edmonds-Karp fixes this by always picking the shortest augmenting path (BFS), giving O(VE²). Dinic goes further: after one BFS, *push every augmenting path of that length at once* (the blocking flow), then BFS again. Each BFS strictly increases the shortest `s→t` distance, so at most V phases, and each phase is O(VE), giving O(V²E).
+Picture the network as a system of water pipes and think in "shells" measured by distance from the source. Ford-Fulkerson wanders: it grabs *any* augmenting path, and if it picks badly the path lengths keep swinging up and down — on irrational capacities it can even fail to terminate. Edmonds-Karp imposes discipline by always taking the *shortest* augmenting path via BFS, which gives O(VE²) but still commits to one path per BFS, re-scanning the whole graph for each unit of progress. Dinic's insight is to batch: after a single BFS, saturate *every* shortest path of that exact length at once — a "blocking flow" — and only then rebuild.
+
+The reframe that makes this click: BFS labels each vertex with its shortest-path distance from `s`, its **level**. Restrict attention to the *level graph*, keeping only edges that step from level `L` to level `L+1` — strictly forward, never sideways or backward. Any `s→t` path in this graph has the same length (the current shortest distance), so pushing flow along it can never accidentally create a shorter route.
+
+Concrete micro-example on `s -4-> a -3-> t`, `s -2-> b -2-> t`, `a -1-> b`. Phase 1 BFS gives levels `s=0, a=1, b=1, t=2`. The blocking-flow DFS pushes `s->a->t` for 3 (saturating `a->t`), then `s->b->t` for 2 (saturating `s->b`); the path `s->a->b->t` is dead because `a->t` is full, so 5 units total leave the phase. Now re-BFS: with those edges saturated the shortest `s→t` distance has *grown* — that is the invariant. What's actually happening is a monotone staircase: each phase strictly increases the shortest `s→t` distance by at least one, and distance can range only from 1 to V-1, so there are at most V phases. Each phase's blocking flow costs O(VE) thanks to the `iter[]` pointer that never revisits a dead edge, giving the overall O(V²E) bound — a big win over re-searching per path.
 
 ## visualization
 ```
@@ -91,6 +95,12 @@ function dfs(u, pushed):
     return 0
 ```
 The `iter[]` array is the secret sauce — once an edge from `u` leads to a dead end in this phase, it stays skipped until the next BFS, keeping per-phase work at O(VE).
+
+**Why it's correct.** The termination invariant is that the shortest `s→t` distance in the residual graph *strictly increases* between phases. The DFS only ever traverses edges with `level[v] == level[u] + 1`, so every augmenting path it finds has length exactly the current shortest distance; saturating all of them leaves no residual `s→t` path of that length, forcing the next BFS to a strictly larger distance. Since distance is an integer in `[1, V-1]`, there are at most `V-1` phases. Within a phase the flow found is *blocking* — every `s→t` path in the level graph has at least one saturated edge — which is precisely the DFS's stopping condition (`pushed == 0`).
+
+**Step-by-step of one phase.** BFS assigns levels and confirms `t` is reachable. Reset `iter[]` to zero. Repeatedly call `dfs(s, INF)`: it walks forward along level-increasing edges, and at `t` returns the bottleneck `min` capacity seen. On the way back up, it subtracts that amount from each forward edge and adds it to the paired reverse edge (`e.rev.cap += d`) so future phases can *cancel* flow. When an edge yields nothing, `iter[u]` advances past it permanently for this phase — that amortization is what caps the phase at O(VE) rather than O(VE) per path.
+
+**Complexity intuition.** Each of the ≤ V phases costs O(VE): the DFS advances `iter[]` at most E times total across the phase (each dead edge skipped once), and each successful augmentation saturates at least one edge along a path of length ≤ V. Multiplying gives the O(V²E) general bound; on unit-capacity or bipartite-matching graphs the phase count drops to O(√E), yielding O(E√V). Space is O(V + E) for the adjacency lists, `level[]`, `iter[]`, and the BFS queue.
 
 ## complexity
 time: O(V² E) general, O(E sqrt(V)) on unit-capacity / bipartite-matching graphs, O(E sqrt(V)) on unit networks (König/Hopcroft-Karp bound)

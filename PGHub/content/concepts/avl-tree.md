@@ -30,6 +30,10 @@ AVL is the answer when reads dominate writes. Compared to red-black trees, AVL k
 ## intuition
 After every insert or delete, walk back up from the changed leaf to the root and recompute heights. The first ancestor whose balance factor falls outside {-1, 0, +1} is the "pivot". Depending on whether the heavy side is left-left, left-right, right-right, or right-left, perform one or two rotations. Each rotation is local — three nodes and their subtrees — and restores the balance for that subtree without touching the rest.
 
+Picture the tree as a physical mobile hanging from the root, each subtree a weight dangling off an arm. An insert drops one extra gram onto some leaf; that weight tugs its whole chain of ancestors slightly deeper on one side. Most ancestors can absorb the tilt (their balance factor merely shifts from 0 to 1, still legal), but the lowest ancestor that tips past a factor of 2 is where the mobile would visibly lurch. A rotation is the counterweight: it pivots three nodes so the deep side rises and the shallow side drops, re-leveling the arm. What's actually happening is that a rotation moves the subtree root down one level and pulls a child up one level, transferring exactly one unit of height from the heavy side to the light side — precisely enough to bring the factor back into range.
+
+Trace it with concrete keys. Insert 10, then 20, then 30 into an empty tree. After 10 and 20 the tree leans right but node 10 has balance factor -1, still legal. Insert 30 and node 10's right subtree now has height 2 while its (empty) left has height 0, so its balance factor is 0 - 2 = -2 — a right-right case. A single left rotation around 10 lifts 20 to the root with 10 as its left child and 30 as its right child. Recompute: heights are h(10)=1, h(30)=1, h(20)=2, every balance factor is 0. The lurch is gone, and the whole fix touched only those three nodes.
+
 ## visualization
 ```
 Insert 1, 2, 3 into an empty AVL:
@@ -57,6 +61,10 @@ Store `height` at every node. After a BST-style insert or delete, walk back up u
 - left-right: left-rotate the pivot's left child, then right-rotate the pivot
 - right-right: left-rotate the pivot
 - right-left: right-rotate the pivot's right child, then left-rotate the pivot
+
+Why this is correct: rotations preserve the binary-search-tree in-order ordering exactly — a left or right rotation only re-parents nodes while keeping every key on the correct side of every ancestor — so the tree remains a valid BST after the fix. The invariant the algorithm maintains is that immediately below the pivot every subtree is already AVL-balanced (they were balanced before the update, and only the pivot's own factor drifted to 2). A single rotation on an LL or RR shape, or a double rotation on the zig-zag LR or RL shape, is provably sufficient to drop the pivot's subtree height back to what it was before the insert, which means no ancestor above the pivot can still be out of balance. That is the key insight: for insertion, at most one rotation site exists and fixing it terminates the whole rebalance.
+
+The central tradeoff is rebalancing cost versus height tightness. AVL pays for its strict `|balance| <= 1` invariant with more rotations than a red-black tree, but buys a shorter tree and faster reads. Step through the mechanism: descend O(log n) levels to insert the key at a leaf; unwind the same path, and at each node run `height = 1 + max(left, right)` and check the factor; the first violating node triggers exactly the rotation named above, which is a constant-time pointer shuffle over three nodes plus two height updates. The complexity bound holds because the balance invariant forces height to stay within about 1.44 log2(n) — the worst-case AVL tree is the Fibonacci tree, whose node count grows exponentially with height — so both the downward search and the upward rebalance walk touch only O(log n) nodes, each doing O(1) work.
 
 ```
 insert(node, key):

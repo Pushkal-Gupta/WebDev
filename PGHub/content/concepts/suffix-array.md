@@ -35,6 +35,8 @@ Once you have a suffix array + LCP, you get:
 Suffix arrays are the foundation of `grep -F`, bioinformatics aligners (Bowtie, BWA), compressors (bzip2 uses BWT, which lives next door), and competitive-programming string problems.
 
 ## intuition
+Every substring of `S` is a prefix of some suffix of `S`. That single observation is the whole trick: if you had all the suffixes sorted in a phone book, then every substring you could ever search for lives in a contiguous block of that phone book, because entries sharing a prefix sit next to each other. A suffix array is exactly that phone book, stored compactly as the starting indices of the suffixes in sorted order rather than the suffix strings themselves. What's actually happening is that you trade "search a string" for "binary-search a sorted list," and the sortedness guarantees every matching suffix forms one range you can pin down with two boundary searches.
+
 Sort all suffixes of "banana":
 ```
 indices  suffix
@@ -46,6 +48,8 @@ indices  suffix
    2      nana
 ```
 The sorted indices `[5, 3, 1, 0, 4, 2]` are the suffix array. Substring search now collapses to binary search on this sorted list.
+
+Walk the concrete example. The suffixes of `"banana"` start at indices 0 through 5. Sort them lexicographically: `a` (index 5) comes first because a lone `a` precedes anything starting with `a` and continuing, then `ana` (3), then `anana` (1), then `banana` (0) since `b` outranks `a`, then `na` (4), then `nana` (2). Reading off the start indices gives `SA = [5, 3, 1, 0, 4, 2]`. Now suppose you want every occurrence of the pattern `"ana"`. Binary-search for the first suffix whose prefix is at least `"ana"` and the last whose prefix still starts with `"ana"` — that range covers positions 1 and 2 of `SA`, namely start indices 3 and 1. So `"ana"` occurs at indices 3 and 1 of the original string, found without scanning the text. The adjacent LCP array then tells you how much neighbouring suffixes overlap, which is the second half of nearly every suffix-array query.
 
 ## visualization
 ```
@@ -73,6 +77,8 @@ LCP = [_, 1, 3, 0, 0, 2]
 Generate all `n` suffixes (as strings), sort them with the default comparator → `O(n^2 log n)` time, `O(n^2)` memory for the strings. Fine for `n ≤ 1000`, dies on `n = 10^6`.
 
 ## optimal
+The naive sort compares whole suffixes, and a single comparison can cost `O(n)` characters, which is what drags brute force to `O(n^2 log n)`. The optimal builders avoid ever comparing two suffixes character by character; they compare fixed-width integer ranks instead, so each comparison is `O(1)`. **Why prefix doubling is correct:** after round `k` every suffix carries a rank reflecting its first `k` characters. To extend to `2k`, note that the first `2k` characters of suffix `i` are its first `k` characters followed by the first `k` characters of suffix `i+k` — so the pair `(rank[i], rank[i+k])` totally orders suffixes by their `2k`-prefixes. Re-ranking by that pair is exactly the order the next round needs, and this is the key invariant that lets `k` double instead of increment. After `ceil(log2 n)` rounds the prefixes are long enough that ties are impossible and the ranks are the final suffix order. **The central tradeoff** is code complexity for speed: prefix doubling is short and robust; SA-IS reaches true `O(n)` by induced sorting but is far more intricate, so you reach for it only when `n` exceeds roughly `10^6`.
+
 Two practical approaches:
 
 **1. Prefix doubling (O(n log^2 n) or O(n log n) with radix sort)**
@@ -86,6 +92,8 @@ Linear-time induced sorting — fast in practice and the right choice for `n > 1
 **LCP via Kasai's algorithm (O(n))**
 
 Given SA, compute LCP in linear time using the fact that `LCP[rank[i]] ≥ LCP[rank[i-1]] - 1`.
+
+**Complexity intuition:** prefix doubling runs `O(log n)` rounds, and each round either sorts `n` pairs with a comparison sort (`O(n log n)` per round, `O(n log^2 n)` total) or with a two-pass radix sort on the integer keys (`O(n)` per round, `O(n log n)` total). Kasai's `O(n)` bound comes from the amortized argument encoded in `LCP[rank[i]] >= LCP[rank[i-1]] - 1`: the match length `h` drops by at most one between consecutive original indices, so the inner `while` loop's total increments across the whole run are bounded by `2n`, giving linear time overall. The mechanism is worth stating plainly — walk the string in original index order, reuse the previous overlap minus one as a floor, and extend character by character only past that floor. Together, an `O(n log n)` SA build plus an `O(n)` LCP build make the entire structure cheap enough for multi-million-character inputs.
 
 ```
 h = 0

@@ -36,6 +36,10 @@ In interviews, comes up as "implement stable matching" or framed indirectly as "
 ## intuition
 Every round, every unmatched man proposes to his most-preferred woman who hasn't yet rejected him. Each woman holds onto her best proposer so far — when a better one shows up, she tentatively accepts the new one and rejects the old. Eventually every man either has a tentative partner or has been rejected by every woman (impossible in equal-sized sets — pigeonhole guarantees a match).
 
+Picture it as an auction that runs in the wrong direction. The men are bidders who start at the top of their wishlist and get pushed steadily downward; the women are the auctioneers who only ever trade *up*. A woman's partner can be swapped out, but never for someone she ranks lower — her satisfaction is a ratchet that clicks in one direction and never slips back. That single monotonic fact is why the whole thing terminates: no proposal is ever repeated, because a man crossed off a woman only after she rejected him, and she rejects only when she already holds someone better, so she will never take him later.
+
+What's actually happening: the algorithm defers commitment. Nothing is final until the queue of free men empties, which is why the receiving side's "acceptances" are always tentative. Step through a concrete case. Men Alex, Ben; women Cara, Dee. Alex ranks [Dee, Cara], Ben ranks [Dee, Cara]; Cara ranks [Alex, Ben], Dee ranks [Ben, Alex]. Round 1: Alex proposes to Dee, she holds him. Ben proposes to Dee too, but Dee ranks Ben above Alex, so she drops Alex and holds Ben; Alex goes back in the free queue. Round 2: Alex, now free, proposes to his second choice Cara, who is unmatched and accepts. Final matching: Alex–Cara, Ben–Dee. No rogue pair exists — every man got the best partner any stable matching could give him.
+
 ## visualization
 ```
 Men:    Alex prefers [Cara, Dee], Ben prefers [Dee, Cara]
@@ -79,6 +83,14 @@ while free_men:
 ```
 
 For O(1) "w prefers m over cur" lookup, precompute `rank[w][m] = position of m in w's preference list`. Then `prefers = rank[w][m] < rank[w][cur]`.
+
+**Why it's correct.** The key invariant is that once a woman is matched she stays matched, and her partner only improves over time. So at termination no woman is unmatched (if she were, some man who was rejected by everyone would still be free, contradicting the free-queue being empty in an equal-sized instance). Stability follows by contradiction: suppose man m and woman w prefer each other to their assigned partners. Since m ranks w above his own partner, m must have proposed to w *before* settling for someone worse — he works strictly down his list. When m proposed, w either rejected him then or accepted and later dropped him, and in both cases she did so only for a man she ranked *higher* than m. Because her partner only improves, w's final partner is also ranked above m. That contradicts w preferring m, so no such rogue pair can exist.
+
+**The mechanism, step by step.** Maintain a stack (or queue) of free men and a `next_proposal` pointer per man marking how far down his list he has gotten. Pop a free man, read his next unproposed woman, and advance his pointer. If she is unmatched, pair them. If she is matched, compare ranks: the loser of that comparison — either the incumbent or the new proposer — is pushed back onto the free stack. Repeat until the stack drains. The `rank` matrix turns each preference comparison into an array index instead of a linear scan, which is the difference between O(n^2) and O(n^3).
+
+**The central tradeoff.** Deferred acceptance buys stability and proposer-optimality at the cost of asymmetry: the side that proposes gets its best achievable stable partner while the side that receives gets its worst. There is no stable matching that is simultaneously optimal for both sides, so the choice of proposer is a genuine policy decision, not an implementation detail.
+
+**Complexity intuition.** Each man proposes to each woman at most once — he never revisits a woman who rejected him — so the total number of proposals is bounded by n * n = n^2, and every proposal does O(1) work thanks to the rank table. That gives the O(n^2) bound directly, and it is tight in the worst case.
 
 **Guarantees**:
 - The matching is always stable.

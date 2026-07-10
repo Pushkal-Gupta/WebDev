@@ -30,8 +30,21 @@ This is the central trade-off question every distributed-database interview retu
 ## intuition
 Picture N=3 librarians, each with a copy of the book. Write quorum W=2 means the new edition must be in at least 2 of the 3 copies before you confirm the update. Read quorum R=2 means you must compare 2 copies and pick the newest. Any read pair must overlap with any write pair — that's why R + W > N is the magic line. If you write to only 1 (W=1) and read from only 1 (R=1), the reader might pick a stale librarian.
 
+What's actually happening is a pigeonhole argument turned into a tuning dial. With N total copies, a write touches some set of W of them and a read touches some set of R of them; if W + R exceeds N, those two sets cannot be disjoint — by counting alone they must share at least one node, and that shared node has the latest write, so the read is guaranteed to see it. Drop below the line and the guarantee evaporates. Make it concrete with N=3. Set W=2, R=2: every write lands on 2 of 3, every read consults 2 of 3, and any read and any write overlap in at least one node (2+2=4 > 3) — strong consistency, and the system still serves both reads and writes with one node down. Now set W=1, R=1 for raw speed: a write acks after touching a single replica, ~1 ms, and a read consults a single replica, also ~1 ms, but the two may pick different nodes and the reader sees a value from before the write — eventual consistency. The same three machines give you linearizable or stale behavior depending purely on where you set W and R; you are not changing the hardware, only how much overlap you demand.
+
 ## visualization
-N=5 replicas, W=3, R=3. R + W = 6 > 5 → at least one read replica was in the write set. Acceptable failure: 2 replicas down — the other 3 still satisfy both quorums. Acceptable failure for W=5: zero, because any replica down blocks writes. Acceptable failure for R=1 W=5: writes block on a single failure; reads survive 4 failures.
+N=5 replicas. Overlap holds when R + W > N (here 6 > 5):
+
+```
+config       W  R  R+W  overlap?   writes survive   reads survive
+strong       3  3   6   yes (>=1)     2 down           2 down
+write-fast   1  5   6   yes           4 down           0 down
+read-fast    5  1   6   yes           0 down           4 down
+eventual     1  1   2   NO            4 down           4 down (may be stale)
+
+write v=9 to {r1,r2,r3}; read from {r3,r4,r5}: sets share r3 -> read sees v=9.
+write v=9 to {r1};        read from {r2}:       disjoint      -> read sees stale.
+```
 
 ## bruteForce
 Single-leader replication: one node is the primary, all writes go through it, reads from any replica. Simple to reason about, but the leader is a single point of failure and reads from a stale replica need explicit hint ("read-your-own-writes"). When the leader fails, you need a leader-election protocol (Raft, Paxos) that itself uses quorums.
@@ -44,6 +57,8 @@ Pick (N, W, R) based on workload:
 - **Best availability (eventually consistent)**: N=3, W=1, R=1 — both fast, may read stale data.
 
 On read, resolve conflicts via version vectors / last-write-wins timestamps / application-level merge (CRDTs). Use read-repair to lazily update stale replicas. For network-partition tolerance, prefer "sloppy quorum + hinted handoff": write to any W reachable nodes, even outside the home replica set, and hand off when partitioned nodes recover.
+
+The reasoning that ties the four presets together: W and R are independent latency/consistency dials on the same replica set, and you set them per workload rather than once globally. A read-heavy service with low staleness tolerance pushes cost onto the rare write (W=N, R=1) so reads are single-replica fast; a write-heavy ingestion path does the opposite (W=1, R=N). The failure modes are the subtle part. First, R + W > N guarantees you *read* the latest write but says nothing about *ordering* concurrent writes — two clients writing different values to the same key at the same instant both satisfy the quorum, and you are left with a conflict that last-write-wins timestamps (fragile under clock skew) or version vectors / CRDTs (correct but heavier) must resolve. Second, "sloppy quorum" — Dynamo's availability trick of writing to any W reachable nodes during a partition, even non-owners, then handing off when the owners recover — widens availability but means the W nodes that acked may not be the canonical owners, so a strict quorum read right after can still miss the value. Third, high R multiplies read traffic: R=3 means every logical read is three physical reads downstream, so a read-heavy quorum can saturate the cluster faster than the write path does.
 
 ## complexity
 time: O(W) write latency, O(R) read latency (parallel calls — bounded by slowest of W or R)

@@ -31,6 +31,8 @@ Under integer arithmetic mod m, division is not a built-in operation. The **modu
 - **Competitive programming**: every counting problem asking for "answer mod 1e9+7" needs this.
 
 ## intuition
+Ordinary division works because every nonzero real has a reciprocal: dividing by 3 is the same as multiplying by 1/3. Modular arithmetic has no fractions — `1/3` is meaningless mod 7 — so "dividing by `a`" has to be redefined as "multiplying by the number that undoes `a`." That number is the modular inverse: the `x` with `a·x ≡ 1 (mod m)`, the modular stand-in for `1/a`. It exists only when `gcd(a, m) = 1`, because if `a` and `m` shared a factor then every multiple of `a` would also carry that factor and could never land on 1. So the whole game is: find the one residue that multiplies `a` back to 1, then use it everywhere you wanted to divide.
+
 **Fermat's little theorem**: for prime `p` and any `a` with `gcd(a, p) = 1`:
 ```
 a^(p-1) ≡ 1 (mod p)
@@ -40,6 +42,8 @@ a^(p-1) ≡ 1 (mod p)
 Compute via fast exponentiation — O(log p).
 
 **Extended Euclidean algorithm**: find integers `x, y` such that `a*x + m*y = gcd(a, m)`. If `gcd = 1`, then `a*x ≡ 1 (mod m)`, so `x mod m` is the inverse. Works for any coprime modulus, not just primes.
+
+What's actually happening in each method is the same goal reached two ways. Fermat rides a free identity: for prime `p`, raising any nonzero `a` to the power `p-1` always lands on 1, so peeling off one factor of `a` shows `a^(p-2)` is the missing multiplier — computed in O(log p) by square-and-multiply exponentiation. Extended Euclid instead *constructs* the inverse: running the gcd algorithm on `(a, m)` and back-substituting expresses `1` as `a·x + m·y`; reduce that equation mod m and the `m·y` term vanishes, leaving `a·x ≡ 1`, so `x mod m` is the inverse. Concretely for `a=3, m=11`: the gcd steps back-substitute to `1 = 4·3 − 1·11`, so `x = 4`, and indeed `3·4 = 12 ≡ 1 (mod 11)`. Fermat is shorter to code when the modulus is a known prime like `10^9+7`; Extended Euclid is the general tool that also works when `m` is merely coprime to `a`, and it reports failure (no inverse) whenever the returned gcd is not 1.
 
 ## visualization
 ```
@@ -114,6 +118,10 @@ for i in range(2, N + 1):
     inv[i] = (p - (p // i) * inv[p % i]) % p
 ```
 O(N) total — no per-call log factor.
+
+Which tool to reach for is a decision about *how many* inverses you need and the modulus's shape. One inverse under a prime modulus: Fermat's `pow(a, p-2, p)` — a single line, O(log p). One inverse under any coprime modulus (including composite): Extended Euclid, O(log m), which also detects when no inverse exists by returning `gcd ≠ 1`. Many inverses — the `nCr % p` case — is where precomputation pays off: build `fact[]` forward, take *one* Fermat inverse of `fact[N]`, then walk `inv_fact[]` backward using `inv_fact[i] = inv_fact[i+1]·(i+1)`, because `(i!)^{-1} = ((i+1)!)^{-1}·(i+1)`. That converts N separate log-factor inversions into a single inversion plus a linear sweep.
+
+The linear inverse table is the most surprising line: `inv[i] = -(p/i)·inv[p mod i] mod p`. It falls out of writing `p = (p/i)·i + (p mod i)`, reducing mod p to get `0 ≡ (p/i)·i + (p mod i)`, and solving for `i^{-1}` in terms of the already-computed `(p mod i)^{-1}`. Because `p mod i < i`, every value it depends on is filled in before it is needed, so one forward pass produces all N inverses in O(N) with no logarithms at all. The invariant tying every method together never changes: the output `x` must satisfy `a·x ≡ 1 (mod m)`, and you always normalize it into `[0, m)` before returning.
 
 ## complexity
 - **Fermat:** O(log p) per inverse via fast exponentiation.

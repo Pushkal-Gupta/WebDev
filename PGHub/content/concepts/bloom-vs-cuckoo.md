@@ -30,14 +30,37 @@ Membership filters guard expensive operations — disk reads in LevelDB/RocksDB,
 ## intuition
 A Bloom filter is a graffiti wall: each insertion sprays k random spots black. To check membership, look at those k spots; if any is white, the item was never inserted. You cannot un-spray without erasing other people's tags. A cuckoo filter is a parking lot with two assigned spaces per car; if both are taken, you evict an existing car and send it to its alternate space. To delete, you just paint over that one space — fully reversible.
 
+What's actually happening differs at the storage level. A Bloom filter stores *no identity* — it only records "some key lit this bit," so bits are shared and un-erasable. A cuckoo filter stores a short *fingerprint* of each key in a specific slot, so it can find and clear exactly that entry. That single design choice — anonymous shared bits versus owned fingerprint slots — is the root cause of every downstream difference: deletability, lookup cost, and space at a given false-positive rate.
+
+Trace a concrete micro-example. Bloom side, m = 16 bits, k = 3. Insert "alice" → {2, 7, 13}; insert "bob" → {4, 7, 11}. Bit 7 is now shared. Query "eve" → {2, 4, 9}: bit 9 is 0, so *definitely absent*. Query "mallory" → {2, 7, 4}: all three lit (by alice and bob), so *probably present* — a false positive from anonymous shared bits. To delete "bob" you would clear bits {4, 7, 11}, but clearing 7 would corrupt "alice." Hence: no deletes.
+
+Cuckoo side, 8 buckets, one fingerprint each for the trace. Insert "alice": fingerprint fp = 0x3a, primary bucket i1 = 5, alternate i2 = 5 XOR hash(0x3a) = 2. Bucket 5 is free, so store 0x3a there. Query "alice": compute fp and both buckets, scan 5 and 2, find 0x3a → present. Now delete "alice": go to bucket 5, erase 0x3a, done — "bob" in some other bucket is untouched. If bucket 5 had been full at insert time, we would have kicked out its occupant to *its* alternate and retried. That reversibility is the whole reason cuckoo filters support deletion where Bloom cannot.
+
 ## visualization
-Bloom: array of 32 bits, k=3 hashes. Insert "alice": bits 4, 11, 27 set. Insert "bob": bits 7, 11, 22 set. Query "carol": hashes to 4, 7, 18 — bit 18 is 0, definitely absent. Query "dan": hashes to 4, 11, 22 — all set, but dan was never inserted; this is a false positive. Cuckoo: each cell holds a 12-bit fingerprint. Insert "alice": fingerprint 0x3a4 lands in bucket 5; alternate bucket is `5 XOR hash(0x3a4) = 19`. Delete "alice": clear that fingerprint in bucket 5 or 19. Done.
+The trace below runs the same key sequence through both structures side by side. Bloom is m = 32 bits, k = 3; cuckoo has 8 buckets holding one 12-bit fingerprint each. Watch the delete step: Bloom cannot do it without corrupting a shared bit, cuckoo just clears one slot.
+
+```
+op                 | bloom bits touched      | cuckoo action                     | result
+-------------------+-------------------------+-----------------------------------+--------------
+add   alice        | set {4, 11, 27}         | fp=0x3a4 -> bucket 5 (free)       | stored
+add   bob          | set {7, 11, 22}         | fp=0x1c7 -> bucket 2 (free)       | stored
+query carol        | test {4, 7, 18} -> 18=0 | scan 5,19 for fp(carol) -> miss   | ABSENT (true)
+query dan          | test {4, 11, 22} -> all1| scan 3,6 for fp(dan)  -> miss     | bloom=FALSE+ / cuckoo=ABSENT
+delete bob         | cannot: bit 11 shared   | bucket 2: clear 0x1c7             | bloom=NO-OP / cuckoo=removed
+query bob          | test {7, 11, 22} -> all1| scan 2,alt for fp(bob) -> miss    | bloom=YES(stale) / cuckoo=ABSENT
+```
 
 ## bruteForce
 Use a hash set: `O(1)` lookup, full fidelity, no false positives. Space is `O(n × key_size)` — for billions of keys this dwarfs RAM. Cheap when n is small or memory is unconstrained; the whole reason filters exist is to escape this when the answer-set fits but the keys do not.
 
 ## optimal
 Bloom filter: bit array of size `m`, `k` independent hash functions. To insert, set the k bit positions. To query, return true iff all k positions are set. Optimal `k = (m/n) × ln 2`. False-positive rate `≈ (1 - e^(-kn/m))^k`. Cuckoo filter: array of buckets each holding ~4 small fingerprints. Insert hashes the key to bucket `i1`; alternate `i2 = i1 XOR hash(fingerprint)`. Place in either if there is space; otherwise evict and relocate up to 500 times. Lookup checks both buckets only — O(1) with tight constants. Cuckoo wins on space at FPR < ~3%; Bloom wins for ultra-high FPR (>10%) or write-only workloads where deletes are not needed.
+
+The correctness argument for each hinges on a different invariant. Bloom's guarantee is *monotone bits*: once a bit is set by any insert it stays set, so a real member's k positions are all 1 forever — a member can never test absent, which is exactly "no false negatives." The false-positive rate is purely a function of the fill fraction and follows the same \((1 - e^{-kn/m})^k\) curve as the standalone Bloom lesson. Cuckoo's guarantee rests on the *partial-key XOR trick*: because \(i_2 = i_1 \oplus h(\text{fp})\), applying the XOR again from either bucket recovers the other, so a fingerprint always has exactly two candidate homes and a query need only scan those two. This is why cuckoo lookups are a hard O(1) — at most two bucket reads — while Bloom must probe k positions.
+
+Step through a cuckoo insert to see where the cost hides. Compute fp and i1; if bucket i1 has a free slot, place it and stop. Else compute i2 and try there. If both are full, pick one, evict a random occupant, put the new fp in its place, and re-home the evicted fingerprint via *its* alternate bucket — repeat until a slot opens or a retry cap (≈500) is hit, which signals the table is too full and must be rebuilt larger. This eviction cascade is why inserts are only *amortized* O(1) and why cuckoo filters must be sized with headroom below ~95% load.
+
+The space tradeoff: at a target FPR of \(\epsilon\), a Bloom filter needs about \(1.44\log_2(1/\epsilon)\) bits per element, while a cuckoo filter with 4-slot buckets needs roughly \((\log_2(1/\epsilon) + 3)/0.95\) bits per fingerprint. Below ~3% FPR the cuckoo formula grows slower, so it wins on space; above ~10% FPR Bloom's simpler encoding wins. And whenever deletes or a hard two-read lookup bound matter, cuckoo is the answer regardless of the space margin.
 
 ## complexity
 time: O(k) insert/query for Bloom (k ≈ 7 at 1% FPR); O(1) lookup, amortized O(1) insert for cuckoo (worst-case high during eviction storms)

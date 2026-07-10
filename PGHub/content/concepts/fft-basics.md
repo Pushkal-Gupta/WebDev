@@ -34,6 +34,8 @@ Polynomial multiplication of two degree-(n-1) polynomials takes O(n²) by the sc
 For competitive programming, FFT shows up when you need "convolution of two arrays" or "multiply huge polynomials mod a prime" (NTT variant).
 
 ## intuition
+Here is the reframe: a polynomial has two faces. The **coefficient face** lists `[1, 5, 6]` for `1 + 5x + 6x²`; the **point-value face** lists the polynomial's height at several x-positions, like `(x=0 → 1), (x=1 → 12), (x=2 → 35)`. Multiplying is slow in the coefficient face — every coefficient meets every other, O(n²) — but trivial in the point-value face: if you know both polynomials' heights at the *same* x, the product's height there is just the two heights multiplied, one cheap number per point. FFT is the fast currency exchange between these two faces, in and back out.
+
 A polynomial of degree n-1 is uniquely determined by its values at n distinct points. FFT picks n special points — the n-th roots of unity in the complex plane (`e^(2πik/n)` for k = 0..n-1). At these points, polynomial evaluation can be split into even and odd parts, recurring on n/2 — divide and conquer to O(n log n).
 
 ```
@@ -41,6 +43,8 @@ A(x) = A_even(x²) + x · A_odd(x²)
 ```
 
 At a primitive n-th root of unity ω, ω² is a (n/2)-th root of unity — so we recurse on a smaller problem of the same shape.
+
+What's actually happening: the roots of unity are the only sample points that let the even/odd split reuse work. Because `(-ω)² = ω²`, evaluating at ω and at −ω both need the same `A_even(ω²)` and `A_odd(ω²)` — you compute the halves once and combine them into two answers. Concretely, to square `1 + x` (so A = [1, 1, 0, 0] padded to length 4), evaluate at the four 4th roots 1, i, −1, −i. That gives A(1)=2, A(i)=1+i, A(−1)=0, A(−i)=1−i. Squaring each height gives 4, 2i, 0, −2i, and inverse-transforming those four numbers hands back `[1, 2, 1]` — exactly `1 + 2x + x²`. No coefficient ever multiplied another directly; the multiplication happened point by point in the transformed world, then FFT carried the answer home.
 
 ## visualization
 ```
@@ -97,6 +101,12 @@ def multiply_poly(A, B):
     C_hat = [a * b for a, b in zip(A_hat, B_hat)]
     return [round(c.real) for c in fft(C_hat, invert=True)]
 ```
+
+**Why it's correct.** The recurrence rests on `A(x) = A_even(x²) + x·A_odd(x²)`. Feed in `x = ω^k` (the k-th n-th root of unity): its square `ω^{2k}` is an (n/2)-th root of unity, so `A_even` and `A_odd` are being evaluated on exactly the sample set their own recursive FFT returns. The butterfly `result[k] = a_even[k] + ω^k·a_odd[k]` and `result[k+n/2] = a_even[k] − ω^k·a_odd[k]` exploits `ω^{k+n/2} = −ω^k`, producing both the k-th and (k+n/2)-th outputs from a single multiply — that halving is where the log factor comes from.
+
+**Key invariant / tradeoff.** After the forward pass, `A_hat[k] = A(ω^k)`; pointwise `C_hat[k] = A_hat[k]·B_hat[k]` equals `(A·B)(ω^k)` because evaluation is a homomorphism — the product of two evaluations is the evaluation of the product. The inverse FFT is the *same* butterfly with `ω → ω^{-1}` plus a final divide-by-n; that symmetry is the whole reason one routine handles both directions.
+
+**Step-by-step.** Pad A and B to length n = next power of two ≥ len(A)+len(B). Forward-FFT both (O(n log n)). Multiply the two spectra elementwise (O(n)). Inverse-FFT the result (O(n log n)). Round the real parts to integers. For `[1,2]·[1,3]` this yields `[1, 5, 6]` — the coefficients of `(1+2x)(1+3x) = 1 + 5x + 6x²`.
 
 For competitive programming, use **iterative FFT** (avoid recursion overhead) and **NTT** (Number Theoretic Transform — same idea but over Z/pZ for integer modular arithmetic without floating point error).
 

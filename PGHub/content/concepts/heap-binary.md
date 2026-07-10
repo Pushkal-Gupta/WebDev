@@ -35,15 +35,19 @@ Heaps are the data structure behind nearly every priority queue. Used in:
 Every interview tier expects you to know heap push/pop without a library.
 
 ## intuition
-With 0-indexed array `a`:
+Think of the heap not as a tree of pointers but as a tournament bracket flattened into a straight line. The array *is* the tree: index arithmetic replaces the pointers entirely, so there are no `left`/`right` fields to store. With 0-indexed array `a`:
 - Parent of i is `(i - 1) // 2`.
 - Children of i are `2*i + 1` and `2*i + 2`.
 
-**Push(x)**: append at the end (array.push). Then **sift up**: while x is smaller than its parent (min-heap), swap with parent.
+The only rule that matters is local: every parent beats its children. That weak, local promise is enough to guarantee a strong, global fact — the champion (the minimum, in a min-heap) sits at the root, index 0. You never sort the whole array; you only ever bubble one element along a single root-to-leaf path, which is why every operation costs O(height) = O(log n), not O(n).
 
-**Pop()**: swap root with last element. Pop the last element (the old root) — that's the answer. Then **sift down** the new root: while it's larger than the smaller child, swap.
+**Push(x)**: append at the end (array.push). Then **sift up**: while x is smaller than its parent (min-heap), swap with parent — the newcomer climbs until a parent finally beats it.
+
+**Pop()**: swap root with last element. Pop the last element (the old root) — that's the answer. Then **sift down** the new root: while it's larger than the smaller child, swap. You always swap with the *smaller* child so the parent ends up beating both.
 
 **Build from array**: instead of n pushes (O(n log n)), sift-down from the last non-leaf (index `(n // 2) - 1`) down to 0. O(n) — proof by sum of heights.
+
+Walk a concrete push. Start with the min-heap `[1, 7, 3, 9, 8, 6]` and push `2`. Append: `[1, 7, 3, 9, 8, 6, 2]`, so `2` lands at index 6. Its parent is `(6-1)//2 = 2`, holding `3`. Since `2 < 3`, swap: `[1, 7, 2, 9, 8, 6, 3]`. Now `2` is at index 2, parent `(2-1)//2 = 0` holds `1`. Since `2 > 1`, stop — one swap, then done. The value climbed exactly two levels of the log-height tree, touching three array cells total, never scanning the rest.
 
 ## visualization
 ```
@@ -73,6 +77,8 @@ Pop:
 Use a sorted array + linear-search for insert position. O(n) per insert. Linked list — O(1) insert but O(n) min. Both lose to heap's O(log n).
 
 ## optimal
+The array-backed heap keeps two primitives, `_sift_up` and `_sift_down`, and expresses every public operation in terms of them. Both walk a single vertical path and swap along it, which is the whole reason the structure is fast.
+
 ```
 class MinHeap:
     def __init__(self):
@@ -117,6 +123,14 @@ class MinHeap:
             h._sift_down(i)
         return h
 ```
+
+**Why it's correct.** The heap invariant — every parent beats its children — is preserved by construction. `_sift_up` restores it after an append: the new leaf can only violate the rule against its ancestors, and swapping it upward past any parent it beats fixes each violation in turn while leaving the rest of the tree untouched (the sibling subtrees never see the moving element). `_sift_down` restores it after a pop: the last element promoted to the root may lose to its children, so it sinks along the path of smaller children until both children beat it, at which point the subtrees below are already valid heaps and the invariant holds globally.
+
+**The mechanism, step by step.** `push` appends in O(1) amortized, then sift-up compares against parents up the tree. `pop` reads the root as the answer, moves the final element into the root slot to keep the tree *complete* (no holes in the array), then sift-down sinks it. `peek` is just `a[0]`. The subtle bit is always comparing against the *smaller* child during sift-down — swapping with the larger child would leave the smaller child violating the invariant against the new parent.
+
+**The central tradeoff.** A heap gives you O(1) access to the single extreme element and O(log n) insert/extract, but it does *not* keep the data sorted and cannot find an arbitrary element or the k-th smallest without extra work. You trade full ordering for cheap access to just the min (or max) — perfect for a priority queue, useless for range queries.
+
+**Complexity intuition.** Both sift operations touch at most one node per level, and a complete tree of n nodes has height floor(log2 n), so each is O(log n). Building looks like it should cost O(n log n) — n sift-downs — but the bound is loose: most nodes are near the bottom and barely move.
 
 **O(n) build proof sketch**: at level k (from the bottom), there are ~n/2^k nodes each costing O(k) to sift down. Total = n · Σ(k / 2^k) which converges to 2n.
 

@@ -34,9 +34,13 @@ A class of partition / segmentation DP problems collapse from O(n²·k) to O(n l
 For n = 5000, k = 100, n²·k = 2.5 × 10^9 (too slow); n log n · k = 6 × 10^6 (instant).
 
 ## intuition
+Reframe it as a seating chart. Row i's answers `dp[i][0..n-1]` each choose a "best split point" k; picture those best k's as people who must sit in non-decreasing seat order — person j+1 never sits to the left of person j. That single promise (monotonicity) means once you've pinned where the *middle* person sits, everyone to their left is boxed into the seats on the left, everyone to their right into the seats on the right. You never re-search the whole row for anybody.
+
 For fixed i, you're computing `dp[i][j]` for all j. The "optimal k" minimizing the recurrence varies with j. If we know `opt[i][j] ≤ opt[i][j+1]` (monotone), then when computing `dp[i][mid]` we can restrict the search for `opt[i][mid]` to `[opt_left, opt_right]` — and recurse left/right with appropriately-shrunk windows.
 
 Divide and conquer with `solve(lo, hi, opt_lo, opt_hi)` that computes `dp[i][lo..hi]` knowing that all `opt[i][j]` lie in `[opt_lo, opt_hi]`. The total work telescopes to O(n log n) per row.
+
+Concretely, take a row with n = 4 and suppose the true optima turn out to be `opt = [0, 1, 1, 3]`. Call `solve(0, 3, 0, 3)`: mid = 1, scan k over the full [0, 3], find `opt = 1`. Now the left call `solve(0, 0, 0, 1)` searches only k in [0, 1] for position 0, and the right call `solve(2, 3, 1, 3)` searches only [1, 3]. When that right call reaches position 3, its scan is capped at [1, 3] instead of the full [0, 3] — the monotone promise already ruled out every k < 1. Add up the scan lengths level by level: each level of the recursion touches at most O(n) candidate k's in total, and there are log n levels, so the row costs O(n log n) instead of the O(n²) a naive full scan per position would spend.
 
 ## visualization
 ```
@@ -76,6 +80,12 @@ for i in range(1, k_max + 1):
 ```
 
 The monotonicity condition `opt[i][j] ≤ opt[i][j+1]` is implied by **Knuth's inequality**: `cost(a, c) + cost(b, d) ≤ cost(a, d) + cost(b, c)` for `a ≤ b ≤ c ≤ d`. If your cost function satisfies this, D&C applies. Common cost functions: sum, weighted sum, x², |x|.
+
+**Why it's correct.** `solve(i, lo, hi, opt_lo, opt_hi)` maintains the invariant that every optimal split for positions `lo..hi` lies inside `[opt_lo, opt_hi]`. It computes `dp[i][mid]` by an honest linear scan over that window — so `dp[i][mid]` is exactly optimal, never an approximation. It then passes `best_k` as the *upper* bound for the left half and the *lower* bound for the right half. Monotonicity (`opt[i][j] ≤ opt[i][j+1]`) guarantees those tightened windows still contain the true optima, so no correct split is ever excluded — only provably-irrelevant k values are pruned.
+
+**The invariant and tradeoff.** You trade a wide-but-shallow search for a narrow-but-repeated one. Summed across one recursion level, the scanned windows overlap only at their endpoints, so the total scan length per level is O(n); with log n levels the row is O(n log n). The catch: this holds only when the cost function is monotone. Feed it a non-monotone cost and it silently returns wrong `dp` values — which is why you always validate Knuth's inequality (or brute-force cross-check on small inputs) before trusting the result.
+
+**Step-by-step.** For row i, call `solve(i, i, n-1, 0, n-1)`. Compute the middle position by scanning its allowed k-window, record `best_k`, then recurse into the left sub-range with k capped at `best_k` and the right sub-range with k floored at `best_k`. The base case `lo > hi` returns immediately. After all `k_max` rows finish, `dp[k_max][n-1]` is the answer. Precompute any prefix sums the cost function needs so each `cost(k, j)` call stays O(1), otherwise the per-call cost multiplies straight through the whole bound.
 
 ## complexity
 - **Time**: O(n log n) per row. With k rows: O(n · k · log n).

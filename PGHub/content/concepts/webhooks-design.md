@@ -34,9 +34,13 @@ Every modern SaaS exposes webhooks: Stripe payments, GitHub events, Slack, Twili
 The 4 properties above are non-negotiable at scale. Stripe processes billions of webhook deliveries; Svix is an entire company built around this primitive.
 
 ## intuition
-Your service emits an event → enqueues a delivery row → worker POSTs to the customer's URL with the JSON payload + an HMAC signature. If 2xx → mark delivered. If 4xx → log + don't retry (customer bug). If 5xx / timeout → retry with backoff.
+Reframe it as sending a registered letter, not shouting across the street. A plain fire-and-forget POST is a shout — if the neighbour happens to be out, the message is simply gone. A reliable webhook is a registered letter: it is signed so the recipient knows who sent it, it is redelivered if the first attempt bounces, and the postal service keeps a record so the same letter is not acted on twice if it arrives in duplicate. Those three guarantees — authenticity, at-least-once delivery, and exactly-once processing — are the whole game.
 
-Receiver verifies signature, looks up `event_id` in dedupe table → if seen, return 200 without re-processing (idempotent); if new, run the handler + record `event_id`.
+The mechanics: your service emits an event → it enqueues a **delivery row** in a table instead of calling the customer inline (so a slow or dead customer never blocks your request path) → a background worker picks up the row and POSTs the JSON payload plus an HMAC signature to the customer's URL. The response decides the row's fate. If 2xx → mark delivered. If 4xx → log and *do not retry*; a 4xx is the customer telling you the request itself is bad (bad signature, malformed body), and retrying an unfixable request just wastes both sides. If 5xx or a timeout → schedule a retry with exponential backoff, because those signal a transient outage that will likely clear.
+
+Concrete trace. Event `charge.succeeded {id: ch_xyz, amount: 100}` fires. The worker signs `timestamp + "." + body` with the subscriber's secret, sending headers `X-Webhook-Id: evt_abc123`, `X-Webhook-Timestamp: 1729000000`, `X-Webhook-Signature: sha256=...`. The customer is mid-deploy and returns 500. We back off and try again at 1s, then 5s, then 25s — on the third try the customer is healthy and returns 200. But their retry logic already half-processed attempt two, so the same `evt_abc123` now arrives twice.
+
+That is where the receiver side earns its keep. It first verifies the signature (recompute the HMAC, constant-time compare) and rejects anything whose timestamp is older than ~5 minutes to block replays. Then it looks up `event_id` in a dedupe table: if `evt_abc123` was seen before, it returns 200 immediately *without* re-running the handler (idempotent); if new, it runs the handler and records the id atomically. What's actually happening is a contract split across two machines — the producer promises "at least once," the receiver upgrades that to "effectively once" using the event id as the idempotency key.
 
 ## visualization
 ```
@@ -141,6 +145,12 @@ ON CONFLICT (event_id) DO NOTHING RETURNING event_id;
 ```
 
 **Ordering**: webhooks may arrive out of order (retries). Include version / sequence number in payload; receiver checks if newer.
+
+**Why this design is correct and where the tradeoffs bite.** The load-bearing invariant is *at-least-once delivery paired with idempotent processing*. The producer never claims exactly-once — that is impossible over an unreliable network without coordination — so it errs toward sending too many times (retries on 5xx/timeout) and pushes the deduplication cost to the receiver, where a single `event_id` primary key makes it a one-line guarantee. The `INSERT ... ON CONFLICT DO NOTHING RETURNING event_id` is the whole trick: the database's unique constraint makes "have I seen this before?" atomic even under concurrent duplicate deliveries, so two workers racing the same retry cannot both process it. On the producer side, the partial index `WHERE status IN ('pending','failed')` keeps the worker's "what's due now?" scan proportional to the *backlog*, not the full history table.
+
+**Step-by-step of one delivery.** (1) Event fires; insert a `webhook_deliveries` row with `status='pending'`, `attempt=0`, `next_retry_at=now()`. (2) A worker claims due rows via the index, signs `timestamp.body` with the subscriber's secret, and POSTs with a 10–30s timeout. (3) On 2xx, set `status='sent'`, stamp `delivered_at`. (4) On 4xx, set `status='failed'` and stop — no retry. (5) On 5xx/timeout, increment `attempt`, set `next_retry_at = now() + backoff(attempt)` with jitter, leave `status='failed'` so the index re-surfaces it. (6) After the max attempts (say 24h of trying), set `status='dead_letter'` and alert the customer.
+
+**Complexity intuition.** Per delivery: one indexed insert plus one HTTP round trip on the producer, and one HMAC compute plus one indexed dedupe lookup on the receiver — all O(1) in table size. The dominant cost and the real scaling risk is not CPU but *head-of-line blocking*: a single slow customer can starve a shared worker pool, so shard workers by `subscriber_id` and cap per-subscriber concurrency. The timestamp window on the receiver is the cheap defense that turns a captured-and-replayed valid signature into an expired one.
 
 ## complexity
 - **Send overhead**: 1 DB insert + 1 HTTP request per delivery.

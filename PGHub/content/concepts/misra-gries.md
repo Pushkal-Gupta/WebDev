@@ -35,12 +35,16 @@ status: published
 The streaming bound is the magic: O(k) memory regardless of stream length.
 
 ## intuition
+Picture a parliament with only k-1 seats but a crowd of voters streaming in. Each seat holds one party plus a tally of how many voters backed it. When a voter arrives for a party already seated, that seat's tally ticks up. When a new party arrives and a seat is empty, they take it with tally 1. But when every seat is full and none matches the newcomer, a mutual-elimination happens: the newcomer cancels against one supporter of *each* seated party, so every tally drops by 1, and any party that falls to zero loses its seat.
+
 Maintain at most k-1 (key, count) pairs. For each new item:
 1. If item matches an existing key → increment its count.
 2. Else if there's a free slot → add (item, 1).
 3. Else (all k-1 slots full and none match) → decrement EVERY count by 1; drop any that hit zero.
 
-The intuition is "pairwise cancellation generalized to k-way": each cancellation involves k items, so any item that appears more than n/k times must survive the cancellations.
+The intuition is "pairwise cancellation generalized to k-way." In Boyer-Moore (k=2) one non-matching item cancels one held item. Here each decrement destroys k items at once — the arriving one plus one unit from each of the k-1 seated parties. Because a genuine heavy hitter appears more than n/k times, and there can be at most n total items participating in these k-way cancellations, an item appearing above the n/k threshold cannot be fully cancelled away — some of its count always survives to the end. That is why the survivors are a superset of the true heavy hitters.
+
+Trace a tiny case: stream [1,2,1,3] with k=3 (two seats). Item 1 seats (1:1). Item 2 seats (2:1). Item 1 increments (1:2). Item 3 arrives, both seats full, no match, so decrement all: (1:1) and 2 hits zero and is evicted. Final survivors {1}. Item 1 truly appeared 2 out of 4 times > 4/3, so it deservedly survives, while the transient 2 and 3 washed out — exactly the behavior we want before the verification pass confirms real counts.
 
 ## visualization
 ```
@@ -94,6 +98,12 @@ def misra_gries(stream, k):
 The verification pass is necessary: Misra-Gries returns *candidates*, not guarantees. A candidate may have appeared fewer than n/k times. The second pass filters out false positives.
 
 For the streaming model (one pass only), you can't fully verify — return the candidates and live with the false positives.
+
+**Why it is correct.** The key invariant is that the stored counters never overcount and their under-estimation is bounded. If an item x truly occurs f(x) times, its final counter satisfies f(x) - n/k < counter(x) ≤ f(x). The lower bound holds because every decrement step burns k distinct arrivals (the newcomer plus one unit from each of the k-1 seats), and there are at most n arrivals total, so no more than n/k decrement rounds can fire — each dropping x's counter by at most 1. Any item with f(x) > n/k therefore ends with a strictly positive counter and must still occupy a slot. That is precisely why the survivor set is guaranteed to *contain* every heavy hitter, even though it may also contain a few pretenders.
+
+**Step-by-step.** Walk the stream once, applying the three-way rule (match → increment, empty seat → insert, full+no-match → decrement-all-and-evict-zeros). This leaves ≤ k-1 survivors, computed in a single O(n) pass with O(k) memory. Then run the second loop: reset each survivor's tally to zero and re-scan the stream counting only those keys, giving exact frequencies. Filter to those exceeding n/k. The tradeoff is the classic streaming one — you sacrifice exactness in the first pass to fit in O(k) memory, then buy back precision with one extra scan when a second pass is affordable.
+
+**Complexity intuition.** The decrement-all step looks like it could cost O(k) per item, but each unit of count can be decremented at most once after being created, so the total decrement work across the whole stream is O(n) amortized. The verification pass is another O(n). Memory never exceeds k-1 counters regardless of how many distinct values the stream contains.
 
 ## complexity
 - **Time**: O(n) (each decrement step is amortized O(1)).

@@ -34,12 +34,16 @@ LeetCode interview classics:
 Every interview season has a 3Sum variant. Knowing the pattern + how to handle duplicates is table-stakes.
 
 ## intuition
+Think of the two-pointer scan as a tuning dial on a sorted array: with `l` at the small end and `r` at the large end, the sum `arr[l] + arr[r]` is a knob you turn. Moving `l` right raises the sum (values only grow to the right); moving `r` left lowers it. Sorting is what makes this monotonic — without it, moving a pointer could change the sum in either direction and the trick collapses. The three-pointer idea just freezes one value out front and solves a two-pointer pair-sum for the *remaining* target `-arr[i]`.
+
 Sort the array. For each `i` from 0 to n-3, set two pointers `l = i+1`, `r = n-1`. Walk them inward:
 - If `arr[i] + arr[l] + arr[r] < target`: `l++` (need larger).
 - If sum > target: `r--` (need smaller).
 - If sum == target: record the triplet, then advance `l` past duplicates AND `r` past duplicates.
 
 Skip duplicates on the outer `i` too — `if i > 0 and arr[i] == arr[i-1]: continue` — to avoid emitting the same triplet twice.
+
+What's actually happening: fixing `arr[i]` reduces a 3-sum to a 2-sum, and each two-pointer pass never revisits a pair, so the inner work is linear per outer index — O(n²) overall instead of the naive O(n³). Work a concrete micro-example with `arr = [-1, 0, 1, 2]`, target 0. Fix `i=0` (`arr[i]=-1`), so we need two of `[0,1,2]` summing to `+1`. Set `l=1` (0), `r=3` (2): sum `-1+0+2 = 1 > 0`, so pull `r` left to index 2 (1): sum `-1+0+1 = 0` — a hit, emit `(-1,0,1)`. Advance both pointers, they cross, inner loop ends. Move to `i=1` (`arr[i]=0`), need two of `[1,2]` summing to 0: `l=2` (1), `r=3` (2) give `0+1+2 = 3 > 0`, pull `r` left, pointers cross, nothing found. Because every wrong sum tells us *which* pointer to move, we never waste comparisons — the array's sorted order turns guessing into a directed search.
 
 ## visualization
 ```
@@ -85,11 +89,17 @@ def three_sum(arr):
     return result
 ```
 
+**Why it is correct.** The invariant is that after sorting, for a fixed `i`, every valid pair `(l, r)` with `l < r` is considered exactly once without ever moving a pointer backward. When the sum is too small the only way to grow it is `l++` (every element left of `r` is ≤ `arr[r]`, so shrinking `r` could never help); symmetrically, too-large forces `r--`. This means no pair that could produce the target is ever skipped — the search is exhaustive over pairs even though it is linear. On a hit we record it and advance *both* pointers past any equal neighbours, which guarantees each distinct triplet is emitted once. The outer `arr[i] == arr[i-1]` skip enforces the same uniqueness at the fixed-index level.
+
+**Step-by-step walk.** Sort. For each `i`, seed `l = i+1`, `r = n-1`. Loop while `l < r`: compute `s`. If `s == 0`, emit, then bump `l++`, `r--`, and slide each past duplicates. If `s < 0`, `l++`. If `s > 0`, `r--`. The pointers converge in at most n steps, so the inner loop is O(n) and the whole thing is O(n²).
+
 **4Sum** generalises: two outer loops `i, j`, then two-pointers on the rest. O(n³).
 
 **3Sum Closest**: same outer loop but track the closest sum-to-target seen.
 
 **Early termination**: if `arr[i] > 0` (with target=0), no further triplet can sum to 0 — break early.
+
+**Complexity intuition.** The sort is O(n log n) but is dominated by the O(n²) double scan; the pointers never reset backward within an `i`, so the two-pointer inner pass is strictly linear rather than quadratic. Extra space is O(1) beyond the output — the tradeoff versus the hash-set variant, which also runs O(n²) time but spends O(n) memory per outer index and needs its own dedupe bookkeeping.
 
 ## complexity
 - **Time**: O(n²) for 3Sum, O(n^(k-1)) for k-Sum.

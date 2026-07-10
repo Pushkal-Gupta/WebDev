@@ -30,10 +30,20 @@ Two architectural wins. **(1) Async work**: signing up a user shouldn't wait for
 ## intuition
 Picture a coffee shop. Customers (producers) place orders at the counter. The barista (consumer) makes drinks at their own pace. A whiteboard (the queue) holds the list of pending orders. If a rush hits, the whiteboard fills up — but no customer is stuck waiting at the register, and no order is lost. Add another barista (scale the consumer) and the whiteboard drains faster.
 
+What's actually happening is decoupling in time. Without the whiteboard, the cashier would have to stand and wait while each drink is made before taking the next order — throughput collapses to the speed of the slowest barista, and a jammed espresso machine backs the line onto the sidewalk. The queue breaks that coupling: the producer's job ends the instant the message is durably written, and the consumer's job is a separate loop that pulls work whenever it has capacity. Put numbers on it. A flash sale drives 50,000 orders/sec for 30 seconds — 1.5 million orders — but your fulfillment workers sustain 5,000/sec. Inline, the 45,000/sec you can't handle become timeouts and dropped orders. With a queue, all 1.5M land safely in seconds and your workers drain the backlog over about five minutes; customers got their 200 OK immediately and the fulfillment happened slightly later. The queue converts a fatal throughput spike into a tolerable latency spike, and because the messages are durable, a worker crash mid-drain loses nothing — the unacked messages simply reappear for another worker.
+
 ## visualization
 ```
-Producer ──► [ Queue: msg1, msg2, msg3, ... ] ──► Consumer A
-                                              └──► Consumer B (workers in parallel)
+Producer returns immediately; workers drain at their own rate.
+
+t0  producer -> enqueue(order-1 .. order-1500000) -> 200 OK to user  (spike absorbed)
+QUEUE: [ o1, o2, o3, o4, o5, ... o1500000 ]   depth rising
+
+Consumer A --> poll -> process o1 -> ack -> poll -> o3 ...
+Consumer B --> poll -> process o2 -> ack -> poll -> o4 ...   (parallel drain)
+handler(o7) throws     -> attempts<3 -> requeue -> retry later
+handler(o7) throws x3   -> route to DLQ  (poison message, human inspects)
+depth falls to 0 over ~5 min at 5k/sec; worker crash -> unacked msgs redelivered
 ```
 
 ## bruteForce
@@ -57,6 +67,8 @@ Operational essentials:
 - **Dead-letter queue (DLQ)**: after N failed attempts, route the message to a DLQ for human inspection.
 - **Backpressure / max queue depth**: alert before the queue overflows.
 - **Consumer groups / parallelism**: scale by adding consumers; partition keys decide which consumer gets which messages (Kafka).
+
+The decision that shapes everything downstream is the delivery guarantee, because it dictates how much the consumer must defend itself. At-least-once is the pragmatic default — the broker redelivers any message the consumer did not ack, so a crash mid-processing costs a duplicate, not a loss — which means every handler must be **idempotent**: charging a card, sending an email, or decrementing inventory must produce the same end state whether it runs once or three times, usually enforced with an idempotency key checked before the side effect. Reach for a work queue when each task needs exactly one owner (send this email once), a pub/sub topic when many independent subsystems each need the same event (an "order placed" event feeding fulfillment, analytics, and notifications), and a durable log like Kafka when consumers must replay history or join streams. The failure modes to design for up front: a poison message that fails deterministically will retry forever unless you cap attempts and route to a dead-letter queue for human inspection; a consumer slower than the arrival rate grows the queue without bound, so monitor depth and alert before it overflows; and ordering holds only within a partition, so any workflow that depends on cross-key ordering needs application-level sequencing rather than a false assumption that the queue preserves global order. Treat the queue as a transport, never as a database — move processed data into a real store and let the queue stay shallow.
 
 ## complexity
 - **Latency added**: ~5–50ms (in-memory queue) to ~100ms (durable queue with replication).

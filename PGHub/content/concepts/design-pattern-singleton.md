@@ -30,8 +30,29 @@ Some resources genuinely should not exist twice: a process-wide thread pool, a h
 ## intuition
 Think of a country's central bank. By law there is exactly one; every commercial bank refers to the same authority. Anyone needing it asks the system for "the central bank" rather than constructing one. The single instance is created lazily on first request, lives forever, and serves every caller identically. Singletons in code follow the same shape: a `getInstance()` (or equivalent) that lazily builds and returns the lone instance.
 
+The reframe that makes Singleton concrete is two mechanisms working together. First, you *seal off the normal door* — the constructor is made private so no caller can `new` the class directly. Second, you *open one controlled door* — a static accessor that either builds the instance the very first time or hands back the one it already built. The private constructor is the enforcement; the static field is the memory. Miss either half and you no longer have a singleton, just a convention people can break.
+
+Walk a concrete micro-example. A `Logger` writes to one file. The first line of the program calls `Logger.getInstance()`; the static field `instance` is `null`, so the accessor opens `app.log`, constructs the object, stores the reference, and returns it. Twenty modules later, a request handler calls `Logger.getInstance()` again; this time the field is non-null, so no file is reopened — the *same* object with the *same* open file handle comes back. Every module appends to one file in order, exactly the guarantee you wanted. Now imagine two web requests hit `getInstance()` at the same microsecond on the very first call: both threads read `instance == null`, both open the file, both construct a `Logger`. You now have two file handles racing on the same path and one of the two objects silently leaks — this is the single most important failure the pattern has to defend against.
+
+What's actually happening is that you are trading the language's normal "one object per `new`" rule for "one object per class, forever." The static field is process-global lifetime, the private constructor is the lock on the front door, and the accessor is the checkpoint that decides *build-or-return*. Every subtlety in the rest of this lesson — thread safety, serialization, reflection — is just some way that build-or-return checkpoint can be tricked into building twice.
+
 ## visualization
-Picture `class Config { private Config() {...}; private static Config inst; public static Config getInstance(); }`. First call: `inst` is null, the method creates a new `Config`, stores it, returns it. Second call: `inst` exists, just returned. Across the lifetime of the process every caller — UI, background jobs, request handlers — receives the same object reference and sees the same mutable state.
+An access trace of `Config.getInstance()` under concurrency. Each row is one call site. Watch the `inst?` check drive build-or-return, and see rows 3-4 show the race that unsynchronized lazy init allows — two threads both read `null` and both construct, so `ref` differs:
+
+```
+CALL#  CALL SITE            THREAD  inst BEFORE  ACTION            inst AFTER   RETURNED REF
+-----  -------------------  ------  -----------  ----------------  -----------  ------------
+1      main() startup       T-main  null         build Config@A    Config@A     @A
+2      loadDefaults()       T-main  Config@A     return existing   Config@A     @A
+3      request handler      T-1     null*        build Config@B    Config@B     @B   <- RACE
+4      request handler      T-2     null*        build Config@C    Config@C     @C   <- RACE
+       (* both threads read null before either stored -> double init, @B and @C leak)
+
+--- with eager init OR double-checked locking (volatile) ---
+1      class load           T-JVM   -            build Config@A    Config@A     @A
+2      any thread, any time T-*     Config@A     return existing   Config@A     @A
+3      any thread, any time T-*     Config@A     return existing   Config@A     @A   (single ref, no race)
+```
 
 ## bruteForce
 The naive single-threaded version uses a static field with lazy init:
@@ -53,7 +74,11 @@ For thread safety prefer one of these idioms:
 - **Holder class idiom (Java)** — a nested static class is loaded lazily by the classloader, which guarantees one-shot initialization without explicit locks.
 - **Language primitives** — Python module-level objects, Kotlin `object`, JS module-scope constants — all give you a process-wide singleton with zero ceremony.
 
-For testability, treat singletons as one-instance-per-container rather than global. Inject the instance through DI so tests can substitute a fake.
+The invariant every safe idiom protects is *build-exactly-once, publish-safely*. Two distinct hazards hide behind that phrase. The obvious one is the **race** — two threads passing the `null` check together, as rows 3-4 of the trace show. Guarding the whole accessor with a lock fixes the race but taxes every subsequent read with an uncontended mutex; double-checked locking narrows the lock to the first call by re-testing inside the critical section. The subtler hazard is **safe publication**: even after one thread constructs the instance, another thread can observe a *partially constructed* object because the constructor's writes and the field write were reordered. This is why the field must be `volatile` in Java (or an atomic in C++) — `volatile` inserts the memory barrier that guarantees a reader who sees a non-null reference also sees a fully initialized object. Drop the `volatile` and double-checked locking is not merely slower, it is *wrong*.
+
+Step by step, choose the idiom by cost: if construction is cheap and always needed, use **eager init** and skip the whole problem. If construction is expensive or may never happen, use the **holder idiom** in Java (the classloader gives you lazy, one-shot, lock-free init for free) or a plain module-level object in Python/JS where the runtime already guarantees single evaluation. Reach for hand-written double-checked locking only when the language forces you to and lazy init is mandatory.
+
+**When to use** a singleton at all: a genuinely process-unique resource — one log sink, one connection pool, one hardware handle. **When to avoid**: any state you want to swap in tests, vary per request, or reason about locally. For those, treat the type as one-instance-per-container rather than global — inject the instance through DI so tests can substitute a fake and the dependency stays visible in the constructor signature.
 
 ## complexity
 time: O(1) per `getInstance` after initialization; first call pays construction cost

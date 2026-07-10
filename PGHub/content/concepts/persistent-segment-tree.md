@@ -32,9 +32,13 @@ Classic uses:
 - **Functional programming**: persistent data structures are first-class in Clojure, Haskell, Scala.
 
 ## intuition
-A segment tree has O(n) nodes. A point update touches only the O(log n) nodes on the path from root to that leaf. So if you "copy on write" — clone each touched node, leave the rest pointing to old children — the new tree shares all untouched subtrees. Total new memory per update: O(log n) nodes.
+Think of each version as a document that got a tiny edit. If you photocopied the entire document every time you changed one word, you would drown in paper — that is the naive "snapshot the whole tree" approach at O(n) per update. Instead, imagine keeping the original and only writing a small overlay note for the one paragraph that changed, while every other paragraph is quoted by reference from the untouched original. That overlay is exactly what a persistent segment tree does: it is **copy-on-write with structural sharing**.
 
-The "root" of version k is a separate pointer. Querying version k = walk the segment tree starting from root[k].
+A segment tree over n elements has O(n) nodes. A point update touches only the O(log n) nodes on the path from the root down to the affected leaf — nothing off that path changes value. So when you update, you *clone only those path nodes*; each clone keeps one child pointing at the freshly cloned child on the update path, and its other child pointing straight back into the previous version's untouched subtree. Total new memory per update: O(log n) nodes, not O(n).
+
+Concrete micro-example. Start with `A = [0, 0, 0, 0]`, so version 0's tree is all zeros. Now set `A[1] = 5`. The path from root to leaf 1 is root → left-child (covers [0,1]) → its right leaf (index 1) — three nodes. We allocate three brand-new nodes: a new leaf holding 5, a new [0,1] node whose left child still points at version 0's leaf 0 and whose right child is the new leaf 5, and a new root whose right child still points at version 0's entire [2,3] subtree. Everything in [2,3] is shared, zero copies.
+
+What's actually happening: a "version" is nothing more than a separate **root pointer**. `roots[0]` is the all-zeros tree; `roots[1]` is the new root above. Querying version k means walking the tree starting at `roots[k]` and following child pointers — you naturally traverse a mix of that version's fresh nodes and older shared nodes, and you always read the value as it was *at that version*. Old roots are never mutated, so history stays perfectly intact and any past state is one O(log n) walk away.
 
 ## visualization
 ```
@@ -113,6 +117,12 @@ def query(node, lo, hi, l, r):
 ```
 
 **Storing versions**: keep `roots[]` array. `roots[0]` = initial build; `roots[k]` = result of k-th update.
+
+**Why this is correct.** The key invariant is that `update` never mutates any existing node — it only allocates and returns new ones — so every root already stored in `roots[]` still describes the exact tree it did when created. A node's `val` is always the sum of its two children, and this holds for the new nodes because we recompute `Node(new_left.val + node.right.val, ...)` at each step of the ascent, combining the one freshly-updated child with the still-correct sibling from the previous version. Because the sibling subtree is logically identical to before (we only *share* it, never touch it), the new parent's sum is exactly right.
+
+**Step-by-step walk of `update(roots[0], 0, 4, 2, 100)`** on `arr = [1,2,3,4,5]`. We descend targeting index 2. At the root covering [0,4], mid = 2, so 2 ≤ mid — recurse left into [0,2]. There mid = 1, and 2 > mid — recurse right into [2,2]. That is a leaf, so we return a fresh `Node(100)`. Unwinding: the [2,2]'s parent [0,2] rebuilds as `Node(old_left([0,1]=3).val + 100, shared_left, new_leaf)` = 103, sharing the untouched [0,1] subtree. The root rebuilds as `Node(103 + old_right([3,4]=9).val, new_left, shared_right)` = 112, sharing the entire [3,4] subtree. Three new nodes; `roots[0]` still answers 15 for the full range, `roots[1]` answers 112.
+
+**Complexity intuition.** Each update walks one root-to-leaf path of height O(log n), allocating one node per level, so O(log n) time and O(log n) new nodes. Queries are identical to a plain segment tree walk — O(log n) — because sharing is invisible to the reader: a shared child pointer behaves exactly like an owned one. The only tradeoff versus a non-persistent tree is memory (a pointer-chased node per path level, versus a flat array) and worse cache locality.
 
 ## complexity
 - **Build**: O(n) time, O(n) nodes.

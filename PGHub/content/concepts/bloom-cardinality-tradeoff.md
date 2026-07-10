@@ -30,14 +30,41 @@ Bloom filters are everywhere in modern systems — Cassandra and LevelDB use the
 ## intuition
 Think of m as the size of an empty hotel and n as the number of guests who will arrive. Each guest hashes to k rooms and flips a sign on each door. Looking up a name: hash to k rooms, check if all k signs are flipped. If too few rooms exist relative to guests (m too small), every door is flipped and lookups always say "probably yes." If too many rooms exist (m huge), you waste empty wings. The sweet spot is m/n around 10 bits per element for a 1% false-positive rate.
 
+What's actually happening is a race between two forces. Every insert flips k bits toward 1, so the array fills up as n grows. A false positive happens only when an *unseen* key hashes to k positions that some *other* keys already flipped — the more crowded the array, the more likely that collision. So the false-positive rate is entirely governed by the *fraction of bits set*, which depends on m, k, and n together, not on any single one.
+
+Walk a concrete micro-example with real numbers. Take m = 20 bits, k = 3, and insert two keys. Key "cat" hashes to positions {2, 9, 14}; key "dog" hashes to {5, 9, 17}. After both inserts, exactly 5 distinct bits are set (position 9 was shared), so 5/20 = 25% of the array is 1. Now query "fox," which hashes to {2, 17, 11}: bit 11 is still 0, so we return *definitely not* — correct. But query "owl" hashing to {2, 9, 5}: all three were flipped by cat and dog, so we return *probably yes* even though owl was never inserted. That is a false positive, and it arose purely because the array was crowded enough that three unrelated positions all happened to be lit.
+
+Now scale that up. With the optimal k, roughly half the bits end up set at the design load, and the false-positive probability is approximately \((1/2)^k\). At k = 7 that is \((0.5)^7 \approx 0.008\), matching the 1% target for m/n = 10. Pick m/n too small and the "half set" becomes "nearly all set," collapsing every lookup into a yes.
+
 ## visualization
 Plot false-positive rate p versus k for fixed m and n: a U-curve. Bottom of the curve at k* = (m/n) * ln 2. With m/n = 10, k* ≈ 7 and p ≈ 0.008. Drop k to 1 and p jumps to ~0.10. Push k to 20 and p climbs back up because every insert flips so many bits that the array saturates.
+
+The table below fixes m/n = 10 bits per element and sweeps k, showing the fraction of bits set at the design load and the resulting false-positive rate. Note the U-shape: p bottoms out near k = 7, then climbs as extra hashes over-saturate the array.
+
+```
+ k  | fill fraction | approx p    | verdict
+----+---------------+-------------+---------------------
+  1 |     0.095     |   0.095     | too few hashes
+  2 |     0.181     |   0.033     | improving
+  3 |     0.259     |   0.017     | improving
+  5 |     0.394     |   0.009     | near-optimal
+  7 |     0.503     |   0.008     | optimal  k* = 7
+ 10 |     0.632     |   0.012     | over-hashed
+ 14 |     0.753     |   0.024     | saturating
+ 20 |     0.865     |   0.061     | array too full
+```
 
 ## bruteForce
 A hash set: insert keys, look up keys, zero false-positives. Brute force fails on cache-cardinality scale — a hash set of 1 billion 32-byte keys needs 32+ GB just for the keys. A Bloom filter with the same 1 billion keys at 10 bits/element fits in 1.25 GB and gives a 1% false-positive rate. For workloads where false-positives are cheap (one extra disk lookup) and memory is precious, the Bloom filter dominates.
 
 ## optimal
 Pick the false-positive rate p first based on the cost ratio — what is the wasted-work cost of a false-positive versus the saved-work of a true-negative? Then compute m and k from closed-form. Optimal m = -(n * ln p) / (ln 2)^2 bits. Optimal k = (m/n) * ln 2, rounded to the nearest integer. For p = 0.01 and n = 1M, m ≈ 9.6M bits (~1.2 MB), k = 7. For p = 0.001, m ≈ 14.4M bits, k = 10. Doubling memory roughly squares the false-positive rate down.
+
+Where do these formulas come from? After inserting n keys with k hashes into m bits, the probability a given bit is still 0 is \((1 - 1/m)^{kn} \approx e^{-kn/m}\). A false positive requires all k queried bits to be 1, giving \(p \approx (1 - e^{-kn/m})^k\). Minimizing that over k yields the optimal \(k^* = (m/n)\ln 2\), and substituting back gives \(p = (1/2)^{k^*}\) — which is exactly why the closed-form m falls out of \(m = -(n\ln p)/(\ln 2)^2\). The key invariant is that at optimal k, exactly half the bits are set: this is the balance point where adding another hash helps discrimination as much as it hurts by crowding.
+
+Operationally the sizing runs in four steps. (1) Fix p from the cost ratio. (2) Compute m from n and p. (3) Compute k and round to an integer — the U-curve is flat near the bottom, so k = 7 vs 8 barely matters. (4) Allocate the bit array and derive all k indices from two base hashes via Kirsch-Mitzenmacher, so lookups stay cheap.
+
+The tradeoff to internalize: the marginal cost of driving p down is logarithmic in memory. Each additional bit-per-element multiplies p by roughly \(0.6185\), so going from p = 0.01 (9.6 bits) to p = 0.001 (14.4 bits) costs only ~50% more space for a 10x better rate. Memory is generous here; only n growth beyond the design point is punishing, because it pushes the fill fraction past 0.5 and p degrades quadratically.
 
 ## complexity
 time: O(k) per insert and per lookup.

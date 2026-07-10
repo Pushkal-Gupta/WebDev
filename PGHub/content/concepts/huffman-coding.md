@@ -30,7 +30,11 @@ Compression matters everywhere bandwidth and storage cost money. Huffman is the 
 ## intuition
 High-frequency symbols should get short codes; rare ones can afford long codes. Imagine a binary tree where each leaf is a symbol and the path from root to leaf is its code (`0` = left, `1` = right). Prefix-freeness is automatic because no symbol's path can be a prefix of another's. Total cost = `Σ frequency[s] × depth[s]`.
 
+Physically, picture the frequencies as weights hanging from the leaves of a mobile. The cost is the total "torque" — each weight multiplied by how far it dangles from the root. To minimize torque you keep the heavy weights near the top and banish the light ones to the far tips. Huffman builds this mobile from the bottom up: it repeatedly grabs the two lightest hanging pieces and ties them together, so the lightest weights inevitably accumulate the longest strings.
+
 **Greedy step:** the two least-frequent symbols belong at the deepest level — they're the cheapest to push down. Merge them under a new internal node whose frequency is their sum, then repeat with the new node treated as a leaf. After `n - 1` merges, you have a binary tree.
+
+Concrete micro-example with real numbers: frequencies `{a:5, b:9, c:12, d:13, e:16, f:45}`, total 100. The two smallest, a=5 and b=9, merge first into a node of weight 14 sitting one level deeper; because they were smallest, they end up deepest and each carries a 4-bit code. The giant f=45 never gets merged until the final step, so it stays near the root with a 1-bit code. What's actually happening before any formula: every merge commits the two current lightest items to be siblings one level lower, and since a symbol's code length equals how many merges it lived through, the rarest symbols — merged earliest — accrue the longest codes. That single invariant is the whole idea.
 
 A min-heap keyed by frequency makes each merge `O(log n)` → total `O(n log n)`.
 
@@ -46,6 +50,20 @@ Codes (assigning 0/1 by walking the tree): f=0, c=100, d=101, a=1100, b=1101, e=
 
 Total bits = 5·4 + 9·4 + 12·3 + 13·3 + 16·3 + 45·1 = 20 + 36 + 36 + 39 + 48 + 45 = 224 bits. Any fixed-length code on 6 symbols needs 3 bits × 100 frequency = 300 bits — Huffman saves 25%.
 
+Priority-queue merge trace (each row pops the two smallest, pushes their sum):
+
+```
+ step | heap (sorted low->high)           | pop two | new node | running cost
+------+-----------------------------------+---------+----------+-------------
+  1   | 5  9  12 13 16 45                  |  5, 9   |  ab=14   |  +14  = 14
+  2   | 12 13 14 16 45                     | 12,13   |  cd=25   |  +25  = 39
+  3   | 14 16 25 45                        | 14,16   | abe=30   |  +30  = 69
+  4   | 25 30 45                           | 25,30   |cdabe=55  |  +55  =124
+  5   | 45 55                              | 45,55   | root=100 | +100  =224
+------+-----------------------------------+---------+----------+-------------
+sum of all merge weights = 14+25+30+55+100 = 224 bits (== total encoded size)
+```
+
 ## bruteForce
 Generate every prefix-free assignment and compute the cost. Combinatorial — `Cₙ` Catalan number of tree shapes times `n!` symbol-leaf assignments. Useless beyond n=8.
 
@@ -54,7 +72,13 @@ Generate every prefix-free assignment and compute the cost. Combinatorial — `C
 2. Repeat `n - 1` times: pop the two smallest, merge into a new internal node whose frequency is their sum, push back onto the heap.
 3. The last remaining node is the root. Walk it, accumulating bits left-vs-right, to produce per-symbol codes.
 
+The key invariant is that the heap always holds the roots of a forest of optimal subtrees for the symbols merged so far; each merge combines the two lightest roots and never has to be undone, which is why a single greedy pass suffices. Step by step, the merge that combines weights `w1` and `w2` adds exactly `w1 + w2` to the running total cost, because every symbol beneath those two roots gains one bit of depth — so the sum of all merge weights equals the final encoded size. Minimizing that sum by always merging the two smallest available weights is the whole optimization.
+
 **Correctness:** by an exchange argument, swapping any two leaves at different depths can never decrease the cost when the deeper leaf has higher frequency; greedy never makes a wrong commitment.
+
+Fleshing that argument out: in any optimal prefix tree there exist two lowest-frequency symbols that are siblings at maximum depth — if they were not, swapping them toward the deepest sibling pair cannot raise the cost (a lower-frequency leaf placed deeper never increases `Σ frequency × depth`). So there is always an optimal tree agreeing with Huffman's first merge. Replacing those two siblings by a single leaf of weight `w1 + w2` yields a strictly smaller instance whose optimal solution, by induction, is exactly what the remaining merges produce. The base case of one symbol is trivially optimal, closing the proof that the greedy tree is globally optimal.
+
+Complexity intuition: building the heap is `O(n)`, and the loop runs `n - 1` times, each doing two pops and one push at `O(log n)` — so the heap operations dominate at `O(n log n)`. The final tree walk that assigns codes visits each of the `2n - 1` nodes once, `O(n)`, and needs only `O(n)` memory for the forest plus the output codes.
 
 ## complexity
 time: O(n log n) — n insertions and `2(n-1)` heap operations.

@@ -32,6 +32,10 @@ status: published
 - The technique generalizes to weighted operations (different costs per op), affine gaps, etc.
 
 ## intuition
+Picture a grid where the rows are labelled by the prefixes of `a` and the columns by the prefixes of `b`. Every cell `dp[i][j]` is a tiny sub-problem: "given only the first `i` letters of `a` and the first `j` letters of `b`, what is the cheapest way to turn one prefix into the other?" You fill the grid from the top-left corner outward, and the bottom-right corner is the answer for the full strings. What's actually happening is that each cell decides a single character's fate — align it for free, delete it, insert its counterpart, or overwrite it — and inherits the best cost already computed for the smaller prefixes to its top, left, and top-left.
+
+Walk a concrete micro-example. Let `a = "cat"` and `b = "cut"`. Compare them character by character. The first letters `c` and `c` match, so we stay on the diagonal at zero cost: `dp[1][1] = dp[0][0] = 0`. Next, `a[1] = 'a'` versus `b[1] = 'u'` — they differ, so we must pay one operation, and the cheapest neighbour is the diagonal `dp[1][1] = 0`, giving `dp[2][2] = 1` (a single replace, `a` becomes `u`). Finally `t` matches `t`, so we ride the diagonal again for free: `dp[3][3] = dp[2][2] = 1`. The total edit distance is 1, matching the intuition that "cat" and "cut" differ by exactly one substitution. Notice that the diagonal move encodes both "match for free" and "replace for one" — the only difference is whether the current characters are equal.
+
 Build `dp[i][j]` representing min ops to convert `a[:i]` → `b[:j]`.
 
 Base cases:
@@ -72,6 +76,10 @@ Operations to achieve distance 3:
 **Subsequence-based approaches**: longest common subsequence reduces to a related problem, but the operation set differs (LCS allows only insert/delete; edit distance also allows replace). They're related but not identical.
 
 ## optimal
+The optimal method is a bottom-up fill of the full `(m+1) × (n+1)` table, replacing the exponential recursion with a single sweep that visits each cell once. **Why it's correct:** the recurrence is exhaustive — for any pair of prefixes, the optimal edit script must end in exactly one of four moves (match, delete, insert, replace), and each move reduces the problem to a strictly smaller prefix pair whose optimum is already stored. Because the table is filled in increasing `i` and `j`, every neighbour a cell reads (top, left, top-left) is finalized before it is used. This is the key invariant: when `dp[i][j]` is computed, `dp[i-1][j]`, `dp[i][j-1]`, and `dp[i-1][j-1]` already hold true optimal values, so the local `min` is a true global optimum by induction. The base row and column anchor the induction — converting an empty prefix costs exactly as many inserts or deletes as the other prefix has characters.
+
+**The mechanism, step by step:** initialize `dp[i][0] = i` and `dp[0][j] = j`. Then for each cell, if the current characters `a[i-1]` and `b[j-1]` are equal, copy the diagonal `dp[i-1][j-1]` with no added cost; otherwise take `1 + min` of the three neighbours, charging one operation for a delete (from above), an insert (from the left), or a replace (from the diagonal). The bottom-right cell `dp[m][n]` is the answer. **The central tradeoff** is memory versus reconstructability: the full table costs `O(m·n)` space but lets you backtrace the actual operation sequence, while the rolling two-row variant below drops space to `O(min(m, n))` but discards the path. **Complexity intuition:** the two nested loops touch each of the `(m+1)(n+1)` cells exactly once and do `O(1)` work per cell, so the time bound is `O(m·n)` with no hidden factors — there is no re-computation because memoization has been baked into the table order.
+
 **2D DP**:
 ```python
 def edit_distance(a, b):

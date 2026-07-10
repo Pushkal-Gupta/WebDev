@@ -28,20 +28,60 @@ SOLID is a five-letter acronym coined by Robert C. Martin for the most important
 Most production bugs and most slow features land not in fresh code but in code that someone wrote a year ago, forgot, and now has to modify. SOLID minimizes the blast radius of a change: a class with one responsibility is read and modified in one place; an extension that opens a new file rather than editing an old one cannot break existing callers; substituting a subclass cannot surprise the parent's tests. Every legacy codebase that is painful to change violates at least three of these principles — usually all five.
 
 ## intuition
+The reframe that makes all five click: SOLID is really one idea seen from five angles — *isolate the things that change independently, and let them meet only through a stable seam.* A seam is any place you can swap one implementation for another without editing the caller: an interface, an injected dependency, a polymorphic method. Every principle below is a rule about where to put a seam and how to keep it clean.
+
+Walk a concrete story. You inherit an `Order` class that formats invoices, emails customers, writes to the database, and computes tax — 600 lines, one file. A PDF-format request lands. Because formatting and persistence live in the same class, your edit to the formatter risks the save path, and the test for it boots a real database. That single class has *four reasons to change*, and every reason is now entangled with the other three. SOLID untangles them one seam at a time.
+
 - **S** — A class should have one reason to change. If marketing rewrites the invoice format and accounting rewrites the tax engine, those are two reasons; split the class.
 - **O** — Code should be open to extension, closed to modification. Add a new payment provider by writing a new class, not by editing the switch statement.
 - **L** — A subclass must be usable wherever its parent is. If `Square extends Rectangle` breaks `rect.setWidth(5); rect.setHeight(10); assert area == 50`, the hierarchy is wrong.
 - **I** — Many small interfaces beat one fat one. A `Printer` should not be forced to implement `Fax`.
 - **D** — Depend on abstractions, not concretions. High-level policy should not import low-level driver code.
 
+What's actually happening across all five: you are trading a handful of extra type declarations for the ability to change any one behavior in isolation. S decides *what* becomes its own unit; O and L govern *how a unit is extended and subtyped* without breaking callers; I keeps the *seam narrow* so implementers aren't forced to stub methods; D *points the dependency arrow at the abstraction* so the high-level policy never names a concrete driver. Get the seams right and a new feature becomes a new file, not a scar across a dozen old ones.
+
 ## visualization
-Draw a class diagram before refactoring: one giant `Order` class with arrows to PDF, Email, DB, Tax, Audit. After SOLID: `Order` holds data, `InvoiceFormatter` is an interface with `PdfInvoiceFormatter` and `HtmlInvoiceFormatter` implementations, `Notifier` is an interface, `TaxCalculator` is injected. Same behavior, but every arrow now crosses an interface — so any leaf can be swapped or tested independently.
+Each letter maps to a smell you can spot in review and a mechanical fix:
+
+```
+Ltr  Principle              Violation symptom seen in code        Refactor move
+ --  ---------              ------------------------------        -------------
+ S   Single Responsibility  class does format + save + email      extract one collaborator per reason
+ O   Open/Closed            switch(type){...} edited per new case  add subclass; dispatch polymorphically
+ L   Liskov Substitution    override throws NotSupported / no-op    drop inheritance; prefer composition
+ I   Interface Segregation  implementers stub methods they ignore  split fat interface by client need
+ D   Dependency Inversion   high-level module does new DbClient()   depend on interface; inject at root
+ --  ---------              ------------------------------        -------------
+ all= one idea: isolate what changes independently, meet at a stable seam (interface/injection)
+```
+
+Before/after trace on the `Order` god-class from the intuition story:
+
+```
+BEFORE (violates S, O, D)
+  class Order:
+    def total(): ...
+    def to_pdf(): ...              # reason-to-change #2
+    def save(): db = DbClient()    # reason-to-change #3, hard dep
+    def email(): SmtpClient()...   # reason-to-change #4
+
+AFTER (seams added)
+  class Order:            data only, one reason to change
+  InvoiceFormatter(iface) -> {PdfFormatter, HtmlFormatter}   # O: new fmt = new class
+  Repository(iface)       -> injected into InvoiceService     # D: no concrete DbClient
+  service = InvoiceService(formatter=Pdf, repo=SqlRepo)       # wired at composition root
+    render(order) -> formatter.format(order)   # swap Pdf<->Html w/o touching service
+```
 
 ## bruteForce
 The pre-SOLID approach is a "god class": one type that owns persistence, formatting, validation, and notification, with concrete `new` calls for every collaborator. It ships fast and breaks faster. Every new requirement means editing the same monster; every bug fix risks regressing an unrelated feature; tests must spin up the database to verify formatting logic. This is the codebase you inherit and resent.
 
 ## optimal
-Apply SOLID incrementally. Whenever a class grows past ~200 lines or absorbs a second reason to change, extract a collaborator. Whenever a `switch` statement keys on a type tag, replace it with polymorphism (OCP). Whenever a subclass overrides a method to "do nothing" or "throw NotSupported," your hierarchy is violating LSP — prefer composition. Whenever an interface gains a method most implementers stub out, split it (ISP). Whenever a high-level module imports a database driver directly, introduce a repository interface and inject it (DIP). The endgame: small classes, depending on interfaces, wired at a composition root.
+Apply SOLID incrementally, driven by pain rather than prophecy. Whenever a class grows past ~200 lines or absorbs a second reason to change, extract a collaborator. Whenever a `switch` statement keys on a type tag, replace it with polymorphism (OCP). Whenever a subclass overrides a method to "do nothing" or "throw NotSupported," your hierarchy is violating LSP — prefer composition. Whenever an interface gains a method most implementers stub out, split it (ISP). Whenever a high-level module imports a database driver directly, introduce a repository interface and inject it (DIP). The endgame: small classes, depending on interfaces, wired at a composition root.
+
+Why this order and this discipline is correct: the guiding invariant is that **a change should touch exactly the units that own the changed reason, and nothing else.** SRP names the units; the other four keep the seams between them from leaking. If you apply the principles speculatively — an interface for every class before a second implementation exists — you pay the cost (indirection, more files, harder navigation) without the benefit, which is the over-engineering pitfall. So the tradeoff is explicit: each seam buys isolation at the price of indirection, and you only add a seam once a real second implementation, a real test double, or a real second reason-to-change has appeared.
+
+Step by step on a legacy class: (1) list the reasons it changes — each becomes a candidate unit; (2) extract the most volatile reason first, behind an interface; (3) invert the dependency so the original class receives the collaborator instead of constructing it; (4) repeat until each unit changes for one reason; (5) wire the concrete choices in a single composition root (a factory or `main`). The complexity intuition: you are not reducing total code, you are reducing the *fan-out of a single change* from "many files" to "one" — measured in future edit cost, not lines saved today.
 
 ## complexity
 time: not applicable (design principle, not algorithm)

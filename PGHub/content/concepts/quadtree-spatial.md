@@ -30,14 +30,42 @@ Every map app, every ride-share dispatcher, every video-game collision broadphas
 ## intuition
 Imagine a sheet of graph paper with dots scattered on it. If you need "all dots inside this circle", scanning all dots is wasteful. Instead, fold the paper into four quadrants and ask "does the circle even touch this quadrant?" If no, ignore everything inside. If yes, fold that quadrant into four again. Recursion stops when the quadrant is small (low capacity) — then check every dot. You only descend into regions that overlap the query, ignoring up to 75% of the plane at each level.
 
+Geometrically, the tree IS the picture: every node owns an axis-aligned box, and its four children own the four equal sub-boxes you get by slicing at the horizontal and vertical midlines. Descending the tree is literally zooming into one corner of the map. What's actually happening on a query is a box-versus-box test at every node before you ever look at a point — if the query rectangle and the node's box do not overlap, an entire branch (and every point beneath it) is discarded with a single comparison.
+
+Work a concrete micro-example in a 16x16 world with capacity 2. Insert P1(2,2) and P2(3,3): both sit in the root, which now holds 2 points — full but legal. Insert P3(14,14): the root would hold 3, so it SUBDIVIDES into four 8x8 quadrants — SW (0,0)-(8,8), SE, NW, NE (8,8)-(16,16). P1 and P2 fall in SW (2 points, fits); P3 falls in NE. Now insert P4(2,7): it belongs in SW, but SW already holds P1 and P2, so SW itself subdivides into four 4x4 boxes. P1(2,2) and P2(3,3) drop into SW-SW (0,0)-(4,4); P4(2,7) drops into SW-NW (0,4)-(4,8). Answer the range query rect (0,0)-(5,5): at the root it overlaps, so descend; NE's box (8,8)-(16,16) is disjoint from the query, so P3 is pruned with no point comparison at all; SW overlaps, descend; SW-SW overlaps and yields P1, P2; SW-NW overlaps the box but its lone point P4 is at (2,7), outside the query rectangle, so it is rejected on the point test. Four points in the world, and the query touched a handful of boxes instead of scanning everything — that pruning, before any formula, is the entire idea.
+
 ## visualization
 Region (0,0)-(16,16), capacity=2. Insert points P1(2,2), P2(3,3), P3(14,14): root holds all three (over capacity), subdivide into 4 quadrants of size 8. P1,P2 land in SW (0,0)-(8,8) — still 2 points, fits. P3 lands in NE (8,8)-(16,16). Insert P4(2,7): SW now has 3, subdivide SW into 4 quadrants of size 4. P1,P2 in SW-SW (0,0)-(4,4); P4 in SW-NW (0,4)-(4,8). Range query "rect (0,0)-(5,5)" descends root → SW (overlaps) → SW-SW (overlaps, returns P1, P2) → SW-NW (overlaps, P4 is at (2,7) → outside query, skip). NE pruned entirely.
+
+The table traces each insert: which node receives the point, whether that node overflows (exceeds capacity 2), and the resulting cell contents. Cell notation: node[box] = {points}. Root box is (0,0)-(16,16).
+
+```
+step  insert    routed to node[box]         overflow?  action        cell contents after
+----  --------  --------------------------  ---------  ------------  --------------------------
+ 1    P1(2,2)   root[(0,0)-(16,16)]         no         store         root = {P1}
+ 2    P2(3,3)   root[(0,0)-(16,16)]         yes(2)     store (full)  root = {P1,P2}
+ 3    P3(14,14) root -> subdivide into 4    n/a        split root    root -> SW,SE,NW,NE
+                  P1,P2 -> SW[(0,0)-(8,8)]                            SW={P1,P2}  NE={}
+                  P3    -> NE[(8,8)-(16,16)]                          NE={P3}
+ 4    P4(2,7)   SW[(0,0)-(8,8)]             yes(3)     split SW      SW -> SWsw,SWse,SWnw,SWne
+                  P1,P2 -> SWsw[(0,0)-(4,4)]                          SWsw={P1,P2}
+                  P4    -> SWnw[(0,4)-(4,8)]                          SWnw={P4}
+----  --------  --------------------------  ---------  ------------  --------------------------
+query rect(0,0)-(5,5): root overlap -> descend; NE box disjoint -> PRUNE (skip P3);
+  SWsw overlap -> emit P1,P2; SWnw box overlaps but P4(2,7) fails point test -> skip.
+```
 
 ## bruteForce
 Store points in a flat array. For range query: scan all n points and test inclusion — O(n). For nearest neighbor: scan all n, track minimum — O(n). Simple, cache-friendly, and actually fastest when n < 100. But for n = 1 M and 1000 queries per second, you are looking at a billion comparisons per second of doing nothing useful. The quadtree converts that into O(log n) amortized on uniform data.
 
 ## optimal
 **Point quadtree** stores one point per internal node; **region quadtree** (more common) puts all points in leaves with a fixed capacity. Insert: walk down to the leaf whose region contains the point; if leaf is over capacity, **subdivide** into 4 child quadrants and redistribute. **Range query (rectangle R)**: at each node, if R is disjoint from the node's bounding box, prune. If R fully contains the box, return all points beneath. Otherwise recurse into children. **Nearest-neighbor**: best-first search using a min-heap keyed by box-to-target distance — pop the closest box, descend, update best-so-far, prune any box whose minimum distance exceeds best. Skewed distributions degrade quadtrees (deep narrow branches) — switch to k-d tree or R-tree when this matters.
+
+The structural INVARIANT that makes all of this correct is a spatial partition: a node's four child boxes are disjoint and their union is exactly the parent box, and every point stored under a node lies inside that node's box. Because the partition is exhaustive and non-overlapping, each point has exactly one leaf that can legally hold it, so insert never has to choose between siblings and query never double-counts.
+
+WHY range query is correct, step by step: the disjoint-prune is sound because if R does not intersect a node's box, then by the containment invariant NONE of the points beneath that node can lie in R — discarding the whole subtree loses nothing. The full-contain shortcut is sound for the mirror reason: if R covers the box, every point beneath is guaranteed inside R and can be emitted without per-point tests. Only "partial overlap" nodes need recursion, and the recursion terminates at leaves where you test the handful of stored points directly. The nearest-neighbor search is correct because a node's box-to-target distance is a LOWER BOUND on the distance to any point inside it; once the best-so-far point is closer than the nearest unexplored box, no unopened box can improve the answer, so pruning it is safe — this is the same admissibility argument as A* with a distance heuristic.
+
+The complexity intuition: on a uniform distribution each subdivision level quarters the area while the point density stays bounded, so the tree depth is `O(log n)` and each of insert, point-in-box descent, and NN reaches a leaf in that many steps. A range query returning `k` points costs `O(log n + k)` because the prune rule confines the visited nodes to those whose boxes actually straddle the query boundary plus the leaves inside it. The worst case degrades to `O(n)` when points coincide or cluster into one tiny cell, because subdivision keeps splitting the same crowded corner without separating the points — which is exactly why a minimum cell size or a switch to a k-d tree is the standard mitigation.
 
 ## complexity
 time: O(log n) average insert; O(log n + k) range query returning k results; O(log n) average NN on uniform data

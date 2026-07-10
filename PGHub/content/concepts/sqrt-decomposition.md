@@ -40,6 +40,10 @@ Group consecutive elements into blocks of size B ≈ √n. For each block, cache
 
 Total = O(B + n/B). Minimized at B = √n giving O(√n).
 
+Picture the array as a **ruler with marks every B units**. Any interval you point at either sits between two marks (a tiny scan) or swallows whole labeled segments in its middle — and for those segments you already wrote the answer on the ruler, so you read it off instead of re-measuring. The two frayed ends are the only place you pay per-element; everything in between is a single glance per block. The reason √n is the sweet spot is a balance of two opposing costs that pull against each other: make blocks bigger and the frayed ends get longer (up to B elements each), make blocks smaller and there are more of them to glance at (up to n/B). One term grows as you shrink the other, and `B + n/B` bottoms out exactly when `B = n/B`, i.e. `B = √n`.
+
+What's actually happening: you trade a little precomputed memory for the ability to skip over long runs of the array. Walk through `arr = [3,1,4,1,5,9,2,6,5,3]` with `B = 3`, so the block sums are `[8, 15, 13, 3]`. Ask for `sum(2, 7)`. The left end, index 2, sits inside block 0 but only index 2 is in range, so scan it directly: `arr[2] = 4`. The next stretch, indices 3..5, is exactly block 1 in full, so take the cached `15` in one read instead of adding `1+5+9`. The right end, indices 6..7, is a partial slice of block 2, so scan those two: `arr[6] + arr[7] = 2 + 6 = 8`. Total `4 + 15 + 8 = 27`, reached in roughly six touches rather than six array reads. A point update stays cheap too: change `arr[5]` and you only fix its one block sum by the delta, never rebuilding anything else.
+
 ## visualization
 ```
 arr = [3, 1, 4, 1, 5, 9, 2, 6, 5, 3]  (n = 10, B ≈ 3)
@@ -88,6 +92,10 @@ def point_update(idx, val, arr, sums, B):
 ```
 
 For aggregates that aren't easily summed (min, max), keep the same block structure but recompute the block aggregate from scratch on update — still O(B) per update.
+
+**Why it's correct.** The key invariant is that `blocks[b]` always equals the aggregate of exactly the elements in block `b`, and every array index belongs to precisely one block. A range query then partitions `[l, r]` into three disjoint pieces — a partial prefix inside `bl`, a run of complete blocks `bl+1 .. br-1`, and a partial suffix inside `br` — that together cover `[l, r]` with no gap and no overlap. Because the pieces are disjoint and exhaustive, summing (or min/max-combining) their contributions reproduces the true range aggregate. The `bl == br` special case exists because when both endpoints fall in the same block there is no complete block between them; scanning `l..r` directly is both correct and cheaper than trying to peel prefix and suffix off the same block. Updates preserve the invariant by construction: `point_update` adjusts the owning block's cached value by exactly `val - arr[idx]` and then writes the new element, so the cache and the array never drift apart.
+
+**The mechanism, step by step.** Compute `bl = l/B` and `br = r/B`. If they match, loop `l..r` and return. Otherwise scan `l` up to the end of block `bl`, add each full middle block's cached aggregate, then scan from the start of block `br` down to `r`. **Complexity intuition:** the two end scans touch at most `B - 1` elements apiece, and the middle loop iterates over at most `n/B` blocks, so total work is `O(B + n/B)`; substituting `B = √n` collapses both terms to `O(√n)`, and the same `O(B)` bound governs an update because at most one block is rebuilt. The **central tradeoff** against a segment tree is asymptotics for constants: `√n` grows faster than `log n`, but the flat array of block sums has near-perfect cache locality and no recursion or pointer overhead, so for `n` up to roughly `10^6` the simpler structure frequently wins on wall-clock time.
 
 **Mo's algorithm** (offline range queries) is sqrt decomposition + clever query reordering: sort queries by (block of l, r) so adjacent queries move l, r by small amounts. Total O((n + q) √n).
 

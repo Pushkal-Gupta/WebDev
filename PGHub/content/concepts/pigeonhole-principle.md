@@ -34,7 +34,11 @@ The **pigeonhole principle**: if N+1 pigeons go into N boxes, at least one box h
 ## intuition
 "You can't put 11 socks into 10 drawers without doubling up." That's it. The skill is **spotting when to apply it** — what are the items, what are the boxes, and why is items > boxes?
 
+What's actually happening is a counting contradiction, not a construction. You never build the collision; you argue it *must* exist by comparing two totals. If the number of items strictly exceeds the number of categories they fall into, then the map that sends each item to its category cannot be injective — some category is reused. The entire craft is choosing that map: decide what each item maps to (its "box") so that there are provably fewer boxes than items *and* two items sharing a box is exactly the property you set out to prove exists.
+
 Generalized form: among any sequence of n^2 + 1 distinct numbers, there's an increasing or decreasing subsequence of length n+1 (Erdős-Szekeres). Pigeonhole on (longest-increasing-ending-at-i, longest-decreasing-ending-at-i) pairs.
+
+Worked micro-example with real numbers. Claim: among any 5 integers, some two have a difference divisible by 4. The boxes are the four remainders mod 4: `{0, 1, 2, 3}`. Take the concrete set `{7, 12, 18, 23, 30}` and reduce each mod 4 → `{3, 0, 2, 3, 2}`. Five items, four boxes, so by pigeonhole a box repeats — here `3` appears for both 7 and 23, and `2` for both 18 and 30. Pick either colliding pair: `23 - 7 = 16` is divisible by 4, and `30 - 18 = 12` is too. Notice the argument guaranteed a collision *before* we looked at the actual numbers; reducing mod 4 merely revealed which pair. That is the pattern every pigeonhole proof follows — define the boxes as an equivalence ("same remainder"), count that items outnumber boxes, then read off the forced coincidence as the thing you needed.
 
 ## visualization
 ```
@@ -75,6 +79,10 @@ def find_div_n_subarray(a):
         if s in pref: return (pref[s] + 1, i)
         pref[s] = i
 ```
+
+Read the two halves of this example as the general recipe. The *proof* half is pure pigeonhole: there are n+1 prefix sums `S_0..S_n` but only n residue classes mod n, so two prefix sums must share a residue — and the segment strictly between those two indices has a sum equal to their difference, hence ≡ 0 mod n. Nothing here tells you *which* pair collides; it only certifies that one exists.
+
+The *construction* half turns that certificate into an O(n) algorithm by making the pigeonhole box explicit: a hashmap keyed by residue. Scan the prefixes left to right, and the first time a residue reappears you have found the two indices the proof promised — return the subarray between them. This "prove existence, then build the witness with a hashmap of residues" template recurs everywhere: cycle detection, zero-sum subarrays, the birthday-collision search, and de-duplication all use the same move. Complexity intuition: the proof itself is O(1) reasoning once you have named the boxes, and the derived algorithm is O(n) time with O(n) space for the residue map — a single pass, because the pigeonhole guarantee means you never need to backtrack or re-examine an earlier prefix. The payoff is exactly this: it converts a potential O(2^n) "try all subarrays" search into a linear scan by proving in advance that the scan cannot fail.
 
 ## complexity
 - **Reasoning**: O(1) to apply once you've spotted the boxes.

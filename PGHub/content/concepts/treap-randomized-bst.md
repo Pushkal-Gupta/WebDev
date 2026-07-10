@@ -28,7 +28,11 @@ A treap is a binary tree where each node carries two values: a search **key** an
 Red-black and AVL trees are correct, fast, and a nightmare to implement under time pressure: rotations have a dozen cases and a single missed flag corrupts the structure silently. Treaps reduce the entire balancing logic to two primitives — **split** and **merge** — that compose naturally and are ~30 lines each. They are the go-to ordered set in competitive programming and underpin implicit-key variants used for sequence operations (range reverse, range sum, persistent versions).
 
 ## intuition
+A treap layers two orderings on the same nodes at once. Read it left-to-right and the keys are sorted — that's the BST view, the thing that makes search work. Read it top-to-bottom and the priorities decrease — that's the heap view, the thing that keeps it balanced. Every node satisfies both simultaneously, and the magic is that these two constraints together pin down *exactly one* shape for a given set of (key, priority) pairs. Give each key a random lottery ticket for its priority and the tree's shape becomes a random variable you control through the RNG, not one the adversary controls by choosing which keys to feed you.
+
 If you take any BST and assign random priorities, then rotate to enforce the max-heap property, the result is unique given the priorities. The unique-ness matters: the structure depends only on the priorities, not on insertion order. Random priorities therefore make the tree behave as if the keys had been inserted in random order — which is the textbook setting for expected O(log n) BST height. Treaps trade a small constant factor for dramatically simpler code.
+
+See why that defuses the worst case. Insert the keys `1, 2, 3, 4` in sorted order. A plain BST turns this into a degenerate chain of height 4 — every insert lands as the right child of the last. Now attach random priorities, say `1->10, 2->80, 3->40, 4->20`. The heap rule forces the highest priority, key 2, to the root; key 1 goes to its left, and keys 3 and 4 hang off the right with 3 (priority 40) above 4 (priority 20). Height drops to 3, and the sorted-insert catastrophe is gone. What's actually happening: because the root is always whichever key drew the top priority — a uniformly random one — the tree recursively splits at random pivots, which is provably the same process as inserting the keys in random order. Random pivots are exactly what makes quicksort and randomized BSTs O(log n) in expectation; the priorities smuggle that randomness in without ever reordering the actual inputs.
 
 ## visualization
 ```
@@ -98,6 +102,10 @@ erase(root, key):
     _, R = split(M, key)         # M's left half is the deletion target, dropped
     return merge(L, R)
 ```
+Everything reduces to `split` and `merge`, and their correctness is worth internalizing. `split(t, k)` returns two treaps `(L, R)` where `L` holds every key ≤ k and `R` holds every key > k, *and both remain valid treaps*. It works because when `t.key <= k` the whole left subtree and `t` belong in `L`, so it recurses only into the right subtree and stitches the returned left part back as `t.right` — the heap order is untouched because `t` never changes parent. `merge(L, R)` assumes every key in `L` is smaller than every key in `R`; it keeps whichever root has the higher priority on top and recurses into the appropriate side, which preserves both the BST order (guaranteed by the precondition) and the heap order (guaranteed by always choosing the larger priority). Insert is then just "split at the key, merge the new node in between", and erase is "split out the single-key slice and merge the two survivors" — no rotation cases, no rebalancing bookkeeping.
+
+Complexity intuition: both primitives descend a single root-to-leaf path, so each costs O(height). Because priorities are uniformly random, the expected height is O(log n) — the same analysis as a randomly-built BST — and the probability of height exceeding 4·log n falls below 1/n^2, so "expected" is effectively a hard bound for realistic n. That is the trade: a hair more constant-factor work per operation, in exchange for two ~15-line functions instead of red-black's dozen rotation cases.
+
 With implicit keys (use subtree size as the "key"), the same two primitives give O(log n) array splice, reverse-range, and persistent versions.
 
 ## complexity

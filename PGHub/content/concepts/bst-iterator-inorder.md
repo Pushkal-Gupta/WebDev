@@ -32,9 +32,15 @@ Recursive in-order does three things at each node: recurse left, visit, recurse 
 
 > The stack always contains the path of left-descendants down from the next node to be returned.
 
+Geometrically, picture the tree drawn on paper and imagine sliding a vertical line left-to-right across it. In-order simply reads nodes in the left-to-right order their x-coordinates fall. The stack is nothing more than a bookmark of where that sweep line currently sits: it records the chain of parents whose right subtrees the sweep has not yet entered. The top of the stack is always the next node the line will cross, and everything below it is "we will come back up to you later."
+
+Think of it another way — the stack is the frozen call-stack of the recursive walk, paused at exactly the moment it is about to print a node. Instead of letting recursion run to completion, we hand-hold that suspended state and resume it one `visit` at a time.
+
 When we ask for `next()`:
 1. Pop the top of the stack — that is the smallest unvisited node.
 2. If it has a right child, push the entire left spine of that right subtree.
+
+A concrete micro-example: take the tiny BST with root 5, left child 3, right child 8. The constructor pushes the left spine from 5, so the stack becomes `[5, 3]`. First `next()` pops 3 (no right child), returns 3, stack is `[5]`. Second `next()` pops 5, sees right child 8, pushes the left spine of 8 (just `[8]`), returns 5, stack is `[8]`. Third `next()` pops 8, returns 8, stack empties. The keys stream out as 3, 5, 8 — sorted — and the stack never held more than 2 nodes.
 
 Step 2 is the only non-trivial work, and the total cost over n calls is O(n) — every node is pushed and popped exactly once. So amortized cost per `next()` is O(1), even though a single call may push h nodes.
 
@@ -105,6 +111,20 @@ Snapshot 4 — memory profile compared to recursive walk:
        iterator (this):       O(h) stack, output streamed -> O(1) per call
 ```
 
+Full stack-state trace for the tree above (`7 / 3 15 // 1 5 _ 20 /// _ _ _ _ _ _ 17 _`), one row per operation:
+```
+   op         action                          stack after    returned  hasNext
+   -------    ----------------------------    -----------    --------  -------
+   init       push left spine of 7            [7, 3, 1]      -         true
+   next()     pop 1, no right child           [7, 3]         1         true
+   next()     pop 3, push spine of 5          [7, 5]         3         true
+   next()     pop 5, no right child           [7]            5         true
+   next()     pop 7, push spine of 15         [15]           7         true
+   next()     pop 15, push spine of 20        [20, 17]       15        true
+   next()     pop 17, no right child          [20]           17        true
+   next()     pop 20, no right child          []             20        false
+```
+
 ## bruteForce
 Materialize the full in-order list once and serve it from an index pointer. Time per `next()` is O(1) but total memory is O(n), defeating the point of streaming. For a BST with millions of keys (or one merged from external storage), this is unacceptable. The stack-based iterator gets O(h) memory — for a balanced tree that is O(log n).
 
@@ -115,7 +135,11 @@ Materialize the full in-order list once and serve it from an index pointer. Time
 
 **hasNext():** return `not stack.empty()`.
 
-The amortized argument: every node is pushed onto the stack at most once and popped at most once. n calls to `next()` therefore do O(n) total push/pop work, giving O(1) per call on average. The worst-case single call is O(h) — a long left spine push — but that is paid back over the following pops.
+**Why it is correct.** The whole design rests on a single loop invariant maintained after every operation: *the stack holds exactly the nodes on the left spine descending from the next node to be returned, top-most being that next node.* The constructor establishes this by pushing root, root.left, root.left.left, and so on until it hits a null — the deepest, smallest key ends on top. Each `next()` must both hand back that smallest node and re-establish the invariant for whatever the new smallest unvisited node is. When we pop node `x`, its left subtree is already fully consumed (it was pushed before `x` and popped earlier), so the next-smallest key is the leftmost node of `x`'s right subtree — precisely the left spine we now push. If `x` has no right child, the next-smallest is `x`'s parent, which is already sitting just beneath `x` on the stack, so we push nothing and the invariant holds automatically.
+
+**Step-by-step.** Start by draining the root's left spine onto the stack. Repeatedly pop the top as the answer; branch on whether it has a right child; if so, drain that right child's left spine; report `hasNext` as "stack nonempty."
+
+**Complexity intuition.** A single `next()` can push up to h nodes, so the naive per-call bound is O(h). But amortize across all n calls: every node is pushed exactly once (either by the constructor or by the one `next()` that consumes its parent) and popped exactly once. Total push/pop work over the full traversal is therefore O(n), giving O(1) amortized per call, with the occasional O(h) spike paid back by the cheap O(1) pops that follow it.
 
 ## complexity
 time: O(1) amortized per next(); O(h) constructor; O(n) total across all calls.

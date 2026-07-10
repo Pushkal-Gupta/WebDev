@@ -67,6 +67,7 @@ const ContestDetail = lazy(() => import('./components/contests/ContestDetail'));
 const LcProblemsBrowser = lazy(() => import('./components/compete/LcProblemsBrowser'));
 const LcProblemDetail = lazy(() => import('./components/compete/LcProblemDetail'));
 const LcContestList = lazy(() => import('./components/compete/LcContestList'));
+const LeetCodeAnalytics = lazy(() => import('./components/contests/LeetCodeAnalytics'));
 const LcHub = lazy(() => import('./components/compete/LcHub'));
 const CompetitionsSection = lazy(() => import('./components/compete/CompetitionsSection'));
 const HackathonsSection = lazy(() => import('./components/compete/HackathonsSection'));
@@ -328,6 +329,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/compete/leetcode/problems" element={<LcProblemsBrowser />} />
           <Route path="/compete/leetcode/problems/:slug" element={<LcProblemDetail />} />
           <Route path="/compete/leetcode/contests" element={<LcContestList />} />
+          <Route path="/compete/leetcode/contests/:slug/analytics" element={<LeetCodeAnalytics />} />
           <Route path="/compete/leetcode/llms" element={<LcLlmBenchmark />} />
           <Route path="/compete/gsoc" element={<GsocExplorer />} />
           <Route path="/compete/kaggle" element={<KaggleCompetitions />} />

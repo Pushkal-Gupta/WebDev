@@ -33,11 +33,15 @@ This is the standard pattern for **reliable event-driven microservices**:
 Without it: dual-write inconsistency. With it: at-least-once delivery + idempotency on consumers gives effectively-exactly-once semantics.
 
 ## intuition
+The reframe: stop trying to keep two different systems in sync at the same instant, because you can't. A database commit and a Kafka publish share no transaction, so any moment between them is a window where one happened and the other didn't. Instead, make the *intent* to publish part of the same durable write as the business change, then let a follow-up worker turn intent into an actual message. It's the difference between mailing a letter yourself — you might drop it — and dropping it into a locked outbox that a postal worker empties on a schedule. The letter is safe the instant it's in the box.
+
 Two writes — `business_table` + `outbox_table` — happen inside ONE DB transaction. The transaction's ACID guarantee makes them inseparable: either both succeed or neither does.
 
 A separate process (the **relay** or **CDC**) tails the outbox table, publishes each row's event to Kafka/RabbitMQ/SQS, and marks it as `published_at = now()`.
 
 If the relay crashes after publishing but before marking → the event is published twice on restart. Consumers must be idempotent.
+
+Walk one withdrawal through it. A user withdraws 100: inside a single transaction the app runs `UPDATE accounts SET balance = balance - 100` AND inserts an `outbox` row for the `Withdrawal` event with `published_at = NULL`. COMMIT makes both durable together — there is no state where the balance dropped but the event row is missing. Seconds later the relay wakes, sees that unpublished row, produces it to Kafka, and stamps `published_at = now()`. Now suppose the relay dies right after Kafka accepts the message but before the UPDATE lands: on restart it sees `published_at` still NULL, republishes, and the consumer receives the withdrawal twice. That is exactly why the guarantee is *at-least-once*, not exactly-once — the outbox never loses an event, so the only remaining job is teaching consumers to ignore duplicates (dedupe on the event id).
 
 ## visualization
 ```
@@ -108,6 +112,12 @@ def relay_loop():
 `FOR UPDATE SKIP LOCKED` lets multiple relay workers run in parallel without stepping on each other.
 
 **Pruning**: a separate periodic job deletes `WHERE published_at < now() - INTERVAL '7 days'` to keep the outbox small.
+
+**Why it's correct.** The atomicity comes entirely from the database: the business UPDATE and the outbox INSERT share one transaction, so a crash either rolls both back or commits both — there is no partial state where the balance changed but no event was recorded. The relay then converts a committed row into a broker message; if it crashes mid-flight, the row is simply still `published_at IS NULL` and gets retried. Nothing is ever silently dropped.
+
+**Key invariant / tradeoff.** Invariant: every committed business change has exactly one matching unpublished outbox row until the relay confirms delivery. The tradeoff is duplicates over losses — the relay guarantees *at-least-once*, so a message may be produced twice (publish succeeded, the `published_at` UPDATE didn't). You accept possible duplicates and push exactness onto idempotent consumers rather than risk losing events, because a lost event is unrecoverable while a duplicate is merely filtered.
+
+**Step-by-step.** (1) The app opens a transaction, writes the business table, inserts the outbox row, and commits. (2) The relay polls `WHERE published_at IS NULL ... FOR UPDATE SKIP LOCKED` so parallel workers claim disjoint rows. (3) For each row it publishes to the broker, then stamps `published_at = now()`. (4) A pruning job deletes long-published rows. **Complexity intuition.** Write cost is one extra INSERT (O(1)); the partial index on unpublished rows keeps the relay's poll proportional to the backlog, not the whole table; end-to-end latency is the poll interval (1–5 s), or milliseconds if you swap polling for CDC reading the WAL directly.
 
 ## complexity
 - **Per write**: +1 DB insert (small overhead).

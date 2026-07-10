@@ -36,7 +36,11 @@ If you can phrase a problem as "for each node v, compute f(v) using f(children),
 ## intuition
 Pick a root. For each leaf, the base case is trivial. For each internal node, combine the answers from its children. A post-order DFS naturally orders the recursion correctly.
 
-For **tree rerooting**, you do TWO DFS passes: the first computes the subtree answer rooted at the conventional root; the second propagates the "rest of the tree" contribution down to each child, allowing answers for every node in O(n) total.
+Think of the tree as a nested set of sealed boxes: each subtree is a box, and a parent box contains its children boxes plus one loose item (the node itself). What's actually happening is that DFS opens the smallest boxes first, writes a short summary sticker on each one — "the best answer achievable using only what's inside me" — and passes those stickers up. A parent never re-inspects the contents of a child; it only reads the sticker. That is the whole reason the work is linear: each box is summarized exactly once, so the total effort equals the number of boxes, which is n.
+
+Walk a concrete micro-example for largest independent set. Take a path 0-1-2 (0 is root, 1 its child, 2 the grandchild). Leaf 2 returns `(take=1, skip=0)`. Node 1 combines its only child: `take = 1 + skip(2) = 1`, `skip = max(take(2), skip(2)) = 1`. Node 0 combines child 1: `take = 1 + skip(1) = 1 + 1 = 2`, `skip = max(take(1), skip(1)) = max(1, 1) = 1`. The answer is `max(2, 1) = 2` — pick nodes 0 and 2, skipping the middle. Notice each node used only the two-number summary from its child, never re-descended. That is optimal substructure made physical.
+
+For **tree rerooting**, you do TWO DFS passes: the first computes the subtree answer rooted at the conventional root; the second propagates the "rest of the tree" contribution down to each child, allowing answers for every node in O(n) total. The second pass reuses the parent's already-finished answer minus the current child's contribution, so no subtree is recomputed from scratch.
 
 ## visualization
 ```
@@ -56,6 +60,10 @@ answer = max(dp[root][0], dp[root][1])
 For "max IS in tree," try all 2^n subsets — O(2^n · n). Useless beyond n = 25. Tree DP gives O(n).
 
 ## optimal
+The optimal method is a single post-order DFS that returns a small fixed-size summary per node. Correctness rests on one invariant: when `dfs(v)` returns, the values it hands back describe the best answer achievable within v's subtree, and — critically — they were computed using only the completed answers of v's children. Because the recurrence for v depends on nothing outside v's subtree, the choices made lower down never need revisiting once summarized. That is the optimal-substructure property that DP requires, and the post-order visit order is exactly what guarantees every child summary is ready before the parent reads it.
+
+The central tradeoff is state size versus generality. A richer per-node state (take/skip, two longest paths, a full capacity vector for knapsack-on-tree) captures more constraints but costs more memory and per-node work; the discipline is to keep the state just large enough that a parent can reconstruct its own answer from children summaries alone. If the parent would need to know internal structure of a child beyond its summary, the state is too thin.
+
 **Subtree DP**:
 ```
 def dfs(v, parent):
@@ -70,6 +78,8 @@ def dfs(v, parent):
 
 dfs(root, -1)
 ```
+
+Step through the mechanism: `take` starts at 1 (v itself is chosen) and each child contributes its `skip` value, because choosing v forbids choosing an adjacent child. `skip` starts at 0 (v not chosen) and each child contributes `max(take, skip)` — with v free, each child independently picks its own better option. The two accumulations run in lockstep over the child loop, so the node finishes in time proportional to its number of children. Summed over the tree, that is one unit of work per edge, which is why the bound is O(n): each of the n-1 edges is traversed exactly once downward and once on return, and each node's summary is O(1) to assemble.
 
 **Tree rerooting**:
 1. DFS 1 (post-order): compute `down[v]` = the answer if v's subtree were the entire tree.

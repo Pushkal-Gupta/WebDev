@@ -11,6 +11,30 @@ const LEVEL_LABELS = [
   'Pseudocode',
 ];
 
+// Hints are authored with a mix of markdown (`code`, **bold**) and inline HTML
+// (<code>, <sup>, <sub>). Render both as real elements instead of leaking raw tags.
+function renderHint(text) {
+  if (typeof text !== 'string' || !text) return text;
+  let s = text
+    .replace(/<sup>(.*?)<\/sup>/gi, '^$1')
+    .replace(/<sub>(.*?)<\/sub>/gi, '_$1')
+    .replace(/<br\s*\/?>/gi, ' ')
+    .replace(/<\/?(?:b|strong)\s*>/gi, '**')
+    .replace(/<\/?(?:i|em)\s*>/gi, '*');
+  const out = [];
+  const re = /<code>([\s\S]*?)<\/code>|`([^`]+)`|\*\*([^*]+)\*\*/g;
+  let last = 0, m, k = 0;
+  const clean = (t) => t.replace(/<\/?[a-z][^>]*>/gi, '');
+  while ((m = re.exec(s)) !== null) {
+    if (m.index > last) out.push(clean(s.slice(last, m.index)));
+    if (m[1] !== undefined || m[2] !== undefined) out.push(<code key={k++} className="hint-code">{m[1] ?? m[2]}</code>);
+    else out.push(<strong key={k++}>{m[3]}</strong>);
+    last = re.lastIndex;
+  }
+  if (last < s.length) out.push(clean(s.slice(last)));
+  return out;
+}
+
 export default function HintsPanel({ hints = [], problemId, problemName, problemDescription, code, onRevealCountChange }) {
   const storageKey = problemId ? `pgcode_hints_${problemId}` : null;
   const aiKey = problemId ? `pgcode_aihint_${problemId}` : null;
@@ -105,7 +129,7 @@ export default function HintsPanel({ hints = [], problemId, problemName, problem
                 </span>
               </div>
               {isShown ? (
-                <p className="hints-item-body">{h}</p>
+                <p className="hints-item-body">{renderHint(h)}</p>
               ) : (
                 <button
                   className="hints-reveal-btn"

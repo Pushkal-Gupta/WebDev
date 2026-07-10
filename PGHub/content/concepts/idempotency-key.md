@@ -34,12 +34,16 @@ This is the canonical safe-retry pattern. Every mature payment, messaging, and o
 Without idempotency keys, every transient network error becomes a money-losing bug.
 
 ## intuition
+The core reframe: an idempotency key is a *memoization cache for side effects*. Pure functions are trivially safe to retry — call `sqrt(16)` twice and nothing breaks. The danger is impure operations, where the second call charges a second card or ships a second order. The key restores purity artificially: it names the *logical operation* (not the bytes on the wire), and the server promises "for a given name, the effect happens at most once, and every caller carrying that name sees the same recorded result." A retry becomes a cache hit instead of a re-execution.
+
 1. Client generates a UUID (or hash of the request body + timestamp).
 2. Client sends `POST /charges` with header `Idempotency-Key: <uuid>`.
 3. Server looks up the key. If found → return the cached response (no side effect). If not → execute the operation atomically and cache the (key, response) pair before returning.
 4. Network retry: client re-sends with the same key. Server returns the cached response.
 
 The cache typically has a TTL (24 hours, 30 days) — long enough to span retry windows.
+
+Trace one concrete failure. A phone app POSTs a $100 charge with `Idempotency-Key: 9f3a`. The server charges the card, records `(9f3a -> 200, {charge_id: ch_xyz})`, and begins sending the response — but the user's train enters a tunnel and the TCP connection drops before the 200 arrives. The app, seeing no response, retries the *exact same* request with the *same* key `9f3a`. This time the server's lookup hits: it returns the stored `200 {charge_id: ch_xyz}` verbatim and never touches the card again. The customer is charged once, the app got its confirmation, and neither side had to reason about whether the first attempt "really" went through. Contrast a fresh UUID per attempt: the retry would carry `7b1c`, miss the cache, and charge a second $100 — which is exactly why the key must be generated once per logical operation and reused across every retry of it, never regenerated on each send.
 
 ## visualization
 ```
@@ -107,6 +111,10 @@ def handle_request(key, user_id, body):
 ```
 
 **Cleanup**: scheduled job `DELETE FROM idempotency_keys WHERE expires_at < now()`.
+
+The load-bearing part of this design is the atomic claim, not the cache read. Two retries can race in the same millisecond, so the check-then-execute step must be indivisible: the server INSERTs the key with `status='processing'` under the PRIMARY KEY constraint *before* performing the operation, so exactly one of the racing requests wins the insert while the losers hit a duplicate-key error and back off with 409. Without that claim, both requests would read "not found", both would execute, and you are back to double charges — the very bug the pattern exists to kill.
+
+Three states drive the lifecycle. `processing` means a request is mid-flight; concurrent retries see it and return 409 "retry shortly" rather than re-running. `completed` means the effect happened and the response is cached; retries replay it verbatim. `failed` (or an expired row) lets a genuine retry start over. The `request_hash` column guards a subtle abuse: if a client reuses a key with a *different* body, that is a bug on their side, so returning 422 surfaces it instead of silently serving the wrong cached answer. Complexity intuition: every request pays one indexed SELECT plus one INSERT/UPDATE — O(1) against the primary key — and storage is one row per unique operation held for the TTL, kept bounded by the cleanup job. The mantra to remember: at-least-once delivery plus idempotency equals effectively-exactly-once.
 
 ## complexity
 - **Per request overhead**: 1 extra SELECT + 1 INSERT/UPDATE on the idempotency table. Negligible if indexed.

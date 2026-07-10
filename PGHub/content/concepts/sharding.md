@@ -30,12 +30,20 @@ Once your hot table crosses ~100M rows or your write rate crosses what one DB pr
 ## intuition
 A library with 10 million books can't fit on one shelf. So you split: A–C on shelf 1, D–F on shelf 2, etc. (range sharding). When someone asks for "Dune," you know exactly which shelf — but if everyone wants D–F books, that shelf gets mobbed. Alternatively, hash each title and route to `hash(title) % 10` — load spreads evenly, but you can't easily scan "all books starting with D" without checking every shelf.
 
+What's actually happening is that you are trading a single machine's ceiling for a routing problem. One database primary might sustain, say, 20k writes/sec and hold 2 TB before its disk and buffer pool tap out. Your table is growing at 500M rows/year and write traffic is climbing past 40k/sec — no bigger box fixes that durably. Split the data across 8 shards keyed by `user_id` and each shard now holds ~250M rows and absorbs ~5k writes/sec, comfortably inside one machine's envelope, and you can add a 9th and 10th shard as traffic grows. The catch is that the shard key silently decides your access patterns forever. Shard by `user_id` and "give me everything for user 42" is one hop to one shard — fast. But "count all orders placed today across all users" now has to fan out to all 8 shards and merge, and a transaction that touches two users straddles two shards and loses single-node ACID. You are not eliminating the load; you are dividing it, and the division line is the shard key you must choose before the data lands.
+
 ## visualization
 ```
-                       hash(user_id) % 3
-Client ──► [Router] ──┬──► Shard 0 (users with hash % 3 == 0)
-                      ├──► Shard 1 (users with hash % 3 == 1)
-                      └──► Shard 2 (users with hash % 3 == 2)
+Routing by hash(user_id) % N, and what a resize costs:
+
+write(user_id=1042) -> h = md5(1042) -> h % 4 = 2 -> Shard 2
+read (user_id=1042) -> same formula  -> h % 4 = 2 -> Shard 2  (co-located)
+
+key      hash%4  shard        key      hash%8  shard   (grow N: 4 -> 8)
+u-1042     2     Shard 2       u-1042     6     Shard 6   MOVED
+u-2001     0     Shard 0       u-2001     0     Shard 0   stays
+u-3007     3     Shard 3       u-3007     7     Shard 7   MOVED
+plain %N resize remaps ~3/4 of keys; consistent hashing remaps ~1/N instead.
 ```
 
 ## bruteForce
@@ -55,6 +63,8 @@ Pick a **strategy**:
 - **Directory-based**: a lookup service maps each key → shard. Most flexible; the lookup is a new SPOF.
 
 Cross-shard operations (joins, transactions, aggregations) get hard. Either denormalize so a query stays on one shard, or accept scatter-gather (query all shards, merge in application).
+
+The one decision that outlives every other is the **shard key**, because changing it later means rewriting where every row lives. Reach for sharding only after cheaper levers are exhausted — read replicas for read-bound load, caching for hot reads, vertical scale for headroom — since sharding permanently complicates joins, transactions, and secondary-index queries. When you do shard, hash-based on a high-cardinality key is the safe default for even load, and consistent hashing (or jump hash) is non-negotiable so that going from N to N+1 shards remaps ~1/N of keys instead of nearly all of them. The failure mode that erases the entire win is the **hotspot**: a key like `country_code` or a celebrity `user_id` that concentrates a disproportionate share of traffic onto one shard, which then saturates while the others idle. Validate the key against real production distribution before committing, and for known heavy keys add a salt or a dedicated shard. The second failure mode is operational: N shards means N times the backups, migrations, and monitoring, and a rebalance moves terabytes over the network for hours — so favor schema designs that keep each query on a single shard, and treat cross-shard transactions as something to design out, not to coordinate with 2PC.
 
 ## complexity
 - **Throughput**: ≈ N × single-shard throughput when balanced.
