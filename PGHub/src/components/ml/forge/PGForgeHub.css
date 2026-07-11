@@ -259,3 +259,61 @@
   .forge-split { grid-template-columns: 1fr; }
   .forge-hero-title { font-size: 2.4rem; }
 }
+
+/* Gradient-descent hero viz — interactive controls + sliders */
+.forge-hero-ctl {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+.forge-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.34rem 0.65rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.forge-hero-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.forge-hero-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.forge-hero-status {
+  margin-left: auto;
+  font-family: var(--mono, monospace);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+.forge-hero-status.is-good { color: var(--easy); border-color: color-mix(in srgb, var(--easy) 45%, var(--border)); }
+.forge-hero-status.is-warn { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.forge-hero-status.is-bad  { color: var(--hard); border-color: color-mix(in srgb, var(--hard) 45%, var(--border)); }
+
+.forge-hero-sliders {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.5rem 0.9rem;
+  margin-top: 0.1rem;
+}
+.forge-hero-sl { display: flex; flex-direction: column; gap: 0.2rem; }
+.forge-hero-sl > span {
+  font-family: var(--mono, monospace);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+  display: flex;
+  justify-content: space-between;
+}
+.forge-hero-sl > span b { color: var(--text-main); }
+.forge-hero-sl input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+@media (max-width: 620px) { .forge-hero-sliders { grid-template-columns: 1fr; } }

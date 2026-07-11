@@ -2842,9 +2842,14 @@ export function equalsNormalized(expected, actual) {
   try { pa = JSON.parse(a); parsedA = true; } catch { /* not JSON */ }
   try { pe = JSON.parse(e); parsedE = true; } catch { /* not JSON */ }
   if (parsedA && parsedE) return deepEqual(pa, pe);
-  // Fallback: whitespace-stripped, case-insensitive string compare.
-  const sa = a.replace(/\s+/g, '').toLowerCase();
-  const se = e.replace(/\s+/g, '').toLowerCase();
+  // Fallback for non-JSON output (e.g. a bare `str` return). Collapse internal
+  // whitespace runs to a single space and trim — tolerant of incidental double
+  // spaces, but case- and word-boundary-SENSITIVE so a wrong-cased or wrong-
+  // spaced string (which LeetCode would reject) fails here too. NEVER strip all
+  // whitespace or lowercase: that let "a b c" match "abc"/"A B C" and passed
+  // wrong solutions on string-output problems.
+  const sa = a.replace(/\s+/g, ' ');
+  const se = e.replace(/\s+/g, ' ');
   return sa === se;
 }
 

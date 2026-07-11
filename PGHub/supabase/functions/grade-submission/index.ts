@@ -344,7 +344,12 @@ function equalsNormalized(expected: string, actual: string): boolean {
   try { pa = JSON.parse(a); parsedA = true; } catch { /* not JSON */ }
   try { pe = JSON.parse(e); parsedE = true; } catch { /* not JSON */ }
   if (parsedA && parsedE) return deepEqual(pa, pe);
-  return a.replace(/\s+/g, "").toLowerCase() === e.replace(/\s+/g, "").toLowerCase();
+  // Fallback for non-JSON output (e.g. a bare `str` return). Collapse internal
+  // whitespace runs to a single space and trim — tolerant of incidental double
+  // spaces, but case- and word-boundary-SENSITIVE so a wrong-cased or wrong-
+  // spaced string (which LeetCode would reject) fails here too. NEVER strip all
+  // whitespace or lowercase: that passed wrong solutions on string-output problems.
+  return a.replace(/\s+/g, " ") === e.replace(/\s+/g, " ");
 }
 
 async function pollBatch(tokens: string[]): Promise<any[]> {

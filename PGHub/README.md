@@ -1,8 +1,10 @@
-# PGcode
+# PGHub
 
-A DSA / interview-prep platform that takes you from fundamentals to interview-ready: a **4,500+ problem catalog** with server-side grading in 4 languages, mutation-tested case suites, interactive visualizations for every concept, plus an ML/AI track — with curated roadmap tiers that build pattern recognition rather than rote memorization.
+A DSA / interview-prep / CS-education platform that takes you from fundamentals to interview-ready: a **4,500+ problem catalog** with server-side grading in 4 languages, mutation-tested case suites, **~620 concepts across ~76 modules** each with an interactive visualization, plus an ML/AI track — with curated roadmap tiers that build pattern recognition rather than rote memorization.
 
-**Live:** [pushkalgupta.com/PGcode](https://pushkalgupta.com/PGcode/dist/index.html)
+**Live:** [pushkalgupta.com/PGHub](https://pushkalgupta.com/PGHub/dist/index.html)
+
+> **Architecture:** for how the whole system is built and how data flows end to end, see **[docs/SYSTEM_ARCHITECTURE.md](./docs/SYSTEM_ARCHITECTURE.md)**. (The folder/URL is **PGHub**; the internal roadmap-tier feature and the `PGcode_*` database tables keep the original `PGcode` name — renaming them would break every query and RLS policy.)
 
 ---
 

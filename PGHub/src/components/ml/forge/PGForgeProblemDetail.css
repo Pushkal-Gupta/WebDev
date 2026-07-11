@@ -51,84 +51,61 @@
   gap: 0.9rem;
 }
 
-/* ---- HEADER ---- */
+/* ---- LIGHT HEADER (matches Workspace .ws-q-head) ---- */
 .forge-pd-header {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--pd-hue) 9%, var(--surface)), var(--surface) 70%);
-  padding: 1.2rem 1.3rem 1.1rem 1.5rem;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
-.forge-pd-header::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: var(--pd-hue);
+.forge-pd-head-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  row-gap: 0.4rem;
 }
 
-.forge-pd-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 0.6rem; }
+.forge-pd-title {
+  font-family: var(--sans);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-main);
+  letter-spacing: -0.015em;
+  margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .forge-pd-diff {
-  font-family: var(--mono);
-  font-size: 0.62rem;
+  font-family: var(--sans);
+  font-size: 0.68rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  padding: 0.22rem 0.55rem;
+  letter-spacing: 0.03em;
+  padding: 0.22rem 0.65rem;
   border-radius: 999px;
+  line-height: 1;
+  align-self: center;
+  flex-shrink: 0;
 }
 .forge-pd-diff-easy   { color: var(--easy);   background: var(--easy-bg); }
 .forge-pd-diff-medium { color: var(--medium); background: var(--medium-bg); }
 .forge-pd-diff-hard   { color: var(--hard);   background: var(--hard-bg); }
-
-.forge-pd-chip {
-  font-family: var(--mono);
-  font-size: 0.64rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--text-dim);
-  padding: 0.22rem 0.55rem;
-  border: 1px solid var(--border);
-  border-radius: 999px;
-}
-.forge-pd-chip-hue {
-  color: var(--pd-hue);
-  border-color: color-mix(in srgb, var(--pd-hue) 45%, transparent);
-  background: color-mix(in srgb, var(--pd-hue) 10%, transparent);
-}
-
-.forge-pd-title-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.forge-pd-title {
-  font-family: var(--serif);
-  font-size: 1.7rem;
-  font-weight: 700;
-  line-height: 1.16;
-  color: var(--text-main);
-  letter-spacing: -0.015em;
-}
 
 .forge-pd-solve {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   flex-shrink: 0;
-  padding: 0.5rem 0.85rem;
+  margin-left: auto;
+  align-self: center;
+  padding: 0.4rem 0.75rem;
   border-radius: 999px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text-dim);
-  font-family: var(--mono);
+  font-family: var(--sans);
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
@@ -144,45 +121,33 @@
   background: var(--easy-bg);
 }
 
-/* ---- HEADER FACTS STRIP ---- */
-.forge-pd-facts {
-  margin-top: 1rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 130px), 1fr));
-  gap: 0.5rem;
-}
-.forge-pd-fact {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-rows: auto auto;
+/* Inline metadata row: topic/category chips + subtle count line */
+.forge-pd-tags {
+  display: flex;
   align-items: center;
-  column-gap: 0.45rem;
-  padding: 0.5rem 0.6rem;
-  border: 1px solid var(--border);
-  border-left: 2px solid color-mix(in srgb, var(--pd-hue) 55%, transparent);
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--pd-hue) 4%, var(--surface));
-  min-width: 0;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  row-gap: 0.35rem;
 }
-.forge-pd-fact-ic { grid-row: 1 / span 2; color: var(--pd-hue); }
-.forge-pd-fact-k {
-  font-family: var(--mono);
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.forge-pd-chip {
+  font-family: var(--sans);
+  font-size: 0.68rem;
+  font-weight: 600;
   color: var(--text-dim);
+  padding: 0.2rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
 }
-.forge-pd-fact-v {
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-main);
-  line-height: 1.15;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
+.forge-pd-chip-hue {
+  color: var(--pd-hue);
+  border-color: color-mix(in srgb, var(--pd-hue) 45%, transparent);
+  background: color-mix(in srgb, var(--pd-hue) 10%, transparent);
+}
+.forge-pd-metaline {
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  color: var(--text-dim);
 }
 
 /* ---- TINTED STATEMENT CARD ---- */
@@ -295,44 +260,49 @@
   gap: 0.6rem;
 }
 .forge-pd-ex {
+  padding: 0.9rem 1.05rem;
+  background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg);
-  padding: 0.65rem 0.75rem;
+  border-left: 3px solid color-mix(in srgb, var(--pd-hue) 55%, transparent);
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.5rem;
 }
 .forge-pd-ex-num {
-  font-family: var(--mono);
-  font-size: 0.6rem;
+  font-family: var(--sans);
+  font-size: 0.78rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: var(--pd-hue);
+  color: var(--text-main);
 }
-.forge-pd-ex-row { display: flex; gap: 0.55rem; align-items: baseline; min-width: 0; }
+.forge-pd-ex-row { display: flex; gap: 0.65rem; align-items: flex-start; min-width: 0; }
 .forge-pd-ex-key {
   flex-shrink: 0;
-  width: 46px;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
+  min-width: 5.2rem;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--text-dim);
+  color: var(--pd-hue);
+  padding-top: 0.18rem;
 }
 .forge-pd-ex-val {
   margin: 0;
   font-family: var(--mono);
-  font-size: 0.76rem;
+  font-size: 0.78rem;
+  line-height: 1.55;
   color: var(--text-main);
+  background: var(--hover-box);
+  padding: 0.18rem 0.5rem;
+  border-radius: 4px;
   white-space: pre-wrap;
   word-break: break-word;
-  flex: 1 1 auto;
   min-width: 0;
 }
-.forge-pd-ex-exp { font-size: 0.78rem; line-height: 1.45; color: var(--text-dim); flex: 1 1 auto; min-width: 0; }
+.forge-pd-ex-exp { font-size: 0.82rem; line-height: 1.6; color: var(--text-dim); font-family: var(--sans); flex: 1 1 auto; min-width: 0; }
 
 /* ---- CTA CARD ---- */
 .forge-pd-cta-card {

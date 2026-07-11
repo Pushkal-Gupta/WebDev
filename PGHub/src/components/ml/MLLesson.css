@@ -192,12 +192,12 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-/* Solo (prose-only) rows: LEFT-align to the same edge as paired-row prose so the
-   column never jumps to a centered island between sections (the jarring "sudden
-   gutters" effect). Cap line length for readability, but wide enough to fill the
-   container rather than sitting as a narrow centered block. */
+/* Solo (prose-only) rows: fill the full container width so lines flow into the
+   space instead of wrapping early against a narrow cap and leaving a dead right
+   gutter. Left-aligned to the same edge as paired-row prose so the column never
+   jumps between sections. */
 .ml-row.ml-row-solo .ml-row-prose {
-  max-width: 92ch;
+  max-width: 100%;
   width: 100%;
   margin: 0;
 }

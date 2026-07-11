@@ -138,7 +138,7 @@ async function processProblem(p) {
     if (differs) killed++; else survivors.push(mut);
   }
   const score = mutants.length ? killed / mutants.length : 1;
-  const result = { id: p.id, name: p.name, mutants: mutants.length, killed, survivors: survivors.length, score: +(score * 100).toFixed(1), added: 0 };
+  const result = { id: p.id, name: p.name, mutants: mutants.length, killed, survivors: survivors.length, score: +(score * 100).toFixed(1), added: 0, survivorSrcs: survivors.map((s) => s.src), canon: code, method_name: p.method_name, params: p.params, return_type: p.return_type, constraints: p.constraints, casesN: cases.length };
 
   // FIX: for each survivor, synthesize a distinguishing input and add it as a verified case.
   if (FIX && survivors.length) {
@@ -198,14 +198,21 @@ async function main() {
     const { data } = await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,test_cases,solutions,constraints').order('id').range(OFFSET, OFFSET + MAX - 1);
     rows = (data || []).filter((r) => r.solutions?.python && (Array.isArray(r.test_cases) ? r.test_cases.length : 0) > 0);
   }
+  const DUMP = arg('dump');
+  const weakDump = [];
   let totMut = 0, totKill = 0, totAdd = 0, weak = 0;
   for (const p of rows) {
     const r = await processProblem(p);
     if (r.skip) { console.log(`  - ${r.id}: skip (${r.skip})`); continue; }
     totMut += r.mutants; totKill += r.killed; totAdd += r.added || 0;
     if (r.score < 100) weak++;
+    // collect weak problems (with real killable survivors) for agent-driven strengthening
+    if (DUMP && r.score < 100 && r.survivorSrcs && r.survivorSrcs.length) {
+      weakDump.push({ id: r.id, title: r.name, score: r.score, method_name: r.method_name, params: r.params, return_type: r.return_type, constraints: (r.constraints || '').slice(0, 500), canonical: r.canon, cases: r.casesN, survivors: r.survivorSrcs.slice(0, 8) });
+    }
     console.log(`  ${r.score === 100 ? 'OK ' : 'WEAK'} ${r.id}: score ${r.score}% (${r.killed}/${r.mutants} killed, ${r.survivors} survived${r.added ? `, +${r.added} cases` : ''})${r.note ? ` [${r.note}]` : ''}`);
   }
+  if (DUMP) { fs.writeFileSync(DUMP, JSON.stringify(weakDump, null, 1)); console.log(`\ndumped ${weakDump.length} weak problems + survivors -> ${DUMP}`); }
   console.log(`\nproblems: ${rows.length} | weak(<100%): ${weak} | overall mutation score: ${totMut ? (totKill / totMut * 100).toFixed(1) : 0}% | cases added: ${totAdd}`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });

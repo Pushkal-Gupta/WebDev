@@ -4,7 +4,7 @@ import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import {
   ChevronRight, ChevronDown, Play, Loader2, Terminal, Lightbulb, Check,
-  FileText, ListChecks, Sparkles, FlaskConical, Layers, Target, BookOpen,
+  FileText, ListChecks, Sparkles, FlaskConical, BookOpen,
   CheckCircle2, XCircle, MinusCircle, AlertTriangle, Eye, KeyRound,
 } from 'lucide-react';
 import { getForgeProblem } from './pgForgeProblemsData';
@@ -599,17 +599,11 @@ export default function PGForgeProblemDetail() {
       <div className="forge-pd-grid">
         <section className="forge-pd-left" aria-label="Problem description">
           <header className="forge-pd-header">
-            <div className="forge-pd-meta">
+            <div className="forge-pd-head-row">
+              <h1 className="forge-pd-title">{problem.title}</h1>
               <span className={`forge-pd-diff forge-pd-diff-${problem.difficulty}`}>
                 {problem.difficulty}
               </span>
-              <span className="forge-pd-chip forge-pd-chip-hue">{problem.topic}</span>
-              {problem.category && problem.category !== problem.topic && (
-                <span className="forge-pd-chip">{problem.category}</span>
-              )}
-            </div>
-            <div className="forge-pd-title-row">
-              <h1 className="forge-pd-title">{problem.title}</h1>
               <button
                 type="button"
                 className={`forge-pd-solve ${solved ? 'is-solved' : ''}`}
@@ -621,27 +615,16 @@ export default function PGForgeProblemDetail() {
               </button>
             </div>
 
-            <div className="forge-pd-facts">
-              <div className="forge-pd-fact">
-                <Target size={13} className="forge-pd-fact-ic" />
-                <span className="forge-pd-fact-k">Topic</span>
-                <span className="forge-pd-fact-v">{problem.topic}</span>
-              </div>
-              <div className="forge-pd-fact">
-                <Layers size={13} className="forge-pd-fact-ic" />
-                <span className="forge-pd-fact-k">Category</span>
-                <span className="forge-pd-fact-v">{problem.category}</span>
-              </div>
-              <div className="forge-pd-fact">
-                <FileText size={13} className="forge-pd-fact-ic" />
-                <span className="forge-pd-fact-k">Examples</span>
-                <span className="forge-pd-fact-v">{problem.examples.length}</span>
-              </div>
-              <div className="forge-pd-fact">
-                <FlaskConical size={13} className="forge-pd-fact-ic" />
-                <span className="forge-pd-fact-k">Test cases</span>
-                <span className="forge-pd-fact-v">{problem.tests.length}</span>
-              </div>
+            <div className="forge-pd-tags">
+              <span className="forge-pd-chip forge-pd-chip-hue">{problem.topic}</span>
+              {problem.category && problem.category !== problem.topic && (
+                <span className="forge-pd-chip">{problem.category}</span>
+              )}
+              <span className="forge-pd-metaline">
+                {problem.examples.length} example{problem.examples.length === 1 ? '' : 's'}
+                {' · '}
+                {problem.tests.length} test{problem.tests.length === 1 ? '' : 's'}
+              </span>
             </div>
           </header>
 
@@ -702,7 +685,7 @@ export default function PGForgeProblemDetail() {
                       </div>
                       {ex.explanation && (
                         <div className="forge-pd-ex-row">
-                          <span className="forge-pd-ex-key">Why</span>
+                          <span className="forge-pd-ex-key">Explanation</span>
                           <span className="forge-pd-ex-exp">{ex.explanation}</span>
                         </div>
                       )}

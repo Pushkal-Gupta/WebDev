@@ -1,8 +1,9 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sigma, ListChecks, FileText, Cpu, FolderGit2, Map, Route, Swords,
   ArrowRight, ArrowUpRight, Code2, BookOpen, Trophy, Table2,
+  Play, Pause, StepForward, RotateCcw,
 } from 'lucide-react';
 import { PILLARS } from '../../../content/mlContent';
 import { MATH_MODULES } from './pgForgeMathData';
@@ -49,12 +50,15 @@ const lossGrad = (x, y) => [
   0.32 * y - 0.9 * 1.15 * Math.sin(1.15 * x) * Math.sin(1.15 * y),
 ];
 
+const STEP_MS = 150;
+const clampDom = (v) => Math.max(-LOSS_RANGE, Math.min(LOSS_RANGE, v));
+
 function LossSurfaceViz() {
   const reduce = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-  const { cells, path, project, hMin, hMax } = useMemo(() => {
-    // Sample the grid heights.
+  // The mesh + projection are fixed (don't depend on the controls).
+  const { cells, project, hMin, hMax } = useMemo(() => {
     const H = [];
     let lo = Infinity, hi = -Infinity;
     for (let i = 0; i <= LOSS_N; i += 1) {
@@ -70,7 +74,6 @@ function LossSurfaceViz() {
     }
     const hMid = (lo + hi) / 2;
     const CX = 160, CY = 118, SX = 5.6, SY = 2.8, HZ = 20;
-    // Continuous isometric projection from (gridX, gridY, height) -> screen.
     const proj = (gi, gj, h) => {
       const a = gi - LOSS_N / 2;
       const b = gj - LOSS_N / 2;
@@ -81,8 +84,6 @@ function LossSurfaceViz() {
       const gj = ((y + LOSS_RANGE) / (2 * LOSS_RANGE)) * LOSS_N;
       return proj(gi, gj, h);
     };
-
-    // Build the mesh cells, back-to-front (painter's algorithm).
     const c = [];
     for (let i = 0; i < LOSS_N; i += 1) {
       for (let j = 0; j < LOSS_N; j += 1) {
@@ -99,29 +100,40 @@ function LossSurfaceViz() {
       }
     }
     c.sort((u, v) => u.depth - v.depth);
+    return { cells: c, project: projectXY, hMin: lo, hMax: hi };
+  }, []);
 
-    // Gradient descent trajectory from a high corner into the nearest basin.
-    let x = 1.75, y = -1.55;
-    const lr = 0.16;
+  // ── interactive controls ─────────────────────────────────────────
+  const [lr, setLr] = useState(0.16);
+  const [start, setStart] = useState({ x: 1.75, y: -1.55 });
+  const [step, setStep] = useState(0);
+  const [playing, setPlaying] = useState(!reduce);
+  const timer = useRef(null);
+
+  // The trajectory recomputes whenever the learning rate or start point changes.
+  const path = useMemo(() => {
+    let x = start.x, y = start.y;
     const pts = [];
-    for (let s = 0; s <= 34; s += 1) {
+    for (let s = 0; s <= 44; s += 1) {
       const h = lossFn(x, y);
       pts.push({ x, y, h });
       const [gx, gy] = lossGrad(x, y);
-      x = Math.max(-LOSS_RANGE, Math.min(LOSS_RANGE, x - lr * gx));
-      y = Math.max(-LOSS_RANGE, Math.min(LOSS_RANGE, y - lr * gy));
+      x = clampDom(x - lr * gx);
+      y = clampDom(y - lr * gy);
     }
-    return { cells: c, path: pts, project: projectXY, hMin: lo, hMax: hi };
-  }, []);
+    return pts;
+  }, [lr, start]);
 
-  const [step, setStep] = useState(reduce ? path.length - 1 : 0);
+  // Restart the walk when the path is rebuilt (new lr / start).
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { setStep(0); }, [lr, start]);
+
+  const last = step >= path.length - 1;
   useEffect(() => {
-    if (reduce) return undefined;
-    const id = setInterval(() => {
-      setStep((s) => (s >= path.length - 1 ? 0 : s + 1));
-    }, 130);
-    return () => clearInterval(id);
-  }, [reduce, path.length]);
+    if (!playing || reduce || last) return undefined;
+    timer.current = setTimeout(() => setStep((s) => s + 1), STEP_MS);
+    return () => clearTimeout(timer.current);
+  }, [playing, step, last, reduce]);
 
   const cur = path[Math.min(step, path.length - 1)];
   const curPt = project(cur.x, cur.y, cur.h + 0.06);
@@ -131,6 +143,17 @@ function LossSurfaceViz() {
   const lossRange = hMax - hMin || 1;
   const norm = (cur.h - hMin) / lossRange;
 
+  // Diagnose the run so the reader learns what the learning rate does.
+  const finalLoss = path[path.length - 1].h;
+  const maxLoss = Math.max(...path.map((p) => p.h));
+  const status = maxLoss > path[0].h + 0.4
+    ? { label: 'diverging', cls: 'is-bad' }
+    : (finalLoss > hMin + 0.12 * lossRange && maxLoss > path[0].h + 0.02)
+      ? { label: 'oscillating', cls: 'is-warn' }
+      : { label: 'converging', cls: 'is-good' };
+
+  const reset = () => { setPlaying(false); setStep(0); };
+
   return (
     <div className="forge-hero-viz">
       <div className="forge-hero-viz-head">
@@ -138,7 +161,7 @@ function LossSurfaceViz() {
         <span className="forge-hero-viz-read">step {step} · loss {cur.h.toFixed(3)}</span>
       </div>
       <svg viewBox="0 0 320 200" className="forge-hero-viz-svg" role="img"
-        aria-label="3D loss surface with a gradient-descent path rolling into the valley">
+        aria-label="3D loss surface with an interactive gradient-descent path">
         <g>
           {cells.map((cell, i) => (
             <polygon
@@ -157,8 +180,38 @@ function LossSurfaceViz() {
           stroke="var(--accent)" strokeWidth="1.5" opacity={0.35 + 0.4 * (1 - norm)} />
         <circle cx={curPt[0]} cy={curPt[1]} r="3.4" fill="var(--accent)" stroke="var(--surface)" strokeWidth="1" />
       </svg>
+
+      <div className="forge-hero-ctl">
+        <button className="forge-hero-btn" onClick={() => (last ? reset() : setPlaying((p) => !p))}>
+          {playing && !last ? <Pause size={13} /> : <Play size={13} />}{playing && !last ? 'Pause' : (last ? 'Replay' : 'Play')}
+        </button>
+        <button className="forge-hero-btn" onClick={() => setStep((s) => Math.min(path.length - 1, s + 1))} disabled={last}>
+          <StepForward size={13} /> Step
+        </button>
+        <button className="forge-hero-btn" onClick={reset}><RotateCcw size={13} /> Reset</button>
+        <span className={`forge-hero-status ${status.cls}`}>{status.label}</span>
+      </div>
+
+      <div className="forge-hero-sliders">
+        <label className="forge-hero-sl">
+          <span>learning rate <b>{lr.toFixed(2)}</b></span>
+          <input type="range" min="0.02" max="0.6" step="0.01" value={lr}
+            onChange={(e) => setLr(Number(e.target.value))} aria-label="learning rate" />
+        </label>
+        <label className="forge-hero-sl">
+          <span>start&nbsp;w&#8321; <b>{start.x.toFixed(1)}</b></span>
+          <input type="range" min={-LOSS_RANGE} max={LOSS_RANGE} step="0.05" value={start.x}
+            onChange={(e) => setStart((s) => ({ ...s, x: Number(e.target.value) }))} aria-label="start weight 1" />
+        </label>
+        <label className="forge-hero-sl">
+          <span>start&nbsp;w&#8322; <b>{start.y.toFixed(1)}</b></span>
+          <input type="range" min={-LOSS_RANGE} max={LOSS_RANGE} step="0.05" value={start.y}
+            onChange={(e) => setStart((s) => ({ ...s, y: Number(e.target.value) }))} aria-label="start weight 2" />
+        </label>
+      </div>
+
       <p className="forge-hero-viz-cap">
-        Each step follows &minus;&nabla;L downhill; the marker settles in the nearest basin. Warm ridges are saddles and local minima the optimizer must avoid.
+        Drag the sliders: raise the <b>learning rate</b> and the marker overshoots and oscillates; too high and it diverges up the warm ridges. Move the start point to drop into a different basin.
       </p>
     </div>
   );
