@@ -35,21 +35,55 @@ function KeyIdeaCard({ ideas }) {
   );
 }
 
-// Every paper now carries vertical architecture data, so the card visual is
-// always the vertical ArchitectureDiagram (with a ForgeThumb fallback only if
-// data is somehow missing). No horizontal/bespoke SVGs are rendered anywhere.
-function PaperCardVisual({ paper }) {
-  const arch = getArchitecture(paper.id);
-  if (arch) {
-    return (
-      <div className="forge-card-viz forge-card-viz-arch">
-        <ArchitectureDiagram title={arch.title} blocks={arch.blocks} skips={arch.skips} />
-      </div>
-    );
-  }
+// Card thumbnails were all the same vertical box-stack (a shrunk
+// ArchitectureDiagram), so the papers were impossible to tell apart at a glance.
+// Each paper now gets its OWN signature motif — chosen to evoke that paper's core
+// idea — via the ForgeThumb motif engine. Every id maps to a distinct motif +
+// short label, so all 30 cards read differently. The full vertical
+// ArchitectureDiagram still HEROES the detail page.
+const PAPER_THUMB = {
+  transformer:          ['transformer',  'Transformer'],
+  alexnet:              ['convolution',  'AlexNet'],
+  resnet:               ['network',      'ResNet'],
+  adam:                 ['descent',      'Adam'],
+  bert:                 ['grid',         'BERT'],
+  gan:                  ['venn',         'GAN'],
+  word2vec:             ['vectors',      'word2vec'],
+  dropout:              ['field',        'Dropout'],
+  batchnorm:            ['distribution', 'BatchNorm'],
+  dqn:                  ['orbit',        'DQN'],
+  unet:                 ['flow',         'U-Net'],
+  gpt3:                 ['bars',         'GPT-3'],
+  seq2seq:              ['chain',        'Seq2Seq'],
+  gru:                  ['rings',        'GRU'],
+  attention:            ['attention',    'Attention'],
+  vae:                  ['pyramid',      'VAE'],
+  layernorm:            ['gauge',        'LayerNorm'],
+  ddpm:                 ['diffusion',    'DDPM'],
+  vit:                  ['heat',         'ViT'],
+  clip:                 ['recommender',  'CLIP'],
+  lora:                 ['project',      'LoRA'],
+  instructgpt:          ['metrics',      'InstructGPT'],
+  chinchilla:           ['schedule',     'Chinchilla'],
+  alphago:              ['tree',         'AlphaGo'],
+  gpt1:                 ['sequence',     'GPT'],
+  lstm:                 ['wave',         'LSTM'],
+  flashattention:       ['cuda',         'FlashAttention'],
+  'switch-transformer': ['cluster',      'Switch'],
+  glove:                ['matrix',       'GloVe'],
+  t5:                   ['cards',        'T5'],
+};
+
+function PaperCardVisual({ paper, index = 0 }) {
+  const entry = PAPER_THUMB[paper.id];
+  // `kind` selects the motif; no `seed`/`topic` so the colour keys off the (unique)
+  // motif name too. Unmapped papers fall back to a title-seeded scatter + index so
+  // they still land on a distinct shape.
   return (
     <div className="forge-card-viz forge-card-viz-thumb">
-      <ForgeThumb kind="paper" seed={paper.title} topic={paper.topic} />
+      {entry
+        ? <ForgeThumb kind={entry[0]} label={entry[1]} />
+        : <ForgeThumb kind="paper" seed={paper.title} label={paper.title} index={index} />}
     </div>
   );
 }
@@ -57,7 +91,7 @@ function PaperCardVisual({ paper }) {
 function PapersBrowse({ onOpen }) {
   return (
     <div className="forge-card-grid">
-      {PAPERS.map((p) => (
+      {PAPERS.map((p, i) => (
         <button
           key={p.id}
           type="button"
@@ -65,7 +99,7 @@ function PapersBrowse({ onOpen }) {
           onClick={() => onOpen(p.id)}
         >
           <div className="forge-paper-card-viz">
-            <PaperCardVisual paper={p} />
+            <PaperCardVisual paper={p} index={i} />
           </div>
           <div className="forge-paper-card-body">
             <h2 className="forge-paper-card-title">{p.title}</h2>
