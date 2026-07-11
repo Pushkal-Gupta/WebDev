@@ -5,7 +5,7 @@ import 'katex/dist/katex.min.css';
 import {
   ChevronRight, ChevronDown, Play, Loader2, Terminal, Lightbulb, Check,
   FileText, ListChecks, Sparkles, FlaskConical, Layers, Target, BookOpen,
-  CheckCircle2, XCircle, MinusCircle, AlertTriangle,
+  CheckCircle2, XCircle, MinusCircle, AlertTriangle, Eye, KeyRound,
 } from 'lucide-react';
 import { getForgeProblem } from './pgForgeProblemsData';
 import Breadcrumb from '../../common/Breadcrumb';
@@ -390,6 +390,64 @@ function parseHarnessOutput(output) {
   return { userOut, verdicts };
 }
 
+// Turn a full reference solution into a starter SCAFFOLD the reader builds from:
+// keep imports and every top-level def/class SIGNATURE (plus its docstring), blank
+// the body to a TODO, and drop module-level demo code (prints, top-level calls).
+// Always emits syntactically valid Python; imperfect parses still yield signature +
+// TODO, never the answer.
+function makeScaffold(src) {
+  if (!src || typeof src !== 'string') return '# TODO: implement your solution\n';
+  const lines = src.replace(/\r\n/g, '\n').split('\n');
+  const out = [];
+  let i = 0;
+  let emittedDef = false;
+  while (i < lines.length) {
+    const line = lines[i];
+    const isTopLevel = line.length > 0 && !/^\s/.test(line);
+
+    // Keep module-level imports verbatim.
+    if (isTopLevel && /^(import\s|from\s)/.test(line)) { out.push(line); i++; continue; }
+
+    // Top-level def/class: keep the (possibly multi-line) signature, its docstring,
+    // then stub the body.
+    if (isTopLevel && /^(def|class)\s/.test(line)) {
+      let sig = line;
+      while (!/:\s*(#.*)?$/.test(sig) && i + 1 < lines.length) { i++; sig += '\n' + lines[i]; }
+      if (emittedDef) out.push('');
+      out.push(sig);
+      emittedDef = true;
+
+      // Optional leading docstring inside the body.
+      let k = i + 1;
+      while (k < lines.length && lines[k].trim() === '') k++;
+      const q = lines[k] && (lines[k].trim().startsWith('"""') ? '"""' : lines[k].trim().startsWith("'''") ? "'''" : null);
+      if (q) {
+        const first = lines[k];
+        out.push(first);
+        const oneLine = first.trim().length > 3 && first.trim().endsWith(q);
+        if (!oneLine) {
+          k++;
+          while (k < lines.length) { out.push(lines[k]); if (lines[k].includes(q)) break; k++; }
+        }
+      }
+      out.push('    # TODO: implement');
+      out.push('    raise NotImplementedError');
+
+      // Skip the real body (blank or more-indented lines than the def/class).
+      let m = i + 1;
+      while (m < lines.length && (lines[m].trim() === '' || /^\s/.test(lines[m]))) m++;
+      i = m;
+      continue;
+    }
+
+    // Drop everything else at module level (demo prints, top-level statements).
+    i++;
+  }
+  let text = out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  if (!/def\s|class\s/.test(text)) text = (text ? text + '\n\n' : '') + '# TODO: implement your solution';
+  return text + '\n';
+}
+
 export default function PGForgeProblemDetail() {
   const { slug } = useParams();
   const problem = useMemo(() => getForgeProblem(slug), [slug]);
@@ -397,7 +455,8 @@ export default function PGForgeProblemDetail() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
   const [report, setReport] = useState(null);
-  const [hintsOpen, setHintsOpen] = useState(false);
+  const [leftTab, setLeftTab] = useState('description');
+  const [solutionRevealed, setSolutionRevealed] = useState(false);
   const [solved, setSolved] = useState(() => (problem ? isSolved(problem.slug) : false));
   const panelRef = useRef(null);
 
@@ -519,8 +578,9 @@ export default function PGForgeProblemDetail() {
     handleSubmit(panel.getCode(), panel.getLanguage());
   }, [running, handleSubmit]);
 
+  // Editor loads a SCAFFOLD; the real reference stays behind the Solution tab.
   const starter = useMemo(
-    () => (problem ? { python: problem.starterCode.python } : {}),
+    () => (problem ? { python: makeScaffold(problem.starterCode.python) } : {}),
     [problem],
   );
 
@@ -585,86 +645,144 @@ export default function PGForgeProblemDetail() {
             </div>
           </header>
 
-          <div className="forge-pd-stmt-card">
-            <div className="forge-pd-stmt-eyebrow">
-              <BookOpen size={12} />
-              <span>The task</span>
-            </div>
-            <div className="forge-pd-statement">{renderedStatement}</div>
+          <div className="forge-pd-tabs" role="tablist">
+            {[
+              { key: 'description', label: 'Description', Icon: BookOpen },
+              { key: 'hints', label: `Hints (${problem.hints.length})`, Icon: Lightbulb },
+              { key: 'solution', label: 'Solution', Icon: KeyRound },
+              { key: 'tests', label: `Test cases (${problem.tests.length})`, Icon: FlaskConical },
+            ].map((t) => (
+              <button
+                key={t.key}
+                type="button"
+                role="tab"
+                aria-selected={leftTab === t.key}
+                className={`forge-pd-tab ${leftTab === t.key ? 'is-active' : ''}`}
+                onClick={() => setLeftTab(t.key)}
+              >
+                <t.Icon size={13} />
+                <span>{t.label}</span>
+              </button>
+            ))}
           </div>
 
-          {inlineViz && (
-            <div className="forge-pd-inlineviz">
-              <div className="forge-pd-inlineviz-head">
-                <Sparkles size={13} />
-                <span>{inlineViz.label}</span>
+          {leftTab === 'description' && (
+            <>
+              <div className="forge-pd-stmt-card">
+                <div className="forge-pd-stmt-eyebrow">
+                  <BookOpen size={12} />
+                  <span>The task</span>
+                </div>
+                <div className="forge-pd-statement">{renderedStatement}</div>
               </div>
-              <inlineViz.Comp {...inlineViz.props} />
+
+              {inlineViz && (
+                <div className="forge-pd-inlineviz">
+                  <div className="forge-pd-inlineviz-head">
+                    <Sparkles size={13} />
+                    <span>{inlineViz.label}</span>
+                  </div>
+                  <inlineViz.Comp {...inlineViz.props} />
+                </div>
+              )}
+
+              <div className="forge-pd-block">
+                <h2 className="forge-pd-sec"><FileText size={13} /> Examples</h2>
+                <div className="forge-pd-examples">
+                  {problem.examples.map((ex, i) => (
+                    <div key={i} className="forge-pd-ex">
+                      <span className="forge-pd-ex-num">Example {i + 1}</span>
+                      <div className="forge-pd-ex-row">
+                        <span className="forge-pd-ex-key">Input</span>
+                        <pre className="forge-pd-ex-val">{ex.input}</pre>
+                      </div>
+                      <div className="forge-pd-ex-row">
+                        <span className="forge-pd-ex-key">Output</span>
+                        <pre className="forge-pd-ex-val">{ex.output}</pre>
+                      </div>
+                      {ex.explanation && (
+                        <div className="forge-pd-ex-row">
+                          <span className="forge-pd-ex-key">Why</span>
+                          <span className="forge-pd-ex-exp">{ex.explanation}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="forge-pd-cta-card">
+                <div className="forge-pd-cta-copy">
+                  <span className="forge-pd-cta-title">Ready to solve it?</span>
+                  <span className="forge-pd-cta-sub">
+                    The editor starts from a scaffold — build it yourself, then hit Run my code to grade it against {testPlan.checkable.length || problem.tests.length} test
+                    {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  className="forge-pd-cta-badge"
+                  onClick={gradeCurrentBuffer}
+                  disabled={running}
+                  aria-busy={running}
+                >
+                  {running ? <Loader2 size={15} className="forge-pd-spin" /> : <Play size={15} />}
+                  {running ? 'Grading' : 'Run my code'}
+                </button>
+              </div>
+            </>
+          )}
+
+          {leftTab === 'hints' && (
+            <div className="forge-pd-block">
+              <h2 className="forge-pd-sec"><Lightbulb size={13} /> Hints</h2>
+              {problem.hints.length ? (
+                <ol className="forge-pd-hints">
+                  {problem.hints.map((h, i) => <li key={i}>{h}</li>)}
+                </ol>
+              ) : (
+                <p className="forge-pd-empty-note">No hints for this one — lean on the examples.</p>
+              )}
             </div>
           )}
 
-          <div className="forge-pd-block">
-            <h2 className="forge-pd-sec"><FileText size={13} /> Examples</h2>
-            <div className="forge-pd-examples">
-              {problem.examples.map((ex, i) => (
-                <div key={i} className="forge-pd-ex">
-                  <span className="forge-pd-ex-num">Example {i + 1}</span>
-                  <div className="forge-pd-ex-row">
-                    <span className="forge-pd-ex-key">Input</span>
-                    <pre className="forge-pd-ex-val">{ex.input}</pre>
-                  </div>
-                  <div className="forge-pd-ex-row">
-                    <span className="forge-pd-ex-key">Output</span>
-                    <pre className="forge-pd-ex-val">{ex.output}</pre>
-                  </div>
-                  {ex.explanation && (
-                    <div className="forge-pd-ex-row">
-                      <span className="forge-pd-ex-key">Why</span>
-                      <span className="forge-pd-ex-exp">{ex.explanation}</span>
-                    </div>
-                  )}
+          {leftTab === 'solution' && (
+            <div className="forge-pd-block">
+              <h2 className="forge-pd-sec"><KeyRound size={13} /> Reference solution</h2>
+              {solutionRevealed ? (
+                <pre className="forge-pd-solution-code"><code>{problem.starterCode.python}</code></pre>
+              ) : (
+                <div className="forge-pd-solution-guard">
+                  <p className="forge-pd-solution-guard-copy">
+                    Try building it yourself first — the editor has a scaffold. Reveal the canonical
+                    solution only when you&apos;re stuck or want to compare approaches.
+                  </p>
+                  <button
+                    type="button"
+                    className="forge-pd-reveal-btn"
+                    onClick={() => setSolutionRevealed(true)}
+                  >
+                    <Eye size={14} /> Reveal solution
+                  </button>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+          )}
 
-          <div className="forge-pd-cta-card">
-            <div className="forge-pd-cta-copy">
-              <span className="forge-pd-cta-title">Ready to solve it?</span>
-              <span className="forge-pd-cta-sub">
-                Edit the code, then hit Run my code to grade it against {testPlan.checkable.length || problem.tests.length} test
-                {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
-              </span>
+          {leftTab === 'tests' && (
+            <div className="forge-pd-block">
+              <h2 className="forge-pd-sec"><FlaskConical size={13} /> Test cases</h2>
+              <ul className="forge-pd-testlist">
+                {problem.tests.map((t, i) => (
+                  <li key={i} className="forge-pd-testlist-item">
+                    <span className="forge-pd-testlist-in">{t.input}</span>
+                    <span className="forge-pd-testlist-arrow"><ChevronRight size={12} /></span>
+                    <span className="forge-pd-testlist-out">{t.expected}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <button
-              type="button"
-              className="forge-pd-cta-badge"
-              onClick={gradeCurrentBuffer}
-              disabled={running}
-              aria-busy={running}
-            >
-              {running ? <Loader2 size={15} className="forge-pd-spin" /> : <Play size={15} />}
-              {running ? 'Grading' : 'Run my code'}
-            </button>
-          </div>
-
-          <div className="forge-pd-block">
-            <button
-              type="button"
-              className="forge-pd-hints-toggle"
-              onClick={() => setHintsOpen((o) => !o)}
-              aria-expanded={hintsOpen}
-            >
-              <Lightbulb size={14} />
-              <span>Hints ({problem.hints.length})</span>
-              <ChevronDown size={14} className={hintsOpen ? 'forge-pd-chev-open' : ''} />
-            </button>
-            {hintsOpen && (
-              <ol className="forge-pd-hints">
-                {problem.hints.map((h, i) => <li key={i}>{h}</li>)}
-              </ol>
-            )}
-          </div>
+          )}
         </section>
 
         <section className="forge-pd-right" aria-label="Code editor">

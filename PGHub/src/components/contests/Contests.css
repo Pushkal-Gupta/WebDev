@@ -1624,6 +1624,7 @@
 .lca-curve-svg {
   width: 100%;
   height: auto;
+  max-height: 300px;
   display: block;
   cursor: crosshair;
 }
@@ -2265,3 +2266,19 @@
   }
   .ctx-rank-row > :nth-child(4) { display: none; }
 }
+
+/* Per-contest analytics banner (shown when reached from a contest's Analytics link) */
+.lca-contest-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 0.9rem;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text-main);
+  font-size: 0.9rem;
+}
+.lca-contest-banner svg { color: var(--accent); flex: 0 0 auto; }

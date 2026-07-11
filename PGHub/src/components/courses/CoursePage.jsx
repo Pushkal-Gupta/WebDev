@@ -204,11 +204,11 @@ export default function CoursePage() {
     setJustSolved(false);
     try {
       const res = await runCode(code, course.language, '');
-      const stdout = res?.stdout || '';
-      const stderr = res?.stderr || res?.compile_output || '';
-      setOutput(stderr ? `[stderr]\n${stderr}\n[stdout]\n${stdout}` : stdout);
+      const out = res?.output || '';
+      const failed = res?.status && res.status !== 'success';
+      setOutput(failed ? `[${res.status.replace(/_/g, ' ')}]\n${out}` : out);
       if (lesson.exercise?.expected != null) {
-        const actual = normalizeOutput(stdout);
+        const actual = normalizeOutput(failed ? '' : out);
         const want = normalizeOutput(lesson.exercise.expected);
         if (actual === want) {
           setGrade({ ok: true });

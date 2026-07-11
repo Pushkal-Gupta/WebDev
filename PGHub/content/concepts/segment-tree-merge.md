@@ -33,12 +33,16 @@ Enables a huge class of tree problems where you want to maintain a "set of value
 Often the only practical alternative to HLD + segment trees for these subtree-aggregate problems.
 
 ## intuition
+Think of each dynamic segment tree as a *sparse multiset* over a fixed value universe `[0, V)`: it allocates only the nodes on the root-to-leaf paths of values actually present, so a tree holding three values costs O(3 log V) nodes, not O(V). Merging two such trees is taking the union of their multisets while keeping the result queryable by range. The reason merge can be cheap is entirely about overlap: where one tree has a node and the other has `null`, there is nothing to combine — you graft the non-null subtree over wholesale in O(1) and stop descending. Real work happens only where both trees have allocated the same node, i.e. where their value sets collide.
+
 Each segment tree node represents an index range. To merge two trees:
 1. If either is null, return the other.
 2. If we're at a leaf, sum (or combine) the values.
 3. Otherwise, recursively merge left and right children.
 
 When most of one tree's nodes have null counterparts in the other, the recursion short-circuits early — only the "intersecting" parts get touched. Across all merges in a tree, the total work amortizes to O(n log n).
+
+Trace two tiny trees over the universe `[0, 8)`. Tree A holds the value 3, so it has allocated exactly the path root to leaf(3); Tree B holds the value 5, the path root to leaf(5). Merging them: at the root both are non-null, so we recurse; on the left-half child A is non-null (3 is in `[0,4)`) but B is null (5 is not), so we graft A's left subtree unchanged and never descend it; on the right-half child B is non-null but A is null, so we graft B's right subtree. The two leaf paths never meet below the root, so total work is O(log V) — the height — not O(V). Now the amortized argument: run this across a post-order tree DFS where each node starts as a singleton tree and every child tree is merged into its parent. Each *value* is inserted once and, over the whole process, participates in merges that together cross it O(log V) levels — the same accounting that makes small-to-large O(n log n). What's actually happening is that the null-shortcut charges each collision, and collisions are bounded by insertions times height.
 
 ## visualization
 ```
@@ -99,6 +103,10 @@ def merge(a, b, lo, hi):
 ```
 
 For tree problems, do a post-order DFS — at each node v, start with a tree for v's value alone, then `merge` each child's tree into it.
+
+The correctness of `merge` rests on a structural invariant: two nodes are only ever combined when they cover the *same* index range, guaranteed because both trees are built over the identical universe `[lo, hi]` and the recursion always splits at the same `mid`. So merging left-with-left and right-with-right can never mix ranges. At a leaf the values are additively combined; at an internal node the value is recomputed from whichever children survive, keeping every `node.val` equal to the sum over its range even as subtrees are grafted in. The `if not a or not b: return a or b` line does the heavy lifting — it is both the base case and the entire performance story, because returning the lone non-null pointer avoids allocating or touching a whole subtree.
+
+The subtle cost claim is that the *sum of work over all merges* in a DFS, not any single merge, is O(n log V). One merge can cost as much as O(min-tree-size · log V) in the worst case, but a potential argument amortizes it: every node that gets *destroyed* (folded into another during a leaf combine) was allocated by exactly one insertion, and each insertion allocates O(log V) nodes, so total destructions — and therefore total merge work — is bounded by O(n log V). The trade to accept: `merge` mutates its first argument, so if you need either input preserved for a later query you must switch to a persistent segment tree, which pays extra memory to keep both versions alive.
 
 ## complexity
 - **Per merge**: O(n_intersecting_nodes) — only nodes that exist in both trees do work.

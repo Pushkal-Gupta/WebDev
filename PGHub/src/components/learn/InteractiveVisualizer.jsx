@@ -82,6 +82,26 @@ export default function InteractiveVisualizer({ slug }) {
   const [hasRun, setHasRun] = useState(false);
   const playRef = useRef(null);
 
+  // Custom full-width bottom resize for the JSON input: drag anywhere along the
+  // bottom edge (the native corner grip is disabled in CSS).
+  const inputRef = useRef(null);
+  const [inputHeight, setInputHeight] = useState(null);
+  const startInputResize = useCallback((e) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startH = inputRef.current?.getBoundingClientRect().height ?? 90;
+    const onMove = (ev) => {
+      const next = Math.max(60, startH + (ev.clientY - startY));
+      setInputHeight(next);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, []);
+
   useEffect(() => {
     if (!template) return;
     // Reset all state when switching algorithms; mirrors the new template into local editor state.
@@ -236,14 +256,26 @@ export default function InteractiveVisualizer({ slug }) {
             <label className="iv-input-label" htmlFor={`iv-input-${slug}`}>
               Input (JSON) — bound to <code>input</code> inside your code
             </label>
-            <textarea
-              id={`iv-input-${slug}`}
-              className={`iv-input ${parsedInput.err ? 'iv-input-error' : ''}`}
-              value={inputText}
-              spellCheck={false}
-              onChange={(e) => setInputText(e.target.value)}
-              rows={3}
-            />
+            <div className="iv-input-wrap" style={inputHeight ? { height: inputHeight } : undefined}>
+              <textarea
+                ref={inputRef}
+                id={`iv-input-${slug}`}
+                className={`iv-input ${parsedInput.err ? 'iv-input-error' : ''}`}
+                value={inputText}
+                spellCheck={false}
+                onChange={(e) => setInputText(e.target.value)}
+                rows={3}
+              />
+              {/* Full-width drag handle: grab anywhere along the bottom edge, not
+                  just the native corner grip. */}
+              <div
+                className="iv-input-resize"
+                role="separator"
+                aria-orientation="horizontal"
+                aria-label="Resize input"
+                onPointerDown={startInputResize}
+              />
+            </div>
             {parsedInput.err && (
               <p className="iv-input-msg"><AlertTriangle size={12} /> {parsedInput.err}</p>
             )}

@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
-  ArrowLeft, CheckCircle2, XCircle, RotateCcw, ArrowRight, ListChecks, Trophy,
+  ArrowLeft, CheckCircle2, XCircle, RotateCcw, ArrowRight, ListChecks, Trophy, Timer,
 } from 'lucide-react';
 import Breadcrumb from './common/Breadcrumb';
 import { getQuizById, TOPIC_LABELS } from '../content/quizzes';
@@ -11,6 +11,16 @@ function pctClass(pct) {
   if (pct >= 80) return 'quiz-score-good';
   if (pct >= 50) return 'quiz-score-mid';
   return 'quiz-score-low';
+}
+
+// mm:ss (or h:mm:ss past an hour) — how long the quiz took to answer.
+function fmtDuration(ms) {
+  const s = Math.max(0, Math.floor(ms / 1000));
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const pad = (n) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
 }
 
 export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
@@ -25,6 +35,19 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
   const [picked, setPicked] = useState({});
   const [revealedSet, setRevealedSet] = useState({});
   const [finished, setFinished] = useState(false);
+
+  // Timer: starts on mount, ticks once a second while answering, freezes on finish.
+  const [startTime, setStartTime] = useState(() => Date.now());
+  const [now, setNow] = useState(() => Date.now());
+  const [finishedAt, setFinishedAt] = useState(null);
+
+  useEffect(() => {
+    if (finished) return undefined;
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, [finished]);
+
+  const elapsedMs = (finishedAt ?? now) - startTime;
 
   if (!quiz) {
     return (
@@ -51,7 +74,7 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
 
   const next = () => {
     if (index < total - 1) setIndex(i => i + 1);
-    else setFinished(true);
+    else { setFinishedAt(Date.now()); setFinished(true); }
   };
 
   const prev = () => {
@@ -63,6 +86,9 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
     setPicked({});
     setRevealedSet({});
     setFinished(false);
+    setStartTime(Date.now());
+    setNow(Date.now());
+    setFinishedAt(null);
   };
 
   const score = quiz.questions.reduce(
@@ -84,6 +110,9 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
           <p className={`quiz-result-score ${pctClass(pct)}`}>
             {score} / {total} correct
             <span className="quiz-result-pct">({pct}%)</span>
+          </p>
+          <p className="quiz-result-time">
+            <Timer size={14} /> Time taken <strong>{fmtDuration(elapsedMs)}</strong>
           </p>
           <p className="quiz-result-sub">
             {pct >= 80
@@ -159,6 +188,7 @@ export default function QuizRunner({ quiz: passedQuiz, embedded = false }) {
         <div className="quiz-run-progress">
           <span className="quiz-run-count">
             Question <strong>{index + 1}</strong> of {total}
+            <span className="quiz-run-timer"><Timer size={12} /> {fmtDuration(elapsedMs)}</span>
           </span>
           <div className="quiz-progress-bar">
             <div

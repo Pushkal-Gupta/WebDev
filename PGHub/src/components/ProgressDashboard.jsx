@@ -178,7 +178,7 @@ export default function ProgressDashboard({ session, roadmapMode }) {
   const TOPIC_HUES = ['var(--accent)', 'var(--hue-violet)', 'var(--hue-sky)', 'var(--hue-pink)', 'var(--hue-mint)'];
 
   const overallPctNum = totals.total === 0 ? 0 : (totals.solved / totals.total) * 100;
-  const overallPct = overallPctNum.toFixed(1);
+  const overallPct = overallPctNum.toFixed(2);
   const ring = ringStyle(overallPctNum);
 
   // Interactive chart inputs derived from the same real `totals` the ring uses.

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,
@@ -347,8 +348,22 @@ export default function LeetCodeAnalytics() {
   const pUp = predict.delta >= 0;
   const percentile = clamp((1 - effRank / effTotal) * 100, 0, 100);
 
+  // When reached from a contest's "Analytics" link the slug names the round
+  // (e.g. "weekly-contest-507"); title-case it for the header so this page reads
+  // as that contest's per-question breakdown, distinct from the predictor.
+  const { slug: contestSlug } = useParams();
+  const contestTitle = contestSlug
+    ? contestSlug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+    : null;
+
   return (
     <div className="lca-wrap">
+      {contestTitle && (
+        <div className="lca-contest-banner">
+          <Trophy size={15} />
+          <span><strong>{contestTitle}</strong> — per-question ratings &amp; solve rates</span>
+        </div>
+      )}
       <p className="ctx-sub lca-intro">
         Type the rank you just finished and read the projected rating change — before LeetCode publishes it.
       </p>
@@ -750,7 +765,7 @@ function RankDeltaCurve({ rating, played, rank, total, onPick }) {
   const svgRef = useRef(null);
   const [hoverX, setHoverX] = useState(null);
 
-  const W = 720, H = 260, padL = 52, padR = 18, padT = 22, padB = 34;
+  const W = 720, H = 210, padL = 52, padR = 18, padT = 20, padB = 32;
   const plotW = W - padL - padR;
   const plotH = H - padT - padB;
 

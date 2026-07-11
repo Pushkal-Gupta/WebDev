@@ -24,6 +24,19 @@ Audit at 1920×1080 desktop AND 1440×900 laptop. If there's a band of empty spa
 - This is distinct from NO EMPTY SPACE: that rule kills *large dead bands*; this rule guarantees a *small, deliberate* gap so content visibly "finishes". A page fills the viewport AND ends with breathing room — both are true at once.
 - When something looks "cut", first check it's not just below the fold (scroll reveals it); if it genuinely clips, the container is missing bottom padding or has an `overflow:hidden` + fixed height — fix the padding/height, never add an inner scrollbar.
 
+## Text must never be SLICED by its box (HARD — recurring bug, the user HATES this)
+
+**No container may ever cut a line of text mid-glyph against its own border.** Card titles, card summaries, list-item descriptions, chip labels, tooltip bodies — if the text is longer than the writer guessed, the BOX must grow to fit it. A summary that ends "A list of numbers with a" flush against the card's bottom edge (rest of the sentence gone, no ellipsis) is the bug. This has bitten the user repeatedly on the PGForge/ML card grids and elsewhere.
+
+The #1 cause and the trap to check on sight:
+- **`overflow: hidden` + `min-height` (or fixed `height`) on the same element** turns it into a scroll container whose *intrinsic* height (what CSS Grid / flexbox use to size the track) collapses to the `min-height`, NOT the real content height. The grid row then locks to `min-height`, and any card whose content is taller gets its overflow **sliced off** by `overflow:hidden`. Fix: remove `overflow:hidden` from the growable card (clip the thumb/media with its own nested `overflow:hidden` + matching `border-radius` instead), so the card's intrinsic height tracks its content and the row grows. `min-height` alone (a floor) is fine; it's the pairing with `overflow:hidden` that slices.
+
+Rules:
+- Text containers **size to content** (`height: auto`); `min-height` is a floor only, never a cap. Never put `overflow:hidden`/`max-height` on an element that holds flowing text and expect the text to "just fit."
+- If a value genuinely must be bounded (a truly unbounded string breaking layout), clamp it **cleanly** with `-webkit-line-clamp: N` + `overflow:hidden` + `text-overflow: ellipsis` on the *text node itself* (never the whole card) so it ends with an ellipsis, not a border-slice. Default to letting it grow; only clamp when you've confirmed the string can be arbitrarily long.
+- For equal-height card grids: let each card size to content and let the grid row `align-items: stretch` pull the shorter cards up to the tallest — that gives a tidy grid AND full text. Do NOT force a fixed row height and clip.
+- Audit any new card/list/grid at a wide viewport with the LONGEST real content string: if the last line touches the box edge with the sentence unfinished and no ellipsis, it's a P0 in the same pass.
+
 ## A visualization must FIT ON SCREEN with its controls (HARD)
 
 **A viz and ALL of its controls must be visible at once, without scrolling and without any inner scrollbar.** If a reader has to scroll to reach the Play/Step/Reset buttons, the sliders, or the readouts under a visualization, that's a bug. The whole interactive unit — stage + controls + readouts — fits inside the viewport (audit at 1440×900 AND 1366×768).

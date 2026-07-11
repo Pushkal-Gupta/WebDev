@@ -17,7 +17,7 @@ export default function MLHub() {
     <div className="mlhub">
       <Link to="/ml" className="learn-crumb">
         <ArrowLeft size={13} />
-        <span>ML-DL-AI</span>
+        <span>PGForge</span>
         <span className="learn-crumb-sep">/</span>
         <span className="learn-crumb-here">Lessons</span>
       </Link>

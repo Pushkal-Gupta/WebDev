@@ -129,7 +129,7 @@ async function processProblem(p) {
   for (const mut of mutants) {
     let mWrapped; try { mWrapped = wrap(mut.src); } catch { killed++; continue; } // uncompilable mutant = trivially killed
     let differs = false;
-    for (const tc of cases.slice(0, 30)) {
+    for (const tc of cases.slice(0, 160)) {
       const stdin = buildStdin(tc.inputs) + '\n';
       const r = await judgeRun(mWrapped, stdin);
       if (!r.ok) { differs = true; break; } // crash/compile-fail on a case = killed
@@ -140,10 +140,18 @@ async function processProblem(p) {
   const score = mutants.length ? killed / mutants.length : 1;
   const result = { id: p.id, name: p.name, mutants: mutants.length, killed, survivors: survivors.length, score: +(score * 100).toFixed(1), added: 0 };
 
-  // FIX: for each survivor, synthesize a distinguishing input and add it as a verified case
+  // FIX: for each survivor, synthesize a distinguishing input and add it as a verified case.
   if (FIX && survivors.length) {
     const types = (p.params || []).map((x) => x.type);
     if (types.some((t) => genValue(t, Math.random) === null)) { result.note = 'unsynthesizable param type'; return result; }
+    // Domain-safety: generic synthesis only respects value/length bounds, not
+    // STRUCTURE. For problems whose inputs must be sorted / a permutation / a valid
+    // tree-or-graph / distinct, a random in-bounds input is out-of-domain and could
+    // false-reject a correct submission. Skip auto-synthesis there (agent-driven only).
+    const structural = /\b(TreeNode|ListNode)\b|\.left\b|\.right\b|self\.next\b|build_tree|build_list/.test(code)
+      || /\bsorted\b|non-decreasing|non-increasing|ascending|descending|\bdistinct\b|no\s+duplicate|permutation|exactly\s+one|is\s+a\s+valid|strictly\s+increasing/i.test(String(p.constraints || ''))
+      || (p.params || []).some((x) => /^(root|head|node|tree|graph)$/i.test(x.name));
+    if (structural) { result.note = 'structural domain — agent-only'; return result; }
     const newCases = [];
     // Parse stated constraints so synthesized distinguishing inputs stay
     // in-range — an out-of-constraint case would wrongly fail a correct

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sigma, ListChecks, FileText, Cpu, FolderGit2, Map, Route, Swords,
@@ -37,46 +37,128 @@ const PILLAR_CARDS = [
     desc: 'Quick-reference cheat sheets — NumPy, PyTorch, CUDA, Triton, and ML interviews.' },
 ];
 
-// A self-contained interactive: larger batches average out gradient noise.
-// Pure local state, deterministic scatter — the kind of "do something" element
-// the homepage should lead with.
-function GradientNoiseViz() {
-  const [batch, setBatch] = useState(128);
-  const noise = 150 / Math.sqrt(batch);
-  const dots = useMemo(() => {
-    const pts = [];
-    for (let i = 0; i < 40; i += 1) {
-      const x = 16 + (i / 39) * 268;
-      // deterministic pseudo-random in [-1,1]
-      const r = Math.sin(i * 12.9898) * 43758.5453;
-      const jitter = (r - Math.floor(r)) * 2 - 1;
-      pts.push({ x, jitter });
+// A 3D loss surface with gradient descent rolling into the valley — projected to
+// SVG (no external 3D dep). Height-coloured mesh (cool valleys, warm peaks) via
+// theme hue tokens; a marker follows −∇L downhill and loops. The homepage's
+// "do something" hero, matching the "drag the visual" promise.
+const LOSS_N = 20;            // mesh resolution
+const LOSS_RANGE = 2.3;       // domain half-width in each axis
+const lossFn = (x, y) => 0.16 * (x * x + y * y) + 0.9 * Math.sin(1.15 * x) * Math.cos(1.15 * y);
+const lossGrad = (x, y) => [
+  0.32 * x + 0.9 * 1.15 * Math.cos(1.15 * x) * Math.cos(1.15 * y),
+  0.32 * y - 0.9 * 1.15 * Math.sin(1.15 * x) * Math.sin(1.15 * y),
+];
+
+function LossSurfaceViz() {
+  const reduce = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  const { cells, path, project, hMin, hMax } = useMemo(() => {
+    // Sample the grid heights.
+    const H = [];
+    let lo = Infinity, hi = -Infinity;
+    for (let i = 0; i <= LOSS_N; i += 1) {
+      H[i] = [];
+      for (let j = 0; j <= LOSS_N; j += 1) {
+        const x = -LOSS_RANGE + (i / LOSS_N) * 2 * LOSS_RANGE;
+        const y = -LOSS_RANGE + (j / LOSS_N) * 2 * LOSS_RANGE;
+        const h = lossFn(x, y);
+        H[i][j] = h;
+        if (h < lo) lo = h;
+        if (h > hi) hi = h;
+      }
     }
-    return pts;
+    const hMid = (lo + hi) / 2;
+    const CX = 160, CY = 118, SX = 5.6, SY = 2.8, HZ = 20;
+    // Continuous isometric projection from (gridX, gridY, height) -> screen.
+    const proj = (gi, gj, h) => {
+      const a = gi - LOSS_N / 2;
+      const b = gj - LOSS_N / 2;
+      return [CX + (a - b) * SX, CY + (a + b) * SY - (h - hMid) * HZ];
+    };
+    const projectXY = (x, y, h) => {
+      const gi = ((x + LOSS_RANGE) / (2 * LOSS_RANGE)) * LOSS_N;
+      const gj = ((y + LOSS_RANGE) / (2 * LOSS_RANGE)) * LOSS_N;
+      return proj(gi, gj, h);
+    };
+
+    // Build the mesh cells, back-to-front (painter's algorithm).
+    const c = [];
+    for (let i = 0; i < LOSS_N; i += 1) {
+      for (let j = 0; j < LOSS_N; j += 1) {
+        const p0 = proj(i, j, H[i][j]);
+        const p1 = proj(i + 1, j, H[i + 1][j]);
+        const p2 = proj(i + 1, j + 1, H[i + 1][j + 1]);
+        const p3 = proj(i, j + 1, H[i][j + 1]);
+        const avg = (H[i][j] + H[i + 1][j] + H[i + 1][j + 1] + H[i][j + 1]) / 4;
+        c.push({
+          pts: `${p0[0].toFixed(1)},${p0[1].toFixed(1)} ${p1[0].toFixed(1)},${p1[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)} ${p3[0].toFixed(1)},${p3[1].toFixed(1)}`,
+          t: (avg - lo) / (hi - lo || 1),
+          depth: i + j,
+        });
+      }
+    }
+    c.sort((u, v) => u.depth - v.depth);
+
+    // Gradient descent trajectory from a high corner into the nearest basin.
+    let x = 1.75, y = -1.55;
+    const lr = 0.16;
+    const pts = [];
+    for (let s = 0; s <= 34; s += 1) {
+      const h = lossFn(x, y);
+      pts.push({ x, y, h });
+      const [gx, gy] = lossGrad(x, y);
+      x = Math.max(-LOSS_RANGE, Math.min(LOSS_RANGE, x - lr * gx));
+      y = Math.max(-LOSS_RANGE, Math.min(LOSS_RANGE, y - lr * gy));
+    }
+    return { cells: c, path: pts, project: projectXY, hMin: lo, hMax: hi };
   }, []);
+
+  const [step, setStep] = useState(reduce ? path.length - 1 : 0);
+  useEffect(() => {
+    if (reduce) return undefined;
+    const id = setInterval(() => {
+      setStep((s) => (s >= path.length - 1 ? 0 : s + 1));
+    }, 130);
+    return () => clearInterval(id);
+  }, [reduce, path.length]);
+
+  const cur = path[Math.min(step, path.length - 1)];
+  const curPt = project(cur.x, cur.y, cur.h + 0.06);
+  const trail = path.slice(0, step + 1)
+    .map((p) => { const q = project(p.x, p.y, p.h + 0.06); return `${q[0].toFixed(1)},${q[1].toFixed(1)}`; })
+    .join(' ');
+  const lossRange = hMax - hMin || 1;
+  const norm = (cur.h - hMin) / lossRange;
 
   return (
     <div className="forge-hero-viz">
       <div className="forge-hero-viz-head">
-        <span className="forge-hero-viz-title">Gradient noise vs batch size</span>
-        <span className="forge-hero-viz-read">batch = {batch}</span>
+        <span className="forge-hero-viz-title">Loss surface L(w) — gradient descent</span>
+        <span className="forge-hero-viz-read">step {step} · loss {cur.h.toFixed(3)}</span>
       </div>
-      <svg viewBox="0 0 300 120" className="forge-hero-viz-svg" role="img" aria-label="gradient noise scatter">
-        <line x1="8" y1="60" x2="292" y2="60" className="forge-hero-viz-axis" />
-        {dots.map((d, i) => (
-          <circle key={i} cx={d.x} cy={60 + d.jitter * noise} r="2.6"
-            fill="var(--accent)" opacity={0.75} />
-        ))}
+      <svg viewBox="0 0 320 200" className="forge-hero-viz-svg" role="img"
+        aria-label="3D loss surface with a gradient-descent path rolling into the valley">
+        <g>
+          {cells.map((cell, i) => (
+            <polygon
+              key={i}
+              points={cell.pts}
+              fill={`color-mix(in srgb, var(--warning) ${Math.round(cell.t * 100)}%, var(--hue-sky))`}
+              stroke="var(--surface)"
+              strokeWidth="0.35"
+              opacity="0.92"
+            />
+          ))}
+        </g>
+        <polyline points={trail} fill="none" stroke="var(--text-main)" strokeWidth="2"
+          strokeLinejoin="round" strokeLinecap="round" opacity="0.9" />
+        <circle cx={curPt[0]} cy={curPt[1]} r="6" fill="none"
+          stroke="var(--accent)" strokeWidth="1.5" opacity={0.35 + 0.4 * (1 - norm)} />
+        <circle cx={curPt[0]} cy={curPt[1]} r="3.4" fill="var(--accent)" stroke="var(--surface)" strokeWidth="1" />
       </svg>
-      <input
-        className="forge-hero-slider"
-        type="range" min="8" max="1024" step="8"
-        value={batch}
-        onChange={(e) => setBatch(Number(e.target.value))}
-        aria-label="batch size"
-      />
       <p className="forge-hero-viz-cap">
-        Bigger batches shrink the spread of the gradient estimate by about 1/&radic;n — smoother steps, fewer updates.
+        Each step follows &minus;&nabla;L downhill; the marker settles in the nearest basin. Warm ridges are saddles and local minima the optimizer must avoid.
       </p>
     </div>
   );
@@ -128,7 +210,7 @@ export default function PGForgeHub() {
             ))}
           </div>
         </div>
-        <GradientNoiseViz />
+        <LossSurfaceViz />
       </section>
 
       <section className="forge-section">

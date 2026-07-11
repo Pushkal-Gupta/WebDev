@@ -406,6 +406,113 @@
 }
 .forge-pd-hints li { margin-bottom: 0.3rem; }
 
+/* Left-column tab bar: Description / Hints / Solution / Test cases. */
+.forge-pd-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.2rem;
+}
+.forge-pd-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.55rem 0.7rem;
+  margin-bottom: -1px;
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t);
+}
+.forge-pd-tab:hover { color: var(--text-main); }
+.forge-pd-tab.is-active {
+  color: var(--pd-hue);
+  border-bottom-color: var(--pd-hue);
+}
+.forge-pd-empty-note {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin: 0.4rem 0 0;
+}
+
+/* Solution tab: reveal guard + read-only code. */
+.forge-pd-solution-guard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.7rem;
+  padding: 1rem 1.1rem;
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--hover-box);
+}
+.forge-pd-solution-guard-copy {
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--text-dim);
+  margin: 0;
+}
+.forge-pd-reveal-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--pd-hue);
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  transition: filter var(--t);
+}
+.forge-pd-reveal-btn:hover { filter: brightness(1.08); }
+.forge-pd-solution-code {
+  margin: 0.6rem 0 0;
+  padding: 0.85rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.76rem;
+  line-height: 1.55;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Test cases tab: readable input -> expected rows. */
+.forge-pd-testlist {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.forge-pd-testlist-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+.forge-pd-testlist-in { color: var(--text-dim); word-break: break-word; }
+.forge-pd-testlist-arrow { color: var(--pd-hue); display: inline-flex; }
+.forge-pd-testlist-out { color: var(--text-main); font-weight: 700; }
+
 /* RIGHT — editor + results + output. Sizes to content (the page itself scrolls);
    no fixed height so a long results list never clips or needs an inner scrollbar. */
 .forge-pd-right {

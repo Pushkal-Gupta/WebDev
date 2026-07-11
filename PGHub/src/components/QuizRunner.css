@@ -62,6 +62,17 @@
 
 .quiz-run-count strong { color: var(--text-main); }
 
+.quiz-run-timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-left: 0.6rem;
+  padding-left: 0.6rem;
+  border-left: 1px solid var(--border);
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+
 .quiz-progress-bar {
   width: 200px;
   height: 5px;
@@ -278,6 +289,17 @@
 .quiz-score-good { color: var(--easy); }
 .quiz-score-mid  { color: var(--medium); }
 .quiz-score-low  { color: var(--hard); }
+
+.quiz-result-time {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.quiz-result-time strong { color: var(--accent); }
 
 .quiz-result-sub {
   font-size: 0.85rem;

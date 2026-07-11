@@ -326,7 +326,10 @@ a.mlhub-lesson-card {
 
 .mlhub-pillar.mlhub-lesson-card {
   position: relative;
-  overflow: hidden;
+  /* No overflow:hidden here — combined with min-height it makes the card a
+     scroll container whose INTRINSIC height (used for grid row sizing) collapses
+     to min-height, so content taller than min-height gets sliced by the box.
+     The thumb clips its own hover-scale; the card must grow to fit its text. */
   display: flex;
   flex-direction: column;
   padding: 0;
@@ -342,6 +345,7 @@ a.mlhub-lesson-card {
 /* Accent stripe stays scoped to the body so it never paints over the thumb. */
 .mlhub-lesson-card .mlhub-pillar-stripe {
   inset: 110px auto 0 0;
+  border-bottom-left-radius: 12px;
 }
 
 .mlhub-lesson-thumb {
@@ -353,6 +357,9 @@ a.mlhub-lesson-card {
   overflow: hidden;
   background: var(--bg);
   border-bottom: 1px solid var(--border);
+  /* Card no longer clips corners, so round the thumb top itself. */
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
 }
 
 .mlhub-lesson-thumb > * {
