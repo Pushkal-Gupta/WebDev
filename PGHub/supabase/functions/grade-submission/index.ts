@@ -60,47 +60,118 @@ function isCycledListParams(params: Param[]): boolean {
     && params[1]?.type === "int" && params[1]?.name === "pos";
 }
 
-function buildPythonDriver(code: string, methodName: string, params: Param[]): string {
-  const cycled = isCycledListParams(params);
-  const reads = cycled
-    ? `    _values = __import__('ast').literal_eval(input())\n    _pos = int(input().strip())\n    args.append(_to_list_cycle(_values, _pos))`
-    : params.map((p) => {
-        if (p.type === "bool") {
-          return `    _line = input()\n    args.append(_line == 'true')`;
-        }
-        if (p.type === "str") {
-          return `    args.append(input())`;
-        }
-        return `    args.append(__import__('ast').literal_eval(input()))`;
-      }).join("\n");
-  const helpers = `
+const PY_IMPORTS = `import sys, json, math, re, bisect, heapq, random, functools, itertools, collections, string, operator
+from typing import List, Optional, Dict, Tuple, Set
+from collections import deque, defaultdict, Counter, OrderedDict
+from functools import lru_cache, reduce
+from math import inf, gcd`;
+
+const PY_HELPERS = `
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
-
-def _to_list_cycle(arr, pos):
-    if not arr:
-        return None
-    _nodes = [ListNode(arr[0])]
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children if children is not None else []
+def _to_list(arr):
+    if not arr: return None
+    _h = ListNode(arr[0]); _c = _h
     for _v in arr[1:]:
-        _nodes.append(ListNode(_v))
-        _nodes[-2].next = _nodes[-1]
-    if pos is not None and pos >= 0 and pos < len(_nodes):
-        _nodes[-1].next = _nodes[pos]
-    return _nodes[0]
+        _c.next = ListNode(_v); _c = _c.next
+    return _h
+def _to_list_cycle(arr, pos):
+    if not arr: return None
+    _n = [ListNode(arr[0])]
+    for _v in arr[1:]:
+        _n.append(ListNode(_v)); _n[-2].next = _n[-1]
+    if pos is not None and pos >= 0 and pos < len(_n): _n[-1].next = _n[pos]
+    return _n[0]
+def _from_list(head):
+    _r = []
+    while head:
+        _r.append(head.val); head = head.next
+    return _r
+def _to_tree(arr):
+    if not arr: return None
+    _root = TreeNode(arr[0]); _q = [_root]; _i = 1
+    while _q and _i < len(arr):
+        _nd = _q.pop(0)
+        if _i < len(arr) and arr[_i] is not None:
+            _nd.left = TreeNode(arr[_i]); _q.append(_nd.left)
+        _i += 1
+        if _i < len(arr) and arr[_i] is not None:
+            _nd.right = TreeNode(arr[_i]); _q.append(_nd.right)
+        _i += 1
+    return _root
+def _from_tree(root):
+    if not root: return []
+    _r = []; _q = [root]
+    while _q:
+        _nd = _q.pop(0)
+        if _nd is None: _r.append(None)
+        else:
+            _r.append(_nd.val); _q.append(_nd.left); _q.append(_nd.right)
+    while _r and _r[-1] is None: _r.pop()
+    return _r
+def _to_nary(arr):
+    if not arr: return None
+    _root = Node(arr[0], []); _q = [_root]; _i = 2
+    while _q and _i < len(arr):
+        _p = _q.pop(0)
+        while _i < len(arr) and arr[_i] is not None:
+            _ch = Node(arr[_i], []); _p.children.append(_ch); _q.append(_ch); _i += 1
+        _i += 1
+    return _root
+def _from_nary(root):
+    if not root: return []
+    _r = [root.val, None]; _q = [root]
+    while _q:
+        _nd = _q.pop(0)
+        for _c in (_nd.children or []):
+            _r.append(_c.val); _q.append(_c)
+        if _q: _r.append(None)
+    while _r and _r[-1] is None: _r.pop()
+    return _r
 `;
-  return `import sys
-${helpers}
+
+function buildPythonDriver(code: string, methodName: string, params: Param[], returnType: string): string {
+  const cycled = isCycledListParams(params);
+  const reads = cycled
+    ? `    _values = json.loads(input())\n    _pos = int(input().strip())\n    args.append(_to_list_cycle(_values, _pos))`
+    : params.map((p) => {
+        if (p.type === "bool") return `    args.append(input().strip() == 'true')`;
+        if (p.type === "str") {
+          // JSON-encoded string ("abc") or bare — accept both
+          return `    _l = input()\n    try:\n        _v = json.loads(_l)\n        args.append(_v if isinstance(_v, str) else _l)\n    except Exception:\n        args.append(_l)`;
+        }
+        if (isTreeT(p.type)) return `    args.append(_to_tree(json.loads(input())))`;
+        if (isListT(p.type)) return `    args.append(_to_list(json.loads(input())))`;
+        if (isNaryT(p.type)) return `    args.append(_to_nary(json.loads(input())))`;
+        return `    args.append(json.loads(input()))`;
+      }).join("\n");
+  const out = isTreeT(returnType)
+    ? `    print(json.dumps(_from_tree(r)))`
+    : isListT(returnType)
+    ? `    print(json.dumps(_from_list(r)))`
+    : isNaryT(returnType)
+    ? `    print(json.dumps(_from_nary(r)))`
+    : `    print(_fmt(r))`;
+  return `${PY_IMPORTS}
+${PY_HELPERS}
 ${code}
 
 def _fmt(v):
-    if isinstance(v, bool):
-        return 'true' if v else 'false'
-    if isinstance(v, (list, tuple)):
-        return '[' + ','.join(_fmt(x) for x in v) + ']'
-    if isinstance(v, str):
-        return v
+    if isinstance(v, bool): return 'true' if v else 'false'
+    if v is None: return 'null'
+    if isinstance(v, (list, tuple)): return '[' + ','.join(_fmt(x) for x in v) + ']'
+    if isinstance(v, str): return v
     return str(v)
 
 if __name__ == '__main__':
@@ -108,21 +179,15 @@ if __name__ == '__main__':
 ${reads}
     sol = Solution()
     r = sol.${methodName}(*args)
-    print(_fmt(r))
+${out}
 `;
 }
 
-function buildJsDriver(code: string, methodName: string, params: Param[]): string {
-  const cycled = isCycledListParams(params);
-  const reads = cycled
-    ? `const _values = JSON.parse(lines.shift());\n  const _pos = parseInt(lines.shift().trim(), 10);\n  args.push(_toListCycle(_values, _pos));`
-    : params.map((p) => {
-        if (p.type === "bool") return `args.push(lines.shift() === 'true');`;
-        if (p.type === "str") return `args.push(lines.shift());`;
-        return `args.push(JSON.parse(lines.shift()));`;
-      }).join("\n  ");
-  const helpers = `
+const JS_HELPERS = `
 function ListNode(val, next) { this.val = val === undefined ? 0 : val; this.next = next === undefined ? null : next; }
+function TreeNode(val, left, right) { this.val = val === undefined ? 0 : val; this.left = left === undefined ? null : left; this.right = right === undefined ? null : right; }
+function _Node(val, children) { this.val = val === undefined ? null : val; this.children = children === undefined ? [] : children; }
+var Node = _Node;
 function _toListCycle(arr, pos) {
   if (!arr || !arr.length) return null;
   const nodes = [new ListNode(arr[0])];
@@ -130,20 +195,47 @@ function _toListCycle(arr, pos) {
   if (pos != null && pos >= 0 && pos < nodes.length) nodes[nodes.length - 1].next = nodes[pos];
   return nodes[0];
 }
+function _toList(arr) { if (!arr || !arr.length) return null; const h = new ListNode(arr[0]); let c = h; for (let i=1;i<arr.length;i++){ c.next = new ListNode(arr[i]); c = c.next; } return h; }
+function _fromList(head){ const r=[]; while(head){ r.push(head.val); head=head.next; } return r; }
+function _toTree(arr){ if(!arr||!arr.length) return null; const root=new TreeNode(arr[0]); const q=[root]; let i=1; while(q.length&&i<arr.length){ const nd=q.shift(); if(i<arr.length&&arr[i]!=null){ nd.left=new TreeNode(arr[i]); q.push(nd.left);} i++; if(i<arr.length&&arr[i]!=null){ nd.right=new TreeNode(arr[i]); q.push(nd.right);} i++; } return root; }
+function _fromTree(root){ if(!root) return []; const r=[]; const q=[root]; while(q.length){ const nd=q.shift(); if(nd==null) r.push(null); else { r.push(nd.val); q.push(nd.left); q.push(nd.right);} } while(r.length&&r[r.length-1]==null) r.pop(); return r; }
+function _toNary(arr){ if(!arr||!arr.length) return null; const root=new _Node(arr[0],[]); const q=[root]; let i=2; while(q.length&&i<arr.length){ const p=q.shift(); while(i<arr.length&&arr[i]!=null){ const ch=new _Node(arr[i],[]); p.children.push(ch); q.push(ch); i++; } i++; } return root; }
+function _fromNary(root){ if(!root) return []; const r=[root.val,null]; const q=[root]; while(q.length){ const nd=q.shift(); for(const c of (nd.children||[])){ r.push(c.val); q.push(c);} if(q.length) r.push(null);} while(r.length&&r[r.length-1]==null) r.pop(); return r; }
 `;
-  return `${helpers}
+
+function buildJsDriver(code: string, methodName: string, params: Param[], returnType: string): string {
+  const cycled = isCycledListParams(params);
+  const reads = cycled
+    ? `const _values = JSON.parse(lines.shift());\n  const _pos = parseInt(lines.shift().trim(), 10);\n  args.push(_toListCycle(_values, _pos));`
+    : params.map((p) => {
+        if (p.type === "bool") return `args.push(lines.shift() === 'true');`;
+        if (p.type === "str") { return `{ const _l = lines.shift(); try { const _v = JSON.parse(_l); args.push(typeof _v === 'string' ? _v : _l); } catch(e) { args.push(_l); } }`; }
+        if (isTreeT(p.type)) return `args.push(_toTree(JSON.parse(lines.shift())));`;
+        if (isListT(p.type)) return `args.push(_toList(JSON.parse(lines.shift())));`;
+        if (isNaryT(p.type)) return `args.push(_toNary(JSON.parse(lines.shift())));`;
+        return `args.push(JSON.parse(lines.shift()));`;
+      }).join("\n  ");
+  const out = isTreeT(returnType)
+    ? `console.log(JSON.stringify(_fromTree(r)));`
+    : isListT(returnType)
+    ? `console.log(JSON.stringify(_fromList(r)));`
+    : isNaryT(returnType)
+    ? `console.log(JSON.stringify(_fromNary(r)));`
+    : `console.log(_fmt(r));`;
+  return `${JS_HELPERS}
 ${code}
 const lines = require('fs').readFileSync(0, 'utf8').split('\\n');
 const args = [];
   ${reads}
 function _fmt(v) {
   if (typeof v === 'boolean') return v ? 'true' : 'false';
+  if (v === null) return 'null';
   if (Array.isArray(v)) return '[' + v.map(_fmt).join(',') + ']';
   return String(v);
 }
 const sol = (typeof Solution !== 'undefined') ? new Solution() : { ${methodName}: (typeof ${methodName} !== 'undefined' ? ${methodName} : null) };
 const r = (sol.${methodName}).apply(sol, args);
-console.log(_fmt(r));
+${out}
 `;
 }
 
@@ -294,12 +386,16 @@ ${reads}
 }
 
 function buildDriver(language: string, code: string, methodName: string, params: Param[], returnType: string): string {
-  if (language === "python") return buildPythonDriver(code, methodName, params);
-  if (language === "javascript") return buildJsDriver(code, methodName, params);
+  if (language === "python") return buildPythonDriver(code, methodName, params, returnType);
+  if (language === "javascript") return buildJsDriver(code, methodName, params, returnType);
   if (language === "java") return buildJavaDriver(code, methodName, params, returnType);
   if (language === "cpp") return buildCppDriver(code, methodName, params);
   throw new Error(`grade-submission: unsupported language ${language}`);
 }
+
+const isTreeT = (t: string) => t === "TreeNode" || t === "Optional[TreeNode]";
+const isListT = (t: string) => t === "ListNode" || t === "Optional[ListNode]";
+const isNaryT = (t: string) => t === "Node" || t === "Optional[Node]";
 
 function stdinFromTestCase(tc: TestCase): string {
   // Each input on its own line; preserve as-is (already serialised by seed scripts).

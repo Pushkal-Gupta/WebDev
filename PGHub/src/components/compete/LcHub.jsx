@@ -151,13 +151,13 @@ export default function LcHub() {
   const pendingRank = fetchedRank
     ?? (manualRank.trim() && Number(manualRank) > 0 ? Math.round(Number(manualRank)) : null);
   const pendingPrediction = pending && pendingRank
-    ? predictDelta({
+    ? Math.round(predictDelta({
         rating: pending.base,
         actualRank: pendingRank,
         contestsPlayed: pending.played,
         fieldRatings: SAMPLE_FIELD,
         fieldSize: fetchedField,
-      })
+      }).delta)
     : null;
 
   // What-if re-runs against the SAME baseline the latest round used: the

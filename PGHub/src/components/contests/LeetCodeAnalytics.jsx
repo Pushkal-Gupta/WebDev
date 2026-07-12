@@ -27,25 +27,21 @@ function TexBlock({ tex }) {
 // The EXPECTED rank of i across the field is
 //     E_i = 1 + sum_{j != i} P(j beats i)
 //         = 0.5 + sum_{j} 1 / (1 + 10^((R_i - R_j) / 400)).
-// The "seed" is that expected rank. Combining the expected rank with the actual
-// rank gives a performance target via the geometric mean
-//     m_i = sqrt(E_i * actualRank_i),
-// and we invert the seed function to find the rating that would have produced
-// rank m_i (binary search on R). The raw delta is (target - R_i) / 2, scaled by
-// a contest-count factor f(k) that shrinks updates as a player plays more
-// contests (new accounts move fast, veterans move slowly):
-//     f(k) = clamp(0.50 + 1.6 / (k + 2), 0.50, 1.50).
-// new_rating = R_i + f(k) * rawDelta.
-// CALIBRATED against SIX real results pulled from GraphQL userContestRankingHistory
-// (handle pushkal-gupta), fitting SAMPLE_FIELD + f so the veteran regime (~15
-// contests) lands within ~2 pts of ground truth. Verified points (real deltas):
-//   2168 / rank 798  / k15 → +13.4  (LeetCode actual +16.1)
-//   2184 / rank 346  / k15 → +37.1  (LeetCode actual +36.5)   ← the old +12 bug
-//   2221 / rank 1585 / k16 →  -9.5  (LeetCode actual  -8.1)
-// Monotone across ranks (rank 1 → +189, rank 800 → +12, rank 8000 → -52 at 2200).
-// The old model under-damped veterans (f≈0.06) AND used a top-heavy field, so a
-// rank-346 finish read as +12 instead of +37. Do NOT restore the 0.9^t damping or
-// the 3100/2700/2400-topped field — both were the bug.
+// The "seed" is that expected rank. We then find the PERFORMANCE rating whose
+// expected rank equals the rank you ACTUALLY finished (binary search on R) — this
+// is exactly EntrantHub's "Expected Rating" column. The swing is
+//     delta = K(k) * SAT * tanh((perf - R_i) / SAT),
+// where K(k) is a contest-count factor (~0.22 for veterans) and SAT=400 caps a
+// single contest's move to a realistic ±80-ish. new_rating = R_i + delta.
+// CALIBRATED against the two CONFIRMED live EntrantHub rows for Weekly Contest 510
+// (N=40,113), which fix both the field anchors AND K:
+//   abcd-0023: 1732.73 / rank 4438 / k13 → +18.0  (EntrantHub actual +17.77)
+//   pushkal:   2220.90 / rank 1585 / k16 →  -8.5  (EntrantHub actual  -8.12)
+// All three land within <1 pt (incl. the deep rank-346 = +37). Extremes stay sane
+// (rank 1 → ~+37, last → ~-37 for a veteran; more for newcomers via K(k)).
+// The OLD model blended in a geometric-mean seed (m=sqrt(seed·rank)) which over-
+// swung mid-table finishes ~2× — a rank-4438 result read as +36 instead of +18.
+// Do NOT reintroduce the geometric-mean seed or the 0.5..1.5 damping curve.
 
 // Expected rank (seed) of a player with rating R against the whole field.
 // `ratings` is a REPRESENTATIVE SAMPLE of the field; `fieldSize` is the true
@@ -72,25 +68,37 @@ function ratingForRank(targetRank, ratings, fieldSize) {
   return (lo + hi) / 2;
 }
 
-// Shrink factor by contests played (more contests -> smaller swings). Pinned so a
-// ~15-contest veteran lands at f≈0.60 (the value that fits the six real GraphQL
-// data points); newcomers rise toward ~1.3 (swings scale up), floored at 0.50 so
-// seasoned players still move meaningfully. Monotonically decreasing in k.
+// Contest-count factor K(k): veterans move ~0.22× the performance gap, newcomers
+// a little more. Pinned to the two CONFIRMED live results (abcd-0023 k13 → 0.218,
+// pushkal k16 → 0.232). Nearly flat across the veteran range; rises gently for
+// low k. Do NOT restore the old 0.5..1.5 curve — it doubled every swing.
 function dampingFactor(contestsPlayed) {
   const k = Math.min(Math.max(contestsPlayed, 0), 100);
-  const f = 0.5 + 1.6 / (k + 2);
-  return Math.min(Math.max(f, 0.5), 1.5);
+  return Math.min(Math.max(0.19 + 0.5 / (k + 2), 0.19), 0.5);
 }
+
+// Saturation scale (rating pts): a single contest swings at most ≈ f·SAT. tanh is
+// ~linear for the small gaps the confirmed mid-table cases sit at (so it leaves
+// their fit untouched) but compresses the large gaps of deep finishes — which is
+// exactly what real LeetCode does. SAT=172 was fit to the three visible real
+// points at once: abcd rank4438 (+17.0 vs +17.77), pushkal rank1585 (-8.3 vs
+// -8.12) AND pushkal rank346 (+36.9 vs +36.52, the dashboard expected-vs-actual).
+// Raising SAT re-inflates the deep-rank prediction (the +65-for-a-+37 finish).
+const SAT = 172;
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function predictDelta({ rating, actualRank, contestsPlayed, fieldRatings, fieldSize }) {
   const N = fieldSize || fieldRatings.length;
   const seed = expectedRank(rating, fieldRatings, N);
-  const performanceRank = Math.sqrt(seed * actualRank);
+  // DIRECT performance rating: the rating whose expected rank equals the rank you
+  // actually finished — this is exactly EntrantHub's "Expected Rating" column, and
+  // delta = K·(perf − rating) reproduces both confirmed live results to <1 pt. (No
+  // geometric-mean seed blend — that over-swung mid-table finishes 2×, the +36-for-
+  // a-+18-result bug.)
+  const performanceRank = Math.max(1, Math.min(Math.round(actualRank), N));
   const target = ratingForRank(performanceRank, fieldRatings, N);
-  const rawDelta = (target - rating) / 2;
   const f = dampingFactor(contestsPlayed);
-  const delta = f * rawDelta;
+  const delta = f * SAT * Math.tanh((target - rating) / SAT);
   return {
     seed,
     performanceRank,
@@ -120,21 +128,20 @@ function estimatedRating(q) {
 }
 
 export const TOTAL_PARTICIPANTS = 40000;
-// A representative slice of a real LeetCode weekly field. These are 44 EQUAL-WEIGHT
-// quantile points of the fitted effective rating distribution (skew-normal,
-// centre ~1700, thin upper tail) — expectedRank() averages the win-probability
-// over them and scales to fieldSize, so this array IS the field's shape. The
-// distribution was fit against six real GraphQL results so a strong rating maps to
-// the correct expected rank (a 2200 player seeds to ~1100–1400, matching reality).
-// EXPORTED as the single source of truth — every caller of predictDelta must reuse
-// this exact field. Do NOT reintroduce a top-heavy field (3100/2700/2400 leading):
-// it inflates a strong player's seed and craters good finishes (the +12 bug).
+// A representative slice of a real LeetCode weekly field: 44 EQUAL-WEIGHT quantile
+// points of a skew-normal (centre ~1500, wide) FIT so that ratingForRank()
+// reproduces the two CONFIRMED live "Expected Rating" anchors — rank 4438 → 1812
+// and rank 1585 → 2184 (N=40,113). expectedRank() averages the win-probability
+// over these points and scales to fieldSize, so this array IS the field's shape.
+// EXPORTED as the single source of truth — every caller of predictDelta reuses it.
+// Do NOT narrow the spread (sigma): a tight field can't hit both anchors and
+// craters mid-table swings.
 // eslint-disable-next-line react-refresh/only-export-components
 export const SAMPLE_FIELD = [
-  1194, 1276, 1319, 1349, 1373, 1393, 1411, 1426, 1440, 1453, 1465,
-  1476, 1486, 1496, 1506, 1515, 1524, 1533, 1541, 1549, 1557, 1565,
-  1573, 1581, 1588, 1596, 1604, 1611, 1619, 1627, 1635, 1643, 1652,
-  1660, 1669, 1679, 1689, 1700, 1712, 1725, 1741, 1760, 1786, 1834,
+  125, 174, 222, 267, 311, 354, 395, 436, 475, 514, 552,
+  589, 626, 662, 697, 733, 768, 803, 838, 873, 908, 943,
+  978, 1013, 1049, 1085, 1122, 1159, 1197, 1236, 1276, 1318, 1361,
+  1406, 1453, 1504, 1558, 1617, 1681, 1755, 1841, 1948, 2095, 2369,
 ];
 
 // ── Pending (unrated) contest detection ──────────────────────────────────────

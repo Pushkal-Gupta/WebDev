@@ -14,6 +14,8 @@ const TYPE_MAP = {
   'Optional[ListNode]': { jsdoc: 'ListNode',   java: 'ListNode',  cpp: 'ListNode*',                 go: '*ListNode',  c: 'struct ListNode*', swift: 'ListNode?', kotlin: 'ListNode?', rust: 'Option<Box<ListNode>>',     typescript: 'ListNode | null' },
   'TreeNode':           { jsdoc: 'TreeNode',   java: 'TreeNode',  cpp: 'TreeNode*',                 go: '*TreeNode',  c: 'struct TreeNode*', swift: 'TreeNode?', kotlin: 'TreeNode?', rust: 'Option<Rc<RefCell<TreeNode>>>', typescript: 'TreeNode | null' },
   'Optional[TreeNode]': { jsdoc: 'TreeNode',   java: 'TreeNode',  cpp: 'TreeNode*',                 go: '*TreeNode',  c: 'struct TreeNode*', swift: 'TreeNode?', kotlin: 'TreeNode?', rust: 'Option<Rc<RefCell<TreeNode>>>', typescript: 'TreeNode | null' },
+  'Node':               { jsdoc: 'Node',       java: 'Node',      cpp: 'Node*',                     go: '*Node',      c: 'struct Node*',     swift: 'Node?',     kotlin: 'Node?',     rust: 'Option<Rc<RefCell<Node>>>',    typescript: 'Node | null' },
+  'Optional[Node]':     { jsdoc: 'Node',       java: 'Node',      cpp: 'Node*',                     go: '*Node',      c: 'struct Node*',     swift: 'Node?',     kotlin: 'Node?',     rust: 'Option<Rc<RefCell<Node>>>',    typescript: 'Node | null' },
 };
 
 const jt = (pyType) => TYPE_MAP[pyType]?.java || pyType;
@@ -28,6 +30,18 @@ const tst = (pyType) => TYPE_MAP[pyType]?.typescript || pyType;
 
 const isListNodeType = (t) => t === 'ListNode' || t === 'Optional[ListNode]';
 const isTreeNodeType = (t) => t === 'TreeNode' || t === 'Optional[TreeNode]';
+const isNaryType = (t) => t === 'Node' || t === 'Optional[Node]';
+
+// Auto-injected Python imports so a user never has to write `from collections
+// import deque` etc. Prepended before user code; redundant re-imports in the
+// user's own code are harmless in Python.
+const PY_IMPORTS = [
+  'import sys, json, math, re, bisect, heapq, random, functools, itertools, collections, string, operator',
+  'from typing import List, Optional, Dict, Tuple, Set',
+  'from collections import deque, defaultdict, Counter, OrderedDict',
+  'from functools import lru_cache, reduce',
+  'from math import inf, gcd',
+].join('\n');
 
 const camelToSnake = (s) => s.replace(/[A-Z]/g, (m, i) => (i === 0 ? m.toLowerCase() : '_' + m.toLowerCase()));
 
@@ -348,6 +362,45 @@ def _from_tree(root):
             _result.append(_node.val)
             _q.append(_node.left)
             _q.append(_node.right)
+    while _result and _result[-1] is None:
+        _result.pop()
+    return _result
+
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children if children is not None else []
+
+def _to_nary(arr):
+    # LeetCode level-order n-ary encoding: root, null, then each node's children
+    # groups separated by null. Reconstructs the real Node tree.
+    if not arr:
+        return None
+    _root = Node(arr[0], [])
+    _q = [_root]
+    _i = 2
+    while _q and _i < len(arr):
+        _parent = _q.pop(0)
+        while _i < len(arr) and arr[_i] is not None:
+            _child = Node(arr[_i], [])
+            _parent.children.append(_child)
+            _q.append(_child)
+            _i += 1
+        _i += 1
+    return _root
+
+def _from_nary(root):
+    if not root:
+        return []
+    _result = [root.val, None]
+    _q = [root]
+    while _q:
+        _node = _q.pop(0)
+        for _c in (_node.children or []):
+            _result.append(_c.val)
+            _q.append(_c)
+        if _q:
+            _result.append(None)
     while _result and _result[-1] is None:
         _result.pop()
     return _result
@@ -1789,6 +1842,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
   const args = cycledInput ? 'head' : params.map(p => p.name).join(', ');
   const retIsList = isListNodeType(returnType);
   const retIsTree = isTreeNodeType(returnType);
+  const retIsNary = isNaryType(returnType);
   const multiCaseCount = Math.max(1, Number(opts.multiCaseCount) || 1);
 
   if (language === 'python') {
@@ -1797,8 +1851,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
                   && params[0].type && params[0].type.startsWith('List[List');
     if (isOps) {
       return [
-        'import sys, json',
-        'from typing import List, Optional, Dict, Tuple, Set',
+        PY_IMPORTS,
         PY_HELPERS,
         userCode,
         '',
@@ -1828,6 +1881,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       : params.map((p, i) => {
           if (isListNodeType(p.type)) return `${p.name} = _to_list(json.loads(_lines[${i}]))`;
           if (isTreeNodeType(p.type)) return `${p.name} = _to_tree(json.loads(_lines[${i}]))`;
+          if (isNaryType(p.type)) return `${p.name} = _to_nary(json.loads(_lines[${i}]))`;
           return `${p.name} = json.loads(_lines[${i}])`;
         }).join('\n');
 
@@ -1837,6 +1891,8 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       outputBlock = 'print(json.dumps(_from_list(_result)))';
     } else if (retIsTree) {
       outputBlock = 'print(json.dumps(_from_tree(_result)))';
+    } else if (retIsNary) {
+      outputBlock = 'print(json.dumps(_from_nary(_result)))';
     } else {
       outputBlock = [
         'if isinstance(_result, bool):',
@@ -1852,8 +1908,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
 
     return [
       'from __future__ import annotations',
-      'import sys, json',
-      'from typing import List, Optional, Dict, Tuple, Set',
+      PY_IMPORTS,
       PY_HELPERS,
       userCode,
       '',
