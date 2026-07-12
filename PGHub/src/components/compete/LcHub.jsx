@@ -130,14 +130,20 @@ export default function LcHub() {
     : null;
 
   // LeetCode publishes the contest RANKING immediately (before the official
-  // rating change). We TRY to auto-fetch the user's rank server-side, but
-  // LeetCode's ranking REST API is behind Cloudflare and blocks server fetches,
-  // so we also let the user type the rank they see on the contest page — either
-  // way we PREDICT the swing now (Current -> Predicted), which is the point.
-  const { data: pendingRankData } = useLcUserContestRank(pending?.slug, handle, !!pending);
+  // rating change). We auto-fetch the user's rank server-side (the lc-user-
+  // contest-rank edge function reads LeetCode's ranking through a headless-
+  // browser proxy that clears Cloudflare, centering the scan on the page the
+  // user's rating implies). Passing the rating makes that scan fast. If the rank
+  // can't be reached, the user can still type it — either way we PREDICT the
+  // swing now (Current -> Predicted). The fetched field size (real participant
+  // count) also feeds the model instead of the default estimate.
+  const { data: pendingRankData } = useLcUserContestRank(pending?.slug, handle, pending?.base, !!pending);
   const fetchedRank = pendingRankData?.ok && pendingRankData?.found
     ? Math.max(1, Number(pendingRankData.rank) || 0)
     : null;
+  const fetchedField = pendingRankData?.ok && Number(pendingRankData.totalUsers) > 0
+    ? Math.round(Number(pendingRankData.totalUsers))
+    : TOTAL_PARTICIPANTS;
   const [manualRank, setManualRank] = useState('');
   // Reset the typed rank whenever the pending contest changes.
   // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -150,7 +156,7 @@ export default function LcHub() {
         actualRank: pendingRank,
         contestsPlayed: pending.played,
         fieldRatings: SAMPLE_FIELD,
-        fieldSize: TOTAL_PARTICIPANTS,
+        fieldSize: fetchedField,
       })
     : null;
 
@@ -323,7 +329,9 @@ export default function LcHub() {
                   <div className="lch-fact">
                     <span className="lch-fact-ico"><Hash size={14} aria-hidden /></span>
                     <span className="lch-fact-val">{pendingRank ? `#${pendingRank.toLocaleString()}` : '…'}</span>
-                    <span className="lch-fact-lbl">{pendingRank ? 'Your rank' : 'Fetching rank'}</span>
+                    <span className="lch-fact-lbl">
+                      {pendingRank ? 'Your rank' : (pendingRankData === undefined ? 'Fetching rank' : 'Enter rank below')}
+                    </span>
                   </div>
                   <div className="lch-fact">
                     <span className="lch-fact-ico"><Award size={14} aria-hidden /></span>

@@ -435,7 +435,7 @@
   height: 100%;
   padding: 1.1rem 1.2rem;
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--surface);
   position: relative;
   overflow: hidden;
@@ -567,7 +567,7 @@
   margin-top: auto;
   padding: 1.1rem 1.3rem;
   border: 1px dashed rgba(var(--accent-rgb), 0.45);
-  border-radius: 14px;
+  border-radius: 12px;
   background: linear-gradient(
     135deg,
     rgba(var(--accent-rgb), 0.07),

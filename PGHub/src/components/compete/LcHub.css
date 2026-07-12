@@ -104,7 +104,7 @@
 
 .lch-panel {
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: var(--surface);
   padding: 1.3rem 1.4rem 1.5rem;
 }

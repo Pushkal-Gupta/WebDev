@@ -602,12 +602,12 @@ export function useLcContestRanking(slug, page = 1, enabled = true) {
 // lc-user-contest-rank edge function). Used to predict the rating swing for a
 // contest LeetCode has published rankings for but not yet officially rated.
 // Returns { ok, found, rank, score, finishTime, totalUsers } or { ok:false }.
-export function useLcUserContestRank(slug, username, enabled = true) {
+export function useLcUserContestRank(slug, username, rating = 0, enabled = true) {
   return useQuery({
-    queryKey: qk.lcUserContestRank(slug, username),
+    queryKey: [...qk.lcUserContestRank(slug, username), Math.round(rating) || 0],
     queryFn: async () => {
       const { data, error } = await supabase.functions.invoke('lc-user-contest-rank', {
-        body: { contest: slug, username },
+        body: { contest: slug, username, rating: Math.round(rating) || 0 },
       });
       if (error) return { ok: false, error: error.message };
       return data;
