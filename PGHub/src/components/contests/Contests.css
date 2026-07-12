@@ -2267,18 +2267,99 @@
   .ctx-rank-row > :nth-child(4) { display: none; }
 }
 
-/* Per-contest analytics banner (shown when reached from a contest's Analytics link) */
-.lca-contest-banner {
+/* Per-contest analytics header card (shown when reached from a contest's Analytics link) */
+.lca-chero {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.9rem;
-  margin-bottom: 0.9rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1.1rem 1.3rem;
+  margin-bottom: 1rem;
   border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--surface);
-  color: var(--text-main);
-  font-size: 0.9rem;
 }
-.lca-contest-banner svg { color: var(--accent); flex: 0 0 auto; }
+.lca-chero-main { display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; }
+.lca-chero-badges { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.lca-cbadge {
+  font-family: var(--mono, monospace);
+  font-size: 0.66rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+  padding: 0.22rem 0.55rem; border-radius: 999px; border: 1px solid var(--border);
+  color: var(--text-dim); background: var(--bg);
+}
+.lca-cbadge.is-weekly   { color: var(--warning); border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.lca-cbadge.is-biweekly { color: var(--hue-violet); border-color: color-mix(in srgb, var(--hue-violet) 45%, var(--border)); }
+.lca-cbadge.is-num      { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.lca-cbadge.is-ended    { color: var(--text-dim); }
+.lca-chero-title { font-family: var(--serif); font-size: 1.9rem; font-weight: 700; color: var(--text-main); margin: 0; line-height: 1.1; }
+.lca-chero-tiles { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.2rem; }
+.lca-ctile {
+  display: flex; flex-direction: column; gap: 0.25rem;
+  padding: 0.55rem 0.8rem; min-width: 8rem;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--bg);
+}
+.lca-ctile-lbl { display: flex; align-items: center; gap: 0.35rem; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--text-dim); }
+.lca-ctile-lbl svg { color: var(--accent); }
+.lca-ctile b { font-family: var(--mono, monospace); font-size: 0.85rem; font-weight: 700; color: var(--text-main); }
+.lca-chero-view {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 0.4rem;
+  font-family: var(--mono, monospace); font-size: 0.78rem; font-weight: 600;
+  padding: 0.5rem 0.85rem; border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
+  background: color-mix(in srgb, var(--accent) 12%, var(--surface));
+  color: var(--accent); text-decoration: none; transition: background 0.15s;
+}
+.lca-chero-view:hover { background: color-mix(in srgb, var(--accent) 20%, var(--surface)); }
+@media (max-width: 620px) { .lca-chero-title { font-size: 1.5rem; } }
+
+/* ── Per-contest results table (real data via lc-contest edge fn) ──────────── */
+.lca-results { margin-top: 1.75rem; }
+.lca-results-head { display: flex; flex-direction: column; gap: 0.2rem; margin-bottom: 0.9rem; }
+.lca-results-title {
+  display: inline-flex; align-items: center; gap: 0.5rem; margin: 0;
+  font-size: 1.05rem; font-weight: 700; color: var(--text-main);
+}
+.lca-results-title svg { color: var(--accent); }
+.lca-results-sub { font-size: 0.82rem; color: var(--text-dim); }
+.lca-results-add { display: flex; gap: 0.6rem; margin-bottom: 0.9rem; }
+.lca-results-add .lca-lookup-input { flex: 1 1 auto; }
+
+.lca-rtable { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.lca-rtable-h, .lca-rtable-r {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr) 4rem 4.5rem 5.5rem 4.5rem 2rem;
+  align-items: center; gap: 0.5rem; padding: 0.6rem 0.9rem;
+}
+.lca-rtable-h {
+  background: var(--hover-box); font-size: 0.72rem; font-weight: 700;
+  letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-dim);
+}
+.lca-rtable-r { border-top: 1px solid var(--border); font-size: 0.88rem; }
+.lca-rtable-r:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.lca-rc-num { text-align: right; font-family: var(--mono, monospace); font-variant-numeric: tabular-nums; }
+.lca-rc-rank { font-family: var(--mono, monospace); font-weight: 700; color: var(--text-main); }
+.lca-rc-user { color: var(--accent); text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lca-rc-user:hover { text-decoration: underline; }
+.lca-rc-dim { color: var(--text-dim); }
+.lca-rc-new { font-weight: 700; color: var(--text-main); }
+.lca-rc-chg { font-weight: 700; color: var(--text-dim); }
+.lca-rc-chg.is-up { color: var(--easy); }
+.lca-rc-chg.is-dn { color: var(--hard); }
+.lca-rc-x {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 1.6rem; height: 1.6rem; padding: 0; margin-left: auto;
+  border: 1px solid var(--border); border-radius: 7px; background: transparent;
+  color: var(--text-dim); cursor: pointer; transition: all 0.15s;
+}
+.lca-rc-x:hover { color: var(--hard); border-color: var(--hard); }
+.lca-results-note {
+  display: inline-flex; align-items: center; gap: 0.4rem; margin: 0.7rem 0 0;
+  font-size: 0.78rem; color: var(--text-dim);
+}
+.lca-results-note svg { color: var(--warning); }
+@media (max-width: 620px) {
+  .lca-rtable-h, .lca-rtable-r { grid-template-columns: 3rem minmax(0, 1fr) 4.5rem 4rem 1.6rem; }
+  .lca-rtable-h span:nth-child(4), .lca-rtable-r > *:nth-child(4),
+  .lca-rtable-h span:nth-child(3), .lca-rtable-r > *:nth-child(3) { display: none; }
+}

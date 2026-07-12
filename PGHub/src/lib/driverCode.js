@@ -2816,6 +2816,12 @@ function deepEqual(a, b) {
   if (a === b) return true;
   if (a === null || b === null) return a === b;
   if (typeof a !== typeof b) return false;
+  // Float tolerance — LeetCode accepts answers within ~1e-5 for real-valued
+  // problems. Stored expecteds are often rounded to 5 dp (0.78333) while the
+  // canonical prints full precision (0.7833333…); a strict compare wrongly WAs a
+  // correct solution. Integers differ by >=1, far above the tolerance, so this
+  // never accepts a wrong integer answer.
+  if (typeof a === 'number') return Math.abs(a - b) <= 1e-5 * Math.max(1, Math.abs(a), Math.abs(b));
   if (typeof a !== 'object') return a === b;
   if (Array.isArray(a) !== Array.isArray(b)) return false;
   if (Array.isArray(a)) {

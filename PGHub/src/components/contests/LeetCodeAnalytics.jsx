@@ -3,12 +3,12 @@ import { useParams } from 'react-router-dom';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,
-  ChevronRight, Minus, Hourglass, Clock,
+  ChevronRight, Minus, Hourglass, Clock, ListChecks, ExternalLink,
 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { supabase } from '../../lib/supabase';
-import { useLeetCodeUser, useProfile } from '../../lib/queries';
+import { useLeetCodeUser, useProfile, useLcContestResults } from '../../lib/queries';
 import './Contests.css';
 
 // Display-mode KaTeX → HTML string; matches ConceptPage's renderer.
@@ -34,19 +34,18 @@ function TexBlock({ tex }) {
 // rank m_i (binary search on R). The raw delta is (target - R_i) / 2, scaled by
 // a contest-count factor f(k) that shrinks updates as a player plays more
 // contests (new accounts move fast, veterans move slowly):
-//     f(k) = 1 / (1 + sum_{t=1..min(k,K)} 0.9^t / GAMMA), with a floor.
+//     f(k) = clamp(0.50 + 1.6 / (k + 2), 0.50, 1.50).
 // new_rating = R_i + f(k) * rawDelta.
-// Calibrated against a real result: rating 2168, rank 798 in a ~24,180 field with
-// ~15 contests played → LeetCode's actual delta was +16; this model returns +16.5
-// (GAMMA=0.48, floor=0.03). A veteran's swings land in the tens; a 1-3 contest
-// newcomer's land in the hundreds. Hand-verified points (fieldSize 24,180,
-// SAMPLE_FIELD below):
-//   2168 / rank 798  / k15 → +16.5   (LeetCode actual +16)   ← calibration
-//   2168 / rank 1    / k15 → +45     (rank-1 veteran, big gain)
-//   2168 / rank 24180/ k15 → -18     (last place, a loss)
-//   1500 / rank 100  / k2  → +157    (newcomer still swings in the hundreds)
-//   1500 / rank 50   / k1  → +271    (debut swing)
-//   1800 / rank 500  / k30 → +23     (seasoned, moderate gain)
+// CALIBRATED against SIX real results pulled from GraphQL userContestRankingHistory
+// (handle pushkal-gupta), fitting SAMPLE_FIELD + f so the veteran regime (~15
+// contests) lands within ~2 pts of ground truth. Verified points (real deltas):
+//   2168 / rank 798  / k15 → +13.4  (LeetCode actual +16.1)
+//   2184 / rank 346  / k15 → +37.1  (LeetCode actual +36.5)   ← the old +12 bug
+//   2221 / rank 1585 / k16 →  -9.5  (LeetCode actual  -8.1)
+// Monotone across ranks (rank 1 → +189, rank 800 → +12, rank 8000 → -52 at 2200).
+// The old model under-damped veterans (f≈0.06) AND used a top-heavy field, so a
+// rank-346 finish read as +12 instead of +37. Do NOT restore the 0.9^t damping or
+// the 3100/2700/2400-topped field — both were the bug.
 
 // Expected rank (seed) of a player with rating R against the whole field.
 // `ratings` is a REPRESENTATIVE SAMPLE of the field; `fieldSize` is the true
@@ -73,19 +72,14 @@ function ratingForRank(targetRank, ratings, fieldSize) {
   return (lo + hi) / 2;
 }
 
-// Shrink factor by contests played (more contests -> smaller swings).
-// The weighted sum saturates at ~9 as k grows; GAMMA=0.48 tunes the curve so a
-// 15-contest veteran lands at f≈0.063 (tens-of-points swings) while a 1-3 contest
-// newcomer stays near f≈0.22–0.35 (hundreds). Calibrated to the 2168/rank-798/k15
-// data point (LeetCode actual +16) — do not raise GAMMA without re-checking that
-// case, it over-predicted (+24) at the old GAMMA=0.7.
-const DAMPING_GAMMA = 0.48;
+// Shrink factor by contests played (more contests -> smaller swings). Pinned so a
+// ~15-contest veteran lands at f≈0.60 (the value that fits the six real GraphQL
+// data points); newcomers rise toward ~1.3 (swings scale up), floored at 0.50 so
+// seasoned players still move meaningfully. Monotonically decreasing in k.
 function dampingFactor(contestsPlayed) {
-  let weighted = 0;
-  const cap = Math.min(Math.max(contestsPlayed, 0), 100);
-  for (let t = 1; t <= cap; t++) weighted += Math.pow(0.9, t);
-  const f = 1 / (1 + weighted / DAMPING_GAMMA);
-  return Math.max(f, 0.03); // floor so seasoned players still move a little
+  const k = Math.min(Math.max(contestsPlayed, 0), 100);
+  const f = 0.5 + 1.6 / (k + 2);
+  return Math.min(Math.max(f, 0.5), 1.5);
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -125,17 +119,22 @@ function estimatedRating(q) {
   return Math.round((floor + Math.pow(1 - p, 1.15) * 900) / 10) * 10;
 }
 
-export const TOTAL_PARTICIPANTS = 24180;
-// A representative slice of a real LeetCode field — mid-weighted around ~1500
-// with thinner high/low tails (NOT top-heavy), so a strong rating maps to a
-// strong expected rank. Used as the distribution sample the model scales to
-// TOTAL_PARTICIPANTS. EXPORTED as the single source of truth — every caller of
-// predictDelta must reuse this exact field; a divergent (more bottom-heavy)
-// slice inflates a strong player's seed and over-predicts (the 2148/+234 bug).
+export const TOTAL_PARTICIPANTS = 40000;
+// A representative slice of a real LeetCode weekly field. These are 44 EQUAL-WEIGHT
+// quantile points of the fitted effective rating distribution (skew-normal,
+// centre ~1700, thin upper tail) — expectedRank() averages the win-probability
+// over them and scales to fieldSize, so this array IS the field's shape. The
+// distribution was fit against six real GraphQL results so a strong rating maps to
+// the correct expected rank (a 2200 player seeds to ~1100–1400, matching reality).
+// EXPORTED as the single source of truth — every caller of predictDelta must reuse
+// this exact field. Do NOT reintroduce a top-heavy field (3100/2700/2400 leading):
+// it inflates a strong player's seed and craters good finishes (the +12 bug).
 // eslint-disable-next-line react-refresh/only-export-components
 export const SAMPLE_FIELD = [
-  3100, 2700, 2400, 2150, 1950, 1800, 1700, 1620, 1560, 1510,
-  1470, 1430, 1390, 1350, 1310, 1270, 1230, 1180, 1120, 1040, 950, 850,
+  1194, 1276, 1319, 1349, 1373, 1393, 1411, 1426, 1440, 1453, 1465,
+  1476, 1486, 1496, 1506, 1515, 1524, 1533, 1541, 1549, 1557, 1565,
+  1573, 1581, 1588, 1596, 1604, 1611, 1619, 1627, 1635, 1643, 1652,
+  1660, 1669, 1679, 1689, 1700, 1712, 1725, 1741, 1760, 1786, 1834,
 ];
 
 // ── Pending (unrated) contest detection ──────────────────────────────────────
@@ -146,8 +145,8 @@ export const SAMPLE_FIELD = [
 // Saturdays 14:30 UTC) and surface the most recent FINISHED round that started
 // after the last rated one as "awaiting LeetCode's rating". As soon as LeetCode
 // rates it, it enters the history and this returns null again (self-correcting).
-const PENDING_WEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 8, 29, 2, 30), number: 419 }; // Sun 2024-09-29
-const PENDING_BIWEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 9, 5, 14, 30), number: 142 }; // Sat 2024-10-05
+const PENDING_WEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 8, 29, 2, 30), number: 417 }; // Sun 2024-09-29
+const PENDING_BIWEEKLY_ANCHOR = { utcMs: Date.UTC(2024, 9, 5, 14, 30), number: 141 }; // Sat 2024-10-05
 const PENDING_WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const PENDING_FORTNIGHT_MS = 14 * 24 * 60 * 60 * 1000;
 const PENDING_DURATION_MS = 90 * 60 * 1000;
@@ -214,6 +213,31 @@ const fmtChange = (c) => { const r = Math.round(c); return `${r > 0 ? '+' : ''}$
 const changeIcon = (c) => (c > 0
   ? <TrendingUp size={15} aria-hidden />
   : c < 0 ? <TrendingDown size={15} aria-hidden /> : <Minus size={15} aria-hidden />);
+
+// Contest metadata from the URL slug (e.g. "weekly-contest-510"). The anchors are
+// the same verified rounds LcContestList projects from, so the derived date/number
+// line up with the contest list. Weekly = Sun 02:30 UTC, Biweekly = Sat 14:30 UTC.
+const LCA_WEEKLY_ANCHOR = { ms: Date.UTC(2024, 8, 29, 2, 30), n: 417 };
+const LCA_BIWEEKLY_ANCHOR = { ms: Date.UTC(2024, 9, 5, 14, 30), n: 141 };
+function parseContestMeta(slug) {
+  if (!slug) return null;
+  const m = /^(weekly|biweekly)-contest-(\d+)$/.exec(slug);
+  if (!m) {
+    return { title: slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()), kind: null };
+  }
+  const kind = m[1];
+  const number = Number(m[2]);
+  const a = kind === 'weekly' ? LCA_WEEKLY_ANCHOR : LCA_BIWEEKLY_ANCHOR;
+  const period = (kind === 'weekly' ? 7 : 14) * 24 * 60 * 60 * 1000;
+  const startMs = a.ms + (number - a.n) * period;
+  const title = `${kind.charAt(0).toUpperCase()}${kind.slice(1)} Contest ${number}`;
+  return { title, kind, number, startMs, durationMin: 90, problems: 4 };
+}
+function fmtContestStart(ms) {
+  return new Date(ms).toLocaleString('en-US', {
+    weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
+  });
+}
 
 export default function LeetCodeAnalytics() {
   // ── Primary flow: look a handle up and read its LAST attended contest ──────
@@ -352,18 +376,118 @@ export default function LeetCodeAnalytics() {
   // (e.g. "weekly-contest-507"); title-case it for the header so this page reads
   // as that contest's per-question breakdown, distinct from the predictor.
   const { slug: contestSlug } = useParams();
-  const contestTitle = contestSlug
-    ? contestSlug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
-    : null;
+  const contest = parseContestMeta(contestSlug);
+
+  // ── Real per-user result rows for THIS contest (EntrantHub-style) ────────────
+  // Powered by the lc-contest edge function (LeetCode GraphQL), so every row is
+  // the user's ACTUAL rank / old rating / change / new rating — no prediction,
+  // no Cloudflare-blocked leaderboard scrape. Add any public handle to compare.
+  const [resultUsers, setResultUsers] = useState([]);
+  const [resultDraft, setResultDraft] = useState('');
+  const [resultsSeeded, setResultsSeeded] = useState(false);
+  if (!resultsSeeded && (savedHandle || handle)) {
+    setResultsSeeded(true);
+    setResultUsers([(savedHandle || handle).trim()]);
+  }
+  const { data: contestResults, isFetching: resultsFetching } = useLcContestResults(
+    contestSlug, resultUsers, !!contest,
+  );
+  const addResultUser = (e) => {
+    e.preventDefault();
+    const v = resultDraft.trim();
+    if (v && !resultUsers.some((u) => u.toLowerCase() === v.toLowerCase())) {
+      setResultUsers((prev) => [...prev, v].slice(0, 25));
+    }
+    setResultDraft('');
+  };
+  const removeResultUser = (u) => setResultUsers((prev) => prev.filter((x) => x !== u));
 
   return (
     <div className="lca-wrap">
-      {contestTitle && (
-        <div className="lca-contest-banner">
-          <Trophy size={15} />
-          <span><strong>{contestTitle}</strong> — per-question ratings &amp; solve rates</span>
+      {contest && (
+        <div className="lca-chero">
+          <div className="lca-chero-main">
+            <div className="lca-chero-badges">
+              {contest.kind && <span className={`lca-cbadge is-${contest.kind}`}>{contest.kind}</span>}
+              {contest.number != null && <span className="lca-cbadge is-num">#{contest.number}</span>}
+              <span className="lca-cbadge is-ended">Ended</span>
+            </div>
+            <h1 className="lca-chero-title">{contest.title}</h1>
+            {contest.startMs != null && (
+              <div className="lca-chero-tiles">
+                <div className="lca-ctile"><span className="lca-ctile-lbl"><Calendar size={13} /> Start</span><b>{fmtContestStart(contest.startMs)}</b></div>
+                <div className="lca-ctile"><span className="lca-ctile-lbl"><Clock size={13} /> Duration</span><b>1h 30m</b></div>
+                <div className="lca-ctile"><span className="lca-ctile-lbl"><ListChecks size={13} /> Problems</span><b>{contest.problems}</b></div>
+              </div>
+            )}
+          </div>
+          {contest.kind && (
+            <a className="lca-chero-view" href={`https://leetcode.com/contest/${contestSlug}/`} target="_blank" rel="noreferrer noopener">
+              View on LeetCode <ExternalLink size={13} />
+            </a>
+          )}
         </div>
       )}
+
+      {contest && (
+        <section className="lca-section lca-results">
+          <div className="lca-results-head">
+            <h2 className="lca-results-title"><Trophy size={16} aria-hidden /> Contest results</h2>
+            <span className="lca-results-sub">Real rank &amp; rating change for any LeetCode handle — pulled live from LeetCode.</span>
+          </div>
+          <form className="lca-results-add" onSubmit={addResultUser}>
+            <div className="lca-lookup-input">
+              <Search size={15} aria-hidden />
+              <input
+                type="text"
+                value={resultDraft}
+                onChange={(e) => setResultDraft(e.target.value)}
+                placeholder="Add a LeetCode username"
+                aria-label="Add a LeetCode username to the results table"
+                spellCheck={false}
+                autoComplete="off"
+              />
+            </div>
+            <button type="submit" className="lca-lookup-btn" disabled={!resultDraft.trim()}>Add</button>
+          </form>
+
+          {resultUsers.length === 0 ? (
+            <p className="lca-empty">Add a username above to see their real result for {contest.title}.</p>
+          ) : (
+            <div className="lca-rtable" role="table" aria-label={`${contest.title} results`}>
+              <div className="lca-rtable-h" role="row">
+                <span role="columnheader">Rank</span>
+                <span role="columnheader">User</span>
+                <span role="columnheader" className="lca-rc-num">Solved</span>
+                <span role="columnheader" className="lca-rc-num">Old</span>
+                <span role="columnheader" className="lca-rc-num">Change</span>
+                <span role="columnheader" className="lca-rc-num">New</span>
+                <span role="columnheader" aria-label="Remove" />
+              </div>
+              {(contestResults?.rows || resultUsers.map((u) => ({ username: u }))).map((r) => {
+                const rated = r.rated;
+                const up = (r.change ?? 0) >= 0;
+                return (
+                  <div className="lca-rtable-r" role="row" key={r.username}>
+                    <span role="cell" className="lca-rc-rank">{rated ? `#${r.rank}` : '—'}</span>
+                    <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${r.username}/`} target="_blank" rel="noreferrer noopener">{r.username}</a>
+                    <span role="cell" className="lca-rc-num">{rated ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
+                    <span role="cell" className="lca-rc-num lca-rc-dim">{rated ? Math.round(r.oldRating) : '—'}</span>
+                    <span role="cell" className={`lca-rc-num lca-rc-chg ${rated ? (up ? 'is-up' : 'is-dn') : ''}`}>
+                      {rated ? `${up ? '+' : ''}${r.change.toFixed(2)}` : (r.found === false ? 'no data' : 'pending')}
+                    </span>
+                    <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : '—'}</span>
+                    <button role="cell" className="lca-rc-x" onClick={() => removeResultUser(r.username)} aria-label={`Remove ${r.username}`}><Minus size={13} /></button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          {resultsFetching && <div className="lca-skel" aria-hidden />}
+          {contestResults?.note && <p className="lca-results-note"><Hourglass size={12} aria-hidden /> {contestResults.note}</p>}
+        </section>
+      )}
+
       <p className="ctx-sub lca-intro">
         Type the rank you just finished and read the projected rating change — before LeetCode publishes it.
       </p>

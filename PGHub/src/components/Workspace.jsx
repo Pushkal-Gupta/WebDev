@@ -12,6 +12,7 @@ import HintsPanel from './HintsPanel';
 import Discussion from './Discussion';
 import StatusPill from './StatusPill';
 import SaveToListButton from './SaveToListButton';
+import ExampleViz from './workspace/ExampleViz';
 import Select from './Select';
 import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
@@ -1081,6 +1082,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       return {
         i: i + 1,
         input: formatInput(t),
+        rawInputs: Array.isArray(t.inputs) ? t.inputs : null,
         output: typeof output === 'string' ? output : JSON.stringify(output),
         explain,
       };
@@ -1203,6 +1205,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                             <div className="ws-example-row"><span className="ws-example-label">Input</span><code>{inputStr}</code></div>
                           )}
                           <div className="ws-example-row"><span className="ws-example-label">Output</span><code>{expectedStr}</code></div>
+                          <ExampleViz inputs={s.inputs} params={activeProblem.params} />
                           {s.explanation_md && (
                             <div className="ws-example-row">
                               <span className="ws-example-label">Explanation</span>
@@ -1225,6 +1228,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                         <div className="ws-example-title">Example {ex.i}</div>
                         <div className="ws-example-row"><span className="ws-example-label">Input</span><code>{ex.input}</code></div>
                         <div className="ws-example-row"><span className="ws-example-label">Output</span><code>{ex.output}</code></div>
+                        {ex.rawInputs && <ExampleViz inputs={ex.rawInputs} params={activeProblem.params} />}
                         {ex.explain && (
                           <div className="ws-example-row"><span className="ws-example-label">Explanation</span><span className="ws-example-explain">{ex.explain}</span></div>
                         )}

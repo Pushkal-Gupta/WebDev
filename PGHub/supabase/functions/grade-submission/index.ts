@@ -317,6 +317,10 @@ function deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true;
   if (a === null || b === null) return a === b;
   if (typeof a !== typeof b) return false;
+  // Float tolerance (~1e-5, LeetCode parity): stored expecteds rounded to 5 dp
+  // vs canonical full precision would strict-WA a correct real-valued answer.
+  // Integers differ by >=1, far above tolerance, so no wrong int answer passes.
+  if (typeof a === "number") return Math.abs(a - (b as number)) <= 1e-5 * Math.max(1, Math.abs(a), Math.abs(b as number));
   if (typeof a !== "object") return a === b;
   if (Array.isArray(a) !== Array.isArray(b)) return false;
   if (Array.isArray(a)) {

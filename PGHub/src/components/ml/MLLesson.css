@@ -311,9 +311,9 @@
   font-size: 1.05rem;
   padding: 1.2rem 1.3rem;
   background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 9%, transparent), transparent);
-  border: 1px solid var(--border);
+  border: 1px solid var(--viz-line);
   border-left: 3px solid var(--accent);
-  border-radius: 8px;
+  border-radius: 12px;
   color: var(--text-main);
   max-width: 100%;
   margin: 0.4rem 0;
@@ -325,7 +325,7 @@
 
 .ml-ascii-wrap {
   border: 1px solid var(--viz-line);
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--bg);
   overflow: hidden;
 }

@@ -264,6 +264,7 @@ export const qk = {
   lcQuestion: (slug) => ['lcQuestion', slug],
   lcContestRanking: (slug, page) => ['lcContestRanking', slug || '', page || 1],
   lcUserContestRank: (slug, user) => ['lcUserContestRank', slug || '', (user || '').toLowerCase()],
+  lcContestResults: (slug, users) => ['lcContestResults', slug || '', (users || []).map((u) => String(u).toLowerCase()).sort().join(',')],
 };
 
 // ---- Home dashboard RPCs (migrate-29) --------------------------------------
@@ -612,6 +613,28 @@ export function useLcUserContestRank(slug, username, enabled = true) {
       return data;
     },
     enabled: !!slug && !!username && enabled,
+    retry: false,
+    staleTime: 10 * 60 * 1000,
+  });
+}
+
+// Real per-contest result ROWS (rank / old rating / change / new rating / solved)
+// for one or more users, via the lc-contest edge function (LeetCode GraphQL —
+// reliable, unlike the Cloudflare-blocked REST leaderboard). Returns
+// { ok, contest, rows:[{username, rated, rank, oldRating, newRating, change,
+// problemsSolved, totalProblems}], note } or { ok:false }.
+export function useLcContestResults(slug, usernames, enabled = true) {
+  const users = (usernames || []).filter(Boolean);
+  return useQuery({
+    queryKey: qk.lcContestResults(slug, users),
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('lc-contest', {
+        body: { contest: slug, usernames: users },
+      });
+      if (error) return { ok: false, error: error.message };
+      return data;
+    },
+    enabled: !!slug && users.length > 0 && enabled,
     retry: false,
     staleTime: 10 * 60 * 1000,
   });

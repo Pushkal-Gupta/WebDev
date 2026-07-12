@@ -221,6 +221,15 @@
 }
 .ws-example-row code { color: var(--text-main); background: var(--hover-box); padding: 0.18rem 0.5rem; border-radius: 4px; white-space: pre-wrap; word-break: break-word; }
 .ws-example-explain { color: var(--text-dim); font-family: var(--sans); line-height: 1.6; }
+.exviz { margin: 0.55rem 0 0.2rem; padding: 0.6rem 0.7rem; background: var(--bg); border: 1px solid var(--border); border-radius: 8px; display: flex; justify-content: center; }
+.exviz-cells { display: flex; flex-direction: column; gap: 4px; }
+.exviz-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.exviz-cell {
+  min-width: 1.65rem; height: 1.65rem; padding: 0 0.35rem;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 0.78rem; font-weight: 600; color: var(--text-main);
+  background: rgba(var(--accent-rgb), 0.08); border: 1px solid var(--accent); border-radius: 5px;
+}
 
 /* ── Constraints section: monospace block with bullet hierarchy ── */
 .ws-constraints {
