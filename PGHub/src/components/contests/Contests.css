@@ -1604,6 +1604,25 @@
   margin-bottom: 0.9rem;
 }
 .lca-curve-head .lca-section-title { margin: 0; }
+.lca-curve-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  margin: 1.4rem 0 0;
+  padding: 0.55rem 0;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--border);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text-main);
+}
+.lca-curve-toggle .lca-section-title { margin: 0; }
+.lca-curve-chevron { color: var(--text-dim); transition: transform 0.18s; flex: 0 0 auto; }
+.lca-curve-toggle.is-open .lca-curve-chevron { transform: rotate(90deg); }
+.lca-curve-toggle:hover .lca-curve-chevron { color: var(--accent); }
+.lca-curve-toggle .lca-curve-hint { margin-left: auto; }
 .lca-curve-hint {
   display: inline-flex;
   align-items: center;
@@ -2350,10 +2369,13 @@
 .lca-results-add { display: flex; gap: 0.6rem; margin-bottom: 0.9rem; }
 .lca-results-add .lca-lookup-input { flex: 1 1 auto; }
 
-.lca-rtable { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+/* Cap the results block so a few columns don't stretch edge-to-edge with a huge
+   empty gap between the handle and the numbers on wide screens. */
+.lca-rtable { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; max-width: 1000px; }
+.lca-results-add { max-width: 1000px; }
 .lca-rtable-h, .lca-rtable-r {
   display: grid;
-  grid-template-columns: 4rem minmax(0, 1fr) 4rem 4.5rem 5.5rem 4.5rem 2rem;
+  grid-template-columns: 4rem minmax(0, 1fr) 5rem 5rem 6rem 5rem 2rem;
   align-items: center; gap: 0.5rem; padding: 0.6rem 0.9rem;
 }
 .lca-rtable-h {

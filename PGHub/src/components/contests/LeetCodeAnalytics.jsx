@@ -356,6 +356,7 @@ export default function LeetCodeAnalytics() {
   const [solvedDraft, setSolvedDraft] = useState('');
   const [totalDraft, setTotalDraft] = useState(String(TOTAL_PARTICIPANTS));
   const [advOpen, setAdvOpen] = useState(false);
+  const [curveOpen, setCurveOpen] = useState(false);
   const [prefillSig, setPrefillSig] = useState('');
 
   // Auto-fill the moment a lookup resolves: the rating carried into the next
@@ -732,21 +733,30 @@ export default function LeetCodeAnalytics() {
             </div>
           </div>
 
-          {/* Rank → delta curve — click anywhere on it to set the finishing rank */}
-          <div className="lca-curve-head">
-            <h3 className="lca-section-title">Rank to rating change</h3>
-            <span className="lca-curve-hint">
-              <MousePointerClick size={12} />
-              Click the curve to set the finishing rank
-            </span>
-          </div>
-          <RankDeltaCurve
-            rating={effRating}
-            played={effPlayed}
-            rank={effRank}
-            total={effTotal}
-            onPick={(r) => setRank(clamp(Math.round(r), 1, effTotal))}
-          />
+          {/* Rank → delta curve — collapsed by default; expand to explore/click it */}
+          <button
+            type="button"
+            className={`lca-curve-toggle${curveOpen ? ' is-open' : ''}`}
+            onClick={() => setCurveOpen((o) => !o)}
+            aria-expanded={curveOpen}
+          >
+            <ChevronRight size={15} className="lca-curve-chevron" aria-hidden />
+            <span className="lca-section-title">Rank to rating change</span>
+            {curveOpen && (
+              <span className="lca-curve-hint">
+                <MousePointerClick size={12} /> Click the curve to set the finishing rank
+              </span>
+            )}
+          </button>
+          {curveOpen && (
+            <RankDeltaCurve
+              rating={effRating}
+              played={effPlayed}
+              rank={effRank}
+              total={effTotal}
+              onPick={(r) => setRank(clamp(Math.round(r), 1, effTotal))}
+            />
+          )}
         </div>
       </section>
 

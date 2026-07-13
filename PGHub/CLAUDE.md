@@ -178,6 +178,7 @@ Causes to check on sight (every one of these has bitten us at least once):
 - Workspace tabs / panel children with `overflow-y: auto` on inner divs — let the outer page handle scroll instead.
 - Modal bodies wider than viewport — shrink the modal width or wrap content.
 - Tables wider than container — rewrite as stacked rows on narrow widths.
+- **`flex: 1 1 auto` + `min-height: 0` on a card GRID inside a scroll container (the `.mlhub-pillars-auto` bug, 2026-07-13).** Flex-shrink lets the grid collapse BELOW its content height; the extra rows then bleed OUTSIDE the flex box, so they render on top of / below sibling content ("cutting/overlapping") AND the wheel can't scroll to them ("can't scroll, cut off at the fold"). Fix: the grid must GROW to fill but NEVER shrink below content → `flex: 1 0 auto` (shrink 0), and drop `min-height: 0`. Any full-viewport card/lesson grid that must both fill AND scroll uses `flex: 1 0 auto`, not `1 1 auto`.
 
 Audit every change: if ANY inner element shows a scrollbar of any kind, it's a P0 fix in the same pass. No exceptions for "but the content is just that big" — make the content smaller.
 
