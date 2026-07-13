@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Swords, UserSearch, CalendarRange, LineChart, Code2,
@@ -7,8 +7,32 @@ import {
 import CompeteHubThumb from './CompeteHubThumbs';
 import LeetCodeProfile from './LeetCodeProfile';
 import ExternalContestsCalendar from '../contests/ExternalContestsCalendar';
-import LeetCodeAnalytics from '../contests/LeetCodeAnalytics';
+import LeetCodeAnalytics, { pendingContestSince } from '../contests/LeetCodeAnalytics';
+import { supabase } from '../../lib/supabase';
+import { useProfile, useLeetCodeUser, useLcUserContestRank } from '../../lib/queries';
 import './CompeteHub.css';
+
+// Warm the LeetCode caches in the background the moment a signed-in user with a
+// saved handle lands on Battle — so opening the analytics/dashboard is instant
+// instead of waiting on the profile fetch + the (now ~3s) live-rank scan. React
+// Query's staleTime bounds this to one warm-up per window, not per render.
+function useLeetCodePrefetch() {
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getUser().then(({ data }) => { if (alive) setUserId(data?.user?.id ?? null); }).catch(() => {});
+    return () => { alive = false; };
+  }, []);
+  const handle = useProfile(userId).data?.leetcode_handle?.trim() || '';
+  const { data: lc } = useLeetCodeUser(handle);
+  const attended = (lc?.history || []).filter((h) => h?.attended)
+    .sort((a, b) => Number(a.startTime) - Number(b.startTime));
+  const last = attended[attended.length - 1];
+  const pending = last ? pendingContestSince(last) : null;
+  const pendingSlug = pending ? pending.title.toLowerCase().replace(/\s+/g, '-') : null;
+  const base = Math.round(Number(lc?.rating) || 0);
+  useLcUserContestRank(pendingSlug, handle, base, !!pendingSlug);
+}
 
 const SECTIONS = {
   profile: {
@@ -127,6 +151,7 @@ function CardFace({ entry }) {
 
 export default function CompeteHub() {
   const [active, setActive] = useState(null);
+  useLeetCodePrefetch();
 
   if (active) {
     const { icon: Icon, title, sub, Body } = SECTIONS[active];

@@ -20,6 +20,7 @@
 //             totalUsers, pagesScanned } | { ok:false, error }
 
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
@@ -27,10 +28,46 @@ const CORS_HEADERS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+// Durable cache (PGcode_lc_rank_cache): an ended-but-unrated contest has final
+// ranks, so a scanned (contest, user) result is stable — cache it so repeats are
+// instant instead of re-running the ~15s live scan. Best-effort; failures are
+// swallowed so the scan path still works if the DB is unreachable.
+const db = createClient(
+  Deno.env.get("SUPABASE_URL") || "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "",
+);
+const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
+
+async function readRankCache(slug: string, user: string): Promise<{ rank: number; score: number; field_size: number } | null> {
+  try {
+    const { data } = await db.from("PGcode_lc_rank_cache")
+      .select("rank, score, field_size, fetched_at")
+      .eq("contest_slug", slug.toLowerCase())
+      .eq("user_slug", user.toLowerCase())
+      .maybeSingle();
+    if (!data || !data.rank) return null;
+    if (Date.now() - new Date(data.fetched_at).getTime() > CACHE_TTL_MS) return null;
+    return { rank: data.rank, score: data.score, field_size: data.field_size };
+  } catch { return null; }
+}
+
+async function writeRankCache(slug: string, user: string, rank: number, score: number, fieldSize: number): Promise<void> {
+  try {
+    await db.from("PGcode_lc_rank_cache").upsert({
+      contest_slug: slug.toLowerCase(),
+      user_slug: user.toLowerCase(),
+      rank, score, field_size: fieldSize,
+      fetched_at: new Date().toISOString(),
+    });
+  } catch { /* best-effort */ }
+}
+
 const PAGE_SIZE = 25;
 const MAX_SCAN = 130;   // hard cap on pages fetched per request (bounds cost/time)
 const WINDOW = 80;      // pages around the expected page we're willing to sweep
-const BATCH = 10;       // pages fetched concurrently per round
+const BATCH = 50;       // pages fetched concurrently — first parallel shot covers the
+                        // rating-implied page ±25, so a lookup usually resolves in one
+                        // ~3s round-trip instead of several sequential batches
 const FETCH_TIMEOUT_MS = 28000;
 
 // Representative field slice + expected-rank model, mirrored from the client
@@ -154,6 +191,15 @@ serve(async (req) => {
     return jsonResponse({ ok: false, error: "invalid request body" });
   }
 
+  // Instant path: a fresh cached scan for this (contest, user).
+  const cached = await readRankCache(contest, username);
+  if (cached) {
+    return jsonResponse({
+      ok: true, found: true, rank: cached.rank, score: cached.score, finishTime: null,
+      username, totalUsers: cached.field_size, pagesScanned: 0, cached: true,
+    });
+  }
+
   try {
     // Page 1 gives user_num (field size) and covers the top 25.
     const first = await fetchPage(contest, 1);
@@ -164,7 +210,10 @@ serve(async (req) => {
     const lastPage = totalUsers > 0 ? Math.ceil(totalUsers / PAGE_SIZE) : MAX_SCAN;
 
     const hitFirst = matchRow(first.rows, username);
-    if (hitFirst) return foundResponse(hitFirst, totalUsers, 1);
+    if (hitFirst) {
+      await writeRankCache(contest, username, Number(hitFirst.rank) || 0, Number(hitFirst.score) || 0, totalUsers);
+      return foundResponse(hitFirst, totalUsers, 1);
+    }
 
     const expPage = rating > 0 && totalUsers > 0
       ? Math.min(Math.max(Math.round(expectedRank(rating, totalUsers) / PAGE_SIZE), 1), lastPage)
@@ -179,7 +228,10 @@ serve(async (req) => {
       for (const r of results) {
         if (!r || r.rows.length === 0) continue;
         const hit = matchRow(r.rows, username);
-        if (hit) return foundResponse(hit, totalUsers || r.userNum, pagesScanned);
+        if (hit) {
+          await writeRankCache(contest, username, Number(hit.rank) || 0, Number(hit.score) || 0, totalUsers || r.userNum);
+          return foundResponse(hit, totalUsers || r.userNum, pagesScanned);
+        }
       }
     }
 

@@ -2005,6 +2005,31 @@
   font-size: 0.78rem;
   color: var(--text-dim);
 }
+.lca-contest-meta-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.lca-analyze-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--mono, monospace);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, var(--border));
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lca-analyze-btn:hover {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+  border-color: var(--accent);
+}
 .lca-facts {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2337,6 +2362,17 @@
 }
 .lca-rtable-r { border-top: 1px solid var(--border); font-size: 0.88rem; }
 .lca-rtable-r:hover { background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.lca-rtable-r.is-loading { animation: lca-row-pulse 1.4s ease-in-out infinite; }
+@keyframes lca-row-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.55; } }
+.lca-rc-dots {
+  display: inline-block; width: 1.1rem; height: 0.55rem;
+  background:
+    radial-gradient(circle 2px at 3px 50%, var(--accent) 95%, transparent),
+    radial-gradient(circle 2px at 9px 50%, var(--accent) 95%, transparent),
+    radial-gradient(circle 2px at 15px 50%, var(--accent) 95%, transparent);
+  opacity: 0.85;
+}
+@media (prefers-reduced-motion: reduce) { .lca-rtable-r.is-loading { animation: none; } }
 .lca-rc-num { text-align: right; font-family: var(--mono, monospace); font-variant-numeric: tabular-nums; }
 .lca-rc-rank { font-family: var(--mono, monospace); font-weight: 700; color: var(--text-main); }
 .lca-rc-user { color: var(--accent); text-decoration: none; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,
-  ChevronRight, Minus, Hourglass, Clock, ListChecks, ExternalLink,
+  ChevronRight, Minus, Hourglass, Clock, ListChecks, ExternalLink, LineChart,
 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -245,6 +245,9 @@ function fmtContestStart(ms) {
     weekday: 'short', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',
   });
 }
+
+// "Weekly Contest 509" → "weekly-contest-509" for the per-contest analytics route.
+const contestSlugOf = (title) => (title || '').trim().toLowerCase().replace(/\s+/g, '-');
 
 export default function LeetCodeAnalytics() {
   // ── Primary flow: look a handle up and read its LAST attended contest ──────
@@ -494,25 +497,45 @@ export default function LeetCodeAnalytics() {
               </div>
               {(contestResults?.rows || resultUsers.map((u) => ({ username: u }))).map((r) => {
                 const rated = r.rated;
-                const up = (r.change ?? 0) >= 0;
+                const contestUnrated = !!contestResults?.note;
+                // Pending row with a live rank → project the swing with the same model.
+                const proj = (!rated && r.pending && r.rank)
+                  ? predictDelta({
+                      rating: r.oldRating,
+                      actualRank: r.rank,
+                      contestsPlayed: r.contestsPlayed ?? 10,
+                      fieldRatings: SAMPLE_FIELD,
+                      fieldSize: r.fieldSize || TOTAL_PARTICIPANTS,
+                    })
+                  : null;
+                const chg = rated ? r.change : (proj ? proj.delta : null);
+                const up = (chg ?? 0) >= 0;
+                const hasRank = rated || (r.pending && r.rank);
+                const loading = resultsFetching && !hasRank;
+                const notFound = !loading && !hasRank && r.found === false && !contestUnrated;
                 return (
-                  <div className="lca-rtable-r" role="row" key={r.username}>
-                    <span role="cell" className="lca-rc-rank">{rated ? `#${r.rank}` : '—'}</span>
+                  <div className={`lca-rtable-r${loading ? ' is-loading' : ''}`} role="row" key={r.username}>
+                    <span role="cell" className="lca-rc-rank">{hasRank ? `#${r.rank}` : (loading ? <span className="lca-rc-dots" aria-hidden /> : '—')}</span>
                     <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${r.username}/`} target="_blank" rel="noreferrer noopener">{r.username}</a>
-                    <span role="cell" className="lca-rc-num">{rated ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
-                    <span role="cell" className="lca-rc-num lca-rc-dim">{rated ? Math.round(r.oldRating) : '—'}</span>
-                    <span role="cell" className={`lca-rc-num lca-rc-chg ${rated ? (up ? 'is-up' : 'is-dn') : ''}`}>
-                      {rated ? `${up ? '+' : ''}${r.change.toFixed(2)}` : (r.found === false ? 'no data' : 'pending')}
+                    <span role="cell" className="lca-rc-num">{hasRank && r.problemsSolved != null ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
+                    <span role="cell" className="lca-rc-num lca-rc-dim">{hasRank && r.oldRating ? Math.round(r.oldRating) : '—'}</span>
+                    <span role="cell" className={`lca-rc-num lca-rc-chg ${chg != null ? (up ? 'is-up' : 'is-dn') : ''}`} title={proj ? 'Projected — not yet finalized by LeetCode' : undefined}>
+                      {chg != null ? `${up ? '+' : ''}${chg.toFixed(proj ? 0 : 2)}${proj ? '*' : ''}`
+                        : loading ? 'scanning…' : notFound ? 'not found' : (contestUnrated ? 'not rated' : '—')}
                     </span>
-                    <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : '—'}</span>
+                    <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : '—')}</span>
                     <button role="cell" className="lca-rc-x" onClick={() => removeResultUser(r.username)} aria-label={`Remove ${r.username}`}><Minus size={13} /></button>
                   </div>
                 );
               })}
             </div>
           )}
-          {resultsFetching && <div className="lca-skel" aria-hidden />}
-          {contestResults?.note && <p className="lca-results-note"><Hourglass size={12} aria-hidden /> {contestResults.note}</p>}
+          {resultsFetching && (
+            <p className="lca-results-note">
+              <Hourglass size={12} aria-hidden /> Scanning LeetCode&apos;s live ranking… the first lookup for a user can take ~15s (it&apos;s cached after).
+            </p>
+          )}
+          {!resultsFetching && contestResults?.note && <p className="lca-results-note"><Hourglass size={12} aria-hidden /> {contestResults.note}</p>}
         </section>
       )}
 
@@ -741,9 +764,16 @@ export default function LeetCodeAnalytics() {
                   <Hourglass size={16} aria-hidden />
                   <span>{pending.title}</span>
                 </div>
-                <span className="lca-pending-pill">
-                  <Clock size={12} aria-hidden /> Awaiting LeetCode rating
-                </span>
+                <div className="lca-contest-meta-row">
+                  <span className="lca-pending-pill">
+                    <Clock size={12} aria-hidden /> Awaiting LeetCode rating
+                  </span>
+                  {contestSlug !== contestSlugOf(pending.title) && (
+                    <Link className="lca-analyze-btn" to={`/compete/leetcode/contests/${contestSlugOf(pending.title)}/analytics`}>
+                      <LineChart size={13} aria-hidden /> Analysis
+                    </Link>
+                  )}
+                </div>
               </header>
 
               <div className="lca-facts">
@@ -794,10 +824,17 @@ export default function LeetCodeAnalytics() {
                   <span>{latest.current.title}</span>
                   <span className="lca-rated-tag">{latest.ratingPending ? 'Rating pending' : 'Rated'}</span>
                 </div>
-                <span className="lca-contest-date">
-                  <Calendar size={13} aria-hidden />
-                  {fmtDate(latest.current.startTime)}
-                </span>
+                <div className="lca-contest-meta-row">
+                  <span className="lca-contest-date">
+                    <Calendar size={13} aria-hidden />
+                    {fmtDate(latest.current.startTime)}
+                  </span>
+                  {contestSlugOf(latest.current.title) && contestSlug !== contestSlugOf(latest.current.title) && (
+                    <Link className="lca-analyze-btn" to={`/compete/leetcode/contests/${contestSlugOf(latest.current.title)}/analytics`}>
+                      <LineChart size={13} aria-hidden /> Analysis
+                    </Link>
+                  )}
+                </div>
               </header>
 
               <div className="lca-facts">
@@ -854,7 +891,7 @@ export default function LeetCodeAnalytics() {
               <p className="lca-ref-note">
                 {latest.ratingPending
                   ? `LeetCode hasn't posted the official rating for ${latest.current.title} yet — this is our projection from your rank of ${latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : 'the round'}. Use the predictor above to try other finishes.`
-                  : `Already rated on LeetCode — shown for reference, not a prediction. LeetCode moved you ${fmtChange(latest.actualChange)} (${Math.round(latest.oldRating)} → ${Math.round(latest.newRating)}).`}
+                  : `Already rated on LeetCode. LeetCode moved you ${fmtChange(latest.actualChange)} (${Math.round(latest.oldRating)} → ${Math.round(latest.newRating)}); our model projected ${fmtChange(Math.round(latest.expected.delta))} from rank ${latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : ''}.`}
               </p>
             </article>
           )}
@@ -905,16 +942,18 @@ export default function LeetCodeAnalytics() {
         <h2 className="lca-section-title">How it works</h2>
         <div className="lca-disc-body">
             <p>
-              Each contestant has an Elo rating. The logistic seed estimates where you
-              should rank against the field; the geometric mean of that seed and your
-              actual rank gives a performance target, and the rating that would produce it
-              is your new rating — damped by how many contests you have already played.
+              Each contestant has an Elo rating. The logistic model gives the rank a given
+              rating is expected to reach against the field; inverting it turns the rank you
+              actually finished into a performance rating. Your rating then moves a fraction
+              K of the gap between that performance rating and your current one — through a
+              tanh so a single contest is capped at a realistic swing — with K easing off the
+              more contests you have played.
             </p>
             <div className="lca-formula">
               <TexBlock tex={String.raw`P(i \succ j) = \dfrac{1}{1 + 10^{(R_j - R_i)/400}}`} />
               <TexBlock tex={String.raw`E_i = 0.5 + \sum_{j} \dfrac{1}{1 + 10^{(R_i - R_j)/400}}`} />
-              <TexBlock tex={String.raw`m_i = \sqrt{E_i \cdot \mathrm{rank}_i}`} />
-              <TexBlock tex={String.raw`R_{\text{new}} = R_i + f(k)\,\bigl(\mathrm{ratingForRank}(m_i) - R_i\bigr)`} />
+              <TexBlock tex={String.raw`R^{\text{perf}}_i = \mathrm{ratingForRank}(\mathrm{rank}_i)`} />
+              <TexBlock tex={String.raw`R_{\text{new}} = R_i + K(k)\cdot S\,\tanh\!\Bigl(\tfrac{R^{\text{perf}}_i - R_i}{S}\Bigr)`} />
             </div>
         </div>
       </section>
