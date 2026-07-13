@@ -515,6 +515,49 @@ function _fromTree(root) {
     }
     return _result;
 }
+
+function Node(val, children) {
+    this.val = (val===undefined ? 0 : val);
+    this.children = (children===undefined ? [] : children);
+}
+
+function _toNary(arr) {
+    if (!arr || arr.length === 0) return null;
+    const _root = new Node(arr[0], []);
+    const _q = [_root];
+    let _i = 2;
+    while (_q.length > 0 && _i < arr.length) {
+        const _parent = _q.shift();
+        while (_i < arr.length && arr[_i] !== null) {
+            const _child = new Node(arr[_i], []);
+            _parent.children.push(_child);
+            _q.push(_child);
+            _i++;
+        }
+        _i++;
+    }
+    return _root;
+}
+
+function _fromNary(root) {
+    if (!root) return [];
+    const _result = [root.val, null];
+    const _q = [root];
+    while (_q.length > 0) {
+        const _node = _q.shift();
+        for (const _c of (_node.children || [])) {
+            _result.push(_c.val);
+            _q.push(_c);
+        }
+        if (_q.length > 0) _result.push(null);
+    }
+    while (_result.length > 0 && _result[_result.length - 1] === null) _result.pop();
+    return _result;
+}
+
+function _fromTreeList(roots) {
+    return (roots || []).map(_r => _fromTree(_r));
+}
 `;
 
 // Sentinel lines used by the Java multi-case driver. Stdins for each case are
@@ -1958,6 +2001,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       : params.map((p, i) => {
           if (isListNodeType(p.type)) return `const ${p.name} = _toList(JSON.parse(_lines[${i}]));`;
           if (isTreeNodeType(p.type)) return `const ${p.name} = _toTree(JSON.parse(_lines[${i}]));`;
+          if (isNaryType(p.type)) return `const ${p.name} = _toNary(JSON.parse(_lines[${i}]));`;
           return `const ${p.name} = JSON.parse(_lines[${i}]);`;
         }).join('\n');
 
@@ -1967,6 +2011,10 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       outputBlock = 'console.log(JSON.stringify(_fromList(_result)));';
     } else if (retIsTree) {
       outputBlock = 'console.log(JSON.stringify(_fromTree(_result)));';
+    } else if (retIsNary) {
+      outputBlock = 'console.log(JSON.stringify(_fromNary(_result)));';
+    } else if (returnType === 'List[TreeNode]') {
+      outputBlock = 'console.log(JSON.stringify(_fromTreeList(_result)));';
     } else {
       outputBlock = 'console.log(JSON.stringify(_result));';
     }
@@ -2902,9 +2950,15 @@ function deepEqual(a, b) {
   // Float tolerance — LeetCode accepts answers within ~1e-5 for real-valued
   // problems. Stored expecteds are often rounded to 5 dp (0.78333) while the
   // canonical prints full precision (0.7833333…); a strict compare wrongly WAs a
-  // correct solution. Integers differ by >=1, far above the tolerance, so this
-  // never accepts a wrong integer answer.
-  if (typeof a === 'number') return Math.abs(a - b) <= 1e-5 * Math.max(1, Math.abs(a), Math.abs(b));
+  // correct solution. But the tolerance must ONLY touch genuine floats: for large
+  // integer answers (MOD 1e9+7 results, big counts) a RELATIVE 1e-5 band spans
+  // thousands, so a wrong integer off by e.g. 14 would be accepted. Both-integer
+  // comparisons are therefore EXACT; tolerance applies only when a fractional
+  // value is involved on either side.
+  if (typeof a === 'number') {
+    if (Number.isInteger(a) && Number.isInteger(b)) return a === b;
+    return Math.abs(a - b) <= 1e-5 * Math.max(1, Math.abs(a), Math.abs(b));
+  }
   if (typeof a !== 'object') return a === b;
   if (Array.isArray(a) !== Array.isArray(b)) return false;
   if (Array.isArray(a)) {

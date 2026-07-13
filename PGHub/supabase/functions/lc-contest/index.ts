@@ -124,11 +124,17 @@ async function fetchRankPage(
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
-    const headers: Record<string, string> = { "X-Return-Format": "text", "Accept": "text/plain, application/json" };
-    if (JINA_KEY) headers["Authorization"] = `Bearer ${JINA_KEY}`;
-    const res = await fetch(`https://r.jina.ai/${target}`, { method: "GET", headers, signal: ctrl.signal });
+    const attempt = async (useKey: boolean) => {
+      const headers: Record<string, string> = { "X-Return-Format": "text", "Accept": "text/plain, application/json" };
+      if (useKey && JINA_KEY) headers["Authorization"] = `Bearer ${JINA_KEY}`;
+      const r = await fetch(`https://r.jina.ai/${target}`, { method: "GET", headers, signal: ctrl.signal });
+      return { r, text: await r.text() };
+    };
+    // If the keyed request is out of balance (402), fall back to the keyless tier.
+    let { r: res, text } = await attempt(true);
+    if (res.status === 402 || text.includes("InsufficientBalance")) ({ r: res, text } = await attempt(false));
     if (!res.ok) return null;
-    const payload = extractRanking(await res.text());
+    const payload = extractRanking(text);
     if (!payload) return null;
     return {
       rows: Array.isArray(payload.total_rank) ? payload.total_rank : [],

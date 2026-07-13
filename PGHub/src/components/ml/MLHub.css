@@ -96,10 +96,14 @@
 }
 
 .mlhub-pillars-auto {
-  flex: 1 1 auto;
-  min-height: 0;
+  /* Grow to fill the viewport (no empty band) but NEVER shrink below content —
+     flex: 1 1 auto + min-height:0 let the grid shrink under its rows, so the
+     overflow bled outside the flex box and couldn't be scrolled to (the "can't
+     scroll / cut off" bug). flex-shrink 0 keeps it content-tall; the page scrolls. */
+  flex: 1 0 auto;
   align-content: start;
   align-items: stretch;
+  gap: 1.65rem; /* 1.5x the base lesson-grid gutter */
 }
 
 .mlhub-pillars-auto .mlhub-lesson-thumb {

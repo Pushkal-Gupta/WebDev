@@ -38,25 +38,29 @@ const db = createClient(
 );
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
 
-async function readRankCache(slug: string, user: string): Promise<{ rank: number; score: number; field_size: number } | null> {
+async function readRankCache(slug: string, user: string): Promise<{ rank: number; score: number; solved: number; total: number; field_size: number } | null> {
   try {
     const { data } = await db.from("PGcode_lc_rank_cache")
-      .select("rank, score, field_size, fetched_at")
+      .select("rank, score, solved, total, field_size, fetched_at")
       .eq("contest_slug", slug.toLowerCase())
       .eq("user_slug", user.toLowerCase())
       .maybeSingle();
     if (!data || !data.rank) return null;
     if (Date.now() - new Date(data.fetched_at).getTime() > CACHE_TTL_MS) return null;
-    return { rank: data.rank, score: data.score, field_size: data.field_size };
+    return { rank: data.rank, score: data.score, solved: data.solved, total: data.total, field_size: data.field_size };
   } catch { return null; }
 }
 
-async function writeRankCache(slug: string, user: string, rank: number, score: number, fieldSize: number): Promise<void> {
+async function writeRankCache(slug: string, user: string, hit: { row: any; solved: number; total: number }, fieldSize: number): Promise<void> {
   try {
     await db.from("PGcode_lc_rank_cache").upsert({
       contest_slug: slug.toLowerCase(),
       user_slug: user.toLowerCase(),
-      rank, score, field_size: fieldSize,
+      rank: Number(hit.row?.rank) || 0,
+      score: Number(hit.row?.score) || 0,
+      solved: hit.solved,
+      total: hit.total,
+      field_size: fieldSize,
       fetched_at: new Date().toISOString(),
     });
   } catch { /* best-effort */ }
@@ -114,23 +118,31 @@ function extractPayload(s: string): any | null {
 //   supabase secrets set JINA_API_KEY=jina_xxx
 const JINA_KEY = Deno.env.get("JINA_API_KEY") || "";
 
-async function fetchPage(contest: string, page: number): Promise<{ rows: any[]; userNum: number } | null> {
+async function fetchPage(contest: string, page: number): Promise<{ rows: any[]; submissions: any[]; questionCount: number; userNum: number } | null> {
   const target = `https://leetcode.com/contest/api/ranking/${contest}/?pagination=${page}&region=global`;
   const url = `https://r.jina.ai/${target}`;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
-    const headers: Record<string, string> = { "X-Return-Format": "text", "Accept": "text/plain, application/json" };
-    if (JINA_KEY) headers["Authorization"] = `Bearer ${JINA_KEY}`;
-    const res = await fetch(url, { method: "GET", headers, signal: ctrl.signal });
-    const text = await res.text();
+    const attempt = async (useKey: boolean) => {
+      const headers: Record<string, string> = { "X-Return-Format": "text", "Accept": "text/plain, application/json" };
+      if (useKey && JINA_KEY) headers["Authorization"] = `Bearer ${JINA_KEY}`;
+      const r = await fetch(url, { method: "GET", headers, signal: ctrl.signal });
+      return { r, text: await r.text() };
+    };
+    // Keyed request out of balance (402) → fall back to the keyless tier.
+    let { r: res, text } = await attempt(true);
+    if (res.status === 402 || text.includes("InsufficientBalance")) ({ r: res, text } = await attempt(false));
     if (page === 1) LAST_DIAG = `status=${res.status} len=${text.length} head=${text.slice(0, 80).replace(/\s+/g, " ")}`;
     if (!res.ok) return null;
     const payload = extractPayload(text);
     if (!payload) return null;
-    const rows = Array.isArray(payload.total_rank) ? payload.total_rank : [];
-    const userNum = Number(payload.user_num ?? 0);
-    return { rows, userNum };
+    return {
+      rows: Array.isArray(payload.total_rank) ? payload.total_rank : [],
+      submissions: Array.isArray(payload.submissions) ? payload.submissions : [],
+      questionCount: Array.isArray(payload.questions) ? payload.questions.length : 0,
+      userNum: Number(payload.user_num ?? 0),
+    };
   } catch (e) {
     if (page === 1) LAST_DIAG = `fetch-threw ${(e as Error).message}`;
     return null;
@@ -139,17 +151,27 @@ async function fetchPage(contest: string, page: number): Promise<{ rows: any[]; 
   }
 }
 
-const matchRow = (rows: any[], target: string): any | null => {
+// Match a user in a page and pull rank + solved count (accepted = status 10).
+function matchRow(page: { rows: any[]; submissions: any[]; questionCount: number }, target: string): { row: any; solved: number; total: number } | null {
   const t = target.toLowerCase();
-  return rows.find((r) => rowUsername(r).toLowerCase() === t) || null;
-};
+  const i = page.rows.findIndex((r) => rowUsername(r).toLowerCase() === t);
+  if (i < 0) return null;
+  const subs = page.submissions?.[i];
+  const solved = subs && typeof subs === "object"
+    ? Object.values(subs).filter((v: any) => Number(v?.status) === 10).length
+    : 0;
+  return { row: page.rows[i], solved, total: page.questionCount || 4 };
+}
 
-function foundResponse(r: any, totalUsers: number, pagesScanned: number): Response {
+function foundResponse(hit: { row: any; solved: number; total: number }, totalUsers: number, pagesScanned: number): Response {
+  const r = hit.row;
   return jsonResponse({
     ok: true,
     found: true,
     rank: typeof r?.rank === "number" ? r.rank : Number(r?.rank ?? 0) || null,
     score: Number(r?.score ?? 0),
+    problemsSolved: hit.solved,
+    totalProblems: hit.total,
     finishTime: r?.finish_time ?? null,
     username: rowUsername(r) || null,
     totalUsers,
@@ -195,7 +217,8 @@ serve(async (req) => {
   const cached = await readRankCache(contest, username);
   if (cached) {
     return jsonResponse({
-      ok: true, found: true, rank: cached.rank, score: cached.score, finishTime: null,
+      ok: true, found: true, rank: cached.rank, score: cached.score,
+      problemsSolved: cached.solved, totalProblems: cached.total, finishTime: null,
       username, totalUsers: cached.field_size, pagesScanned: 0, cached: true,
     });
   }
@@ -209,9 +232,9 @@ serve(async (req) => {
     const totalUsers = first.userNum;
     const lastPage = totalUsers > 0 ? Math.ceil(totalUsers / PAGE_SIZE) : MAX_SCAN;
 
-    const hitFirst = matchRow(first.rows, username);
+    const hitFirst = matchRow(first, username);
     if (hitFirst) {
-      await writeRankCache(contest, username, Number(hitFirst.rank) || 0, Number(hitFirst.score) || 0, totalUsers);
+      await writeRankCache(contest, username, hitFirst, totalUsers);
       return foundResponse(hitFirst, totalUsers, 1);
     }
 
@@ -227,9 +250,9 @@ serve(async (req) => {
       pagesScanned += results.length;
       for (const r of results) {
         if (!r || r.rows.length === 0) continue;
-        const hit = matchRow(r.rows, username);
+        const hit = matchRow(r, username);
         if (hit) {
-          await writeRankCache(contest, username, Number(hit.rank) || 0, Number(hit.score) || 0, totalUsers || r.userNum);
+          await writeRankCache(contest, username, hit, totalUsers || r.userNum);
           return foundResponse(hit, totalUsers || r.userNum, pagesScanned);
         }
       }

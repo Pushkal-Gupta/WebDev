@@ -62,8 +62,29 @@ BOTH, and the edge function redeployed (`supabase functions deploy grade-submiss
 They diverged once — that is how the edge path shipped with `literal_eval` (which
 can't even parse JSON `null`) and no tree reconstruction. Keep the output formats
 identical: bool→`true`/`false`, `None`→`null`, top-level `str`→bare, everything else
-→ `json.dumps` / `JSON.stringify`; node returns via `_from_*`. Floats compare with
-1e-5 tolerance.
+→ `json.dumps` / `JSON.stringify`; node returns via `_from_*`. Numeric comparison
+obeys Invariant 4.
+
+## Invariant 4 — float tolerance NEVER touches integers (2026-07-13)
+
+Real-valued answers compare with a ~1e-5 tolerance (LeetCode parity: a stored
+expected rounded to 5 dp vs a canonical printing full precision must still match).
+But the tolerance must be applied **only when a fractional value is involved**.
+
+The bug: `deepEqual` used a *relative* band, `|a-b| <= 1e-5 * max(1,|a|,|b|)`, for
+ALL numbers. For a large integer answer (a MOD 1e9+7 result, a big count) that band
+spans **thousands** — e.g. expected `249373321` would accept a wrong `249373335`
+(off by 14, a `MOD = 1e9-7` typo). A wrong solution passed. This is the same
+severity as Invariant 1: a submission that LeetCode rejects must be rejected here.
+
+Rule, in BOTH `deepEqual`s (client `driverCode.js` + edge `grade-submission`):
+```
+if (Number.isInteger(a) && Number.isInteger(b)) return a === b;   // exact
+return Math.abs(a - b) <= 1e-5 * Math.max(1, |a|, |b|);           // floats only
+```
+Both-integer → exact. Tolerance applies only when at least one side is fractional
+(so genuine float problems, incl. an integer-valued float vs a full-precision
+canonical, still pass). Never widen this back to a relative band over integers.
 
 ## Prevention — verify before shipping
 
