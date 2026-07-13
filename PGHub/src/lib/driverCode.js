@@ -62,6 +62,24 @@ const PY_TREENODE_COMMENT = `# Definition for a binary tree node.
 #         self.right = right
 `;
 
+const PY_NARY_COMMENT = `"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val=None, children=None):
+        self.val = val
+        self.children = children
+"""
+`;
+
+const JS_NARY_COMMENT = `/**
+ * // Definition for a _Node.
+ * function _Node(val, children) {
+ *    this.val = val;
+ *    this.children = children;
+ * };
+ */
+`;
+
 const JS_LISTNODE_COMMENT = `/**
  * Definition for singly-linked list.
  * function ListNode(val, next) {
@@ -161,12 +179,14 @@ export function generateTemplate(language, methodName, params, returnType) {
   const typesUsed = [...params.map(p => p.type), returnType || ''];
   const needsList = typesUsed.some(isListNodeType);
   const needsTree = typesUsed.some(isTreeNodeType);
+  const needsNary = typesUsed.some(isNaryType);
 
   if (language === 'python') {
     const sig = params.map(p => `${p.name}: ${p.type}`).join(', ');
     let prefix = '';
     if (needsList) prefix += PY_LISTNODE_COMMENT;
     if (needsTree) prefix += PY_TREENODE_COMMENT;
+    if (needsNary) prefix += PY_NARY_COMMENT;
     return `${prefix}class Solution:\n    def ${methodName}(self, ${sig}) -> ${returnType}:\n        `;
   }
 
@@ -176,6 +196,7 @@ export function generateTemplate(language, methodName, params, returnType) {
     let prefix = '';
     if (needsList) prefix += JS_LISTNODE_COMMENT;
     if (needsTree) prefix += JS_TREENODE_COMMENT;
+    if (needsNary) prefix += JS_NARY_COMMENT;
     return `${prefix}/**\n${jsdoc}\n * @return {${jd(returnType)}}\n */\nvar ${methodName} = function(${args}) {\n    \n};`;
   }
 
@@ -404,6 +425,9 @@ def _from_nary(root):
     while _result and _result[-1] is None:
         _result.pop()
     return _result
+
+def _from_tree_list(roots):
+    return [_from_tree(_r) for _r in (roots or [])]
 `;
 
 const JS_HELPERS = `
@@ -1829,9 +1853,11 @@ function _pgcFromTree(root: TreeNode | null): (number | null)[] {
 // cycled-list problems. When true, the harness reads two stdin lines but the
 // user function receives a single ListNode head (with the cycle pre-wired).
 function isCycledListInput(params) {
+  // (list, pos) collapses into one cyclic ListNode head. Accept the common first-
+  // param names for cycle problems, not just "values".
   return Array.isArray(params)
     && params.length === 2
-    && params[0]?.type === 'List[int]' && params[0]?.name === 'values'
+    && params[0]?.type === 'List[int]' && /^(values|head|nodes|list)$/.test(params[0]?.name || '')
     && params[1]?.type === 'int' && params[1]?.name === 'pos';
 }
 
@@ -1893,6 +1919,8 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       outputBlock = 'print(json.dumps(_from_tree(_result)))';
     } else if (retIsNary) {
       outputBlock = 'print(json.dumps(_from_nary(_result)))';
+    } else if (returnType === 'List[TreeNode]') {
+      outputBlock = 'print(json.dumps(_from_tree_list(_result)))';
     } else {
       outputBlock = [
         'if isinstance(_result, bool):',

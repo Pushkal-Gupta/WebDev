@@ -8,7 +8,7 @@ import {
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { supabase } from '../../lib/supabase';
-import { useLeetCodeUser, useProfile, useLcContestResults } from '../../lib/queries';
+import { useLeetCodeUser, useProfile, useLcContestResults, useLcUserContestRank } from '../../lib/queries';
 import './Contests.css';
 
 // Display-mode KaTeX → HTML string; matches ConceptPage's renderer.
@@ -323,6 +323,16 @@ export default function LeetCodeAnalytics() {
     return { ...p, base, played };
   }, [latest, realRating, user, nowMs]);
 
+  // Auto-fetch the user's rank in the pending (not-yet-rated) round — LeetCode
+  // publishes the ranking immediately, and the edge function reads it through a
+  // Cloudflare-clearing proxy. Passing the rating centers the page scan so it
+  // resolves in seconds. Populates the card AND seeds the predictor rank below.
+  const pendingSlug = pending ? pending.title.toLowerCase().replace(/\s+/g, '-') : null;
+  const { data: pendingRankData } = useLcUserContestRank(pendingSlug, handle, pending?.base, !!pending);
+  const fetchedPendingRank = pendingRankData?.ok && pendingRankData?.found
+    ? Math.max(1, Number(pendingRankData.rank) || 0)
+    : null;
+
   const submit = (e) => {
     e.preventDefault();
     const v = draft.trim();
@@ -357,6 +367,17 @@ export default function LeetCodeAnalytics() {
     if (Number.isFinite(seedRank) && seedRank > 0) {
       setRank(clamp(Math.round(seedRank), 1, TOTAL_PARTICIPANTS));
     }
+  }
+
+  // When the pending-round rank resolves, snap the predictor to it (real rank +
+  // real field size) so the projection reflects the round you actually just played.
+  const [rankSig, setRankSig] = useState('');
+  const rankKey = fetchedPendingRank ? `${pendingSlug}:${fetchedPendingRank}` : '';
+  if (rankKey && rankKey !== rankSig) {
+    setRankSig(rankKey);
+    setRank(clamp(fetchedPendingRank, 1, TOTAL_PARTICIPANTS));
+    const fieldN = Number(pendingRankData?.totalUsers);
+    if (Number.isFinite(fieldN) && fieldN > 0) setTotalDraft(String(fieldN));
   }
 
   const effTotal = clamp(Math.round(Number(totalDraft)) || TOTAL_PARTICIPANTS, 100, 5_000_000);
@@ -733,8 +754,10 @@ export default function LeetCodeAnalytics() {
                 </div>
                 <div className="lca-fact">
                   <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
-                  <span className="lca-fact-val">—</span>
-                  <span className="lca-fact-lbl">Rank pending</span>
+                  <span className="lca-fact-val">{fetchedPendingRank ? `#${fetchedPendingRank.toLocaleString()}` : '—'}</span>
+                  <span className="lca-fact-lbl">
+                    {fetchedPendingRank ? 'Your rank' : (pendingRankData === undefined ? 'Fetching rank…' : 'Rank pending')}
+                  </span>
                 </div>
                 <div className="lca-fact">
                   <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
@@ -744,10 +767,21 @@ export default function LeetCodeAnalytics() {
               </div>
 
               <p className="lca-pending-note">
-                LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
-                rated history. Your last confirmed rating is {pending.base}. Enter the rank you finished in
-                the predictor above to see the likely swing — it&apos;ll be confirmed once LeetCode posts the
-                official change.
+                {fetchedPendingRank ? (
+                  <>
+                    LeetCode hasn&apos;t officially rated {pending.title} yet, so it isn&apos;t in your rated
+                    history — but the ranking is live, so we pulled your finish (#{fetchedPendingRank.toLocaleString()})
+                    and projected the swing above from your confirmed {pending.base}. LeetCode will confirm the
+                    official change in a day or two.
+                  </>
+                ) : (
+                  <>
+                    LeetCode hasn&apos;t published results for {pending.title} yet, so it isn&apos;t in your
+                    rated history. Your last confirmed rating is {pending.base}. Enter the rank you finished in
+                    the predictor above to see the likely swing — it&apos;ll be confirmed once LeetCode posts the
+                    official change.
+                  </>
+                )}
               </p>
             </article>
           )}

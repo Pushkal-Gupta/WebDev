@@ -56,7 +56,7 @@ function pyLiteral(raw: string, type: string): string {
 
 function isCycledListParams(params: Param[]): boolean {
   return params.length === 2
-    && params[0]?.type === "List[int]" && params[0]?.name === "values"
+    && params[0]?.type === "List[int]" && /^(values|head|nodes|list)$/.test(params[0]?.name || "")
     && params[1]?.type === "int" && params[1]?.name === "pos";
 }
 
@@ -139,6 +139,8 @@ def _from_nary(root):
         if _q: _r.append(None)
     while _r and _r[-1] is None: _r.pop()
     return _r
+def _from_tree_list(roots):
+    return [_from_tree(_x) for _x in (roots or [])]
 `;
 
 function buildPythonDriver(code: string, methodName: string, params: Param[], returnType: string): string {
@@ -156,23 +158,24 @@ function buildPythonDriver(code: string, methodName: string, params: Param[], re
         if (isNaryT(p.type)) return `    args.append(_to_nary(json.loads(input())))`;
         return `    args.append(json.loads(input()))`;
       }).join("\n");
+  // Output — match the client driver (driverCode.js) EXACTLY so stored expecteds
+  // (generated via that path) still compare equal: bool->lower, None->null,
+  // top-level str->bare, everything else (incl. lists of strings)->json.dumps.
   const out = isTreeT(returnType)
     ? `    print(json.dumps(_from_tree(r)))`
     : isListT(returnType)
     ? `    print(json.dumps(_from_list(r)))`
     : isNaryT(returnType)
     ? `    print(json.dumps(_from_nary(r)))`
-    : `    print(_fmt(r))`;
+    : returnType === 'List[TreeNode]'
+    ? `    print(json.dumps(_from_tree_list(r)))`
+    : `    if isinstance(r, bool): print('true' if r else 'false')
+    elif r is None: print('null')
+    elif isinstance(r, str): print(r)
+    else: print(json.dumps(r))`;
   return `${PY_IMPORTS}
 ${PY_HELPERS}
 ${code}
-
-def _fmt(v):
-    if isinstance(v, bool): return 'true' if v else 'false'
-    if v is None: return 'null'
-    if isinstance(v, (list, tuple)): return '[' + ','.join(_fmt(x) for x in v) + ']'
-    if isinstance(v, str): return v
-    return str(v)
 
 if __name__ == '__main__':
     args = []
@@ -221,18 +224,12 @@ function buildJsDriver(code: string, methodName: string, params: Param[], return
     ? `console.log(JSON.stringify(_fromList(r)));`
     : isNaryT(returnType)
     ? `console.log(JSON.stringify(_fromNary(r)));`
-    : `console.log(_fmt(r));`;
+    : `console.log(typeof r === 'string' ? r : JSON.stringify(r));`;
   return `${JS_HELPERS}
 ${code}
 const lines = require('fs').readFileSync(0, 'utf8').split('\\n');
 const args = [];
   ${reads}
-function _fmt(v) {
-  if (typeof v === 'boolean') return v ? 'true' : 'false';
-  if (v === null) return 'null';
-  if (Array.isArray(v)) return '[' + v.map(_fmt).join(',') + ']';
-  return String(v);
-}
 const sol = (typeof Solution !== 'undefined') ? new Solution() : { ${methodName}: (typeof ${methodName} !== 'undefined' ? ${methodName} : null) };
 const r = (sol.${methodName}).apply(sol, args);
 ${out}
