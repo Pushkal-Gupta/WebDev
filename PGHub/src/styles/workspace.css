@@ -611,6 +611,7 @@
 .ws-result-label { font-family: var(--sans); font-size: 0.75rem; font-weight: 600; color: var(--text-dim); }
 .ws-result-value { padding: 0.6rem 0.8rem; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; font-family: var(--mono); font-size: 0.82rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; }
 .ws-result-hidden-note { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--text-dim); font-style: italic; }
+.ws-result-stdout { color: var(--text-dim); background: rgba(var(--accent-rgb), 0.04); }
 .ws-result-hidden-note svg { flex-shrink: 0; opacity: 0.8; }
 
 /* Submit result */

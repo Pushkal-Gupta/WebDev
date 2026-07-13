@@ -67,11 +67,13 @@ async function writeRankCache(slug: string, user: string, hit: { row: any; solve
 }
 
 const PAGE_SIZE = 25;
-const MAX_SCAN = 130;   // hard cap on pages fetched per request (bounds cost/time)
-const WINDOW = 80;      // pages around the expected page we're willing to sweep
-const BATCH = 50;       // pages fetched concurrently — first parallel shot covers the
-                        // rating-implied page ±25, so a lookup usually resolves in one
-                        // ~3s round-trip instead of several sequential batches
+// Full-field coverage: a rank can be hundreds of pages from the rating-implied
+// page (new accounts have no rating), so scan every page, centered-first, bounded
+// by a deadline. Typical users still resolve in the first 1-2 batches.
+const MAX_SCAN = 1700;
+const WINDOW = 900;
+const BATCH = 50;
+const DEADLINE_MS = 55000;
 const FETCH_TIMEOUT_MS = 28000;
 
 // Representative field slice + expected-rank model, mirrored from the client
@@ -244,7 +246,9 @@ serve(async (req) => {
     const pagesToScan = scanOrder(expPage, lastPage).filter((p) => p !== 1);
 
     let pagesScanned = 1;
+    const started = Date.now();
     for (let i = 0; i < pagesToScan.length; i += BATCH) {
+      if (Date.now() - started > DEADLINE_MS) break; // bound cost for deep/outlier users
       const batch = pagesToScan.slice(i, i + BATCH);
       const results = await Promise.all(batch.map((p) => fetchPage(contest, p).catch(() => null)));
       pagesScanned += results.length;

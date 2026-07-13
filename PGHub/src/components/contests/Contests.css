@@ -1225,6 +1225,21 @@
 
 /* ── LeetCode analytics (visual) ── */
 .lca-intro { margin-bottom: 1.2rem; }
+/* Standard centered page gutter — the analytics route was full-bleed to the
+   viewport edges (no gutters). Matches the app-wide container rule. */
+.lca-wrap {
+  width: 94%;
+  max-width: var(--container-w, 1200px);
+  margin: 0 auto;
+  padding-bottom: 2.5rem;
+}
+
+/* Blink both the pending-rank card and each still-scanning results row so the
+   live fetch is obviously in progress. */
+@keyframes lca-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.lca-blink { animation: lca-blink 1s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .lca-blink { animation: none; } }
+
 .lca-section { margin-bottom: 2rem; }
 .lca-section-title {
   font-size: 0.95rem;

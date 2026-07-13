@@ -570,6 +570,7 @@ export const JAVA_ERR_PREFIX = '###ERR###';
 
 const CPP_HELPERS = `
 #include <bits/stdc++.h>
+#include <unistd.h>
 using namespace std;
 
 struct ListNode {
@@ -1927,6 +1928,10 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
         '_ops = json.loads(sys.stdin.read().strip())',
         '_results = []',
         '_instance = None',
+        // user print()s are DEBUG-only (LeetCode parity): send them to stderr so
+        // only the serialized result reaches stdout, which is all the grader compares.
+        '_pgc_out = sys.stdout',
+        'sys.stdout = sys.stderr',
         'for _op in _ops:',
         '    _name = _op[0]',
         '    _args = _op[1:]',
@@ -1937,6 +1942,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
         '    else:',
         '        _ret = getattr(_instance, _name)(*_args)',
         '        _results.append(_ret)',
+        'sys.stdout = _pgc_out',
         'print(json.dumps(_results))',
       ].join('\n');
     }
@@ -1986,7 +1992,14 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '_lines = sys.stdin.read().strip().split("\\n")',
       parsing,
       '_sol = Solution()',
-      `_result = _sol.${methodName}(${args})`,
+      // user print()s are DEBUG-only (LeetCode parity): redirect them to stderr so
+      // only the serialized return value reaches stdout, which is all the grader compares.
+      '_pgc_out = sys.stdout',
+      'sys.stdout = sys.stderr',
+      'try:',
+      `    _result = _sol.${methodName}(${args})`,
+      'finally:',
+      '    sys.stdout = _pgc_out',
       outputBlock,
     ].join('\n');
   }
@@ -2025,7 +2038,17 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '',
       "const _lines = require('fs').readFileSync('/dev/stdin', 'utf8').trim().split('\\n');",
       parsing,
-      `const _result = ${methodName}(${args});`,
+      // user console.log()s are DEBUG-only (LeetCode parity): redirect them to stderr
+      // so only the serialized return value reaches stdout, which is all the grader compares.
+      'const _pgcLog = console.log, _pgcInfo = console.info, _pgcDebug = console.debug;',
+      "const _pgcCap = (...a) => process.stderr.write(a.map(x => typeof x === 'string' ? x : require('util').inspect(x)).join(' ') + '\\n');",
+      'console.log = _pgcCap; console.info = _pgcCap; console.debug = _pgcCap;',
+      'let _result;',
+      'try {',
+      `  _result = ${methodName}(${args});`,
+      '} finally {',
+      '  console.log = _pgcLog; console.info = _pgcInfo; console.debug = _pgcDebug;',
+      '}',
       outputBlock,
     ].join('\n');
   }
@@ -2078,16 +2101,16 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     const callAndSerializeSingle = retIsList
       ? [
           `        ListNode _result = sol.${methodName}(${args});`,
-          '        System.out.println(_jsonList(_result));',
+          '        _realOut.println(_jsonList(_result));',
         ].join('\n')
       : retIsTree
       ? [
           `        TreeNode _result = sol.${methodName}(${args});`,
-          '        System.out.println(_jsonTree(_result));',
+          '        _realOut.println(_jsonTree(_result));',
         ].join('\n')
       : [
           `        Object _result = (Object) sol.${methodName}(${args});`,
-          '        System.out.println(_jsonify(_result));',
+          '        _realOut.println(_jsonify(_result));',
         ].join('\n');
 
     // Multi-case body uses _jsonify which dispatches on runtime type — that path
@@ -2131,7 +2154,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '                // tolerate missing separator silently',
       '            }',
       '        }',
-      '        System.out.print(_out.toString());',
+      '        _realOut.print(_out.toString());',
     ].join('\n') : [
       '        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));',
       `        ${javaParsing}`,
@@ -2169,6 +2192,10 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '',
       'class Main {',
       '    public static void main(String[] _args) throws Exception {',
+      // user System.out prints are DEBUG-only (LeetCode parity): route them to stderr
+      // and emit the real result via _realOut, so only the return value hits stdout.
+      '        java.io.PrintStream _realOut = System.out;',
+      '        System.setOut(System.err);',
       mainBody,
       '    }',
       '',
@@ -2444,13 +2471,15 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '            string _sep; getline(cin, _sep); // consume case separator',
       '        }',
       '    }',
-      '    cout << _out.str();',
+      '    cout.flush(); fflush(stdout); dup2(_pgc_saved_fd, 1); close(_pgc_saved_fd);',
+      '    { string _s = _out.str(); fwrite(_s.data(), 1, _s.size(), stdout); fflush(stdout); }',
     ].join('\n') : [
       '    Solution sol;',
       '    ostringstream _out;',
       caseBody,
       '    _out << \'\\n\';',
-      '    cout << _out.str();',
+      '    cout.flush(); fflush(stdout); dup2(_pgc_saved_fd, 1); close(_pgc_saved_fd);',
+      '    { string _s = _out.str(); fwrite(_s.data(), 1, _s.size(), stdout); fflush(stdout); }',
     ].join('\n');
 
     return [
@@ -2460,6 +2489,9 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       'int main() {',
       '    ios_base::sync_with_stdio(false);',
       '    cin.tie(nullptr);',
+      // user cout/printf are DEBUG-only (LeetCode parity): redirect fd 1 -> fd 2 during
+      // execution so only the buffered result (emitted after restore) reaches stdout.
+      '    fflush(stdout); int _pgc_saved_fd = dup(1); dup2(2, 1);',
       mainBody,
       '    return 0;',
       '}',

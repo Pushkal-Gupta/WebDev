@@ -8,7 +8,7 @@ import {
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { supabase } from '../../lib/supabase';
-import { useLeetCodeUser, useProfile, useLcContestResults, useLcUserContestRank } from '../../lib/queries';
+import { useLeetCodeUser, useProfile, useLcContestResult, useLcUserContestRank } from '../../lib/queries';
 import './Contests.css';
 
 // Display-mode KaTeX → HTML string; matches ConceptPage's renderer.
@@ -249,6 +249,43 @@ function fmtContestStart(ms) {
 // "Weekly Contest 509" → "weekly-contest-509" for the per-contest analytics route.
 const contestSlugOf = (title) => (title || '').trim().toLowerCase().replace(/\s+/g, '-');
 
+// One results-table row = one INDEPENDENT query (keyed by user), so cached handles
+// paint instantly, a slow scan never blocks the others, and re-adding a handle
+// never re-fetches it. Blinks while its own scan is in flight.
+function LcResultRow({ slug, username, onRemove }) {
+  const { data, isFetching } = useLcContestResult(slug, username);
+  const r = data?.row || { username };
+  const rated = r.rated;
+  const proj = (!rated && r.pending && r.rank)
+    ? predictDelta({
+        rating: r.oldRating,
+        actualRank: r.rank,
+        contestsPlayed: r.contestsPlayed ?? 10,
+        fieldRatings: SAMPLE_FIELD,
+        fieldSize: r.fieldSize || TOTAL_PARTICIPANTS,
+      })
+    : null;
+  const chg = rated ? r.change : (proj ? proj.delta : null);
+  const up = (chg ?? 0) >= 0;
+  const hasRank = rated || (r.pending && r.rank);
+  const loading = isFetching && !hasRank;
+  const notFound = !loading && !hasRank && r.found === false;
+  return (
+    <div className={`lca-rtable-r${loading ? ' lca-blink' : ''}`} role="row">
+      <span role="cell" className="lca-rc-rank">{hasRank ? `#${r.rank}` : (loading ? <span className="lca-rc-dots" aria-hidden /> : '—')}</span>
+      <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${username}/`} target="_blank" rel="noreferrer noopener">{username}</a>
+      <span role="cell" className="lca-rc-num">{hasRank && r.problemsSolved != null ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
+      <span role="cell" className="lca-rc-num lca-rc-dim">{hasRank && r.oldRating ? Math.round(r.oldRating) : '—'}</span>
+      <span role="cell" className={`lca-rc-num lca-rc-chg ${chg != null ? (up ? 'is-up' : 'is-dn') : ''}`}>
+        {chg != null ? `${up ? '+' : ''}${chg.toFixed(proj ? 0 : 2)}${proj ? '*' : ''}`
+          : loading ? 'scanning…' : notFound ? 'not found' : '—'}
+      </span>
+      <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : '—')}</span>
+      <button role="cell" className="lca-rc-x" onClick={() => onRemove(username)} aria-label={`Remove ${username}`}><Minus size={13} /></button>
+    </div>
+  );
+}
+
 export default function LeetCodeAnalytics() {
   // ── Primary flow: look a handle up and read its LAST attended contest ──────
   const [userId, setUserId] = useState(null);
@@ -421,9 +458,6 @@ export default function LeetCodeAnalytics() {
     setResultsSeeded(true);
     setResultUsers([(savedHandle || handle).trim()]);
   }
-  const { data: contestResults, isFetching: resultsFetching } = useLcContestResults(
-    contestSlug, resultUsers, !!contest,
-  );
   const addResultUser = (e) => {
     e.preventDefault();
     const v = resultDraft.trim();
@@ -496,47 +530,16 @@ export default function LeetCodeAnalytics() {
                 <span role="columnheader" className="lca-rc-num">New</span>
                 <span role="columnheader" aria-label="Remove" />
               </div>
-              {(contestResults?.rows || resultUsers.map((u) => ({ username: u }))).map((r) => {
-                const rated = r.rated;
-                const contestUnrated = !!contestResults?.note;
-                // Pending row with a live rank → project the swing with the same model.
-                const proj = (!rated && r.pending && r.rank)
-                  ? predictDelta({
-                      rating: r.oldRating,
-                      actualRank: r.rank,
-                      contestsPlayed: r.contestsPlayed ?? 10,
-                      fieldRatings: SAMPLE_FIELD,
-                      fieldSize: r.fieldSize || TOTAL_PARTICIPANTS,
-                    })
-                  : null;
-                const chg = rated ? r.change : (proj ? proj.delta : null);
-                const up = (chg ?? 0) >= 0;
-                const hasRank = rated || (r.pending && r.rank);
-                const loading = resultsFetching && !hasRank;
-                const notFound = !loading && !hasRank && r.found === false && !contestUnrated;
-                return (
-                  <div className={`lca-rtable-r${loading ? ' is-loading' : ''}`} role="row" key={r.username}>
-                    <span role="cell" className="lca-rc-rank">{hasRank ? `#${r.rank}` : (loading ? <span className="lca-rc-dots" aria-hidden /> : '—')}</span>
-                    <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${r.username}/`} target="_blank" rel="noreferrer noopener">{r.username}</a>
-                    <span role="cell" className="lca-rc-num">{hasRank && r.problemsSolved != null ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
-                    <span role="cell" className="lca-rc-num lca-rc-dim">{hasRank && r.oldRating ? Math.round(r.oldRating) : '—'}</span>
-                    <span role="cell" className={`lca-rc-num lca-rc-chg ${chg != null ? (up ? 'is-up' : 'is-dn') : ''}`} title={proj ? 'Projected — not yet finalized by LeetCode' : undefined}>
-                      {chg != null ? `${up ? '+' : ''}${chg.toFixed(proj ? 0 : 2)}${proj ? '*' : ''}`
-                        : loading ? 'scanning…' : notFound ? 'not found' : (contestUnrated ? 'not rated' : '—')}
-                    </span>
-                    <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : '—')}</span>
-                    <button role="cell" className="lca-rc-x" onClick={() => removeResultUser(r.username)} aria-label={`Remove ${r.username}`}><Minus size={13} /></button>
-                  </div>
-                );
-              })}
+              {resultUsers.map((u) => (
+                <LcResultRow key={u} slug={contestSlug} username={u} onRemove={removeResultUser} />
+              ))}
             </div>
           )}
-          {resultsFetching && (
+          {resultUsers.length > 0 && (
             <p className="lca-results-note">
-              <Hourglass size={12} aria-hidden /> Scanning LeetCode&apos;s live ranking… the first lookup for a user can take ~15s (it&apos;s cached after).
+              <Hourglass size={12} aria-hidden /> Each handle loads on its own — <b>*</b> change is our projection until LeetCode finalizes the contest.
             </p>
           )}
-          {!resultsFetching && contestResults?.note && <p className="lca-results-note"><Hourglass size={12} aria-hidden /> {contestResults.note}</p>}
         </section>
       )}
 
@@ -792,9 +795,9 @@ export default function LeetCodeAnalytics() {
                   <span className="lca-fact-val lca-fact-date">{fmtDate(pending.startTime)}</span>
                   <span className="lca-fact-lbl">Contest day</span>
                 </div>
-                <div className="lca-fact">
+                <div className={`lca-fact${!fetchedPendingRank && pendingRankData === undefined ? ' lca-blink' : ''}`}>
                   <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
-                  <span className="lca-fact-val">{fetchedPendingRank ? `#${fetchedPendingRank.toLocaleString()}` : '—'}</span>
+                  <span className="lca-fact-val">{fetchedPendingRank ? `#${fetchedPendingRank.toLocaleString()}` : (pendingRankData === undefined ? '···' : '—')}</span>
                   <span className="lca-fact-lbl">
                     {fetchedPendingRank ? 'Your rank' : (pendingRankData === undefined ? 'Fetching rank…' : 'Rank pending')}
                   </span>

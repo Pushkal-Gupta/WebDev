@@ -640,6 +640,31 @@ export function useLcContestResults(slug, usernames, enabled = true) {
   });
 }
 
+// Single-user variant — one query per handle so each row loads INDEPENDENTLY
+// (cached handles resolve instantly, a slow scan never blocks the others) and
+// adding a new handle never re-fetches the ones already shown. Keyed by
+// (slug, username) so React Query dedupes/caches per user. Returns the single
+// row + note: { ok, row, note } or { ok:false }.
+export function useLcContestResult(slug, username, enabled = true) {
+  const u = (username || '').trim();
+  return useQuery({
+    queryKey: ['lcContestResult', slug || '', u.toLowerCase()],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke('lc-contest', {
+        body: { contest: slug, usernames: [u] },
+      });
+      if (error) return { ok: false, error: error.message };
+      return { ok: data?.ok, row: data?.rows?.[0] || null, note: data?.note };
+    },
+    enabled: !!slug && !!u && enabled,
+    retry: false,
+    // Ended-unrated ranks are stable, so keep each row cached long — never re-scan
+    // a handle that's already resolved this session.
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+  });
+}
+
 export function useContest(slug) {
   return useQuery({
     queryKey: ['contest', slug],

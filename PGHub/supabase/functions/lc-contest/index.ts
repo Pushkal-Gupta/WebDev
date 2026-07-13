@@ -82,11 +82,15 @@ const UA =
 
 // ── Live-ranking scan (pending contests) via Jina AI Reader ───────────────────
 const PAGE_SIZE = 25;
-const MAX_SCAN = 120;   // cap on ranking pages fetched per request
-const WINDOW = 70;      // ring radius (pages) swept around each user's expected page
-const BATCH = 50;       // pages fetched concurrently — the centered scan order means
-                        // the first parallel shot covers the user's expected page ±25,
-                        // so most lookups resolve in ONE ~3s round-trip (not sequential)
+// Cover the WHOLE field — a user's actual rank can sit hundreds of pages from the
+// page their rating implies (new accounts have no rating at all), so a narrow
+// window silently misses them. The scan order is centered-first (typical users
+// resolve in the first ~1-2 batches) then fills every remaining page; a wall-clock
+// deadline bounds the cost for deep/outlier users (found result is then cached).
+const MAX_SCAN = 1700;
+const WINDOW = 900;     // ring radius (pages) swept around each user's expected page
+const BATCH = 50;       // pages fetched concurrently (Jina sweet spot ~45-50)
+const DEADLINE_MS = 55000;
 const FETCH_TIMEOUT_MS = 28000;
 const JINA_KEY = Deno.env.get("JINA_API_KEY") || "";
 
@@ -206,7 +210,9 @@ async function scanRanking(
     Math.min(Math.max(Math.round(expectedRank(t.currentRating, totalUsers) / PAGE_SIZE), 1), lastPage),
   );
   const order = unionScanOrder(expPages, lastPage).filter((p) => p !== 1);
+  const started = Date.now();
   for (let i = 0; i < order.length && remaining.size > 0; i += BATCH) {
+    if (Date.now() - started > DEADLINE_MS) break; // bound cost for deep/outlier users
     const batch = order.slice(i, i + BATCH);
     const results = await Promise.all(batch.map((p) => fetchRankPage(slug, p).catch(() => null)));
     for (const r of results) { if (r?.rows?.length) matchPage(r); if (remaining.size === 0) break; }
@@ -385,7 +391,10 @@ serve(async (req) => {
         applyScan(r, { rank: c.rank, score: c.score, solved: c.solved, total: c.total }, meta, c.field_size);
         totalUsers = c.field_size || totalUsers;
       } else {
-        targets.set(r.username.toLowerCase(), { currentRating: meta.currentRating });
+        // New account (no rated history) has no rating signal to center on — such
+        // handles are usually looked up because they placed well, so seed the scan
+        // near the top (high pseudo-rating → expected page ~1) and sweep downward.
+        targets.set(r.username.toLowerCase(), { currentRating: meta.attendedCount > 0 ? meta.currentRating : 3500 });
       }
     });
 

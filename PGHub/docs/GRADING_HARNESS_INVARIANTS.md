@@ -86,6 +86,27 @@ Both-integer → exact. Tolerance applies only when at least one side is fractio
 (so genuine float problems, incl. an integer-valued float vs a full-precision
 canonical, still pass). Never widen this back to a relative band over integers.
 
+## Invariant 5 — correctness is the RETURN value only; user prints are debug (2026-07-13)
+
+LeetCode judges only what the method **returns**. A `print(...)` / `console.log(...)` /
+`System.out.println(...)` / `cout <<` in the user's code is debug output shown in a
+separate Stdout panel — it has **zero** bearing on accept/reject. Our driver appended
+the serialized result to stdout AFTER the user's code ran, so any debug line polluted
+the compared stdout and WA'd a correct solution (e.g. `print("Hello")` → stdout
+`"Hello\n3"` vs expected `"3"`).
+
+Fix, in BOTH drivers, all four languages: the user's own stdout is redirected to
+**stderr** for the duration of the solution call, then the driver emits ONLY the
+serialized return value to real stdout. Judge0 ignores stderr on a clean (exit-0) run,
+so debug output can never change the verdict, and it stays available (on stderr) for a
+debug panel. Mechanics:
+- **Python** — `sys.stdout = sys.stdout`→`sys.stderr` around the call (restore in `finally`).
+- **JS** — override `console.log/info/debug` to `process.stderr.write` around the call (restore in `finally`).
+- **Java** — `System.setOut(System.err)` around the call; emit the result via a saved `_realOut`.
+- **C++** — `dup2(2,1)` to point fd 1 at stderr during execution (covers both `cout` and `printf`); flush + `dup2` restore before writing the buffered result. Needs `#include <unistd.h>`.
+
+Never emit the result on the same stream the user prints to without this separation.
+
 ## Prevention — verify before shipping
 
 - `node scripts/verify-all-canonicals.mjs` runs every canonical against all its cases

@@ -181,7 +181,13 @@ if __name__ == '__main__':
     args = []
 ${reads}
     sol = Solution()
-    r = sol.${methodName}(*args)
+    import sys as _sys
+    _pgc_out = _sys.stdout
+    _sys.stdout = _sys.stderr
+    try:
+        r = sol.${methodName}(*args)
+    finally:
+        _sys.stdout = _pgc_out
 ${out}
 `;
 }
@@ -231,7 +237,11 @@ const lines = require('fs').readFileSync(0, 'utf8').split('\\n');
 const args = [];
   ${reads}
 const sol = (typeof Solution !== 'undefined') ? new Solution() : { ${methodName}: (typeof ${methodName} !== 'undefined' ? ${methodName} : null) };
-const r = (sol.${methodName}).apply(sol, args);
+const _pgcLog = console.log, _pgcInfo = console.info, _pgcDebug = console.debug;
+const _pgcCap = (...a) => process.stderr.write(a.map(x => typeof x === 'string' ? x : require('util').inspect(x)).join(' ') + '\\n');
+console.log = _pgcCap; console.info = _pgcCap; console.debug = _pgcCap;
+let r;
+try { r = (sol.${methodName}).apply(sol, args); } finally { console.log = _pgcLog; console.info = _pgcInfo; console.debug = _pgcDebug; }
 ${out}
 `;
 }
@@ -325,8 +335,11 @@ public class Main {
         Scanner sc = new Scanner(System.in);
 ${reads}
         Solution sol = new Solution();
-        Object r = sol.${methodName}(${argList});
-        System.out.println(fmt(r));
+        java.io.PrintStream _realOut = System.out;
+        System.setOut(System.err);
+        Object r;
+        try { r = sol.${methodName}(${argList}); } finally { System.setOut(_realOut); }
+        _realOut.println(fmt(r));
     }
 }
 `;
@@ -345,6 +358,7 @@ function buildCppDriver(code: string, methodName: string, params: Param[]): stri
   }).join("\n");
   const argList = params.map((_, i) => `a${i}`).join(", ");
   return `#include <bits/stdc++.h>
+#include <unistd.h>
 using namespace std;
 
 ${code}
@@ -373,9 +387,11 @@ string fmtVec(vector<int>& v) { string s="["; for(size_t i=0;i<v.size();i++){if(
 string fmtBool(bool b) { return b?"true":"false"; }
 
 int main(){
+    fflush(stdout); int _pgc_saved_fd = dup(1); dup2(2, 1);
 ${reads}
     Solution sol;
     auto r = sol.${methodName}(${argList});
+    cout.flush(); fflush(stdout); dup2(_pgc_saved_fd, 1); close(_pgc_saved_fd);
     cout << r << endl;
     return 0;
 }

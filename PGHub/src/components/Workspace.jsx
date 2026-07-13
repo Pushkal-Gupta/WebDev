@@ -714,6 +714,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
           input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
           output: result.output.trim(),
           expected: tc.expected,
+          debug: (result.debug || '').trim(),
         });
       }
 
@@ -807,6 +808,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
               input: params.map((p, j) => ({ name: p.name, value: tc.inputs[j] || '' })),
               output: result.output.trim(),
               expected: tc.expected,
+              debug: (result.debug || '').trim(),
             }],
             activeCaseIdx: 0,
             failedCase: i + 1,
@@ -1592,6 +1594,12 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                                   ))}
                                 </div>
                               </div>
+                              {caseToShow.debug ? (
+                                <div className="ws-result-section">
+                                  <div className="ws-result-label">Stdout</div>
+                                  <div className="ws-result-value ws-result-stdout">{caseToShow.debug}</div>
+                                </div>
+                              ) : null}
                               <div className="ws-result-section">
                                 <div className="ws-result-label">Output</div>
                                 <div className="ws-result-value">{caseToShow.output}</div>

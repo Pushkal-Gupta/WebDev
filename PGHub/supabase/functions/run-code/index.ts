@@ -51,11 +51,15 @@ function mapResult(sub: {
   stderr?: string | null;
   compile_output?: string | null;
   message?: string | null;
-}): { status: string; output: string } {
+}): { status: string; output: string; debug?: string } {
   const id = sub.status?.id;
   if (id === 6) return { status: "compile_error", output: sub.compile_output || "Compilation failed" };
   if (id === 5) return { status: "time_limit", output: "Time Limit Exceeded (5s)" };
-  if (id === 3) return { status: "success", output: sub.stdout || "(No output)" };
+  // On a clean run the driver routes the user's own print/console.log to stderr
+  // (debug-only, LeetCode parity) and emits ONLY the return value on stdout. Surface
+  // that debug stream separately so the UI can show a Stdout panel without it ever
+  // affecting the compared output.
+  if (id === 3) return { status: "success", output: sub.stdout || "(No output)", debug: (sub.stderr || "").trim() };
   return {
     status: "runtime_error",
     output: sub.stderr || sub.compile_output || sub.message || "Runtime error",

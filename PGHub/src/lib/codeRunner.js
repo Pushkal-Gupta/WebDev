@@ -121,7 +121,9 @@ export async function runCodeMultiCase(code, language, stdins) {
       results.push({ status: 'runtime_error', output: p.slice(JAVA_ERR_PREFIX.length) });
       continue;
     }
-    results.push({ status: 'success', output: p });
+    // java/cpp batch all cases into ONE run, so the user's debug (stderr) is a single
+    // combined blob rather than per-case; surface it on each success case best-effort.
+    results.push({ status: 'success', output: p, debug: raw.debug || '' });
   }
   return results;
 }
