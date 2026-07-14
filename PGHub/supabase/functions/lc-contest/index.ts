@@ -76,6 +76,45 @@ async function writeScanCache(slug: string, user: string, hit: { rank: number; s
   } catch { /* best-effort */ }
 }
 
+// The pre-scraped full leaderboard (PGcode_lc_contest_ranking) — an instant DB
+// read that replaces the live scan entirely once a contest is scraped.
+async function readRankingDb(slug: string, usernames: string[]): Promise<Map<string, { rank: number; score: number; solved: number; total: number }>> {
+  const map = new Map<string, { rank: number; score: number; solved: number; total: number }>();
+  try {
+    const lowered = [...new Set(usernames.map((u) => u.toLowerCase()))];
+    const { data } = await db.from("PGcode_lc_contest_ranking")
+      .select("user_slug, rank, score, solved, total")
+      .eq("contest_slug", slug)
+      .in("user_slug", lowered);
+    for (const row of data || []) {
+      map.set(String(row.user_slug).toLowerCase(), { rank: row.rank, score: row.score, solved: row.solved, total: row.total });
+    }
+  } catch { /* fall back to scan */ }
+  return map;
+}
+
+async function scrapeStatus(slug: string): Promise<{ fieldSize: number; done: boolean; stale: boolean }> {
+  try {
+    const { data } = await db.from("PGcode_lc_contest_scrape")
+      .select("field_size, done, updated_at").eq("contest_slug", slug).maybeSingle();
+    if (!data) return { fieldSize: 0, done: false, stale: true };
+    const stale = Date.now() - new Date(data.updated_at).getTime() > 120000; // chain died?
+    return { fieldSize: Number(data.field_size) || 0, done: !!data.done, stale };
+  } catch { return { fieldSize: 0, done: false, stale: false }; }
+}
+
+// Kick off (or revive) the one-time full scrape in the background so future
+// lookups for this contest hit the DB instead of scanning.
+function triggerScrape(slug: string): void {
+  const p = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/scrape-contest`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
+    body: JSON.stringify({ contest: slug }),
+  }).catch(() => {});
+  // @ts-ignore EdgeRuntime provided by Supabase
+  try { EdgeRuntime.waitUntil(p); } catch { /* noop locally */ }
+}
+
 const LC_GRAPHQL = "https://leetcode.com/graphql";
 const UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36";
@@ -381,13 +420,23 @@ serve(async (req) => {
       r.fieldSize = fieldSize;
     };
 
-    // Cache lookups in parallel.
+    // 0. Pre-scraped leaderboard (instant DB read) — the fast/cheap path. Anyone
+    //    in the DB is served with ZERO scraping.
+    const dbRanks = await readRankingDb(contest.slug, pending.map((r) => r.username));
+    const status = await scrapeStatus(contest.slug);
+    const fieldFromDb = status.fieldSize || 0;
+
+    // Cache lookups in parallel (only needed for users not in the leaderboard DB).
     const cacheHits = await Promise.all(pending.map((r) => readScanCache(contest.slug, r.username)));
     const targets = new Map<string, { currentRating: number }>();
     pending.forEach((r, i) => {
       const meta = metaByUser.get(r.username.toLowerCase())!;
+      const dbRow = dbRanks.get(r.username.toLowerCase());
       const c = cacheHits[i];
-      if (c && c.rank > 0) {
+      if (dbRow && dbRow.rank > 0) {
+        applyScan(r, { rank: dbRow.rank, score: dbRow.score, solved: dbRow.solved, total: dbRow.total }, meta, fieldFromDb || totalUsers);
+        totalUsers = fieldFromDb || totalUsers;
+      } else if (c && c.rank > 0) {
         applyScan(r, { rank: c.rank, score: c.score, solved: c.solved, total: c.total }, meta, c.field_size);
         totalUsers = c.field_size || totalUsers;
       } else {
@@ -398,7 +447,7 @@ serve(async (req) => {
       }
     });
 
-    // Scan whatever the cache missed, then persist those results.
+    // Scan whatever the DB + cache missed, then persist those results.
     if (targets.size > 0) {
       const { totalUsers: tu, found } = await scanRanking(contest.slug, targets);
       if (tu) totalUsers = tu;
@@ -412,6 +461,10 @@ serve(async (req) => {
         }
       }
     }
+
+    // Ensure the one-time full scrape is running (or revive a dead chain) so every
+    // future lookup for this contest is served from the DB with no scraping.
+    if (!status.done && status.stale) triggerScrape(contest.slug);
   }
 
   const anyRated = rows.some((r) => r.rated);

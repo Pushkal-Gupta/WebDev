@@ -1913,6 +1913,9 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
   const retIsList = isListNodeType(returnType);
   const retIsTree = isTreeNodeType(returnType);
   const retIsNary = isNaryType(returnType);
+  // A TOP-LEVEL str return prints BARE (python `print(_result)`, edge `String.valueOf`),
+  // never JSON-quoted — a nested str inside List[str] IS quoted. Java/C++ must match.
+  const retIsStr = returnType === 'str';
   const multiCaseCount = Math.max(1, Number(opts.multiCaseCount) || 1);
 
   if (language === 'python') {
@@ -2028,6 +2031,9 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       outputBlock = 'console.log(JSON.stringify(_fromNary(_result)));';
     } else if (returnType === 'List[TreeNode]') {
       outputBlock = 'console.log(JSON.stringify(_fromTreeList(_result)));';
+    } else if (retIsStr) {
+      // top-level str prints BARE (matches python/edge), never JSON-quoted
+      outputBlock = 'console.log(_result === null || _result === undefined ? "null" : String(_result));';
     } else {
       outputBlock = 'console.log(JSON.stringify(_result));';
     }
@@ -2108,6 +2114,11 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
           `        TreeNode _result = sol.${methodName}(${args});`,
           '        _realOut.println(_jsonTree(_result));',
         ].join('\n')
+      : retIsStr
+      ? [
+          `        String _result = String.valueOf(sol.${methodName}(${args}));`,
+          '        _realOut.println(_result);',
+        ].join('\n')
       : [
           `        Object _result = (Object) sol.${methodName}(${args});`,
           '        _realOut.println(_jsonify(_result));',
@@ -2125,6 +2136,11 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       ? [
           `                TreeNode _result = sol.${methodName}(${args});`,
           '                _out.append(_jsonTree(_result));',
+        ].join('\n')
+      : retIsStr
+      ? [
+          `                String _result = String.valueOf(sol.${methodName}(${args}));`,
+          '                _out.append(_result);',
         ].join('\n')
       : [
           `                Object _result = (Object) sol.${methodName}(${args});`,
@@ -2427,7 +2443,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     if (returnType === 'int')                serializeExpr = '_pgc_ser_int((long long)_result)';
     else if (returnType === 'float')         serializeExpr = '_pgc_ser_double(_result)';
     else if (returnType === 'bool')          serializeExpr = '_pgc_ser_bool(_result)';
-    else if (returnType === 'str')           serializeExpr = '_pgc_ser_str(_result)';
+    else if (returnType === 'str')           serializeExpr = '_result'; // top-level str prints BARE (matches python/edge), not JSON-quoted
     else if (returnType === 'List[int]')     serializeExpr = '_pgc_ser_vi(_result)';
     else if (returnType === 'List[str]')     serializeExpr = '_pgc_ser_vs(_result)';
     else if (returnType === 'List[bool]')    serializeExpr = '_pgc_ser_vb(_result)';

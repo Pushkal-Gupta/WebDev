@@ -66,6 +66,39 @@ async function writeRankCache(slug: string, user: string, hit: { row: any; solve
   } catch { /* best-effort */ }
 }
 
+// Pre-scraped leaderboard read (PGcode_lc_contest_ranking) — instant, no scan.
+async function readRankingDb(slug: string, user: string): Promise<{ rank: number; score: number; solved: number; total: number; field_size: number } | null> {
+  try {
+    const { data } = await db.from("PGcode_lc_contest_ranking")
+      .select("rank, score, solved, total").eq("contest_slug", slug.toLowerCase())
+      .eq("user_slug", user.toLowerCase()).maybeSingle();
+    if (!data || !data.rank) return null;
+    const { data: st } = await db.from("PGcode_lc_contest_scrape")
+      .select("field_size").eq("contest_slug", slug.toLowerCase()).maybeSingle();
+    return { rank: data.rank, score: data.score, solved: data.solved, total: data.total, field_size: Number(st?.field_size) || 0 };
+  } catch { return null; }
+}
+
+async function needsScrape(slug: string): Promise<boolean> {
+  try {
+    const { data } = await db.from("PGcode_lc_contest_scrape")
+      .select("done, updated_at").eq("contest_slug", slug.toLowerCase()).maybeSingle();
+    if (!data) return true;
+    if (data.done) return false;
+    return Date.now() - new Date(data.updated_at).getTime() > 120000; // dead chain
+  } catch { return false; }
+}
+
+function triggerScrape(slug: string): void {
+  const p = fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/scrape-contest`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}` },
+    body: JSON.stringify({ contest: slug }),
+  }).catch(() => {});
+  // @ts-ignore EdgeRuntime provided by Supabase
+  try { EdgeRuntime.waitUntil(p); } catch { /* noop locally */ }
+}
+
 const PAGE_SIZE = 25;
 // Full-field coverage: a rank can be hundreds of pages from the rating-implied
 // page (new accounts have no rating), so scan every page, centered-first, bounded
@@ -215,7 +248,19 @@ serve(async (req) => {
     return jsonResponse({ ok: false, error: "invalid request body" });
   }
 
-  // Instant path: a fresh cached scan for this (contest, user).
+  // Fastest path: the pre-scraped full leaderboard (no scan at all).
+  const dbRow = await readRankingDb(contest, username);
+  if (dbRow) {
+    return jsonResponse({
+      ok: true, found: true, rank: dbRow.rank, score: dbRow.score,
+      problemsSolved: dbRow.solved, totalProblems: dbRow.total, finishTime: null,
+      username, totalUsers: dbRow.field_size, pagesScanned: 0, cached: true,
+    });
+  }
+  // Kick off the one-time full scrape in the background (revives a dead chain too).
+  if (await needsScrape(contest)) triggerScrape(contest);
+
+  // Next: a fresh cached scan for this (contest, user).
   const cached = await readRankCache(contest, username);
   if (cached) {
     return jsonResponse({
