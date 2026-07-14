@@ -273,7 +273,7 @@ function LcResultRow({ slug, username, onRemove }) {
   return (
     <div className={`lca-rtable-r${loading ? ' lca-blink' : ''}`} role="row">
       <span role="cell" className="lca-rc-rank">{hasRank ? `#${r.rank}` : (loading ? <span className="lca-rc-dots" aria-hidden /> : '—')}</span>
-      <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${username}/`} target="_blank" rel="noreferrer noopener">{username}</a>
+      <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${encodeURIComponent(username)}/`} target="_blank" rel="noreferrer noopener">{username}</a>
       <span role="cell" className="lca-rc-num">{hasRank && r.problemsSolved != null ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
       <span role="cell" className="lca-rc-num lca-rc-dim">{hasRank && r.oldRating ? Math.round(r.oldRating) : '—'}</span>
       <span role="cell" className={`lca-rc-num lca-rc-chg ${chg != null ? (up ? 'is-up' : 'is-dn') : ''}`}>

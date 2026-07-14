@@ -24,7 +24,15 @@ function renderHint(text) {
   const out = [];
   const re = /<code>([\s\S]*?)<\/code>|`([^`]+)`|\*\*([^*]+)\*\*/g;
   let last = 0, m, k = 0;
-  const clean = (t) => t.replace(/<\/?[a-z][^>]*>/gi, '');
+  // Strip tags repeatedly until stable — a single pass can leave a tag that was
+  // reconstructed by the removal (e.g. "<<b>b>" -> "<b>"), which CodeQL flags as
+  // incomplete sanitization. (Output is React-escaped text anyway, but this makes
+  // the sanitization actually complete.)
+  const clean = (t) => {
+    let prev;
+    do { prev = t; t = t.replace(/<\/?[a-z][^>]*>/gi, ''); } while (t !== prev);
+    return t;
+  };
   while ((m = re.exec(s)) !== null) {
     if (m.index > last) out.push(clean(s.slice(last, m.index)));
     if (m[1] !== undefined || m[2] !== undefined) out.push(<code key={k++} className="hint-code">{m[1] ?? m[2]}</code>);
