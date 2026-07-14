@@ -1,0 +1,41 @@
+name: PG.Play CI
+
+# Build check for PG.Play — blocks a broken build from reaching the deploy.
+# Scoped to PG.Play/ so the other monorepo projects don't trigger it.
+
+on:
+  push:
+    paths:
+      - 'PG.Play/**'
+      - '.github/workflows/play-ci.yml'
+  pull_request:
+    paths:
+      - 'PG.Play/**'
+      - '.github/workflows/play-ci.yml'
+
+concurrency:
+  group: play-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: PG.Play
+
+jobs:
+  build:
+    name: catalog · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: PG.Play/package-lock.json
+      - run: npm ci
+      # Full check here (catalog validation + vitest), then the production build.
+      - run: npm run build

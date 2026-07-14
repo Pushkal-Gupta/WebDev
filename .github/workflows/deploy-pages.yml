@@ -1,0 +1,94 @@
+name: Deploy site to Pages
+
+# Option 2 — build on GitHub's servers, never commit dist/.
+#
+# GitHub Pages serves this monorepo as a whole site (root landing + each project
+# at its sub-path, e.g. /PGHub/dist/, /PG.Play/dist/, /onlineChess/dist/, plus the
+# static folders like /chess, /blog). This workflow reproduces that whole site in
+# an artifact: it checks out the SOURCE, builds every Vite project fresh, and
+# publishes the result. The generated dist/ folders exist only for the run and
+# never enter Git history.
+#
+# ONE-TIME SETUP: Repo Settings → Pages → "Build and deployment" → Source →
+# "GitHub Actions" (switch it off "Deploy from a branch"). After that, every push
+# to main rebuilds and redeploys automatically.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+# Standard Pages deploy permissions.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time; let an in-flight one finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build every project → assemble site
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build PGHub
+        working-directory: PGHub
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+        run: npm ci && npm run build
+
+      - name: Build onlineChess
+        working-directory: onlineChess
+        run: npm ci && npm run build
+
+      - name: Build PG.Play
+        working-directory: PG.Play
+        # `npx vite build` on purpose — bypasses PG.Play's heavy prebuild
+        # (catalog validation + vitest); that belongs in CI, not the deploy path,
+        # so a flaky test never blocks publishing the rest of the site.
+        run: npm ci && npx vite build
+
+      - name: Assemble the published site
+        run: |
+          # The whole repo IS the site (root landing + sub-path projects + static
+          # folders). Copy it, minus repo plumbing, node_modules, and source-only
+          # game art (built into PG.Play/dist, never served directly).
+          mkdir -p _site
+          rsync -a \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='_site' \
+            --exclude='node_modules' \
+            --exclude='**/node_modules' \
+            --exclude='PG.Play/assets' \
+            ./ _site/
+          # Pages must not run Jekyll (we ship folders that start with _ / .).
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    name: deploy to Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

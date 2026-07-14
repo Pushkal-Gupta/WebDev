@@ -1,0 +1,41 @@
+name: onlineChess CI
+
+# Lint + build check for onlineChess. Scoped to onlineChess/ so other projects
+# don't trigger it.
+
+on:
+  push:
+    paths:
+      - 'onlineChess/**'
+      - '.github/workflows/chess-ci.yml'
+  pull_request:
+    paths:
+      - 'onlineChess/**'
+      - '.github/workflows/chess-ci.yml'
+
+concurrency:
+  group: chess-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: onlineChess
+
+jobs:
+  build:
+    name: lint · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: onlineChess/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
