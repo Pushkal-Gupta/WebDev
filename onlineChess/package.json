@@ -11,7 +11,6 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@rolldown/binding-darwin-arm64": "^1.0.0-rc.13",
     "@supabase/supabase-js": "^2.39.0",
     "chess.js": "^1.1.0",
     "html5-qrcode": "^2.3.8",
