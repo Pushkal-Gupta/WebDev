@@ -20,7 +20,12 @@ const deadIds = new Set(JSON.parse(fs.readFileSync('/tmp/health/dead.json', 'utf
 const cand = ml.filter(m => !deadIds.has(m.id)).map(m => ({ id: m.id, missing: m.missing.filter(L => L !== 'python') }))
   .filter(m => m.missing.length)
   .sort((a, b) => b.missing.length - a.missing.length);
-const batch = cand.slice(OFFSET, OFFSET + LIMIT);
+// Problems that repeatedly fail to backfill regardless of agent (order-sensitive /
+// return-any, int/bigint overflow with int32 return, JS-async, node-return quirks,
+// order-mismatch vs stored python-set-order expected) — exclude so agents aren't
+// re-fed the unbackfillable tail every wave (they'd re-sort to the top and waste a slice).
+const RESIDUAL = new Set(['add-two-numbers-ii', 'find-if-path-exists', 'course-schedule-ii', 'course-schedule-iv', 'dfs-traversal', 'add-edges-to-make-degrees-of-all-nodes-even', 'factorial', 'fibonacci', 'super-pow', 'add-two-promises', 'find-and-replace-in-string', 'shortest-path-with-alternating-colors', 'angles-of-a-triangle', 'walls-and-gates', 'next-permutation', 'max-product-three', 'integer-to-english-words', 'find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance', 'is-graph-bipartite', 'sum-of-floored-pairs', 'circular-array-implementation', 'two-out-of-three', 'sum-of-distances-in-tree', 'arithmetic-subarrays', 'flattening', 'graph-coloring', 'finding-the-users-active-minutes', 'josephus', 'linear-probing', 'min-swaps-to-group-all-1']);
+const batch = cand.slice(OFFSET, OFFSET + LIMIT * 4);
 const BAD = /Reference skeleton|See the Editorial|TODO|NotImplemented/i;
 let rows = [];
 for (let i = 0; i < batch.length; i += 200) {
@@ -31,11 +36,15 @@ for (let i = 0; i < batch.length; i += 200) {
 const byId = Object.fromEntries(rows.map(r => [r.id, r]));
 const targets = [];
 for (const b of batch) {
+  if (RESIDUAL.has(b.id)) continue;
   const r = byId[b.id]; if (!r) continue;
   const py = r.solutions?.python?.code || '';
   if (!/class\s+Solution/.test(py) || BAD.test(py)) continue; // need a real python to port from
+  // apply-lang-backfill needs >=5 cases to verify a port; grow <5-case ones first.
+  if ((Array.isArray(r.test_cases) ? r.test_cases.length : 0) < 5) continue;
   const cs = (r.test_cases || []).slice(0, 2).map(c => ({ inputs: c.inputs, expected: c.expected }));
   targets.push({ id: r.id, method_name: r.method_name, params: r.params, return_type: r.return_type, missing: b.missing, python: py, sampleCases: cs });
+  if (targets.length >= LIMIT) break;
 }
 fs.mkdirSync('/tmp/bf', { recursive: true });
 const per = Math.ceil(targets.length / SLICES);

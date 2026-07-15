@@ -110,6 +110,43 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Expand the editor to full screen (its own Monaco scrollbar stays — that's the
+   editing surface). automaticLayout:true relayouts Monaco on the size change. */
+.iv-pane-expand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.iv-pane-meta + .iv-pane-expand { margin-left: 0.5rem; }
+.iv-pane-expand:hover { color: var(--accent); border-color: var(--accent); }
+
+.iv-pane-editor.is-full {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  border-radius: 0;
+  border: none;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+}
+.iv-pane-editor.is-full .iv-editor-wrap {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
 .iv-editor-wrap {
   flex: 1;
   min-height: 280px;

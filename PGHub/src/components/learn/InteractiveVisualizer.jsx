@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import {
   Play, Pause, RotateCcw, ChevronsLeft, ChevronsRight,
   SkipBack, SkipForward, Terminal, AlertTriangle, Code2,
+  Maximize2, Minimize2,
 } from 'lucide-react';
 import {
   ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer,
@@ -80,6 +81,7 @@ export default function InteractiveVisualizer({ slug }) {
   const [playing, setPlaying] = useState(false);
   const [speedMs, setSpeedMs] = useState(900);
   const [hasRun, setHasRun] = useState(false);
+  const [editorFull, setEditorFull] = useState(false);
   const playRef = useRef(null);
 
   // Custom full-width bottom resize for the JSON input: drag anywhere along the
@@ -227,11 +229,20 @@ export default function InteractiveVisualizer({ slug }) {
       </header>
 
       <div className="iv-grid">
-        <section className="iv-pane iv-pane-editor" aria-label="Code editor">
+        <section className={`iv-pane iv-pane-editor${editorFull ? ' is-full' : ''}`} aria-label="Code editor">
           <div className="iv-pane-head">
             <Code2 size={14} />
             <span>Edit the algorithm</span>
             <span className="iv-pane-meta">JavaScript</span>
+            <button
+              type="button"
+              className="iv-pane-expand"
+              onClick={() => setEditorFull((v) => !v)}
+              title={editorFull ? 'Exit full screen' : 'Expand editor'}
+              aria-label={editorFull ? 'Exit full screen' : 'Expand editor'}
+            >
+              {editorFull ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+            </button>
           </div>
           <div className="iv-editor-wrap">
             <Editor

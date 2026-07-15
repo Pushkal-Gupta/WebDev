@@ -277,8 +277,12 @@ function LcResultRow({ slug, username, onRemove }) {
       <span role="cell" className="lca-rc-num">{hasRank && r.problemsSolved != null ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
       <span role="cell" className="lca-rc-num lca-rc-dim">{hasRank && r.oldRating ? Math.round(r.oldRating) : '—'}</span>
       <span role="cell" className={`lca-rc-num lca-rc-chg ${chg != null ? (up ? 'is-up' : 'is-dn') : ''}`}>
-        {chg != null ? `${up ? '+' : ''}${chg.toFixed(proj ? 0 : 2)}${proj ? '*' : ''}`
-          : loading ? 'scanning…' : notFound ? 'not found' : '—'}
+        {chg != null ? (
+          <>
+            {up ? <TrendingUp size={14} aria-hidden /> : <TrendingDown size={14} aria-hidden />}
+            <span className="lca-rc-chg-val">{`${up ? '+' : ''}${chg.toFixed(proj ? 0 : 2)}${proj ? '*' : ''}`}</span>
+          </>
+        ) : loading ? 'scanning…' : notFound ? 'not found' : '—'}
       </span>
       <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : '—')}</span>
       <button role="cell" className="lca-rc-x" onClick={() => onRemove(username)} aria-label={`Remove ${username}`}><Minus size={13} /></button>
@@ -376,7 +380,13 @@ export default function LeetCodeAnalytics() {
   const submit = (e) => {
     e.preventDefault();
     const v = draft.trim();
-    if (v) setHandle(v);
+    if (!v) return;
+    setHandle(v);
+    // Mirror any looked-up handle into the Contest results table so BOTH the
+    // logged-in user (auto-seeded) and the searched handle show as rows.
+    setResultUsers((prev) =>
+      prev.some((u) => u.toLowerCase() === v.toLowerCase()) ? prev : [...prev, v].slice(0, 25),
+    );
   };
 
   const noContests = handle && !isLoading && !isError && user && !latest;

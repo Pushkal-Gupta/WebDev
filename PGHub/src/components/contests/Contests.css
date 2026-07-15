@@ -1228,6 +1228,13 @@
 /* Standard centered page gutter — the analytics route was full-bleed to the
    viewport edges (no gutters). Matches the app-wide container rule. */
 .lca-wrap {
+  /* #root is a fixed-height (100dvh) overflow:hidden flex column, so a route that
+     doesn't claim its own scroll gets SHRUNK to the leftover space and clipped —
+     that was the "unable to scroll" bug. Own the scroll like .mlhub does. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   width: 94%;
   max-width: var(--container-w, 1200px);
   margin: 0 auto;
@@ -2416,7 +2423,12 @@
 .lca-rc-user:hover { text-decoration: underline; }
 .lca-rc-dim { color: var(--text-dim); }
 .lca-rc-new { font-weight: 700; color: var(--text-main); }
-.lca-rc-chg { font-weight: 700; color: var(--text-dim); }
+.lca-rc-chg {
+  font-weight: 700; color: var(--text-dim);
+  display: inline-flex; align-items: center; justify-content: flex-end; gap: 0.25rem;
+}
+.lca-rc-chg svg { flex: none; }
+.lca-rc-chg-val { font-variant-numeric: tabular-nums; }
 .lca-rc-chg.is-up { color: var(--easy); }
 .lca-rc-chg.is-dn { color: var(--hard); }
 .lca-rc-x {
@@ -2432,7 +2444,9 @@
 }
 .lca-results-note svg { color: var(--warning); }
 @media (max-width: 620px) {
-  .lca-rtable-h, .lca-rtable-r { grid-template-columns: 3rem minmax(0, 1fr) 4.5rem 4rem 1.6rem; }
+  /* Keep Rank · User · Solved · Change · Remove — drop Old(4) & New(6) so the
+     solved count stays visible on narrow screens (no horizontal scroll). */
+  .lca-rtable-h, .lca-rtable-r { grid-template-columns: 3rem minmax(0, 1fr) 4rem 5rem 1.6rem; }
   .lca-rtable-h span:nth-child(4), .lca-rtable-r > *:nth-child(4),
-  .lca-rtable-h span:nth-child(3), .lca-rtable-r > *:nth-child(3) { display: none; }
+  .lca-rtable-h span:nth-child(6), .lca-rtable-r > *:nth-child(6) { display: none; }
 }
