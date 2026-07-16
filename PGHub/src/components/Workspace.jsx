@@ -16,7 +16,22 @@ import ExampleViz from './workspace/ExampleViz';
 import Select from './Select';
 import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
+import { analyzeComplexity, compareToOptimal } from '../lib/complexityAnalyzer';
+import { isAiEnabled, aiAnalyzeComplexity } from '../lib/ai';
 import { Plus, X, GripVertical } from 'lucide-react';
+
+// Build the post-accept complexity analysis: estimate the user's Big-O with the static
+// analyzer, use the problem's canonical python as the "optimal" baseline, and derive
+// runtime/memory beats% from the gap. Fully client-side; the LLM path (if a key is set)
+// enriches it asynchronously.
+function buildComplexityAnalysis(userCode, language, problem, runtimeMs) {
+  const method = problem?.method_name || '';
+  const user = analyzeComplexity(userCode, language, method);
+  const canon = problem?.solutions?.python?.code || '';
+  const optimal = canon ? analyzeComplexity(canon, 'python', method) : user;
+  const cmp = compareToOptimal(user, optimal, userCode);
+  return { user, optimal, ...cmp, runtimeMs, source: 'heuristic' };
+}
 
 // Default order of tabs in the left strip. Persisted per-user in localStorage so
 // users can drag tabs into their preferred order.
@@ -826,6 +841,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
       if (allPassed) {
         // Lock the solve-time the moment submission is accepted.
         setTimerStopped(true);
+        const analysis = buildComplexityAnalysis(codeContent, activeLang, activeProblem, elapsed);
         setRunResult({
           status: 'accepted',
           statusText: 'Accepted',
@@ -833,7 +849,16 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
           totalPassed: total,
           runtime: elapsed,
           isSubmission: true,
+          analysis,
         });
+        // Enrich with the user's own AI model (if configured in Settings); silent fallback.
+        if (isAiEnabled()) {
+          aiAnalyzeComplexity({ problemName: activeProblem.name, problemDescription: activeProblem.description, code: codeContent, language: activeLang }).then((llm) => {
+            if (!llm) return;
+            const cmp = compareToOptimal(llm.user, llm.optimal, codeContent);
+            setRunResult((prev) => (prev && prev.isSubmission && prev.status === 'accepted') ? { ...prev, analysis: { user: llm.user, optimal: llm.optimal, keyIdea: llm.keyIdea, hint: llm.hint, ...cmp, runtimeMs: elapsed, source: 'llm' } } : prev);
+          }).catch(() => {});
+        }
         // Trigger success animation
         setShowSuccess(true);
         setTimeout(() => setShowSuccess(false), 2000);
@@ -1537,6 +1562,49 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                         </div>
                       </div>
                     )}
+
+                    {/* Complexity analysis panel */}
+                    {runResult.isSubmission && runResult.status === 'accepted' && runResult.analysis && (() => {
+                      const a = runResult.analysis;
+                      const Bar = ({ label, pct }) => (
+                        <div className="ws-an-metric">
+                          <div className="ws-an-metric-top"><span>{label}</span><span className="ws-an-beats">Beats <b>{pct}%</b></span></div>
+                          <div className="ws-an-bar"><div className="ws-an-bar-fill" style={{ width: pct + '%' }} /></div>
+                        </div>
+                      );
+                      const Row = ({ label, mine, opt, ok }) => (
+                        <div className="ws-an-crow">
+                          <span className="ws-an-clabel">{label}</span>
+                          <span className={`ws-an-cval ${ok ? 'ok' : 'warn'}`}>{mine}</span>
+                          <span className="ws-an-carrow">vs</span>
+                          <span className="ws-an-copt">{opt} <em>optimal</em></span>
+                        </div>
+                      );
+                      return (
+                        <div className="ws-analysis">
+                          <div className="ws-an-head">
+                            <span className="ws-an-title">{a.isOptimal ? 'Optimal solution' : 'Analysis'}</span>
+                            <span className={`ws-an-src ${a.source === 'llm' ? 'llm' : ''}`}>{a.source === 'llm' ? 'AI analysis' : 'estimated'}</span>
+                          </div>
+                          <p className="ws-an-verdict">{a.verdict}</p>
+                          {a.keyIdea ? <p className="ws-an-idea"><b>Key idea:</b> {a.keyIdea}</p> : null}
+                          {a.hint ? <p className="ws-an-hint"><b>Consider:</b> {a.hint}</p> : null}
+                          <div className="ws-an-metrics">
+                            <Bar label="Runtime" pct={a.beatsRuntime} />
+                            <Bar label="Memory" pct={a.beatsMemory} />
+                          </div>
+                          <div className="ws-an-complexity">
+                            <Row label="Time" mine={a.user.time} opt={a.optimal.time} ok={a.timeGap === 0} />
+                            <Row label="Space" mine={a.user.space} opt={a.optimal.space} ok={a.spaceGap === 0} />
+                          </div>
+                          {a.user.approach?.length ? (
+                            <div className="ws-an-tags">
+                              {a.user.approach.map((t, i) => <span key={i} className="ws-an-tag">{t}</span>)}
+                            </div>
+                          ) : null}
+                        </div>
+                      );
+                    })()}
 
                     {/* Error output */}
                     {runResult.error && (

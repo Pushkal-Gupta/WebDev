@@ -226,6 +226,29 @@ async function callAi(systemPrompt, userPrompt, { maxTokens = 600 } = {}) {
   return text;
 }
 
+// Enrich the complexity/analysis panel with the user's own model. Returns a parsed
+// object or null (caller falls back to the static heuristic analyzer).
+export async function aiAnalyzeComplexity({ problemName, problemDescription, code, language }) {
+  const sys = 'You are a precise algorithm-complexity analyzer. Output ONLY valid minified JSON, no prose, no markdown.';
+  const user = `Problem: ${problemName}. ${problemDescription ? String(problemDescription).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 700) : ''}
+The user's ${language} solution (ACCEPTED, all tests pass):
+\`\`\`${language}
+${String(code).slice(0, 4000)}
+\`\`\`
+Return ONLY this JSON: {"time":"O(...)","space":"O(...)","optimalTime":"O(...)","optimalSpace":"O(...)","approach":["tag"],"suggested":["tag"],"keyIdea":"one sentence","hint":"one sentence improvement, empty if already optimal","isOptimal":true}`;
+  try {
+    const text = await callAi(sys, user, { maxTokens: 320 });
+    const m = text.match(/\{[\s\S]*\}/); if (!m) return null;
+    const j = JSON.parse(m[0]);
+    if (!j.time || !j.space) return null;
+    return {
+      user: { time: j.time, space: j.space, approach: Array.isArray(j.approach) ? j.approach : [] },
+      optimal: { time: j.optimalTime || j.time, space: j.optimalSpace || j.space, approach: Array.isArray(j.suggested) ? j.suggested : [] },
+      keyIdea: j.keyIdea || '', hint: j.hint || '', isOptimal: !!j.isOptimal,
+    };
+  } catch { return null; }
+}
+
 export async function aiExplainFailure({ problemName, problemDescription, failingInput, expectedOutput, actualOutput, code, language }) {
   const sys = 'You are a senior coding-interview tutor. Be concise. Explain why a submission failed and point at the specific line or logic error if possible. Do NOT rewrite the full solution. Keep the response under 180 words. Output plain prose, no markdown headings.';
   const user = `Problem: ${problemName}\n\n${problemDescription || ''}\n\nFailing test:\nInput: ${failingInput}\nExpected: ${expectedOutput}\nActual: ${actualOutput}\n\nUser's ${language} code:\n\`\`\`${language}\n${code}\n\`\`\`\n\nIn 2-4 sentences: what's wrong, where, and a one-line nudge toward the fix (no full solution).`;

@@ -181,12 +181,21 @@ export function generateTemplate(language, methodName, params, returnType) {
   const needsTree = typesUsed.some(isTreeNodeType);
   const needsNary = typesUsed.some(isNaryType);
 
+  // In-place mutation (LeetCode parity): a void/None return with a mutable first array
+  // param means the user modifies it in place and returns nothing. Mirror LeetCode's
+  // starter, including the "Do not return anything…" note, and use a void signature.
+  const VOID_RET = new Set(['None', 'void', 'null', 'undefined', '']);
+  const MUT_ARR = new Set(['List[int]', 'List[List[int]]', 'List[str]', 'List[List[str]]']);
+  const inPlace = (returnType == null || VOID_RET.has(String(returnType))) && params[0] && MUT_ARR.has(params[0].type);
+  const p0 = params[0]?.name || 'nums';
+
   if (language === 'python') {
     const sig = params.map(p => `${p.name}: ${p.type}`).join(', ');
     let prefix = '';
     if (needsList) prefix += PY_LISTNODE_COMMENT;
     if (needsTree) prefix += PY_TREENODE_COMMENT;
     if (needsNary) prefix += PY_NARY_COMMENT;
+    if (inPlace) return `${prefix}class Solution:\n    def ${methodName}(self, ${sig}) -> None:\n        """\n        Do not return anything, modify ${p0} in-place instead.\n        """\n        `;
     return `${prefix}class Solution:\n    def ${methodName}(self, ${sig}) -> ${returnType}:\n        `;
   }
 
@@ -197,11 +206,13 @@ export function generateTemplate(language, methodName, params, returnType) {
     if (needsList) prefix += JS_LISTNODE_COMMENT;
     if (needsTree) prefix += JS_TREENODE_COMMENT;
     if (needsNary) prefix += JS_NARY_COMMENT;
-    return `${prefix}/**\n${jsdoc}\n * @return {${jd(returnType)}}\n */\nvar ${methodName} = function(${args}) {\n    \n};`;
+    const ret = inPlace ? 'void Do not return anything, modify ' + p0 + ' in-place instead.' : jd(returnType);
+    return `${prefix}/**\n${jsdoc}\n * @return {${ret}}\n */\nvar ${methodName} = function(${args}) {\n    \n};`;
   }
 
   if (language === 'java') {
     const javaParams = params.map(p => `${jt(p.type)} ${p.name}`).join(', ');
+    if (inPlace) return `class Solution {\n    public void ${methodName}(${javaParams}) {\n        // Do not return anything, modify ${p0} in-place instead.\n        \n    }\n}`;
     return `class Solution {\n    public ${jt(returnType)} ${methodName}(${javaParams}) {\n        \n    }\n}`;
   }
 
@@ -216,6 +227,7 @@ export function generateTemplate(language, methodName, params, returnType) {
     let prefix = '';
     if (needsList) prefix += CPP_LISTNODE_COMMENT;
     if (needsTree) prefix += CPP_TREENODE_COMMENT;
+    if (inPlace) return `${prefix}#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    void ${methodName}(${cppParams}) {\n        // Do not return anything, modify ${p0} in-place instead.\n        \n    }\n};`;
     return `${prefix}#include <bits/stdc++.h>\nusing namespace std;\n\nclass Solution {\npublic:\n    ${ct(returnType)} ${methodName}(${cppParams}) {\n        \n    }\n};`;
   }
 
@@ -1916,6 +1928,13 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
   // A TOP-LEVEL str return prints BARE (python `print(_result)`, edge `String.valueOf`),
   // never JSON-quoted — a nested str inside List[str] IS quoted. Java/C++ must match.
   const retIsStr = returnType === 'str';
+  // In-place mutation: void/None return + mutable first array param -> the Java/C++
+  // method is `void` and the mutated first param is what gets serialized/checked.
+  const VOID_RET_W = new Set(['None', 'void', 'null', 'undefined', '']);
+  const MUT_ARR_W = new Set(['List[int]', 'List[List[int]]', 'List[str]', 'List[List[str]]']);
+  const retIsVoid = (returnType == null || VOID_RET_W.has(String(returnType))) && !cycledInput && params[0] && MUT_ARR_W.has(params[0].type);
+  const voidParam = retIsVoid ? params[0].name : null;
+  const cppSerFor = (t) => ({ 'List[int]': '_pgc_ser_vi', 'List[List[int]]': '_pgc_ser_vvi', 'List[str]': '_pgc_ser_vs', 'List[List[str]]': '_pgc_ser_vvs' }[t] || '_pgc_ser_vi');
   const multiCaseCount = Math.max(1, Number(opts.multiCaseCount) || 1);
 
   if (language === 'python') {
@@ -2116,7 +2135,12 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
 
     // Pick the serialization expression for the call result. When the return is
     // a node type, we serialize via _jsonList / _jsonTree to match LC formatting.
-    const callAndSerializeSingle = retIsList
+    const callAndSerializeSingle = retIsVoid
+      ? [
+          `        sol.${methodName}(${args});`,
+          `        _realOut.println(_jsonify(${voidParam}));`,
+        ].join('\n')
+      : retIsList
       ? [
           `        ListNode _result = sol.${methodName}(${args});`,
           '        _realOut.println(_jsonList(_result));',
@@ -2139,7 +2163,12 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     // Multi-case body uses _jsonify which dispatches on runtime type — that path
     // now recognizes ListNode and TreeNode too, so node-returning problems work
     // in batched mode without special casing.
-    const multiCallAndSerialize = retIsList
+    const multiCallAndSerialize = retIsVoid
+      ? [
+          `                sol.${methodName}(${args});`,
+          `                _out.append(_jsonify(${voidParam}));`,
+        ].join('\n')
+      : retIsList
       ? [
           `                ListNode _result = sol.${methodName}(${args});`,
           '                _out.append(_jsonList(_result));',
@@ -2478,8 +2507,10 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     ].join('\n') : [
       ...params.map(p => `    string _raw_${p.name}; getline(cin, _raw_${p.name});`),
       ...params.map(p => `    ${parseForType(p.name, p.type)}`),
-      `    auto _result = sol.${methodName}(${params.map(p => p.name).join(', ')});`,
-      `    _out << ${serializeExpr};`,
+      // in-place void: call, then serialize the mutated (by-ref) first param
+      ...(retIsVoid
+        ? [`    sol.${methodName}(${params.map(p => p.name).join(', ')});`, `    _out << ${cppSerFor(params[0].type)}(${voidParam});`]
+        : [`    auto _result = sol.${methodName}(${params.map(p => p.name).join(', ')});`, `    _out << ${serializeExpr};`]),
     ].join('\n');
 
     const mainBody = multiCaseCount > 1 ? [

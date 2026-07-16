@@ -284,6 +284,12 @@ function buildJavaDriver(code: string, methodName: string, params: Param[], retu
     return `        String a${i} = sc.nextLine();`;
   }).join("\n");
   const argList = params.map((_, i) => `a${i}`).join(", ");
+  // in-place void: mutable first array param, void return -> serialize the mutated a0.
+  const JMUT = new Set(["List[int]", "List[List[int]]", "List[str]"]);
+  const jVoid = params[0] && JMUT.has(params[0].type) && (returnType == null || ["None", "void", "null", ""].includes(String(returnType)));
+  const jCall = jVoid
+    ? `Object r; try { sol.${methodName}(${argList}); r = a0; } finally { System.setOut(_realOut); }`
+    : `Object r; try { r = sol.${methodName}(${argList}); } finally { System.setOut(_realOut); }`;
   return `import java.util.*;
 
 ${code}
@@ -349,8 +355,7 @@ ${reads}
         Solution sol = new Solution();
         java.io.PrintStream _realOut = System.out;
         System.setOut(System.err);
-        Object r;
-        try { r = sol.${methodName}(${argList}); } finally { System.setOut(_realOut); }
+        ${jCall}
         _realOut.println(fmt(r));
     }
 }
