@@ -158,6 +158,12 @@ function buildPythonDriver(code: string, methodName: string, params: Param[], re
         if (isNaryT(p.type)) return `    args.append(_to_nary(json.loads(input())))`;
         return `    args.append(json.loads(input()))`;
       }).join("\n");
+  // In-place mutation (LeetCode parity): void solution returns None and mutates the
+  // first array param; expected is the MUTATED param, so serialize args[0] on None.
+  const MUT_ARR = new Set(['List[int]', 'List[List[int]]', 'List[str]', 'List[List[str]]']);
+  const inPlaceNone = params[0] && MUT_ARR.has(params[0].type) && !cycled
+    ? `    elif r is None: print(json.dumps(args[0]))`
+    : `    elif r is None: print('null')`;
   // Output — match the client driver (driverCode.js) EXACTLY so stored expecteds
   // (generated via that path) still compare equal: bool->lower, None->null,
   // top-level str->bare, everything else (incl. lists of strings)->json.dumps.
@@ -170,7 +176,7 @@ function buildPythonDriver(code: string, methodName: string, params: Param[], re
     : returnType === 'List[TreeNode]'
     ? `    print(json.dumps(_from_tree_list(r)))`
     : `    if isinstance(r, bool): print('true' if r else 'false')
-    elif r is None: print('null')
+${inPlaceNone}
     elif isinstance(r, str): print(r)
     else: print(json.dumps(r))`;
   return `${PY_IMPORTS}
@@ -224,12 +230,18 @@ function buildJsDriver(code: string, methodName: string, params: Param[], return
         if (isNaryT(p.type)) return `args.push(_toNary(JSON.parse(lines.shift())));`;
         return `args.push(JSON.parse(lines.shift()));`;
       }).join("\n  ");
+  // in-place mutation: void solution returns undefined and mutates the first array
+  // param; serialize args[0] on undefined/null so the mutated structure is checked.
+  const JS_MUT_ARR = new Set(["List[int]", "List[List[int]]", "List[str]", "List[List[str]]"]);
+  const jsInPlace = params[0] && JS_MUT_ARR.has(params[0].type) && !cycled;
   const out = isTreeT(returnType)
     ? `console.log(JSON.stringify(_fromTree(r)));`
     : isListT(returnType)
     ? `console.log(JSON.stringify(_fromList(r)));`
     : isNaryT(returnType)
     ? `console.log(JSON.stringify(_fromNary(r)));`
+    : jsInPlace
+    ? `console.log((r === undefined || r === null) ? JSON.stringify(args[0]) : (typeof r === 'string' ? r : JSON.stringify(r)));`
     : `console.log(typeof r === 'string' ? r : JSON.stringify(r));`;
   return `${JS_HELPERS}
 ${code}

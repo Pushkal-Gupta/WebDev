@@ -1963,6 +1963,13 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
           return `${p.name} = json.loads(_lines[${i}])`;
         }).join('\n');
 
+    // In-place mutation (LeetCode parity): problems like set-matrix-zeroes / sort-colors
+    // / rotate-image mutate the first array param and return None. The expected output is
+    // the MUTATED param, not the return value. So when the solution returns None and the
+    // first param is a mutable array, serialize that param instead of printing "null".
+    const MUT_ARR = new Set(['List[int]', 'List[List[int]]', 'List[str]', 'List[List[str]]']);
+    const inPlaceParam = (!cycledInput && params[0] && MUT_ARR.has(params[0].type)) ? params[0].name : null;
+
     // Output block — use returnType to force correct serialization even when result is None
     let outputBlock;
     if (retIsList) {
@@ -1978,7 +1985,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
         'if isinstance(_result, bool):',
         '    print(str(_result).lower())',
         'elif _result is None:',
-        '    print("null")',
+        inPlaceParam ? `    print(json.dumps(${inPlaceParam}))` : '    print("null")',
         'elif isinstance(_result, str):',
         '    print(_result)',
         'else:',
@@ -2021,6 +2028,8 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
           return `const ${p.name} = JSON.parse(_lines[${i}]);`;
         }).join('\n');
 
+    const JS_MUT_ARR = new Set(['List[int]', 'List[List[int]]', 'List[str]', 'List[List[str]]']);
+    const jsInPlaceParam = (!cycledInput && params[0] && JS_MUT_ARR.has(params[0].type)) ? params[0].name : null;
     // Output block — use returnType to force correct serialization even when result is null
     let outputBlock;
     if (retIsList) {
@@ -2034,6 +2043,9 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     } else if (retIsStr) {
       // top-level str prints BARE (matches python/edge), never JSON-quoted
       outputBlock = 'console.log(_result === null || _result === undefined ? "null" : String(_result));';
+    } else if (jsInPlaceParam) {
+      // in-place mutation: void solution returns undefined -> serialize the mutated param
+      outputBlock = `console.log(JSON.stringify(_result === undefined || _result === null ? ${jsInPlaceParam} : _result));`;
     } else {
       outputBlock = 'console.log(JSON.stringify(_result));';
     }

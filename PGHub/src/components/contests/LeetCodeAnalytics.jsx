@@ -1,9 +1,10 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,
   ChevronRight, Minus, Hourglass, Clock, ListChecks, ExternalLink, LineChart,
+  Swords, ArrowUp, Target,
 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -74,17 +75,25 @@ function ratingForRank(targetRank, ratings, fieldSize) {
 // low k. Do NOT restore the old 0.5..1.5 curve — it doubled every swing.
 function dampingFactor(contestsPlayed) {
   const k = Math.min(Math.max(contestsPlayed, 0), 100);
-  return Math.min(Math.max(0.19 + 0.5 / (k + 2), 0.19), 0.5);
+  return Math.min(Math.max(0.189 + 0.5 / (k + 2), 0.189), 0.5);
 }
 
 // Saturation scale (rating pts): a single contest swings at most ≈ f·SAT. tanh is
 // ~linear for the small gaps the confirmed mid-table cases sit at (so it leaves
 // their fit untouched) but compresses the large gaps of deep finishes — which is
-// exactly what real LeetCode does. SAT=172 was fit to the three visible real
-// points at once: abcd rank4438 (+17.0 vs +17.77), pushkal rank1585 (-8.3 vs
-// -8.12) AND pushkal rank346 (+36.9 vs +36.52, the dashboard expected-vs-actual).
-// Raising SAT re-inflates the deep-rank prediction (the +65-for-a-+37 finish).
-const SAT = 172;
+// exactly what real LeetCode does. SAT=166 was re-fit after validating against
+// 740 REAL finalized deltas (scripts/validate-rating-predictor.mjs, 150 WC510
+// participants' full histories): it keeps all confirmed anchors within ~1 pt —
+// abcd rank4438 (+17.0 vs +17.77), pushkal rank1585 (-8.2 vs -8.12), pushkal
+// rank346 (+35.5 vs +36.52), murali (+29.7 vs +29.75, now exact) — while nudging
+// dahiya (+30.8 vs +26.53) down. NOTE: the 740-pt sweep showed this model is
+// well-calibrated for >=1700 but under-predicts sub-1700 users by ~15 pts,
+// because it uses a SAMPLE field, not the exact per-contest 40k-rating field LC
+// grades on. Fixing that needs a dense per-contest rating scrape (the tail was
+// the blocker — a uniform-by-rank sample can nail the high end OR the low end,
+// not both). The contests-played off-by-one (k vs k+1) was tested and REJECTED:
+// the 740-pt fit prefers k+0.
+const SAT = 166;
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function predictDelta({ rating, actualRank, contestsPlayed, fieldRatings, fieldSize }) {
@@ -252,7 +261,20 @@ const contestSlugOf = (title) => (title || '').trim().toLowerCase().replace(/\s+
 // One results-table row = one INDEPENDENT query (keyed by user), so cached handles
 // paint instantly, a slow scan never blocks the others, and re-adding a handle
 // never re-fetches it. Blinks while its own scan is in flight.
-function LcResultRow({ slug, username, onRemove }) {
+// Finish time comes through as an elapsed-seconds value on rows that carry it
+// (the live scan surfaces it for pending rounds); rated history rows don't. Show
+// H:MM:SS past an hour, MM:SS below — and nothing when the field is absent.
+function fmtFinish(seconds) {
+  const s = Number(seconds);
+  if (!Number.isFinite(s) || s <= 0) return null;
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = Math.floor(s % 60);
+  const pad = (n) => String(n).padStart(2, '0');
+  return h > 0 ? `${h}:${pad(m)}:${pad(sec)}` : `${m}:${pad(sec)}`;
+}
+
+function LcResultRow({ slug, username, onRemove, onResolve }) {
   const { data, isFetching } = useLcContestResult(slug, username);
   const r = data?.row || { username };
   const rated = r.rated;
@@ -270,12 +292,41 @@ function LcResultRow({ slug, username, onRemove }) {
   const hasRank = rated || (r.pending && r.rank);
   const loading = isFetching && !hasRank;
   const notFound = !loading && !hasRank && r.found === false;
+  const newRating = rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : null);
+  const score = Number.isFinite(Number(r.score)) && r.score != null ? Number(r.score) : null;
+  const finish = fmtFinish(r.finishTime ?? r.finishTimeSeconds);
+  const oldRating = Number.isFinite(Number(r.oldRating)) && r.oldRating ? Math.round(r.oldRating) : null;
+
+  // Lift each resolved row up so the head-to-head strip can read every handle's
+  // real numbers. Report null on a confirmed miss so a removed/absent handle
+  // never lingers in the comparison.
+  useEffect(() => {
+    if (!onResolve) return;
+    if (hasRank) {
+      onResolve(username, {
+        username,
+        rank: Number(r.rank) || null,
+        oldRating,
+        newRating,
+        change: chg,
+        solved: r.problemsSolved != null ? Number(r.problemsSolved) : null,
+        total: r.totalProblems != null ? Number(r.totalProblems) : null,
+        score,
+        rated: !!rated,
+      });
+    } else if (notFound) {
+      onResolve(username, null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username, hasRank, notFound, r.rank, oldRating, newRating, chg, r.problemsSolved, r.totalProblems, score, rated]);
+
   return (
     <div className={`lca-rtable-r${loading ? ' lca-blink' : ''}`} role="row">
       <span role="cell" className="lca-rc-rank">{hasRank ? `#${r.rank}` : (loading ? <span className="lca-rc-dots" aria-hidden /> : '—')}</span>
       <a role="cell" className="lca-rc-user" href={`https://leetcode.com/u/${encodeURIComponent(username)}/`} target="_blank" rel="noreferrer noopener">{username}</a>
       <span role="cell" className="lca-rc-num">{hasRank && r.problemsSolved != null ? `${r.problemsSolved}/${r.totalProblems}` : '—'}</span>
-      <span role="cell" className="lca-rc-num lca-rc-dim">{hasRank && r.oldRating ? Math.round(r.oldRating) : '—'}</span>
+      <span role="cell" className="lca-rc-num">{finish || (score != null ? score : '—')}</span>
+      <span role="cell" className="lca-rc-num lca-rc-dim">{oldRating ?? '—'}</span>
       <span role="cell" className={`lca-rc-num lca-rc-chg ${chg != null ? (up ? 'is-up' : 'is-dn') : ''}`}>
         {chg != null ? (
           <>
@@ -284,8 +335,63 @@ function LcResultRow({ slug, username, onRemove }) {
           </>
         ) : loading ? 'scanning…' : notFound ? 'not found' : '—'}
       </span>
-      <span role="cell" className="lca-rc-num lca-rc-new">{rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : '—')}</span>
+      <span role="cell" className="lca-rc-num lca-rc-new">{newRating ?? '—'}</span>
       <button role="cell" className="lca-rc-x" onClick={() => onRemove(username)} aria-label={`Remove ${username}`}><Minus size={13} /></button>
+    </div>
+  );
+}
+
+// Head-to-head strip: the two best-ranked handles in the results table read
+// side-by-side with the gap on every metric called out and the leader lit up.
+// Turns the "add a second handle" table into a real comparison, not a duplicate
+// of the lookup card below.
+function HeadToHead({ a, b }) {
+  const rows = [
+    { key: 'rating', label: 'Rating', icon: Award, av: a.newRating ?? a.oldRating, bv: b.newRating ?? b.oldRating, higher: true,
+      fmt: (v) => (v != null ? Math.round(v).toLocaleString() : '—') },
+    { key: 'rank', label: 'Rank', icon: Hash, av: a.rank, bv: b.rank, higher: false,
+      fmt: (v) => (v != null ? `#${v.toLocaleString()}` : '—') },
+    { key: 'solved', label: 'Solved', icon: CheckCircle2, av: a.solved, bv: b.solved, higher: true,
+      fmt: (v, row) => (v != null ? `${v}/${row.total ?? '—'}` : '—') },
+    { key: 'change', label: 'Projected change', icon: Target, av: a.change, bv: b.change, higher: true,
+      fmt: (v) => (v != null ? `${v >= 0 ? '+' : ''}${Math.round(v)}` : '—') },
+  ];
+  return (
+    <div className="lca-h2h">
+      <div className="lca-h2h-head">
+        <span className="lca-h2h-title"><Swords size={15} aria-hidden /> Head-to-head</span>
+        <span className="lca-h2h-sub">@{a.username} vs @{b.username} — the gap on every metric</span>
+      </div>
+      <div className="lca-h2h-grid">
+        <div className="lca-h2h-namerow">
+          <span className="lca-h2h-name">@{a.username}</span>
+          <span className="lca-h2h-vs">vs</span>
+          <span className="lca-h2h-name">@{b.username}</span>
+        </div>
+        {rows.map((m) => {
+          const both = m.av != null && m.bv != null;
+          let leader = 'tie';
+          if (both && m.av !== m.bv) leader = (m.higher ? m.av > m.bv : m.av < m.bv) ? 'a' : 'b';
+          const gap = both ? Math.abs(m.av - m.bv) : null;
+          const gapTxt = gap == null ? '' : Math.round(gap).toLocaleString();
+          return (
+            <div className="lca-h2h-row" key={m.key}>
+              <span className={`lca-h2h-val${leader === 'a' ? ' is-lead' : ''}`}>
+                {leader === 'a' && <ArrowUp size={13} aria-hidden />}{m.fmt(m.av, a)}
+              </span>
+              <span className="lca-h2h-metric">
+                <span className="lca-h2h-mlbl"><m.icon size={13} aria-hidden /> {m.label}</span>
+                <span className="lca-h2h-gap">
+                  {leader === 'tie' ? <><Minus size={12} aria-hidden /> even</> : `Δ ${gapTxt}`}
+                </span>
+              </span>
+              <span className={`lca-h2h-val${leader === 'b' ? ' is-lead' : ''}`}>
+                {leader === 'b' && <ArrowUp size={13} aria-hidden />}{m.fmt(m.bv, b)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -375,6 +481,10 @@ export default function LeetCodeAnalytics() {
   const { data: pendingRankData } = useLcUserContestRank(pendingSlug, handle, pending?.base, !!pending);
   const fetchedPendingRank = pendingRankData?.ok && pendingRankData?.found
     ? Math.max(1, Number(pendingRankData.rank) || 0)
+    : null;
+  const pendingSolved = pendingRankData?.ok && pendingRankData?.found
+    && Number.isFinite(Number(pendingRankData.problemsSolved))
+    ? { solved: Number(pendingRankData.problemsSolved), total: Number(pendingRankData.totalProblems) || 4 }
     : null;
 
   const submit = (e) => {
@@ -476,7 +586,43 @@ export default function LeetCodeAnalytics() {
     }
     setResultDraft('');
   };
-  const removeResultUser = (u) => setResultUsers((prev) => prev.filter((x) => x !== u));
+
+  // Resolved per-handle numbers lifted out of each row, keyed by username, so the
+  // head-to-head strip can compare handles without re-fetching them.
+  const [resultData, setResultData] = useState({});
+  const handleResolve = useCallback((u, row) => {
+    setResultData((prev) => {
+      if (row === null) {
+        if (!(u in prev)) return prev;
+        const next = { ...prev };
+        delete next[u];
+        return next;
+      }
+      const cur = prev[u];
+      if (cur && cur.rank === row.rank && cur.newRating === row.newRating
+        && cur.oldRating === row.oldRating && cur.change === row.change
+        && cur.solved === row.solved && cur.score === row.score && cur.total === row.total) {
+        return prev;
+      }
+      return { ...prev, [u]: row };
+    });
+  }, []);
+  const removeResultUser = (u) => {
+    setResultUsers((prev) => prev.filter((x) => x !== u));
+    setResultData((prev) => {
+      if (!(u in prev)) return prev;
+      const next = { ...prev };
+      delete next[u];
+      return next;
+    });
+  };
+
+  // Two best-ranked resolved handles → the pair the head-to-head strip compares.
+  const comparePair = useMemo(() => {
+    const rows = resultUsers.map((u) => resultData[u]).filter((r) => r && r.rank != null);
+    rows.sort((x, y) => x.rank - y.rank);
+    return rows.length >= 2 ? [rows[0], rows[1]] : null;
+  }, [resultUsers, resultData]);
 
   return (
     <div className="lca-wrap">
@@ -535,16 +681,18 @@ export default function LeetCodeAnalytics() {
                 <span role="columnheader">Rank</span>
                 <span role="columnheader">User</span>
                 <span role="columnheader" className="lca-rc-num">Solved</span>
+                <span role="columnheader" className="lca-rc-num">Score</span>
                 <span role="columnheader" className="lca-rc-num">Old</span>
                 <span role="columnheader" className="lca-rc-num">Change</span>
                 <span role="columnheader" className="lca-rc-num">New</span>
                 <span role="columnheader" aria-label="Remove" />
               </div>
               {resultUsers.map((u) => (
-                <LcResultRow key={u} slug={contestSlug} username={u} onRemove={removeResultUser} />
+                <LcResultRow key={u} slug={contestSlug} username={u} onRemove={removeResultUser} onResolve={handleResolve} />
               ))}
             </div>
           )}
+          {comparePair && <HeadToHead a={comparePair[0]} b={comparePair[1]} />}
           {resultUsers.length > 0 && (
             <p className="lca-results-note">
               <Hourglass size={12} aria-hidden /> Each handle loads on its own — <b>*</b> change is our projection until LeetCode finalizes the contest.
@@ -558,7 +706,7 @@ export default function LeetCodeAnalytics() {
       </p>
 
       {/* Username lookup — auto-fills your rating into the predictor below */}
-      <section className="lca-section">
+      <section className="lca-section lca-lookup-sec">
         <form className="lca-lookup" onSubmit={submit}>
           <div className="lca-lookup-input">
             <Search size={15} aria-hidden />
@@ -813,6 +961,14 @@ export default function LeetCodeAnalytics() {
                   </span>
                 </div>
                 <div className="lca-fact">
+                  <span className="lca-fact-ico"><CheckCircle2 size={14} aria-hidden /></span>
+                  <span className="lca-fact-val">
+                    {pendingSolved ? pendingSolved.solved : '—'}
+                    <span className="lca-fact-of">/{pendingSolved ? pendingSolved.total : '4'}</span>
+                  </span>
+                  <span className="lca-fact-lbl">Solved</span>
+                </div>
+                <div className="lca-fact">
                   <span className="lca-fact-ico"><Award size={14} aria-hidden /></span>
                   <span className="lca-fact-val">{pending.base}</span>
                   <span className="lca-fact-lbl">Current rating</span>
@@ -914,7 +1070,7 @@ export default function LeetCodeAnalytics() {
               <p className="lca-ref-note">
                 {latest.ratingPending
                   ? `LeetCode hasn't posted the official rating for ${latest.current.title} yet — this is our projection from your rank of ${latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : 'the round'}. Use the predictor above to try other finishes.`
-                  : `Already rated on LeetCode. LeetCode moved you ${fmtChange(latest.actualChange)} (${Math.round(latest.oldRating)} → ${Math.round(latest.newRating)}); our model projected ${fmtChange(Math.round(latest.expected.delta))} from rank ${latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : ''}.`}
+                  : `Already rated on LeetCode. LeetCode moved you ${fmtChange(latest.actualChange)} (${Math.round(latest.oldRating)} → ${Math.round(latest.newRating)}) on ${latest.current.problemsSolved ?? 0} / ${latest.current.totalProblems ?? 4} solved; our model projected ${fmtChange(Math.round(latest.expected.delta))} from rank ${latest.current.ranking ? `#${Number(latest.current.ranking).toLocaleString()}` : ''}.`}
               </p>
             </article>
           )}
