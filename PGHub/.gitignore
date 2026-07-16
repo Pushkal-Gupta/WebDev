@@ -39,3 +39,6 @@ Thumbs.db
 .claude/
 status.md
 .judge0/
+
+# rating-predictor validation scratch (written to repo root by scripts/validate-rating-predictor.mjs)
+scratchpad*.json

@@ -83,6 +83,8 @@ const Assessments = lazy(() => import('./components/Assessments'));
 const DsaTutorial = lazy(() => import('./components/DsaTutorial'));
 const DsaTutorialTopic = lazy(() => import('./components/DsaTutorialTopic'));
 const ProblemList = lazy(() => import('./components/ProblemList'));
+const Versus = lazy(() => import('./components/versus/Versus'));
+const VersusMatch = lazy(() => import('./components/versus/VersusMatch'));
 const ReviewQueue = lazy(() => import('./components/ReviewQueue'));
 const Playground = lazy(() => import('./components/Playground'));
 const Workspace = lazy(() => import('./components/Workspace'));
@@ -276,6 +278,8 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/practice" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
           {/* Legacy alias */}
           <Route path="/problems" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
+          <Route path="/versus" element={<Versus session={session} />} />
+          <Route path="/versus/:code" element={<VersusMatch session={session} />} />
           <Route path="/learning" element={<LearningHub />} />
           <Route path="/ml" element={<PGForgeHub />} />
           <Route path="/ml/learn" element={<MLHub />} />

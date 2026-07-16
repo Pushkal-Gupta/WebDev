@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Map, List, Terminal, Building2, Trophy, Swords,
+  Map, List, Terminal, Building2, Trophy, Swords, Zap,
   GraduationCap, Brain, Vault,
 } from 'lucide-react';
 import { usePrefetch } from '../lib/queries';
@@ -20,6 +20,7 @@ import './SubNav.css';
 const TABS = [
   { to: '/',             end: true, icon: Map,           brand: ['PG', 'Path'] },
   { to: '/practice',                icon: List,          brand: ['PG', 'Code'], prefetch: true },
+  { to: '/versus',                  icon: Zap,           brand: ['PG', 'Versus'], matches: ['/versus'] },
   { to: '/playground',              icon: Terminal,      brand: ['PG', 'Lab'] },
   { to: '/learning',                icon: GraduationCap, brand: ['PG', 'Learn'],
     // PGLearn groups Tutorial + Concepts + Courses + Visualize, so light up the

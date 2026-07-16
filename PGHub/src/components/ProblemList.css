@@ -998,9 +998,33 @@
     padding: 1rem 0 1.25rem;
   }
 
-  .pl-table-header,
+  /* Below tablet the fixed-column grid squeezes the header labels into each
+     other ("Problem"/"Difficulty" collide) and starves the name column. Drop
+     the grid entirely and lay each row out as a flex card: check on the left,
+     the problem name flexing (with ellipsis) in the middle, difficulty chip on
+     the right. The header row is redundant once rows read as cards, so hide it. */
+  .pl-table-header {
+    display: none;
+  }
+
   .pl-row {
-    grid-template-columns: 44px 1fr 100px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    grid-template-columns: none;
+  }
+
+  .pl-col-status {
+    flex: 0 0 auto;
+  }
+
+  .pl-col-name {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .pl-col-diff {
+    flex: 0 0 auto;
   }
 
   .pl-col-actions {

@@ -4,13 +4,18 @@ import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,
   ChevronRight, Minus, Hourglass, Clock, ListChecks, ExternalLink, LineChart,
-  Swords, ArrowUp, Target,
+  ArrowUp, Target, User, Users,
 } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { supabase } from '../../lib/supabase';
 import { useLeetCodeUser, useProfile, useLcContestResult, useLcUserContestRank } from '../../lib/queries';
+import { HBarChart, StatCard, Legend } from '../compete/Charts';
 import './Contests.css';
+
+// Fixed hue per compared handle — used consistently across the stats table AND
+// every chart so a reader tracks one colour from cell to bar to legend.
+const CMP_PALETTE = ['var(--accent)', 'var(--hue-violet)', 'var(--hue-sky)', 'var(--hue-pink)', 'var(--hue-mint)'];
 
 // Display-mode KaTeX → HTML string; matches ConceptPage's renderer.
 function TexBlock({ tex }) {
@@ -341,57 +346,228 @@ function LcResultRow({ slug, username, onRemove, onResolve }) {
   );
 }
 
-// Head-to-head strip: the two best-ranked handles in the results table read
-// side-by-side with the gap on every metric called out and the leader lit up.
-// Turns the "add a second handle" table into a real comparison, not a duplicate
-// of the lookup card below.
-function HeadToHead({ a, b }) {
-  const rows = [
-    { key: 'rating', label: 'Rating', icon: Award, av: a.newRating ?? a.oldRating, bv: b.newRating ?? b.oldRating, higher: true,
-      fmt: (v) => (v != null ? Math.round(v).toLocaleString() : '—') },
-    { key: 'rank', label: 'Rank', icon: Hash, av: a.rank, bv: b.rank, higher: false,
-      fmt: (v) => (v != null ? `#${v.toLocaleString()}` : '—') },
-    { key: 'solved', label: 'Solved', icon: CheckCircle2, av: a.solved, bv: b.solved, higher: true,
-      fmt: (v, row) => (v != null ? `${v}/${row.total ?? '—'}` : '—') },
-    { key: 'change', label: 'Projected change', icon: Target, av: a.change, bv: b.change, higher: true,
-      fmt: (v) => (v != null ? `${v >= 0 ? '+' : ''}${Math.round(v)}` : '—') },
-  ];
+// Single mode: one handle → its full result for THIS contest. Same resolve path
+// as a table row (live rank + projected/actual swing), rendered as a rich card.
+function SingleResultCard({ slug, username, contest }) {
+  const { data, isFetching } = useLcContestResult(slug, username);
+  const r = data?.row || { username };
+  const rated = r.rated;
+  const proj = (!rated && r.pending && r.rank)
+    ? predictDelta({
+        rating: r.oldRating,
+        actualRank: r.rank,
+        contestsPlayed: r.contestsPlayed ?? 10,
+        fieldRatings: SAMPLE_FIELD,
+        fieldSize: r.fieldSize || TOTAL_PARTICIPANTS,
+      })
+    : null;
+  const chg = rated ? r.change : (proj ? proj.delta : null);
+  const up = (chg ?? 0) >= 0;
+  const hasRank = rated || (r.pending && r.rank);
+  const loading = isFetching && !hasRank;
+  const notFound = !loading && !hasRank && r.found === false;
+  const oldRating = Number.isFinite(Number(r.oldRating)) && r.oldRating ? Math.round(r.oldRating) : null;
+  const newRating = rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : null);
+  const score = Number.isFinite(Number(r.score)) && r.score != null ? Number(r.score) : null;
+  const fieldSize = Number(r.fieldSize) > 0 ? Number(r.fieldSize) : null;
+  const played = Number.isFinite(Number(r.contestsPlayed)) ? Number(r.contestsPlayed) : null;
+  const userUrl = `https://leetcode.com/u/${encodeURIComponent(username)}/`;
+
+  if (loading) return <div className="lca-skel" aria-hidden />;
+  if (notFound || !hasRank) {
+    return (
+      <p className="lca-empty">
+        No result for <strong>{username}</strong> in {contest.title}. Check the handle, or try the Compare tab.
+      </p>
+    );
+  }
+
   return (
-    <div className="lca-h2h">
-      <div className="lca-h2h-head">
-        <span className="lca-h2h-title"><Swords size={15} aria-hidden /> Head-to-head</span>
-        <span className="lca-h2h-sub">@{a.username} vs @{b.username} — the gap on every metric</span>
-      </div>
-      <div className="lca-h2h-grid">
-        <div className="lca-h2h-namerow">
-          <span className="lca-h2h-name">@{a.username}</span>
-          <span className="lca-h2h-vs">vs</span>
-          <span className="lca-h2h-name">@{b.username}</span>
+    <article className="lca-single">
+      <header className="lca-single-head">
+        <a className="lca-single-user" href={userUrl} target="_blank" rel="noreferrer noopener">@{username}</a>
+        <span className={`lca-single-tag ${rated ? 'is-rated' : 'is-pending'}`}>{rated ? 'Rated' : 'Projected'}</span>
+      </header>
+      <div className="lca-single-facts">
+        <div className="lca-fact">
+          <span className="lca-fact-ico"><Hash size={14} aria-hidden /></span>
+          <span className="lca-fact-val">{r.rank != null ? `#${Number(r.rank).toLocaleString()}` : '—'}</span>
+          <span className="lca-fact-lbl">{fieldSize ? `of ${fieldSize.toLocaleString()}` : 'Rank'}</span>
         </div>
-        {rows.map((m) => {
-          const both = m.av != null && m.bv != null;
-          let leader = 'tie';
-          if (both && m.av !== m.bv) leader = (m.higher ? m.av > m.bv : m.av < m.bv) ? 'a' : 'b';
-          const gap = both ? Math.abs(m.av - m.bv) : null;
-          const gapTxt = gap == null ? '' : Math.round(gap).toLocaleString();
+        <div className="lca-fact">
+          <span className="lca-fact-ico"><CheckCircle2 size={14} aria-hidden /></span>
+          <span className="lca-fact-val">
+            {r.problemsSolved != null ? r.problemsSolved : '—'}
+            <span className="lca-fact-of">/{r.totalProblems ?? 4}</span>
+          </span>
+          <span className="lca-fact-lbl">Solved</span>
+        </div>
+        <div className="lca-fact">
+          <span className="lca-fact-ico"><Target size={14} aria-hidden /></span>
+          <span className="lca-fact-val">{score != null ? score.toLocaleString() : '—'}</span>
+          <span className="lca-fact-lbl">Score</span>
+        </div>
+        <div className="lca-fact">
+          <span className="lca-fact-ico"><ListChecks size={14} aria-hidden /></span>
+          <span className="lca-fact-val">{played != null ? played : '—'}</span>
+          <span className="lca-fact-lbl">Contests played</span>
+        </div>
+      </div>
+      <div className="lca-single-move">
+        <span className="lca-single-old">{oldRating ?? '—'}</span>
+        <span className="lca-single-arrow" aria-hidden>→</span>
+        <span className="lca-single-new" style={{ color: chgColor(chg ?? 0) }}>
+          {rated ? (newRating ?? '—') : `~${newRating ?? '—'}`}
+        </span>
+        {chg != null && (
+          <span className={`lca-single-chip ${up ? 'up' : 'down'}`}>
+            {up ? <TrendingUp size={14} aria-hidden /> : <TrendingDown size={14} aria-hidden />}
+            {fmtChange(chg)}{rated ? '' : ' projected'}
+          </span>
+        )}
+      </div>
+    </article>
+  );
+}
+
+// Compare mode: 2–5 resolved handles → a stats board centered on THIS contest.
+// A metric×user table (best per row lit), width-filling bar charts, a diverging
+// projected-change chip strip, and one shared hue legend. Each handle keeps a
+// fixed hue from CMP_PALETTE across the table AND the charts.
+function CompareBoard({ rows }) {
+  const users = rows.map((r, i) => ({ ...r, hue: CMP_PALETTE[i % CMP_PALETTE.length] }));
+
+  const metrics = [
+    { key: 'rank', label: 'Rank', icon: Hash, best: 'min',
+      get: (u) => (u.rank != null ? Number(u.rank) : null),
+      fmt: (v) => (v != null ? `#${v.toLocaleString()}` : '—') },
+    { key: 'solved', label: 'Solved', icon: CheckCircle2, best: 'max',
+      get: (u) => (u.solved != null ? Number(u.solved) : null),
+      fmt: (v, u) => (v != null ? `${v}/${u.total ?? 4}` : '—') },
+    { key: 'score', label: 'Score', icon: Target, best: 'max',
+      get: (u) => (u.score != null ? Number(u.score) : null),
+      fmt: (v) => (v != null ? v.toLocaleString() : '—') },
+    { key: 'old', label: 'Old rating', icon: Award, best: 'max',
+      get: (u) => (u.oldRating != null ? Number(u.oldRating) : null),
+      fmt: (v) => (v != null ? Math.round(v).toLocaleString() : '—') },
+    { key: 'change', label: 'Projected change', icon: TrendingUp, best: 'max', diverging: true,
+      get: (u) => (u.change != null ? Number(u.change) : null),
+      fmt: (v) => (v != null ? `${v >= 0 ? '+' : ''}${Math.round(v)}` : '—') },
+    { key: 'new', label: 'Projected new rating', icon: ArrowUp, best: 'max',
+      get: (u) => (u.newRating != null ? Number(u.newRating) : (u.oldRating != null ? Number(u.oldRating) : null)),
+      fmt: (v) => (v != null ? Math.round(v).toLocaleString() : '—') },
+  ];
+
+  const bestIndex = (m) => {
+    let bi = -1;
+    let bv = null;
+    users.forEach((u, i) => {
+      const v = m.get(u);
+      if (v == null || !Number.isFinite(v)) return;
+      if (bv == null || (m.best === 'min' ? v < bv : v > bv)) { bv = v; bi = i; }
+    });
+    return users.filter((u) => Number.isFinite(m.get(u))).length > 1 ? bi : -1;
+  };
+
+  const newRatingRows = users.map((u) => ({ key: u.username, label: u.username, a: Math.round(Number(u.newRating ?? u.oldRating) || 0), hueA: u.hue }));
+  const solvedRows = users.map((u) => ({ key: u.username, label: u.username, a: Number(u.solved) || 0, hueA: u.hue }));
+  const rankRows = users.map((u) => ({ key: u.username, label: u.username, a: Number(u.rank) || 0, hueA: u.hue }));
+  const legendItems = users.map((u) => ({ label: `@${u.username}`, color: u.hue }));
+
+  return (
+    <div className="lca-cmp">
+      {/* Stats table — desktop matrix (metrics × users) */}
+      <div className="lca-cmp-table" style={{ '--cmp-cols': users.length }} role="table" aria-label="Contest stats by user">
+        <div className="lca-cmp-row lca-cmp-headrow" role="row">
+          <span className="lca-cmp-rowlbl" role="columnheader">Metric</span>
+          {users.map((u) => (
+            <span key={u.username} className="lca-cmp-user" role="columnheader">
+              <span className="lca-cmp-dot" style={{ background: u.hue }} />
+              <span className="lca-cmp-uname">@{u.username}</span>
+            </span>
+          ))}
+        </div>
+        {metrics.map((m) => {
+          const bi = bestIndex(m);
           return (
-            <div className="lca-h2h-row" key={m.key}>
-              <span className={`lca-h2h-val${leader === 'a' ? ' is-lead' : ''}`}>
-                {leader === 'a' && <ArrowUp size={13} aria-hidden />}{m.fmt(m.av, a)}
-              </span>
-              <span className="lca-h2h-metric">
-                <span className="lca-h2h-mlbl"><m.icon size={13} aria-hidden /> {m.label}</span>
-                <span className="lca-h2h-gap">
-                  {leader === 'tie' ? <><Minus size={12} aria-hidden /> even</> : `Δ ${gapTxt}`}
-                </span>
-              </span>
-              <span className={`lca-h2h-val${leader === 'b' ? ' is-lead' : ''}`}>
-                {leader === 'b' && <ArrowUp size={13} aria-hidden />}{m.fmt(m.bv, b)}
-              </span>
+            <div key={m.key} className="lca-cmp-row" role="row">
+              <span className="lca-cmp-rowlbl" role="rowheader"><m.icon size={13} aria-hidden /> {m.label}</span>
+              {users.map((u, i) => {
+                const v = m.get(u);
+                const cls = m.diverging && v != null ? (v >= 0 ? ' is-pos' : ' is-neg') : '';
+                return (
+                  <span key={u.username} className={`lca-cmp-cell${i === bi ? ' is-best' : ''}${cls}`} role="cell">
+                    {m.fmt(v, u)}
+                  </span>
+                );
+              })}
             </div>
           );
         })}
       </div>
+
+      {/* Stats — mobile per-user cards (transpose; never a horizontal-scroll table) */}
+      <div className="lca-cmp-cards">
+        {users.map((u) => (
+          <div key={u.username} className="lca-cmp-card" style={{ borderColor: u.hue }}>
+            <div className="lca-cmp-card-head">
+              <span className="lca-cmp-dot" style={{ background: u.hue }} />
+              <span className="lca-cmp-uname">@{u.username}</span>
+            </div>
+            <dl className="lca-cmp-card-body">
+              {metrics.map((m) => {
+                const v = m.get(u);
+                const cls = m.diverging && v != null ? (v >= 0 ? ' is-pos' : ' is-neg') : '';
+                return (
+                  <div key={m.key} className="lca-cmp-card-row">
+                    <dt><m.icon size={12} aria-hidden /> {m.label}</dt>
+                    <dd className={cls.trim()}>{m.fmt(v, u)}</dd>
+                  </div>
+                );
+              })}
+            </dl>
+          </div>
+        ))}
+      </div>
+
+      {/* Diverging metric — chips, since a bar can't render a negative swing */}
+      <div className="lca-cmp-chg">
+        <span className="lca-cmp-block-title"><TrendingUp size={14} aria-hidden /> Projected rating change</span>
+        <div className="lca-cmp-chg-grid">
+          {users.map((u) => {
+            const c = u.change != null ? Number(u.change) : null;
+            const pos = (c ?? 0) >= 0;
+            return (
+              <StatCard
+                key={u.username}
+                icon={pos ? TrendingUp : TrendingDown}
+                label={`@${u.username}`}
+                value={c != null ? `${pos ? '+' : ''}${Math.round(c)}` : '—'}
+                hue={c == null ? 'var(--text-dim)' : (pos ? 'var(--easy)' : 'var(--hard)')}
+                big
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Width-filling bar charts — non-negative metrics only */}
+      <div className="lca-cmp-charts">
+        <div className="lca-cmp-chart">
+          <span className="lca-cmp-block-title"><Award size={14} aria-hidden /> Projected new rating</span>
+          <HBarChart rows={newRatingRows} />
+        </div>
+        <div className="lca-cmp-chart">
+          <span className="lca-cmp-block-title"><CheckCircle2 size={14} aria-hidden /> Problems solved</span>
+          <HBarChart rows={solvedRows} scaleMax={Math.max(4, ...solvedRows.map((r) => r.a))} />
+        </div>
+        <div className="lca-cmp-chart">
+          <span className="lca-cmp-block-title"><Hash size={14} aria-hidden /> Finishing rank <em className="lca-cmp-note">lower is better</em></span>
+          <HBarChart rows={rankRows} />
+        </div>
+      </div>
+
+      <Legend items={legendItems} />
     </div>
   );
 }
@@ -495,8 +671,10 @@ export default function LeetCodeAnalytics() {
     // Mirror any looked-up handle into the Contest results table so BOTH the
     // logged-in user (auto-seeded) and the searched handle show as rows.
     setResultUsers((prev) =>
-      prev.some((u) => u.toLowerCase() === v.toLowerCase()) ? prev : [...prev, v].slice(0, 25),
+      prev.some((u) => u.toLowerCase() === v.toLowerCase()) ? prev : [...prev, v].slice(0, 5),
     );
+    setSingleHandle(v);
+    setSingleDraft(v);
   };
 
   const noContests = handle && !isLoading && !isError && user && !latest;
@@ -571,18 +749,29 @@ export default function LeetCodeAnalytics() {
   // Powered by the lc-contest edge function (LeetCode GraphQL), so every row is
   // the user's ACTUAL rank / old rating / change / new rating — no prediction,
   // no Cloudflare-blocked leaderboard scrape. Add any public handle to compare.
+  const [mode, setMode] = useState('single');
   const [resultUsers, setResultUsers] = useState([]);
   const [resultDraft, setResultDraft] = useState('');
+  const [singleDraft, setSingleDraft] = useState('');
+  const [singleHandle, setSingleHandle] = useState('');
   const [resultsSeeded, setResultsSeeded] = useState(false);
   if (!resultsSeeded && (savedHandle || handle)) {
     setResultsSeeded(true);
-    setResultUsers([(savedHandle || handle).trim()]);
+    const seed = (savedHandle || handle).trim();
+    setResultUsers([seed]);
+    setSingleHandle(seed);
+    setSingleDraft(seed);
   }
+  const submitSingle = (e) => {
+    e.preventDefault();
+    const v = singleDraft.trim();
+    if (v) setSingleHandle(v);
+  };
   const addResultUser = (e) => {
     e.preventDefault();
     const v = resultDraft.trim();
-    if (v && !resultUsers.some((u) => u.toLowerCase() === v.toLowerCase())) {
-      setResultUsers((prev) => [...prev, v].slice(0, 25));
+    if (v && resultUsers.length < 5 && !resultUsers.some((u) => u.toLowerCase() === v.toLowerCase())) {
+      setResultUsers((prev) => [...prev, v].slice(0, 5));
     }
     setResultDraft('');
   };
@@ -617,11 +806,11 @@ export default function LeetCodeAnalytics() {
     });
   };
 
-  // Two best-ranked resolved handles → the pair the head-to-head strip compares.
-  const comparePair = useMemo(() => {
+  // Every resolved handle, best-rank first → the rows the compare board renders.
+  const compareRows = useMemo(() => {
     const rows = resultUsers.map((u) => resultData[u]).filter((r) => r && r.rank != null);
     rows.sort((x, y) => x.rank - y.rank);
-    return rows.length >= 2 ? [rows[0], rows[1]] : null;
+    return rows;
   }, [resultUsers, resultData]);
 
   return (
@@ -655,48 +844,102 @@ export default function LeetCodeAnalytics() {
         <section className="lca-section lca-results">
           <div className="lca-results-head">
             <h2 className="lca-results-title"><Trophy size={16} aria-hidden /> Contest results</h2>
-            <span className="lca-results-sub">Real rank &amp; rating change for any LeetCode handle — pulled live from LeetCode.</span>
+            <span className="lca-results-sub">Real rank &amp; rating change for {contest.title}, pulled live from LeetCode.</span>
           </div>
-          <form className="lca-results-add" onSubmit={addResultUser}>
-            <div className="lca-lookup-input">
-              <Search size={15} aria-hidden />
-              <input
-                type="text"
-                value={resultDraft}
-                onChange={(e) => setResultDraft(e.target.value)}
-                placeholder="Add a LeetCode username"
-                aria-label="Add a LeetCode username to the results table"
-                spellCheck={false}
-                autoComplete="off"
-              />
-            </div>
-            <button type="submit" className="lca-lookup-btn" disabled={!resultDraft.trim()}>Add</button>
-          </form>
 
-          {resultUsers.length === 0 ? (
-            <p className="lca-empty">Add a username above to see their real result for {contest.title}.</p>
+          <div className="lca-modes" role="tablist" aria-label="Results mode">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'single'}
+              className={`lca-mode${mode === 'single' ? ' active' : ''}`}
+              onClick={() => setMode('single')}
+            >
+              <User size={14} aria-hidden /> Single
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={mode === 'compare'}
+              className={`lca-mode${mode === 'compare' ? ' active' : ''}`}
+              onClick={() => setMode('compare')}
+            >
+              <Users size={14} aria-hidden /> Compare
+            </button>
+          </div>
+
+          {mode === 'single' ? (
+            <>
+              <form className="lca-results-add" onSubmit={submitSingle}>
+                <div className="lca-lookup-input">
+                  <Search size={15} aria-hidden />
+                  <input
+                    type="text"
+                    value={singleDraft}
+                    onChange={(e) => setSingleDraft(e.target.value)}
+                    placeholder="LeetCode username"
+                    aria-label="LeetCode username for this contest"
+                    spellCheck={false}
+                    autoComplete="off"
+                  />
+                </div>
+                <button type="submit" className="lca-lookup-btn" disabled={!singleDraft.trim()}>Show result</button>
+              </form>
+              {singleHandle ? (
+                <SingleResultCard slug={contestSlug} username={singleHandle} contest={contest} />
+              ) : (
+                <p className="lca-empty">Enter a username to see their result for {contest.title}.</p>
+              )}
+            </>
           ) : (
-            <div className="lca-rtable" role="table" aria-label={`${contest.title} results`}>
-              <div className="lca-rtable-h" role="row">
-                <span role="columnheader">Rank</span>
-                <span role="columnheader">User</span>
-                <span role="columnheader" className="lca-rc-num">Solved</span>
-                <span role="columnheader" className="lca-rc-num">Score</span>
-                <span role="columnheader" className="lca-rc-num">Old</span>
-                <span role="columnheader" className="lca-rc-num">Change</span>
-                <span role="columnheader" className="lca-rc-num">New</span>
-                <span role="columnheader" aria-label="Remove" />
-              </div>
-              {resultUsers.map((u) => (
-                <LcResultRow key={u} slug={contestSlug} username={u} onRemove={removeResultUser} onResolve={handleResolve} />
-              ))}
-            </div>
-          )}
-          {comparePair && <HeadToHead a={comparePair[0]} b={comparePair[1]} />}
-          {resultUsers.length > 0 && (
-            <p className="lca-results-note">
-              <Hourglass size={12} aria-hidden /> Each handle loads on its own — <b>*</b> change is our projection until LeetCode finalizes the contest.
-            </p>
+            <>
+              <form className="lca-results-add" onSubmit={addResultUser}>
+                <div className="lca-lookup-input">
+                  <Search size={15} aria-hidden />
+                  <input
+                    type="text"
+                    value={resultDraft}
+                    onChange={(e) => setResultDraft(e.target.value)}
+                    placeholder="Add a LeetCode username (2–5 to compare)"
+                    aria-label="Add a LeetCode username to the comparison"
+                    spellCheck={false}
+                    autoComplete="off"
+                  />
+                </div>
+                <button type="submit" className="lca-lookup-btn" disabled={!resultDraft.trim() || resultUsers.length >= 5}>Add</button>
+              </form>
+
+              {resultUsers.length === 0 ? (
+                <p className="lca-empty">Add usernames above to compare results for {contest.title}.</p>
+              ) : (
+                <div className="lca-rtable" role="table" aria-label={`${contest.title} results`}>
+                  <div className="lca-rtable-h" role="row">
+                    <span role="columnheader">Rank</span>
+                    <span role="columnheader">User</span>
+                    <span role="columnheader" className="lca-rc-num">Solved</span>
+                    <span role="columnheader" className="lca-rc-num">Score</span>
+                    <span role="columnheader" className="lca-rc-num">Old</span>
+                    <span role="columnheader" className="lca-rc-num">Change</span>
+                    <span role="columnheader" className="lca-rc-num">New</span>
+                    <span role="columnheader" aria-label="Remove" />
+                  </div>
+                  {resultUsers.map((u) => (
+                    <LcResultRow key={u} slug={contestSlug} username={u} onRemove={removeResultUser} onResolve={handleResolve} />
+                  ))}
+                </div>
+              )}
+
+              {compareRows.length >= 2 && <CompareBoard rows={compareRows} />}
+              {resultUsers.length === 1 && compareRows.length < 2 && (
+                <p className="lca-empty lca-cmp-hint">Add one more handle to unlock the comparison board.</p>
+              )}
+
+              {resultUsers.length > 0 && (
+                <p className="lca-results-note">
+                  <Hourglass size={12} aria-hidden /> Each handle loads on its own — <b>*</b> change is our projection until LeetCode finalizes the contest.
+                </p>
+              )}
+            </>
           )}
         </section>
       )}

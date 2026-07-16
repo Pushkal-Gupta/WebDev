@@ -1238,6 +1238,7 @@
   width: 94%;
   max-width: var(--container-w, 1200px);
   margin: 0 auto;
+  padding-top: 1.75rem;
   padding-bottom: 2.5rem;
 }
 
@@ -2447,75 +2448,220 @@
 }
 .lca-results-note svg { color: var(--warning); }
 
-/* ── Head-to-head comparison strip ─────────────────────────────────────────── */
-.lca-h2h {
-  margin-top: 1.1rem;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: var(--surface);
-  overflow: hidden;
+/* ── Single | Compare mode toggle ──────────────────────────────────────────── */
+.lca-modes {
+  display: inline-flex; gap: 0.25rem; padding: 0.25rem; margin-bottom: 0.9rem;
+  border: 1px solid var(--border); border-radius: 0.6rem;
+  background: var(--surface); align-self: flex-start;
 }
-.lca-h2h-head {
-  display: flex; align-items: baseline; flex-wrap: wrap; gap: 0.3rem 0.7rem;
-  padding: 0.85rem 1.1rem;
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--accent) 6%, transparent);
+.lca-mode {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  min-height: 40px; padding: 0.4rem 1rem;
+  border: none; border-radius: 0.45rem; background: transparent;
+  color: var(--text-dim); font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.lca-h2h-title {
-  display: inline-flex; align-items: center; gap: 0.45rem;
-  font-size: 0.98rem; font-weight: 700; color: var(--text-main);
+.lca-mode:hover { color: var(--text-main); }
+.lca-mode.active { background: var(--accent); color: var(--bg); }
+.lca-mode svg { flex: none; }
+@media (prefers-reduced-motion: reduce) { .lca-mode { transition: none; } }
+
+/* ── Single-handle contest result card ─────────────────────────────────────── */
+.lca-single {
+  display: flex; flex-direction: column; gap: 1rem;
+  border: 1px solid var(--border); border-radius: 14px;
+  background: var(--surface); padding: 1.1rem 1.2rem 1.3rem;
 }
-.lca-h2h-title svg { color: var(--accent); }
-.lca-h2h-sub { font-size: 0.78rem; color: var(--text-dim); }
-.lca-h2h-grid { display: flex; flex-direction: column; padding: 0.4rem 0 0.6rem; }
-.lca-h2h-namerow,
-.lca-h2h-row {
-  display: grid;
-  grid-template-columns: 1fr minmax(9rem, 1.1fr) 1fr;
-  align-items: center; gap: 0.6rem;
-  padding: 0.5rem 1.1rem;
+.lca-single-head { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.lca-single-user {
+  font-family: var(--mono); font-weight: 700; font-size: 1rem;
+  color: var(--accent); text-decoration: none;
 }
-.lca-h2h-namerow {
-  padding-top: 0.55rem; padding-bottom: 0.7rem;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 0.2rem;
+.lca-single-user:hover { text-decoration: underline; }
+.lca-single-tag {
+  font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 0.18rem 0.55rem; border-radius: 999px;
 }
-.lca-h2h-name {
-  font-family: var(--mono); font-weight: 700; font-size: 0.82rem; color: var(--text-main);
-  text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.lca-single-tag.is-rated { color: var(--easy); background: color-mix(in srgb, var(--easy) 15%, transparent); }
+.lca-single-tag.is-pending { color: var(--warning); background: color-mix(in srgb, var(--warning) 15%, transparent); }
+.lca-single-facts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 0.75rem;
 }
-.lca-h2h-name:first-child { text-align: left; }
-.lca-h2h-name:last-child { text-align: right; }
-.lca-h2h-vs {
-  text-align: center; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--text-dim);
+.lca-single-move {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.6rem;
+  padding-top: 0.95rem; border-top: 1px solid var(--border);
+  font-family: var(--mono); font-weight: 800; font-size: 1.35rem; color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
 }
-.lca-h2h-row + .lca-h2h-row { border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
-.lca-h2h-val {
+.lca-single-arrow { color: var(--text-dim); font-weight: 600; }
+.lca-single-new { font-size: 1.6rem; }
+.lca-single-chip {
   display: inline-flex; align-items: center; gap: 0.25rem;
-  font-variant-numeric: tabular-nums; font-weight: 700;
-  font-size: 1rem; color: var(--text-dim);
+  font-family: inherit; font-size: 0.82rem; font-weight: 700;
+  padding: 0.2rem 0.6rem; border-radius: 999px;
 }
-.lca-h2h-val:first-child { justify-content: flex-start; }
-.lca-h2h-val:last-child { justify-content: flex-end; }
-.lca-h2h-val.is-lead { color: var(--accent); }
-.lca-h2h-val.is-lead svg { color: var(--easy); }
-.lca-h2h-metric {
-  display: flex; flex-direction: column; align-items: center; gap: 0.15rem; min-width: 0;
+.lca-single-chip svg { flex: none; }
+.lca-single-chip.up { color: var(--easy); background: color-mix(in srgb, var(--easy) 14%, transparent); }
+.lca-single-chip.down { color: var(--hard); background: color-mix(in srgb, var(--hard) 14%, transparent); }
+
+/* ── N-user compare board (table + charts) ─────────────────────────────────── */
+.lca-cmp {
+  margin-top: 1.1rem;
+  display: flex; flex-direction: column; gap: 1.3rem;
 }
-.lca-h2h-mlbl {
-  display: inline-flex; align-items: center; gap: 0.3rem;
-  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em;
-  text-transform: uppercase; color: var(--text-dim); text-align: center;
+.lca-cmp-hint { margin-top: 0.9rem; }
+
+/* Stats matrix — metric rows × user columns, best per row lit */
+.lca-cmp-table {
+  border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  background: var(--surface);
 }
-.lca-h2h-mlbl svg { color: var(--accent); flex: none; }
-.lca-h2h-gap {
-  display: inline-flex; align-items: center; gap: 0.2rem;
-  font-family: var(--mono); font-size: 0.74rem; font-weight: 700;
-  color: var(--text-main);
-  padding: 0.05rem 0.5rem; border-radius: 999px;
-  background: var(--hover-box);
+.lca-cmp-row {
+  display: grid;
+  grid-template-columns: minmax(9rem, 1.2fr) repeat(var(--cmp-cols), minmax(0, 1fr));
+  align-items: stretch; gap: 0;
 }
+.lca-cmp-row + .lca-cmp-row { border-top: 1px solid color-mix(in srgb, var(--border) 70%, transparent); }
+.lca-cmp-headrow { background: var(--hover-box); border-bottom: 1px solid var(--border); }
+.lca-cmp-rowlbl {
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 0.9rem;
+  font-size: 0.72rem; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.lca-cmp-rowlbl svg { color: var(--accent); flex: none; }
+.lca-cmp-user {
+  display: inline-flex; align-items: center; gap: 0.35rem; min-width: 0; padding: 0.6rem 0.7rem;
+  font-family: var(--mono); font-size: 0.78rem; font-weight: 700; color: var(--text-main);
+}
+.lca-cmp-dot { width: 9px; height: 9px; border-radius: 50%; flex: none; }
+.lca-cmp-uname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lca-cmp-cell {
+  display: flex; align-items: center; padding: 0.55rem 0.7rem;
+  font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-size: 0.9rem; font-weight: 600; color: var(--text-main);
+  overflow: hidden; text-overflow: ellipsis;
+}
+.lca-cmp-cell.is-best { font-weight: 800; background: color-mix(in srgb, var(--accent) 9%, transparent); color: var(--accent); }
+.lca-cmp-cell.is-pos { color: var(--easy); }
+.lca-cmp-cell.is-neg { color: var(--hard); }
+.lca-cmp-cell.is-best.is-pos { background: color-mix(in srgb, var(--easy) 11%, transparent); }
+.lca-cmp-cell.is-best.is-neg { background: color-mix(in srgb, var(--hard) 11%, transparent); }
+
+/* Stats — mobile per-user cards (transpose of the matrix; no horizontal scroll) */
+.lca-cmp-cards { display: none; flex-direction: column; gap: 0.8rem; }
+.lca-cmp-card {
+  border: 1px solid var(--border); border-left-width: 3px; border-radius: 12px;
+  background: var(--surface); padding: 0.5rem 0.9rem 0.7rem;
+}
+.lca-cmp-card-head {
+  display: flex; align-items: center; gap: 0.4rem;
+  padding: 0.4rem 0; margin-bottom: 0.3rem; border-bottom: 1px solid var(--border);
+  font-family: var(--mono); font-weight: 700; color: var(--text-main);
+}
+.lca-cmp-card-body { margin: 0; display: flex; flex-direction: column; }
+.lca-cmp-card-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.4rem 0;
+}
+.lca-cmp-card-row + .lca-cmp-card-row { border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.lca-cmp-card-row dt {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  font-size: 0.76rem; font-weight: 600; color: var(--text-dim);
+}
+.lca-cmp-card-row dt svg { color: var(--accent); flex: none; }
+.lca-cmp-card-row dd {
+  margin: 0; font-family: var(--mono); font-variant-numeric: tabular-nums;
+  font-weight: 700; color: var(--text-main); text-align: right;
+}
+.lca-cmp-card-row dd.is-pos { color: var(--easy); }
+.lca-cmp-card-row dd.is-neg { color: var(--hard); }
+
+/* Diverging projected change → chips; non-negative metrics → bar charts */
+.lca-cmp-block-title {
+  display: inline-flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 0.7rem;
+  font-size: 0.85rem; font-weight: 700; color: var(--text-main);
+}
+.lca-cmp-block-title svg { color: var(--accent); flex: none; }
+.lca-cmp-note {
+  font-style: normal; font-size: 0.66rem; font-weight: 600; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.04em;
+}
+.lca-cmp-chg-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.75rem;
+}
+.lca-cmp-charts {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.1rem;
+}
+.lca-cmp-chart {
+  border: 1px solid var(--border); border-radius: 12px;
+  background: var(--surface); padding: 0.9rem 1rem 1rem;
+}
+
+/* ── Chart primitives (from compete/Charts.jsx) — Contests route only ──────── */
+.chk-stat {
+  display: flex; flex-direction: column; gap: 0.4rem; padding: 0.9rem 1rem;
+  border: 1px solid var(--viz-line); border-radius: 0.75rem; background: var(--viz-card);
+}
+.chk-stat-top { display: inline-flex; align-items: center; gap: 0.4rem; }
+.chk-stat-icon { color: var(--text-dim); }
+.chk-stat-value {
+  font-size: 1.5rem; font-weight: 800; color: var(--text-main);
+  line-height: 1; letter-spacing: -0.01em; font-variant-numeric: tabular-nums;
+}
+.chk-stat-label {
+  font-size: 0.66rem; font-weight: 700; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.chk-stat-big {
+  border-color: rgba(var(--accent-rgb), 0.45);
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(var(--accent-rgb), 0.1), transparent 60%),
+    var(--viz-card);
+}
+.chk-stat-big .chk-stat-value { font-size: 2.1rem; }
+.chk-hbars { display: flex; flex-direction: column; gap: 0.55rem; }
+.chk-hbar-row {
+  display: grid; grid-template-columns: 5rem minmax(0, 1fr); align-items: center;
+  gap: 0.6rem; padding: 0.15rem 0.25rem; border-radius: 0.45rem;
+  transition: background 0.15s ease;
+}
+.chk-hbar-row.active { background: var(--hover-box); }
+@media (prefers-reduced-motion: reduce) { .chk-hbar-row { transition: none; } }
+.chk-hbar-label {
+  font-size: 0.74rem; font-weight: 700; letter-spacing: 0.01em; color: var(--text-main);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chk-hbar-bars { display: flex; flex-direction: column; gap: 0.3rem; min-width: 0; }
+.chk-hbar-track {
+  position: relative; display: flex; align-items: center; height: 1rem;
+  border-radius: 1rem; background: var(--hover-box); border: 1px solid var(--viz-line);
+}
+.chk-hbar-fill {
+  height: 100%; border-radius: 1rem; min-width: 3px;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (prefers-reduced-motion: reduce) { .chk-hbar-fill { transition: none; } }
+.chk-hbar-num {
+  position: absolute; right: 0.55rem; font-size: 0.72rem; font-weight: 700;
+  color: var(--text-main); white-space: nowrap; font-variant-numeric: tabular-nums;
+}
+.chk-legend {
+  display: flex; gap: 1rem; flex-wrap: wrap; padding-top: 0.4rem; border-top: 1px solid var(--border);
+}
+.chk-legend-item {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  font-size: 0.8rem; font-weight: 600; color: var(--text-main);
+}
+.chk-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex: 0 0 auto; }
+
+@media (max-width: 640px) {
+  .lca-cmp-table { display: none; }
+  .lca-cmp-cards { display: flex; }
+  .lca-cmp-charts { grid-template-columns: 1fr; }
+  .lca-modes { align-self: stretch; }
+  .lca-mode { flex: 1 1 0; }
+}
+
 @media (max-width: 700px) {
   /* Keep Rank · User · Solved · Change · New · Remove — drop Score(4) & Old(5)
      so the row stays readable on narrow screens (no horizontal scroll). */
