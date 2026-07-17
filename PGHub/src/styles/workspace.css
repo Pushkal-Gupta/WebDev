@@ -826,6 +826,72 @@
   font-weight: 700;
 }
 
+.ws-style {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem 0.8rem;
+  background: color-mix(in srgb, var(--hue-violet) 5%, var(--bg));
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.ws-style-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.15rem;
+}
+.ws-style-head > svg { color: var(--hue-violet); flex: 0 0 auto; }
+.ws-style-title {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--hue-violet);
+}
+.ws-style-src {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--sans);
+  font-size: 0.66rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+.ws-style-src.llm {
+  color: var(--hue-violet);
+  padding: 0.1rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hue-violet) 14%, transparent);
+}
+.ws-style-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+.ws-style-label {
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  min-width: 90px;
+}
+.ws-style-grade {
+  font-family: var(--sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--c);
+}
+.ws-style-sugg {
+  margin: 0.2rem 0 0;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-main);
+}
+.ws-style-sugg b { color: var(--text-dim); font-weight: 600; }
+
 .ws-subdetail-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -143,3 +143,85 @@ export function compareToOptimal(user, optimal, seed = '') {
 
   return { beatsRuntime, beatsMemory, isOptimal: optimal_, timeGap, spaceGap, verdict };
 }
+
+// Static code-style grader — the no-API-key path for the "Code Style" panel. Reads the
+// submission and grades readability + structure from cheap, explainable signals (line
+// length, naming, nesting, decomposition, magic numbers, comments), then assembles a
+// short human suggestion. Returns { readability, structure, suggestions, grade, source }.
+const GRADE = (score) => (score >= 85 ? 'Excellent' : score >= 68 ? 'Good' : score >= 50 ? 'Fair' : 'Needs work');
+
+export function analyzeCodeStyle(code, language = 'python') {
+  const raw = String(code || '');
+  const src = sanitize(raw, language);
+  const rawLines = raw.split('\n');
+  const codeLines = rawLines.filter(l => l.trim().length > 0);
+  const nLines = Math.max(1, codeLines.length);
+
+  const longLines = codeLines.filter(l => l.replace(/\t/g, '    ').length > 100).length;
+  const hasComments = language === 'python' ? /(^|\s)#\S?/.test(raw.replace(/#!/g, '')) : /\/\/|\/\*/.test(raw);
+  const mixedIndent = codeLines.some(l => /^\t/.test(l)) && codeLines.some(l => /^ /.test(l) && !/^\t/.test(l));
+
+  // cryptic single-letter identifiers that aren't the accepted loop counters
+  const idents = (src.match(/\b[a-zA-Z_]\w*\b/g) || []);
+  const crypticSet = new Set();
+  for (const id of idents) {
+    if (id.length === 1 && !/[ijkntx_]/.test(id)) crypticSet.add(id);
+  }
+  const cryptic = crypticSet.size;
+
+  const depth = maxLoopDepth(src, language);
+  const branchDepth = (() => {
+    // approximate max nesting of loops+conditionals from indentation (python) or braces
+    if (language === 'python') {
+      let max = 0;
+      for (const l of codeLines) {
+        const m = l.match(/^(\s*)\S/); if (!m) continue;
+        max = Math.max(max, Math.round(m[1].replace(/\t/g, '    ').length / 4));
+      }
+      return max;
+    }
+    let d = 0, max = 0;
+    for (const ch of src) { if (ch === '{') { d++; max = Math.max(max, d); } else if (ch === '}') d = Math.max(0, d - 1); }
+    return max;
+  })();
+  const nesting = Math.max(depth, Math.min(branchDepth, 6));
+
+  const funcCount = (src.match(/\bdef\s+\w+|\bfunction\s+\w+|=>|\b(public|private|protected|static)[\w<>,\s]+\s+\w+\s*\(/g) || []).length;
+  const magic = (src.match(/(?<![\w.])\d{2,}(?![\w.])/g) || []).filter(n => !/^(10|100|1000)$/.test(n)).length;
+
+  let rScore = 100;
+  rScore -= Math.min(30, longLines * 8);
+  if (cryptic >= 5) rScore -= 18; else if (cryptic >= 3) rScore -= 9;
+  if (!hasComments && nLines > 24) rScore -= 8;
+  if (mixedIndent) rScore -= 14;
+
+  let sScore = 100;
+  if (nesting >= 5) sScore -= 28; else if (nesting === 4) sScore -= 16; else if (nesting === 3) sScore -= 7;
+  if (nLines > 60 && funcCount <= 1) sScore -= 16; else if (nLines > 40 && funcCount <= 1) sScore -= 8;
+  if (magic > 4) sScore -= 10; else if (magic > 2) sScore -= 5;
+
+  const issues = [];
+  if (longLines) issues.push(`${longLines} line${longLines > 1 ? 's' : ''} exceed 100 chars — wrap for scanability`);
+  if (cryptic >= 3) issues.push('some single-letter names hurt readability — prefer descriptive identifiers');
+  if (nesting >= 4) issues.push(`nesting reaches ${nesting} levels — extract a helper or use early returns`);
+  if (nLines > 40 && funcCount <= 1) issues.push('one long function — split into smaller units');
+  if (magic > 2) issues.push('magic numbers appear — name them as constants');
+  if (mixedIndent) issues.push('indentation mixes tabs and spaces');
+
+  let suggestions;
+  if (!issues.length) {
+    suggestions = rScore >= 92 && sScore >= 92
+      ? 'Clean and concise. Excellent readability.'
+      : 'Solid, readable solution with clear structure.';
+  } else {
+    suggestions = issues.slice(0, 2).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('. ') + '.';
+  }
+
+  return {
+    readability: GRADE(rScore),
+    structure: GRADE(sScore),
+    suggestions,
+    grade: Math.round((rScore + sScore) / 2),
+    source: 'heuristic',
+  };
+}

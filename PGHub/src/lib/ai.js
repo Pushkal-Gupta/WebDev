@@ -249,6 +249,29 @@ Return ONLY this JSON: {"time":"O(...)","space":"O(...)","optimalTime":"O(...)",
   } catch { return null; }
 }
 
+// AI code-style review — the "Code Style" panel's enriched path. Returns a parsed
+// object or null (caller falls back to the static analyzeCodeStyle heuristic).
+export async function aiAnalyzeCodeStyle({ problemName, code, language }) {
+  const sys = 'You are a senior code reviewer for interview solutions. Judge readability and structure only (not correctness — the code is already accepted). Output ONLY valid minified JSON, no prose, no markdown.';
+  const user = `Problem: ${problemName}. The user's ${language} solution (accepted):
+\`\`\`${language}
+${String(code).slice(0, 4000)}
+\`\`\`
+Grade its style. Return ONLY this JSON: {"readability":"Excellent|Good|Fair|Needs work","structure":"Excellent|Good|Fair|Needs work","suggestions":"one or two concrete sentences; if already clean, say so"}`;
+  try {
+    const text = await callAi(sys, user, { maxTokens: 220 });
+    const m = text.match(/\{[\s\S]*\}/); if (!m) return null;
+    const j = JSON.parse(m[0]);
+    if (!j.readability || !j.structure) return null;
+    return {
+      readability: j.readability,
+      structure: j.structure,
+      suggestions: j.suggestions || '',
+      source: 'llm',
+    };
+  } catch { return null; }
+}
+
 export async function aiExplainFailure({ problemName, problemDescription, failingInput, expectedOutput, actualOutput, code, language }) {
   const sys = 'You are a senior coding-interview tutor. Be concise. Explain why a submission failed and point at the specific line or logic error if possible. Do NOT rewrite the full solution. Keep the response under 180 words. Output plain prose, no markdown headings.';
   const user = `Problem: ${problemName}\n\n${problemDescription || ''}\n\nFailing test:\nInput: ${failingInput}\nExpected: ${expectedOutput}\nActual: ${actualOutput}\n\nUser's ${language} code:\n\`\`\`${language}\n${code}\n\`\`\`\n\nIn 2-4 sentences: what's wrong, where, and a one-line nudge toward the fix (no full solution).`;

@@ -103,21 +103,25 @@ export default function VersusMatch({ session }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, user, code]);
 
-  // when active, load all problems + per-question starter templates in MY language
+  // when active, load THE SAME problems the host chose (match.problem_ids) + per-question
+  // starter templates in MY language. Both players read the identical id list, so they
+  // always get the same questions. If the id list hasn't propagated yet, refetch and retry.
   useEffect(() => {
     if (!match || match.status !== 'active' || problems.length) return;
     const ids = Array.isArray(match.problem_ids) && match.problem_ids.length ? match.problem_ids : (match.problem_id ? [match.problem_id] : []);
-    if (!ids.length) return;
+    if (!ids.length) { const t = setTimeout(refreshMatch, 700); return () => clearTimeout(t); }
+    let live = true;
     (async () => {
       const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases').in('id', ids);
-      if (!data) return;
+      if (!data || !live) return;
       const ordered = ids.map((id) => data.find((d) => d.id === id)).filter(Boolean);
-      setProblems(ordered);
       const starters = {};
       ordered.forEach((p, i) => { starters[i] = generateTemplate(myLang, p.method_name, p.params, p.return_type) || ''; });
+      setProblems(ordered);
       setCodeByQ(starters);
     })();
-  }, [match, problems.length, myLang]);
+    return () => { live = false; };
+  }, [match, problems.length, myLang, refreshMatch]);
 
   // shared countdown tick
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, []);
@@ -131,17 +135,19 @@ export default function VersusMatch({ session }) {
     return () => clearInterval(t);
   }, [role, match, refreshMatch]);
 
-  // host starts: pick N problems, flip to active, broadcast
+  // host starts: pick N problems ONCE, persist them on the match (both players read this
+  // same list), flip to active, broadcast. Persisted so a reload keeps the same questions.
+  const [starting, setStarting] = useState(false);
   const start = async () => {
-    if (role !== 'host') return;
-    setErr('');
+    if (role !== 'host' || starting) return;
+    setErr(''); setStarting(true);
     try {
       const ids = await pickRandomProblems(match.difficulty, numQ);
-      if (!ids.length) { setErr('No gradeable problem found for that difficulty.'); return; }
+      if (!ids.length) { setErr('No gradeable problem found for that difficulty.'); setStarting(false); return; }
       const m = await updateMatch(code, { problem_ids: ids, problem_id: ids[0], status: 'active', started_at: new Date().toISOString() });
-      setMatch(m);
+      if (m) setMatch(m); else await refreshMatch();
       chanRef.current?.send({ type: 'broadcast', event: 'start', payload: { uid: user.id } });
-    } catch (e) { setErr(e.message || 'Could not start'); }
+    } catch (e) { setErr(`Could not start: ${e.message || e}`); setStarting(false); }
   };
 
   const onCodeChange = (v) => {

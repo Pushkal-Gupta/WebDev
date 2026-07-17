@@ -5,7 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems, useSubmissionsForProblem, useUpdateSubmissionNotes } from '../lib/queries';
 import Editor from '@monaco-editor/react';
 import { MONACO_THEME_MAP, DARK_PRESETS, registerMonacoThemes } from '../lib/monacoTheme';
-import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2, Copy, Check, StickyNote } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2, Copy, Check, StickyNote, Palette, Sparkles } from 'lucide-react';
 import SolutionView from './SolutionView';
 import LanguageIcon from './LanguageIcon';
 import HintsPanel from './HintsPanel';
@@ -16,8 +16,8 @@ import ExampleViz from './workspace/ExampleViz';
 import Select from './Select';
 import { legacyToStatus } from '../lib/status';
 import { runCode, runCodeBatch, runCodeMultiCase } from '../lib/codeRunner';
-import { analyzeComplexity, compareToOptimal } from '../lib/complexityAnalyzer';
-import { isAiEnabled, aiAnalyzeComplexity } from '../lib/ai';
+import { analyzeComplexity, compareToOptimal, analyzeCodeStyle } from '../lib/complexityAnalyzer';
+import { isAiEnabled, aiAnalyzeComplexity, aiAnalyzeCodeStyle } from '../lib/ai';
 import { Plus, X, GripVertical } from 'lucide-react';
 
 // Build the post-accept complexity analysis: estimate the user's Big-O with the static
@@ -30,7 +30,8 @@ function buildComplexityAnalysis(userCode, language, problem, runtimeMs) {
   const canon = problem?.solutions?.python?.code || '';
   const optimal = canon ? analyzeComplexity(canon, 'python', method) : user;
   const cmp = compareToOptimal(user, optimal, userCode);
-  return { user, optimal, ...cmp, runtimeMs, source: 'heuristic' };
+  const codeStyle = analyzeCodeStyle(userCode, language);
+  return { user, optimal, ...cmp, codeStyle, runtimeMs, source: 'heuristic' };
 }
 
 // Default order of tabs in the left strip. Persisted per-user in localStorage so
@@ -856,7 +857,11 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
           aiAnalyzeComplexity({ problemName: activeProblem.name, problemDescription: activeProblem.description, code: codeContent, language: activeLang }).then((llm) => {
             if (!llm) return;
             const cmp = compareToOptimal(llm.user, llm.optimal, codeContent);
-            setRunResult((prev) => (prev && prev.isSubmission && prev.status === 'accepted') ? { ...prev, analysis: { user: llm.user, optimal: llm.optimal, keyIdea: llm.keyIdea, hint: llm.hint, ...cmp, runtimeMs: elapsed, source: 'llm' } } : prev);
+            setRunResult((prev) => (prev && prev.isSubmission && prev.status === 'accepted') ? { ...prev, analysis: { ...prev.analysis, user: llm.user, optimal: llm.optimal, keyIdea: llm.keyIdea, hint: llm.hint, ...cmp, runtimeMs: elapsed, source: 'llm' } } : prev);
+          }).catch(() => {});
+          aiAnalyzeCodeStyle({ problemName: activeProblem.name, code: codeContent, language: activeLang }).then((style) => {
+            if (!style) return;
+            setRunResult((prev) => (prev && prev.isSubmission && prev.status === 'accepted') ? { ...prev, analysis: { ...prev.analysis, codeStyle: style } } : prev);
           }).catch(() => {});
         }
         // Trigger success animation
@@ -1606,6 +1611,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                               {a.user.approach.map((t, i) => <span key={i} className="ws-an-tag">{t}</span>)}
                             </div>
                           ) : null}
+                          {a.codeStyle ? <CodeStylePanel style={a.codeStyle} /> : null}
                         </div>
                       );
                     })()}
@@ -1957,6 +1963,46 @@ function BigOCurves({ title, active, uid }) {
   );
 }
 
+const STYLE_HUE = {
+  Excellent: 'var(--easy)',
+  Good: 'var(--hue-sky)',
+  Fair: 'var(--medium)',
+  'Needs work': 'var(--hard)',
+};
+
+// Code-style review card — mirrors LeetCode's "Code Style" section. Renders the
+// static heuristic grade, or the AI grade (with a sparkle) when a key is configured.
+function StyleGradeRow({ label, value }) {
+  return (
+    <div className="ws-style-row">
+      <span className="ws-style-label">{label}</span>
+      <span className="ws-style-grade" style={{ '--c': STYLE_HUE[value] || 'var(--text-dim)' }}>
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function CodeStylePanel({ style }) {
+  if (!style) return null;
+  return (
+    <div className="ws-style">
+      <div className="ws-style-head">
+        <Palette size={14} />
+        <span className="ws-style-title">Code Style</span>
+        <span className={`ws-style-src${style.source === 'llm' ? ' llm' : ''}`}>
+          {style.source === 'llm' ? <><Sparkles size={11} /> AI review</> : 'estimated'}
+        </span>
+      </div>
+      <StyleGradeRow label="Readability" value={style.readability} />
+      <StyleGradeRow label="Structure" value={style.structure} />
+      {style.suggestions && (
+        <p className="ws-style-sugg"><b>Suggestions:</b> {style.suggestions}</p>
+      )}
+    </div>
+  );
+}
+
 function SubmissionsTabContent({
   session, userId, userProgress, activeProblem, activeLang, onLangChange,
   saveProgress, setCodeContent, setRunResult,
@@ -2025,6 +2071,22 @@ function SubmissionsTabContent({
     const method = activeProblem?.method_name || activeProblem?.methodName || '';
     return analyzeComplexity(selected.code, selected.language || 'python', method);
   }, [selected?.code, selected?.language, activeProblem]);
+
+  const staticStyle = useMemo(
+    () => (selected?.code ? analyzeCodeStyle(selected.code, selected.language || 'python') : null),
+    [selected?.code, selected?.language],
+  );
+  const [aiStyle, setAiStyle] = useState(null);
+  useEffect(() => {
+    setAiStyle(null);
+    if (!selected?.code || !isAiEnabled()) return undefined;
+    let live = true;
+    aiAnalyzeCodeStyle({ problemName: activeProblem?.name || '', code: selected.code, language: selected.language || 'python' })
+      .then((s) => { if (live && s) setAiStyle(s); })
+      .catch(() => {});
+    return () => { live = false; };
+  }, [selected?.id, selected?.code, selected?.language, activeProblem?.name]);
+  const selectedStyle = aiStyle || staticStyle;
 
   // Sync the notes draft when the selected row changes.
   useEffect(() => {
@@ -2251,6 +2313,8 @@ function SubmissionsTabContent({
               </button>
             )}
           </div>
+
+          {selectedStyle && <CodeStylePanel style={selectedStyle} />}
 
           <div className="ws-subdetail-notes">
             <div className="ws-subdetail-notes-head">
