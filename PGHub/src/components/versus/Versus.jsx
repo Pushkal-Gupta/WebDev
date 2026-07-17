@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks } from 'lucide-react';
 import { createMatch, getMyRecord, POWERUPS } from '../../lib/versus';
 import { sendChallenge } from '../../lib/friends';
+import { friendlyError } from '../../lib/errors';
 import FriendsPanel from './FriendsPanel';
 import '../../styles/versus.css';
 
@@ -49,7 +50,7 @@ export default function Versus({ session }) {
     try {
       const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, hostId: user.id, hostName: name });
       nav(`/versus/${m.id}`);
-    } catch (e) { setErr(e.message || 'Could not create match'); setBusy(false); }
+    } catch (e) { setErr(friendlyError(e, 'Could not create match.')); setBusy(false); }
   };
   const join = () => {
     const c = joinCode.trim().toUpperCase();
@@ -62,7 +63,7 @@ export default function Versus({ session }) {
       const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, hostId: user.id, hostName: name });
       await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time, numQuestions });
       nav(`/versus/${m.id}`);
-    } catch (e) { setErr(e.message || 'Could not send challenge'); setChallengingId(null); }
+    } catch (e) { setErr(friendlyError(e, 'Could not send challenge.')); setChallengingId(null); }
   };
 
   const winRate = record && record.total ? Math.round((record.wins / record.total) * 100) : 0;

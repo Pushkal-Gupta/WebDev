@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Brain, Sparkles, ArrowRight, ListChecks, Lock, ArrowLeft, X, ChevronDown, Check } from 'lucide-react';
 import { QUIZZES, QUIZZES_BY_TOPIC, TOPIC_LABELS } from '../content/quizzes';
 import { isAiEnabled } from '../lib/ai';
+import { sanitizeError } from '../lib/sanitizeError';
 import ForgeThumb from './ml/forge/ForgeThumb';
 import './QuizIndex.css';
 
@@ -228,7 +229,7 @@ function CustomQuizPanel({ onClose }) {
       });
       setGenerated(result);
     } catch (e) {
-      setError(e?.message || 'Generation failed. Check your AI key in Settings.');
+      setError(sanitizeError(e, 'Generation failed. Check your AI key in Settings.'));
     } finally {
       setGenerating(false);
     }

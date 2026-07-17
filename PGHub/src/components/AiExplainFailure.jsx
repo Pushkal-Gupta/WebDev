@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sparkles, Loader2, RefreshCw } from 'lucide-react';
 import { isAiEnabled } from '../lib/ai';
+import { sanitizeError } from '../lib/sanitizeError';
 import './AiExplainFailure.css';
 
 export default function AiExplainFailure({ problem, result, code, language }) {
@@ -36,7 +37,7 @@ export default function AiExplainFailure({ problem, result, code, language }) {
       });
       setExplanation(text);
     } catch (e) {
-      setError(e?.message || 'AI call failed.');
+      setError(sanitizeError(e, 'AI call failed.'));
     } finally {
       setLoading(false);
     }

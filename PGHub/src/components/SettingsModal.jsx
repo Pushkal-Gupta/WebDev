@@ -8,6 +8,7 @@ import {
   AI_PROVIDERS,
 } from '../lib/ai';
 import { loadCustomColors, saveCustomColors, applyCustomColors } from '../lib/customColors';
+import { sanitizeError } from '../lib/sanitizeError';
 import './SettingsModal.css';
 
 // CSS-var tokens the user can override. Labels are user-facing.
@@ -301,7 +302,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
       localStorage.setItem('pg-github-stats', JSON.stringify(next));
       localStorage.setItem('pg-github-username', name);
     } catch (err) {
-      setGhError(err.message);
+      setGhError(sanitizeError(err, "Couldn't load GitHub stats."));
     } finally {
       setGhLoading(false);
     }
@@ -415,7 +416,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   const acceptRequest = async (requestId) => {
     const { error } = await supabase.from('PGcode_friends').update({ status: 'accepted' }).eq('id', requestId);
     if (error) {
-      setMessage({ type: 'error', text: `Couldn't accept request: ${error.message}` });
+      setMessage({ type: 'error', text: `Couldn't accept request: ${sanitizeError(error)}` });
       setTimeout(() => setMessage(null), 4000);
       return;
     }
@@ -425,7 +426,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   const rejectRequest = async (requestId) => {
     const { error } = await supabase.from('PGcode_friends').delete().eq('id', requestId);
     if (error) {
-      setMessage({ type: 'error', text: `Couldn't reject request: ${error.message}` });
+      setMessage({ type: 'error', text: `Couldn't reject request: ${sanitizeError(error)}` });
       setTimeout(() => setMessage(null), 4000);
       return;
     }
@@ -460,7 +461,7 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
       });
       if (error) throw error;
     } catch (err) {
-      setLinkMsg(err.message || 'Could not start the GitHub link flow.');
+      setLinkMsg(sanitizeError(err, 'Could not start the GitHub link flow.'));
     }
   };
   const linkedProviders = (session?.user?.identities || []).map(i => i.provider);

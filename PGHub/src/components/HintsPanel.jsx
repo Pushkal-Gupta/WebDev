@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Lightbulb, Lock, EyeOff, Sparkles, Loader2 } from 'lucide-react';
 import { isAiEnabled } from '../lib/ai';
+import { sanitizeError } from '../lib/sanitizeError';
 import './HintsPanel.css';
 
 const LEVEL_LABELS = [
@@ -70,7 +71,7 @@ export default function HintsPanel({ hints = [], problemId, problemName, problem
       setAiHint(next);
       if (aiKey) localStorage.setItem(aiKey, next);
     } catch (e) {
-      setAiError(e?.message || 'AI hint failed.');
+      setAiError(sanitizeError(e, 'AI hint failed.'));
     } finally {
       setAiLoading(false);
     }

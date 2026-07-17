@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, pickRandomProblems, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { gradeOnServer } from '../../lib/codeRunner';
 import { generateTemplate } from '../../lib/driverCode';
+import { friendlyError } from '../../lib/errors';
 import VideoCall from './VideoCall';
 import '../../styles/versus.css';
 
@@ -36,11 +37,6 @@ export default function VersusMatch({ session }) {
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [err, setErr] = useState('');
-  const [chat, setChat] = useState([]);          // in-match messages {mine,name,body}
-  const [chatDraft, setChatDraft] = useState('');
-  const [chatOpen, setChatOpen] = useState(false);
-  const [unread, setUnread] = useState(0);
-  const chatEndRef = useRef(null);
 
   const chanRef = useRef(null);
   const typingTimer = useRef(null);
@@ -68,7 +64,7 @@ export default function VersusMatch({ session }) {
         else if (!m.guest_id || m.guest_id === user.id) { m = await joinMatch(code, user.id, myName) || m; if (!cancelled) setRole('guest'); }
         else if (m.guest_id !== user.id) { setErr('This match is already full.'); return; }
         if (!cancelled) setMatch(m);
-      } catch (e) { if (!cancelled) setErr(e.message || 'Failed to load match'); }
+      } catch (e) { if (!cancelled) setErr(friendlyError(e, 'Failed to load match.')); }
     })();
     return () => { cancelled = true; };
   }, [code, user, myName]);
@@ -99,11 +95,6 @@ export default function VersusMatch({ session }) {
       if (role === 'host') refreshMatch();
     });
     ch.on('broadcast', { event: 'start' }, ({ payload }) => { if (payload.uid !== user.id) refreshMatch(); });
-    ch.on('broadcast', { event: 'chat' }, ({ payload }) => {
-      if (payload.uid === user.id) return;
-      setChat((c) => [...c, { mine: false, name: payload.name || 'Rival', body: payload.body }]);
-      setChatOpen((open) => { if (!open) setUnread((u) => u + 1); return open; });
-    });
     ch.on('broadcast', { event: 'win' }, ({ payload }) => {
       if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} finished every question first.` }); }
     });
@@ -161,19 +152,9 @@ export default function VersusMatch({ session }) {
       const m = await updateMatch(code, { problem_ids: ids, problem_id: ids[0], status: 'active', started_at: new Date().toISOString() });
       if (m) setMatch(m); else await refreshMatch();
       chanRef.current?.send({ type: 'broadcast', event: 'start', payload: { uid: user.id } });
-    } catch (e) { setErr(`Could not start: ${e.message || e}`); setStarting(false); }
+    } catch (e) { setErr(friendlyError(e, 'Could not start the race.')); setStarting(false); }
   };
 
-  const sendChat = (e) => {
-    e?.preventDefault();
-    const body = chatDraft.trim();
-    if (!body) return;
-    setChatDraft('');
-    setChat((c) => [...c, { mine: true, name: myName, body }]);
-    chanRef.current?.send({ type: 'broadcast', event: 'chat', payload: { uid: user.id, name: myName, body } });
-  };
-  useEffect(() => { if (chatEndRef.current) chatEndRef.current.scrollIntoView({ block: 'nearest' }); }, [chat, chatOpen]);
-  useEffect(() => { if (chatOpen) setUnread(0); }, [chatOpen]);
 
   const onCodeChange = (v) => {
     setCodeByQ((prev) => ({ ...prev, [qIndex]: v || '' }));
@@ -212,7 +193,7 @@ export default function VersusMatch({ session }) {
     try {
       const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
       setCaseInfo({ passed: res?.passed ?? 0, total: res?.total ?? 0, ran: true });
-    } catch (e) { setErr(e.message || 'Run failed'); }
+    } catch (e) { setErr(friendlyError(e, 'Run failed.')); }
     setRunning(false);
   };
 
@@ -241,7 +222,7 @@ export default function VersusMatch({ session }) {
           if (next != null) setQIndex(next);
         }
       }
-    } catch (e) { setErr(e.message || 'Grading failed'); }
+    } catch (e) { setErr(friendlyError(e, 'Grading failed.')); }
     setRunning(false);
   };
 
@@ -342,9 +323,6 @@ export default function VersusMatch({ session }) {
       <div className="vs-battle-bar">
         <button className="vs-back" onClick={() => nav('/versus')}><ArrowLeft size={15} /></button>
         <div className="vs-timer"><Clock size={15} /> {mm}:{ss}</div>
-        <button className={`vs-chat-toggle ${chatOpen ? 'on' : ''}`} onClick={() => setChatOpen((o) => !o)} title="Chat with your rival">
-          <MessageSquare size={15} />{unread > 0 && !chatOpen ? <span className="vs-chat-badge">{unread}</span> : null}
-        </button>
         {numQ > 1 && (
           <div className="vs-qtabs">
             {[...Array(numQ).keys()].map((i) => (
@@ -402,22 +380,7 @@ export default function VersusMatch({ session }) {
         </div>
       </div>
 
-      <VideoCall code={code} userId={user.id} />
-
-      {chatOpen ? (
-        <div className="vs-chat">
-          <div className="vs-chat-head"><MessageSquare size={14} /> {oppName}<button className="vs-chat-x" onClick={() => setChatOpen(false)}>×</button></div>
-          <div className="vs-chat-body">
-            {chat.length === 0 ? <p className="vs-chat-empty">Say something to your rival…</p>
-              : chat.map((m, i) => <div key={i} className={`vs-chat-msg ${m.mine ? 'mine' : 'theirs'}`}>{m.body}</div>)}
-            <div ref={chatEndRef} />
-          </div>
-          <form className="vs-chat-compose" onSubmit={sendChat}>
-            <input value={chatDraft} onChange={(e) => setChatDraft(e.target.value)} placeholder="Message…" maxLength={500} />
-            <button type="submit" disabled={!chatDraft.trim()}><Send size={14} /></button>
-          </form>
-        </div>
-      ) : null}
+      <VideoCall code={code} userId={user.id} myName={myName} oppName={oppName} />
 
       {result ? (
         <div className="vs-overlay">

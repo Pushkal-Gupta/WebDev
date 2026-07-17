@@ -13,6 +13,7 @@ import StatusPill from './StatusPill';
 import SignInPrompt from './common/SignInPrompt';
 import Breadcrumb from './common/Breadcrumb';
 import { legacyToStatus } from '../lib/status';
+import { sanitizeError } from '../lib/sanitizeError';
 import ProgressRing from './vault/ProgressRing';
 import './vault/vault.css';
 import './MyLists.css';
@@ -60,7 +61,7 @@ export default function MyLists({ session }) {
       queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
       createInputRef.current?.focus();
     } catch (e) {
-      setError(e?.message || 'Couldn\'t create list.');
+      setError(sanitizeError(e, "Couldn't create list."));
     } finally {
       setCreating(false);
     }
@@ -72,7 +73,7 @@ export default function MyLists({ session }) {
     setPendingId(id);
     try {
       const { error: e } = await supabase.from('PGcode_user_lists').delete().eq('id', id);
-      if (e) { setError(e.message); return; }
+      if (e) { setError(sanitizeError(e)); return; }
       queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
       if (activeListId === id) setActiveListId(null);
       setDeleteTarget(null);
@@ -87,7 +88,7 @@ export default function MyLists({ session }) {
     setPendingId(id);
     try {
       const { error: e } = await supabase.from('PGcode_user_lists').update({ name: name.trim() }).eq('id', id);
-      if (e) { setError(e.message); return; }
+      if (e) { setError(sanitizeError(e)); return; }
       queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
       setRenameTarget(null);
     } finally {
@@ -425,7 +426,7 @@ function ListDetail({ session, list, onBack }) {
       const { error: e } = await supabase
         .from('PGcode_user_list_problems')
         .insert({ list_id: list.id, problem_id: problemId, position: listProblems.length });
-      if (e) { setError(e.message); return; }
+      if (e) { setError(sanitizeError(e)); return; }
       queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
       queryClient.invalidateQueries({ queryKey: ['userLists', userId] });
       setSearch('');
@@ -444,7 +445,7 @@ function ListDetail({ session, list, onBack }) {
         .delete()
         .eq('list_id', list.id)
         .eq('problem_id', problemId);
-      if (e) { setError(e.message); return; }
+      if (e) { setError(sanitizeError(e)); return; }
       queryClient.invalidateQueries({ queryKey: ['userListProblems', list.id] });
     } finally {
       setMutatingId(null);

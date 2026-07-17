@@ -228,6 +228,45 @@
 .vs-run:disabled { opacity: 0.55; cursor: not-allowed; }
 .vs-editor-body { flex: 1 1 auto; min-height: 0; }
 
+/* Movable comms island — video/audio/chat in one draggable widget */
+.vs-island { position: fixed; right: 1rem; bottom: 1rem; z-index: 60; display: flex; flex-direction: column; align-items: flex-end; gap: 0.6rem; }
+.vs-island-bar { display: flex; align-items: center; gap: 0.35rem; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 0.35rem; box-shadow: 0 14px 40px -16px rgba(0,0,0,0.55); }
+.vs-island-grip { display: inline-flex; align-items: center; justify-content: center; background: transparent; border: none; color: var(--text-dim); cursor: grab; padding: 0.3rem 0.15rem; touch-action: none; }
+.vs-island-grip:active { cursor: grabbing; }
+.vs-island-btn { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 2.2rem; height: 2.2rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; transition: all 0.15s; }
+.vs-island-btn:hover { border-color: var(--accent); color: var(--accent); }
+.vs-island-btn.on { background: var(--accent); border-color: var(--accent); color: #06202b; }
+.vs-island-badge { position: absolute; top: -3px; right: -3px; background: var(--hard); color: #fff; font-size: 0.6rem; font-weight: 800; border-radius: 999px; min-width: 15px; height: 15px; display: inline-flex; align-items: center; justify-content: center; padding: 0 3px; }
+
+/* incoming-call ping */
+.vs-ring { display: flex; align-items: center; gap: 0.6rem; background: var(--surface); border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--border)); border-radius: 14px; padding: 0.6rem 0.8rem; box-shadow: 0 14px 40px -16px rgba(0,0,0,0.55); animation: vs-ring-pulse 1.1s ease-in-out infinite; max-width: 280px; }
+@keyframes vs-ring-pulse { 0%,100% { box-shadow: 0 14px 40px -16px rgba(0,0,0,0.55), 0 0 0 0 color-mix(in srgb, var(--accent) 40%, transparent); } 50% { box-shadow: 0 14px 40px -16px rgba(0,0,0,0.55), 0 0 0 6px color-mix(in srgb, var(--accent) 22%, transparent); } }
+.vs-ring-ic { display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 2.1rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); flex-shrink: 0; }
+.vs-ring-txt { display: flex; flex-direction: column; min-width: 0; }
+.vs-ring-txt b { color: var(--text-main); font-size: 0.86rem; }
+.vs-ring-txt span { color: var(--text-dim); font-size: 0.74rem; }
+.vs-ring-accept, .vs-ring-decline { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 999px; border: none; cursor: pointer; flex-shrink: 0; }
+.vs-ring-accept { background: var(--easy); color: #06210f; }
+.vs-ring-decline { background: var(--hard); color: #fff; }
+
+/* Google-Meet-style call window */
+.vs-meet { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 18px 48px -18px rgba(0,0,0,0.6); }
+.vs-meet-stage { position: relative; width: 100%; height: 200px; background: #0a0d0f; }
+.vs-meet-remote { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vs-meet-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 22%, #0a0d0f), #0a0d0f); }
+.vs-meet-avatar span { width: 4.5rem; height: 4.5rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; }
+.vs-meet-name { position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,0.5); color: #fff; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
+.vs-meet-local { position: absolute; right: 8px; bottom: 8px; width: 84px; height: 60px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--accent); background: #111; }
+.vs-meet-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.4); }
+.vs-meet-controls { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; }
+.vs-meet-ctl { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; }
+.vs-meet-ctl:hover { border-color: var(--accent); }
+.vs-meet-ctl.off { background: color-mix(in srgb, var(--hard) 16%, transparent); color: var(--hard); border-color: color-mix(in srgb, var(--hard) 40%, transparent); }
+.vs-meet-ctl.end { background: var(--hard); color: #fff; border-color: var(--hard); }
+
+.vs-island-chat { width: 290px; max-height: 52vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 16px 44px -18px rgba(0,0,0,0.6); }
+.vs-island-err { background: var(--surface); border: 1px solid color-mix(in srgb, var(--hard) 40%, transparent); color: var(--hard); font-size: 0.78rem; border-radius: 10px; padding: 0.45rem 0.7rem; max-width: 280px; cursor: pointer; }
+
 /* In-match voice/video call */
 .vs-call { position: fixed; right: 1rem; top: 5.5rem; z-index: 55; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
 .vs-call-videos { position: relative; width: 260px; border-radius: 14px; overflow: hidden; border: 1px solid var(--border); background: #000; box-shadow: 0 16px 44px -18px rgba(0,0,0,0.6); }

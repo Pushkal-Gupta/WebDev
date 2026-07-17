@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { X, Eye, EyeOff, Settings } from 'lucide-react';
+import { friendlyError } from '../lib/errors';
 import Logo from './Logo';
 import './LoginModal.css';
 
@@ -38,7 +39,8 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
       });
       if (error) throw error;
     } catch (err) {
-      setError(err.message);
+      console.error('[error]', err);
+      setError(friendlyError(err));
     }
   };
 
@@ -50,7 +52,8 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
       });
       if (error) throw error;
     } catch (err) {
-      setError(err.message);
+      console.error('[error]', err);
+      setError(friendlyError(err));
     }
   };
 
@@ -85,7 +88,7 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
         onClose();
       }
     } catch (err) {
-      setError(err.message);
+      setError(sanitizeError(err));
     } finally {
       setLoading(false);
     }
@@ -108,7 +111,8 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
       if (error) throw error;
       setMode('newPassword');
     } catch (err) {
-      setError('Invalid or expired code. ' + err.message);
+      console.error('[error]', err);
+      setError('Invalid or expired code. Please request a new one.');
     } finally {
       setLoading(false);
     }
@@ -131,7 +135,7 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
       if (error) throw error;
       onClose();
     } catch (err) {
-      setError(err.message);
+      setError(sanitizeError(err));
     } finally {
       setLoading(false);
     }

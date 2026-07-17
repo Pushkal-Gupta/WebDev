@@ -1,120 +1,255 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Phone, PhoneOff, Mic, MicOff, Video, VideoOff } from 'lucide-react';
+import { Video, VideoOff, Mic, MicOff, Phone, PhoneOff, MessageSquare, Send, X, GripVertical } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { friendlyError } from '../../lib/errors';
 import '../../styles/versus.css';
 
-// Peer-to-peer voice/video for a PGBattle match. Signalling (offer/answer/ICE) rides a
-// dedicated Realtime channel `rtc:{code}` so it never touches the match channel. STUN-only
-// (Google public STUN) — works on most home/office networks; symmetric-NAT peers would need
-// a TURN relay (not configured). The HOST is the deterministic offerer.
-const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }] };
+// STUN finds a direct path; TURN relays media across strict/symmetric NAT so calls still
+// connect. Defaults to free public OpenRelay TURN (public creds, not secrets); override with
+// VITE_TURN_URL / VITE_TURN_USER / VITE_TURN_CRED for a private relay.
+const env = import.meta.env || {};
+const TURN = env.VITE_TURN_URL
+  ? [{ urls: env.VITE_TURN_URL, username: env.VITE_TURN_USER, credential: env.VITE_TURN_CRED }]
+  : [
+      { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+    ];
+const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, ...TURN] };
 
-export default function VideoCall({ code, userId }) {
-  const [callState, setCallState] = useState('idle'); // idle | calling | live
+// A single draggable comms island for a PGBattle match: video call, audio call, and chat.
+// All signalling + chat ride one Realtime channel `comms:{code}`. The caller RINGS, the
+// callee ACCEPTS (so both have media + a peer connection ready before the SDP/ICE exchange),
+// ICE candidates that arrive early are buffered, and a 25s watchdog fails the call cleanly
+// instead of hanging on "Connecting…". Whoever starts a call/text pings the other side.
+export default function VideoCall({ code, userId, myName = 'You', oppName = 'Rival' }) {
+  const [pos, setPos] = useState(null);            // {x,y} once dragged; null = default anchor
+  const [call, setCall] = useState('idle');        // idle | ringing | incoming | connecting | live
+  const [wantVideo, setWantVideo] = useState(true);
+  const [incoming, setIncoming] = useState(null);  // {from,name,video}
   const [micOn, setMicOn] = useState(true);
   const [camOn, setCamOn] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [chat, setChat] = useState([]);
+  const [draft, setDraft] = useState('');
+  const [unread, setUnread] = useState(0);
   const [err, setErr] = useState('');
 
-  const pcRef = useRef(null);
   const chanRef = useRef(null);
-  const localStreamRef = useRef(null);
-  const localVideoRef = useRef(null);
-  const remoteVideoRef = useRef(null);
+  const pcRef = useRef(null);
+  const localRef = useRef(null);
+  const remoteRef = useRef(null);
+  const localVidEl = useRef(null);
+  const remoteVidEl = useRef(null);
+  const pendingIce = useRef([]);
+  const watchdog = useRef(null);
+  const chatEndRef = useRef(null);
+  const dragRef = useRef(null);
 
-  const cleanup = useCallback(() => {
+  const send = useCallback((obj) => chanRef.current?.send({ type: 'broadcast', event: 'comms', payload: { from: userId, name: myName, ...obj } }), [userId, myName]);
+
+  const teardown = useCallback((announce) => {
+    clearTimeout(watchdog.current);
+    if (announce) send({ t: 'bye' });
     try { pcRef.current?.close(); } catch { /* noop */ }
     pcRef.current = null;
-    localStreamRef.current?.getTracks().forEach((t) => t.stop());
-    localStreamRef.current = null;
-    if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
-    if (localVideoRef.current) localVideoRef.current.srcObject = null;
+    localRef.current?.getTracks().forEach((t) => t.stop());
+    localRef.current = null; remoteRef.current = null;
+    pendingIce.current = [];
+    if (remoteVidEl.current) remoteVidEl.current.srcObject = null;
+    if (localVidEl.current) localVidEl.current.srcObject = null;
+    setCall('idle'); setIncoming(null);
+  }, [send]);
+
+  const getMedia = async (video) => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    localRef.current = stream;
+    setMicOn(true); setCamOn(video);
+    if (localVidEl.current) localVidEl.current.srcObject = stream;
+    return stream;
+  };
+
+  const flushIce = useCallback(async () => {
+    const pc = pcRef.current; if (!pc || !pc.remoteDescription) return;
+    const q = pendingIce.current; pendingIce.current = [];
+    for (const c of q) { try { await pc.addIceCandidate(c); } catch { /* stale candidate */ } }
   }, []);
 
-  // one persistent signalling channel for the pair
+  const makePc = useCallback((stream) => {
+    const pc = new RTCPeerConnection(ICE);
+    stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+    pc.onicecandidate = (e) => { if (e.candidate) send({ t: 'ice', candidate: e.candidate.toJSON() }); };
+    pc.ontrack = (e) => {
+      remoteRef.current = e.streams[0];
+      if (remoteVidEl.current) remoteVidEl.current.srcObject = e.streams[0];
+      clearTimeout(watchdog.current); setCall('live');
+    };
+    pc.onconnectionstatechange = () => {
+      const s = pc.connectionState;
+      if (s === 'failed') { setErr('Call dropped — the connection failed.'); teardown(false); }
+      else if (s === 'disconnected' || s === 'closed') setCall((c) => (c === 'live' ? 'idle' : c));
+    };
+    pcRef.current = pc;
+    return pc;
+  }, [send, teardown]);
+
+  const armWatchdog = useCallback(() => {
+    clearTimeout(watchdog.current);
+    watchdog.current = setTimeout(() => { setCall((c) => { if (c !== 'live' && c !== 'idle') { setErr("Couldn't connect — your rival may be offline or behind a strict firewall."); teardown(true); } return c; }); }, 25000);
+  }, [teardown]);
+
+  // channel: signalling + chat + presence-less pings
   useEffect(() => {
     if (!code || !userId) return;
-    const ch = supabase.channel(`rtc:${code}`, { config: { broadcast: { self: false } } });
+    const ch = supabase.channel(`comms:${code}`, { config: { broadcast: { self: false } } });
     chanRef.current = ch;
-    ch.on('broadcast', { event: 'signal' }, async ({ payload }) => {
+    ch.on('broadcast', { event: 'comms' }, async ({ payload }) => {
       if (payload.from === userId) return;
       try {
-        const pc = pcRef.current;
-        if (payload.kind === 'offer') {
-          // callee side: someone is calling us
-          if (!pc) await startCall(false, payload.sdp);
-          else { await pc.setRemoteDescription(payload.sdp); const a = await pc.createAnswer(); await pc.setLocalDescription(a); send({ kind: 'answer', sdp: a }); }
-        } else if (payload.kind === 'answer' && pc) {
-          await pc.setRemoteDescription(payload.sdp);
-        } else if (payload.kind === 'ice' && pc && payload.candidate) {
-          try { await pc.addIceCandidate(payload.candidate); } catch { /* candidate may arrive early */ }
-        } else if (payload.kind === 'bye') {
-          endCall(false);
+        switch (payload.t) {
+          case 'chat':
+            setChat((c) => [...c, { mine: false, body: payload.body }]);
+            setChatOpen((o) => { if (!o) setUnread((u) => u + 1); return o; });
+            break;
+          case 'ring':
+            if (pcRef.current || call !== 'idle') { send({ t: 'busy' }); break; }
+            setIncoming({ from: payload.from, name: payload.name, video: payload.video }); setCall('incoming');
+            break;
+          case 'accept': {  // callee accepted → we (caller) create the offer
+            const stream = localRef.current; if (!stream) break;
+            const pc = makePc(stream);
+            const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
+            send({ t: 'offer', sdp: offer }); armWatchdog();
+            break;
+          }
+          case 'offer': {   // we (callee) already have media+pc from accepting
+            let pc = pcRef.current; if (!pc) break;
+            await pc.setRemoteDescription(payload.sdp);
+            const ans = await pc.createAnswer(); await pc.setLocalDescription(ans);
+            send({ t: 'answer', sdp: ans }); await flushIce();
+            break;
+          }
+          case 'answer':
+            if (pcRef.current) { await pcRef.current.setRemoteDescription(payload.sdp); await flushIce(); }
+            break;
+          case 'ice':
+            if (pcRef.current?.remoteDescription) { try { await pcRef.current.addIceCandidate(payload.candidate); } catch { /* stale */ } }
+            else pendingIce.current.push(payload.candidate);
+            break;
+          case 'busy':
+            setErr('Your rival is already on a call.'); teardown(false); break;
+          case 'decline':
+            setErr('Call declined.'); teardown(false); break;
+          case 'bye':
+            teardown(false); break;
+          default: break;
         }
-      } catch (e) { setErr(e.message || 'Call error'); }
+      } catch (e) { setErr(friendlyError(e, 'Call error.')); }
     });
     ch.subscribe();
-    return () => { supabase.removeChannel(ch); cleanup(); };
+    return () => { supabase.removeChannel(ch); teardown(false); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [code, userId]);
 
-  const send = (obj) => chanRef.current?.send({ type: 'broadcast', event: 'signal', payload: { from: userId, ...obj } });
+  useEffect(() => { if (chatEndRef.current) chatEndRef.current.scrollIntoView({ block: 'nearest' }); }, [chat, chatOpen]);
+  useEffect(() => { if (chatOpen) setUnread(0); }, [chatOpen]);
 
-  const makePc = (stream) => {
-    const pc = new RTCPeerConnection(ICE);
-    stream.getTracks().forEach((t) => pc.addTrack(t, stream));
-    pc.onicecandidate = (e) => { if (e.candidate) send({ kind: 'ice', candidate: e.candidate }); };
-    pc.ontrack = (e) => { if (remoteVideoRef.current) remoteVideoRef.current.srcObject = e.streams[0]; setCallState('live'); };
-    pc.onconnectionstatechange = () => { if (['failed', 'disconnected', 'closed'].includes(pc.connectionState)) setCallState((s) => (s === 'live' ? 'idle' : s)); };
-    return pc;
+  // caller: grab media, ring the rival
+  const startCall = async (video) => {
+    if (call !== 'idle') return;
+    setErr(''); setWantVideo(video); setCall('ringing');
+    try { await getMedia(video); } catch { setErr('Camera/microphone blocked — allow access to call.'); setCall('idle'); return; }
+    send({ t: 'ring', video }); armWatchdog();
+  };
+  // callee: accept an incoming ring
+  const accept = async () => {
+    if (!incoming) return;
+    setErr(''); setWantVideo(incoming.video); setCall('connecting');
+    try { await getMedia(incoming.video); } catch { setErr('Camera/microphone blocked — allow access to answer.'); teardown(true); return; }
+    makePc(localRef.current);              // callee is the answerer; pc ready before offer
+    send({ t: 'accept' }); setIncoming(null); armWatchdog();
+  };
+  const decline = () => { send({ t: 'decline' }); teardown(false); };
+
+  const toggleMic = () => { const t = localRef.current?.getAudioTracks()[0]; if (t) { t.enabled = !t.enabled; setMicOn(t.enabled); } };
+  const toggleCam = () => { const t = localRef.current?.getVideoTracks()[0]; if (t) { t.enabled = !t.enabled; setCamOn(t.enabled); } };
+
+  const sendChat = (e) => {
+    e?.preventDefault();
+    const body = draft.trim(); if (!body) return;
+    setDraft(''); setChat((c) => [...c, { mine: true, body }]);
+    send({ t: 'chat', body });
   };
 
-  // caller=true → we initiate (send offer). caller=false → we answer an incoming offer.
-  async function startCall(caller, incomingOffer) {
-    setErr(''); setCallState('calling');
-    let stream;
-    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true }); }
-    catch { setErr('Camera/mic blocked. Allow access to call.'); setCallState('idle'); return; }
-    localStreamRef.current = stream;
-    if (localVideoRef.current) localVideoRef.current.srcObject = stream;
-    const pc = makePc(stream);
-    pcRef.current = pc;
-    if (caller) {
-      const o = await pc.createOffer(); await pc.setLocalDescription(o); send({ kind: 'offer', sdp: o });
-    } else if (incomingOffer) {
-      await pc.setRemoteDescription(incomingOffer); const a = await pc.createAnswer(); await pc.setLocalDescription(a); send({ kind: 'answer', sdp: a });
-    }
-  }
-
-  const endCall = (announce = true) => {
-    if (announce) send({ kind: 'bye' });
-    cleanup();
-    setCallState('idle');
+  // drag the island
+  const onDragStart = (e) => {
+    const start = { x: e.clientX, y: e.clientY };
+    const base = dragRef.current.getBoundingClientRect();
+    const origin = pos || { x: base.left, y: base.top };
+    const move = (ev) => setPos({ x: Math.max(6, origin.x + ev.clientX - start.x), y: Math.max(70, origin.y + ev.clientY - start.y) });
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
   };
 
-  const toggleMic = () => { const t = localStreamRef.current?.getAudioTracks()[0]; if (t) { t.enabled = !t.enabled; setMicOn(t.enabled); } };
-  const toggleCam = () => { const t = localStreamRef.current?.getVideoTracks()[0]; if (t) { t.enabled = !t.enabled; setCamOn(t.enabled); } };
+  const style = pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined;
+  const inCall = call === 'ringing' || call === 'connecting' || call === 'live';
 
   return (
-    <div className={`vs-call ${callState !== 'idle' ? 'active' : ''}`}>
-      {callState !== 'idle' && (
-        <div className="vs-call-videos">
-          <video ref={remoteVideoRef} className="vs-call-remote" autoPlay playsInline />
-          <video ref={localVideoRef} className="vs-call-local" autoPlay playsInline muted />
-          {callState === 'calling' ? <div className="vs-call-status">Connecting…</div> : null}
+    <div className="vs-island" ref={dragRef} style={style}>
+      {/* incoming-call ping */}
+      {call === 'incoming' && incoming ? (
+        <div className="vs-ring">
+          <div className="vs-ring-ic">{incoming.video ? <Video size={18} /> : <Phone size={18} />}</div>
+          <div className="vs-ring-txt"><b>{incoming.name || oppName}</b><span>Incoming {incoming.video ? 'video' : 'voice'} call</span></div>
+          <button className="vs-ring-accept" onClick={accept}><Phone size={15} /></button>
+          <button className="vs-ring-decline" onClick={decline}><PhoneOff size={15} /></button>
         </div>
-      )}
-      <div className="vs-call-controls">
-        {callState === 'idle' ? (
-          <button className="vs-call-btn start" onClick={() => startCall(true)} title="Start voice + video call"><Phone size={15} /> Call</button>
-        ) : (
-          <>
-            <button className={`vs-call-btn ${micOn ? '' : 'off'}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={15} /> : <MicOff size={15} />}</button>
-            <button className={`vs-call-btn ${camOn ? '' : 'off'}`} onClick={toggleCam} title={camOn ? 'Camera off' : 'Camera on'}>{camOn ? <Video size={15} /> : <VideoOff size={15} />}</button>
-            <button className="vs-call-btn end" onClick={() => endCall(true)} title="Hang up"><PhoneOff size={15} /></button>
-          </>
-        )}
+      ) : null}
+
+      {/* call window (Google-Meet style) */}
+      {inCall ? (
+        <div className={`vs-meet ${wantVideo ? '' : 'audio'}`}>
+          <div className="vs-meet-stage">
+            {wantVideo ? <video ref={remoteVidEl} className="vs-meet-remote" autoPlay playsInline /> : <div className="vs-meet-avatar"><span>{(oppName || 'R').slice(0, 1).toUpperCase()}</span></div>}
+            <div className="vs-meet-name">{oppName}</div>
+            {wantVideo ? <video ref={localVidEl} className="vs-meet-local" autoPlay playsInline muted /> : null}
+            {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : 'Connecting…'}</div> : null}
+          </div>
+          <div className="vs-meet-controls">
+            <button className={`vs-meet-ctl ${micOn ? '' : 'off'}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={16} /> : <MicOff size={16} />}</button>
+            {wantVideo ? <button className={`vs-meet-ctl ${camOn ? '' : 'off'}`} onClick={toggleCam} title={camOn ? 'Camera off' : 'Camera on'}>{camOn ? <Video size={16} /> : <VideoOff size={16} />}</button> : null}
+            <button className="vs-meet-ctl end" onClick={() => teardown(true)} title="Hang up"><PhoneOff size={16} /></button>
+          </div>
+        </div>
+      ) : null}
+
+      {/* chat panel */}
+      {chatOpen ? (
+        <div className="vs-island-chat">
+          <div className="vs-chat-head"><MessageSquare size={14} /> {oppName}<button className="vs-chat-x" onClick={() => setChatOpen(false)}><X size={14} /></button></div>
+          <div className="vs-chat-body">
+            {chat.length === 0 ? <p className="vs-chat-empty">Say something to your rival…</p>
+              : chat.map((m, i) => <div key={i} className={`vs-chat-msg ${m.mine ? 'mine' : 'theirs'}`}>{m.body}</div>)}
+            <div ref={chatEndRef} />
+          </div>
+          <form className="vs-chat-compose" onSubmit={sendChat}>
+            <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Message…" maxLength={500} />
+            <button type="submit" disabled={!draft.trim()}><Send size={14} /></button>
+          </form>
+        </div>
+      ) : null}
+
+      {err ? <div className="vs-island-err" onClick={() => setErr('')}>{err}</div> : null}
+
+      {/* the movable 3-button island */}
+      <div className="vs-island-bar">
+        <button className="vs-island-grip" onPointerDown={onDragStart} title="Drag"><GripVertical size={15} /></button>
+        <button className={`vs-island-btn ${inCall && wantVideo ? 'on' : ''}`} onClick={() => (inCall ? teardown(true) : startCall(true))} title="Video call"><Video size={16} /></button>
+        <button className={`vs-island-btn ${inCall && !wantVideo ? 'on' : ''}`} onClick={() => (inCall ? teardown(true) : startCall(false))} title="Voice call"><Phone size={16} /></button>
+        <button className={`vs-island-btn ${chatOpen ? 'on' : ''}`} onClick={() => setChatOpen((o) => !o)} title="Chat">
+          <MessageSquare size={16} />{unread > 0 && !chatOpen ? <span className="vs-island-badge">{unread}</span> : null}
+        </button>
       </div>
-      {err ? <div className="vs-call-err">{err}</div> : null}
     </div>
   );
 }
