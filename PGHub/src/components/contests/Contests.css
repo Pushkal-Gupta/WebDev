@@ -1242,6 +1242,18 @@
   padding-bottom: 2.5rem;
 }
 
+/* Embedded on the LcHub home — flow inside the hub's own scroll, full width of
+   its container, no nested scrollbar. */
+.lca-wrap.lca-embedded {
+  flex: none;
+  min-height: 0;
+  overflow: visible;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-top: 0.5rem;
+}
+
 /* Blink both the pending-rank card and each still-scanning results row so the
    live fetch is obviously in progress. */
 @keyframes lca-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }

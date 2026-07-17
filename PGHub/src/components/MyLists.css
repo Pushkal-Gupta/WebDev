@@ -575,7 +575,7 @@
   cursor: pointer;
   transition: color var(--t), border-color var(--t);
 }
-.ml-modal-x:hover { color: var(--text-main); border-color: var(--text-main); }
+.ml-modal-x:hover { color: var(--text-main); border-color: var(--accent); }
 
 .ml-modal-label {
   font-family: var(--mono);

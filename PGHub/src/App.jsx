@@ -10,6 +10,7 @@ import SubNav from './components/SubNav';
 import MobileBottomNav from './components/MobileBottomNav';
 import RouteFallback from './components/RouteFallback';
 import CommandPalette from './components/CommandPalette';
+import ChallengeToast from './components/versus/ChallengeToast';
 import './styles/theme.css';
 
 // ErrorBoundary so a render crash inside one route doesn't blank #root and
@@ -256,6 +257,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
       {!isWorkspace && <SubNav userId={session?.user?.id} />}
       {!isWorkspace && <MobileBottomNav />}
       <CommandPalette />
+      {session && <ChallengeToast session={session} />}
       <Suspense fallback={<RouteFallback />}>
         <RouteErrorBoundary key={location.pathname}>
         <Routes>

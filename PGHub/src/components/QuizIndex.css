@@ -152,7 +152,7 @@
   cursor: pointer;
   transition: color var(--t), border-color var(--t);
 }
-.quiz-modal-close:hover { color: var(--text-main); border-color: var(--text-main); }
+.quiz-modal-close:hover { color: var(--text-main); border-color: var(--accent); }
 
 .quiz-modal-head {
   display: flex;
@@ -241,7 +241,7 @@
   cursor: pointer;
   transition: border-color var(--t), background var(--t);
 }
-.quiz-dd-btn:hover { border-color: var(--text-dim); }
+.quiz-dd-btn:hover { border-color: var(--accent); }
 .quiz-dd-btn.open { border-color: var(--accent); background: var(--bg); }
 
 .quiz-dd-value {

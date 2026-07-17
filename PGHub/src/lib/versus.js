@@ -67,6 +67,28 @@ export async function pickRandomProblem(difficulty) {
   return pick.id;
 }
 
+// A player's head-to-head record — finished matches they hosted or joined, split into
+// wins / losses so the lobby can render a real record instead of empty space.
+export async function getMyRecord(userId) {
+  if (!userId) return { wins: 0, losses: 0, total: 0, recent: [] };
+  const { data, error } = await supabase.from('PGcode_versus_matches')
+    .select('id, difficulty, language, host_id, guest_id, host_name, guest_name, winner_id, status, finished_at')
+    .or(`host_id.eq.${userId},guest_id.eq.${userId}`)
+    .eq('status', 'finished')
+    .order('finished_at', { ascending: false })
+    .limit(50);
+  if (error) throw error;
+  const rows = data || [];
+  let wins = 0, losses = 0;
+  const recent = rows.map((m) => {
+    const won = m.winner_id === userId;
+    if (m.winner_id) { won ? wins++ : losses++; }
+    const oppName = m.host_id === userId ? (m.guest_name || 'Rival') : (m.host_name || 'Host');
+    return { id: m.id, won, oppName, difficulty: m.difficulty, language: m.language };
+  });
+  return { wins, losses, total: wins + losses, recent: recent.slice(0, 6) };
+}
+
 // One realtime channel per match: presence tells us who's in the room; broadcast carries
 // progress/typing/win. Returns the channel (caller subscribes + wires handlers).
 export function matchChannel(code, selfKey) {

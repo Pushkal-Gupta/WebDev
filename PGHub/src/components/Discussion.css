@@ -150,7 +150,7 @@
   font-size: 12px;
   cursor: pointer;
 }
-.dsc-btn-ghost:hover { color: var(--text-main); border-color: var(--text-dim); }
+.dsc-btn-ghost:hover { color: var(--text-main); border-color: var(--accent); }
 
 .dsc-state {
   display: inline-flex;

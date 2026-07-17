@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Play, Send, User, Swords, ArrowLeft } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, pickRandomProblem, matchChannel } from '../../lib/versus';
 import { gradeOnServer } from '../../lib/codeRunner';
@@ -29,6 +29,7 @@ export default function VersusMatch({ session }) {
   const [now, setNow] = useState(Date.now());
   const [result, setResult] = useState(null);       // { win: bool, reason }
   const [copied, setCopied] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
   const [err, setErr] = useState('');
 
   const chanRef = useRef(null);
@@ -37,6 +38,10 @@ export default function VersusMatch({ session }) {
   const wonRef = useRef(false);
 
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/versus/${code}`;
+  const shareText = `Battle me on PGBattle — join with code ${code}: ${inviteUrl}`;
+  const copyCode = () => { navigator.clipboard?.writeText(code); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1500); };
+  const copyLink = () => { navigator.clipboard?.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const nativeShare = () => { navigator.share?.({ title: 'PGBattle', text: `Battle me on PGBattle — code ${code}`, url: inviteUrl }).catch(() => {}); };
 
   // load + join the match; determine role
   useEffect(() => {
@@ -73,11 +78,22 @@ export default function VersusMatch({ session }) {
       clearTimeout(oppTypingTimer.current);
       oppTypingTimer.current = setTimeout(() => setOppTyping(false), 1400);
     });
+    ch.on('broadcast', { event: 'joined' }, ({ payload }) => {
+      if (payload.uid === user.id) return;
+      setOppPresent(true);
+      if (payload.name) setOppName(payload.name);
+      if (role === 'host') refreshMatch();     // pull the freshly-claimed guest_id/name
+    });
     ch.on('broadcast', { event: 'start' }, ({ payload }) => { if (payload.uid !== user.id) refreshMatch(); });
     ch.on('broadcast', { event: 'win' }, ({ payload }) => {
       if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} passed every test first.` }); }
     });
-    ch.subscribe((status) => { if (status === 'SUBSCRIBED') ch.track({ uid: user.id, name: myName, role }); });
+    ch.subscribe((status) => {
+      if (status !== 'SUBSCRIBED') return;
+      ch.track({ uid: user.id, name: myName, role });
+      // announce ourselves so the other side updates even if a presence sync is missed
+      ch.send({ type: 'broadcast', event: 'joined', payload: { uid: user.id, name: myName, role } });
+    });
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, user, code]);
@@ -101,6 +117,16 @@ export default function VersusMatch({ session }) {
 
   // shared countdown tick
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, []);
+
+  // fallback poll for missed realtime signals: host waits for a guest to claim the
+  // slot; guest waits for the host to flip the match to active.
+  useEffect(() => {
+    if (!match || match.status !== 'waiting') return;
+    const needsPoll = (role === 'host' && !match.guest_id) || role === 'guest';
+    if (!needsPoll) return;
+    const t = setInterval(refreshMatch, 3000);
+    return () => clearInterval(t);
+  }, [role, match, refreshMatch]);
 
   // host starts the match: pick a problem, flip to active, broadcast
   const start = async () => {
@@ -143,12 +169,13 @@ export default function VersusMatch({ session }) {
     setRunning(false);
   };
 
-  if (!user) return <div className="vs-page"><div className="vs-signin"><h3>Sign in to play Versus</h3></div></div>;
-  if (err && !match) return <div className="vs-page"><div className="vs-signin"><h3>{err}</h3><button className="vs-secondary" onClick={() => nav('/versus')}><ArrowLeft size={14} /> Back to Versus</button></div></div>;
+  if (!user) return <div className="vs-page"><div className="vs-signin"><h3>Sign in to battle</h3></div></div>;
+  if (err && !match) return <div className="vs-page"><div className="vs-signin"><h3>{err}</h3><button className="vs-secondary" onClick={() => nav('/versus')}><ArrowLeft size={14} /> Back to PGBattle</button></div></div>;
   if (!match) return <div className="vs-page"><div className="vs-loading"><Zap className="vs-bolt spin" /> Loading match…</div></div>;
 
   // ── Waiting room ──
   if (match.status === 'waiting') {
+    const rivalHere = oppPresent || (!!match.guest_id && match.guest_id !== user.id);
     return (
       <div className="vs-page">
         <div className="vs-room">
@@ -157,17 +184,24 @@ export default function VersusMatch({ session }) {
           <div className="vs-lobby-players">
             <div className="vs-avatar you"><User /><span>{myName}</span><small>{role}</small></div>
             <div className="vs-vs-badge">VS</div>
-            <div className={`vs-avatar foe ${oppPresent ? 'here' : ''}`}><User /><span>{oppPresent ? oppName : 'Waiting…'}</span><small>{oppPresent ? 'ready' : 'not joined'}</small></div>
+            <div className={`vs-avatar foe ${rivalHere ? 'here' : ''}`}><User /><span>{rivalHere ? (match.guest_id && match.guest_id !== user.id && match.guest_name ? match.guest_name : oppName) : 'Waiting…'}</span><small>{rivalHere ? 'ready' : 'not joined'}</small></div>
           </div>
           <div className="vs-invite">
-            <span>Share this link to invite:</span>
-            <div className="vs-invite-box">
-              <code>{inviteUrl}</code>
-              <button onClick={() => { navigator.clipboard?.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); }}>{copied ? <Check size={14} /> : <Copy size={14} />}</button>
+            <span className="vs-invite-label">Invite your rival</span>
+            <div className="vs-code-big">
+              <span className="vs-code-chars">{code}</span>
+              <button className="vs-code-copy" onClick={copyCode}>{codeCopied ? <Check size={14} /> : <Copy size={14} />} {codeCopied ? 'Copied' : 'Copy code'}</button>
             </div>
+            <div className="vs-share-row">
+              <button className="vs-share-btn" onClick={copyLink}>{copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Link copied' : 'Copy link'}</button>
+              {typeof navigator !== 'undefined' && navigator.share ? <button className="vs-share-btn" onClick={nativeShare}><Share2 size={14} /> Share</button> : null}
+              <a className="vs-share-btn" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"><MessageSquare size={14} /> WhatsApp</a>
+              <a className="vs-share-btn" href={`mailto:?subject=${encodeURIComponent('Battle me on PGBattle')}&body=${encodeURIComponent(shareText)}`}><Mail size={14} /> Email</a>
+            </div>
+            <p className="vs-invite-hint">Your rival joins by entering the code on PGBattle, or by opening the link.</p>
           </div>
           {role === 'host'
-            ? <button className="vs-primary" onClick={start} disabled={!oppPresent}><Swords size={16} /> {oppPresent ? 'Start race' : 'Waiting for opponent…'}</button>
+            ? <button className="vs-primary" onClick={start} disabled={!rivalHere}><Swords size={16} /> {rivalHere ? 'Start race' : 'Waiting for opponent…'}</button>
             : <p className="vs-room-hint">Waiting for the host to start the race…</p>}
           {err ? <p className="vs-err">{err}</p> : null}
         </div>
@@ -229,11 +263,24 @@ export default function VersusMatch({ session }) {
       {result ? (
         <div className="vs-overlay">
           <div className={`vs-result ${result.win ? 'win' : 'lose'}`}>
-            <Trophy size={44} />
+            <Trophy size={40} />
             <h2>{result.win ? 'Victory' : 'Defeated'}</h2>
             <p>{result.reason}</p>
-            <div className="vs-result-score">You {myProg.passed}/{myProg.total} · {oppName} {oppProg.passed}/{oppProg.total}</div>
+            <div className="vs-result-bars">
+              <div className="vs-rb">
+                <span className="vs-rb-label"><User size={12} /> {myName}</span>
+                <div className="vs-rb-track"><div className="vs-bp-fill me" style={{ width: pct(myProg) + '%' }} /></div>
+                <span className="vs-rb-count">{myProg.passed}/{myProg.total}</span>
+              </div>
+              <div className="vs-rb">
+                <span className="vs-rb-label"><User size={12} /> {oppName}</span>
+                <div className="vs-rb-track"><div className="vs-bp-fill foe" style={{ width: pct(oppProg) + '%' }} /></div>
+                <span className="vs-rb-count">{oppProg.passed}/{oppProg.total}</span>
+              </div>
+            </div>
+            <div className="vs-result-meta"><Clock size={13} /> {mm}:{ss} left · <span className="vs-diff-inline">{match.difficulty}</span> · {match.language}</div>
             <div className="vs-result-actions">
+              <button className="vs-secondary" onClick={() => nav('/versus')}><ArrowLeft size={14} /> Lobby</button>
               <button className="vs-primary" onClick={() => nav('/versus')}><Zap size={15} /> New race</button>
             </div>
           </div>

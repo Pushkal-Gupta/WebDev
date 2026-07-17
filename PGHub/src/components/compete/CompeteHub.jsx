@@ -160,7 +160,7 @@ export default function CompeteHub() {
         <div className="compete-view">
           <header className="compete-view-head">
             <button type="button" className="compete-back" onClick={() => setActive(null)}>
-              <ArrowLeft size={15} /> Back to Battle
+              <ArrowLeft size={15} /> Back to Compete
             </button>
             <nav className="compete-view-switch" aria-label="Switch section">
               {TAB_ORDER.map((key) => {
@@ -197,7 +197,7 @@ export default function CompeteHub() {
   return (
     <div className="compete-hub">
       <header className="compete-hero">
-        <h1 className="compete-title"><Swords size={26} /> <span className="compete-pg">PG</span>Battle</h1>
+        <h1 className="compete-title"><Swords size={26} /> <span className="compete-pg">PG</span>Compete</h1>
         <p className="compete-sub">
           Look up any coder, track every contest across the judges, predict your rating, and jump to the next round, hackathon, or conference.
         </p>

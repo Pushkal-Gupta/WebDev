@@ -3,11 +3,17 @@
   max-width: var(--container-w);
   margin: 0 auto;
   padding: 1.5rem 0 2rem;
-  height: calc(100dvh - var(--pg-nav-h, 120px));
+  /* Own the page scroll like every other route (#root is a fixed-height
+     overflow:hidden shell). The old `height: calc(100dvh - navh); overflow:hidden`
+     locked the chart + table into one viewport, so the tall chart pushed the
+     table out of reach with no way to scroll. */
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 1.1rem;
-  overflow: hidden;
 }
 
 .lcp-header {
@@ -303,11 +309,8 @@
 .lcp-dd-item:hover { background: var(--hover-box); color: var(--text-main); }
 .lcp-dd-item.active { color: var(--accent); background: var(--hover-box); }
 
-/* Table */
+/* Table — flows naturally; the whole page scrolls (no inner scrollbar). */
 .lcp-table-wrap {
-  flex: 1 1 auto;
-  min-height: 0;
-  overflow-y: auto;
   border: 1px solid var(--border);
   border-radius: 12px;
   background: var(--surface);

@@ -473,7 +473,7 @@
 }
 
 .comp-diff-btn.active { opacity: 1; }
-.comp-diff-btn:hover { opacity: 1; border-color: var(--text-dim); }
+.comp-diff-btn:hover { opacity: 1; border-color: var(--accent); }
 
 .comp-diff-dot {
   width: 6px;
@@ -506,6 +506,19 @@
   transition: border-color var(--t), background var(--t);
 }
 .comp-problem-row:hover { border-color: var(--accent); }
+
+/* Phone: the 5-column grid overflows 390px. Reflow to a flex row — the name
+   flexes, the trailing chips wrap below instead of pushing off-screen. */
+@media (max-width: 700px) {
+  .comp-problem-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem 0.6rem;
+    grid-template-columns: none;
+  }
+  .comp-problem-row > :nth-child(2) { flex: 1 1 auto; min-width: 0; }
+}
 
 .comp-problem-num {
   font-family: var(--mono);

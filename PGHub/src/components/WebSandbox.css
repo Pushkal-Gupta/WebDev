@@ -107,7 +107,7 @@
   border-color: var(--accent);
 }
 .ws-sb-btn-primary:hover { opacity: 0.9; }
-.ws-sb-btn-ghost:hover { border-color: var(--text-dim); }
+.ws-sb-btn-ghost:hover { border-color: var(--accent); }
 
 .ws-sb-body {
   display: grid;

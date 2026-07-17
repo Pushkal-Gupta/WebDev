@@ -28,7 +28,7 @@
   z-index: 9001;
   transition: all var(--t);
 }
-.modalClose:hover { color: var(--text-main); border-color: var(--text-main); }
+.modalClose:hover { color: var(--accent); border-color: var(--accent); }
 
 .modalStack {
   display: flex;
@@ -280,7 +280,7 @@
   cursor: pointer;
   transition: background var(--t), border-color var(--t);
 }
-.socialBtn:hover { background: var(--hover-box); border-color: var(--text-dim); }
+.socialBtn:hover { background: var(--hover-box); border-color: var(--accent); }
 
 .footerCta {
   text-align: center;

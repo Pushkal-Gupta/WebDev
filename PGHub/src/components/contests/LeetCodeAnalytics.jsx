@@ -281,6 +281,7 @@ function fmtFinish(seconds) {
 
 function LcResultRow({ slug, username, onRemove, onResolve }) {
   const { data, isFetching } = useLcContestResult(slug, username);
+  const [timedOut, setTimedOut] = useState(false);
   const r = data?.row || { username };
   const rated = r.rated;
   const proj = (!rated && r.pending && r.rank)
@@ -295,12 +296,23 @@ function LcResultRow({ slug, username, onRemove, onResolve }) {
   const chg = rated ? r.change : (proj ? proj.delta : null);
   const up = (chg ?? 0) >= 0;
   const hasRank = rated || (r.pending && r.rank);
-  const loading = isFetching && !hasRank;
-  const notFound = !loading && !hasRank && r.found === false;
+  const loading = isFetching && !hasRank && !timedOut;
+  const notFound = !hasRank && !loading && (r.found === false || timedOut);
   const newRating = rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : null);
   const score = Number.isFinite(Number(r.score)) && r.score != null ? Number(r.score) : null;
   const finish = fmtFinish(r.finishTime ?? r.finishTimeSeconds);
   const oldRating = Number.isFinite(Number(r.oldRating)) && r.oldRating ? Math.round(r.oldRating) : null;
+
+  // A live ranking scan can hang — a handle that doesn't exist, or a slow Jina
+  // scan that never resolves. Cap the wait: after 25s with no rank, flip to
+  // "not found" so the row resolves and drops out of the comparison cleanly
+  // instead of spinning on "scanning…" forever. Real data still wins if it lands.
+  useEffect(() => {
+    if (hasRank) { setTimedOut(false); return undefined; }
+    if (!isFetching) return undefined;
+    const t = setTimeout(() => setTimedOut(true), 25000);
+    return () => clearTimeout(t);
+  }, [isFetching, hasRank]);
 
   // Lift each resolved row up so the head-to-head strip can read every handle's
   // real numbers. Report null on a confirmed miss so a removed/absent handle
@@ -572,7 +584,7 @@ function CompareBoard({ rows }) {
   );
 }
 
-export default function LeetCodeAnalytics() {
+export default function LeetCodeAnalytics({ slugOverride, embedded = false } = {}) {
   // ── Primary flow: look a handle up and read its LAST attended contest ──────
   const [userId, setUserId] = useState(null);
   const [draft, setDraft] = useState('');
@@ -742,7 +754,12 @@ export default function LeetCodeAnalytics() {
   // When reached from a contest's "Analytics" link the slug names the round
   // (e.g. "weekly-contest-507"); title-case it for the header so this page reads
   // as that contest's per-question breakdown, distinct from the predictor.
-  const { slug: contestSlug } = useParams();
+  const { slug: routeSlug } = useParams();
+  // Embedded on the hub home there's no route slug — default to the most recent
+  // weekly (every 7 days from the anchor), which is the contest the predictor is
+  // meant to open on.
+  const latestWeekly = LCA_WEEKLY_ANCHOR.n + Math.floor((nowMs - LCA_WEEKLY_ANCHOR.ms) / (7 * 24 * 60 * 60 * 1000));
+  const contestSlug = slugOverride || routeSlug || `weekly-contest-${latestWeekly}`;
   const contest = parseContestMeta(contestSlug);
 
   // ── Real per-user result rows for THIS contest (EntrantHub-style) ────────────
@@ -814,8 +831,8 @@ export default function LeetCodeAnalytics() {
   }, [resultUsers, resultData]);
 
   return (
-    <div className="lca-wrap">
-      {contest && (
+    <div className={`lca-wrap${embedded ? ' lca-embedded' : ''}`}>
+      {!embedded && contest && (
         <div className="lca-chero">
           <div className="lca-chero-main">
             <div className="lca-chero-badges">

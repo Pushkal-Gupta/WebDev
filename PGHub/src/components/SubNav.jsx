@@ -17,19 +17,22 @@ import './SubNav.css';
 // renders small + dim, the suffix gets the emphasis. PGVault consolidates the
 // old Review / Lists / Notes / Progress tabs into one hub (those routes stay
 // registered; the tab lights up anywhere under them).
+// Tab order locked by user (2026-07-17): Path · Code · Lab · Battle · Learn ·
+// Forge · Compete · Career · Arena · Vault. PGBattle is the head-to-head race
+// (was PGVersus, route /versus); PGCompete is the contest/LC aggregation hub
+// (was PGBattle, route /compete).
 const TABS = [
   { to: '/',             end: true, icon: Map,           brand: ['PG', 'Path'] },
   { to: '/practice',                icon: List,          brand: ['PG', 'Code'], prefetch: true },
-  { to: '/versus',                  icon: Zap,           brand: ['PG', 'Versus'], matches: ['/versus'] },
   { to: '/playground',              icon: Terminal,      brand: ['PG', 'Lab'] },
+  { to: '/versus',                  icon: Zap,           brand: ['PG', 'Battle'], matches: ['/versus'] },
   { to: '/learning',                icon: GraduationCap, brand: ['PG', 'Learn'],
     // PGLearn groups Tutorial + Concepts + Courses + Visualize, so light up the
     // tab anywhere under those routes too.
     matches: ['/learning', '/tutorial', '/learn', '/courses', '/visualize'] },
-  // PGForge sits right after PGLearn and before PGBattle, per user (2026-06-16).
   { to: '/ml',                      icon: Brain,         brand: ['PG', 'Forge'],
     matches: ['/ml'] },
-  { to: '/compete',                 icon: Swords,        brand: ['PG', 'Battle'],
+  { to: '/compete',                 icon: Swords,        brand: ['PG', 'Compete'],
     matches: ['/compete'] },
   { to: '/company',                 icon: Building2,     brand: ['PG', 'Career'] },
   { to: '/contests',                icon: Trophy,        brand: ['PG', 'Arena'] },

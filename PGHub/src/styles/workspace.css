@@ -972,7 +972,7 @@
 
 .ws-footer-btns { display: flex; gap: 0.6rem; flex-shrink: 0; align-items: center; }
 .ws-run-btn { padding: 0.65rem 1.8rem; border-radius: 6px; font-family: var(--sans); font-size: 0.92rem; font-weight: 600; line-height: 1.2; cursor: pointer; transition: all var(--t); background: none; border: 1px solid var(--border); color: var(--text-main); }
-.ws-run-btn:hover { border-color: var(--text-main); }
+.ws-run-btn:hover { border-color: var(--accent); }
 .ws-run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .ws-submit-btn { padding: 0.65rem 1.8rem; border-radius: 6px; font-family: var(--sans); font-size: 0.92rem; font-weight: 600; line-height: 1.2; cursor: pointer; transition: all var(--t); background: var(--easy); border: none; color: var(--bg); }
 .ws-submit-btn:hover { background: var(--easy-hover); }

@@ -135,7 +135,7 @@
   outline: none;
   transition: border-color var(--t);
 }
-.pg-pg-lang:hover { border-color: var(--text-dim); }
+.pg-pg-lang:hover { border-color: var(--accent); }
 .pg-pg-lang:focus { border-color: var(--accent); }
 
 .pg-pg-btn {
@@ -156,7 +156,7 @@
   background: var(--surface);
   color: var(--text-main);
 }
-.pg-pg-btn:hover { border-color: var(--text-dim); }
+.pg-pg-btn:hover { border-color: var(--accent); }
 .pg-pg-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .pg-pg-btn-primary {
