@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2 } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, pickRandomProblems, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { gradeOnServer } from '../../lib/codeRunner';
 import { generateTemplate } from '../../lib/driverCode';
+import VideoCall from './VideoCall';
 import '../../styles/versus.css';
 
 const MONACO_LANG = { python: 'python', javascript: 'javascript', java: 'java', cpp: 'cpp' };
@@ -28,20 +29,27 @@ export default function VersusMatch({ session }) {
   const [oppSolvedCount, setOppSolvedCount] = useState(0);
   const [oppTyping, setOppTyping] = useState(false);
   const [running, setRunning] = useState(false);
-  const [caseInfo, setCaseInfo] = useState(null);    // {passed,total} of last submit on current q
+  const [langOverride, setLangOverride] = useState(null);
+  const [caseInfo, setCaseInfo] = useState(null);    // {passed,total,ran?} of last run/submit on current q
   const [now, setNow] = useState(Date.now());
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [err, setErr] = useState('');
+  const [chat, setChat] = useState([]);          // in-match messages {mine,name,body}
+  const [chatDraft, setChatDraft] = useState('');
+  const [chatOpen, setChatOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
+  const chatEndRef = useRef(null);
 
   const chanRef = useRef(null);
   const typingTimer = useRef(null);
   const oppTypingTimer = useRef(null);
   const wonRef = useRef(false);
+  const startersRef = useRef({});
 
   const numQ = match?.num_questions || 1;
-  const myLang = (role === 'host' ? (match?.host_language || match?.language) : (match?.guest_language || match?.language)) || 'python';
+  const myLang = langOverride || (role === 'host' ? (match?.host_language || match?.language) : (match?.guest_language || match?.language)) || 'python';
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/versus/${code}`;
   const shareText = `Battle me on PGBattle — join with code ${code}: ${inviteUrl}`;
   const copyCode = () => { navigator.clipboard?.writeText(code); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1500); };
@@ -91,6 +99,11 @@ export default function VersusMatch({ session }) {
       if (role === 'host') refreshMatch();
     });
     ch.on('broadcast', { event: 'start' }, ({ payload }) => { if (payload.uid !== user.id) refreshMatch(); });
+    ch.on('broadcast', { event: 'chat' }, ({ payload }) => {
+      if (payload.uid === user.id) return;
+      setChat((c) => [...c, { mine: false, name: payload.name || 'Rival', body: payload.body }]);
+      setChatOpen((open) => { if (!open) setUnread((u) => u + 1); return open; });
+    });
     ch.on('broadcast', { event: 'win' }, ({ payload }) => {
       if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} finished every question first.` }); }
     });
@@ -117,6 +130,7 @@ export default function VersusMatch({ session }) {
       const ordered = ids.map((id) => data.find((d) => d.id === id)).filter(Boolean);
       const starters = {};
       ordered.forEach((p, i) => { starters[i] = generateTemplate(myLang, p.method_name, p.params, p.return_type) || ''; });
+      startersRef.current = starters;
       setProblems(ordered);
       setCodeByQ(starters);
     })();
@@ -150,12 +164,56 @@ export default function VersusMatch({ session }) {
     } catch (e) { setErr(`Could not start: ${e.message || e}`); setStarting(false); }
   };
 
+  const sendChat = (e) => {
+    e?.preventDefault();
+    const body = chatDraft.trim();
+    if (!body) return;
+    setChatDraft('');
+    setChat((c) => [...c, { mine: true, name: myName, body }]);
+    chanRef.current?.send({ type: 'broadcast', event: 'chat', payload: { uid: user.id, name: myName, body } });
+  };
+  useEffect(() => { if (chatEndRef.current) chatEndRef.current.scrollIntoView({ block: 'nearest' }); }, [chat, chatOpen]);
+  useEffect(() => { if (chatOpen) setUnread(0); }, [chatOpen]);
+
   const onCodeChange = (v) => {
     setCodeByQ((prev) => ({ ...prev, [qIndex]: v || '' }));
     if (chanRef.current) {
       clearTimeout(typingTimer.current);
       typingTimer.current = setTimeout(() => chanRef.current?.send({ type: 'broadcast', event: 'typing', payload: { uid: user.id } }), 120);
     }
+  };
+
+  const switchLang = async (l) => {
+    if (l === myLang || !problems.length) return;
+    const next = {};
+    problems.forEach((p, i) => { next[i] = generateTemplate(l, p.method_name, p.params, p.return_type) || ''; });
+    setCodeByQ((prev) => {
+      const merged = {};
+      problems.forEach((p, i) => {
+        const cur = prev[i];
+        const wasStarter = !cur || cur.trim() === '' || cur === startersRef.current[i];
+        merged[i] = wasStarter ? next[i] : cur;
+      });
+      return merged;
+    });
+    startersRef.current = next;
+    setCaseInfo(null);
+    setLangOverride(l);
+    try {
+      const m = await updateMatch(code, { [role === 'host' ? 'host_language' : 'guest_language']: l });
+      if (m) setMatch(m);
+    } catch { /* ignore — the override already drives the UI */ }
+  };
+
+  const run = async () => {
+    const prob = problems[qIndex];
+    if (!prob || running || result) return;
+    setRunning(true); setErr('');
+    try {
+      const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
+      setCaseInfo({ passed: res?.passed ?? 0, total: res?.total ?? 0, ran: true });
+    } catch (e) { setErr(e.message || 'Run failed'); }
+    setRunning(false);
   };
 
   const submit = async () => {
@@ -195,45 +253,70 @@ export default function VersusMatch({ session }) {
   if (match.status === 'waiting') {
     const rivalHere = oppPresent || (!!match.guest_id && match.guest_id !== user.id);
     const guestLang = match.guest_language || match.language;
+    const rivalLabel = rivalHere ? (match.guest_id && match.guest_id !== user.id && match.guest_name ? match.guest_name : oppName) : 'Waiting…';
     return (
       <div className="vs-page">
-        <div className="vs-room">
-          <h2 className="vs-room-title"><Swords size={20} /> Match {code}</h2>
-          <p className="vs-room-sub">{match.difficulty} · {numQ} question{numQ > 1 ? 's' : ''} · {Math.round(match.time_limit_sec / 60)} min</p>
-          <div className="vs-lobby-players">
-            <div className="vs-avatar you"><User /><span>{myName}</span><small>{role} · {myLang}</small></div>
-            <div className="vs-vs-badge">VS</div>
-            <div className={`vs-avatar foe ${rivalHere ? 'here' : ''}`}><User /><span>{rivalHere ? (match.guest_id && match.guest_id !== user.id && match.guest_name ? match.guest_name : oppName) : 'Waiting…'}</span><small>{rivalHere ? 'ready' : 'not joined'}</small></div>
+        <div className="vs-hero">
+          <h1 className="vs-title"><Swords className="vs-bolt" /> Match <span className="vs-code-inline">{code}</span></h1>
+          <p className="vs-sub">{rivalHere ? 'Your rival is here. Start when ready.' : 'Share the code below to bring your rival in.'}</p>
+        </div>
+
+        <div className="vs-grid">
+          {/* Left: players + config + start */}
+          <div className="vs-setup-card">
+            <div className="vs-vs">
+              <div className="vs-avatar you"><User /><span>{myName}</span><small>{role} · {myLang}</small></div>
+              <div className="vs-vs-badge">VS</div>
+              <div className={`vs-avatar foe ${rivalHere ? 'here' : ''}`}><User /><span>{rivalLabel}</span><small>{rivalHere ? 'ready' : 'not joined'}</small></div>
+            </div>
+            <div className="vs-divider" />
+            <div className="vs-room-chips">
+              <span className="vs-meta-chip">{match.difficulty}</span>
+              <span className="vs-meta-chip">{numQ} question{numQ > 1 ? 's' : ''}</span>
+              <span className="vs-meta-chip">{Math.round(match.time_limit_sec / 60)} min</span>
+              {match.powerup && match.powerup !== 'none' ? <span className="vs-meta-chip">{match.powerup}</span> : null}
+            </div>
+
+            {role === 'guest' && (
+              <div className="vs-row"><span className="vs-row-label"><Code2 size={13} /> Your code</span>
+                <div className="vs-chips">{LANGS.map((l) => (
+                  <button key={l} className={`vs-chip ${guestLang === l ? 'on' : ''}`}
+                    onClick={async () => { const m = await setGuestLanguage(code, l); if (m) setMatch(m); }}>{l}</button>
+                ))}</div>
+              </div>
+            )}
+
+            {role === 'host'
+              ? <button className="vs-primary" onClick={start} disabled={!rivalHere || starting}><Swords size={16} /> {starting ? 'Starting…' : rivalHere ? 'Start race' : 'Waiting for opponent…'}</button>
+              : <p className="vs-room-hint">Waiting for the host to start the race…</p>}
+            {err ? <p className="vs-err">{err}</p> : null}
           </div>
 
-          {role === 'guest' && (
-            <div className="vs-room-lang">
-              <span className="vs-row-label"><Code2 size={13} /> Your language</span>
-              <div className="vs-chips">{LANGS.map((l) => (
-                <button key={l} className={`vs-chip ${guestLang === l ? 'on' : ''}`}
-                  onClick={async () => { const m = await setGuestLanguage(code, l); if (m) setMatch(m); }}>{l}</button>
-              ))}</div>
+          {/* Right: invite */}
+          <div className="vs-side">
+            <div className="vs-record-card">
+              <div className="vs-record-head"><Swords size={15} /> Invite your rival</div>
+              <div className="vs-code-big">
+                <span className="vs-code-chars">{code}</span>
+                <button className="vs-code-copy" onClick={copyCode}>{codeCopied ? <Check size={14} /> : <Copy size={14} />} {codeCopied ? 'Copied' : 'Copy code'}</button>
+              </div>
+              <div className="vs-share-row">
+                <button className="vs-share-btn" onClick={copyLink}>{copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Link copied' : 'Copy link'}</button>
+                {typeof navigator !== 'undefined' && navigator.share ? <button className="vs-share-btn" onClick={nativeShare}><Share2 size={14} /> Share</button> : null}
+                <a className="vs-share-btn" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"><MessageSquare size={14} /> WhatsApp</a>
+                <a className="vs-share-btn" href={`mailto:?subject=${encodeURIComponent('Battle me on PGBattle')}&body=${encodeURIComponent(shareText)}`}><Mail size={14} /> Email</a>
+              </div>
+              <p className="vs-invite-hint">They enter the code on PGBattle or open the link. You can each code in a different language.</p>
             </div>
-          )}
-
-          <div className="vs-invite">
-            <span className="vs-invite-label">Invite your rival</span>
-            <div className="vs-code-big">
-              <span className="vs-code-chars">{code}</span>
-              <button className="vs-code-copy" onClick={copyCode}>{codeCopied ? <Check size={14} /> : <Copy size={14} />} {codeCopied ? 'Copied' : 'Copy code'}</button>
+            <div className="vs-how-card">
+              <div className="vs-how-head"><Swords size={14} /> How it works</div>
+              <div className="vs-feats">
+                <span><Eye size={14} /> See their tests pass live</span>
+                <span><MessageSquare size={14} /> Chat during the match</span>
+                <span><EyeOff size={14} /> Never see their code</span>
+              </div>
             </div>
-            <div className="vs-share-row">
-              <button className="vs-share-btn" onClick={copyLink}>{copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Link copied' : 'Copy link'}</button>
-              {typeof navigator !== 'undefined' && navigator.share ? <button className="vs-share-btn" onClick={nativeShare}><Share2 size={14} /> Share</button> : null}
-              <a className="vs-share-btn" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"><MessageSquare size={14} /> WhatsApp</a>
-              <a className="vs-share-btn" href={`mailto:?subject=${encodeURIComponent('Battle me on PGBattle')}&body=${encodeURIComponent(shareText)}`}><Mail size={14} /> Email</a>
-            </div>
-            <p className="vs-invite-hint">Your rival joins by entering the code on PGBattle, or by opening the link. You can each code in a different language.</p>
           </div>
-          {role === 'host'
-            ? <button className="vs-primary" onClick={start} disabled={!rivalHere}><Swords size={16} /> {rivalHere ? 'Start race' : 'Waiting for opponent…'}</button>
-            : <p className="vs-room-hint">Waiting for the host to start the race…</p>}
-          {err ? <p className="vs-err">{err}</p> : null}
         </div>
       </div>
     );
@@ -259,6 +342,9 @@ export default function VersusMatch({ session }) {
       <div className="vs-battle-bar">
         <button className="vs-back" onClick={() => nav('/versus')}><ArrowLeft size={15} /></button>
         <div className="vs-timer"><Clock size={15} /> {mm}:{ss}</div>
+        <button className={`vs-chat-toggle ${chatOpen ? 'on' : ''}`} onClick={() => setChatOpen((o) => !o)} title="Chat with your rival">
+          <MessageSquare size={15} />{unread > 0 && !chatOpen ? <span className="vs-chat-badge">{unread}</span> : null}
+        </button>
         {numQ > 1 && (
           <div className="vs-qtabs">
             {[...Array(numQ).keys()].map((i) => (
@@ -290,9 +376,19 @@ export default function VersusMatch({ session }) {
         </div>
         <div className="vs-editor">
           <div className="vs-editor-head">
-            <span>{myLang}</span>
+            <div className="vs-editor-head-left">
+              <span className="vs-code-label"><Code2 size={13} /> Code</span>
+              <div className="vs-lang-pills">
+                {LANGS.map((l) => (
+                  <button key={l} className={`vs-lang-pill ${l === myLang ? 'on' : ''}`} onClick={() => switchLang(l)}>{l}</button>
+                ))}
+              </div>
+            </div>
             <div className="vs-editor-head-right">
-              {caseInfo ? <span className="vs-case-info">{caseInfo.passed}/{caseInfo.total} tests</span> : null}
+              {caseInfo ? <span className="vs-case-info">{caseInfo.ran ? 'Ran: ' : ''}{caseInfo.passed}/{caseInfo.total} tests</span> : null}
+              <button className="vs-run ghost" onClick={run} disabled={running || !!result}>
+                <Play size={14} /> {running ? 'Running…' : 'Run'}
+              </button>
               <button className="vs-run" onClick={submit} disabled={running || !!result || mySolved.includes(qIndex)}>
                 {mySolved.includes(qIndex) ? <><Check size={14} /> Solved</> : running ? 'Running…' : <><Send size={14} /> Submit</>}
               </button>
@@ -305,6 +401,23 @@ export default function VersusMatch({ session }) {
           {err ? <p className="vs-err">{err}</p> : null}
         </div>
       </div>
+
+      <VideoCall code={code} userId={user.id} />
+
+      {chatOpen ? (
+        <div className="vs-chat">
+          <div className="vs-chat-head"><MessageSquare size={14} /> {oppName}<button className="vs-chat-x" onClick={() => setChatOpen(false)}>×</button></div>
+          <div className="vs-chat-body">
+            {chat.length === 0 ? <p className="vs-chat-empty">Say something to your rival…</p>
+              : chat.map((m, i) => <div key={i} className={`vs-chat-msg ${m.mine ? 'mine' : 'theirs'}`}>{m.body}</div>)}
+            <div ref={chatEndRef} />
+          </div>
+          <form className="vs-chat-compose" onSubmit={sendChat}>
+            <input value={chatDraft} onChange={(e) => setChatDraft(e.target.value)} placeholder="Message…" maxLength={500} />
+            <button type="submit" disabled={!chatDraft.trim()}><Send size={14} /></button>
+          </form>
+        </div>
+      ) : null}
 
       {result ? (
         <div className="vs-overlay">

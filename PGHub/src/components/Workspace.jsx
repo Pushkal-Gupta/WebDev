@@ -1571,12 +1571,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     {/* Complexity analysis panel */}
                     {runResult.isSubmission && runResult.status === 'accepted' && runResult.analysis && (() => {
                       const a = runResult.analysis;
-                      const Bar = ({ label, pct }) => (
-                        <div className="ws-an-metric">
-                          <div className="ws-an-metric-top"><span>{label}</span><span className="ws-an-beats">Beats <b>{pct}%</b></span></div>
-                          <div className="ws-an-bar"><div className="ws-an-bar-fill" style={{ width: pct + '%' }} /></div>
-                        </div>
-                      );
                       const Row = ({ label, mine, opt, ok }) => (
                         <div className="ws-an-crow">
                           <span className="ws-an-clabel">{label}</span>
@@ -1594,17 +1588,17 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                           <p className="ws-an-verdict">{a.verdict}</p>
                           {a.keyIdea ? <p className="ws-an-idea"><b>Key idea:</b> {a.keyIdea}</p> : null}
                           {a.hint ? <p className="ws-an-hint"><b>Consider:</b> {a.hint}</p> : null}
-                          <div className="ws-an-metrics">
-                            <Bar label="Runtime" pct={a.beatsRuntime} />
-                            <Bar label="Memory" pct={a.beatsMemory} />
+                          <div className="ws-beats-wrap">
+                            <BeatsDistribution pct={a.beatsRuntime} label="Runtime" value={a.runtimeMs ? `${a.runtimeMs} ms` : ''} hue="var(--hue-sky)" />
+                            <BeatsDistribution pct={a.beatsMemory} label="Memory" value="" hue="var(--hue-violet)" />
                           </div>
                           <div className="ws-an-complexity">
                             <Row label="Time" mine={a.user.time} opt={a.optimal.time} ok={a.timeGap === 0} />
                             <Row label="Space" mine={a.user.space} opt={a.optimal.space} ok={a.spaceGap === 0} />
                           </div>
                           <div className="ws-bigo-wrap">
-                            <BigOCurves title="Time complexity" active={a.user.time} uid="an-time" />
-                            <BigOCurves title="Space complexity" active={a.user.space} uid="an-space" />
+                            <BigOCurves title="Time complexity" active={a.user.time} optimal={a.optimal?.time} uid="an-time" />
+                            <BigOCurves title="Space complexity" active={a.user.space} optimal={a.optimal?.space} uid="an-space" />
                           </div>
                           {a.user.approach?.length ? (
                             <div className="ws-an-tags">
@@ -1810,31 +1804,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
 // (runtime/memory cards with histograms + source_code preview + notes editor).
 // ──────────────────────────────────────────────────────────────────────────
 
-function quantileBins(values, binCount = 6) {
-  if (!values.length) return [];
-  const sorted = [...values].sort((a, b) => a - b);
-  const min = sorted[0];
-  const max = sorted[sorted.length - 1];
-  if (min === max) {
-    return Array.from({ length: binCount }, (_, i) => ({
-      lo: min, hi: max, count: i === Math.floor(binCount / 2) ? values.length : 0,
-    }));
-  }
-  const step = (max - min) / binCount;
-  const bins = Array.from({ length: binCount }, (_, i) => ({
-    lo: min + step * i,
-    hi: min + step * (i + 1),
-    count: 0,
-  }));
-  for (const v of values) {
-    let idx = Math.floor((v - min) / step);
-    if (idx >= binCount) idx = binCount - 1;
-    if (idx < 0) idx = 0;
-    bins[idx].count += 1;
-  }
-  return bins;
-}
-
 function StatusBadge({ verdict }) {
   const map = {
     accepted: { label: 'Accepted', cls: 'ws-subdetail-badge-accepted' },
@@ -1846,21 +1815,38 @@ function StatusBadge({ verdict }) {
   return <span className={`ws-subdetail-badge ${v.cls}`}>{v.label}</span>;
 }
 
-function StatHistogram({ bins, activeBinIdx, label }) {
-  const maxCount = Math.max(1, ...bins.map(b => b.count));
+// LeetCode-style "beats" distribution. Renders a population density over the metric
+// (runtime or memory) as bars; the user sits at their percentile with a marker, and the
+// portion they beat is tinted. `pct` = percent of submissions this one beats.
+function BeatsDistribution({ pct, label, value, hue }) {
+  const N = 30;
+  const p = Math.max(0, Math.min(100, Number(pct) || 0));
+  const bars = [];
+  for (let i = 0; i < N; i++) {
+    const x = i / (N - 1);
+    // skewed bell — dense middle with a slow right tail, like real runtime spreads
+    const h = Math.exp(-Math.pow((x - 0.4) / 0.2, 2)) + 0.25 * Math.exp(-Math.pow((x - 0.72) / 0.16, 2));
+    bars.push(h);
+  }
+  const maxH = Math.max(...bars);
+  // "beats p%" → faster/lighter than p% → sits left; bars to the right are the ones beaten
+  const userIdx = Math.round((1 - p / 100) * (N - 1));
   return (
-    <div className="ws-subdetail-histogram" aria-label={`${label} distribution`}>
-      {bins.map((b, i) => {
-        const h = Math.max(8, Math.round((b.count / maxCount) * 100));
-        return (
+    <div className="ws-beats">
+      <div className="ws-beats-head">
+        <span className="ws-beats-label">{label}</span>
+        <span className="ws-beats-value">{value}</span>
+        <span className="ws-beats-pct" style={{ '--c': hue }}>Beats {p}%</span>
+      </div>
+      <div className="ws-beats-chart" style={{ '--c': hue }}>
+        {bars.map((h, i) => (
           <div
             key={i}
-            className={`ws-subdetail-hbar${i === activeBinIdx ? ' is-active' : ''}`}
-            style={{ height: `${h}%` }}
-            title={`${Math.round(b.lo)}–${Math.round(b.hi)}: ${b.count}`}
+            className={`ws-beats-bar${i >= userIdx ? ' beaten' : ''}${i === userIdx ? ' user' : ''}`}
+            style={{ height: `${Math.max(6, Math.round((h / maxH) * 100))}%` }}
           />
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
@@ -1884,11 +1870,14 @@ function bigoCurveKey(c) {
   return BIGO_CURVES.some(k => k.key === c) ? c : null;
 }
 
-function BigOCurves({ title, active, uid }) {
+function BigOCurves({ title, active, optimal, uid }) {
   const W = 300, H = 172, PL = 30, PR = 12, PT = 14, PB = 24;
   const plotW = W - PL - PR, plotH = H - PT - PB;
   const N = 30, XMAX = 10, ceiling = XMAX * 2.6;
   const activeKey = bigoCurveKey(active);
+  const optimalKey = bigoCurveKey(optimal);
+  const showOptimal = optimalKey && optimalKey !== activeKey;
+  const optimalCurve = showOptimal ? BIGO_CURVES.find(c => c.key === optimalKey) : null;
   const xAt = (n) => PL + (n / XMAX) * plotW;
   // No clamp: steep curves run off the top of the plot (clipped) rather than
   // riding the ceiling, so the highlighted curve visibly "explodes" upward.
@@ -1912,6 +1901,11 @@ function BigOCurves({ title, active, uid }) {
         <span className="ws-bigo-chip" style={{ '--c': activeCurve?.hue || 'var(--text-dim)' }}>
           {activeCurve?.label || 'N/A'}
         </span>
+        {showOptimal && (
+          <span className="ws-bigo-opt-chip" style={{ '--c': optimalCurve?.hue }}>
+            optimal {optimalCurve?.label}
+          </span>
+        )}
       </div>
       <svg className="ws-bigo-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${title} growth curves`}>
         <defs>
@@ -1945,14 +1939,23 @@ function BigOCurves({ title, active, uid }) {
               strokeWidth="3" strokeOpacity="0.55" filter={`url(#${gid}-glow)`}
               strokeLinecap="round" strokeLinejoin="round" />
           )}
+          {optimalCurve && (
+            <path d={pathFor(optimalCurve.fn)} fill="none" stroke={optimalCurve.hue}
+              strokeWidth="2.2" strokeOpacity="0.9" strokeDasharray="5 4"
+              strokeLinecap="round" strokeLinejoin="round" />
+          )}
         </g>
         {activeCurve && endOnScreen && (
           <circle cx={xAt(XMAX)} cy={yAt(activeCurve.fn(XMAX))} r="3.6" fill={activeCurve.hue} />
         )}
+        {optimalCurve && optimalCurve.fn(XMAX) <= ceiling && (
+          <circle cx={xAt(XMAX)} cy={yAt(optimalCurve.fn(XMAX))} r="3" fill="none"
+            stroke={optimalCurve.hue} strokeWidth="1.6" strokeDasharray="3 2" />
+        )}
       </svg>
       <div className="ws-bigo-legend">
         {BIGO_CURVES.map((c) => (
-          <span key={c.key} className={`ws-bigo-leg${c.key === activeKey ? ' is-active' : ''}`}
+          <span key={c.key} className={`ws-bigo-leg${c.key === activeKey ? ' is-active' : ''}${c.key === optimalKey && showOptimal ? ' is-optimal' : ''}`}
             style={{ '--c': c.hue }}>
             <span className="ws-bigo-leg-dot" />
             {c.label}
@@ -2052,15 +2055,6 @@ function SubmissionsTabContent({
     return local;
   }, [remoteSubmissions, submissions]);
 
-  const acceptedRuntimes = useMemo(
-    () => rows.filter(r => r.verdict === 'accepted' && typeof r.runtime_ms === 'number').map(r => r.runtime_ms),
-    [rows],
-  );
-  const acceptedMemories = useMemo(
-    () => rows.filter(r => r.verdict === 'accepted' && typeof r.memory_kb === 'number').map(r => r.memory_kb),
-    [rows],
-  );
-
   const selected = useMemo(
     () => rows.find(r => String(r.id) === String(selectedSubmissionId)) || null,
     [rows, selectedSubmissionId],
@@ -2071,6 +2065,17 @@ function SubmissionsTabContent({
     const method = activeProblem?.method_name || activeProblem?.methodName || '';
     return analyzeComplexity(selected.code, selected.language || 'python', method);
   }, [selected?.code, selected?.language, activeProblem]);
+
+  // Full LeetCode-style analysis for the persisted detail: user vs. the problem's
+  // canonical "optimal", the verdict, and the beats% used by the distribution graphs.
+  const selectedAnalysis = useMemo(() => {
+    if (!selected?.code || !selectedComplexity) return null;
+    const method = activeProblem?.method_name || activeProblem?.methodName || '';
+    const canon = activeProblem?.solutions?.python?.code || '';
+    const optimal = canon ? analyzeComplexity(canon, 'python', method) : selectedComplexity;
+    const cmp = compareToOptimal(selectedComplexity, optimal, selected.code);
+    return { user: selectedComplexity, optimal, ...cmp };
+  }, [selected?.code, selectedComplexity, activeProblem]);
 
   const staticStyle = useMemo(
     () => (selected?.code ? analyzeCodeStyle(selected.code, selected.language || 'python') : null),
@@ -2096,29 +2101,6 @@ function SubmissionsTabContent({
     setSubmissionCodeCopied(false);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected?.id]);
-
-  const beatsRuntime = useMemo(() => {
-    if (!selected || typeof selected.runtime_ms !== 'number' || !acceptedRuntimes.length) return null;
-    const slower = acceptedRuntimes.filter(v => v > selected.runtime_ms).length;
-    return Math.round((slower / acceptedRuntimes.length) * 100);
-  }, [selected, acceptedRuntimes]);
-
-  const beatsMemory = useMemo(() => {
-    if (!selected || typeof selected.memory_kb !== 'number' || !acceptedMemories.length) return null;
-    const more = acceptedMemories.filter(v => v > selected.memory_kb).length;
-    return Math.round((more / acceptedMemories.length) * 100);
-  }, [selected, acceptedMemories]);
-
-  const runtimeBins = useMemo(() => quantileBins(acceptedRuntimes, 6), [acceptedRuntimes]);
-  const memoryBins = useMemo(() => quantileBins(acceptedMemories, 6), [acceptedMemories]);
-
-  const findActiveBin = (bins, v) => {
-    if (typeof v !== 'number') return -1;
-    for (let i = 0; i < bins.length; i++) {
-      if (v >= bins[i].lo && v <= bins[i].hi) return i;
-    }
-    return -1;
-  };
 
   const loadSubmissionIntoEditor = (sub) => {
     if (sub.code) setCodeContent(sub.code);
@@ -2251,48 +2233,45 @@ function SubmissionsTabContent({
             </span>
           </div>
 
-          {selectedComplexity && (
-            <div className="ws-bigo-wrap">
-              <BigOCurves title="Time complexity" active={selectedComplexity.time} uid="time" />
-              <BigOCurves title="Space complexity" active={selectedComplexity.space} uid="space" />
+          {selectedAnalysis && (
+            <div className="ws-analysis">
+              <div className="ws-an-head">
+                <span className="ws-an-title">{selectedAnalysis.isOptimal ? 'Optimal solution' : 'Analysis'}</span>
+                <span className="ws-an-src">estimated</span>
+              </div>
+              <p className="ws-an-verdict">{selectedAnalysis.verdict}</p>
+              <div className="ws-an-complexity">
+                <div className="ws-an-crow">
+                  <span className="ws-an-clabel">Time</span>
+                  <span className={`ws-an-cval ${selectedAnalysis.timeGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.time}</span>
+                  <span className="ws-an-carrow">vs</span>
+                  <span className="ws-an-copt">{selectedAnalysis.optimal.time} <em>optimal</em></span>
+                </div>
+                <div className="ws-an-crow">
+                  <span className="ws-an-clabel">Space</span>
+                  <span className={`ws-an-cval ${selectedAnalysis.spaceGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.space}</span>
+                  <span className="ws-an-carrow">vs</span>
+                  <span className="ws-an-copt">{selectedAnalysis.optimal.space} <em>optimal</em></span>
+                </div>
+              </div>
             </div>
           )}
 
-          <div className="ws-subdetail-stats">
-            <div className="ws-subdetail-card">
-              <div className="ws-subdetail-card-head">
-                <span className="ws-subdetail-card-label">Runtime</span>
-                <span className="ws-subdetail-card-value">
-                  {typeof selected.runtime_ms === 'number' ? `${selected.runtime_ms} ms` : 'N/A'}
-                </span>
-              </div>
-              <div className="ws-subdetail-card-beats">
-                {beatsRuntime !== null ? `Beats ${beatsRuntime}%` : 'No comparison yet'}
-              </div>
-              <StatHistogram
-                bins={runtimeBins}
-                activeBinIdx={findActiveBin(runtimeBins, selected.runtime_ms)}
-                label="Runtime"
-              />
+          {selectedComplexity && (
+            <div className="ws-bigo-wrap">
+              <BigOCurves title="Time complexity" active={selectedComplexity.time} optimal={selectedAnalysis?.optimal?.time} uid="time" />
+              <BigOCurves title="Space complexity" active={selectedComplexity.space} optimal={selectedAnalysis?.optimal?.space} uid="space" />
             </div>
+          )}
 
-            <div className="ws-subdetail-card">
-              <div className="ws-subdetail-card-head">
-                <span className="ws-subdetail-card-label">Memory</span>
-                <span className="ws-subdetail-card-value">
-                  {typeof selected.memory_kb === 'number' ? `${(selected.memory_kb / 1024).toFixed(1)} MB` : 'N/A'}
-                </span>
-              </div>
-              <div className="ws-subdetail-card-beats">
-                {beatsMemory !== null ? `Beats ${beatsMemory}%` : 'No comparison yet'}
-              </div>
-              <StatHistogram
-                bins={memoryBins}
-                activeBinIdx={findActiveBin(memoryBins, selected.memory_kb)}
-                label="Memory"
-              />
+          {selectedAnalysis && (
+            <div className="ws-beats-wrap">
+              <BeatsDistribution pct={selectedAnalysis.beatsRuntime} label="Runtime"
+                value={typeof selected.runtime_ms === 'number' ? `${selected.runtime_ms} ms` : ''} hue="var(--hue-sky)" />
+              <BeatsDistribution pct={selectedAnalysis.beatsMemory} label="Memory"
+                value={typeof selected.memory_kb === 'number' ? `${(selected.memory_kb / 1024).toFixed(1)} MB` : ''} hue="var(--hue-violet)" />
             </div>
-          </div>
+          )}
 
           <div className="ws-subdetail-code">
             <div className="ws-subdetail-code-head">
