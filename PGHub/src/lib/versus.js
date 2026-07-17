@@ -19,12 +19,21 @@ export const POWERUPS = [
   { id: 'freeze',  label: 'Cold Open',  icon: 'Snowflake',desc: 'Your rival starts 15 seconds after you do.' },
 ];
 
-export async function createMatch({ difficulty = 'Any', language = 'python', timeLimit = 1500, powerup = 'none', hostId, hostName }) {
+export async function createMatch({ difficulty = 'Any', language = 'python', timeLimit = 1500, powerup = 'none', numQuestions = 1, topic = null, hostId, hostName }) {
   const id = genCode();
   const { data, error } = await supabase.from('PGcode_versus_matches').insert({
-    id, status: 'waiting', difficulty, language, time_limit_sec: timeLimit, powerup,
+    id, status: 'waiting', difficulty, language, host_language: language, time_limit_sec: timeLimit, powerup,
+    num_questions: Math.max(1, Math.min(4, numQuestions)), topic,
     host_id: hostId, host_name: hostName || 'Host',
   }).select().single();
+  if (error) throw error;
+  return data;
+}
+
+// Guest picks their OWN language when they join — the two players can code in different langs.
+export async function setGuestLanguage(code, language) {
+  const { data, error } = await supabase.from('PGcode_versus_matches')
+    .update({ guest_language: language }).eq('id', code).select().maybeSingle();
   if (error) throw error;
   return data;
 }
@@ -54,17 +63,24 @@ export async function updateMatch(code, patch) {
 
 // Pick a random gradeable problem (has method_name + >=3 test cases) of the difficulty.
 export async function pickRandomProblem(difficulty) {
+  const ids = await pickRandomProblems(difficulty, 1);
+  return ids[0] || null;
+}
+
+// Pick N DISTINCT gradeable problems of the difficulty (for multi-question races).
+export async function pickRandomProblems(difficulty, n = 1) {
   let q = supabase.from('PGcode_problems')
     .select('id, name, difficulty, method_name, test_cases')
     .not('method_name', 'is', null)
-    .limit(400);
+    .limit(600);
   if (difficulty && difficulty !== 'Any') q = q.eq('difficulty', difficulty);
   const { data, error } = await q;
   if (error) throw error;
   const pool = (data || []).filter((p) => Array.isArray(p.test_cases) && p.test_cases.length >= 3);
-  if (!pool.length) return null;
-  const pick = pool[Math.floor(Math.random() * pool.length)];
-  return pick.id;
+  if (!pool.length) return [];
+  // shuffle (Fisher-Yates) and take n distinct
+  for (let i = pool.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  return pool.slice(0, Math.max(1, n)).map((p) => p.id);
 }
 
 // A player's head-to-head record — finished matches they hosted or joined, split into

@@ -84,6 +84,39 @@ export async function removeFriend(rowId) {
   if (error) throw error;
 }
 
+// ── Direct messages (persisted history + live broadcast) ──
+export async function getThread(userId, friendId, limit = 60) {
+  if (!userId || !friendId) return [];
+  const { data, error } = await supabase.from('PGcode_dm')
+    .select('id, sender_id, recipient_id, body, created_at')
+    .or(`and(sender_id.eq.${userId},recipient_id.eq.${friendId}),and(sender_id.eq.${friendId},recipient_id.eq.${userId})`)
+    .order('created_at', { ascending: true })
+    .limit(limit);
+  if (error) throw error;
+  return (data || []).map((m) => ({ id: m.id, mine: m.sender_id === userId, body: m.body, at: m.created_at }));
+}
+
+// Persist the message, then ping the recipient's channel so an open thread updates live.
+export async function sendMessage(userId, friendId, body, fromName) {
+  const text = (body || '').trim();
+  if (!userId || !friendId || !text) return null;
+  const { data, error } = await supabase.from('PGcode_dm')
+    .insert({ sender_id: userId, recipient_id: friendId, body: text.slice(0, 2000) })
+    .select('id, created_at').single();
+  if (error) throw error;
+  const ch = supabase.channel(`dm:${friendId}`, { config: { broadcast: { self: false } } });
+  await new Promise((resolve) => {
+    ch.subscribe((status) => { if (status === 'SUBSCRIBED') ch.send({ type: 'broadcast', event: 'dm', payload: { from: userId, fromName, body: text } }).then(resolve).catch(resolve); });
+    setTimeout(resolve, 2000);
+  });
+  setTimeout(() => supabase.removeChannel(ch), 700);
+  return { id: data.id, mine: true, body: text, at: data.created_at };
+}
+
+export function dmChannel(userId) {
+  return supabase.channel(`dm:${userId}`, { config: { broadcast: { self: false } } });
+}
+
 // ── Direct challenges (ephemeral broadcast on the recipient's personal channel) ──
 export function challengeChannel(userId) {
   return supabase.channel(`challenge:${userId}`, { config: { broadcast: { self: false } } });

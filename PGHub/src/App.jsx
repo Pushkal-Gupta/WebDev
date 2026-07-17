@@ -181,6 +181,9 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
   const location = useLocation();
   const queryClient = useQueryClient();
   const isWorkspace = location.pathname.startsWith('/category') || location.pathname.startsWith('/solution');
+  // an active PGBattle match (/versus/:code) is an immersive full-screen view — hide the SubNav
+  const isMatch = /^\/versus\/[^/]+$/.test(location.pathname);
+  const hideSubNav = isWorkspace || isMatch;
   const { data: profile } = useProfile(session?.user?.id);
 
   useEffect(() => {
@@ -254,8 +257,8 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
         setPreferredLang={setPreferredLang}
         preferredLang={profile?.preferred_lang || 'python'}
       />
-      {!isWorkspace && <SubNav userId={session?.user?.id} />}
-      {!isWorkspace && <MobileBottomNav />}
+      {!hideSubNav && <SubNav userId={session?.user?.id} />}
+      {!hideSubNav && <MobileBottomNav />}
       <CommandPalette />
       {session && <ChallengeToast session={session} />}
       <Suspense fallback={<RouteFallback />}>

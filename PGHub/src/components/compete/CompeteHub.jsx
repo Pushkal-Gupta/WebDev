@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Swords, UserSearch, CalendarRange, LineChart, Code2,
+  Medal, UserSearch, CalendarRange, LineChart, Code2,
   GitBranch, ListOrdered, Gauge, ArrowRight, ArrowLeft, Trophy, Brain, Cpu, BookOpen,
 } from 'lucide-react';
 import CompeteHubThumb from './CompeteHubThumbs';
@@ -197,7 +197,7 @@ export default function CompeteHub() {
   return (
     <div className="compete-hub">
       <header className="compete-hero">
-        <h1 className="compete-title"><Swords size={26} /> <span className="compete-pg">PG</span>Compete</h1>
+        <h1 className="compete-title"><Medal size={26} /> <span className="compete-pg">PG</span>Compete</h1>
         <p className="compete-sub">
           Look up any coder, track every contest across the judges, predict your rating, and jump to the next round, hackathon, or conference.
         </p>

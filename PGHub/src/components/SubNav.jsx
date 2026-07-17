@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Map, List, Terminal, Building2, Trophy, Swords, Zap,
+  Map, List, Terminal, Building2, Trophy, Swords, Medal,
   GraduationCap, Brain, Vault,
 } from 'lucide-react';
 import { usePrefetch } from '../lib/queries';
@@ -25,14 +25,14 @@ const TABS = [
   { to: '/',             end: true, icon: Map,           brand: ['PG', 'Path'] },
   { to: '/practice',                icon: List,          brand: ['PG', 'Code'], prefetch: true },
   { to: '/playground',              icon: Terminal,      brand: ['PG', 'Lab'] },
-  { to: '/versus',                  icon: Zap,           brand: ['PG', 'Battle'], matches: ['/versus'] },
+  { to: '/versus',                  icon: Swords,        brand: ['PG', 'Battle'], matches: ['/versus'] },
   { to: '/learning',                icon: GraduationCap, brand: ['PG', 'Learn'],
     // PGLearn groups Tutorial + Concepts + Courses + Visualize, so light up the
     // tab anywhere under those routes too.
     matches: ['/learning', '/tutorial', '/learn', '/courses', '/visualize'] },
   { to: '/ml',                      icon: Brain,         brand: ['PG', 'Forge'],
     matches: ['/ml'] },
-  { to: '/compete',                 icon: Swords,        brand: ['PG', 'Compete'],
+  { to: '/compete',                 icon: Medal,         brand: ['PG', 'Compete'],
     matches: ['/compete'] },
   { to: '/company',                 icon: Building2,     brand: ['PG', 'Career'] },
   { to: '/contests',                icon: Trophy,        brand: ['PG', 'Arena'] },

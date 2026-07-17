@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { getMatch, joinMatch, updateMatch, pickRandomProblem, matchChannel } from '../../lib/versus';
+import { getMatch, joinMatch, updateMatch, pickRandomProblems, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { gradeOnServer } from '../../lib/codeRunner';
 import { generateTemplate } from '../../lib/driverCode';
 import '../../styles/versus.css';
 
 const MONACO_LANG = { python: 'python', javascript: 'javascript', java: 'java', cpp: 'cpp' };
+const LANGS = ['python', 'javascript', 'java', 'cpp'];
 
 export default function VersusMatch({ session }) {
   const { code } = useParams();
@@ -17,17 +18,19 @@ export default function VersusMatch({ session }) {
   const myName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'You';
 
   const [match, setMatch] = useState(null);
-  const [problem, setProblem] = useState(null);
-  const [role, setRole] = useState(null);          // 'host' | 'guest'
+  const [problems, setProblems] = useState([]);      // [{id,name,description,difficulty,...}]
+  const [qIndex, setQIndex] = useState(0);
+  const [codeByQ, setCodeByQ] = useState({});        // qIndex -> code text
+  const [role, setRole] = useState(null);            // 'host' | 'guest'
   const [oppPresent, setOppPresent] = useState(false);
   const [oppName, setOppName] = useState('Opponent');
-  const [codeText, setCodeText] = useState('');
-  const [myProg, setMyProg] = useState({ passed: 0, total: 0 });
-  const [oppProg, setOppProg] = useState({ passed: 0, total: 0 });
+  const [mySolved, setMySolved] = useState([]);      // solved question indices
+  const [oppSolvedCount, setOppSolvedCount] = useState(0);
   const [oppTyping, setOppTyping] = useState(false);
   const [running, setRunning] = useState(false);
+  const [caseInfo, setCaseInfo] = useState(null);    // {passed,total} of last submit on current q
   const [now, setNow] = useState(Date.now());
-  const [result, setResult] = useState(null);       // { win: bool, reason }
+  const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [err, setErr] = useState('');
@@ -37,6 +40,8 @@ export default function VersusMatch({ session }) {
   const oppTypingTimer = useRef(null);
   const wonRef = useRef(false);
 
+  const numQ = match?.num_questions || 1;
+  const myLang = (role === 'host' ? (match?.host_language || match?.language) : (match?.guest_language || match?.language)) || 'python';
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/versus/${code}`;
   const shareText = `Battle me on PGBattle — join with code ${code}: ${inviteUrl}`;
   const copyCode = () => { navigator.clipboard?.writeText(code); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1500); };
@@ -60,6 +65,8 @@ export default function VersusMatch({ session }) {
     return () => { cancelled = true; };
   }, [code, user, myName]);
 
+  const refreshMatch = useCallback(async () => { const m = await getMatch(code); if (m) setMatch(m); }, [code]);
+
   // realtime channel: presence + broadcast
   useEffect(() => {
     if (!role || !user) return;
@@ -71,7 +78,7 @@ export default function VersusMatch({ session }) {
       setOppPresent(others.length > 0);
       if (others[0]?.name) setOppName(others[0].name);
     });
-    ch.on('broadcast', { event: 'progress' }, ({ payload }) => { if (payload.uid !== user.id) setOppProg({ passed: payload.passed, total: payload.total }); });
+    ch.on('broadcast', { event: 'progress' }, ({ payload }) => { if (payload.uid !== user.id) setOppSolvedCount(payload.solved || 0); });
     ch.on('broadcast', { event: 'typing' }, ({ payload }) => {
       if (payload.uid === user.id) return;
       setOppTyping(true);
@@ -80,46 +87,42 @@ export default function VersusMatch({ session }) {
     });
     ch.on('broadcast', { event: 'joined' }, ({ payload }) => {
       if (payload.uid === user.id) return;
-      setOppPresent(true);
-      if (payload.name) setOppName(payload.name);
-      if (role === 'host') refreshMatch();     // pull the freshly-claimed guest_id/name
+      setOppPresent(true); if (payload.name) setOppName(payload.name);
+      if (role === 'host') refreshMatch();
     });
     ch.on('broadcast', { event: 'start' }, ({ payload }) => { if (payload.uid !== user.id) refreshMatch(); });
     ch.on('broadcast', { event: 'win' }, ({ payload }) => {
-      if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} passed every test first.` }); }
+      if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} finished every question first.` }); }
     });
     ch.subscribe((status) => {
       if (status !== 'SUBSCRIBED') return;
       ch.track({ uid: user.id, name: myName, role });
-      // announce ourselves so the other side updates even if a presence sync is missed
       ch.send({ type: 'broadcast', event: 'joined', payload: { uid: user.id, name: myName, role } });
     });
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, user, code]);
 
-  const refreshMatch = useCallback(async () => { const m = await getMatch(code); if (m) setMatch(m); }, [code]);
-
-  // when the match becomes active, load the problem + starter template
+  // when active, load all problems + per-question starter templates in MY language
   useEffect(() => {
-    if (!match || match.status !== 'active' || !match.problem_id || problem) return;
+    if (!match || match.status !== 'active' || problems.length) return;
+    const ids = Array.isArray(match.problem_ids) && match.problem_ids.length ? match.problem_ids : (match.problem_id ? [match.problem_id] : []);
+    if (!ids.length) return;
     (async () => {
-      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases').eq('id', match.problem_id).single();
+      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases').in('id', ids);
       if (!data) return;
-      setProblem(data);
-      const total = (data.test_cases || []).length;
-      setMyProg({ passed: 0, total });
-      setOppProg({ passed: 0, total });
-      const starter = generateTemplate(match.language, data.method_name, data.params, data.return_type) || '';
-      setCodeText(starter);
+      const ordered = ids.map((id) => data.find((d) => d.id === id)).filter(Boolean);
+      setProblems(ordered);
+      const starters = {};
+      ordered.forEach((p, i) => { starters[i] = generateTemplate(myLang, p.method_name, p.params, p.return_type) || ''; });
+      setCodeByQ(starters);
     })();
-  }, [match, problem]);
+  }, [match, problems.length, myLang]);
 
   // shared countdown tick
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, []);
 
-  // fallback poll for missed realtime signals: host waits for a guest to claim the
-  // slot; guest waits for the host to flip the match to active.
+  // fallback poll for missed realtime signals
   useEffect(() => {
     if (!match || match.status !== 'waiting') return;
     const needsPoll = (role === 'host' && !match.guest_id) || role === 'guest';
@@ -128,22 +131,21 @@ export default function VersusMatch({ session }) {
     return () => clearInterval(t);
   }, [role, match, refreshMatch]);
 
-  // host starts the match: pick a problem, flip to active, broadcast
+  // host starts: pick N problems, flip to active, broadcast
   const start = async () => {
     if (role !== 'host') return;
     setErr('');
     try {
-      const pid = await pickRandomProblem(match.difficulty);
-      if (!pid) { setErr('No gradeable problem found for that difficulty.'); return; }
-      const { count } = await supabase.from('PGcode_problems').select('test_cases').eq('id', pid).single().then((r) => ({ count: (r.data?.test_cases || []).length }));
-      const m = await updateMatch(code, { problem_id: pid, status: 'active', started_at: new Date().toISOString(), host_total: count, guest_total: count });
+      const ids = await pickRandomProblems(match.difficulty, numQ);
+      if (!ids.length) { setErr('No gradeable problem found for that difficulty.'); return; }
+      const m = await updateMatch(code, { problem_ids: ids, problem_id: ids[0], status: 'active', started_at: new Date().toISOString() });
       setMatch(m);
       chanRef.current?.send({ type: 'broadcast', event: 'start', payload: { uid: user.id } });
     } catch (e) { setErr(e.message || 'Could not start'); }
   };
 
   const onCodeChange = (v) => {
-    setCodeText(v || '');
+    setCodeByQ((prev) => ({ ...prev, [qIndex]: v || '' }));
     if (chanRef.current) {
       clearTimeout(typingTimer.current);
       typingTimer.current = setTimeout(() => chanRef.current?.send({ type: 'broadcast', event: 'typing', payload: { uid: user.id } }), 120);
@@ -151,19 +153,29 @@ export default function VersusMatch({ session }) {
   };
 
   const submit = async () => {
-    if (!problem || running || result) return;
-    setRunning(true);
+    const prob = problems[qIndex];
+    if (!prob || running || result) return;
+    setRunning(true); setErr('');
     try {
-      const res = await gradeOnServer(problem.id, match.language, codeText);
-      const passed = res?.passed ?? 0, total = res?.total ?? myProg.total;
-      setMyProg({ passed, total });
-      chanRef.current?.send({ type: 'broadcast', event: 'progress', payload: { uid: user.id, passed, total } });
-      if (total > 0 && passed === total && !wonRef.current) {
-        wonRef.current = true;
-        setResult({ win: true, reason: 'You passed every test first!' });
-        const elapsed = match.started_at ? Date.now() - new Date(match.started_at).getTime() : 0;
-        await updateMatch(code, { status: 'finished', winner: role, winner_id: user.id, finished_at: new Date().toISOString(), [`${role}_passed`]: passed });
-        chanRef.current?.send({ type: 'broadcast', event: 'win', payload: { uid: user.id, name: myName, ms: elapsed } });
+      const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
+      const passed = res?.passed ?? 0, total = res?.total ?? 0;
+      setCaseInfo({ passed, total });
+      if (total > 0 && passed === total && !mySolved.includes(qIndex)) {
+        const solved = [...mySolved, qIndex];
+        setMySolved(solved);
+        const col = role === 'host' ? 'host_solved' : 'guest_solved';
+        updateMatch(code, { [col]: solved }).catch(() => {});
+        chanRef.current?.send({ type: 'broadcast', event: 'progress', payload: { uid: user.id, solved: solved.length } });
+        if (solved.length >= numQ && !wonRef.current) {
+          wonRef.current = true;
+          setResult({ win: true, reason: `You finished all ${numQ} question${numQ > 1 ? 's' : ''} first!` });
+          await updateMatch(code, { status: 'finished', winner: role, winner_id: user.id, finished_at: new Date().toISOString() });
+          chanRef.current?.send({ type: 'broadcast', event: 'win', payload: { uid: user.id, name: myName } });
+        } else {
+          // auto-advance to the next unsolved question
+          const next = [...Array(numQ).keys()].find((i) => !solved.includes(i));
+          if (next != null) setQIndex(next);
+        }
       }
     } catch (e) { setErr(e.message || 'Grading failed'); }
     setRunning(false);
@@ -176,16 +188,28 @@ export default function VersusMatch({ session }) {
   // ── Waiting room ──
   if (match.status === 'waiting') {
     const rivalHere = oppPresent || (!!match.guest_id && match.guest_id !== user.id);
+    const guestLang = match.guest_language || match.language;
     return (
       <div className="vs-page">
         <div className="vs-room">
-          <h2 className="vs-room-title"><Zap className="vs-bolt" /> Match {code}</h2>
-          <p className="vs-room-sub">{match.difficulty} · {Math.round(match.time_limit_sec / 60)} min · {match.language}</p>
+          <h2 className="vs-room-title"><Swords size={20} /> Match {code}</h2>
+          <p className="vs-room-sub">{match.difficulty} · {numQ} question{numQ > 1 ? 's' : ''} · {Math.round(match.time_limit_sec / 60)} min</p>
           <div className="vs-lobby-players">
-            <div className="vs-avatar you"><User /><span>{myName}</span><small>{role}</small></div>
+            <div className="vs-avatar you"><User /><span>{myName}</span><small>{role} · {myLang}</small></div>
             <div className="vs-vs-badge">VS</div>
             <div className={`vs-avatar foe ${rivalHere ? 'here' : ''}`}><User /><span>{rivalHere ? (match.guest_id && match.guest_id !== user.id && match.guest_name ? match.guest_name : oppName) : 'Waiting…'}</span><small>{rivalHere ? 'ready' : 'not joined'}</small></div>
           </div>
+
+          {role === 'guest' && (
+            <div className="vs-room-lang">
+              <span className="vs-row-label"><Code2 size={13} /> Your language</span>
+              <div className="vs-chips">{LANGS.map((l) => (
+                <button key={l} className={`vs-chip ${guestLang === l ? 'on' : ''}`}
+                  onClick={async () => { const m = await setGuestLanguage(code, l); if (m) setMatch(m); }}>{l}</button>
+              ))}</div>
+            </div>
+          )}
+
           <div className="vs-invite">
             <span className="vs-invite-label">Invite your rival</span>
             <div className="vs-code-big">
@@ -198,7 +222,7 @@ export default function VersusMatch({ session }) {
               <a className="vs-share-btn" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"><MessageSquare size={14} /> WhatsApp</a>
               <a className="vs-share-btn" href={`mailto:?subject=${encodeURIComponent('Battle me on PGBattle')}&body=${encodeURIComponent(shareText)}`}><Mail size={14} /> Email</a>
             </div>
-            <p className="vs-invite-hint">Your rival joins by entering the code on PGBattle, or by opening the link.</p>
+            <p className="vs-invite-hint">Your rival joins by entering the code on PGBattle, or by opening the link. You can each code in a different language.</p>
           </div>
           {role === 'host'
             ? <button className="vs-primary" onClick={start} disabled={!rivalHere}><Swords size={16} /> {rivalHere ? 'Start race' : 'Waiting for opponent…'}</button>
@@ -213,13 +237,15 @@ export default function VersusMatch({ session }) {
   const started = match.started_at ? new Date(match.started_at).getTime() : now;
   const remain = Math.max(0, match.time_limit_sec - Math.floor((now - started) / 1000));
   const mm = String(Math.floor(remain / 60)).padStart(2, '0'), ss = String(remain % 60).padStart(2, '0');
-  const pct = (p) => (p.total ? Math.round((p.passed / p.total) * 100) : 0);
-  const showExact = match.powerup === 'radar';
+  const myCount = mySolved.length;
+  const pctMe = numQ ? Math.round((myCount / numQ) * 100) : 0;
+  const pctOpp = numQ ? Math.round((oppSolvedCount / numQ) * 100) : 0;
+  const prob = problems[qIndex];
   // time-out resolution
   if (remain === 0 && !result && !wonRef.current) {
     wonRef.current = true;
-    const win = myProg.passed > oppProg.passed;
-    setResult({ win, reason: win ? 'Time up — you passed more tests.' : (myProg.passed === oppProg.passed ? "Time up — it's a draw." : 'Time up — your rival passed more tests.') });
+    const win = myCount > oppSolvedCount;
+    setResult({ win, reason: win ? 'Time up — you solved more.' : (myCount === oppSolvedCount ? "Time up — it's a draw." : 'Time up — your rival solved more.') });
   }
 
   return (
@@ -227,33 +253,47 @@ export default function VersusMatch({ session }) {
       <div className="vs-battle-bar">
         <button className="vs-back" onClick={() => nav('/versus')}><ArrowLeft size={15} /></button>
         <div className="vs-timer"><Clock size={15} /> {mm}:{ss}</div>
+        {numQ > 1 && (
+          <div className="vs-qtabs">
+            {[...Array(numQ).keys()].map((i) => (
+              <button key={i} className={`vs-qtab ${i === qIndex ? 'on' : ''} ${mySolved.includes(i) ? 'solved' : ''}`} onClick={() => setQIndex(i)}>
+                {mySolved.includes(i) ? <Check size={12} /> : `Q${i + 1}`}
+              </button>
+            ))}
+          </div>
+        )}
         <div className="vs-battle-players">
           <div className="vs-bp me">
             <span className="vs-bp-name"><User size={13} /> {myName}</span>
-            <div className="vs-bp-bar"><div className="vs-bp-fill me" style={{ width: pct(myProg) + '%' }} /></div>
-            <span className="vs-bp-count">{myProg.passed}/{myProg.total}</span>
+            <div className="vs-bp-bar"><div className="vs-bp-fill me" style={{ width: pctMe + '%' }} /></div>
+            <span className="vs-bp-count">{myCount}/{numQ}</span>
           </div>
           <Swords size={16} className="vs-bp-swords" />
           <div className="vs-bp foe">
             <span className="vs-bp-name">{oppTyping ? <em className="vs-typing">typing…</em> : <><User size={13} /> {oppName}</>}</span>
-            <div className="vs-bp-bar"><div className="vs-bp-fill foe" style={{ width: pct(oppProg) + '%' }} /></div>
-            <span className="vs-bp-count">{showExact ? `${oppProg.passed}/${oppProg.total}` : `${pct(oppProg)}%`}</span>
+            <div className="vs-bp-bar"><div className="vs-bp-fill foe" style={{ width: pctOpp + '%' }} /></div>
+            <span className="vs-bp-count">{oppSolvedCount}/{numQ}</span>
           </div>
         </div>
       </div>
 
       <div className="vs-battle-main">
         <div className="vs-prob">
-          <h3>{problem?.name || 'Loading…'} <span className={`vs-diff ${(problem?.difficulty || '').toLowerCase()}`}>{problem?.difficulty}</span></h3>
-          <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: problem?.description || '' }} />
+          <h3>{prob ? `${numQ > 1 ? `Q${qIndex + 1}. ` : ''}${prob.name}` : 'Loading…'} {prob ? <span className={`vs-diff ${(prob.difficulty || '').toLowerCase()}`}>{prob.difficulty}</span> : null}</h3>
+          <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: prob?.description || '' }} />
         </div>
         <div className="vs-editor">
           <div className="vs-editor-head">
-            <span>{match.language}</span>
-            <button className="vs-run" onClick={submit} disabled={running || !!result}>{running ? <>Running…</> : <><Send size={14} /> Submit</>}</button>
+            <span>{myLang}</span>
+            <div className="vs-editor-head-right">
+              {caseInfo ? <span className="vs-case-info">{caseInfo.passed}/{caseInfo.total} tests</span> : null}
+              <button className="vs-run" onClick={submit} disabled={running || !!result || mySolved.includes(qIndex)}>
+                {mySolved.includes(qIndex) ? <><Check size={14} /> Solved</> : running ? 'Running…' : <><Send size={14} /> Submit</>}
+              </button>
+            </div>
           </div>
           <div className="vs-editor-body">
-            <Editor height="100%" language={MONACO_LANG[match.language] || 'python'} theme="vs-dark" value={codeText} onChange={onCodeChange}
+            <Editor height="100%" language={MONACO_LANG[myLang] || 'python'} theme="vs-dark" value={codeByQ[qIndex] || ''} onChange={onCodeChange}
               options={{ minimap: { enabled: false }, fontSize: 13, scrollBeyondLastLine: false, automaticLayout: true }} />
           </div>
           {err ? <p className="vs-err">{err}</p> : null}
@@ -269,16 +309,16 @@ export default function VersusMatch({ session }) {
             <div className="vs-result-bars">
               <div className="vs-rb">
                 <span className="vs-rb-label"><User size={12} /> {myName}</span>
-                <div className="vs-rb-track"><div className="vs-bp-fill me" style={{ width: pct(myProg) + '%' }} /></div>
-                <span className="vs-rb-count">{myProg.passed}/{myProg.total}</span>
+                <div className="vs-rb-track"><div className="vs-bp-fill me" style={{ width: pctMe + '%' }} /></div>
+                <span className="vs-rb-count">{myCount}/{numQ}</span>
               </div>
               <div className="vs-rb">
                 <span className="vs-rb-label"><User size={12} /> {oppName}</span>
-                <div className="vs-rb-track"><div className="vs-bp-fill foe" style={{ width: pct(oppProg) + '%' }} /></div>
-                <span className="vs-rb-count">{oppProg.passed}/{oppProg.total}</span>
+                <div className="vs-rb-track"><div className="vs-bp-fill foe" style={{ width: pctOpp + '%' }} /></div>
+                <span className="vs-rb-count">{oppSolvedCount}/{numQ}</span>
               </div>
             </div>
-            <div className="vs-result-meta"><Clock size={13} /> {mm}:{ss} left · <span className="vs-diff-inline">{match.difficulty}</span> · {match.language}</div>
+            <div className="vs-result-meta"><Clock size={13} /> {mm}:{ss} left · <span className="vs-diff-inline">{match.difficulty}</span> · {myLang}</div>
             <div className="vs-result-actions">
               <button className="vs-secondary" onClick={() => nav('/versus')}><ArrowLeft size={14} /> Lobby</button>
               <button className="vs-primary" onClick={() => nav('/versus')}><Zap size={15} /> New race</button>

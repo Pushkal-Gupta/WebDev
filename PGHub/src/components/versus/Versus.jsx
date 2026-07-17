@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash } from 'lucide-react';
+import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks } from 'lucide-react';
 import { createMatch, getMyRecord, POWERUPS } from '../../lib/versus';
 import { sendChallenge } from '../../lib/friends';
 import FriendsPanel from './FriendsPanel';
@@ -25,6 +25,7 @@ export default function Versus({ session }) {
   const [difficulty, setDifficulty] = useState('Any');
   const [time, setTime] = useState(900);
   const [language, setLanguage] = useState('python');
+  const [numQuestions, setNumQuestions] = useState(1);
   const [powerup, setPowerup] = useState('none');
   const [joinCode, setJoinCode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -46,7 +47,7 @@ export default function Versus({ session }) {
     if (!user) return;
     setBusy(true); setErr('');
     try {
-      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, hostId: user.id, hostName: name });
+      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, hostId: user.id, hostName: name });
       nav(`/versus/${m.id}`);
     } catch (e) { setErr(e.message || 'Could not create match'); setBusy(false); }
   };
@@ -58,8 +59,8 @@ export default function Versus({ session }) {
     if (!user || challengingId) return;
     setChallengingId(friend.id); setErr('');
     try {
-      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, hostId: user.id, hostName: name });
-      await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time });
+      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, hostId: user.id, hostName: name });
+      await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time, numQuestions });
       nav(`/versus/${m.id}`);
     } catch (e) { setErr(e.message || 'Could not send challenge'); setChallengingId(null); }
   };
@@ -69,9 +70,8 @@ export default function Versus({ session }) {
   return (
     <div className="vs-page">
       <div className="vs-hero">
-        <span className="vs-beta">BETA</span>
         <h1 className="vs-title"><Zap className="vs-bolt" /> <span className="vs-title-pg">PG</span>Battle</h1>
-        <p className="vs-sub">Race a rival on one interview problem in real time. Their bar climbs as their tests pass — first to green wins. You never see their code.</p>
+        <p className="vs-sub">Race a rival on real interview problems in real time. Their bar climbs as their tests pass — first to green wins. You never see their code.</p>
       </div>
 
       <div className="vs-grid">
@@ -90,7 +90,10 @@ export default function Versus({ session }) {
           <div className="vs-row"><span className="vs-row-label"><Clock size={13} /> Time</span>
             <div className="vs-chips">{TIMES.map((t) => <button key={t.v} className={`vs-chip ${time === t.v ? 'on' : ''}`} onClick={() => setTime(t.v)}>{t.label}</button>)}</div>
           </div>
-          <div className="vs-row"><span className="vs-row-label"><Code2 size={13} /> Language</span>
+          <div className="vs-row"><span className="vs-row-label"><ListChecks size={13} /> Questions</span>
+            <div className="vs-chips">{[1, 2, 3, 4].map((n) => <button key={n} className={`vs-chip ${numQuestions === n ? 'on' : ''}`} onClick={() => setNumQuestions(n)}>{n}{n === 1 ? ' question' : ''}</button>)}</div>
+          </div>
+          <div className="vs-row"><span className="vs-row-label"><Code2 size={13} /> Your code</span>
             <div className="vs-chips">{LANGS.map((l) => <button key={l} className={`vs-chip ${language === l ? 'on' : ''}`} onClick={() => setLanguage(l)}>{l}</button>)}</div>
           </div>
 

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Users, Search, UserPlus, Check, X, Swords, Clock3 } from 'lucide-react';
-import { searchUsers, getFriends, getIncomingRequests, getOutgoingRequests, sendFriendRequest, respondFriendRequest } from '../../lib/friends';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Users, Search, UserPlus, Check, X, Swords, Clock3, MessageSquare, Send, ArrowLeft } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { searchUsers, getFriends, getIncomingRequests, getOutgoingRequests, sendFriendRequest, respondFriendRequest, getThread, sendMessage, dmChannel } from '../../lib/friends';
 
 function Avatar({ name, url }) {
   if (url) return <img className="vs-fr-av" src={url} alt="" />;
@@ -15,6 +16,11 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
   const [q, setQ] = useState('');
   const [results, setResults] = useState(null);
   const [searching, setSearching] = useState(false);
+  const [thread, setThread] = useState(null);     // open friend { id, name }
+  const [messages, setMessages] = useState([]);
+  const [draft, setDraft] = useState('');
+  const myName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'You';
+  const scrollRef = useRef(null);
 
   const reload = useCallback(() => {
     if (!user) return;
@@ -24,6 +30,31 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
   }, [user]);
 
   useEffect(() => { reload(); }, [reload]);
+
+  // open thread: load history + subscribe to live incoming from this friend
+  useEffect(() => {
+    if (!thread || !user) return;
+    let live = true;
+    getThread(user.id, thread.id).then((m) => { if (live) setMessages(m); }).catch(() => {});
+    const ch = dmChannel(user.id);
+    ch.on('broadcast', { event: 'dm' }, ({ payload }) => {
+      if (payload?.from === thread.id) setMessages((prev) => [...prev, { id: `r${Date.now()}`, mine: false, body: payload.body, at: new Date().toISOString() }]);
+    });
+    ch.subscribe();
+    return () => { live = false; supabase.removeChannel(ch); };
+  }, [thread, user]);
+
+  useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages]);
+
+  const send = async (e) => {
+    e?.preventDefault();
+    const body = draft.trim();
+    if (!body || !thread) return;
+    setDraft('');
+    const optimistic = { id: `o${Date.now()}`, mine: true, body, at: new Date().toISOString() };
+    setMessages((m) => [...m, optimistic]);
+    try { await sendMessage(user.id, thread.id, body, myName); } catch { /* keep optimistic */ }
+  };
 
   const runSearch = async (e) => {
     e?.preventDefault();
@@ -43,6 +74,27 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
   };
 
   const friendIds = new Set(friends.map((f) => f.id));
+
+  if (thread) {
+    return (
+      <div className="vs-friends-card">
+        <div className="vs-fr-thread-head">
+          <button className="vs-fr-back" onClick={() => { setThread(null); setMessages([]); }}><ArrowLeft size={15} /></button>
+          <Avatar name={thread.name} url={thread.avatar} />
+          <span className="vs-fr-name">{thread.name}</span>
+          <button className="vs-fr-btn challenge" disabled={!!challengingId} onClick={() => onChallenge(thread)}><Swords size={13} /> Challenge</button>
+        </div>
+        <div className="vs-fr-msgs" ref={scrollRef}>
+          {messages.length === 0 ? <p className="vs-fr-empty">Say hi, then challenge them to a battle.</p>
+            : messages.map((m) => <div key={m.id} className={`vs-fr-msg ${m.mine ? 'mine' : 'theirs'}`}>{m.body}</div>)}
+        </div>
+        <form className="vs-fr-compose" onSubmit={send}>
+          <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${thread.name}`} maxLength={2000} />
+          <button type="submit" disabled={!draft.trim()}><Send size={15} /></button>
+        </form>
+      </div>
+    );
+  }
 
   return (
     <div className="vs-friends-card">
@@ -89,6 +141,7 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
               <div key={f.id} className="vs-fr-row">
                 <Avatar name={f.name} url={f.avatar} />
                 <span className="vs-fr-name">{f.name}</span>
+                <button className="vs-fr-icon msg" title={`Message ${f.name}`} onClick={() => setThread(f)}><MessageSquare size={14} /></button>
                 <button className="vs-fr-btn challenge" disabled={!!challengingId} onClick={() => onChallenge(f)}>
                   <Swords size={13} /> {challengingId === f.id ? '…' : 'Challenge'}
                 </button>

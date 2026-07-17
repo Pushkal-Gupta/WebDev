@@ -1597,6 +1597,10 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                             <Row label="Time" mine={a.user.time} opt={a.optimal.time} ok={a.timeGap === 0} />
                             <Row label="Space" mine={a.user.space} opt={a.optimal.space} ok={a.spaceGap === 0} />
                           </div>
+                          <div className="ws-bigo-wrap">
+                            <BigOCurves title="Time complexity" active={a.user.time} uid="an-time" />
+                            <BigOCurves title="Space complexity" active={a.user.space} uid="an-space" />
+                          </div>
                           {a.user.approach?.length ? (
                             <div className="ws-an-tags">
                               {a.user.approach.map((t, i) => <span key={i} className="ws-an-tag">{t}</span>)}
@@ -1855,6 +1859,104 @@ function StatHistogram({ bins, activeBinIdx, label }) {
   );
 }
 
+// Classic Big-O growth curves. Plots the canonical complexity classes on a shared
+// axis (input size vs. operations) and highlights the one matching this submission's
+// estimated complexity — the recognizable "how fast does it grow" picture.
+const BIGO_CURVES = [
+  { key: 'O(1)',       label: 'O(1)',       hue: 'var(--easy)',        fn: () => 1 },
+  { key: 'O(log n)',   label: 'O(log n)',   hue: 'var(--hue-mint)',    fn: (n) => Math.log2(n + 1) },
+  { key: 'O(n)',       label: 'O(n)',       hue: 'var(--hue-sky)',     fn: (n) => n },
+  { key: 'O(n log n)', label: 'O(n log n)', hue: 'var(--hue-violet)',  fn: (n) => n * Math.log2(n + 1) },
+  { key: 'O(n^2)',     label: 'O(n²)',      hue: 'var(--medium)',      fn: (n) => n * n },
+  { key: 'O(2^n)',     label: 'O(2ⁿ)',      hue: 'var(--hard)',        fn: (n) => Math.pow(2, n) },
+];
+
+function bigoCurveKey(c) {
+  if (!c) return null;
+  if (c === 'O(n^3)') return 'O(n^2)';
+  if (c === 'O(n!)') return 'O(2^n)';
+  return BIGO_CURVES.some(k => k.key === c) ? c : null;
+}
+
+function BigOCurves({ title, active, uid }) {
+  const W = 300, H = 172, PL = 30, PR = 12, PT = 14, PB = 24;
+  const plotW = W - PL - PR, plotH = H - PT - PB;
+  const N = 30, XMAX = 10, ceiling = XMAX * 2.6;
+  const activeKey = bigoCurveKey(active);
+  const xAt = (n) => PL + (n / XMAX) * plotW;
+  // No clamp: steep curves run off the top of the plot (clipped) rather than
+  // riding the ceiling, so the highlighted curve visibly "explodes" upward.
+  const yAt = (v) => PT + plotH - (v / ceiling) * plotH;
+  const pathFor = (fn) => {
+    let d = '';
+    for (let i = 0; i <= N; i++) {
+      const n = (i / N) * XMAX;
+      d += (i === 0 ? 'M' : 'L') + xAt(n).toFixed(1) + ' ' + yAt(fn(n)).toFixed(1) + ' ';
+    }
+    return d.trim();
+  };
+  const activeCurve = BIGO_CURVES.find(c => c.key === activeKey) || null;
+  const endOnScreen = activeCurve ? activeCurve.fn(XMAX) <= ceiling : false;
+  const gid = `bigo-${uid}`;
+
+  return (
+    <div className="ws-bigo">
+      <div className="ws-bigo-head">
+        <span className="ws-bigo-title">{title}</span>
+        <span className="ws-bigo-chip" style={{ '--c': activeCurve?.hue || 'var(--text-dim)' }}>
+          {activeCurve?.label || 'N/A'}
+        </span>
+      </div>
+      <svg className="ws-bigo-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label={`${title} growth curves`}>
+        <defs>
+          <filter id={`${gid}-glow`} x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="2.6" />
+          </filter>
+          <clipPath id={`${gid}-clip`}>
+            <rect x={PL} y={PT - 2} width={plotW + PR} height={plotH + 2} />
+          </clipPath>
+        </defs>
+        {[0.25, 0.5, 0.75, 1].map((f, i) => (
+          <line key={i} x1={PL} y1={PT + plotH - f * plotH} x2={PL + plotW} y2={PT + plotH - f * plotH}
+            className="ws-bigo-grid" />
+        ))}
+        <line x1={PL} y1={PT} x2={PL} y2={PT + plotH} className="ws-bigo-axis" />
+        <line x1={PL} y1={PT + plotH} x2={PL + plotW} y2={PT + plotH} className="ws-bigo-axis" />
+        <text x={PL - 4} y={PT + 4} className="ws-bigo-axtext" textAnchor="end">ops</text>
+        <text x={PL + plotW} y={PT + plotH + 16} className="ws-bigo-axtext" textAnchor="end">n →</text>
+        <g clipPath={`url(#${gid}-clip)`}>
+          {BIGO_CURVES.map((c) => {
+            const isActive = c.key === activeKey;
+            return (
+              <path key={c.key} d={pathFor(c.fn)} fill="none" stroke={c.hue}
+                strokeWidth={isActive ? 2.8 : 1.4}
+                strokeOpacity={activeKey ? (isActive ? 1 : 0.22) : 0.7}
+                strokeLinecap="round" strokeLinejoin="round" />
+            );
+          })}
+          {activeCurve && (
+            <path d={pathFor(activeCurve.fn)} fill="none" stroke={activeCurve.hue}
+              strokeWidth="3" strokeOpacity="0.55" filter={`url(#${gid}-glow)`}
+              strokeLinecap="round" strokeLinejoin="round" />
+          )}
+        </g>
+        {activeCurve && endOnScreen && (
+          <circle cx={xAt(XMAX)} cy={yAt(activeCurve.fn(XMAX))} r="3.6" fill={activeCurve.hue} />
+        )}
+      </svg>
+      <div className="ws-bigo-legend">
+        {BIGO_CURVES.map((c) => (
+          <span key={c.key} className={`ws-bigo-leg${c.key === activeKey ? ' is-active' : ''}`}
+            style={{ '--c': c.hue }}>
+            <span className="ws-bigo-leg-dot" />
+            {c.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function SubmissionsTabContent({
   session, userId, userProgress, activeProblem, activeLang, onLangChange,
   saveProgress, setCodeContent, setRunResult,
@@ -1917,6 +2019,12 @@ function SubmissionsTabContent({
     () => rows.find(r => String(r.id) === String(selectedSubmissionId)) || null,
     [rows, selectedSubmissionId],
   );
+
+  const selectedComplexity = useMemo(() => {
+    if (!selected?.code) return null;
+    const method = activeProblem?.method_name || activeProblem?.methodName || '';
+    return analyzeComplexity(selected.code, selected.language || 'python', method);
+  }, [selected?.code, selected?.language, activeProblem]);
 
   // Sync the notes draft when the selected row changes.
   useEffect(() => {
@@ -2080,6 +2188,13 @@ function SubmissionsTabContent({
               {new Date(selected.date).toLocaleString()}
             </span>
           </div>
+
+          {selectedComplexity && (
+            <div className="ws-bigo-wrap">
+              <BigOCurves title="Time complexity" active={selectedComplexity.time} uid="time" />
+              <BigOCurves title="Space complexity" active={selectedComplexity.space} uid="space" />
+            </div>
+          )}
 
           <div className="ws-subdetail-stats">
             <div className="ws-subdetail-card">
