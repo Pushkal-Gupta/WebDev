@@ -34,22 +34,46 @@
   white-space: nowrap;
 }
 
-.forge-pd-grid {
+/* Resizable split: left (problem) · draggable divider · right (editor). The whole
+   route scrolls as the page; panes size to content, never scroll internally. */
+.forge-pd-main {
   flex: 1 1 auto;
   min-height: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.1rem;
+  display: flex;
   align-items: stretch;
 }
 
-/* LEFT — problem description */
+/* LEFT — problem description. Width driven inline (the split %); floored so it
+   never collapses below readable width. */
 .forge-pd-left {
+  flex: 0 0 auto;
+  width: 50%;
   min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
 }
+
+/* Draggable gutter — mirrors the DSA Workspace divider. A hit-area wider than the
+   1px line keeps the grab forgiving. */
+.forge-pd-divider {
+  flex: 0 0 auto;
+  align-self: stretch;
+  width: 1px;
+  margin: 0 0.55rem;
+  background: var(--border);
+  position: relative;
+  cursor: col-resize;
+  touch-action: none;
+}
+.forge-pd-divider::after {
+  content: '';
+  position: absolute;
+  inset: 0 -6px;
+  cursor: col-resize;
+}
+.forge-pd-divider:hover,
+.forge-pd-divider:active { background: var(--pd-hue); }
 
 /* ---- LIGHT HEADER (matches Workspace .ws-q-head) ---- */
 .forge-pd-header {
@@ -421,10 +445,121 @@
 .forge-pd-testlist-arrow { color: var(--pd-hue); display: inline-flex; }
 .forge-pd-testlist-out { color: var(--text-main); font-weight: 700; }
 
+/* ---- CUSTOM TEST CASE EDITOR (Testcase-tab, max 8) ---- */
+.forge-pd-custom {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+}
+.forge-pd-custom-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+}
+.forge-pd-custom-head svg { color: var(--pd-hue); }
+.forge-pd-custom-count {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--pd-hue);
+  background: color-mix(in srgb, var(--pd-hue) 12%, transparent);
+  border-radius: 999px;
+  padding: 0.08rem 0.45rem;
+  letter-spacing: 0;
+}
+.forge-pd-custom-note {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.76rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.forge-pd-custom-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+.forge-pd-custom-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0.4rem;
+}
+.forge-pd-custom-fields {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.forge-pd-custom-in {
+  width: 100%;
+  min-width: 0;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  color: var(--text-main);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 0.4rem 0.55rem;
+  transition: border-color var(--t);
+}
+.forge-pd-custom-in::placeholder { color: var(--text-dim); }
+.forge-pd-custom-in:focus {
+  outline: none;
+  border-color: var(--pd-hue);
+}
+.forge-pd-custom-del {
+  flex: 0 0 auto;
+  align-self: stretch;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color var(--t), border-color var(--t), background var(--t);
+}
+.forge-pd-custom-del:hover {
+  color: var(--hard);
+  border-color: var(--hard);
+  background: var(--hard-bg);
+}
+.forge-pd-custom-add {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: var(--pd-hue);
+  background: color-mix(in srgb, var(--pd-hue) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pd-hue) 40%, transparent);
+  border-radius: 8px;
+  padding: 0.4rem 0.7rem;
+  cursor: pointer;
+  transition: background var(--t);
+}
+.forge-pd-custom-add:hover { background: color-mix(in srgb, var(--pd-hue) 18%, transparent); }
+
 /* RIGHT — editor + results + output. Sizes to content (the page itself scrolls);
    no fixed height so a long results list never clips or needs an inner scrollbar. */
 .forge-pd-right {
-  align-self: start;
+  flex: 1 1 0;
+  min-width: 0;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
   border: 1px solid var(--border);
@@ -462,6 +597,97 @@
 }
 .forge-pd-summary.is-all { color: var(--easy); background: var(--easy-bg); }
 .forge-pd-summary.is-some { color: var(--warning); background: rgba(var(--accent-rgb), 0.12); }
+
+/* ---- PRE-SUBMISSION PROMPT (results hidden until Run/Submit) ---- */
+.forge-pd-prelude {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.9rem 0.4rem;
+}
+.forge-pd-prelude-ic { flex-shrink: 0; color: var(--pd-hue); }
+.forge-pd-prelude-copy { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+.forge-pd-prelude-title {
+  font-family: var(--sans);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+.forge-pd-prelude-sub {
+  font-family: var(--sans);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+/* ---- ANALYSIS (revealed only after a run/submit) ---- */
+.forge-pd-analysis {
+  margin-bottom: 0.6rem;
+  padding: 0.6rem 0.7rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.forge-pd-analysis-head {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+}
+.forge-pd-analysis-head svg { color: var(--pd-hue); }
+.forge-pd-mode {
+  margin-left: auto;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.08rem 0.5rem;
+  border-radius: 999px;
+}
+.forge-pd-mode.is-full { color: var(--pd-hue); background: color-mix(in srgb, var(--pd-hue) 14%, transparent); }
+.forge-pd-mode.is-sample { color: var(--text-dim); background: var(--hover-box); }
+.forge-pd-bar {
+  display: flex;
+  height: 0.55rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--hover-box);
+}
+.forge-pd-bar-seg { display: block; min-width: 3px; }
+.forge-pd-bar-seg.is-pass { background: var(--easy); }
+.forge-pd-bar-seg.is-fail { background: var(--hard); }
+.forge-pd-bar-seg.is-error { background: var(--warning); }
+.forge-pd-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.forge-pd-leg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: var(--sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-dim);
+}
+.forge-pd-leg i {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.forge-pd-leg.is-pass i { background: var(--easy); }
+.forge-pd-leg.is-fail i { background: var(--hard); }
+.forge-pd-leg.is-error i { background: var(--warning); }
 
 /* ---- SOLVE / RESULT BANNER ---- */
 .forge-pd-banner {
@@ -525,6 +751,7 @@
 .forge-pd-v-pass { border-left-color: var(--easy); }
 .forge-pd-v-fail { border-left-color: var(--hard); }
 .forge-pd-v-error { border-left-color: var(--warning); }
+.forge-pd-v-info { border-left-color: var(--hue-sky); }
 .forge-pd-v-skipped { border-left-color: var(--text-dim); }
 
 .forge-pd-vtest-top { display: flex; align-items: center; gap: 0.4rem; min-width: 0; }
@@ -532,6 +759,7 @@
 .forge-pd-v-pass .forge-pd-vtest-ic { color: var(--easy); }
 .forge-pd-v-fail .forge-pd-vtest-ic { color: var(--hard); }
 .forge-pd-v-error .forge-pd-vtest-ic { color: var(--warning); }
+.forge-pd-v-info .forge-pd-vtest-ic { color: var(--hue-sky); }
 .forge-pd-v-skipped .forge-pd-vtest-ic { color: var(--text-dim); }
 .forge-pd-vtest-in {
   font-family: var(--mono);
@@ -539,6 +767,19 @@
   color: var(--text-main);
   word-break: break-word;
   min-width: 0;
+  flex: 1 1 auto;
+}
+.forge-pd-vtest-tag {
+  flex-shrink: 0;
+  font-family: var(--mono);
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--pd-hue);
+  background: color-mix(in srgb, var(--pd-hue) 12%, transparent);
+  border-radius: 999px;
+  padding: 0.08rem 0.4rem;
 }
 .forge-pd-vtest-row { display: flex; gap: 0.5rem; align-items: baseline; min-width: 0; padding-left: 1.15rem; }
 .forge-pd-vtest-k {
@@ -644,7 +885,10 @@
 .forge-pd-test-exp { color: var(--text-main); font-weight: 600; word-break: break-word; }
 
 @media (max-width: 880px) {
-  .forge-pd-grid { grid-template-columns: 1fr; }
+  .forge-pd-main { flex-direction: column; gap: 1.1rem; }
+  .forge-pd-left,
+  .forge-pd-right { flex: 0 0 auto; width: 100% !important; align-self: stretch; }
+  .forge-pd-divider { display: none; }
   .forge-pd-right { min-height: 0; }
   .forge-pd-editor { height: clamp(280px, 48vh, 520px); }
   .forge-pd-title { font-size: 1.45rem; }

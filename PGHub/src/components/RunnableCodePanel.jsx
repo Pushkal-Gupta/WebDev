@@ -61,8 +61,10 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
   minLines = 3,
   maxFontSize = 13,
   storageKey,
+  onRun,
   onSubmit,
   submitLabel = 'Submit',
+  busy = false,
   onLanguageChange,
   runPreamble = '',
   getRunPrefix,
@@ -128,6 +130,8 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
   const dirty = buffers[activeLang] !== undefined && buffers[activeLang] !== seed;
   const monacoLang = LANG_MAP[activeLang]?.monaco || 'plaintext';
   const canRun = runnable && !!LANG_MAP[activeLang]?.harness;
+  // `busy` lets a host page that owns grading disable/spinner the buttons.
+  const isBusy = running || busy;
 
   // Auto-size inline editors to their REAL rendered content height (reported by
   // Monaco), so word-wrapped long lines never get clipped behind a hidden inline
@@ -166,7 +170,11 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
   }, [activeLang, storageKey]);
 
   const handleRun = useCallback(async () => {
-    if (running || !canRun) return;
+    if (running || busy) return;
+    // When the host page owns grading (e.g. the problem page's sample check), hand
+    // the buffer off and let it drive results — skip the panel's own free execution.
+    if (onRun) { onRun(value, activeLang); return; }
+    if (!canRun) return;
     setRunning(true);
     setResult(null);
     const t0 = performance.now();
@@ -193,7 +201,7 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
     } finally {
       setRunning(false);
     }
-  }, [running, canRun, value, activeLang, runPreamble, getRunPrefix]);
+  }, [running, busy, onRun, canRun, value, activeLang, runPreamble, getRunPrefix]);
 
   const handleSubmit = useCallback(() => {
     onSubmit?.(value, activeLang);
@@ -232,18 +240,18 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
         {title && <span className="rcp-title">{title}</span>}
         <div className="rcp-actions">
           {dirty && (
-            <button type="button" className="rcp-btn" onClick={handleReset} disabled={running} title="Restore original">
+            <button type="button" className="rcp-btn" onClick={handleReset} disabled={isBusy} title="Restore original">
               <RotateCcw size={13} /><span>Reset</span>
             </button>
           )}
-          {canRun && (
-            <button type="button" className="rcp-btn rcp-btn-run" onClick={handleRun} disabled={running} title="Run">
-              {running ? <Loader2 size={13} className="rcp-spin" /> : <Play size={13} />}
-              <span>{running ? 'Running' : 'Run'}</span>
+          {(canRun || onRun) && (
+            <button type="button" className="rcp-btn rcp-btn-run" onClick={handleRun} disabled={isBusy} title="Run">
+              {isBusy ? <Loader2 size={13} className="rcp-spin" /> : <Play size={13} />}
+              <span>{isBusy ? 'Running' : 'Run'}</span>
             </button>
           )}
           {onSubmit && (
-            <button type="button" className="rcp-btn rcp-btn-submit" onClick={handleSubmit} disabled={running} title={submitLabel}>
+            <button type="button" className="rcp-btn rcp-btn-submit" onClick={handleSubmit} disabled={isBusy} title={submitLabel}>
               <Send size={13} /><span>{submitLabel}</span>
             </button>
           )}

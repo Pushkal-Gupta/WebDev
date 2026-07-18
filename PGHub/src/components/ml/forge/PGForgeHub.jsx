@@ -44,6 +44,15 @@ const PILLAR_CARDS = [
     desc: 'Quick-reference cheat sheets — NumPy, PyTorch, CUDA, Triton, and ML interviews.' },
 ];
 
+// Quick-jump chips under the hero stats — a compact set of on-topic entry points
+// so the left column reads full alongside the tall loss-surface card.
+const HERO_JUMP = [
+  { to: '/forge/learn',    icon: BookOpen,   label: 'Transformers' },
+  { to: '/forge/papers',   icon: FileText,   label: 'Attention paper' },
+  { to: '/forge/cuda',     icon: Cpu,        label: 'CUDA kernels' },
+  { to: '/forge/problems', icon: ListChecks, label: 'Optimizers' },
+];
+
 // A 3D loss surface with gradient descent rolling into the valley — projected to
 // SVG (no external 3D dep). Height-coloured mesh (cool valleys, warm peaks) via
 // theme hue tokens; a glowing marker follows −∇L downhill, smoothly interpolated
@@ -85,6 +94,8 @@ function LossSurfaceViz() {
     ball: `lossBall-${uid}`,
     glow: `lossGlow-${uid}`,
     trail: `lossTrail-${uid}`,
+    vignette: `lossVig-${uid}`,
+    sky: `lossSky-${uid}`,
   };
 
   // The mesh + projection are fixed (don't depend on the controls).
@@ -268,8 +279,21 @@ function LossSurfaceViz() {
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
+          {/* cinematic backdrop — a soft sky wash up top, a dark vignette hugging the edges */}
+          <linearGradient id={ids.sky} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="color-mix(in srgb, var(--hue-violet) 26%, var(--bg))" />
+            <stop offset="52%" stopColor="var(--bg)" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--hue-sky) 12%, var(--bg))" />
+          </linearGradient>
+          <radialGradient id={ids.vignette} cx="50%" cy="42%" r="72%">
+            <stop offset="0%" stopColor="var(--bg)" stopOpacity="0" />
+            <stop offset="72%" stopColor="var(--bg)" stopOpacity="0" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--text-main) 34%, transparent)" stopOpacity="0.5" />
+          </radialGradient>
         </defs>
-        <g>
+        <rect x="0" y="0" width="320" height="200" fill={`url(#${ids.sky})`} />
+        <g className={reduce ? undefined : 'forge-hero-scene'} style={{ transformOrigin: '160px 118px' }}>
+          <g>
           {cells.map((cell, i) => (
             <polygon
               key={i}
@@ -282,23 +306,34 @@ function LossSurfaceViz() {
               opacity={0.82 + 0.14 * cell.t}
             />
           ))}
+          </g>
+          {/* contour ripples spreading across the basin floor once the walk settles */}
+          {!reduce && status.cls === 'is-good' && fp >= end - 1 && (
+            <g>
+              <ellipse className="forge-hero-ripple" cx={curPt[0]} cy={curPt[1]} rx="10" ry="5"
+                fill="none" stroke="var(--hue-sky)" strokeWidth="1.1" />
+              <ellipse className="forge-hero-ripple forge-hero-ripple-2" cx={curPt[0]} cy={curPt[1]}
+                rx="10" ry="5" fill="none" stroke="var(--accent)" strokeWidth="1.1" />
+            </g>
+          )}
+          {/* glowing comet trail */}
+          <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="5.5"
+            strokeLinejoin="round" strokeLinecap="round" opacity="0.45" filter={`url(#${ids.glow})`} />
+          <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="2.4"
+            strokeLinejoin="round" strokeLinecap="round" opacity="0.98" />
+          {/* rhythmic pulse ring emanating from the marker */}
+          {!reduce && (
+            <circle className="forge-hero-pulse" cx={curPt[0]} cy={curPt[1]} r="5.4" fill="none"
+              stroke="var(--accent)" strokeWidth="1.4" />
+          )}
+          <circle cx={curPt[0]} cy={curPt[1]} r={8.5} fill="none"
+            stroke="var(--accent)" strokeWidth="1.2" opacity={0.22 + 0.34 * (1 - norm)} />
+          <g filter={`url(#${ids.glow})`}>
+            <circle cx={curPt[0]} cy={curPt[1]} r="6.2" fill={`url(#${ids.ball})`}
+              stroke="var(--surface)" strokeWidth="0.8" />
+          </g>
         </g>
-        {/* glowing comet trail */}
-        <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="4.5"
-          strokeLinejoin="round" strokeLinecap="round" opacity="0.35" filter={`url(#${ids.glow})`} />
-        <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="2.4"
-          strokeLinejoin="round" strokeLinecap="round" opacity="0.95" />
-        {/* rhythmic pulse ring emanating from the marker */}
-        {!reduce && (
-          <circle className="forge-hero-pulse" cx={curPt[0]} cy={curPt[1]} r="5.4" fill="none"
-            stroke="var(--accent)" strokeWidth="1.4" />
-        )}
-        <circle cx={curPt[0]} cy={curPt[1]} r={8.5} fill="none"
-          stroke="var(--accent)" strokeWidth="1.2" opacity={0.22 + 0.34 * (1 - norm)} />
-        <g filter={`url(#${ids.glow})`}>
-          <circle cx={curPt[0]} cy={curPt[1]} r="5.4" fill={`url(#${ids.ball})`}
-            stroke="var(--surface)" strokeWidth="0.8" />
-        </g>
+        <rect x="0" y="0" width="320" height="200" fill={`url(#${ids.vignette})`} pointerEvents="none" />
       </svg>
 
       <div className="forge-hero-ctl">
@@ -480,6 +515,68 @@ function VizConvergence() {
   );
 }
 
+// Featured-paper visual for "Attention Is All You Need" — a live attention
+// heat-grid (query rows attending over key columns, the weights rippling in a
+// diagonal wave) with source tokens on the left flowing into a target token via
+// curved connection lines. Pure CSS motion, theme-tokened, reduced-motion safe.
+function AttentionPaperViz() {
+  const reduce = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const N = 5;
+  const G0 = 52, GS = 15;           // grid origin + cell stride
+  const cells = [];
+  for (let r = 0; r < N; r += 1) {
+    for (let c = 0; c < N; c += 1) cells.push({ r, c });
+  }
+  // Left-column source tokens fanning into a single attended target on the grid.
+  const tokY = [22, 40, 58, 76];
+  const targetX = G0 + 2 * GS + GS / 2;
+  const targetY = 8;
+  return (
+    <svg viewBox="0 0 140 105" className="forge-att-svg" preserveAspectRatio="xMidYMid meet"
+      role="img" aria-label="Attention heat-grid with tokens attending to tokens">
+      <rect x="0" y="0" width="140" height="105" fill="var(--bg)" />
+      {/* flowing connection lines from source tokens into the attended cell */}
+      {tokY.map((y, i) => (
+        <path
+          key={`ln-${i}`}
+          className={reduce ? 'forge-att-link-static' : 'forge-att-link'}
+          style={reduce ? undefined : { animationDelay: `${i * 0.5}s` }}
+          d={`M18 ${y} C34 ${y}, ${targetX - 16} ${targetY + 6}, ${targetX} ${targetY + 4}`}
+          fill="none"
+          stroke={`var(--hue-${['violet', 'sky', 'pink', 'mint'][i]})`}
+          strokeWidth="1.6"
+          strokeLinecap="round"
+        />
+      ))}
+      {tokY.map((y, i) => (
+        <circle key={`tk-${i}`} cx="14" cy={y} r="4.6"
+          fill={`color-mix(in srgb, var(--hue-${['violet', 'sky', 'pink', 'mint'][i]}) 82%, var(--surface))`}
+          stroke="var(--surface)" strokeWidth="1" />
+      ))}
+      {/* the Q x K attention weight grid */}
+      {cells.map(({ r, c }) => (
+        <rect
+          key={`${r}-${c}`}
+          className={reduce ? 'forge-att-cell-static' : 'forge-att-cell'}
+          style={reduce ? undefined : { animationDelay: `${(r + c) * 0.22}s` }}
+          x={G0 + c * GS}
+          y={22 + r * GS}
+          width={GS - 3}
+          height={GS - 3}
+          rx="2.6"
+          fill={`color-mix(in srgb, var(--hue-pink) ${28 + ((r * N + c) % 5) * 14}%, var(--hue-sky))`}
+        />
+      ))}
+      {/* a highlight query-row sweeping down the grid */}
+      {!reduce && (
+        <rect className="forge-att-scan" x={G0 - 2} y="20" width={N * GS + 1} height={GS + 1}
+          rx="3" fill="none" stroke="var(--accent)" strokeWidth="1.4" />
+      )}
+    </svg>
+  );
+}
+
 const REEL_TILES = [
   { to: '/forge/math',     title: 'Gradient descent', hue: 'var(--hue-sky)',    Viz: VizDescent },
   { to: '/forge/learn',    title: 'Self-attention',   hue: 'var(--hue-violet)', Viz: VizAttention },
@@ -585,6 +682,17 @@ export default function PGForgeHub() {
               </div>
             ))}
           </div>
+          <div className="forge-hero-jump">
+            <span className="forge-hero-jump-lead">Jump in</span>
+            {HERO_JUMP.map((j) => {
+              const Icon = j.icon;
+              return (
+                <Link key={j.to} to={j.to} className="forge-hero-chip">
+                  <Icon size={13} /> {j.label}
+                </Link>
+              );
+            })}
+          </div>
         </div>
         <LossSurfaceViz />
       </section>
@@ -625,7 +733,7 @@ export default function PGForgeHub() {
           {featured && (
             <Link to="/ml/papers" className="forge-feature-card">
               <div className="forge-thumb-frame forge-feature-thumb">
-                <PapersThumb />
+                <AttentionPaperViz />
               </div>
               <div className="forge-feature-text">
                 <h3 className="forge-feature-title">{featured.title}</h3>

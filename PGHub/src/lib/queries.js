@@ -352,15 +352,21 @@ export function useTopicProblems(topicId) {
   return useQuery({
     queryKey: qk.topicProblems(topicId),
     queryFn: async () => {
+      // LIGHT columns only — a topic can hold 600+ problems, and pulling every
+      // heavy JSONB (description/test_cases/solutions/viz_steps) across all of them
+      // blows the Postgres statement timeout → 500 → the Workspace hangs on
+      // "Loading…". This set is enough for the nav list + roadmap filtering; the
+      // ACTIVE problem's full detail is fetched as a single fast by-id row.
       const { data, error } = await supabase
         .from('PGcode_problems')
-        .select('*')
+        .select('id, name, difficulty, topic_id, method_name, params, return_type, leetcode_number, frequency_score, tags')
         .eq('topic_id', topicId);
       if (error) throw error;
       return data || [];
     },
     enabled: !!topicId,
     staleTime: 10 * 60 * 1000,
+    retry: 1,
   });
 }
 

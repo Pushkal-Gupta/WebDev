@@ -312,29 +312,31 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   // Earlier bug: gating on `rawProblems !== undefined` alone meant a network
   // error or RLS failure left rawProblems forever undefined → fallback never
   // fired → page hangs on "Loading…".
-  const inTopic = !!problemId && !!problems.find(p => p.id === problemId);
+  // The topic list is LIGHT now (no heavy JSONB), so it never times out. The
+  // ACTIVE problem's full detail (description/test_cases/solutions/viz_steps) is
+  // ALWAYS fetched as one fast by-id row and wins over the light list entry —
+  // so a problem that IS in the topic still gets its full data. activeId is the
+  // URL problem, or the topic's first problem when the URL has none.
+  const activeId = problemId || problems[0]?.id || null;
   const { data: directProblem, isLoading: directLoading } = useQuery({
-    queryKey: ['problemById', problemId],
+    queryKey: ['problemFull', activeId],
     queryFn: async () => {
-      const { data } = await supabase.from('PGcode_problems').select('*').eq('id', problemId).maybeSingle();
+      const { data } = await supabase.from('PGcode_problems').select('*').eq('id', activeId).maybeSingle();
       return data || null;
     },
-    enabled: !!problemId && (rawProblems !== undefined || !!problemsError) && !inTopic,
+    enabled: !!activeId,
     staleTime: 60 * 60 * 1000,
     retry: 2,
   });
 
-  // Sync activeProblem from (a) the topic list, (b) the direct fetch, or
-  // (c) the topic's first problem if no problemId in URL.
+  // Prefer the full by-id row; fall back to the light list entry for an instant
+  // paint, then swap to the full row (with description) the moment it arrives.
   useEffect(() => {
     let next;
-    if (problemId) {
-      next = problems.find(p => p.id === problemId) || directProblem;
-    } else if (problems.length > 0) {
-      next = problems[0];
-    }
-    if (next) setActiveProblem(prev => (prev?.id === next.id ? prev : next));
-  }, [problems, problemId, directProblem]);
+    if (directProblem && directProblem.id === activeId) next = directProblem;
+    else if (activeId) next = problems.find(p => p.id === activeId);
+    if (next) setActiveProblem(prev => (prev?.id === next.id && prev?.description ? prev : next));
+  }, [problems, activeId, directProblem]);
 
   // Persist last-opened problem so Home can offer "Resume where you left off".
   useEffect(() => {

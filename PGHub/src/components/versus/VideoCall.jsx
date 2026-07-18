@@ -41,6 +41,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const remoteRef = useRef(null);
   const localVidEl = useRef(null);
   const remoteVidEl = useRef(null);
+  const remoteAudEl = useRef(null);
   const pendingIce = useRef([]);
   const watchdog = useRef(null);
   const chatEndRef = useRef(null);
@@ -57,12 +58,18 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     localRef.current = null; remoteRef.current = null;
     pendingIce.current = [];
     if (remoteVidEl.current) remoteVidEl.current.srcObject = null;
+    if (remoteAudEl.current) remoteAudEl.current.srcObject = null;
     if (localVidEl.current) localVidEl.current.srcObject = null;
     setCall('idle'); setIncoming(null);
   }, [send]);
 
   const getMedia = async (video) => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video });
+    // Explicit audio processing so the browser applies AEC/NS/AGC — without these some
+    // browsers hand back raw mic audio, which causes the echo + muddy voice the user heard.
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 },
+      video,
+    });
     localRef.current = stream;
     setMicOn(true); setCamOn(video);
     if (localVidEl.current) localVidEl.current.srcObject = stream;
@@ -81,6 +88,9 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     pc.onicecandidate = (e) => { if (e.candidate) send({ t: 'ice', candidate: e.candidate.toJSON() }); };
     pc.ontrack = (e) => {
       remoteRef.current = e.streams[0];
+      // Audio always plays through the dedicated <audio> element (present in both video and
+      // voice modes); the remote <video> is muted so we never get two overlapping audio outputs.
+      if (remoteAudEl.current) remoteAudEl.current.srcObject = e.streams[0];
       if (remoteVidEl.current) remoteVidEl.current.srcObject = e.streams[0];
       clearTimeout(watchdog.current); setCall('live');
     };
@@ -238,7 +248,9 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
       {inCall ? (
         <div className={`vs-meet ${wantVideo ? '' : 'audio'}`}>
           <div className="vs-meet-stage">
-            {wantVideo ? <video ref={remoteVidEl} className="vs-meet-remote" autoPlay playsInline /> : <div className="vs-meet-avatar"><span>{(oppName || 'R').slice(0, 1).toUpperCase()}</span></div>}
+            {wantVideo ? <video ref={remoteVidEl} className="vs-meet-remote" autoPlay playsInline muted /> : <div className="vs-meet-avatar"><span>{(oppName || 'R').slice(0, 1).toUpperCase()}</span></div>}
+            {/* single audio sink for the remote peer — works for both video and voice-only calls */}
+            <audio ref={remoteAudEl} autoPlay />
             <div className="vs-meet-name">{oppName}</div>
             {wantVideo ? <video ref={localVidEl} className="vs-meet-local" autoPlay playsInline muted /> : null}
             {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : 'Connecting…'}</div> : null}

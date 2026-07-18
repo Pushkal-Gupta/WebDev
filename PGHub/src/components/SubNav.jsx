@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
-  Map, List, Terminal, Building2, Trophy, Swords, Flag,
+  Map, List, Terminal, Building2, Trophy, Swords, Target,
   GraduationCap, Brain, Vault,
 } from 'lucide-react';
 import { usePrefetch } from '../lib/queries';
@@ -36,7 +36,7 @@ const TABS = [
   { to: '/compete',                 icon: Trophy,        brand: ['PG', 'Compete'],
     matches: ['/compete'] },
   { to: '/career',                 icon: Building2,     brand: ['PG', 'Career'] },
-  { to: '/arena',                icon: Flag,          brand: ['PG', 'Arena'] },
+  { to: '/arena',                icon: Target,        brand: ['PG', 'Arena'] },
   { to: '/vault',                   icon: Vault,         brand: ['PG', 'Vault'],
     matches: ['/vault', '/review', '/lists', '/notebook', '/progress'] },
 ];

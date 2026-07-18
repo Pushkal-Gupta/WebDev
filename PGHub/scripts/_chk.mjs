@@ -1,0 +1,11 @@
+import { createClient } from '@supabase/supabase-js';
+import { readFileSync } from 'fs';
+const env = Object.fromEntries(readFileSync('.env','utf8').split('\n').filter(l=>l.includes('=')).map(l=>{const i=l.indexOf('='); return [l.slice(0,i).trim(), l.slice(i+1).trim().replace(/^["']|["']$/g,'')];}));
+const sb = createClient(env.VITE_SUPABASE_URL, env.VITE_SUPABASE_ANON_KEY, { auth:{persistSession:false} });
+const t0=Date.now();
+const { data, error } = await sb.from('PGcode_problems').select('id,name,topic_id').eq('id','two-sum').maybeSingle();
+console.log('by-id two-sum:', Date.now()-t0+'ms', error?('ERR '+error.message):(data?JSON.stringify(data):'NULL (no such id)'));
+const t1=Date.now();
+const { data: byname } = await sb.from('PGcode_problems').select('id,name,topic_id').ilike('name','%Two Sum%').limit(4);
+console.log('by-name:', Date.now()-t1+'ms', JSON.stringify(byname));
+process.exit(0);

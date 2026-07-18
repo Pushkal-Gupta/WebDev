@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
@@ -6,6 +6,7 @@ import {
   ChevronRight, Terminal, Lightbulb, Check,
   FileText, ListChecks, Sparkles, FlaskConical, BookOpen,
   CheckCircle2, XCircle, MinusCircle, AlertTriangle, Eye, KeyRound,
+  Plus, X, BarChart3, PlayCircle, Info,
 } from 'lucide-react';
 import { getForgeProblem } from './pgForgeProblemsData';
 import Breadcrumb from '../../common/Breadcrumb';
@@ -360,11 +361,14 @@ for _pg_i, _pg_c in enumerate(_pg_cases):
     try:
         _pg_actual = eval("${fnName}(" + _pg_c["k"] + ")")
         _pg_got = repr(_pg_actual)
-        try:
-            _pg_exp = eval(_pg_c["e"])
-            _pg_status = 'pass' if _pg_eq(_pg_actual, _pg_exp) else 'fail'
-        except Exception:
-            _pg_status = 'pass' if str(_pg_actual) == _pg_c["e"] else 'fail'
+        if _pg_c["e"] == "":
+            _pg_status = 'info'
+        else:
+            try:
+                _pg_exp = eval(_pg_c["e"])
+                _pg_status = 'pass' if _pg_eq(_pg_actual, _pg_exp) else 'fail'
+            except Exception:
+                _pg_status = 'pass' if str(_pg_actual) == _pg_c["e"] else 'fail'
     except Exception as _pg_err:
         _pg_status = 'error'
         _pg_got = type(_pg_err).__name__ + ': ' + str(_pg_err)
@@ -458,6 +462,53 @@ export default function PGForgeProblemDetail() {
   const [leftTab, setLeftTab] = useState('description');
   const [solutionRevealed, setSolutionRevealed] = useState(false);
   const [solved, setSolved] = useState(() => (problem ? isSolved(problem.slug) : false));
+  const [customCases, setCustomCases] = useState([]);
+
+  // Draggable split between the problem pane and the editor pane — mirrors the
+  // DSA Workspace divider. Width is the left pane's percentage, clamped 25–75,
+  // persisted so the reader's preferred ratio survives navigation.
+  const [leftWidth, setLeftWidth] = useState(() => {
+    const v = parseInt(localStorage.getItem('pgforge_pd_split'), 10);
+    return Number.isFinite(v) ? Math.min(75, Math.max(25, v)) : 50;
+  });
+  const leftWidthRef = useRef(leftWidth);
+  useEffect(() => { leftWidthRef.current = leftWidth; }, [leftWidth]);
+  const mainRef = useRef(null);
+
+  const handleDividerDrag = useCallback((e) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startW = leftWidthRef.current;
+    let finalPct = startW;
+    const onMove = (ev) => {
+      const c = mainRef.current;
+      if (!c || !c.offsetWidth) return;
+      const pct = Math.max(25, Math.min(75, startW + ((ev.clientX - startX) / c.offsetWidth) * 100));
+      finalPct = pct;
+      setLeftWidth(pct);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      try { localStorage.setItem('pgforge_pd_split', String(Math.round(finalPct))); } catch { /* ignore */ }
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, []);
+
+  const addCustom = useCallback(() => {
+    setCustomCases((p) => (p.length >= 8 ? p : [...p, { input: '', expected: '' }]));
+  }, []);
+  const removeCustom = useCallback((i) => {
+    setCustomCases((p) => p.filter((_, j) => j !== i));
+  }, []);
+  const updateCustom = useCallback((i, key, val) => {
+    setCustomCases((p) => p.map((c, j) => (j === i ? { ...c, [key]: val } : c)));
+  }, []);
 
   const toggleSolved = useCallback(() => {
     if (!problem) return;
@@ -492,15 +543,20 @@ export default function PGForgeProblemDetail() {
     const display = [];
     problem.tests.forEach((t, i) => {
       const args = fn ? parseCall(t.input, fn) : null;
-      if (args != null) checkable.push({ index: i, args, expected: t.expected });
-      else display.push(i);
+      const entry = { id: `t${i}`, index: i, input: t.input, expected: t.expected };
+      if (args != null) checkable.push({ ...entry, args });
+      else display.push(entry);
     });
     return { checkable, display };
   }, [problem, fn]);
 
-  // Submit feeds the current editor buffer to the python grader. Free execution is
-  // handled by the panel's own Run button; grading is the canonical python path.
-  const handleSubmit = useCallback(async (code, lang) => {
+  // Grade the current editor buffer against the python auto-grader. `mode` decides
+  // the breadth: 'run' is a fast sample check (first few built-in cases + any custom
+  // ones), 'submit' is the thorough grade over EVERY built-in test plus the custom
+  // ones. Custom cases are non-blocking — an unparseable one is honestly skipped, it
+  // never blocks or fakes the real verdicts. Auto-solve only fires on a full submit.
+  const SAMPLE_N = 3;
+  const handleGrade = useCallback(async (code, lang, mode) => {
     if (!problem) return;
     if (lang !== 'python') {
       setReport(null);
@@ -514,49 +570,67 @@ export default function PGForgeProblemDetail() {
     setResult(null);
     setReport(null);
     try {
-      const canGrade = fnName && testPlan.checkable.length > 0;
-      const source = canGrade
-        ? buildHarness(code, fnName, testPlan.checkable)
-        : code;
+      const builtin = mode === 'run' ? testPlan.checkable.slice(0, SAMPLE_N) : testPlan.checkable;
+      const customParsed = customCases
+        .map((c) => ({ input: (c.input || '').trim(), expected: (c.expected || '').trim() }))
+        .filter((c) => c.input)
+        .map((c) => ({ ...c, args: fn ? parseCall(c.input, fn) : null }));
+      const gradedCustom = customParsed.filter((c) => c.args != null);
+
+      const harnessCases = [
+        ...builtin.map((c) => ({ args: c.args, expected: c.expected })),
+        ...gradedCustom.map((c) => ({ args: c.args, expected: c.expected })),
+      ];
+
+      const canGrade = fnName && harnessCases.length > 0;
+      const source = canGrade ? buildHarness(code, fnName, harnessCases) : code;
       const out = await runCode(source, 'python', '');
 
       if (!out || out.status !== 'success') {
         setResult(out || { status: 'runtime_error', output: 'No response from the execution service.' });
         return;
       }
-
       if (!canGrade) {
         setResult(out);
         return;
       }
 
       const { userOut, verdicts } = parseHarnessOutput(out.output);
-      const byIndex = new Map();
-      verdicts.forEach((v) => {
-        const planned = testPlan.checkable[v.i];
-        if (planned) byIndex.set(planned.index, { status: v.s, got: v.g });
+      const verdictAt = new Map();
+      verdicts.forEach((v) => verdictAt.set(v.i, { status: v.s, got: v.g }));
+
+      const rows = [];
+      builtin.forEach((c, pos) => {
+        const gv = verdictAt.get(pos);
+        rows.push({ id: c.id, kind: 'builtin', input: c.input, expected: c.expected, status: gv?.status || 'skipped', got: gv?.got || '' });
+      });
+      // Full grade also surfaces the display-only built-ins (honestly skipped).
+      if (mode === 'submit') {
+        testPlan.display.forEach((d) => {
+          rows.push({ id: d.id, kind: 'builtin', input: d.input, expected: d.expected, status: 'skipped', got: '' });
+        });
+      }
+      let cpos = builtin.length;
+      customParsed.forEach((c, j) => {
+        if (c.args != null) {
+          const gv = verdictAt.get(cpos);
+          cpos += 1;
+          rows.push({ id: `c${j}`, kind: 'custom', input: c.input, expected: c.expected, status: gv?.status || 'skipped', got: gv?.got || '' });
+        } else {
+          rows.push({ id: `c${j}`, kind: 'custom', input: c.input, expected: c.expected, status: 'skipped', got: '', unparsed: true });
+        }
       });
 
-      const rows = problem.tests.map((t, i) => {
-        const graded = byIndex.get(i);
-        if (graded) {
-          return {
-            index: i, input: t.input, expected: t.expected,
-            status: graded.status, got: graded.got,
-          };
-        }
-        return { index: i, input: t.input, expected: t.expected, status: 'skipped', got: '' };
-      });
       const passed = rows.filter((r) => r.status === 'pass').length;
-      const checked = rows.filter((r) => r.status !== 'skipped').length;
-      const allPassed = checked > 0 && passed === checked;
-      setReport({ rows, passed, checked, allPassed });
+      const failed = rows.filter((r) => r.status === 'fail').length;
+      const errored = rows.filter((r) => r.status === 'error').length;
+      const checked = passed + failed + errored;
+      const allPassed = checked > 0 && failed === 0 && errored === 0;
+      setReport({ rows, passed, failed, errored, checked, allPassed, mode });
       setResult({ status: out.status, output: userOut });
 
-      // Honest auto-mark: only when real grading shows every gradeable test
-      // passing. Reuses the existing localStorage solve mechanism — no new
-      // persistence plumbing.
-      if (allPassed && !solved) {
+      // Honest auto-mark: full submit, every gradeable case passing.
+      if (mode === 'submit' && allPassed && !solved) {
         markSolved(problem.slug, problem.difficulty);
         setSolved(true);
       }
@@ -565,7 +639,7 @@ export default function PGForgeProblemDetail() {
     } finally {
       setRunning(false);
     }
-  }, [problem, fnName, testPlan, solved]);
+  }, [problem, fn, fnName, testPlan, customCases, solved]);
 
   // Editor loads a SCAFFOLD; the real reference stays behind the Solution tab.
   const starter = useMemo(
@@ -585,8 +659,12 @@ export default function PGForgeProblemDetail() {
         ]}
       />
 
-      <div className="forge-pd-grid">
-        <section className="forge-pd-left" aria-label="Problem description">
+      <div className="forge-pd-main" ref={mainRef}>
+        <section
+          className="forge-pd-left"
+          aria-label="Problem description"
+          style={{ width: `${leftWidth}%` }}
+        >
           <header className="forge-pd-header">
             <div className="forge-pd-head-row">
               <h1 className="forge-pd-title">{problem.title}</h1>
@@ -678,9 +756,10 @@ export default function PGForgeProblemDetail() {
               </div>
 
               <p className="forge-pd-grade-note">
-                Build your solution in the editor, then hit <strong>Run my code</strong> to grade it against{' '}
+                Build your solution in the editor. <strong>Run</strong> checks the first few sample
+                cases fast; <strong>Submit</strong> grades against all{' '}
                 {testPlan.checkable.length || problem.tests.length} test
-                {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
+                {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'} plus any custom cases you add.
               </p>
             </>
           )}
@@ -733,9 +812,73 @@ export default function PGForgeProblemDetail() {
                   </li>
                 ))}
               </ul>
+
+              <div className="forge-pd-custom">
+                <div className="forge-pd-custom-head">
+                  <FlaskConical size={13} />
+                  <span>Your custom cases</span>
+                  <span className="forge-pd-custom-count">{customCases.length}/8</span>
+                </div>
+                <p className="forge-pd-custom-note">
+                  Add up to 8 of your own cases — write the input like the examples
+                  (e.g. <code className="forge-pd-code">xs=[1,2,3]</code>); expected is optional.
+                  They run with both Run and Submit.
+                </p>
+
+                {customCases.length === 0 ? (
+                  <p className="forge-pd-empty-note">No custom cases yet — add one to probe an edge case.</p>
+                ) : (
+                  <div className="forge-pd-custom-list">
+                    {customCases.map((c, i) => (
+                      <div key={i} className="forge-pd-custom-row">
+                        <div className="forge-pd-custom-fields">
+                          <input
+                            className="forge-pd-custom-in"
+                            value={c.input}
+                            onChange={(e) => updateCustom(i, 'input', e.target.value)}
+                            placeholder="input, e.g. xs=[1,2,3]"
+                            aria-label={`Custom case ${i + 1} input`}
+                            spellCheck={false}
+                          />
+                          <input
+                            className="forge-pd-custom-in"
+                            value={c.expected}
+                            onChange={(e) => updateCustom(i, 'expected', e.target.value)}
+                            placeholder="expected (optional)"
+                            aria-label={`Custom case ${i + 1} expected`}
+                            spellCheck={false}
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          className="forge-pd-custom-del"
+                          onClick={() => removeCustom(i)}
+                          aria-label={`Remove custom case ${i + 1}`}
+                        >
+                          <X size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {customCases.length < 8 && (
+                  <button type="button" className="forge-pd-custom-add" onClick={addCustom}>
+                    <Plus size={13} /> Add case
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </section>
+
+        <div
+          className="forge-pd-divider"
+          role="separator"
+          aria-orientation="vertical"
+          aria-label="Resize panes"
+          onPointerDown={handleDividerDrag}
+        />
 
         <section className="forge-pd-right" aria-label="Code editor">
           <div className="forge-pd-editor">
@@ -744,8 +887,10 @@ export default function PGForgeProblemDetail() {
               code={starter}
               lang="python"
               runnable
-              onSubmit={handleSubmit}
-              submitLabel="Run my code"
+              busy={running}
+              onRun={(c, l) => handleGrade(c, l, 'run')}
+              onSubmit={(c, l) => handleGrade(c, l, 'submit')}
+              submitLabel="Submit"
             />
           </div>
 
@@ -756,9 +901,12 @@ export default function PGForgeProblemDetail() {
                   <div className="forge-pd-banner forge-pd-banner-pass" role="status">
                     <CheckCircle2 size={18} className="forge-pd-banner-ic" />
                     <div className="forge-pd-banner-copy">
-                      <span className="forge-pd-banner-title">All tests passed — solved!</span>
+                      <span className="forge-pd-banner-title">
+                        {report.mode === 'submit' ? 'All tests passed — solved!' : 'Sample cases passed'}
+                      </span>
                       <span className="forge-pd-banner-sub">
-                        {report.checked} of {report.checked} test{report.checked === 1 ? '' : 's'} graded clean.
+                        {report.checked} of {report.checked} case{report.checked === 1 ? '' : 's'} graded clean
+                        {report.mode === 'run' ? ' — Submit to grade the full set.' : '.'}
                       </span>
                     </div>
                   </div>
@@ -766,7 +914,7 @@ export default function PGForgeProblemDetail() {
                   <div className="forge-pd-banner forge-pd-banner-neutral" role="status">
                     <MinusCircle size={18} className="forge-pd-banner-ic" />
                     <div className="forge-pd-banner-copy">
-                      <span className="forge-pd-banner-title">Ran, but no gradeable tests</span>
+                      <span className="forge-pd-banner-title">Ran, but no gradeable cases</span>
                       <span className="forge-pd-banner-sub">
                         Every case is display-only — nothing to verify against yet.
                       </span>
@@ -777,7 +925,7 @@ export default function PGForgeProblemDetail() {
                     <XCircle size={18} className="forge-pd-banner-ic" />
                     <div className="forge-pd-banner-copy">
                       <span className="forge-pd-banner-title">
-                        {report.checked - report.passed} test{report.checked - report.passed === 1 ? '' : 's'} still failing
+                        {report.checked - report.passed} case{report.checked - report.passed === 1 ? '' : 's'} still failing
                       </span>
                       <span className="forge-pd-banner-sub">
                         {report.passed} of {report.checked} passing — review the cases below.
@@ -785,6 +933,37 @@ export default function PGForgeProblemDetail() {
                     </div>
                   </div>
                 )}
+
+                {report.checked > 0 && (
+                  <div className="forge-pd-analysis">
+                    <div className="forge-pd-analysis-head">
+                      <BarChart3 size={13} />
+                      <span>Result breakdown</span>
+                      <span className={`forge-pd-mode ${report.mode === 'submit' ? 'is-full' : 'is-sample'}`}>
+                        {report.mode === 'submit' ? 'Full grade' : 'Sample run'}
+                      </span>
+                    </div>
+                    <div className="forge-pd-bar" role="img" aria-label={`${report.passed} passed, ${report.failed} failed, ${report.errored} errored`}>
+                      {report.passed > 0 && (
+                        <span className="forge-pd-bar-seg is-pass" style={{ flexGrow: report.passed }} />
+                      )}
+                      {report.failed > 0 && (
+                        <span className="forge-pd-bar-seg is-fail" style={{ flexGrow: report.failed }} />
+                      )}
+                      {report.errored > 0 && (
+                        <span className="forge-pd-bar-seg is-error" style={{ flexGrow: report.errored }} />
+                      )}
+                    </div>
+                    <div className="forge-pd-legend">
+                      <span className="forge-pd-leg is-pass"><i /> {report.passed} passed</span>
+                      <span className="forge-pd-leg is-fail"><i /> {report.failed} failed</span>
+                      {report.errored > 0 && (
+                        <span className="forge-pd-leg is-error"><i /> {report.errored} errored</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
                 <div className="forge-pd-tests-head">
                   <ListChecks size={13} />
                   <span>Results</span>
@@ -796,22 +975,31 @@ export default function PGForgeProblemDetail() {
                 </div>
                 <ul className="forge-pd-tests-list">
                   {report.rows.map((r) => (
-                    <li key={r.index} className={`forge-pd-vtest forge-pd-v-${r.status}`}>
+                    <li key={r.id} className={`forge-pd-vtest forge-pd-v-${r.status}`}>
                       <div className="forge-pd-vtest-top">
                         <span className="forge-pd-vtest-ic">
                           {r.status === 'pass' && <CheckCircle2 size={14} />}
                           {r.status === 'fail' && <XCircle size={14} />}
                           {r.status === 'error' && <AlertTriangle size={14} />}
+                          {r.status === 'info' && <Info size={14} />}
                           {r.status === 'skipped' && <MinusCircle size={14} />}
                         </span>
                         <span className="forge-pd-vtest-in">{r.input}</span>
+                        {r.kind === 'custom' && <span className="forge-pd-vtest-tag">custom</span>}
                       </div>
                       {r.status === 'skipped' ? (
                         <div className="forge-pd-vtest-row">
                           <span className="forge-pd-vtest-k">Note</span>
                           <span className="forge-pd-vtest-note">
-                            Shown for reference — expected {r.expected}
+                            {r.unparsed
+                              ? "Couldn't parse this input — leave it as a literal like the examples."
+                              : `Shown for reference — expected ${r.expected}`}
                           </span>
+                        </div>
+                      ) : r.status === 'info' ? (
+                        <div className="forge-pd-vtest-row">
+                          <span className="forge-pd-vtest-k">Got</span>
+                          <span className="forge-pd-vtest-v">{r.got || '(no value)'}</span>
                         </div>
                       ) : (
                         <>
@@ -830,22 +1018,19 @@ export default function PGForgeProblemDetail() {
                 </ul>
               </>
             ) : (
-              <>
-                <div className="forge-pd-tests-head">
-                  <ListChecks size={13} />
-                  <span>Test cases</span>
-                  <span className="forge-pd-tests-count">{problem.tests.length}</span>
+              <div className="forge-pd-prelude">
+                <PlayCircle size={22} className="forge-pd-prelude-ic" />
+                <div className="forge-pd-prelude-copy">
+                  <span className="forge-pd-prelude-title">Run to check, Submit to grade</span>
+                  <span className="forge-pd-prelude-sub">
+                    Run checks the first {Math.min(SAMPLE_N, testPlan.checkable.length) || 'few'} sample
+                    case{Math.min(SAMPLE_N, testPlan.checkable.length) === 1 ? '' : 's'} fast. Submit grades against
+                    all {testPlan.checkable.length || problem.tests.length} test
+                    {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}
+                    {customCases.length ? ` plus your ${customCases.length} custom` : ''}. Results appear here.
+                  </span>
                 </div>
-                <ul className="forge-pd-tests-list">
-                  {problem.tests.map((t, i) => (
-                    <li key={i} className="forge-pd-test">
-                      <span className="forge-pd-test-in">{t.input}</span>
-                      <ChevronRight size={12} className="forge-pd-test-arrow" />
-                      <span className="forge-pd-test-exp">{t.expected}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
+              </div>
             )}
           </div>
 

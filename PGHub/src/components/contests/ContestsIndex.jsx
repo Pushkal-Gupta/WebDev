@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Trophy, ArrowRight, Clock, Star, Radio, CalendarClock, History, Infinity as InfinityIcon, Gauge } from 'lucide-react';
+import { Trophy, ArrowRight, Clock, Star, Radio, CalendarClock, History, Infinity as InfinityIcon, Gauge, Target } from 'lucide-react';
 import { useContests } from '../../lib/queries';
 import ForgeThumb from '../ml/forge/ForgeThumb';
 import './Contests.css';
@@ -63,7 +63,7 @@ export default function ContestsIndex() {
   return (
     <div className="ctx-container">
       <header className="ctx-header">
-        <h1 className="ctx-title"><span className="ctx-brand">PG</span>Arena</h1>
+        <h1 className="ctx-title"><Target className="ctx-title-icon" size={30} aria-hidden /> <span className="ctx-brand">PG</span>Arena</h1>
         <p className="ctx-sub">
           Virtual ICPC-style problem sets — start whenever, the clock runs while you solve.
         </p>

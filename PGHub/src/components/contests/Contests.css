@@ -23,7 +23,11 @@
   color: var(--text-main);
   letter-spacing: -0.01em;
   margin-bottom: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
 }
+.ctx-title-icon { color: var(--accent); flex-shrink: 0; }
 .ctx-brand {
   color: var(--text-dim);
   font-size: 0.6em;

@@ -15,11 +15,16 @@
 /* ---- Hero ---------------------------------------------------------------- */
 .forge-hero {
   display: grid;
-  grid-template-columns: 1.25fr 1fr;
+  grid-template-columns: 1.15fr 1fr;
   gap: 1.8rem;
-  align-items: center;
+  align-items: stretch;
   padding-bottom: 1.8rem;
   border-bottom: 1px solid var(--border);
+}
+.forge-hero-left {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .forge-hero-title {
@@ -83,6 +88,48 @@
   color: var(--text-dim);
 }
 
+/* Quick-jump chip row — fills the left column so it balances the tall viz card. */
+.forge-hero-jump {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1.6rem;
+  padding-top: 1.3rem;
+  border-top: 1px solid var(--border);
+}
+.forge-hero-jump-lead {
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-dim);
+  margin-right: 0.15rem;
+}
+.forge-hero-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-main);
+  text-decoration: none;
+  transition: border-color var(--t), color var(--t), transform var(--t), background var(--t);
+}
+.forge-hero-chip svg { color: var(--accent); transition: color var(--t); }
+.forge-hero-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.06);
+}
+.forge-hero-chip:hover svg { color: var(--accent); }
+
 /* Interactive hero viz */
 .forge-hero-viz {
   border: 1px solid var(--border);
@@ -117,6 +164,23 @@
    the marker emits a rhythmic pulse ring, so the whole viz keeps moving. */
 .forge-hero-cell { animation: forge-cell-wave 2.4s ease-in-out infinite; will-change: opacity; }
 @keyframes forge-cell-wave { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }
+/* Slow camera-like sway of the whole surface — a gentle parallax drift. */
+.forge-hero-scene { animation: forge-scene-sway 13s ease-in-out infinite; will-change: transform; }
+@keyframes forge-scene-sway {
+  0%, 100% { transform: translateX(-2.4px) rotate(-0.5deg) scale(1); }
+  50%      { transform: translateX(2.4px) rotate(0.5deg) scale(1.018); }
+}
+/* Contour ripples spreading over the basin floor once the walk settles. */
+.forge-hero-ripple {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: forge-ripple 2.6s ease-out infinite;
+}
+.forge-hero-ripple-2 { animation-delay: 1.3s; }
+@keyframes forge-ripple {
+  0%   { transform: scale(0.35); opacity: 0.75; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
 .forge-hero-pulse {
   transform-box: fill-box;
   transform-origin: center;
@@ -128,7 +192,7 @@
   100% { transform: scale(3.1); opacity: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .forge-hero-cell, .forge-hero-pulse { animation: none; }
+  .forge-hero-cell, .forge-hero-pulse, .forge-hero-scene, .forge-hero-ripple { animation: none; }
 }
 .forge-hero-viz-axis { stroke: var(--text-dim); stroke-width: 1; opacity: 0.35; }
 .forge-hero-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
@@ -231,7 +295,37 @@
   transition: border-color var(--t), transform var(--t);
 }
 .forge-feature-card:hover { border-color: var(--accent); transform: translateY(-2px); }
-.forge-feature-thumb { width: 38%; flex-shrink: 0; aspect-ratio: 4 / 3; }
+.forge-feature-thumb { width: 38%; flex-shrink: 0; aspect-ratio: 4 / 3; overflow: hidden; }
+
+/* Featured paper visual — animated attention heat-grid + flowing token links. */
+.forge-att-svg { display: block; width: 100%; height: 100%; }
+.forge-att-cell {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: forge-att-pulse 2.8s ease-in-out infinite;
+}
+.forge-att-cell-static { opacity: 0.85; }
+@keyframes forge-att-pulse {
+  0%, 100% { opacity: 0.22; transform: scale(0.82); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+.forge-att-link {
+  stroke-dasharray: 5 7;
+  opacity: 0.85;
+  animation: forge-att-flow 1.9s linear infinite;
+}
+.forge-att-link-static { opacity: 0.6; }
+@keyframes forge-att-flow { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }
+.forge-att-scan {
+  animation: forge-att-scan 3.2s ease-in-out infinite;
+}
+@keyframes forge-att-scan {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50%      { transform: translateY(60px); opacity: 0.55; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-att-cell, .forge-att-link, .forge-att-scan { animation: none; }
+}
 .forge-feature-text { display: flex; flex-direction: column; gap: 0.45rem; }
 .forge-feature-title { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; line-height: 1.3; color: var(--text-main); }
 .forge-feature-sub { font-size: 0.78rem; line-height: 1.45; color: var(--text-dim); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
