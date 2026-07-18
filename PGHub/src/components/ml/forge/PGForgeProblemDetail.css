@@ -150,51 +150,23 @@
   color: var(--text-dim);
 }
 
-/* ---- TINTED STATEMENT CARD ---- */
-.forge-pd-stmt-card {
-  position: relative;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--pd-hue) 4%, var(--surface));
-  padding: 1.05rem 1.2rem 1.05rem 1.35rem;
-  overflow: hidden;
-}
-.forge-pd-stmt-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: color-mix(in srgb, var(--pd-hue) 70%, transparent);
-}
-
-.forge-pd-stmt-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-family: var(--mono);
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--pd-hue);
-  margin-bottom: 0.6rem;
-}
-
-.forge-pd-statement { color: var(--text-main); }
-.forge-pd-p {
-  font-size: 0.85rem;
-  line-height: 1.6;
+/* ---- STATEMENT (clean prose, workspace .ws-q-desc feel) ---- */
+.forge-pd-statement {
+  font-family: var(--sans);
   color: var(--text-main);
-  margin-bottom: 0.6rem;
+}
+.forge-pd-p {
+  font-size: 0.88rem;
+  line-height: 1.72;
+  color: var(--text-main);
+  margin-bottom: 0.85rem;
 }
 .forge-pd-p:last-child { margin-bottom: 0; }
 .forge-pd-ol {
-  margin: 0 0 0.6rem;
-  padding-left: 1.2rem;
-  font-size: 0.85rem;
-  line-height: 1.6;
+  margin: 0 0 0.85rem;
+  padding-left: 1.4rem;
+  font-size: 0.88rem;
+  line-height: 1.72;
   color: var(--text-main);
 }
 .forge-pd-ol li { margin-bottom: 0.2rem; }
@@ -253,11 +225,11 @@
 }
 .forge-pd-sec svg { color: var(--pd-hue); }
 
-/* ---- EXAMPLES GRID ---- */
+/* ---- EXAMPLES (full-width vertical stack, workspace .ws-examples feel) ---- */
 .forge-pd-examples {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
-  gap: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
 }
 .forge-pd-ex {
   padding: 0.9rem 1.05rem;
@@ -304,49 +276,15 @@
 }
 .forge-pd-ex-exp { font-size: 0.82rem; line-height: 1.6; color: var(--text-dim); font-family: var(--sans); flex: 1 1 auto; min-width: 0; }
 
-/* ---- CTA CARD ---- */
-.forge-pd-cta-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  border: 1px solid color-mix(in srgb, var(--pd-hue) 35%, var(--border));
-  border-radius: 12px;
-  background: linear-gradient(
-    120deg,
-    color-mix(in srgb, var(--pd-hue) 12%, var(--surface)),
-    var(--surface) 75%
-  );
-  padding: 0.95rem 1.1rem;
+/* ---- GRADE NOTE (slim guidance line, replaces the old CTA band) ---- */
+.forge-pd-grade-note {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--text-dim);
 }
-.forge-pd-cta-copy { display: flex; flex-direction: column; gap: 0.18rem; min-width: 0; }
-.forge-pd-cta-title {
-  font-family: var(--serif);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-main);
-  letter-spacing: -0.01em;
-}
-.forge-pd-cta-sub { font-size: 0.78rem; line-height: 1.4; color: var(--text-dim); }
-.forge-pd-cta-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  flex-shrink: 0;
-  padding: 0.62rem 1.1rem;
-  border-radius: 9px;
-  border: 1px solid var(--pd-hue);
-  background: var(--pd-hue);
-  color: var(--bg);
-  font-family: var(--mono);
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: filter var(--t), opacity var(--t);
-}
-.forge-pd-cta-badge:hover:not(:disabled) { filter: brightness(1.08); }
-.forge-pd-cta-badge:disabled { opacity: 0.6; cursor: not-allowed; }
+.forge-pd-grade-note strong { color: var(--text-main); font-weight: 700; }
 
 /* ---- HINTS ---- */
 .forge-pd-hints-toggle {

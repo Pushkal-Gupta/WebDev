@@ -113,6 +113,23 @@
   border-radius: 9px;
   border: 1px solid var(--border);
 }
+/* Living surface — a shimmer wave travels the mesh (staggered per-cell delay),
+   the marker emits a rhythmic pulse ring, so the whole viz keeps moving. */
+.forge-hero-cell { animation: forge-cell-wave 2.4s ease-in-out infinite; will-change: opacity; }
+@keyframes forge-cell-wave { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }
+.forge-hero-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: forge-pulse 1.7s ease-out infinite;
+}
+@keyframes forge-pulse {
+  0% { transform: scale(0.7); opacity: 0.6; }
+  70% { opacity: 0.12; }
+  100% { transform: scale(3.1); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .forge-hero-cell, .forge-hero-pulse { animation: none; }
+}
 .forge-hero-viz-axis { stroke: var(--text-dim); stroke-width: 1; opacity: 0.35; }
 .forge-hero-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
 .forge-hero-viz-cap { font-size: 0.72rem; line-height: 1.45; color: var(--text-dim); }
@@ -318,3 +335,207 @@
 .forge-hero-sl > span b { color: var(--text-main); }
 .forge-hero-sl input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
 @media (max-width: 620px) { .forge-hero-sliders { grid-template-columns: 1fr; } }
+
+/* ---- Reel: an auto-scrolling row of live mini-viz ------------------------- */
+/* The viewport clips (the ONLY page scrollbar is the vertical one); the track
+   holds two copies of the tile set and translates -50% for a seamless loop. */
+.reel-viewport {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  padding: 0.2rem 0 0.4rem;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 4%, #000 96%, transparent);
+}
+.reel-track {
+  display: flex;
+  gap: 1rem;
+  width: max-content;
+  animation: reel-glide 46s linear infinite;
+  will-change: transform;
+}
+.reel-viewport:hover .reel-track { animation-play-state: paused; }
+@keyframes reel-glide {
+  from { transform: translateX(0); }
+  to   { transform: translateX(calc(-50% - 0.5rem)); }
+}
+
+/* Reduced motion: no glide — a static wrapping grid, everything visible, no scroll. */
+.reel-static {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 1rem;
+}
+
+.reel-tile {
+  flex: 0 0 auto;
+  width: 232px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  overflow: hidden;
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--t), border-color var(--t), box-shadow var(--t);
+}
+.reel-static .reel-tile { width: auto; }
+.reel-tile:hover {
+  transform: translateY(-3px);
+  border-color: var(--reel-hue, var(--accent));
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.16);
+}
+.reel-tile-stage {
+  aspect-ratio: 16 / 9;
+  background:
+    radial-gradient(120% 120% at 50% 0%,
+      color-mix(in srgb, var(--reel-hue) 16%, var(--bg)),
+      var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+.reel-svg { display: block; width: 100%; height: 100%; }
+.reel-tile-cap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem 0.7rem;
+}
+.reel-tile-title {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+.reel-tile-arr { color: var(--reel-hue, var(--accent)); flex-shrink: 0; }
+
+/* -- per-viz motion (all CSS transform/opacity, no SMIL/ids → duplicate-safe) -- */
+.reel-base { stroke: var(--text-dim); stroke-width: 1; opacity: 0.28; }
+
+/* descent */
+.reel-descent-curve { fill: none; stroke: var(--reel-hue); stroke-width: 2.4; opacity: 0.5; }
+.reel-descent-dot { fill: var(--reel-hue); animation: reel-descend 4.4s ease-in-out infinite; }
+@keyframes reel-descend {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(23px, 21px); }
+  50%  { transform: translate(46px, 28px); }
+  75%  { transform: translate(69px, 21px); }
+  100% { transform: translate(92px, 0); }
+}
+
+/* attention / warp grids */
+.reel-att-cell {
+  fill: color-mix(in srgb, var(--reel-hue) 78%, var(--surface));
+  animation: reel-cell 2.2s ease-in-out infinite;
+}
+.reel-warp-cell {
+  fill: color-mix(in srgb, var(--reel-hue) 78%, var(--surface));
+  animation: reel-cell 1.5s ease-in-out infinite;
+}
+@keyframes reel-cell { 0%, 100% { opacity: 0.18; } 50% { opacity: 1; } }
+
+/* diffusion */
+.reel-diff-dot {
+  fill: var(--reel-hue);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: reel-diff 2.6s ease-in-out infinite;
+}
+@keyframes reel-diff {
+  0%, 100% { opacity: 0.2; transform: scale(0.55); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+
+/* vector field */
+.reel-vec { animation: reel-spin 5.5s linear infinite; }
+.reel-vec-line { stroke: color-mix(in srgb, var(--reel-hue) 70%, var(--surface)); stroke-width: 2; }
+.reel-vec-head { fill: var(--reel-hue); }
+@keyframes reel-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* optimizer bounce */
+.reel-opt-bowl { fill: none; stroke: color-mix(in srgb, var(--reel-hue) 55%, var(--surface)); stroke-width: 2.2; }
+.reel-opt-ball { fill: var(--reel-hue); animation: reel-bounce 2.6s cubic-bezier(0.3, 0, 0.5, 1) infinite; }
+.reel-opt-shadow { fill: var(--reel-hue); opacity: 0.16; animation: reel-shadow 2.6s cubic-bezier(0.3, 0, 0.5, 1) infinite; }
+@keyframes reel-bounce {
+  0%   { transform: translateY(0); }
+  22%  { transform: translateY(38px); }
+  40%  { transform: translateY(12px); }
+  56%  { transform: translateY(38px); }
+  70%  { transform: translateY(24px); }
+  82%  { transform: translateY(38px); }
+  92%  { transform: translateY(31px); }
+  100% { transform: translateY(38px); }
+}
+@keyframes reel-shadow {
+  0%, 40%, 70%, 92% { transform: scaleX(0.6); opacity: 0.1; }
+  22%, 56%, 82%, 100% { transform: scaleX(1); opacity: 0.22; }
+}
+
+/* neural net */
+.reel-net-edge {
+  stroke: color-mix(in srgb, var(--reel-hue) 60%, var(--surface));
+  stroke-width: 1.4;
+  animation: reel-edge 2.4s ease-in-out infinite;
+}
+@keyframes reel-edge { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.95; } }
+.reel-net-node {
+  fill: var(--surface);
+  stroke: var(--reel-hue);
+  stroke-width: 1.8;
+  animation: reel-node 2.4s ease-in-out infinite;
+}
+@keyframes reel-node {
+  0%, 100% { fill: var(--surface); }
+  50% { fill: color-mix(in srgb, var(--reel-hue) 70%, var(--surface)); }
+}
+
+/* softmax bars */
+.reel-bar { fill: var(--reel-hue); }
+.reel-bar-0 { animation: reel-b0 3.2s ease-in-out infinite; }
+.reel-bar-1 { animation: reel-b1 3.2s ease-in-out infinite; }
+.reel-bar-2 { animation: reel-b2 3.2s ease-in-out infinite; }
+.reel-bar-3 { animation: reel-b3 3.2s ease-in-out infinite; }
+.reel-bar-4 { animation: reel-b4 3.2s ease-in-out infinite; }
+.reel-bar-5 { animation: reel-b5 3.2s ease-in-out infinite; }
+@keyframes reel-b0 { 0%,100% { transform: scaleY(0.18); } 50% { transform: scaleY(0.4); } }
+@keyframes reel-b1 { 0%,100% { transform: scaleY(0.3); } 50% { transform: scaleY(0.72); } }
+@keyframes reel-b2 { 0%,100% { transform: scaleY(0.55); } 50% { transform: scaleY(1); } }
+@keyframes reel-b3 { 0%,100% { transform: scaleY(0.85); } 50% { transform: scaleY(0.5); } }
+@keyframes reel-b4 { 0%,100% { transform: scaleY(0.4); } 50% { transform: scaleY(0.26); } }
+@keyframes reel-b5 { 0%,100% { transform: scaleY(0.22); } 50% { transform: scaleY(0.14); } }
+
+/* activation wave */
+.reel-wave { fill: none; stroke: var(--reel-hue); stroke-width: 2.4; opacity: 0.75; }
+.reel-wave-scroll { animation: reel-wavescroll 3s linear infinite; }
+@keyframes reel-wavescroll { from { transform: translateX(0); } to { transform: translateX(60px); } }
+.reel-wave-node {
+  fill: var(--reel-hue);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: reel-diff 1.8s ease-in-out infinite;
+}
+
+/* convergence ring */
+.reel-ring-track { fill: none; stroke: var(--border); stroke-width: 5; }
+.reel-ring-fill {
+  fill: none;
+  stroke: var(--reel-hue);
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  animation: reel-fill 3.4s ease-in-out infinite;
+}
+@keyframes reel-fill { 0% { stroke-dashoffset: 100; } 60%, 100% { stroke-dashoffset: 8; } }
+.reel-ring-core { fill: var(--reel-hue); animation: reel-diff 3.4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reel-track { animation: none; }
+  .reel-descent-dot, .reel-att-cell, .reel-warp-cell, .reel-diff-dot, .reel-vec,
+  .reel-opt-ball, .reel-opt-shadow, .reel-net-edge, .reel-net-node,
+  .reel-bar-0, .reel-bar-1, .reel-bar-2, .reel-bar-3, .reel-bar-4, .reel-bar-5,
+  .reel-wave-scroll, .reel-wave-node, .reel-ring-fill, .reel-ring-core {
+    animation: none;
+  }
+  .reel-att-cell, .reel-warp-cell, .reel-diff-dot, .reel-net-edge { opacity: 0.8; }
+  .reel-ring-fill { stroke-dashoffset: 25; }
+}

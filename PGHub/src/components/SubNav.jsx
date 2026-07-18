@@ -18,9 +18,10 @@ import './SubNav.css';
 // old Review / Lists / Notes / Progress tabs into one hub (those routes stay
 // registered; the tab lights up anywhere under them).
 // Tab order locked by user (2026-07-17): Path · Code · Lab · Battle · Learn ·
-// Forge · Compete · Career · Arena · Vault. PGBattle is the head-to-head race
-// (was PGVersus, route /versus); PGCompete is the contest/LC aggregation hub
-// (was PGBattle, route /compete).
+// Forge · Compete · Career · Arena · Vault. Routes renamed to match the tab names
+// (2026-07-18): Battle=/battle, Forge=/forge, Career=/career, Arena=/arena — old
+// paths (/versus, /ml, /company, /contests) still redirect (App.jsx PrefixRedirect).
+// PGBattle is the head-to-head race; PGCompete (/compete) is the contest/LC hub.
 const TABS = [
   { to: '/',             end: true, icon: Map,           brand: ['PG', 'Path'] },
   { to: '/practice',                icon: List,          brand: ['PG', 'Code'], prefetch: true },

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks } from 'lucide-react';
+import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks, Shuffle } from 'lucide-react';
 import { createMatch, getMyRecord, POWERUPS } from '../../lib/versus';
 import { sendChallenge } from '../../lib/friends';
 import { friendlyError } from '../../lib/errors';
@@ -27,6 +27,8 @@ export default function Versus({ session }) {
   const language = 'python'; // host default; both players switch freely mid-match
   const [numQuestions, setNumQuestions] = useState(1);
   const [allowHints, setAllowHints] = useState(false);
+  const [mode, setMode] = useState('random'); // 'random' | 'custom'
+  const [questionConfig, setQuestionConfig] = useState([{ difficulty: 'Any', hints: 0 }]);
   const [powerup, setPowerup] = useState('none');
   const [joinCode, setJoinCode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -48,7 +50,14 @@ export default function Versus({ session }) {
     if (!user) return;
     setBusy(true); setErr('');
     try {
-      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, allowHints, hostId: user.id, hostName: name });
+      const custom = mode === 'custom';
+      const m = await createMatch({
+        difficulty, language, timeLimit: time, powerup,
+        numQuestions: custom ? questionConfig.length : numQuestions,
+        allowHints: custom ? questionConfig.some((q) => q.hints > 0) : allowHints,
+        mode, questionConfig: custom ? questionConfig : null,
+        hostId: user.id, hostName: name,
+      });
       nav(`/battle/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not create match.')); setBusy(false); }
   };
@@ -60,8 +69,15 @@ export default function Versus({ session }) {
     if (!user || challengingId) return;
     setChallengingId(friend.id); setErr('');
     try {
-      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, allowHints, hostId: user.id, hostName: name });
-      await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time, numQuestions });
+      const custom = mode === 'custom';
+      const m = await createMatch({
+        difficulty, language, timeLimit: time, powerup,
+        numQuestions: custom ? questionConfig.length : numQuestions,
+        allowHints: custom ? questionConfig.some((q) => q.hints > 0) : allowHints,
+        mode, questionConfig: custom ? questionConfig : null,
+        hostId: user.id, hostName: name,
+      });
+      await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time, numQuestions: custom ? questionConfig.length : numQuestions });
       nav(`/battle/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not send challenge.')); setChallengingId(null); }
   };
@@ -85,21 +101,56 @@ export default function Versus({ session }) {
           </div>
           <div className="vs-divider" />
 
-          <div className="vs-row"><span className="vs-row-label">Difficulty</span>
-            <div className="vs-chips">{DIFFS.map((d) => <button key={d} className={`vs-chip ${difficulty === d ? 'on' : ''}`} onClick={() => setDifficulty(d)}>{d}</button>)}</div>
+          <div className="vs-row"><span className="vs-row-label"><Shuffle size={13} /> Mode</span>
+            <div className="vs-chips">
+              <button className={`vs-chip ${mode === 'random' ? 'on' : ''}`} onClick={() => setMode('random')}>Random</button>
+              <button className={`vs-chip ${mode === 'custom' ? 'on' : ''}`} onClick={() => setMode('custom')}>Custom</button>
+            </div>
           </div>
           <div className="vs-row"><span className="vs-row-label"><Clock size={13} /> Time</span>
             <div className="vs-chips">{TIMES.map((t) => <button key={t.v} className={`vs-chip ${time === t.v ? 'on' : ''}`} onClick={() => setTime(t.v)}>{t.label}</button>)}</div>
           </div>
-          <div className="vs-row"><span className="vs-row-label"><ListChecks size={13} /> Questions</span>
-            <div className="vs-chips">{[1, 2, 3, 4].map((n) => <button key={n} className={`vs-chip ${numQuestions === n ? 'on' : ''}`} onClick={() => setNumQuestions(n)}>{n}{n === 1 ? ' question' : ''}</button>)}</div>
-          </div>
-          <div className="vs-row"><span className="vs-row-label"><Lightbulb size={13} /> Hints</span>
-            <div className="vs-chips">
-              <button className={`vs-chip ${!allowHints ? 'on' : ''}`} onClick={() => setAllowHints(false)}>Off</button>
-              <button className={`vs-chip ${allowHints ? 'on' : ''}`} onClick={() => setAllowHints(true)}>Allowed</button>
-            </div>
-          </div>
+          {mode === 'random' ? (
+            <>
+              <div className="vs-row"><span className="vs-row-label">Difficulty</span>
+                <div className="vs-chips">{DIFFS.map((d) => <button key={d} className={`vs-chip ${difficulty === d ? 'on' : ''}`} onClick={() => setDifficulty(d)}>{d}</button>)}</div>
+              </div>
+              <div className="vs-row"><span className="vs-row-label"><ListChecks size={13} /> Questions</span>
+                <div className="vs-chips">{[1, 2, 3, 4].map((n) => <button key={n} className={`vs-chip ${numQuestions === n ? 'on' : ''}`} onClick={() => setNumQuestions(n)}>{n}{n === 1 ? ' question' : ''}</button>)}</div>
+              </div>
+              <div className="vs-row"><span className="vs-row-label"><Lightbulb size={13} /> Hints</span>
+                <div className="vs-chips">
+                  <button className={`vs-chip ${!allowHints ? 'on' : ''}`} onClick={() => setAllowHints(false)}>Off</button>
+                  <button className={`vs-chip ${allowHints ? 'on' : ''}`} onClick={() => setAllowHints(true)}>Allowed</button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="vs-row"><span className="vs-row-label"><ListChecks size={13} /> Questions</span>
+                <div className="vs-chips">{[1, 2, 3, 4].map((n) => (
+                  <button key={n} className={`vs-chip ${questionConfig.length === n ? 'on' : ''}`}
+                    onClick={() => setQuestionConfig((prev) => { const next = [...prev]; while (next.length < n) next.push({ difficulty: 'Any', hints: 0 }); return next.slice(0, n); })}>{n}</button>
+                ))}</div>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.55rem' }}>
+                {questionConfig.map((q, i) => (
+                  <div key={i} style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '0.5rem', padding: '0.55rem 0.7rem', border: '1px solid var(--border)', borderRadius: '10px', background: 'var(--bg)' }}>
+                    <span style={{ fontFamily: 'var(--mono)', fontWeight: 700, fontSize: '0.78rem', color: 'var(--accent)', minWidth: '2.2rem' }}>Q{i + 1}</span>
+                    <div className="vs-chips">{DIFFS.map((d) => (
+                      <button key={d} className={`vs-chip ${q.difficulty === d ? 'on' : ''}`}
+                        onClick={() => setQuestionConfig((prev) => prev.map((c, k) => (k === i ? { ...c, difficulty: d } : c)))}>{d}</button>
+                    ))}</div>
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem', marginLeft: 'auto', color: 'var(--text-dim)', fontSize: '0.76rem' }}><Lightbulb size={12} /> hints</span>
+                    <div className="vs-chips">{[0, 1, 2, 3].map((h) => (
+                      <button key={h} className={`vs-chip ${q.hints === h ? 'on' : ''}`}
+                        onClick={() => setQuestionConfig((prev) => prev.map((c, k) => (k === i ? { ...c, hints: h } : c)))}>{h === 0 ? 'off' : h}</button>
+                    ))}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
           <p style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', margin: '0.1rem 0 0', color: 'var(--text-dim)', fontSize: '0.8rem', lineHeight: 1.4 }}>
             <Code2 size={12} style={{ flexShrink: 0 }} /> Pick your language inside the match — you can switch any time, so no need to lock it now.
           </p>

@@ -2106,11 +2106,20 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       : params.map(p => {
       const line = `String _raw_${p.name} = br.readLine().trim();`;
       if (p.type === 'int') return `${line}\n        int ${p.name} = Integer.parseInt(_raw_${p.name});`;
+      if (p.type === 'float') return `${line}\n        double ${p.name} = Double.parseDouble(_raw_${p.name});`;
       if (p.type === 'str') return `${line}\n        String ${p.name} = _raw_${p.name}.startsWith("\\"") ? _raw_${p.name}.substring(1, _raw_${p.name}.length()-1) : _raw_${p.name};`;
       if (p.type === 'bool') return `${line}\n        boolean ${p.name} = Boolean.parseBoolean(_raw_${p.name});`;
       if (p.type === 'List[int]') return [
         line,
         `        int[] ${p.name} = _parseIntArr(_raw_${p.name});`,
+      ].join('\n        ');
+      if (p.type === 'List[float]') return [
+        line,
+        `        double[] ${p.name} = _parseDblArr(_raw_${p.name});`,
+      ].join('\n        ');
+      if (p.type === 'List[bool]') return [
+        line,
+        `        boolean[] ${p.name} = _parseBoolArr(_raw_${p.name});`,
       ].join('\n        ');
       if (p.type === 'List[str]') return [
         line,
@@ -2269,6 +2278,30 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
       '        String[] parts = inner.split(",");',
       '        int[] arr = new int[parts.length];',
       '        for (int i = 0; i < parts.length; i++) arr[i] = Integer.parseInt(parts[i].trim());',
+      '        return arr;',
+      '    }',
+      '',
+      '    static double[] _parseDblArr(String s) {',
+      '        if (s == null) return new double[0];',
+      '        String t = s.trim();',
+      '        if (t.length() < 2) return new double[0];',
+      '        String inner = t.substring(1, t.length()-1).trim();',
+      '        if (inner.isEmpty()) return new double[0];',
+      '        String[] parts = inner.split(",");',
+      '        double[] arr = new double[parts.length];',
+      '        for (int i = 0; i < parts.length; i++) arr[i] = Double.parseDouble(parts[i].trim());',
+      '        return arr;',
+      '    }',
+      '',
+      '    static boolean[] _parseBoolArr(String s) {',
+      '        if (s == null) return new boolean[0];',
+      '        String t = s.trim();',
+      '        if (t.length() < 2) return new boolean[0];',
+      '        String inner = t.substring(1, t.length()-1).trim();',
+      '        if (inner.isEmpty()) return new boolean[0];',
+      '        String[] parts = inner.split(",");',
+      '        boolean[] arr = new boolean[parts.length];',
+      '        for (int i = 0; i < parts.length; i++) { String p = parts[i].trim(); arr[i] = p.equals("true") || p.equals("1") || p.equals("True"); }',
       '        return arr;',
       '    }',
       '',

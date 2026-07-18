@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, Suspense, lazy, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, Suspense, lazy as reactLazy, useRef } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from './lib/supabase';
@@ -13,35 +13,83 @@ import CommandPalette from './components/CommandPalette';
 import ChallengeToast from './components/versus/ChallengeToast';
 import './styles/theme.css';
 
-// ErrorBoundary so a render crash inside one route doesn't blank #root and
-// strand the user with no nav. Reset on route change via key={pathname}.
+// A stale open tab holds OLD chunk hashes; after a deploy those files 404, so a lazy
+// route import rejects with "Failed to fetch dynamically imported module". Retry the
+// import ONCE via a hard reload (time-guarded to avoid loops) so the user silently gets
+// the fresh bundle instead of ever seeing that raw error. `lazy` wraps React.lazy so
+// every route definition below gets this behaviour for free.
+const isChunkError = (e) => /dynamically imported module|Loading (chunk|CSS chunk)|Importing a module script failed|ChunkLoadError|error loading dynamically|failed to fetch/i.test((e && (e.message || String(e))) || '');
+function lazy(factory) {
+  return reactLazy(() => factory().catch((e) => {
+    if (isChunkError(e)) {
+      let last = 0;
+      try { last = Number(sessionStorage.getItem('pg-chunk-reload') || 0); } catch { /* private mode */ }
+      if (Date.now() - last > 8000) {
+        try { sessionStorage.setItem('pg-chunk-reload', String(Date.now())); } catch { /* ignore */ }
+        window.location.reload();
+        return new Promise(() => {}); // hang until the reload takes over
+      }
+    }
+    throw e;
+  }));
+}
+
+// Global backstop: any chunk-load failure that escapes the error boundary (a rejected
+// prefetch, a script-load error) also triggers one silent refresh, so these NEVER reach
+// the user as a raw error.
+if (typeof window !== 'undefined') {
+  const reloadOnChunkFail = (raw) => {
+    if (!isChunkError({ message: raw })) return;
+    let last = 0;
+    try { last = Number(sessionStorage.getItem('pg-chunk-reload') || 0); } catch { /* ignore */ }
+    if (Date.now() - last > 8000) {
+      try { sessionStorage.setItem('pg-chunk-reload', String(Date.now())); } catch { /* ignore */ }
+      window.location.reload();
+    }
+  };
+  window.addEventListener('unhandledrejection', (e) => reloadOnChunkFail(e?.reason?.message || String(e?.reason || '')));
+  window.addEventListener('error', (e) => reloadOnChunkFail(e?.message || ''));
+}
+
+// ErrorBoundary so a render crash inside one route doesn't blank #root and strand the
+// user with no nav. Reset on route change via key={pathname}. NEVER surfaces the raw
+// error text (it can leak chunk URLs / internal detail) — chunk-load failures trigger a
+// silent refresh; anything else shows a clean generic message.
 class RouteErrorBoundary extends React.Component {
   constructor(props) { super(props); this.state = { err: null }; }
   static getDerivedStateFromError(err) { return { err }; }
-  componentDidCatch(err, info) { console.error('Route crashed:', err, info?.componentStack); }
+  componentDidCatch(err, info) {
+    console.error('Route crashed:', err, info?.componentStack);
+    if (isChunkError(err)) {
+      let last = 0;
+      try { last = Number(sessionStorage.getItem('pg-chunk-reload') || 0); } catch { /* ignore */ }
+      if (Date.now() - last > 8000) {
+        try { sessionStorage.setItem('pg-chunk-reload', String(Date.now())); } catch { /* ignore */ }
+        window.location.reload();
+      }
+    }
+  }
   render() {
     if (this.state.err) {
+      const chunk = isChunkError(this.state.err);
       return (
-        <div style={{ padding: '3rem 2rem', maxWidth: 720, margin: '0 auto', color: 'var(--text-main)' }}>
+        <div style={{ padding: '3rem 2rem', maxWidth: 640, margin: '0 auto', color: 'var(--text-main)' }}>
           <h1 style={{ fontFamily: 'var(--serif)', fontSize: '1.4rem', marginBottom: '0.6rem' }}>
-            Something broke on this page.
+            {chunk ? 'A new version is available' : 'Something broke on this page.'}
           </h1>
           <p style={{ color: 'var(--text-dim)', marginBottom: '1rem' }}>
-            We logged the error. The rest of the app is fine — head back and try a different route.
+            {chunk
+              ? 'Refreshing to load the latest version…'
+              : 'The rest of the app is fine — head back and try a different route, or reload.'}
           </p>
-          <pre style={{
-            background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8,
-            padding: '0.8rem 1rem', fontSize: '0.75rem', color: 'var(--text-dim)',
-            whiteSpace: 'pre-wrap', wordBreak: 'break-word',
-          }}>{String(this.state.err?.message || this.state.err)}</pre>
           <div style={{ display: 'flex', gap: '0.6rem', marginTop: '1rem' }}>
             <Link to="/" style={{ color: 'var(--accent)' }}>Back to roadmap</Link>
             <Link to="/practice" style={{ color: 'var(--accent)' }}>Browse problems</Link>
             <button
               type="button"
-              onClick={() => this.setState({ err: null })}
+              onClick={() => { this.setState({ err: null }); if (chunk) window.location.reload(); }}
               style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-main)', padding: '0.2rem 0.6rem', borderRadius: 4, cursor: 'pointer' }}
-            >Retry</button>
+            >{chunk ? 'Reload now' : 'Retry'}</button>
           </div>
         </div>
       );

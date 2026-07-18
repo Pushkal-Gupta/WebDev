@@ -19,15 +19,35 @@ export const POWERUPS = [
   { id: 'freeze',  label: 'Cold Open',  icon: 'Snowflake',desc: 'Your rival starts 15 seconds after you do.' },
 ];
 
-export async function createMatch({ difficulty = 'Any', language = 'python', timeLimit = 1500, powerup = 'none', numQuestions = 1, topic = null, allowHints = false, hostId, hostName }) {
+export async function createMatch({ difficulty = 'Any', language = 'python', timeLimit = 1500, powerup = 'none', numQuestions = 1, topic = null, allowHints = false, mode = 'random', questionConfig = null, hostId, hostName }) {
   const id = genCode();
+  const custom = mode === 'custom' && Array.isArray(questionConfig) && questionConfig.length;
+  const nQ = custom ? questionConfig.length : Math.max(1, Math.min(4, numQuestions));
   const { data, error } = await supabase.from('PGcode_versus_matches').insert({
     id, status: 'waiting', difficulty, language, host_language: language, time_limit_sec: timeLimit, powerup,
-    num_questions: Math.max(1, Math.min(4, numQuestions)), topic, allow_hints: allowHints,
+    num_questions: nQ, topic, allow_hints: allowHints,
+    mode: custom ? 'custom' : 'random',
+    question_config: custom ? questionConfig : null,
     host_id: hostId, host_name: hostName || 'Host',
   }).select().single();
   if (error) throw error;
   return data;
+}
+
+// Custom mode: pick one DISTINCT gradeable problem per question at THAT question's
+// difficulty. Falls back to whatever's available if a difficulty runs dry.
+export async function pickProblemsForConfig(questionConfig) {
+  const cfg = Array.isArray(questionConfig) ? questionConfig : [];
+  if (!cfg.length) return [];
+  const chosen = [];
+  const used = new Set();
+  for (const q of cfg) {
+    const ids = await pickRandomProblems(q?.difficulty || 'Any', 16);
+    let pick = ids.find((id) => !used.has(id));
+    if (!pick) { const any = await pickRandomProblems('Any', 16); pick = any.find((id) => !used.has(id)); }
+    if (pick) { used.add(pick); chosen.push(pick); }
+  }
+  return chosen;
 }
 
 // Guest picks their OWN language when they join — the two players can code in different langs.

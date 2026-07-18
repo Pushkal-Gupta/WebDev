@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { BarChart3, Trophy, Users, Calendar, Tag, ExternalLink, CalendarOff } from 'lucide-react';
 import { useExternalContests } from '../../lib/queries';
 import Breadcrumb from '../common/Breadcrumb';
@@ -22,11 +22,11 @@ const PLATFORM_LABEL = { codeforces: 'Codeforces', atcoder: 'AtCoder', codechef:
 
 export default function CompetitionsSection() {
   const { data: rows = [], isLoading } = useExternalContests();
+  const [now] = useState(() => Date.now());
 
   // Competitive-programming judges (the ML/Kaggle track lives at /compete/kaggle).
   // Upcoming/ongoing first so the page leads with what's next, not old rounds.
   const competitions = useMemo(() => {
-    const now = Date.now();
     const CP = new Set(['codeforces', 'atcoder', 'codechef']);
     return rows
       .filter((r) => CP.has(r.platform))
@@ -36,7 +36,7 @@ export default function CompetitionsSection() {
         return now <= end; // hide finished rounds
       })
       .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
-  }, [rows]);
+  }, [rows, now]);
 
   return (
     <div className="lnch">

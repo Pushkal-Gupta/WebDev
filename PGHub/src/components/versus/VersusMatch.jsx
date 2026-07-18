@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { getMatch, joinMatch, updateMatch, pickRandomProblems, matchChannel, setGuestLanguage } from '../../lib/versus';
+import { getMatch, joinMatch, updateMatch, pickRandomProblems, pickProblemsForConfig, matchChannel, setGuestLanguage } from '../../lib/versus';
+import { analyzeComplexity, complexityRank } from '../../lib/complexityAnalyzer';
 import { gradeOnServer } from '../../lib/codeRunner';
 import { generateTemplate } from '../../lib/driverCode';
 import { friendlyError } from '../../lib/errors';
@@ -38,6 +39,10 @@ export default function VersusMatch({ session }) {
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
   const [err, setErr] = useState('');
+  const [leftTab, setLeftTab] = useState('description');
+  const [subs, setSubs] = useState([]);            // this player's submission history (newest last)
+  const [myCx, setMyCx] = useState(null);          // { time, space } — my latest solved complexity
+  const [oppCx, setOppCx] = useState(null);        // { time, space, solved } — broadcast from rival
 
   const chanRef = useRef(null);
   const typingTimer = useRef(null);
@@ -84,6 +89,7 @@ export default function VersusMatch({ session }) {
       if (others[0]?.name) setOppName(others[0].name);
     });
     ch.on('broadcast', { event: 'progress' }, ({ payload }) => { if (payload.uid !== user.id) setOppSolvedCount(payload.solved || 0); });
+    ch.on('broadcast', { event: 'complexity' }, ({ payload }) => { if (payload.uid !== user.id) setOppCx({ time: payload.time, space: payload.space, solved: payload.solved }); });
     ch.on('broadcast', { event: 'typing' }, ({ payload }) => {
       if (payload.uid === user.id) return;
       setOppTyping(true);
@@ -151,7 +157,9 @@ export default function VersusMatch({ session }) {
     if (role !== 'host' || starting) return;
     setErr(''); setStarting(true);
     try {
-      const ids = await pickRandomProblems(match.difficulty, numQ);
+      const ids = (match.mode === 'custom' && Array.isArray(match.question_config) && match.question_config.length)
+        ? await pickProblemsForConfig(match.question_config)
+        : await pickRandomProblems(match.difficulty, numQ);
       if (!ids.length) { setErr('No gradeable problem found for that difficulty.'); setStarting(false); return; }
       const m = await updateMatch(code, { problem_ids: ids, problem_id: ids[0], status: 'active', started_at: new Date().toISOString() });
       if (m) setMatch(m); else await refreshMatch();
@@ -209,12 +217,17 @@ export default function VersusMatch({ session }) {
       const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
       const passed = res?.passed ?? 0, total = res?.total ?? 0;
       setCaseInfo({ passed, total });
+      const elapsed = match?.started_at ? Math.floor((Date.now() - new Date(match.started_at).getTime()) / 1000) : null;
+      setSubs((prev) => [...prev, { q: qIndex, passed, total, verdict: total > 0 && passed === total ? 'Accepted' : 'Wrong Answer', lang: myLang, at: Date.now(), time: elapsed }]);
       if (total > 0 && passed === total && !mySolved.includes(qIndex)) {
         const solved = [...mySolved, qIndex];
         setMySolved(solved);
         const col = role === 'host' ? 'host_solved' : 'guest_solved';
         updateMatch(code, { [col]: solved }).catch(() => {});
         chanRef.current?.send({ type: 'broadcast', event: 'progress', payload: { uid: user.id, solved: solved.length } });
+        const cx = analyzeComplexity(codeByQ[qIndex] || '', myLang, prob.method_name || '');
+        setMyCx({ time: cx.time, space: cx.space });
+        chanRef.current?.send({ type: 'broadcast', event: 'complexity', payload: { uid: user.id, time: cx.time, space: cx.space, solved: solved.length } });
         if (solved.length >= numQ && !wonRef.current) {
           wonRef.current = true;
           setResult({ win: true, reason: `You finished all ${numQ} question${numQ > 1 ? 's' : ''} first!` });
@@ -315,12 +328,34 @@ export default function VersusMatch({ session }) {
   const pctMe = numQ ? Math.round((myCount / numQ) * 100) : 0;
   const pctOpp = numQ ? Math.round((oppSolvedCount / numQ) * 100) : 0;
   const prob = problems[qIndex];
+  // In custom mode each question caps its own hint count; random mode allows all.
+  const maxHints = (match.mode === 'custom' && match.question_config?.[qIndex]?.hints != null)
+    ? Math.min(match.question_config[qIndex].hints, prob?.hints?.length || 0)
+    : (prob?.hints?.length || 0);
   // time-out resolution
   if (remain === 0 && !result && !wonRef.current) {
     wonRef.current = true;
     const win = myCount > oppSolvedCount;
     setResult({ win, reason: win ? 'Time up — you solved more.' : (myCount === oppSolvedCount ? "Time up — it's a draw." : 'Time up — your rival solved more.') });
   }
+  // Review bars: size a bar by the complexity RANK (worse tier = longer bar). O(1) still
+  // shows a sliver so the row reads as "solved".
+  const cxW = (c) => (c ? Math.round(((complexityRank(c) + 1) / 8) * 100) : 0);
+  const reviewMetric = (label, mine, theirs) => (
+    <div className="vs-rv-metric">
+      <div className="vs-rv-mlabel">{label}</div>
+      <div className="vs-rv-row">
+        <span className="vs-rv-who you"><User size={12} /> {myName}</span>
+        <div className="vs-rv-track"><div className="vs-rv-bar you" style={{ width: cxW(mine) + '%' }} /></div>
+        <span className="vs-rv-val">{mine || 'not solved yet'}</span>
+      </div>
+      <div className="vs-rv-row">
+        <span className="vs-rv-who foe"><User size={12} /> {oppName}</span>
+        <div className="vs-rv-track"><div className="vs-rv-bar foe" style={{ width: cxW(theirs) + '%' }} /></div>
+        <span className="vs-rv-val">{theirs || 'not solved yet'}</span>
+      </div>
+    </div>
+  );
 
   return (
     <div className="vs-battle">
@@ -353,40 +388,112 @@ export default function VersusMatch({ session }) {
 
       <div className="vs-battle-main">
         <div className="vs-prob">
-          <h3>{prob ? `${numQ > 1 ? `Q${qIndex + 1}. ` : ''}${prob.name}` : 'Loading…'} {prob ? <span className={`vs-diff ${(prob.difficulty || '').toLowerCase()}`}>{prob.difficulty}</span> : null}</h3>
-          <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: prob?.description || '' }} />
-          {prob?.test_cases?.length ? (
-            <div className="vs-examples">
-              {prob.test_cases.slice(0, 3).map((tc, i) => (
-                <div key={i} className="vs-example">
-                  <div className="vs-example-tag">Example {i + 1}</div>
-                  <div className="vs-example-line"><span className="vs-example-k">Input</span><code>{(prob.params?.length ? prob.params.map((p, j) => `${p.name} = ${tc.inputs?.[j] ?? ''}`).join(', ') : (tc.inputs || []).join(', '))}</code></div>
-                  <div className="vs-example-line"><span className="vs-example-k">Output</span><code>{tc.expected}</code></div>
+          <div className="vs-ltabs">
+            <button className={`vs-ltab ${leftTab === 'description' ? 'on' : ''}`} onClick={() => setLeftTab('description')}><FileText size={14} /> Description</button>
+            <button className={`vs-ltab ${leftTab === 'testcase' ? 'on' : ''}`} onClick={() => setLeftTab('testcase')}><TestTube size={14} /> Testcase</button>
+            <button className={`vs-ltab ${leftTab === 'submissions' ? 'on' : ''}`} onClick={() => setLeftTab('submissions')}><Award size={14} /> Submissions{subs.length ? ` (${subs.length})` : ''}</button>
+            <button className={`vs-ltab ${leftTab === 'review' ? 'on' : ''}`} onClick={() => setLeftTab('review')}><BarChart3 size={14} /> Review</button>
+            {match.allow_hints && prob?.hints?.length ? (
+              <button className={`vs-ltab ${leftTab === 'hints' ? 'on' : ''}`} onClick={() => setLeftTab('hints')}><Lightbulb size={14} /> Hints</button>
+            ) : null}
+          </div>
+
+          <div className="vs-ltab-body">
+            {leftTab === 'description' && (
+              <>
+                <h3>{prob ? `${numQ > 1 ? `Q${qIndex + 1}. ` : ''}${prob.name}` : 'Loading…'} {prob ? <span className={`vs-diff ${(prob.difficulty || '').toLowerCase()}`}>{prob.difficulty}</span> : null}</h3>
+                <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: prob?.description || '' }} />
+                {prob?.test_cases?.length ? (
+                  <div className="vs-examples">
+                    {prob.test_cases.slice(0, 3).map((tc, i) => (
+                      <div key={i} className="vs-example">
+                        <div className="vs-example-tag">Example {i + 1}</div>
+                        <div className="vs-example-line"><span className="vs-example-k">Input</span><code>{(prob.params?.length ? prob.params.map((p, j) => `${p.name} = ${tc.inputs?.[j] ?? ''}`).join(', ') : (tc.inputs || []).join(', '))}</code></div>
+                        <div className="vs-example-line"><span className="vs-example-k">Output</span><code>{tc.expected}</code></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null}
+                {prob?.constraints && (Array.isArray(prob.constraints) ? prob.constraints.length : String(prob.constraints).trim()) ? (
+                  <div className="vs-constraints">
+                    <div className="vs-examples-title">Constraints</div>
+                    <ul>{(Array.isArray(prob.constraints) ? prob.constraints : [prob.constraints]).map((c, i) => <li key={i}><code>{c}</code></li>)}</ul>
+                  </div>
+                ) : null}
+              </>
+            )}
+
+            {leftTab === 'testcase' && (
+              <div className="vs-tc-pane">
+                {caseInfo ? (
+                  <div className={`vs-tc-result ${caseInfo.total > 0 && caseInfo.passed === caseInfo.total ? 'pass' : 'fail'}`}>
+                    {caseInfo.total > 0 && caseInfo.passed === caseInfo.total ? <Check size={15} /> : <Zap size={15} />}
+                    {caseInfo.passed}/{caseInfo.total} tests passed{caseInfo.ran ? ' (run)' : ''}
+                  </div>
+                ) : <p className="vs-tc-hint">Run or submit to see how many test cases pass.</p>}
+                {prob?.test_cases?.length ? (
+                  <div className="vs-examples">
+                    {prob.test_cases.slice(0, 3).map((tc, i) => (
+                      <div key={i} className="vs-example">
+                        <div className="vs-example-tag">Case {i + 1}</div>
+                        <div className="vs-example-line"><span className="vs-example-k">Input</span><code>{(prob.params?.length ? prob.params.map((p, j) => `${p.name} = ${tc.inputs?.[j] ?? ''}`).join(', ') : (tc.inputs || []).join(', '))}</code></div>
+                        <div className="vs-example-line"><span className="vs-example-k">Expected</span><code>{tc.expected}</code></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : <p className="vs-tc-hint">No sample test cases for this problem.</p>}
+              </div>
+            )}
+
+            {leftTab === 'submissions' && (
+              <div className="vs-subs">
+                {subs.length ? [...subs].reverse().map((s, i) => (
+                  <div key={i} className="vs-sub-row">
+                    <span className={`vs-sub-pill ${s.verdict === 'Accepted' ? 'ok' : 'no'}`}>{s.verdict === 'Accepted' ? <Check size={12} /> : <Zap size={12} />} {s.verdict}</span>
+                    <span className="vs-sub-q">Q{s.q + 1}</span>
+                    <span className="vs-sub-lang">{s.lang}</span>
+                    <span className="vs-sub-count">{s.passed}/{s.total}</span>
+                    {s.time != null ? <span className="vs-sub-time"><Clock size={11} /> {String(Math.floor(s.time / 60)).padStart(2, '0')}:{String(s.time % 60).padStart(2, '0')}</span> : null}
+                  </div>
+                )) : <p className="vs-tc-hint">Your submissions will show here after you hit Submit.</p>}
+              </div>
+            )}
+
+            {leftTab === 'review' && (
+              <div className="vs-review">
+                <div className="vs-rv-head"><BarChart3 size={15} /> {myName} <span>vs</span> {oppName}</div>
+                {reviewMetric('Time complexity', myCx?.time, oppCx?.time)}
+                {reviewMetric('Space complexity', myCx?.space, oppCx?.space)}
+                <div className="vs-rv-metric">
+                  <div className="vs-rv-mlabel">Solved</div>
+                  <div className="vs-rv-row">
+                    <span className="vs-rv-who you"><User size={12} /> {myName}</span>
+                    <div className="vs-rv-track"><div className="vs-rv-bar you" style={{ width: (numQ ? (myCount / numQ) * 100 : 0) + '%' }} /></div>
+                    <span className="vs-rv-val">{myCount}/{numQ}</span>
+                  </div>
+                  <div className="vs-rv-row">
+                    <span className="vs-rv-who foe"><User size={12} /> {oppName}</span>
+                    <div className="vs-rv-track"><div className="vs-rv-bar foe" style={{ width: (numQ ? (oppSolvedCount / numQ) * 100 : 0) + '%' }} /></div>
+                    <span className="vs-rv-val">{oppSolvedCount}/{numQ}</span>
+                  </div>
                 </div>
-              ))}
-            </div>
-          ) : null}
-          {prob?.constraints && (Array.isArray(prob.constraints) ? prob.constraints.length : String(prob.constraints).trim()) ? (
-            <div className="vs-constraints">
-              <div className="vs-examples-title">Constraints</div>
-              <ul>{(Array.isArray(prob.constraints) ? prob.constraints : [prob.constraints]).map((c, i) => <li key={i}><code>{c}</code></li>)}</ul>
-            </div>
-          ) : null}
-          {match.allow_hints && prob?.hints?.length ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
-              {prob.hints.slice(0, hintsShown).map((h, i) => (
-                <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'color-mix(in srgb, var(--medium) 8%, var(--surface))', color: 'var(--text-main)', fontSize: '0.86rem', lineHeight: 1.5 }}>
-                  <Lightbulb size={14} style={{ color: 'var(--medium)', flexShrink: 0, marginTop: '2px' }} /> <span>{h}</span>
-                </div>
-              ))}
-              {hintsShown < prob.hints.length ? (
-                <button type="button" onClick={() => setHintsShown((n) => n + 1)}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', alignSelf: 'flex-start', padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-main)', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' }}>
-                  <Lightbulb size={13} /> {hintsShown === 0 ? 'Show a hint' : `Next hint (${hintsShown}/${prob.hints.length})`}
-                </button>
-              ) : null}
-            </div>
-          ) : null}
+                {!myCx && !oppCx ? <p className="vs-tc-hint">Solve a question to compare complexity. Bars grow as the estimated Big-O gets worse — shorter is better.</p> : null}
+              </div>
+            )}
+
+            {leftTab === 'hints' && match.allow_hints && maxHints > 0 ? (
+              <div className="vs-hints">
+                {prob.hints.slice(0, Math.min(hintsShown, maxHints)).map((h, i) => (
+                  <div key={i} className="vs-hint"><Lightbulb size={14} /> <span>{h}</span></div>
+                ))}
+                {hintsShown < maxHints ? (
+                  <button type="button" className="vs-hint-btn" onClick={() => setHintsShown((n) => n + 1)}>
+                    <Lightbulb size={13} /> {hintsShown === 0 ? 'Show a hint' : `Next hint (${hintsShown}/${maxHints})`}
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
         <div className="vs-editor">
           <div className="vs-editor-head">

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect, useRef, useId } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Sigma, ListChecks, FileText, Cpu, FolderGit2, Map, Route, Swords,
+  Sigma, ListChecks, FileText, Cpu, FolderGit2, Map, Route,
   ArrowRight, ArrowUpRight, Code2, BookOpen, Trophy, Table2,
   Play, Pause, StepForward, RotateCcw,
 } from 'lucide-react';
@@ -9,32 +9,38 @@ import { PILLARS } from '../../../content/mlContent';
 import { MATH_MODULES } from './pgForgeMathData';
 import { PG_FORGE_PROBLEMS } from './pgForgeProblemsData';
 import { PAPERS } from './pgForgePapersData';
-import ForgeHubThumb, { PapersThumb } from './ForgeHubThumbs';
+import {
+  PapersThumb, FoundationsThumb, LessonsThumb, ProjectsThumb, ProblemsThumb,
+  CudaThumb, RoadmapsThumb, StudyPlansThumb, ProgressThumb, SheetsThumb,
+} from './ForgeHubThumbs';
 import './PGForgeHub.css';
 
-// The eight surfaces of PGForge. ML Math owns the foundations; Lessons owns the
+// The surfaces of PGForge. ML Math owns the foundations; Lessons owns the
 // applied/architecture track — they no longer both advertise "linear algebra",
-// which is what read as duplicated.
+// which is what read as duplicated. Each card carries its own animated thumb —
+// the shared ForgeHubThumb router keys on the legacy /ml paths, so mapping the
+// component directly here keeps every card's preview on-topic instead of
+// collapsing to the fallback.
 const PILLAR_CARDS = [
-  { to: '/ml/math',        icon: Sigma,      title: 'Foundations',  thumb: 'matrix',
-    desc: 'Linear algebra, calculus, probability, optimization, and information theory — each with a live visual.' },
-  { to: '/ml/learn',       icon: BookOpen,   title: 'Lessons',      thumb: 'network',
-    desc: 'Deep nets, attention, transformers, diffusion, and RL — the architectures, end to end.' },
-  { to: '/ml/projects',    icon: FolderGit2, title: 'Projects',     thumb: 'diffusion',
+  { to: '/forge/projects',    icon: FolderGit2, title: 'Projects',     Thumb: ProjectsThumb,
     desc: 'Build something real: a digit classifier, a small transformer, backprop from scratch.' },
-  { to: '/ml/problems',    icon: ListChecks, title: 'Problems',     thumb: 'descent',
+  { to: '/forge/problems',    icon: ListChecks, title: 'Problems',     Thumb: ProblemsThumb,
     desc: 'Implement optimizers, activations, losses, and classic models from scratch — one runnable task each.' },
-  { to: '/ml/papers',      icon: FileText,   title: 'Papers',       thumb: 'paper',
+  { to: '/forge/papers',      icon: FileText,   title: 'Papers',       Thumb: PapersThumb,
     desc: 'Landmark reads rebuilt step by step — attention, residual nets, Adam, diffusion.' },
-  { to: '/ml/cuda',        icon: Cpu,        title: 'CUDA Kernels', thumb: 'cuda',
+  { to: '/forge/learn',       icon: BookOpen,   title: 'Lessons',      Thumb: LessonsThumb,
+    desc: 'Deep nets, attention, transformers, diffusion, and RL — the architectures, end to end.' },
+  { to: '/forge/math',        icon: Sigma,      title: 'Foundations',  Thumb: FoundationsThumb,
+    desc: 'Linear algebra, calculus, probability, optimization, and information theory — each with a live visual.' },
+  { to: '/forge/cuda',        icon: Cpu,        title: 'CUDA Kernels', Thumb: CudaThumb,
     desc: 'Write the GPU kernels under the math — reductions, tiled matmul, softmax, scan.' },
-  { to: '/ml/roadmaps',    icon: Map,        title: 'Roadmaps',     thumb: 'orbit',
+  { to: '/forge/roadmaps',    icon: Map,        title: 'Roadmaps',     Thumb: RoadmapsThumb,
     desc: 'An ordered path from math foundations through architectures to reinforcement learning.' },
-  { to: '/ml/study-plans', icon: Route,      title: 'Study Plans',  thumb: 'wave',
+  { to: '/forge/study-plans', icon: Route,      title: 'Study Plans',  Thumb: StudyPlansThumb,
     desc: 'Guided tracks that string lessons, problems, papers, and math into one route.' },
-  { to: '/ml/progress',    icon: Trophy,     title: 'Progress',     thumb: 'bars',
+  { to: '/forge/progress',    icon: Trophy,     title: 'Progress',     Thumb: ProgressThumb,
     desc: 'Your solved-problem ring, badges, submission streak, and recent activity.' },
-  { to: '/ml/sheets',      icon: Table2,     title: 'Sheets',       thumb: 'matrix',
+  { to: '/forge/sheets',      icon: Table2,     title: 'Sheets',       Thumb: SheetsThumb,
     desc: 'Quick-reference cheat sheets — NumPy, PyTorch, CUDA, Triton, and ML interviews.' },
 ];
 
@@ -267,6 +273,8 @@ function LossSurfaceViz() {
           {cells.map((cell, i) => (
             <polygon
               key={i}
+              className={reduce ? undefined : 'forge-hero-cell'}
+              style={reduce ? undefined : { animationDelay: `${(cell.depth * -0.11).toFixed(2)}s` }}
               points={cell.pts}
               fill={`color-mix(in srgb, var(--hue-pink) ${Math.round(cell.t * 100)}%, var(--hue-sky))`}
               stroke="var(--surface)"
@@ -275,8 +283,16 @@ function LossSurfaceViz() {
             />
           ))}
         </g>
+        {/* glowing comet trail */}
+        <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="4.5"
+          strokeLinejoin="round" strokeLinecap="round" opacity="0.35" filter={`url(#${ids.glow})`} />
         <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="2.4"
-          strokeLinejoin="round" strokeLinecap="round" opacity="0.92" />
+          strokeLinejoin="round" strokeLinecap="round" opacity="0.95" />
+        {/* rhythmic pulse ring emanating from the marker */}
+        {!reduce && (
+          <circle className="forge-hero-pulse" cx={curPt[0]} cy={curPt[1]} r="5.4" fill="none"
+            stroke="var(--accent)" strokeWidth="1.4" />
+        )}
         <circle cx={curPt[0]} cy={curPt[1]} r={8.5} fill="none"
           stroke="var(--accent)" strokeWidth="1.2" opacity={0.22 + 0.34 * (1 - norm)} />
         <g filter={`url(#${ids.glow})`}>
@@ -318,6 +334,209 @@ function LossSurfaceViz() {
         The marker rolls down −∇L into the nearest basin, then re-seeds and drops again. Raise the <b>learning rate</b> and it overshoots and oscillates; too high and it diverges up the warm ridges. Move the start point to steer it into a different valley.
       </p>
     </div>
+  );
+}
+
+// ── Reel mini-viz ───────────────────────────────────────────────────────────
+// A Netflix-style row of tiny, always-moving ML visuals that glides left forever.
+// Each viz is pure CSS-animated inline SVG (no SMIL ids, so the duplicated
+// marquee track never collides), theme-tokened via the --reel-hue the tile sets.
+const REEL_VB = '0 0 120 72';
+
+function VizDescent() {
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <line className="reel-base" x1="10" y1="60" x2="110" y2="60" />
+      <path className="reel-descent-curve" d="M12 16 Q60 78 108 16" />
+      <circle className="reel-descent-dot" cx="12" cy="16" r="4.6" />
+    </svg>
+  );
+}
+
+function VizAttention() {
+  const cells = [];
+  for (let r = 0; r < 4; r += 1) {
+    for (let c = 0; c < 6; c += 1) cells.push({ r, c });
+  }
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {cells.map(({ r, c }) => (
+        <rect key={`${r}-${c}`} className="reel-att-cell" x={16 + c * 15} y={9 + r * 14}
+          width="12" height="11" rx="2.4" style={{ animationDelay: `${(r + c) * 0.16}s` }} />
+      ))}
+    </svg>
+  );
+}
+
+function VizDiffusion() {
+  const dots = [
+    [24, 20], [40, 14], [58, 24], [76, 16], [94, 26], [30, 40],
+    [48, 48], [66, 40], [84, 50], [100, 40], [20, 54], [58, 58],
+  ];
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {dots.map(([x, y], i) => (
+        <circle key={i} className="reel-diff-dot" cx={x} cy={y} r="4"
+          style={{ animationDelay: `${(i % 6) * 0.28}s` }} />
+      ))}
+    </svg>
+  );
+}
+
+function VizVectorField() {
+  const arrows = [];
+  for (let r = 0; r < 3; r += 1) {
+    for (let c = 0; c < 5; c += 1) arrows.push({ x: 20 + c * 20, y: 16 + r * 20, d: r + c });
+  }
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {arrows.map(({ x, y, d }, i) => (
+        <g key={i} className="reel-vec" style={{ transformOrigin: `${x}px ${y}px`, animationDelay: `${d * 0.2}s` }}>
+          <line className="reel-vec-line" x1={x - 7} y1={y} x2={x + 6} y2={y} />
+          <path className="reel-vec-head" d={`M${x + 6} ${y - 3} L${x + 10} ${y} L${x + 6} ${y + 3} Z`} />
+        </g>
+      ))}
+    </svg>
+  );
+}
+
+function VizOptimizer() {
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <path className="reel-opt-bowl" d="M14 20 Q60 82 106 20" />
+      <ellipse className="reel-opt-shadow" cx="60" cy="60" rx="11" ry="3.4" />
+      <circle className="reel-opt-ball" cx="60" cy="18" r="6" />
+    </svg>
+  );
+}
+
+function VizNeuralNet() {
+  const cols = [24, 60, 96];
+  const ys = [[18, 40, 62], [26, 54], [22, 50]];
+  const edges = [];
+  ys[0].forEach((y0, a) => ys[1].forEach((y1, b) => edges.push({ x1: cols[0], y1: y0, x2: cols[1], y2: y1, d: a + b })));
+  ys[1].forEach((y1, a) => ys[2].forEach((y2, b) => edges.push({ x1: cols[1], y1, x2: cols[2], y2, d: a + b + 3 })));
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {edges.map((e, i) => (
+        <line key={i} className="reel-net-edge" x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+          style={{ animationDelay: `${e.d * 0.22}s` }} />
+      ))}
+      {ys.map((layer, li) => layer.map((y, i) => (
+        <circle key={`${li}-${i}`} className="reel-net-node" cx={cols[li]} cy={y} r="5.4"
+          style={{ animationDelay: `${(li * 3 + i) * 0.18}s` }} />
+      )))}
+    </svg>
+  );
+}
+
+function VizSoftmax() {
+  const bars = [0, 1, 2, 3, 4, 5];
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <line className="reel-base" x1="12" y1="62" x2="108" y2="62" />
+      {bars.map((i) => (
+        <rect key={i} className={`reel-bar reel-bar-${i}`} x={16 + i * 15} y="12" width="11" height="50"
+          rx="2.4" style={{ transformOrigin: `${21 + i * 15}px 62px` }} />
+      ))}
+    </svg>
+  );
+}
+
+function VizActivation() {
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <line className="reel-base" x1="10" y1="40" x2="110" y2="40" />
+      <g className="reel-wave-scroll">
+        <path className="reel-wave" d="M-60 40 Q-45 12 -30 40 T0 40 T30 40 T60 40 T90 40 T120 40 T150 40 T180 40" />
+      </g>
+      <circle className="reel-wave-node" cx="60" cy="40" r="4.4" />
+    </svg>
+  );
+}
+
+function VizWarp() {
+  const cells = [];
+  for (let r = 0; r < 4; r += 1) {
+    for (let c = 0; c < 8; c += 1) cells.push({ r, c, d: r + c });
+  }
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      {cells.map(({ r, c, d }) => (
+        <rect key={`${r}-${c}`} className="reel-warp-cell" x={12 + c * 12.5} y={11 + r * 13}
+          width="10" height="10" rx="2" style={{ animationDelay: `${d * 0.1}s` }} />
+      ))}
+    </svg>
+  );
+}
+
+function VizConvergence() {
+  return (
+    <svg viewBox={REEL_VB} className="reel-svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+      <circle className="reel-ring-track" cx="60" cy="36" r="24" />
+      <circle className="reel-ring-fill" cx="60" cy="36" r="24" transform="rotate(-90 60 36)" pathLength="100" />
+      <circle className="reel-ring-core" cx="60" cy="36" r="6" />
+    </svg>
+  );
+}
+
+const REEL_TILES = [
+  { to: '/forge/math',     title: 'Gradient descent', hue: 'var(--hue-sky)',    Viz: VizDescent },
+  { to: '/forge/learn',    title: 'Self-attention',   hue: 'var(--hue-violet)', Viz: VizAttention },
+  { to: '/forge/papers',   title: 'Diffusion',        hue: 'var(--hue-pink)',   Viz: VizDiffusion },
+  { to: '/forge/math',     title: 'Vector fields',    hue: 'var(--hue-mint)',   Viz: VizVectorField },
+  { to: '/forge/problems', title: 'Optimizers',       hue: 'var(--accent)',     Viz: VizOptimizer },
+  { to: '/forge/learn',    title: 'Neural nets',      hue: 'var(--hue-sky)',    Viz: VizNeuralNet },
+  { to: '/forge/problems', title: 'Softmax',          hue: 'var(--hue-violet)', Viz: VizSoftmax },
+  { to: '/forge/math',     title: 'Activations',      hue: 'var(--hue-mint)',   Viz: VizActivation },
+  { to: '/forge/cuda',     title: 'Warp scheduling',  hue: 'var(--warning)',    Viz: VizWarp },
+  { to: '/forge/progress', title: 'Convergence',      hue: 'var(--hue-pink)',   Viz: VizConvergence },
+];
+
+function ReelTile(tile) {
+  const { to, title, hue, Viz } = tile;
+  return (
+    <Link to={to} className="reel-tile" style={{ '--reel-hue': hue }}>
+      <div className="reel-tile-stage"><Viz /></div>
+      <div className="reel-tile-cap">
+        <span className="reel-tile-title">{title}</span>
+        <ArrowUpRight size={13} className="reel-tile-arr" />
+      </div>
+    </Link>
+  );
+}
+
+function ForgeReel() {
+  const reduce = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  const head = (
+    <div className="forge-section-head">
+      <h2 className="forge-section-title">See the ideas move</h2>
+    </div>
+  );
+
+  if (reduce) {
+    return (
+      <section className="forge-section">
+        {head}
+        <div className="reel-static">
+          {REEL_TILES.map((t) => <ReelTile key={`${t.to}-${t.title}`} {...t} />)}
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="forge-section">
+      {head}
+      <div className="reel-viewport">
+        <div className="reel-track">
+          {REEL_TILES.map((t) => <ReelTile key={`a-${t.to}-${t.title}`} {...t} />)}
+          {REEL_TILES.map((t) => <ReelTile key={`b-${t.to}-${t.title}`} {...t} />)}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -370,6 +589,8 @@ export default function PGForgeHub() {
         <LossSurfaceViz />
       </section>
 
+      <ForgeReel />
+
       <section className="forge-section">
         <div className="forge-section-head">
           <h2 className="forge-section-title">Pick a surface</h2>
@@ -377,10 +598,11 @@ export default function PGForgeHub() {
         <div className="forge-pillar-grid">
           {PILLAR_CARDS.map((s) => {
             const Icon = s.icon;
+            const Thumb = s.Thumb;
             return (
               <Link key={s.to} to={s.to} className="forge-pillar">
                 <div className="forge-thumb-frame forge-pillar-thumb">
-                  <ForgeHubThumb to={s.to} />
+                  <Thumb />
                   <span className="forge-pillar-badge"><Icon size={15} /></span>
                 </div>
                 <div className="forge-pillar-body">

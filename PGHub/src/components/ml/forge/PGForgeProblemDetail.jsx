@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Navigate, useParams } from 'react-router-dom';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import {
-  ChevronRight, ChevronDown, Play, Loader2, Terminal, Lightbulb, Check,
+  ChevronRight, Terminal, Lightbulb, Check,
   FileText, ListChecks, Sparkles, FlaskConical, BookOpen,
   CheckCircle2, XCircle, MinusCircle, AlertTriangle, Eye, KeyRound,
 } from 'lucide-react';
@@ -458,7 +458,6 @@ export default function PGForgeProblemDetail() {
   const [leftTab, setLeftTab] = useState('description');
   const [solutionRevealed, setSolutionRevealed] = useState(false);
   const [solved, setSolved] = useState(() => (problem ? isSolved(problem.slug) : false));
-  const panelRef = useRef(null);
 
   const toggleSolved = useCallback(() => {
     if (!problem) return;
@@ -568,16 +567,6 @@ export default function PGForgeProblemDetail() {
     }
   }, [problem, fnName, testPlan, solved]);
 
-  // Page-level "Run my code" CTA: grade the exact code currently in the editor by
-  // reading the panel's live buffer through its imperative handle, then routing it
-  // through the same handleSubmit grade flow the panel's own Submit button uses.
-  const gradeCurrentBuffer = useCallback(() => {
-    if (running) return;
-    const panel = panelRef.current;
-    if (!panel) return;
-    handleSubmit(panel.getCode(), panel.getLanguage());
-  }, [running, handleSubmit]);
-
   // Editor loads a SCAFFOLD; the real reference stays behind the Solution tab.
   const starter = useMemo(
     () => (problem ? { python: makeScaffold(problem.starterCode.python) } : {}),
@@ -651,13 +640,7 @@ export default function PGForgeProblemDetail() {
 
           {leftTab === 'description' && (
             <>
-              <div className="forge-pd-stmt-card">
-                <div className="forge-pd-stmt-eyebrow">
-                  <BookOpen size={12} />
-                  <span>The task</span>
-                </div>
-                <div className="forge-pd-statement">{renderedStatement}</div>
-              </div>
+              <div className="forge-pd-statement">{renderedStatement}</div>
 
               {inlineViz && (
                 <div className="forge-pd-inlineviz">
@@ -694,25 +677,11 @@ export default function PGForgeProblemDetail() {
                 </div>
               </div>
 
-              <div className="forge-pd-cta-card">
-                <div className="forge-pd-cta-copy">
-                  <span className="forge-pd-cta-title">Ready to solve it?</span>
-                  <span className="forge-pd-cta-sub">
-                    The editor starts from a scaffold — build it yourself, then hit Run my code to grade it against {testPlan.checkable.length || problem.tests.length} test
-                    {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
-                  </span>
-                </div>
-                <button
-                  type="button"
-                  className="forge-pd-cta-badge"
-                  onClick={gradeCurrentBuffer}
-                  disabled={running}
-                  aria-busy={running}
-                >
-                  {running ? <Loader2 size={15} className="forge-pd-spin" /> : <Play size={15} />}
-                  {running ? 'Grading' : 'Run my code'}
-                </button>
-              </div>
+              <p className="forge-pd-grade-note">
+                Build your solution in the editor, then hit <strong>Run my code</strong> to grade it against{' '}
+                {testPlan.checkable.length || problem.tests.length} test
+                {(testPlan.checkable.length || problem.tests.length) === 1 ? '' : 's'}.
+              </p>
             </>
           )}
 
@@ -771,7 +740,6 @@ export default function PGForgeProblemDetail() {
         <section className="forge-pd-right" aria-label="Code editor">
           <div className="forge-pd-editor">
             <RunnableCodePanel
-              ref={panelRef}
               fill
               code={starter}
               lang="python"

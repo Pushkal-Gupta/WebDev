@@ -263,10 +263,12 @@ function buildJavaDriver(code: string, methodName: string, params: Param[], retu
   const javaTypeOf = (t: string): string => {
     if (t === "int") return "int";
     if (t === "long") return "long";
-    if (t === "double") return "double";
+    if (t === "double" || t === "float") return "double";
     if (t === "bool") return "boolean";
     if (t === "str") return "String";
     if (t === "List[int]") return "int[]";
+    if (t === "List[float]") return "double[]";
+    if (t === "List[bool]") return "boolean[]";
     if (t === "List[List[int]]") return "int[][]";
     if (t === "List[str]") return "String[]";
     return "String";
@@ -275,10 +277,12 @@ function buildJavaDriver(code: string, methodName: string, params: Param[], retu
     const jt = javaTypeOf(p.type);
     if (p.type === "int") return `        int a${i} = Integer.parseInt(sc.nextLine().trim());`;
     if (p.type === "long") return `        long a${i} = Long.parseLong(sc.nextLine().trim());`;
-    if (p.type === "double") return `        double a${i} = Double.parseDouble(sc.nextLine().trim());`;
+    if (p.type === "double" || p.type === "float") return `        double a${i} = Double.parseDouble(sc.nextLine().trim());`;
     if (p.type === "bool") return `        boolean a${i} = sc.nextLine().trim().equals("true");`;
     if (p.type === "str") return `        String a${i} = sc.nextLine();`;
     if (p.type === "List[int]") return `        int[] a${i} = parseIntArr(sc.nextLine());`;
+    if (p.type === "List[float]") return `        double[] a${i} = parseDblArr(sc.nextLine());`;
+    if (p.type === "List[bool]") return `        boolean[] a${i} = parseBoolArr(sc.nextLine());`;
     if (p.type === "List[List[int]]") return `        int[][] a${i} = parseIntArr2(sc.nextLine());`;
     if (p.type === "List[str]") return `        String[] a${i} = parseStrArr(sc.nextLine());`;
     return `        String a${i} = sc.nextLine();`;
@@ -302,6 +306,26 @@ public class Main {
         String[] parts = s.split(",");
         int[] r = new int[parts.length];
         for (int i=0;i<parts.length;i++) r[i] = Integer.parseInt(parts[i].trim());
+        return r;
+    }
+    static double[] parseDblArr(String s) {
+        s = s.trim();
+        if (s.equals("[]")) return new double[0];
+        s = s.substring(1, s.length()-1);
+        if (s.isEmpty()) return new double[0];
+        String[] parts = s.split(",");
+        double[] r = new double[parts.length];
+        for (int i=0;i<parts.length;i++) r[i] = Double.parseDouble(parts[i].trim());
+        return r;
+    }
+    static boolean[] parseBoolArr(String s) {
+        s = s.trim();
+        if (s.equals("[]")) return new boolean[0];
+        s = s.substring(1, s.length()-1);
+        if (s.isEmpty()) return new boolean[0];
+        String[] parts = s.split(",");
+        boolean[] r = new boolean[parts.length];
+        for (int i=0;i<parts.length;i++) { String p = parts[i].trim(); r[i] = p.equals("true") || p.equals("1") || p.equals("True"); }
         return r;
     }
     static int[][] parseIntArr2(String s) {
