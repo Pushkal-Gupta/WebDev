@@ -2,8 +2,8 @@ import React, { useMemo, useState, useEffect, useRef, useId } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Sigma, ListChecks, FileText, Cpu, FolderGit2, Map, Route,
-  ArrowRight, ArrowUpRight, Code2, BookOpen, Trophy, Table2,
-  Play, Pause, StepForward, RotateCcw,
+  ArrowRight, ArrowLeft, ArrowUpRight, Code2, BookOpen, Trophy, Table2,
+  Play, Pause, RotateCcw, Gauge,
 } from 'lucide-react';
 import { PILLARS } from '../../../content/mlContent';
 import { MATH_MODULES } from './pgForgeMathData';
@@ -45,7 +45,7 @@ const PILLAR_CARDS = [
 ];
 
 // Quick-jump chips under the hero stats — a compact set of on-topic entry points
-// so the left column reads full alongside the tall loss-surface card.
+// so the left column reads full alongside the tall network card.
 const HERO_JUMP = [
   { to: '/forge/learn',    icon: BookOpen,   label: 'Transformers' },
   { to: '/forge/papers',   icon: FileText,   label: 'Attention paper' },
@@ -53,25 +53,8 @@ const HERO_JUMP = [
   { to: '/forge/problems', icon: ListChecks, label: 'Optimizers' },
 ];
 
-// A 3D loss surface with gradient descent rolling into the valley — projected to
-// SVG (no external 3D dep). Height-coloured mesh (cool valleys, warm peaks) via
-// theme hue tokens; a glowing marker follows −∇L downhill, smoothly interpolated
-// frame-by-frame, then re-seeds to a fresh basin and loops forever. The homepage's
-// always-alive "do something" hero, matching the "drag the visual" promise.
-const LOSS_N = 20;            // mesh resolution
-const LOSS_RANGE = 2.3;       // domain half-width in each axis
-const lossFn = (x, y) => 0.16 * (x * x + y * y) + 0.9 * Math.sin(1.15 * x) * Math.cos(1.15 * y);
-const lossGrad = (x, y) => [
-  0.32 * x + 0.9 * 1.15 * Math.cos(1.15 * x) * Math.cos(1.15 * y),
-  0.32 * y - 0.9 * 1.15 * Math.sin(1.15 * x) * Math.sin(1.15 * y),
-];
-
-const DESCENT_SPEED = 7.5;    // trajectory-steps rolled per second (interpolated)
-const VALLEY_HOLD_S = 1.0;    // pause at the basin before re-seeding a new start
-const clampDom = (v) => Math.max(-LOSS_RANGE, Math.min(LOSS_RANGE, v));
-
-// Deterministic PRNG — never Math.random at module scope. Seeded by a frame
-// counter so each loop drops into a fresh, reproducible basin.
+// Deterministic PRNG — never Math.random. Seeds the network's fixed weights so
+// the layout is reproducible across renders.
 function mulberry32(seed) {
   let a = seed >>> 0;
   return () => {
@@ -83,7 +66,26 @@ function mulberry32(seed) {
   };
 }
 
-function LossSurfaceViz() {
+// A live multi-layer network training in place: signals pulse left→right on the
+// forward pass, gradients flow right→left on backprop, node activations fire in a
+// sweeping wave, and the loss ticks down epoch by epoch. Dozens of edges + nodes
+// animate at once — all via staggered CSS keyframes, with a single rAF only
+// flipping the pass and advancing the loss/epoch readouts (never per-frame state).
+const NF_LAYER_X = [40, 120, 200, 280];
+const NF_LAYER_N = [4, 6, 5, 3];
+const NF_LAYER_LABEL = ['input', 'hidden', 'hidden', 'output'];
+const NF_PHASE_S = 1.35;        // seconds per pass (forward, then backward) at 1x
+
+function nfNodeY(n, i) {
+  const gap = Math.min(28, 150 / n);
+  return 100 + (i - (n - 1) / 2) * gap;
+}
+function nfNextLoss(prev, rnd) {
+  const decayed = prev * 0.855 + 0.028;             // asymptotes toward ~0.19
+  return Math.max(0.08, decayed + (rnd() - 0.5) * 0.045);
+}
+
+function NeuralFlowViz() {
   const reduce = typeof window !== 'undefined'
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -91,282 +93,182 @@ function LossSurfaceViz() {
   const rawId = useId();
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, '');
   const ids = {
-    ball: `lossBall-${uid}`,
-    glow: `lossGlow-${uid}`,
-    trail: `lossTrail-${uid}`,
-    vignette: `lossVig-${uid}`,
-    sky: `lossSky-${uid}`,
+    glow: `nfGlow-${uid}`,
+    bg: `nfBg-${uid}`,
+    vig: `nfVig-${uid}`,
   };
 
-  // The mesh + projection are fixed (don't depend on the controls).
-  const { cells, project, hMin, hMax } = useMemo(() => {
-    const H = [];
-    let lo = Infinity, hi = -Infinity;
-    for (let i = 0; i <= LOSS_N; i += 1) {
-      H[i] = [];
-      for (let j = 0; j <= LOSS_N; j += 1) {
-        const x = -LOSS_RANGE + (i / LOSS_N) * 2 * LOSS_RANGE;
-        const y = -LOSS_RANGE + (j / LOSS_N) * 2 * LOSS_RANGE;
-        const h = lossFn(x, y);
-        H[i][j] = h;
-        if (h < lo) lo = h;
-        if (h > hi) hi = h;
-      }
-    }
-    const hMid = (lo + hi) / 2;
-    const CX = 160, CY = 118, SX = 5.6, SY = 2.8, HZ = 20;
-    const proj = (gi, gj, h) => {
-      const a = gi - LOSS_N / 2;
-      const b = gj - LOSS_N / 2;
-      return [CX + (a - b) * SX, CY + (a + b) * SY - (h - hMid) * HZ];
-    };
-    const projectXY = (x, y, h) => {
-      const gi = ((x + LOSS_RANGE) / (2 * LOSS_RANGE)) * LOSS_N;
-      const gj = ((y + LOSS_RANGE) / (2 * LOSS_RANGE)) * LOSS_N;
-      return proj(gi, gj, h);
-    };
-    const c = [];
-    for (let i = 0; i < LOSS_N; i += 1) {
-      for (let j = 0; j < LOSS_N; j += 1) {
-        const p0 = proj(i, j, H[i][j]);
-        const p1 = proj(i + 1, j, H[i + 1][j]);
-        const p2 = proj(i + 1, j + 1, H[i + 1][j + 1]);
-        const p3 = proj(i, j + 1, H[i][j + 1]);
-        const avg = (H[i][j] + H[i + 1][j] + H[i + 1][j + 1] + H[i][j + 1]) / 4;
-        c.push({
-          pts: `${p0[0].toFixed(1)},${p0[1].toFixed(1)} ${p1[0].toFixed(1)},${p1[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)} ${p3[0].toFixed(1)},${p3[1].toFixed(1)}`,
-          t: (avg - lo) / (hi - lo || 1),
-          depth: i + j,
+  // Fixed geometry — layer node coordinates + every inter-layer edge with a
+  // reproducible signed weight (drives colour + thickness).
+  const { nodes, edges } = useMemo(() => {
+    const rnd = mulberry32(0x51ed);
+    const layers = NF_LAYER_N.map((n, li) =>
+      Array.from({ length: n }, (_, i) => ({ x: NF_LAYER_X[li], y: nfNodeY(n, i), layer: li })));
+    const nd = layers.flat();
+    const ed = [];
+    for (let li = 0; li < layers.length - 1; li += 1) {
+      layers[li].forEach((a, ai) => layers[li + 1].forEach((b, bi) => {
+        const w = rnd() * 2 - 1;
+        ed.push({
+          x1: a.x, y1: a.y, x2: b.x, y2: b.y, w, eo: li,
+          key: `${li}-${ai}-${bi}`,
         });
-      }
+      }));
     }
-    c.sort((u, v) => u.depth - v.depth);
-    return { cells: c, project: projectXY, hMin: lo, hMax: hi };
+    return { nodes: nd, edges: ed };
   }, []);
 
-  // ── interactive controls ─────────────────────────────────────────
-  const [lr, setLr] = useState(0.16);
-  const [start, setStart] = useState({ x: 1.75, y: -1.55 });
   const [playing, setPlaying] = useState(!reduce);
-  const [progress, setProgress] = useState(0);   // fractional index into the path
+  const [speed, setSpeed] = useState(1);
+  const [phase, setPhase] = useState('fwd');
+  const [epoch, setEpoch] = useState(1);
+  const [loss, setLoss] = useState(2.85);
 
-  // The trajectory recomputes whenever the learning rate or start point changes.
-  const path = useMemo(() => {
-    let x = start.x, y = start.y;
-    const pts = [];
-    for (let s = 0; s <= 44; s += 1) {
-      const h = lossFn(x, y);
-      pts.push({ x, y, h });
-      const [gx, gy] = lossGrad(x, y);
-      x = clampDom(x - lr * gx);
-      y = clampDom(y - lr * gy);
-    }
-    return pts;
-  }, [lr, start]);
+  const phaseRef = useRef('fwd');
+  const epochRef = useRef(1);
+  const lossRef = useRef(2.85);
+  const rndRef = useRef(mulberry32(0x9e37));
 
-  const progRef = useRef(0);    // authoritative marker position (float, driven by rAF)
-  const holdRef = useRef(0);    // seconds remaining in the valley pause
-  const seedRef = useRef(7);    // advances every loop so each re-seed is distinct
-
-  // Restart the walk whenever the trajectory is rebuilt (slider drag OR a re-seed).
-  useEffect(() => {
-    progRef.current = 0;
-    holdRef.current = 0;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setProgress(reduce ? path.length - 1 : 0);
-  }, [path, reduce]);
-
-  // Continuous auto-loop: smoothly interpolate down the surface, hold at the
-  // basin ~1s, then re-seed to a fresh random start and descend again — forever.
+  // Single rAF: accumulate elapsed time, flip the pass every NF_PHASE_S, and on
+  // each completed forward+backward cycle advance the epoch + decay the loss.
+  // Only a handful of state writes per second — never a per-frame render.
   useEffect(() => {
     if (reduce || !playing) return undefined;
     let raf = 0;
     let last = performance.now();
-    const end = path.length - 1;
+    let acc = 0;
+    const dur = NF_PHASE_S / speed;
     const tick = (ts) => {
-      const dt = Math.min(0.05, (ts - last) / 1000);
+      acc += Math.min(0.05, (ts - last) / 1000);
       last = ts;
-      if (holdRef.current > 0) {
-        holdRef.current -= dt;
-        if (holdRef.current <= 0) {
-          seedRef.current += 1;
-          const rnd = mulberry32(Math.imul(seedRef.current, 0x9e3779b1));
-          const nx = (rnd() * 2 - 1) * (LOSS_RANGE - 0.2);
-          const ny = (rnd() * 2 - 1) * (LOSS_RANGE - 0.2);
-          progRef.current = 0;
-          setStart({ x: Number(nx.toFixed(2)), y: Number(ny.toFixed(2)) });
-          return;   // path changes → this effect re-runs with a fresh loop
+      if (acc >= dur) {
+        acc -= dur;
+        const next = phaseRef.current === 'fwd' ? 'bwd' : 'fwd';
+        phaseRef.current = next;
+        setPhase(next);
+        if (next === 'fwd') {
+          lossRef.current = nfNextLoss(lossRef.current, rndRef.current);
+          epochRef.current += 1;
+          if (epochRef.current > 60 || lossRef.current < 0.14) {
+            epochRef.current = 1;
+            lossRef.current = 2.85;
+          }
+          setEpoch(epochRef.current);
+          setLoss(lossRef.current);
         }
-      } else {
-        progRef.current = Math.min(end, progRef.current + dt * DESCENT_SPEED);
-        if (progRef.current >= end) { progRef.current = end; holdRef.current = VALLEY_HOLD_S; }
-        setProgress(progRef.current);
       }
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [playing, path, reduce]);
-
-  // Interpolate the marker between the two nearest gradient-descent steps and
-  // let it hug the surface (h from lossFn, not a lerp) so the roll looks physical.
-  const end = path.length - 1;
-  const fp = Math.min(Math.max(progress, 0), end);
-  const i0 = Math.floor(fp);
-  const i1 = Math.min(end, i0 + 1);
-  const f = fp - i0;
-  const mx = path[i0].x + (path[i1].x - path[i0].x) * f;
-  const my = path[i0].y + (path[i1].y - path[i0].y) * f;
-  const mh = lossFn(mx, my);
-  const curPt = project(mx, my, mh + 0.06);
-
-  const trailArr = [];
-  for (let k = 0; k <= i0; k += 1) {
-    const q = project(path[k].x, path[k].y, path[k].h + 0.06);
-    trailArr.push(`${q[0].toFixed(1)},${q[1].toFixed(1)}`);
-  }
-  trailArr.push(`${curPt[0].toFixed(1)},${curPt[1].toFixed(1)}`);
-  const trail = trailArr.join(' ');
-
-  const lossRange = hMax - hMin || 1;
-  const norm = (mh - hMin) / lossRange;
-
-  // Diagnose the run so the reader learns what the learning rate does.
-  const finalLoss = path[path.length - 1].h;
-  const maxLoss = Math.max(...path.map((p) => p.h));
-  const status = maxLoss > path[0].h + 0.4
-    ? { label: 'diverging', cls: 'is-bad' }
-    : (finalLoss > hMin + 0.12 * lossRange && maxLoss > path[0].h + 0.02)
-      ? { label: 'oscillating', cls: 'is-warn' }
-      : { label: 'converging', cls: 'is-good' };
+  }, [reduce, playing, speed]);
 
   const doReset = () => {
-    setPlaying(false);
-    progRef.current = 0;
-    holdRef.current = 0;
-    setProgress(0);
+    phaseRef.current = 'fwd';
+    epochRef.current = 1;
+    lossRef.current = 2.85;
+    rndRef.current = mulberry32(0x9e37);
+    setPhase('fwd');
+    setEpoch(1);
+    setLoss(2.85);
   };
-  const doStep = () => {
-    setPlaying(false);
-    holdRef.current = 0;
-    progRef.current = Math.min(end, Math.floor(progRef.current + 1e-6) + 1);
-    setProgress(progRef.current);
-  };
+
+  const dataPhase = reduce ? 'fwd' : phase;
+  const passLabel = dataPhase === 'fwd' ? 'forward pass' : 'backprop';
 
   return (
     <div className="forge-hero-viz">
       <div className="forge-hero-viz-head">
-        <span className="forge-hero-viz-title">Loss surface L(w) — gradient descent</span>
-        <span className="forge-hero-viz-read">step {Math.floor(fp)} · loss {mh.toFixed(3)}</span>
+        <span className="forge-hero-viz-title">Training a neural net — forward &amp; backprop</span>
+        <span className="forge-hero-viz-read">epoch {epoch} · loss {loss.toFixed(3)}</span>
       </div>
       <svg viewBox="0 0 320 200" className="forge-hero-viz-svg" role="img"
         preserveAspectRatio="xMidYMid meet"
-        aria-label="3D loss surface with a gradient-descent marker rolling into the valley">
+        aria-label="A multi-layer neural network training: signals pulse forward across the edges, gradients flow back, and node activations fire in a wave.">
         <defs>
-          <radialGradient id={ids.ball} cx="35%" cy="30%" r="75%">
-            <stop offset="0%" stopColor="var(--surface)" />
-            <stop offset="42%" stopColor="var(--accent)" />
-            <stop offset="100%" stopColor="color-mix(in srgb, var(--accent) 55%, var(--hue-violet))" />
-          </radialGradient>
-          <linearGradient id={ids.trail} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="var(--hue-sky)" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.95" />
+          <linearGradient id={ids.bg} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="color-mix(in srgb, var(--hue-violet) 15%, var(--bg))" />
+            <stop offset="55%" stopColor="var(--bg)" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--hue-sky) 11%, var(--bg))" />
           </linearGradient>
-          <filter id={ids.glow} x="-140%" y="-140%" width="380%" height="380%">
-            <feGaussianBlur stdDeviation="3.2" result="b" />
+          <radialGradient id={ids.vig} cx="50%" cy="46%" r="72%">
+            <stop offset="0%" stopColor="var(--bg)" stopOpacity="0" />
+            <stop offset="70%" stopColor="var(--bg)" stopOpacity="0" />
+            <stop offset="100%" stopColor="color-mix(in srgb, var(--text-main) 30%, transparent)" stopOpacity="0.45" />
+          </radialGradient>
+          <filter id={ids.glow} x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="1.5" result="b" />
             <feMerge>
               <feMergeNode in="b" />
               <feMergeNode in="SourceGraphic" />
             </feMerge>
           </filter>
-          {/* cinematic backdrop — a soft sky wash up top, a dark vignette hugging the edges */}
-          <linearGradient id={ids.sky} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="color-mix(in srgb, var(--hue-violet) 26%, var(--bg))" />
-            <stop offset="52%" stopColor="var(--bg)" />
-            <stop offset="100%" stopColor="color-mix(in srgb, var(--hue-sky) 12%, var(--bg))" />
-          </linearGradient>
-          <radialGradient id={ids.vignette} cx="50%" cy="42%" r="72%">
-            <stop offset="0%" stopColor="var(--bg)" stopOpacity="0" />
-            <stop offset="72%" stopColor="var(--bg)" stopOpacity="0" />
-            <stop offset="100%" stopColor="color-mix(in srgb, var(--text-main) 34%, transparent)" stopOpacity="0.5" />
-          </radialGradient>
         </defs>
-        <rect x="0" y="0" width="320" height="200" fill={`url(#${ids.sky})`} />
-        <g className={reduce ? undefined : 'forge-hero-scene'} style={{ transformOrigin: '160px 118px' }}>
+        <rect x="0" y="0" width="320" height="200" fill={`url(#${ids.bg})`} />
+
+        <g className={reduce ? 'nf-scene nf-static' : 'nf-scene'} data-phase={dataPhase}
+          style={{ '--nf-speed': speed }}>
+          {/* static structural wires — the network skeleton */}
           <g>
-          {cells.map((cell, i) => (
-            <polygon
-              key={i}
-              className={reduce ? undefined : 'forge-hero-cell'}
-              style={reduce ? undefined : { animationDelay: `${(cell.depth * -0.11).toFixed(2)}s` }}
-              points={cell.pts}
-              fill={`color-mix(in srgb, var(--hue-pink) ${Math.round(cell.t * 100)}%, var(--hue-sky))`}
-              stroke="var(--surface)"
-              strokeWidth="0.35"
-              opacity={0.82 + 0.14 * cell.t}
-            />
-          ))}
+            {edges.map((e) => (
+              <line key={`w-${e.key}`} className="nf-wire" x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                strokeWidth={0.4 + Math.abs(e.w) * 1.25}
+                stroke={`color-mix(in srgb, var(--hue-${e.w >= 0 ? 'sky' : 'pink'}) 42%, var(--surface))`} />
+            ))}
           </g>
-          {/* contour ripples spreading across the basin floor once the walk settles */}
-          {!reduce && status.cls === 'is-good' && fp >= end - 1 && (
-            <g>
-              <ellipse className="forge-hero-ripple" cx={curPt[0]} cy={curPt[1]} rx="10" ry="5"
-                fill="none" stroke="var(--hue-sky)" strokeWidth="1.1" />
-              <ellipse className="forge-hero-ripple forge-hero-ripple-2" cx={curPt[0]} cy={curPt[1]}
-                rx="10" ry="5" fill="none" stroke="var(--accent)" strokeWidth="1.1" />
-            </g>
-          )}
-          {/* glowing comet trail */}
-          <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="5.5"
-            strokeLinejoin="round" strokeLinecap="round" opacity="0.45" filter={`url(#${ids.glow})`} />
-          <polyline points={trail} fill="none" stroke={`url(#${ids.trail})`} strokeWidth="2.4"
-            strokeLinejoin="round" strokeLinecap="round" opacity="0.98" />
-          {/* rhythmic pulse ring emanating from the marker */}
-          {!reduce && (
-            <circle className="forge-hero-pulse" cx={curPt[0]} cy={curPt[1]} r="5.4" fill="none"
-              stroke="var(--accent)" strokeWidth="1.4" />
-          )}
-          <circle cx={curPt[0]} cy={curPt[1]} r={8.5} fill="none"
-            stroke="var(--accent)" strokeWidth="1.2" opacity={0.22 + 0.34 * (1 - norm)} />
+          {/* animated signal pulses travelling along every edge */}
+          <g>
+            {edges.map((e) => (
+              <line key={`e-${e.key}`} className="nf-edge" x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+                strokeWidth={0.5 + Math.abs(e.w) * 1.5}
+                stroke={`var(--hue-${e.w >= 0 ? 'sky' : 'pink'})`}
+                style={{ '--nf-eo': e.eo }} />
+            ))}
+          </g>
+          {/* activation blooms — a halo firing behind each node as its layer lights up */}
+          <g>
+            {nodes.map((n, i) => (
+              <circle key={`b-${i}`} className="nf-bloom" cx={n.x} cy={n.y} r="7"
+                style={{ '--nf-order': n.layer }} />
+            ))}
+          </g>
+          {/* the neurons themselves, gently glowing */}
           <g filter={`url(#${ids.glow})`}>
-            <circle cx={curPt[0]} cy={curPt[1]} r="6.2" fill={`url(#${ids.ball})`}
-              stroke="var(--surface)" strokeWidth="0.8" />
+            {nodes.map((n, i) => (
+              <circle key={`n-${i}`} className="nf-core" cx={n.x} cy={n.y} r="4.6"
+                style={{ '--nf-order': n.layer }} />
+            ))}
           </g>
+          {/* layer captions */}
+          {NF_LAYER_X.map((x, li) => (
+            <text key={`t-${li}`} className="nf-label" x={x} y="192" textAnchor="middle">
+              {NF_LAYER_LABEL[li]}
+            </text>
+          ))}
         </g>
-        <rect x="0" y="0" width="320" height="200" fill={`url(#${ids.vignette})`} pointerEvents="none" />
+        <rect x="0" y="0" width="320" height="200" fill={`url(#${ids.vig})`} pointerEvents="none" />
       </svg>
 
       <div className="forge-hero-ctl">
         <button className="forge-hero-btn" onClick={() => setPlaying((p) => !p)}>
           {playing ? <Pause size={13} /> : <Play size={13} />}{playing ? 'Pause' : 'Play'}
         </button>
-        <button className="forge-hero-btn" onClick={doStep} disabled={playing}>
-          <StepForward size={13} /> Step
-        </button>
         <button className="forge-hero-btn" onClick={doReset}><RotateCcw size={13} /> Reset</button>
-        <span className={`forge-hero-status ${status.cls}`}>{status.label}</span>
+        <span className={`forge-hero-status nf-pass ${dataPhase === 'fwd' ? 'is-fwd' : 'is-bwd'}`}>
+          {dataPhase === 'fwd' ? <ArrowRight size={12} /> : <ArrowLeft size={12} />}{passLabel}
+        </span>
       </div>
 
       <div className="forge-hero-sliders">
         <label className="forge-hero-sl">
-          <span>learning rate <b>{lr.toFixed(2)}</b></span>
-          <input type="range" min="0.02" max="0.6" step="0.01" value={lr}
-            onChange={(e) => setLr(Number(e.target.value))} aria-label="learning rate" />
-        </label>
-        <label className="forge-hero-sl">
-          <span>start&nbsp;w&#8321; <b>{start.x.toFixed(1)}</b></span>
-          <input type="range" min={-LOSS_RANGE} max={LOSS_RANGE} step="0.05" value={start.x}
-            onChange={(e) => setStart((s) => ({ ...s, x: Number(e.target.value) }))} aria-label="start weight 1" />
-        </label>
-        <label className="forge-hero-sl">
-          <span>start&nbsp;w&#8322; <b>{start.y.toFixed(1)}</b></span>
-          <input type="range" min={-LOSS_RANGE} max={LOSS_RANGE} step="0.05" value={start.y}
-            onChange={(e) => setStart((s) => ({ ...s, y: Number(e.target.value) }))} aria-label="start weight 2" />
+          <span><span className="nf-sl-lead"><Gauge size={11} /> speed</span> <b>{speed.toFixed(1)}×</b></span>
+          <input type="range" min="0.5" max="2" step="0.1" value={speed}
+            onChange={(e) => setSpeed(Number(e.target.value))} aria-label="animation speed" />
         </label>
       </div>
 
       <p className="forge-hero-viz-cap">
-        The marker rolls down −∇L into the nearest basin, then re-seeds and drops again. Raise the <b>learning rate</b> and it overshoots and oscillates; too high and it diverges up the warm ridges. Move the start point to steer it into a different valley.
+        Signals pulse left to right on the <b>forward pass</b>, then gradients flow right to left on <b>backprop</b> — the neurons fire in a wave and the loss drops each epoch. Warm edges carry negative weights, cool edges positive.
       </p>
     </div>
   );
@@ -694,7 +596,7 @@ export default function PGForgeHub() {
             })}
           </div>
         </div>
-        <LossSurfaceViz />
+        <NeuralFlowViz />
       </section>
 
       <ForgeReel />

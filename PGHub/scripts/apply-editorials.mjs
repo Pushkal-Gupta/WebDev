@@ -19,7 +19,8 @@ function valid(md) {
   return null;
 }
 
-const dir = '/tmp/appr';
+const dirArg = process.argv.indexOf('--dir');
+const dir = dirArg >= 0 ? process.argv[dirArg + 1] : '/tmp/appr';
 const files = fs.readdirSync(dir).filter((f) => /^out-\d+\.json$/.test(f));
 let applied = 0, bad = 0; const rejects = [];
 for (const f of files) {

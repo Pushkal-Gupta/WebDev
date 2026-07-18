@@ -265,6 +265,7 @@ const RunnableCodePanel = forwardRef(function RunnableCodePanel({
           theme={monacoTheme}
           value={value}
           onChange={handleChange}
+          beforeMount={(monaco) => registerMonacoThemes(monaco)}
           onMount={(ed, monaco) => {
             editorRef.current = ed;
             registerMonacoThemes(monaco);

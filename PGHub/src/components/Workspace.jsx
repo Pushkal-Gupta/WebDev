@@ -1771,6 +1771,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
 
           <div className="ws-editor-area">
             <Editor height="100%" theme={MONACO_THEME_MAP[theme] || (DARK_PRESETS.has(theme) ? 'vs-dark' : 'vs')}
+              beforeMount={(monaco) => registerMonacoThemes(monaco)}
               language={activeLang} value={codeContent}
               onChange={val => {
                 const code = val || '';

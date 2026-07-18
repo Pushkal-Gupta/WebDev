@@ -19,7 +19,10 @@ const sb = createClient(process.env.VITE_SUPABASE_URL, process.env.SUPABASE_SERV
 const APPLY = process.argv.includes('--apply');
 const arg = (k, d) => { const i = process.argv.indexOf(`--${k}`); return i >= 0 ? Number(process.argv[i + 1]) : d; };
 const OFFSET = arg('offset', 0), LIMIT = arg('limit', 100000);
-const THRESHOLD = 5000, CAP = 60000, FLOOR = 2000, SCALAR_THRESHOLD = 20000;
+// CAP lowered 60k -> 12k (2026-07-18): 12k elements already TLE any O(n^2) Python solution
+// (144M ops > 5s), and the 60k JSONB payloads (~300KB each) bloated the DB enough to trigger
+// an automatic disk RESIZE that took the whole project offline. See project_supabase_resize_incident.
+const THRESHOLD = 5000, CAP = 12000, FLOOR = 2000, SCALAR_THRESHOLD = 20000;
 const rnd = (n) => Math.floor((Math.sin(n * 12.9898) * 43758.5453 % 1 + 1) % 1 * 1e9);
 const STRUCTURAL = /permutation|sorted|non-?decreasing|non-?increasing|strictly (in|de)creasing|distinct|in (increasing|decreasing|non-decreasing) order|ascending|descending|unique|no duplicate|palindrom|already sorted/i;
 const ONE_D = new Set(['List[int]', 'List[str]']);

@@ -160,42 +160,122 @@
   border-radius: 9px;
   border: 1px solid var(--border);
 }
-/* Living surface — a shimmer wave travels the mesh (staggered per-cell delay),
-   the marker emits a rhythmic pulse ring, so the whole viz keeps moving. */
-.forge-hero-cell { animation: forge-cell-wave 2.4s ease-in-out infinite; will-change: opacity; }
-@keyframes forge-cell-wave { 0%, 100% { opacity: 0.72; } 50% { opacity: 1; } }
-/* Slow camera-like sway of the whole surface — a gentle parallax drift. */
-.forge-hero-scene { animation: forge-scene-sway 13s ease-in-out infinite; will-change: transform; }
-@keyframes forge-scene-sway {
-  0%, 100% { transform: translateX(-2.4px) rotate(-0.5deg) scale(1); }
-  50%      { transform: translateX(2.4px) rotate(0.5deg) scale(1.018); }
+/* ---- Neural-flow hero viz ------------------------------------------------- */
+/* The pass colour: cool signals flowing forward, warm gradients flowing back.
+   Set on the scene so every child (edges/nodes/blooms) recolours together. */
+.nf-scene[data-phase="fwd"] { --nf-sig: var(--hue-sky); --nf-sig2: var(--accent); }
+.nf-scene[data-phase="bwd"] { --nf-sig: var(--hue-pink); --nf-sig2: var(--hue-violet); }
+
+/* Static skeleton wires — always visible so the network structure reads. */
+.nf-wire { fill: none; stroke-linecap: round; opacity: 0.32; }
+
+/* Signal pulses — a short bright dash travelling each edge. Direction flips with
+   the pass; per-edge delay (--nf-eo = source layer) fans the wave across depth. */
+.nf-edge {
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 2.6 11.4;
+  animation-duration: calc(1.15s / var(--nf-speed, 1));
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: stroke-dashoffset, opacity;
 }
-/* Contour ripples spreading over the basin floor once the walk settles. */
-.forge-hero-ripple {
+.nf-scene[data-phase="fwd"] .nf-edge {
+  animation-name: nf-flow-fwd;
+  animation-delay: calc(var(--nf-eo) * 0.16s);
+}
+.nf-scene[data-phase="bwd"] .nf-edge {
+  animation-name: nf-flow-bwd;
+  animation-delay: calc((2 - var(--nf-eo)) * 0.16s);
+}
+@keyframes nf-flow-fwd {
+  0%   { stroke-dashoffset: 14; opacity: 0.25; }
+  45%  { opacity: 0.95; }
+  100% { stroke-dashoffset: 0;  opacity: 0.4; }
+}
+@keyframes nf-flow-bwd {
+  0%   { stroke-dashoffset: 0;  opacity: 0.25; }
+  45%  { opacity: 0.95; }
+  100% { stroke-dashoffset: 14; opacity: 0.4; }
+}
+
+/* Neuron cores — recolour with the pass, fire in a sweeping scale pulse. */
+.nf-core {
+  fill: color-mix(in srgb, var(--nf-sig2) 68%, var(--surface));
+  stroke: var(--surface);
+  stroke-width: 1;
   transform-box: fill-box;
   transform-origin: center;
-  animation: forge-ripple 2.6s ease-out infinite;
+  transition: fill 0.5s ease;
 }
-.forge-hero-ripple-2 { animation-delay: 1.3s; }
-@keyframes forge-ripple {
-  0%   { transform: scale(0.35); opacity: 0.75; }
-  100% { transform: scale(2.4); opacity: 0; }
+.nf-scene[data-phase="fwd"] .nf-core {
+  animation: nf-fire calc(0.9s / var(--nf-speed, 1)) ease-out both;
+  animation-delay: calc(var(--nf-order) * 0.19s);
 }
-.forge-hero-pulse {
+.nf-scene[data-phase="bwd"] .nf-core {
+  animation: nf-fire calc(0.9s / var(--nf-speed, 1)) ease-out both;
+  animation-delay: calc((3 - var(--nf-order)) * 0.19s);
+}
+@keyframes nf-fire {
+  0%   { transform: scale(0.82); }
+  35%  { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+
+/* Activation halo — expands + fades as its layer lights up. */
+.nf-bloom {
+  fill: var(--nf-sig);
   transform-box: fill-box;
   transform-origin: center;
-  animation: forge-pulse 1.7s ease-out infinite;
+  opacity: 0;
+  transition: fill 0.5s ease;
 }
-@keyframes forge-pulse {
-  0% { transform: scale(0.7); opacity: 0.6; }
-  70% { opacity: 0.12; }
-  100% { transform: scale(3.1); opacity: 0; }
+.nf-scene[data-phase="fwd"] .nf-bloom {
+  animation: nf-bloom calc(0.95s / var(--nf-speed, 1)) ease-out both;
+  animation-delay: calc(var(--nf-order) * 0.19s);
 }
+.nf-scene[data-phase="bwd"] .nf-bloom {
+  animation: nf-bloom calc(0.95s / var(--nf-speed, 1)) ease-out both;
+  animation-delay: calc((3 - var(--nf-order)) * 0.19s);
+}
+@keyframes nf-bloom {
+  0%   { transform: scale(0.55); opacity: 0.5; }
+  100% { transform: scale(2.5);  opacity: 0; }
+}
+
+.nf-label {
+  font-family: var(--mono, monospace);
+  font-size: 7px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  fill: var(--text-dim);
+  opacity: 0.7;
+}
+
+/* Reduced motion: freeze everything into a legible, solid-wired network. */
+.nf-static .nf-edge { animation: none; stroke-dasharray: none; opacity: 0.6; }
+.nf-static .nf-core { animation: none; transform: none; }
+.nf-static .nf-bloom { animation: none; opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
-  .forge-hero-cell, .forge-hero-pulse, .forge-hero-scene, .forge-hero-ripple { animation: none; }
+  .nf-edge { animation: none !important; stroke-dasharray: none; opacity: 0.55; }
+  .nf-core { animation: none !important; transform: none; }
+  .nf-bloom { animation: none !important; opacity: 0; }
 }
-.forge-hero-viz-axis { stroke: var(--text-dim); stroke-width: 1; opacity: 0.35; }
-.forge-hero-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
+
+/* Pass chip — reuses the status pill, tinted by direction. */
+.forge-hero-status.nf-pass {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.forge-hero-status.nf-pass.is-fwd { color: var(--hue-sky); border-color: color-mix(in srgb, var(--hue-sky) 45%, var(--border)); }
+.forge-hero-status.nf-pass.is-bwd { color: var(--hue-pink); border-color: color-mix(in srgb, var(--hue-pink) 45%, var(--border)); }
+
+.nf-sl-lead { display: inline-flex; align-items: center; gap: 0.28rem; }
+.nf-sl-lead svg { color: var(--accent); }
+
 .forge-hero-viz-cap { font-size: 0.72rem; line-height: 1.45; color: var(--text-dim); }
 
 /* ---- Sections ------------------------------------------------------------ */
@@ -414,7 +494,7 @@
 
 .forge-hero-sliders {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.5rem 0.9rem;
   margin-top: 0.1rem;
 }

@@ -43,7 +43,7 @@
 .vs-pu em { font-style: normal; font-size: 0.67rem; color: var(--text-dim); line-height: 1.35; }
 
 .vs-actions { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 0.1rem; }
-.vs-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 0.75rem 1.6rem; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: filter 0.15s; width: 100%; }
+.vs-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; background: var(--accent); color: var(--bg); border: none; border-radius: 12px; padding: 0.75rem 1.6rem; font-weight: 700; font-size: 0.95rem; cursor: pointer; transition: filter 0.15s; width: 100%; }
 .vs-primary:hover { filter: brightness(1.08); }
 .vs-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .vs-secondary { display: inline-flex; align-items: center; gap: 0.35rem; background: transparent; color: var(--text-main); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 1rem; font-weight: 600; cursor: pointer; }
