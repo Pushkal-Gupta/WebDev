@@ -47,7 +47,7 @@ export default function VersusMatch({ session }) {
 
   const numQ = match?.num_questions || 1;
   const myLang = langOverride || (role === 'host' ? (match?.host_language || match?.language) : (match?.guest_language || match?.language)) || 'python';
-  const inviteUrl = `${window.location.origin}${window.location.pathname}#/versus/${code}`;
+  const inviteUrl = `${window.location.origin}${window.location.pathname}#/battle/${code}`;
   const shareText = `Battle me on PGBattle — join with code ${code}: ${inviteUrl}`;
   const copyCode = () => { navigator.clipboard?.writeText(code); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1500); };
   const copyLink = () => { navigator.clipboard?.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); };
@@ -117,7 +117,7 @@ export default function VersusMatch({ session }) {
     if (!ids.length) { const t = setTimeout(refreshMatch, 700); return () => clearTimeout(t); }
     let live = true;
     (async () => {
-      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases, hints').in('id', ids);
+      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases, hints, constraints').in('id', ids);
       if (!data || !live) return;
       const ordered = ids.map((id) => data.find((d) => d.id === id)).filter(Boolean);
       const starters = {};
@@ -231,7 +231,7 @@ export default function VersusMatch({ session }) {
   };
 
   if (!user) return <div className="vs-page"><div className="vs-signin"><h3>Sign in to battle</h3></div></div>;
-  if (err && !match) return <div className="vs-page"><div className="vs-signin"><h3>{err}</h3><button className="vs-secondary" onClick={() => nav('/versus')}><ArrowLeft size={14} /> Back to PGBattle</button></div></div>;
+  if (err && !match) return <div className="vs-page"><div className="vs-signin"><h3>{err}</h3><button className="vs-secondary" onClick={() => nav('/battle')}><ArrowLeft size={14} /> Back to PGBattle</button></div></div>;
   if (!match) return <div className="vs-page"><div className="vs-loading"><Zap className="vs-bolt spin" /> Loading match…</div></div>;
 
   // ── Waiting room ──
@@ -325,7 +325,7 @@ export default function VersusMatch({ session }) {
   return (
     <div className="vs-battle">
       <div className="vs-battle-bar">
-        <button className="vs-back" onClick={() => nav('/versus')}><ArrowLeft size={15} /></button>
+        <button className="vs-back" onClick={() => nav('/battle')}><ArrowLeft size={15} /></button>
         <div className="vs-timer"><Clock size={15} /> {mm}:{ss}</div>
         {numQ > 1 && (
           <div className="vs-qtabs">
@@ -355,6 +355,23 @@ export default function VersusMatch({ session }) {
         <div className="vs-prob">
           <h3>{prob ? `${numQ > 1 ? `Q${qIndex + 1}. ` : ''}${prob.name}` : 'Loading…'} {prob ? <span className={`vs-diff ${(prob.difficulty || '').toLowerCase()}`}>{prob.difficulty}</span> : null}</h3>
           <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: prob?.description || '' }} />
+          {prob?.test_cases?.length ? (
+            <div className="vs-examples">
+              {prob.test_cases.slice(0, 3).map((tc, i) => (
+                <div key={i} className="vs-example">
+                  <div className="vs-example-tag">Example {i + 1}</div>
+                  <div className="vs-example-line"><span className="vs-example-k">Input</span><code>{(prob.params?.length ? prob.params.map((p, j) => `${p.name} = ${tc.inputs?.[j] ?? ''}`).join(', ') : (tc.inputs || []).join(', '))}</code></div>
+                  <div className="vs-example-line"><span className="vs-example-k">Output</span><code>{tc.expected}</code></div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+          {prob?.constraints && (Array.isArray(prob.constraints) ? prob.constraints.length : String(prob.constraints).trim()) ? (
+            <div className="vs-constraints">
+              <div className="vs-examples-title">Constraints</div>
+              <ul>{(Array.isArray(prob.constraints) ? prob.constraints : [prob.constraints]).map((c, i) => <li key={i}><code>{c}</code></li>)}</ul>
+            </div>
+          ) : null}
           {match.allow_hints && prob?.hints?.length ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
               {prob.hints.slice(0, hintsShown).map((h, i) => (
@@ -421,8 +438,8 @@ export default function VersusMatch({ session }) {
             </div>
             <div className="vs-result-meta"><Clock size={13} /> {mm}:{ss} left · <span className="vs-diff-inline">{match.difficulty}</span> · {myLang}</div>
             <div className="vs-result-actions">
-              <button className="vs-secondary" onClick={() => nav('/versus')}><ArrowLeft size={14} /> Lobby</button>
-              <button className="vs-primary" onClick={() => nav('/versus')}><Zap size={15} /> New race</button>
+              <button className="vs-secondary" onClick={() => nav('/battle')}><ArrowLeft size={14} /> Lobby</button>
+              <button className="vs-primary" onClick={() => nav('/battle')}><Zap size={15} /> New race</button>
             </div>
           </div>
         </div>

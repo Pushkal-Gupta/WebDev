@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, Suspense, lazy, useRef } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from './lib/supabase';
 import { queryClient } from './lib/queryClient';
@@ -177,6 +177,15 @@ function AuthErrorBanner() {
   );
 }
 
+// Redirects an old base path to its renamed one while preserving the sub-path,
+// query and any deep link — e.g. /ml/foundations/vectors → /forge/foundations/vectors.
+function PrefixRedirect({ to }) {
+  const params = useParams();
+  const { search } = useLocation();
+  const rest = params['*'] ? `/${params['*']}` : '';
+  return <Navigate to={`${to}${rest}${search}`} replace />;
+}
+
 function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
   const location = useLocation();
   const queryClient = useQueryClient();
@@ -283,29 +292,29 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/practice" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
           {/* Legacy alias */}
           <Route path="/problems" element={<ProblemList session={session} roadmapMode={roadmapMode} />} />
-          <Route path="/versus" element={<Versus session={session} />} />
-          <Route path="/versus/:code" element={<VersusMatch session={session} />} />
+          <Route path="/battle" element={<Versus session={session} />} />
+          <Route path="/battle/:code" element={<VersusMatch session={session} />} />
           <Route path="/learning" element={<LearningHub />} />
-          <Route path="/ml" element={<PGForgeHub />} />
-          <Route path="/ml/learn" element={<MLHub />} />
-          <Route path="/ml/papers" element={<PGForgePapers />} />
-          <Route path="/ml/projects" element={<PGForgeProjects />} />
-          <Route path="/ml/projects/:slug" element={<PGForgeProjectDetail />} />
-          <Route path="/ml/roadmaps" element={<PGForgeRoadmaps />} />
-          <Route path="/ml/problems" element={<PGForgeProblems />} />
-          <Route path="/ml/problems/:slug" element={<PGForgeProblemDetail />} />
-          <Route path="/ml/math" element={<PGForgeMath />} />
-          <Route path="/ml/study-plans" element={<PGForgeStudyPlans />} />
-          <Route path="/ml/study-plans/:slug" element={<PGForgeStudyPlanDetail />} />
-          <Route path="/ml/arena" element={<PGForgeArena />} />
-          <Route path="/ml/cuda" element={<PGForgeCuda />} />
-          <Route path="/ml/cuda/:slug" element={<PGForgeCudaDetail />} />
-          <Route path="/ml/progress" element={<PGForgeProgress session={session} />} />
-          <Route path="/ml/sheets" element={<PGForgeSheets />} />
-          <Route path="/ml/sheets/:slug" element={<PGForgeSheetDetail />} />
-          <Route path="/ml/g/:groupSlug" element={<MLGroup />} />
-          <Route path="/ml/:pillarSlug" element={<MLPillar />} />
-          <Route path="/ml/:pillarSlug/:lessonSlug" element={<MLLesson />} />
+          <Route path="/forge" element={<PGForgeHub />} />
+          <Route path="/forge/learn" element={<MLHub />} />
+          <Route path="/forge/papers" element={<PGForgePapers />} />
+          <Route path="/forge/projects" element={<PGForgeProjects />} />
+          <Route path="/forge/projects/:slug" element={<PGForgeProjectDetail />} />
+          <Route path="/forge/roadmaps" element={<PGForgeRoadmaps />} />
+          <Route path="/forge/problems" element={<PGForgeProblems />} />
+          <Route path="/forge/problems/:slug" element={<PGForgeProblemDetail />} />
+          <Route path="/forge/math" element={<PGForgeMath />} />
+          <Route path="/forge/study-plans" element={<PGForgeStudyPlans />} />
+          <Route path="/forge/study-plans/:slug" element={<PGForgeStudyPlanDetail />} />
+          <Route path="/forge/arena" element={<PGForgeArena />} />
+          <Route path="/forge/cuda" element={<PGForgeCuda />} />
+          <Route path="/forge/cuda/:slug" element={<PGForgeCudaDetail />} />
+          <Route path="/forge/progress" element={<PGForgeProgress session={session} />} />
+          <Route path="/forge/sheets" element={<PGForgeSheets />} />
+          <Route path="/forge/sheets/:slug" element={<PGForgeSheetDetail />} />
+          <Route path="/forge/g/:groupSlug" element={<MLGroup />} />
+          <Route path="/forge/:pillarSlug" element={<MLPillar />} />
+          <Route path="/forge/:pillarSlug/:lessonSlug" element={<MLLesson />} />
           <Route path="/vault" element={<PGVaultHub session={session} />} />
           <Route path="/learn" element={<LearnIndex session={session} />} />
           <Route path="/learn/:moduleSlug" element={<LearnIndex session={session} />} />
@@ -327,12 +336,12 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/playground/web" element={<WebSandbox theme={theme} />} />
           <Route path="/playground/sql" element={<SqlPlayground theme={theme} />} />
           <Route path="/playground/sql/:courseSlug" element={<SqlPlayground theme={theme} />} />
-          <Route path="/company" element={<CompaniesIndex />} />
+          <Route path="/career" element={<CompaniesIndex />} />
           {/* Plural alias — both /company and /companies land on the index */}
-          <Route path="/companies" element={<Navigate to="/company" replace />} />
-          <Route path="/company/g/:groupSlug" element={<CompanyGroup />} />
-          <Route path="/company/:slug" element={<CompanyDetail session={session} />} />
-          <Route path="/contests" element={<ContestsIndex />} />
+          <Route path="/companies" element={<Navigate to="/career" replace />} />
+          <Route path="/career/g/:groupSlug" element={<CompanyGroup />} />
+          <Route path="/career/:slug" element={<CompanyDetail session={session} />} />
+          <Route path="/arena" element={<ContestsIndex />} />
           <Route path="/compete" element={<CompeteHub />} />
           <Route path="/compete/leetcode" element={<LcHub />} />
           <Route path="/compete/leetcode/problems" element={<LcProblemsBrowser />} />
@@ -346,7 +355,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/compete/competitions" element={<CompetitionsSection />} />
           <Route path="/compete/hackathons" element={<HackathonsSection />} />
           <Route path="/compete/conferences" element={<ConferencesSection />} />
-          <Route path="/contests/:slug" element={<ContestDetail session={session} />} />
+          <Route path="/arena/:slug" element={<ContestDetail session={session} />} />
           <Route path="/history" element={<PracticeHistory session={session} roadmapMode={roadmapMode} />} />
           <Route path="/lists" element={<MyLists session={session} />} />
           <Route path="/lists/share/:slug" element={<PublicListView session={session} />} />
@@ -366,6 +375,13 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
             element={<Workspace session={session} theme={theme} roadmapMode={roadmapMode} preferredLang={profile?.preferred_lang} />}
           />
           <Route path="/solution/:problemId" element={<SolutionPage />} />
+          {/* Renamed top-level areas (2026-07-18): /versus→/battle, /ml→/forge,
+              /company→/career, /contests→/arena. These prefix redirects keep every
+              old bookmark and any un-updated internal link working — nothing breaks. */}
+          <Route path="/versus/*" element={<PrefixRedirect to="/battle" />} />
+          <Route path="/ml/*" element={<PrefixRedirect to="/forge" />} />
+          <Route path="/company/*" element={<PrefixRedirect to="/career" />} />
+          <Route path="/contests/*" element={<PrefixRedirect to="/arena" />} />
           {/* Catch-all: any unknown hash route redirects to the roadmap instead
               of rendering a blank void under the nav. */}
           <Route path="*" element={<Navigate to="/" replace />} />

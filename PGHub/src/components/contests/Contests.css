@@ -833,6 +833,29 @@
 }
 .exc-intro { margin-bottom: 1rem; }
 
+.exc-time-tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  margin-bottom: 0.8rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.exc-time-tab {
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 7px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.exc-time-tab:hover { color: var(--text-main); }
+.exc-time-tab.on { background: var(--accent); color: #06202b; }
+
 .exc-chips {
   display: flex;
   flex-wrap: wrap;

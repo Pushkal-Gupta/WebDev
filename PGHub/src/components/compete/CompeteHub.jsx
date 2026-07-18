@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Medal, UserSearch, CalendarRange, LineChart, Code2,
+  UserSearch, CalendarRange, LineChart, Code2,
   GitBranch, ListOrdered, Gauge, ArrowRight, ArrowLeft, Trophy, Brain, Cpu, BookOpen,
 } from 'lucide-react';
 import CompeteHubThumb from './CompeteHubThumbs';
@@ -131,6 +131,30 @@ const SECTION_CARDS = [
   },
 ];
 
+// Three clear clusters so the hub reads as a coherent module, not a wall of cards.
+const SECTION_BY_KEY = Object.fromEntries(SECTION_CARDS.map((s) => [s.section, s]));
+const EXPLORE_BY_TO = Object.fromEntries(EXPLORE.map((e) => [e.to, e]));
+const COMPETE_GROUPS = [
+  {
+    title: 'Your LeetCode',
+    intent: 'Look yourself (or anyone) up, predict your rating change, and study the rated set.',
+    sections: ['profile', 'analytics'],
+    links: ['/compete/leetcode/problems', '/compete/leetcode/contests', '/compete/leetcode/llms'],
+  },
+  {
+    title: 'Contest calendar',
+    intent: 'Every round across the judges in one timeline — never miss a start.',
+    sections: ['calendar'],
+    links: ['/compete/competitions', '/compete/hackathons'],
+  },
+  {
+    title: 'Explore & grow',
+    intent: 'Data-science contests, open-source seasons, conferences, and a shelf of resources.',
+    sections: [],
+    links: ['/compete/kaggle', '/compete/gsoc', '/compete/conferences', '/compete/resources'],
+  },
+];
+
 function CardFace({ entry }) {
   const { icon: Icon, thumbKey, title, sub, chip } = entry;
   return (
@@ -197,41 +221,32 @@ export default function CompeteHub() {
   return (
     <div className="compete-hub">
       <header className="compete-hero">
-        <h1 className="compete-title"><Medal size={26} /> <span className="compete-pg">PG</span>Compete</h1>
+        <h1 className="compete-title"><Trophy size={26} /> <span className="compete-pg">PG</span>Compete</h1>
         <p className="compete-sub">
-          Look up any coder, track every contest across the judges, predict your rating, and jump to the next round, hackathon, or conference.
+          Your competitive-programming home base — track your LeetCode standing, watch every contest across the judges, and find your next competition.
         </p>
       </header>
 
-      <div className="compete-card-grid">
-        {/* Section cards first (minus the calendar), then explore links, then the
-            contest calendar card LAST — it's a reference timeline, not a daily entry. */}
-        {SECTION_CARDS.filter((e) => e.section !== 'calendar').map((e) => (
-          <button
-            key={e.section}
-            type="button"
-            className="compete-card"
-            onClick={() => setActive(e.section)}
-          >
-            <CardFace entry={e} />
-          </button>
-        ))}
-        {EXPLORE.map((e) => (
-          <Link key={e.to} to={e.to} className="compete-card">
-            <CardFace entry={e} />
-          </Link>
-        ))}
-        {SECTION_CARDS.filter((e) => e.section === 'calendar').map((e) => (
-          <button
-            key={e.section}
-            type="button"
-            className="compete-card"
-            onClick={() => setActive(e.section)}
-          >
-            <CardFace entry={e} />
-          </button>
-        ))}
-      </div>
+      {COMPETE_GROUPS.map((g) => (
+        <section key={g.title} className="compete-group">
+          <div className="compete-group-head">
+            <h2 className="compete-group-title">{g.title}</h2>
+            <p className="compete-group-intent">{g.intent}</p>
+          </div>
+          <div className="compete-card-grid">
+            {g.sections.map((key) => (
+              <button key={key} type="button" className="compete-card" onClick={() => setActive(key)}>
+                <CardFace entry={SECTION_BY_KEY[key]} />
+              </button>
+            ))}
+            {g.links.map((to) => (
+              <Link key={to} to={to} className="compete-card">
+                <CardFace entry={EXPLORE_BY_TO[to]} />
+              </Link>
+            ))}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

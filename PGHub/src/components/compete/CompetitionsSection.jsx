@@ -18,13 +18,25 @@ function tagList(extra) {
   return [];
 }
 
+const PLATFORM_LABEL = { codeforces: 'Codeforces', atcoder: 'AtCoder', codechef: 'CodeChef', kaggle: 'Kaggle' };
+
 export default function CompetitionsSection() {
   const { data: rows = [], isLoading } = useExternalContests();
 
-  const competitions = useMemo(
-    () => rows.filter((r) => r.platform === 'kaggle'),
-    [rows],
-  );
+  // Competitive-programming judges (the ML/Kaggle track lives at /compete/kaggle).
+  // Upcoming/ongoing first so the page leads with what's next, not old rounds.
+  const competitions = useMemo(() => {
+    const now = Date.now();
+    const CP = new Set(['codeforces', 'atcoder', 'codechef']);
+    return rows
+      .filter((r) => CP.has(r.platform))
+      .filter((r) => {
+        const start = new Date(r.start_time).getTime();
+        const end = start + (r.duration_minutes || 0) * 60_000;
+        return now <= end; // hide finished rounds
+      })
+      .sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
+  }, [rows]);
 
   return (
     <div className="lnch">
@@ -32,7 +44,7 @@ export default function CompetitionsSection() {
 
       <header className="lnch-head">
         <h1 className="lnch-title"><BarChart3 size={26} /> Competitions</h1>
-        <p className="lnch-sub">Data-science and machine-learning challenges from Kaggle — model, submit, climb the leaderboard.</p>
+        <p className="lnch-sub">Codeforces, AtCoder, and CodeChef rounds — one upcoming timeline with countdowns to the next start.</p>
       </header>
 
       {isLoading ? (
@@ -43,7 +55,7 @@ export default function CompetitionsSection() {
         <div className="lnch-empty">
           <CalendarOff size={40} />
           <p className="lnch-empty-title">Nothing scheduled right now</p>
-          <p className="lnch-empty-sub">No open competitions at the moment. New Kaggle challenges show up here as they launch.</p>
+          <p className="lnch-empty-sub">No upcoming Codeforces, AtCoder, or CodeChef rounds are listed yet — they appear here as platforms announce them.</p>
         </div>
       ) : (
         <div className="lnch-grid">
@@ -57,7 +69,7 @@ export default function CompetitionsSection() {
             return (
               <article key={c.id} className="lnch-card">
                 <div className="lnch-card-head">
-                  <span className="lnch-badge"><BarChart3 size={11} /> Kaggle</span>
+                  <span className="lnch-badge"><BarChart3 size={11} /> {PLATFORM_LABEL[c.platform] || c.platform}</span>
                   {c.phase && <span className={`lnch-phase${live ? ' live' : ''}`}>{c.phase}</span>}
                 </div>
                 <h2 className="lnch-card-name">{c.name}</h2>

@@ -181,15 +181,43 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     send({ t: 'chat', body });
   };
 
-  // drag the island
+  // drag the island — clamped to the viewport on BOTH axes so it can never be
+  // dragged off-screen and get stuck out of reach.
   const onDragStart = (e) => {
     const start = { x: e.clientX, y: e.clientY };
     const base = dragRef.current.getBoundingClientRect();
     const origin = pos || { x: base.left, y: base.top };
-    const move = (ev) => setPos({ x: Math.max(6, origin.x + ev.clientX - start.x), y: Math.max(70, origin.y + ev.clientY - start.y) });
+    const move = (ev) => {
+      const w = dragRef.current?.offsetWidth || base.width || 0;
+      const h = dragRef.current?.offsetHeight || base.height || 0;
+      const maxX = Math.max(6, window.innerWidth - w - 6);
+      const maxY = Math.max(70, window.innerHeight - h - 6);
+      const x = Math.min(maxX, Math.max(6, origin.x + ev.clientX - start.x));
+      const y = Math.min(maxY, Math.max(70, origin.y + ev.clientY - start.y));
+      setPos({ x, y });
+    };
     const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
   };
+
+  // If the window resizes (or the island grew) such that it now sits off-screen,
+  // snap it back into view so the controls are always reachable.
+  useEffect(() => {
+    if (!pos) return undefined;
+    const clampIntoView = () => {
+      const el = dragRef.current; if (!el) return;
+      const w = el.offsetWidth, h = el.offsetHeight;
+      setPos((p) => {
+        if (!p) return p;
+        const x = Math.min(Math.max(6, window.innerWidth - w - 6), Math.max(6, p.x));
+        const y = Math.min(Math.max(70, window.innerHeight - h - 6), Math.max(70, p.y));
+        return (x === p.x && y === p.y) ? p : { x, y };
+      });
+    };
+    clampIntoView();
+    window.addEventListener('resize', clampIntoView);
+    return () => window.removeEventListener('resize', clampIntoView);
+  }, [pos, call, chatOpen]);
 
   const style = pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined;
   const inCall = call === 'ringing' || call === 'connecting' || call === 'live';
@@ -215,11 +243,6 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
             {wantVideo ? <video ref={localVidEl} className="vs-meet-local" autoPlay playsInline muted /> : null}
             {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : 'Connecting…'}</div> : null}
           </div>
-          <div className="vs-meet-controls">
-            <button className={`vs-meet-ctl ${micOn ? '' : 'off'}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={16} /> : <MicOff size={16} />}</button>
-            {wantVideo ? <button className={`vs-meet-ctl ${camOn ? '' : 'off'}`} onClick={toggleCam} title={camOn ? 'Camera off' : 'Camera on'}>{camOn ? <Video size={16} /> : <VideoOff size={16} />}</button> : null}
-            <button className="vs-meet-ctl end" onClick={() => teardown(true)} title="Hang up"><PhoneOff size={16} /></button>
-          </div>
         </div>
       ) : null}
 
@@ -241,11 +264,21 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
 
       {err ? <div className="vs-island-err" onClick={() => setErr('')}>{err}</div> : null}
 
-      {/* the movable 3-button island */}
+      {/* one movable island — start buttons when idle, call controls when live */}
       <div className="vs-island-bar">
         <button className="vs-island-grip" onPointerDown={onDragStart} title="Drag"><GripVertical size={15} /></button>
-        <button className={`vs-island-btn ${inCall && wantVideo ? 'on' : ''}`} onClick={() => (inCall ? teardown(true) : startCall(true))} title="Video call"><Video size={16} /></button>
-        <button className={`vs-island-btn ${inCall && !wantVideo ? 'on' : ''}`} onClick={() => (inCall ? teardown(true) : startCall(false))} title="Voice call"><Phone size={16} /></button>
+        {inCall ? (
+          <>
+            <button className={`vs-island-btn ${micOn ? '' : 'off'}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={16} /> : <MicOff size={16} />}</button>
+            {wantVideo ? <button className={`vs-island-btn ${camOn ? '' : 'off'}`} onClick={toggleCam} title={camOn ? 'Camera off' : 'Camera on'}>{camOn ? <Video size={16} /> : <VideoOff size={16} />}</button> : null}
+            <button className="vs-island-btn end" onClick={() => teardown(true)} title="Hang up"><PhoneOff size={16} /></button>
+          </>
+        ) : (
+          <>
+            <button className="vs-island-btn" onClick={() => startCall(true)} title="Start video call"><Video size={16} /></button>
+            <button className="vs-island-btn" onClick={() => startCall(false)} title="Start voice call"><Phone size={16} /></button>
+          </>
+        )}
         <button className={`vs-island-btn ${chatOpen ? 'on' : ''}`} onClick={() => setChatOpen((o) => !o)} title="Chat">
           <MessageSquare size={16} />{unread > 0 && !chatOpen ? <span className="vs-island-badge">{unread}</span> : null}
         </button>

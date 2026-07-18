@@ -49,12 +49,12 @@ export default function Versus({ session }) {
     setBusy(true); setErr('');
     try {
       const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, allowHints, hostId: user.id, hostName: name });
-      nav(`/versus/${m.id}`);
+      nav(`/battle/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not create match.')); setBusy(false); }
   };
   const join = () => {
     const c = joinCode.trim().toUpperCase();
-    if (c.length >= 4) nav(`/versus/${c}`);
+    if (c.length >= 4) nav(`/battle/${c}`);
   };
   const challengeFriend = async (friend) => {
     if (!user || challengingId) return;
@@ -62,7 +62,7 @@ export default function Versus({ session }) {
     try {
       const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, allowHints, hostId: user.id, hostName: name });
       await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time, numQuestions });
-      nav(`/versus/${m.id}`);
+      nav(`/battle/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not send challenge.')); setChallengingId(null); }
   };
 
@@ -71,7 +71,7 @@ export default function Versus({ session }) {
   return (
     <div className="vs-page">
       <div className="vs-hero">
-        <h1 className="vs-title"><Zap className="vs-bolt" /> <span className="vs-title-pg">PG</span>Battle</h1>
+        <h1 className="vs-title"><Swords className="vs-bolt" /> <span className="vs-title-pg">PG</span>Battle</h1>
         <p className="vs-sub">Race a rival on real interview problems in real time. Their bar climbs as their tests pass — first to green wins. You never see their code.</p>
       </div>
 

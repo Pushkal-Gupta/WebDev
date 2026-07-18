@@ -44,6 +44,28 @@
   margin: 0;
 }
 
+.compete-group { margin-bottom: 1.6rem; }
+.compete-group-head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.compete-group-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+.compete-group-intent {
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 0;
+}
+
 .compete-card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));

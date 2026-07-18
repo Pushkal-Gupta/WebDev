@@ -169,7 +169,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   // Structured test/submit result
   const [runResult, setRunResult] = useState(null);
   const [resultCaseIdx, setResultCaseIdx] = useState(0);
-  const [submitReportTab, setSubmitReportTab] = useState('analysis'); // 'analysis' | 'review'
+  const [submitReportTab, setSubmitReportTab] = useState('review'); // 'review' | 'analysis'
   const [submitProgress, setSubmitProgress] = useState(null); // { current, total }
   // Submission history (persisted to localStorage)
   const [submissions, setSubmissions] = useState([]);
@@ -1576,14 +1576,6 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     {/* Complexity analysis panel */}
                     {runResult.isSubmission && runResult.status === 'accepted' && runResult.analysis && (() => {
                       const a = runResult.analysis;
-                      const Row = ({ label, mine, opt, ok }) => (
-                        <div className="ws-an-crow">
-                          <span className="ws-an-clabel">{label}</span>
-                          <span className={`ws-an-cval ${ok ? 'ok' : 'warn'}`}>{mine}</span>
-                          <span className="ws-an-carrow">vs</span>
-                          <span className="ws-an-copt">{opt} <em>optimal</em></span>
-                        </div>
-                      );
                       const memValue = `${estMemoryMb(a.user?.space, codeContent?.length)} MB`;
                       return (
                         <div className="ws-analysis">
@@ -1592,17 +1584,17 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                             <span className={`ws-an-src ${a.source === 'llm' ? 'llm' : ''}`}>{a.source === 'llm' ? 'AI analysis' : 'estimated'}</span>
                           </div>
                           <div className="ws-an-tabs">
-                            <button type="button" className={`ws-an-tab ${submitReportTab === 'analysis' ? 'on' : ''}`} onClick={() => setSubmitReportTab('analysis')}>Analysis</button>
                             <button type="button" className={`ws-an-tab ${submitReportTab === 'review' ? 'on' : ''}`} onClick={() => setSubmitReportTab('review')}>Review</button>
+                            <button type="button" className={`ws-an-tab ${submitReportTab === 'analysis' ? 'on' : ''}`} onClick={() => setSubmitReportTab('analysis')}>Analysis</button>
                           </div>
                           {submitReportTab === 'analysis' ? (
                             <>
                               <p className="ws-an-verdict">{a.verdict}</p>
                               {a.keyIdea ? <p className="ws-an-idea"><b>Key idea:</b> {a.keyIdea}</p> : null}
                               {a.hint ? <p className="ws-an-hint"><b>Consider:</b> {a.hint}</p> : null}
-                              <div className="ws-an-complexity">
-                                <Row label="Time" mine={a.user.time} opt={a.optimal.time} ok={a.timeGap === 0} />
-                                <Row label="Space" mine={a.user.space} opt={a.optimal.space} ok={a.spaceGap === 0} />
+                              <div className="ws-cx">
+                                <ComplexityCompare label="Time" mine={a.user.time} optimal={a.optimal.time} ok={a.timeGap === 0} />
+                                <ComplexityCompare label="Space" mine={a.user.space} optimal={a.optimal.space} ok={a.spaceGap === 0} />
                               </div>
                               <div className="ws-bigo-wrap">
                                 <BigOCurves title="Time complexity" active={a.user.time} optimal={a.optimal?.time} uid="an-time" />
@@ -1992,6 +1984,28 @@ function BigOCurves({ title, active, optimal, uid }) {
   );
 }
 
+// Clear side-by-side "Yours vs Optimal" complexity row with a match/improve badge,
+// so the reader instantly sees whether their solution hits the optimal bound.
+function ComplexityCompare({ label, mine, optimal, ok }) {
+  return (
+    <div className="ws-cx-row">
+      <span className="ws-cx-metric">{label}</span>
+      <div className="ws-cx-pair">
+        <div className="ws-cx-cell mine">
+          <span className="ws-cx-k">Yours</span>
+          <b className={ok ? 'ok' : 'warn'}>{mine}</b>
+        </div>
+        <span className="ws-cx-arrow">→</span>
+        <div className="ws-cx-cell opt">
+          <span className="ws-cx-k">Optimal</span>
+          <b>{optimal}</b>
+        </div>
+      </div>
+      <span className={`ws-cx-badge ${ok ? 'ok' : 'warn'}`}>{ok ? 'Optimal' : 'Can improve'}</span>
+    </div>
+  );
+}
+
 const STYLE_HUE = {
   Excellent: 'var(--easy)',
   Good: 'var(--hue-sky)',
@@ -2108,7 +2122,7 @@ function SubmissionsTabContent({
     [selected?.code, selected?.language],
   );
   const [aiStyle, setAiStyle] = useState(null);
-  const [detailTab, setDetailTab] = useState('analysis'); // 'analysis' | 'review'
+  const [detailTab, setDetailTab] = useState('review'); // 'review' | 'analysis'
   useEffect(() => {
     setAiStyle(null);
     if (!selected?.code || !isAiEnabled()) return undefined;
@@ -2267,27 +2281,17 @@ function SubmissionsTabContent({
                 <span className={`ws-an-src ${selectedStyle?.source === 'llm' ? 'llm' : ''}`}>{selectedStyle?.source === 'llm' ? 'AI review' : 'estimated'}</span>
               </div>
               <div className="ws-an-tabs">
-                <button type="button" className={`ws-an-tab ${detailTab === 'analysis' ? 'on' : ''}`} onClick={() => setDetailTab('analysis')}>Analysis</button>
                 <button type="button" className={`ws-an-tab ${detailTab === 'review' ? 'on' : ''}`} onClick={() => setDetailTab('review')}>Review</button>
+                <button type="button" className={`ws-an-tab ${detailTab === 'analysis' ? 'on' : ''}`} onClick={() => setDetailTab('analysis')}>Analysis</button>
               </div>
               {detailTab === 'analysis' ? (
                 <>
                   {selectedAnalysis && (
                     <>
                       <p className="ws-an-verdict">{selectedAnalysis.verdict}</p>
-                      <div className="ws-an-complexity">
-                        <div className="ws-an-crow">
-                          <span className="ws-an-clabel">Time</span>
-                          <span className={`ws-an-cval ${selectedAnalysis.timeGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.time}</span>
-                          <span className="ws-an-carrow">vs</span>
-                          <span className="ws-an-copt">{selectedAnalysis.optimal.time} <em>optimal</em></span>
-                        </div>
-                        <div className="ws-an-crow">
-                          <span className="ws-an-clabel">Space</span>
-                          <span className={`ws-an-cval ${selectedAnalysis.spaceGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.space}</span>
-                          <span className="ws-an-carrow">vs</span>
-                          <span className="ws-an-copt">{selectedAnalysis.optimal.space} <em>optimal</em></span>
-                        </div>
+                      <div className="ws-cx">
+                        <ComplexityCompare label="Time" mine={selectedAnalysis.user.time} optimal={selectedAnalysis.optimal.time} ok={selectedAnalysis.timeGap === 0} />
+                        <ComplexityCompare label="Space" mine={selectedAnalysis.user.space} optimal={selectedAnalysis.optimal.space} ok={selectedAnalysis.spaceGap === 0} />
                       </div>
                     </>
                   )}

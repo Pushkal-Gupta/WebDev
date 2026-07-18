@@ -170,19 +170,31 @@ export function analyzeCodeStyle(code, language = 'python') {
   const cryptic = crypticSet.size;
 
   const depth = maxLoopDepth(src, language);
+  // Control-flow nesting = how deep loops/conditionals nest INSIDE each other.
+  // Crucially, class/def/function scaffolding does NOT count — a flat method body
+  // with one loop + one if is depth 2, not 4. (The old heuristic counted raw
+  // indentation, so `class > def > for > if` wrongly read as 4 levels.)
   const branchDepth = (() => {
-    // approximate max nesting of loops+conditionals from indentation (python) or braces
     if (language === 'python') {
-      let max = 0;
+      const OPEN = /^(for|while|if|elif|else|with|try|except|finally)\b/;
+      const RESET = /^(def|class|async\s+def)\b/;
+      let max = 0; const stack = [];
       for (const l of codeLines) {
-        const m = l.match(/^(\s*)\S/); if (!m) continue;
-        max = Math.max(max, Math.round(m[1].replace(/\t/g, '    ').length / 4));
+        const m = l.match(/^(\s*)(\S.*)$/); if (!m) continue;
+        const indent = m[1].replace(/\t/g, '    ').length;
+        const kw = m[2];
+        while (stack.length && indent <= stack[stack.length - 1]) stack.pop();
+        if (RESET.test(kw)) { stack.length = 0; continue; }     // new function scope resets nesting
+        // else/elif/except/finally continue the current block — don't add a level
+        if (OPEN.test(kw) && !/^(elif|else|except|finally)\b/.test(kw)) {
+          stack.push(indent); max = Math.max(max, stack.length);
+        }
       }
       return max;
     }
-    let d = 0, max = 0;
-    for (const ch of src) { if (ch === '{') { d++; max = Math.max(max, d); } else if (ch === '}') d = Math.max(0, d - 1); }
-    return max;
+    // brace languages: loops are the meaningful nesting signal (maxLoopDepth),
+    // which already ignores the function/class braces.
+    return depth;
   })();
   const nesting = Math.max(depth, Math.min(branchDepth, 6));
 

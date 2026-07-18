@@ -21,8 +21,16 @@ function phaseOf(c, now) {
   return 'ongoing';
 }
 
+const TIME_TABS = [
+  { key: 'upcoming', label: 'Upcoming' },
+  { key: 'week', label: 'This week' },
+  { key: 'past', label: 'Past' },
+  { key: 'all', label: 'All' },
+];
+
 export default function ContestsGalleryGrid({ contests = [] }) {
   const [active, setActive] = useState(() => new Set());
+  const [timeF, setTimeF] = useState('upcoming');
   const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
@@ -36,9 +44,16 @@ export default function ContestsGalleryGrid({ contests = [] }) {
   }, [contests]);
 
   const filtered = useMemo(() => {
-    if (active.size === 0) return contests;
-    return contests.filter(c => active.has(c.platform));
-  }, [contests, active]);
+    const weekMs = now + 7 * 86400000;
+    return contests.filter(c => {
+      if (active.size > 0 && !active.has(c.platform)) return false;
+      const ph = phaseOf(c, now);
+      if (timeF === 'upcoming') return ph !== 'finished';
+      if (timeF === 'week') return ph !== 'finished' && new Date(c.start_time).getTime() <= weekMs;
+      if (timeF === 'past') return ph === 'finished';
+      return true; // all
+    });
+  }, [contests, active, timeF, now]);
 
   const sorted = useMemo(() => {
     const order = { ongoing: 0, upcoming: 1, finished: 2 };
@@ -60,6 +75,13 @@ export default function ContestsGalleryGrid({ contests = [] }) {
 
   return (
     <div className="exc-card-grid">
+      <div className="exc-time-tabs" role="group" aria-label="Filter by time">
+        {TIME_TABS.map(t => (
+          <button key={t.key} className={`exc-time-tab${timeF === t.key ? ' on' : ''}`} onClick={() => setTimeF(t.key)}>
+            {t.label}
+          </button>
+        ))}
+      </div>
       <div className="exc-chips" role="group" aria-label="Filter by platform">
         <button
           className={`exc-chip${active.size === 0 ? ' on' : ''}`}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { BookOpen, ArrowRight, Lightbulb } from 'lucide-react';
+import { BookOpen, ArrowRight, Lightbulb, ExternalLink } from 'lucide-react';
 import { RESOURCE_GROUPS, RESOURCE_TIPS } from './resourcesData';
 import Breadcrumb from '../../common/Breadcrumb';
 import './CompeteResources.css';
@@ -22,10 +22,17 @@ export default function CompeteResources() {
             <ul className="res-links">
               {g.items.map((it) => (
                 <li key={it.label}>
-                  <Link to={it.to} className="res-link">
-                    <span>{it.label}</span>
-                    <ArrowRight size={13} />
-                  </Link>
+                  {it.kind === 'external' ? (
+                    <a href={it.href} target="_blank" rel="noreferrer noopener" className="res-link">
+                      <span>{it.label}</span>
+                      <ExternalLink size={13} />
+                    </a>
+                  ) : (
+                    <Link to={it.to} className="res-link">
+                      <span>{it.label}</span>
+                      <ArrowRight size={13} />
+                    </Link>
+                  )}
                 </li>
               ))}
             </ul>

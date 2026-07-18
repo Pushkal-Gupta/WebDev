@@ -623,6 +623,53 @@
 .ws-an-tab { border: none; background: transparent; color: var(--text-dim); border-radius: 6px; padding: 0.3rem 0.9rem; font-family: var(--sans); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: color var(--t), background var(--t); }
 .ws-an-tab:hover { color: var(--text-main); }
 .ws-an-tab.on { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, transparent); }
+
+/* Yours-vs-Optimal complexity comparison — clear labelled cells + a verdict badge. */
+.ws-cx { display: flex; flex-direction: column; gap: 0.6rem; }
+.ws-cx-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+}
+.ws-cx-metric {
+  font-family: var(--sans);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  min-width: 3.2rem;
+}
+.ws-cx-pair { display: flex; align-items: center; gap: 0.7rem; flex: 1 1 auto; min-width: 0; }
+.ws-cx-cell { display: flex; flex-direction: column; gap: 0.1rem; }
+.ws-cx-k {
+  font-family: var(--sans);
+  font-size: 0.64rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-dim);
+}
+.ws-cx-cell b { font-family: var(--mono); font-size: 1.02rem; font-weight: 700; color: var(--text-main); }
+.ws-cx-cell b.ok { color: var(--easy); }
+.ws-cx-cell b.warn { color: var(--medium); }
+.ws-cx-arrow { color: var(--text-dim); font-size: 1.1rem; }
+.ws-cx-badge {
+  margin-left: auto;
+  font-family: var(--sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.ws-cx-badge.ok { color: var(--easy); background: color-mix(in srgb, var(--easy) 14%, transparent); border: 1px solid color-mix(in srgb, var(--easy) 40%, transparent); }
+.ws-cx-badge.warn { color: var(--medium); background: color-mix(in srgb, var(--medium) 14%, transparent); border: 1px solid color-mix(in srgb, var(--medium) 40%, transparent); }
 .ws-an-verdict { margin: 0; font-size: 0.86rem; color: var(--text-main); line-height: 1.5; }
 .ws-an-idea, .ws-an-hint { margin: 0; font-size: 0.8rem; color: var(--text-dim); line-height: 1.5; }
 .ws-an-idea b, .ws-an-hint b { color: var(--text-main); font-weight: 600; }
@@ -958,8 +1005,8 @@
 .ws-beats-chart {
   display: flex;
   align-items: flex-end;
-  gap: 2px;
-  height: 54px;
+  gap: 3px;
+  height: 92px;
   width: 100%;
 }
 .ws-beats-bar {
