@@ -19,11 +19,11 @@ export const POWERUPS = [
   { id: 'freeze',  label: 'Cold Open',  icon: 'Snowflake',desc: 'Your rival starts 15 seconds after you do.' },
 ];
 
-export async function createMatch({ difficulty = 'Any', language = 'python', timeLimit = 1500, powerup = 'none', numQuestions = 1, topic = null, hostId, hostName }) {
+export async function createMatch({ difficulty = 'Any', language = 'python', timeLimit = 1500, powerup = 'none', numQuestions = 1, topic = null, allowHints = false, hostId, hostName }) {
   const id = genCode();
   const { data, error } = await supabase.from('PGcode_versus_matches').insert({
     id, status: 'waiting', difficulty, language, host_language: language, time_limit_sec: timeLimit, powerup,
-    num_questions: Math.max(1, Math.min(4, numQuestions)), topic,
+    num_questions: Math.max(1, Math.min(4, numQuestions)), topic, allow_hints: allowHints,
     host_id: hostId, host_name: hostName || 'Host',
   }).select().single();
   if (error) throw error;

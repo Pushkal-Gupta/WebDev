@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@monaco-editor/react';
+import { friendlyError } from '../../lib/errors';
 import {
   Play, Pause, RotateCcw, ChevronsLeft, ChevronsRight,
   SkipBack, SkipForward, Terminal, AlertTriangle, Code2,
@@ -165,7 +166,7 @@ export default function InteractiveVisualizer({ slug }) {
       setLogs(capturedLogs);
       setIdx(Math.max(0, capturedFrames.length - 1));
       setHasRun(true);
-      setError(e.message || String(e));
+      setError(friendlyError(e));
     }
   }, [code, parsedInput]);
 

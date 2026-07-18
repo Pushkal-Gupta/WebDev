@@ -32,10 +32,10 @@ const TABS = [
     matches: ['/learning', '/tutorial', '/learn', '/courses', '/visualize'] },
   { to: '/ml',                      icon: Brain,         brand: ['PG', 'Forge'],
     matches: ['/ml'] },
-  { to: '/compete',                 icon: Medal,         brand: ['PG', 'Compete'],
+  { to: '/compete',                 icon: Trophy,        brand: ['PG', 'Compete'],
     matches: ['/compete'] },
   { to: '/company',                 icon: Building2,     brand: ['PG', 'Career'] },
-  { to: '/contests',                icon: Trophy,        brand: ['PG', 'Arena'] },
+  { to: '/contests',                icon: Medal,         brand: ['PG', 'Arena'] },
   { to: '/vault',                   icon: Vault,         brand: ['PG', 'Vault'],
     matches: ['/vault', '/review', '/lists', '/notebook', '/progress'] },
 ];

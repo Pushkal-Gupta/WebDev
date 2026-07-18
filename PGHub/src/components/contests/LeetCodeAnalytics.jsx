@@ -362,6 +362,7 @@ function LcResultRow({ slug, username, onRemove, onResolve }) {
 // as a table row (live rank + projected/actual swing), rendered as a rich card.
 function SingleResultCard({ slug, username, contest }) {
   const { data, isFetching } = useLcContestResult(slug, username);
+  const { data: lcUser } = useLeetCodeUser(username);
   const r = data?.row || { username };
   const rated = r.rated;
   const proj = (!rated && r.pending && r.rank)
@@ -380,9 +381,18 @@ function SingleResultCard({ slug, username, contest }) {
   const notFound = !loading && !hasRank && r.found === false;
   const oldRating = Number.isFinite(Number(r.oldRating)) && r.oldRating ? Math.round(r.oldRating) : null;
   const newRating = rated ? Math.round(r.newRating) : (proj ? Math.round(r.oldRating + proj.delta) : null);
-  const score = Number.isFinite(Number(r.score)) && r.score != null ? Number(r.score) : null;
+  // Per-contest score: prefer the row's score; else derive from the contest's problem
+  // points for the problems this user solved (Q1..Q4 are worth 3/4/5/6 on LeetCode).
+  const PROBLEM_POINTS = [3, 4, 5, 6];
+  const derivedScore = (r.problemsSolved != null && r.totalProblems)
+    ? PROBLEM_POINTS.slice(0, Math.min(Number(r.problemsSolved), 4)).reduce((s, p) => s + p, 0)
+    : null;
+  const score = Number.isFinite(Number(r.score)) && r.score != null ? Number(r.score) : derivedScore;
   const fieldSize = Number(r.fieldSize) > 0 ? Number(r.fieldSize) : null;
-  const played = Number.isFinite(Number(r.contestsPlayed)) ? Number(r.contestsPlayed) : null;
+  // "Contests played" is a profile-level stat — the row rarely carries it, so fall back to
+  // the user's live attendedContestsCount (the same number the profile card shows).
+  const played = Number.isFinite(Number(r.contestsPlayed)) ? Number(r.contestsPlayed)
+    : (Number.isFinite(Number(lcUser?.attendedContestsCount)) ? Number(lcUser.attendedContestsCount) : null);
   const userUrl = `https://leetcode.com/u/${encodeURIComponent(username)}/`;
 
   if (loading) return <div className="lca-skel" aria-hidden />;

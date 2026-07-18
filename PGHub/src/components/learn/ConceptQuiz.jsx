@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { CheckCircle2, XCircle, Sparkles, Loader2, RefreshCw, ArrowRight } from 'lucide-react';
+import { friendlyError } from '../../lib/errors';
 import { isAiEnabled } from '../../lib/ai';
 import Markdown from './MarkdownRenderer';
 
@@ -147,7 +148,7 @@ export default function ConceptQuiz({ concept }) {
       }
       setQuiz(q);
     } catch (e) {
-      setError(e?.message || 'Quiz generation failed.');
+      setError(friendlyError(e, 'Quiz generation failed.'));
     } finally {
       setLoading(false);
     }

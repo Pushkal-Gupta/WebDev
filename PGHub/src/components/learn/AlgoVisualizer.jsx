@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo, useLayoutEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, ChevronsLeft, ChevronsRight, Wand2, Keyboard } from 'lucide-react';
+import { friendlyError } from '../../lib/errors';
 import './AlgoVisualizer.css';
 
 const SPEED_MAP = { 0.5: 2000, 1: 1200, 1.5: 800, 2: 500 };
@@ -72,7 +73,7 @@ function CustomInputForm({ schema, build, onFrames, onError }) {
       onError(null);
       onFrames(frames);
     } catch (e) {
-      setErr(e.message);
+      setErr(friendlyError(e));
       onError(e.message);
     }
   };

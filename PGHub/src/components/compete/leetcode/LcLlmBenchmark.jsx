@@ -36,20 +36,47 @@ function GroupedBars({ models }) {
 
 function RatingScatter({ models }) {
   const minR = 1300, maxR = 2300;
-  const sx = (r) => 6 + ((r - minR) / (maxR - minR)) * 88;
-  const sy = (h) => 50 - (h / 100) * 42;
+  const pts = [...models].sort((a, b) => a.rating - b.rating);
+  const maxH = Math.max(20, Math.ceil(Math.max(...models.map((m) => m.hard)) / 10) * 10);
+  const X0 = 14, X1 = 97, Y0 = 6, Y1 = 46;   // plot area
+  const sx = (r) => X0 + ((r - minR) / (maxR - minR)) * (X1 - X0);
+  const sy = (h) => Y1 - (h / maxH) * (Y1 - Y0);
+  const line = pts.map((m, i) => `${i ? 'L' : 'M'}${sx(m.rating).toFixed(1)} ${sy(m.hard).toFixed(1)}`).join(' ');
+  const area = `${line} L${sx(pts[pts.length - 1].rating).toFixed(1)} ${Y1} L${sx(pts[0].rating).toFixed(1)} ${Y1} Z`;
+  const yTicks = [0, maxH / 4, maxH / 2, (3 * maxH) / 4, maxH];
   return (
     <svg className="llm-chart" viewBox="0 0 100 56" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Hard solve rate vs contest rating">
-      <line x1="6" y1="50" x2="98" y2="50" stroke="var(--border)" strokeWidth="0.4" />
-      <line x1="6" y1="8" x2="6" y2="50" stroke="var(--border)" strokeWidth="0.4" />
-      {models.map((m) => (
-        <g key={m.slug}>
-          <circle cx={sx(m.rating)} cy={sy(m.hard)} r="1.8" fill="var(--accent)" />
-          <text x={sx(m.rating)} y={sy(m.hard) - 2.4} textAnchor="middle" fontSize="2" fill="var(--text-dim)">{m.rating}</text>
+      <defs>
+        <linearGradient id="llm-scatter-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="var(--accent)" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* horizontal gridlines + y labels */}
+      {yTicks.map((h) => (
+        <g key={h}>
+          <line x1={X0} y1={sy(h)} x2={X1} y2={sy(h)} stroke="var(--border)" strokeWidth="0.25" strokeDasharray={h === 0 ? '0' : '1 1'} />
+          <text x={X0 - 1.5} y={sy(h) + 0.8} textAnchor="end" fontSize="1.9" fill="var(--text-dim)">{Math.round(h)}%</text>
         </g>
       ))}
-      <text x="52" y="55" textAnchor="middle" fontSize="2.1" fill="var(--text-dim)">contest rating</text>
-      <text x="2.5" y="9" fontSize="2.1" fill="var(--text-dim)" transform="rotate(-90 2.5 9)">hard solve %</text>
+      {/* x axis + rating ticks */}
+      <line x1={X0} y1={Y1} x2={X1} y2={Y1} stroke="var(--border)" strokeWidth="0.4" />
+      {[1400, 1700, 2000, 2300].map((r) => (
+        <text key={r} x={sx(r)} y={Y1 + 3.4} textAnchor="middle" fontSize="1.9" fill="var(--text-dim)">{r}</text>
+      ))}
+      {/* trend area + line */}
+      <path d={area} fill="url(#llm-scatter-fill)" />
+      <path d={line} fill="none" stroke="var(--accent)" strokeWidth="0.7" strokeLinejoin="round" strokeLinecap="round" opacity="0.85" />
+      {/* points with halo + hard-% value */}
+      {pts.map((m) => (
+        <g key={m.slug}>
+          <circle cx={sx(m.rating)} cy={sy(m.hard)} r="2.4" fill="var(--accent)" opacity="0.18" />
+          <circle cx={sx(m.rating)} cy={sy(m.hard)} r="1.4" fill="var(--accent)" />
+          <text x={sx(m.rating)} y={sy(m.hard) - 2.6} textAnchor="middle" fontSize="1.9" fontWeight="700" fill="var(--text-main)">{Math.round(m.hard)}%</text>
+        </g>
+      ))}
+      <text x={(X0 + X1) / 2} y="54.5" textAnchor="middle" fontSize="2.1" fill="var(--text-dim)">Contest rating</text>
+      <text x="3.5" y={(Y0 + Y1) / 2} textAnchor="middle" fontSize="2.1" fill="var(--text-dim)" transform={`rotate(-90 3.5 ${(Y0 + Y1) / 2})`}>Hard solve rate</text>
     </svg>
   );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, pickRandomProblems, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { gradeOnServer } from '../../lib/codeRunner';
@@ -22,6 +22,7 @@ export default function VersusMatch({ session }) {
   const [match, setMatch] = useState(null);
   const [problems, setProblems] = useState([]);      // [{id,name,description,difficulty,...}]
   const [qIndex, setQIndex] = useState(0);
+  const [hintsShown, setHintsShown] = useState(0);
   const [codeByQ, setCodeByQ] = useState({});        // qIndex -> code text
   const [role, setRole] = useState(null);            // 'host' | 'guest'
   const [oppPresent, setOppPresent] = useState(false);
@@ -116,7 +117,7 @@ export default function VersusMatch({ session }) {
     if (!ids.length) { const t = setTimeout(refreshMatch, 700); return () => clearTimeout(t); }
     let live = true;
     (async () => {
-      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases').in('id', ids);
+      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases, hints').in('id', ids);
       if (!data || !live) return;
       const ordered = ids.map((id) => data.find((d) => d.id === id)).filter(Boolean);
       const starters = {};
@@ -130,6 +131,9 @@ export default function VersusMatch({ session }) {
 
   // shared countdown tick
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, []);
+
+  // hints reset when switching questions
+  useEffect(() => { setHintsShown(0); }, [qIndex]);
 
   // fallback poll for missed realtime signals
   useEffect(() => {
@@ -351,6 +355,21 @@ export default function VersusMatch({ session }) {
         <div className="vs-prob">
           <h3>{prob ? `${numQ > 1 ? `Q${qIndex + 1}. ` : ''}${prob.name}` : 'Loading…'} {prob ? <span className={`vs-diff ${(prob.difficulty || '').toLowerCase()}`}>{prob.difficulty}</span> : null}</h3>
           <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: prob?.description || '' }} />
+          {match.allow_hints && prob?.hints?.length ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
+              {prob.hints.slice(0, hintsShown).map((h, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start', padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'color-mix(in srgb, var(--medium) 8%, var(--surface))', color: 'var(--text-main)', fontSize: '0.86rem', lineHeight: 1.5 }}>
+                  <Lightbulb size={14} style={{ color: 'var(--medium)', flexShrink: 0, marginTop: '2px' }} /> <span>{h}</span>
+                </div>
+              ))}
+              {hintsShown < prob.hints.length ? (
+                <button type="button" onClick={() => setHintsShown((n) => n + 1)}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', alignSelf: 'flex-start', padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text-main)', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' }}>
+                  <Lightbulb size={13} /> {hintsShown === 0 ? 'Show a hint' : `Next hint (${hintsShown}/${prob.hints.length})`}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
         </div>
         <div className="vs-editor">
           <div className="vs-editor-head">

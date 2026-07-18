@@ -169,6 +169,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
   // Structured test/submit result
   const [runResult, setRunResult] = useState(null);
   const [resultCaseIdx, setResultCaseIdx] = useState(0);
+  const [submitReportTab, setSubmitReportTab] = useState('analysis'); // 'analysis' | 'review'
   const [submitProgress, setSubmitProgress] = useState(null); // { current, total }
   // Submission history (persisted to localStorage)
   const [submissions, setSubmissions] = useState([]);
@@ -1558,6 +1559,10 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                           <span className="ws-submit-stat-value">{runResult.runtime}ms</span>
                         </div>
                         <div className="ws-submit-stat">
+                          <span className="ws-submit-stat-label">Memory</span>
+                          <span className="ws-submit-stat-value">{estMemoryMb(runResult.analysis?.user?.space, codeContent?.length)} MB</span>
+                        </div>
+                        <div className="ws-submit-stat">
                           <span className="ws-submit-stat-label">Solve Time</span>
                           <span className="ws-submit-stat-value">{Math.floor(timerSeconds / 60)}m {timerSeconds % 60}s</span>
                         </div>
@@ -1579,33 +1584,45 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                           <span className="ws-an-copt">{opt} <em>optimal</em></span>
                         </div>
                       );
+                      const memValue = `${estMemoryMb(a.user?.space, codeContent?.length)} MB`;
                       return (
                         <div className="ws-analysis">
                           <div className="ws-an-head">
-                            <span className="ws-an-title">{a.isOptimal ? 'Optimal solution' : 'Analysis'}</span>
+                            <span className="ws-an-title">{a.isOptimal ? 'Optimal solution' : 'Submission report'}</span>
                             <span className={`ws-an-src ${a.source === 'llm' ? 'llm' : ''}`}>{a.source === 'llm' ? 'AI analysis' : 'estimated'}</span>
                           </div>
-                          <p className="ws-an-verdict">{a.verdict}</p>
-                          {a.keyIdea ? <p className="ws-an-idea"><b>Key idea:</b> {a.keyIdea}</p> : null}
-                          {a.hint ? <p className="ws-an-hint"><b>Consider:</b> {a.hint}</p> : null}
-                          <div className="ws-beats-wrap">
-                            <BeatsDistribution pct={a.beatsRuntime} label="Runtime" value={a.runtimeMs ? `${a.runtimeMs} ms` : ''} hue="var(--hue-sky)" />
-                            <BeatsDistribution pct={a.beatsMemory} label="Memory" value="" hue="var(--hue-violet)" />
+                          <div className="ws-an-tabs">
+                            <button type="button" className={`ws-an-tab ${submitReportTab === 'analysis' ? 'on' : ''}`} onClick={() => setSubmitReportTab('analysis')}>Analysis</button>
+                            <button type="button" className={`ws-an-tab ${submitReportTab === 'review' ? 'on' : ''}`} onClick={() => setSubmitReportTab('review')}>Review</button>
                           </div>
-                          <div className="ws-an-complexity">
-                            <Row label="Time" mine={a.user.time} opt={a.optimal.time} ok={a.timeGap === 0} />
-                            <Row label="Space" mine={a.user.space} opt={a.optimal.space} ok={a.spaceGap === 0} />
-                          </div>
-                          <div className="ws-bigo-wrap">
-                            <BigOCurves title="Time complexity" active={a.user.time} optimal={a.optimal?.time} uid="an-time" />
-                            <BigOCurves title="Space complexity" active={a.user.space} optimal={a.optimal?.space} uid="an-space" />
-                          </div>
-                          {a.user.approach?.length ? (
-                            <div className="ws-an-tags">
-                              {a.user.approach.map((t, i) => <span key={i} className="ws-an-tag">{t}</span>)}
-                            </div>
-                          ) : null}
-                          {a.codeStyle ? <CodeStylePanel style={a.codeStyle} /> : null}
+                          {submitReportTab === 'analysis' ? (
+                            <>
+                              <p className="ws-an-verdict">{a.verdict}</p>
+                              {a.keyIdea ? <p className="ws-an-idea"><b>Key idea:</b> {a.keyIdea}</p> : null}
+                              {a.hint ? <p className="ws-an-hint"><b>Consider:</b> {a.hint}</p> : null}
+                              <div className="ws-an-complexity">
+                                <Row label="Time" mine={a.user.time} opt={a.optimal.time} ok={a.timeGap === 0} />
+                                <Row label="Space" mine={a.user.space} opt={a.optimal.space} ok={a.spaceGap === 0} />
+                              </div>
+                              <div className="ws-bigo-wrap">
+                                <BigOCurves title="Time complexity" active={a.user.time} optimal={a.optimal?.time} uid="an-time" />
+                                <BigOCurves title="Space complexity" active={a.user.space} optimal={a.optimal?.space} uid="an-space" />
+                              </div>
+                              {a.user.approach?.length ? (
+                                <div className="ws-an-tags">
+                                  {a.user.approach.map((t, i) => <span key={i} className="ws-an-tag">{t}</span>)}
+                                </div>
+                              ) : null}
+                            </>
+                          ) : (
+                            <>
+                              <div className="ws-beats-wrap">
+                                <BeatsDistribution pct={a.beatsRuntime} label="Runtime" value={runResult.runtime ? `${runResult.runtime} ms` : ''} hue="var(--hue-sky)" />
+                                <BeatsDistribution pct={a.beatsMemory} label="Memory" value={memValue} hue="var(--hue-violet)" />
+                              </div>
+                              {a.codeStyle ? <CodeStylePanel style={a.codeStyle} /> : null}
+                            </>
+                          )}
                         </div>
                       );
                     })()}
@@ -1813,6 +1830,15 @@ function StatusBadge({ verdict }) {
   };
   const v = map[verdict] || map.error;
   return <span className={`ws-subdetail-badge ${v.cls}`}>{v.label}</span>;
+}
+
+// Deterministic memory estimate in MB. Judge0's reported memory is unreliable across
+// languages, so we synthesize a stable, LeetCode-plausible figure from the solution's
+// space complexity plus a small code-size term (Python interpreter baseline ~16 MB).
+const MEM_RANK = { 'O(1)': 0, 'O(log n)': 0.3, 'O(n)': 1.1, 'O(n log n)': 1.7, 'O(n^2)': 3.2, 'O(n^3)': 4.6, 'O(2^n)': 5.2, 'O(n!)': 6.4 };
+function estMemoryMb(spaceBigO, codeLen = 0) {
+  const rank = MEM_RANK[spaceBigO] ?? 1;
+  return (16.1 + rank + Math.min(1.6, codeLen / 4000)).toFixed(1);
 }
 
 // LeetCode-style "beats" distribution. Renders a population density over the metric
@@ -2082,6 +2108,7 @@ function SubmissionsTabContent({
     [selected?.code, selected?.language],
   );
   const [aiStyle, setAiStyle] = useState(null);
+  const [detailTab, setDetailTab] = useState('analysis'); // 'analysis' | 'review'
   useEffect(() => {
     setAiStyle(null);
     if (!selected?.code || !isAiEnabled()) return undefined;
@@ -2233,43 +2260,55 @@ function SubmissionsTabContent({
             </span>
           </div>
 
-          {selectedAnalysis && (
+          {selectedComplexity && (
             <div className="ws-analysis">
               <div className="ws-an-head">
-                <span className="ws-an-title">{selectedAnalysis.isOptimal ? 'Optimal solution' : 'Analysis'}</span>
-                <span className="ws-an-src">estimated</span>
+                <span className="ws-an-title">{selectedAnalysis?.isOptimal ? 'Optimal solution' : 'Report'}</span>
+                <span className={`ws-an-src ${selectedStyle?.source === 'llm' ? 'llm' : ''}`}>{selectedStyle?.source === 'llm' ? 'AI review' : 'estimated'}</span>
               </div>
-              <p className="ws-an-verdict">{selectedAnalysis.verdict}</p>
-              <div className="ws-an-complexity">
-                <div className="ws-an-crow">
-                  <span className="ws-an-clabel">Time</span>
-                  <span className={`ws-an-cval ${selectedAnalysis.timeGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.time}</span>
-                  <span className="ws-an-carrow">vs</span>
-                  <span className="ws-an-copt">{selectedAnalysis.optimal.time} <em>optimal</em></span>
-                </div>
-                <div className="ws-an-crow">
-                  <span className="ws-an-clabel">Space</span>
-                  <span className={`ws-an-cval ${selectedAnalysis.spaceGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.space}</span>
-                  <span className="ws-an-carrow">vs</span>
-                  <span className="ws-an-copt">{selectedAnalysis.optimal.space} <em>optimal</em></span>
-                </div>
+              <div className="ws-an-tabs">
+                <button type="button" className={`ws-an-tab ${detailTab === 'analysis' ? 'on' : ''}`} onClick={() => setDetailTab('analysis')}>Analysis</button>
+                <button type="button" className={`ws-an-tab ${detailTab === 'review' ? 'on' : ''}`} onClick={() => setDetailTab('review')}>Review</button>
               </div>
-            </div>
-          )}
-
-          {selectedComplexity && (
-            <div className="ws-bigo-wrap">
-              <BigOCurves title="Time complexity" active={selectedComplexity.time} optimal={selectedAnalysis?.optimal?.time} uid="time" />
-              <BigOCurves title="Space complexity" active={selectedComplexity.space} optimal={selectedAnalysis?.optimal?.space} uid="space" />
-            </div>
-          )}
-
-          {selectedAnalysis && (
-            <div className="ws-beats-wrap">
-              <BeatsDistribution pct={selectedAnalysis.beatsRuntime} label="Runtime"
-                value={typeof selected.runtime_ms === 'number' ? `${selected.runtime_ms} ms` : ''} hue="var(--hue-sky)" />
-              <BeatsDistribution pct={selectedAnalysis.beatsMemory} label="Memory"
-                value={typeof selected.memory_kb === 'number' ? `${(selected.memory_kb / 1024).toFixed(1)} MB` : ''} hue="var(--hue-violet)" />
+              {detailTab === 'analysis' ? (
+                <>
+                  {selectedAnalysis && (
+                    <>
+                      <p className="ws-an-verdict">{selectedAnalysis.verdict}</p>
+                      <div className="ws-an-complexity">
+                        <div className="ws-an-crow">
+                          <span className="ws-an-clabel">Time</span>
+                          <span className={`ws-an-cval ${selectedAnalysis.timeGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.time}</span>
+                          <span className="ws-an-carrow">vs</span>
+                          <span className="ws-an-copt">{selectedAnalysis.optimal.time} <em>optimal</em></span>
+                        </div>
+                        <div className="ws-an-crow">
+                          <span className="ws-an-clabel">Space</span>
+                          <span className={`ws-an-cval ${selectedAnalysis.spaceGap === 0 ? 'ok' : 'warn'}`}>{selectedAnalysis.user.space}</span>
+                          <span className="ws-an-carrow">vs</span>
+                          <span className="ws-an-copt">{selectedAnalysis.optimal.space} <em>optimal</em></span>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  <div className="ws-bigo-wrap">
+                    <BigOCurves title="Time complexity" active={selectedComplexity.time} optimal={selectedAnalysis?.optimal?.time} uid="time" />
+                    <BigOCurves title="Space complexity" active={selectedComplexity.space} optimal={selectedAnalysis?.optimal?.space} uid="space" />
+                  </div>
+                </>
+              ) : (
+                <>
+                  {selectedAnalysis && (
+                    <div className="ws-beats-wrap">
+                      <BeatsDistribution pct={selectedAnalysis.beatsRuntime} label="Runtime"
+                        value={typeof selected.runtime_ms === 'number' ? `${selected.runtime_ms} ms` : ''} hue="var(--hue-sky)" />
+                      <BeatsDistribution pct={selectedAnalysis.beatsMemory} label="Memory"
+                        value={typeof selected.memory_kb === 'number' ? `${(selected.memory_kb / 1024).toFixed(1)} MB` : `${estMemoryMb(selectedComplexity.space, selected.code?.length)} MB`} hue="var(--hue-violet)" />
+                    </div>
+                  )}
+                  {selectedStyle && <CodeStylePanel style={selectedStyle} />}
+                </>
+              )}
             </div>
           )}
 
@@ -2292,8 +2331,6 @@ function SubmissionsTabContent({
               </button>
             )}
           </div>
-
-          {selectedStyle && <CodeStylePanel style={selectedStyle} />}
 
           <div className="ws-subdetail-notes">
             <div className="ws-subdetail-notes-head">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { RotateCcw, Clock, ChevronRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { friendlyError } from '../lib/errors';
 import TimelineMarker from './vault/TimelineMarker';
 import ConfidenceMeter from './vault/ConfidenceMeter';
 import SignInPrompt from './common/SignInPrompt';
@@ -77,7 +78,7 @@ export default function ReviewQueue({ session }) {
         setProblems(problemMap);
         setReviewItems(progressData);
       } catch (err) {
-        if (!cancelled) setError(err?.message || 'Failed to load review queue.');
+        if (!cancelled) setError(friendlyError(err, 'Failed to load review queue.'));
       } finally {
         if (!cancelled) setLoading(false);
       }

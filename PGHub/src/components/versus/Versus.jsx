@@ -9,7 +9,6 @@ import '../../styles/versus.css';
 
 const DIFFS = ['Any', 'Easy', 'Medium', 'Hard'];
 const TIMES = [{ label: '10 min', v: 600 }, { label: '15 min', v: 900 }, { label: '25 min', v: 1500 }];
-const LANGS = ['python', 'javascript', 'java', 'cpp'];
 const PU_ICON = { Minus, Radar, Lightbulb, Snowflake };
 
 function RaceLane({ delay, cls, pct }) {
@@ -25,8 +24,9 @@ export default function Versus({ session }) {
   const nav = useNavigate();
   const [difficulty, setDifficulty] = useState('Any');
   const [time, setTime] = useState(900);
-  const [language, setLanguage] = useState('python');
+  const language = 'python'; // host default; both players switch freely mid-match
   const [numQuestions, setNumQuestions] = useState(1);
+  const [allowHints, setAllowHints] = useState(false);
   const [powerup, setPowerup] = useState('none');
   const [joinCode, setJoinCode] = useState('');
   const [busy, setBusy] = useState(false);
@@ -48,7 +48,7 @@ export default function Versus({ session }) {
     if (!user) return;
     setBusy(true); setErr('');
     try {
-      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, hostId: user.id, hostName: name });
+      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, allowHints, hostId: user.id, hostName: name });
       nav(`/versus/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not create match.')); setBusy(false); }
   };
@@ -60,7 +60,7 @@ export default function Versus({ session }) {
     if (!user || challengingId) return;
     setChallengingId(friend.id); setErr('');
     try {
-      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, hostId: user.id, hostName: name });
+      const m = await createMatch({ difficulty, language, timeLimit: time, powerup, numQuestions, allowHints, hostId: user.id, hostName: name });
       await sendChallenge(friend.id, { code: m.id, fromId: user.id, fromName: name, difficulty, language, timeLimit: time, numQuestions });
       nav(`/versus/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not send challenge.')); setChallengingId(null); }
@@ -94,9 +94,15 @@ export default function Versus({ session }) {
           <div className="vs-row"><span className="vs-row-label"><ListChecks size={13} /> Questions</span>
             <div className="vs-chips">{[1, 2, 3, 4].map((n) => <button key={n} className={`vs-chip ${numQuestions === n ? 'on' : ''}`} onClick={() => setNumQuestions(n)}>{n}{n === 1 ? ' question' : ''}</button>)}</div>
           </div>
-          <div className="vs-row"><span className="vs-row-label"><Code2 size={13} /> Your code</span>
-            <div className="vs-chips">{LANGS.map((l) => <button key={l} className={`vs-chip ${language === l ? 'on' : ''}`} onClick={() => setLanguage(l)}>{l}</button>)}</div>
+          <div className="vs-row"><span className="vs-row-label"><Lightbulb size={13} /> Hints</span>
+            <div className="vs-chips">
+              <button className={`vs-chip ${!allowHints ? 'on' : ''}`} onClick={() => setAllowHints(false)}>Off</button>
+              <button className={`vs-chip ${allowHints ? 'on' : ''}`} onClick={() => setAllowHints(true)}>Allowed</button>
+            </div>
           </div>
+          <p style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', margin: '0.1rem 0 0', color: 'var(--text-dim)', fontSize: '0.8rem', lineHeight: 1.4 }}>
+            <Code2 size={12} style={{ flexShrink: 0 }} /> Pick your language inside the match — you can switch any time, so no need to lock it now.
+          </p>
 
           <div className="vs-powerups">
             {POWERUPS.map((p) => {

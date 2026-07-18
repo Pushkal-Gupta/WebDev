@@ -88,7 +88,7 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
         onClose();
       }
     } catch (err) {
-      setError(sanitizeError(err));
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -135,7 +135,7 @@ export default function LoginModal({ onClose, onGoToSettings, initialMode = 'log
       if (error) throw error;
       onClose();
     } catch (err) {
-      setError(sanitizeError(err));
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }

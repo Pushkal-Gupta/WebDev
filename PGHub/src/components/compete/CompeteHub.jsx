@@ -75,6 +75,11 @@ const EXPLORE = [
     sub: 'Every weekly and biweekly round with live countdowns and status.',
   },
   {
+    to: '/compete/resources', icon: BookOpen, thumbKey: 'resources',
+    title: 'Resources', chip: 'One shelf',
+    sub: 'Foundations, practice, interview prep, and open-source paths — linked in one shelf.',
+  },
+  {
     to: '/compete/competitions', icon: Gauge, thumbKey: 'competitions',
     title: 'Competitions', chip: 'CF · AtCoder · CC',
     sub: 'Codeforces, AtCoder, CodeChef rounds — one timeline with countdowns to the next start.',
@@ -103,11 +108,6 @@ const EXPLORE = [
     to: '/compete/leetcode/llms', icon: Cpu, thumbKey: 'llms',
     title: 'LLMs on LeetCode', chip: 'Solve rate',
     sub: 'How language models score on rated problems — solve rate by difficulty and projected rating.',
-  },
-  {
-    to: '/compete/resources', icon: BookOpen, thumbKey: 'resources',
-    title: 'Resources', chip: 'One shelf',
-    sub: 'Foundations, practice, interview prep, and open-source paths — linked in one shelf.',
   },
 ];
 

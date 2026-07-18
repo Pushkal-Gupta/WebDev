@@ -6,6 +6,7 @@ const TYPE_MAP = {
   'str':                { jsdoc: 'string',     java: 'String',    cpp: 'string',                    go: 'string',     c: 'char*',   swift: 'String',     kotlin: 'String',        rust: 'String',                    typescript: 'string' },
   'bool':               { jsdoc: 'boolean',    java: 'boolean',   cpp: 'bool',                      go: 'bool',       c: 'bool',    swift: 'Bool',       kotlin: 'Boolean',       rust: 'bool',                      typescript: 'boolean' },
   'List[int]':          { jsdoc: 'number[]',   java: 'int[]',     cpp: 'vector<int>',               go: '[]int',      c: 'int*',    swift: '[Int]',      kotlin: 'IntArray',      rust: 'Vec<i64>',                  typescript: 'number[]' },
+  'List[float]':        { jsdoc: 'number[]',   java: 'double[]',  cpp: 'vector<double>',            go: '[]float64',  c: 'double*', swift: '[Double]',   kotlin: 'DoubleArray',   rust: 'Vec<f64>',                  typescript: 'number[]' },
   'List[str]':          { jsdoc: 'string[]',   java: 'String[]',  cpp: 'vector<string>',            go: '[]string',   c: 'char**',  swift: '[String]',   kotlin: 'Array<String>', rust: 'Vec<String>',               typescript: 'string[]' },
   'List[List[int]]':    { jsdoc: 'number[][]', java: 'int[][]',   cpp: 'vector<vector<int>>',       go: '[][]int',    c: 'int**',   swift: '[[Int]]',    kotlin: 'Array<IntArray>', rust: 'Vec<Vec<i64>>',           typescript: 'number[][]' },
   'List[List[str]]':    { jsdoc: 'string[][]', java: 'String[][]', cpp: 'vector<vector<string>>',   go: '[][]string', c: 'char***', swift: '[[String]]', kotlin: 'Array<Array<String>>', rust: 'Vec<Vec<String>>',    typescript: 'string[][]' },
@@ -775,6 +776,9 @@ static string _pgc_ser_vvi(const vector<vector<int>>& v) {
 }
 static string _pgc_ser_vvs(const vector<vector<string>>& v) {
     string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=_pgc_ser_vs(v[i]); } return s+"]";
+}
+static string _pgc_ser_vd(const vector<double>& v) {
+    string s = "["; for (size_t i=0;i<v.size();i++){ if(i)s+=","; s+=_pgc_ser_double(v[i]); } return s+"]";
 }
 `;
 
@@ -2490,6 +2494,7 @@ export function wrapWithDriver(userCode, language, methodName, params, returnTyp
     else if (returnType === 'List[bool]')    serializeExpr = '_pgc_ser_vb(_result)';
     else if (returnType === 'List[List[int]]') serializeExpr = '_pgc_ser_vvi(_result)';
     else if (returnType === 'List[List[str]]') serializeExpr = '_pgc_ser_vvs(_result)';
+    else if (returnType === 'List[float]')   serializeExpr = '_pgc_ser_vd(_result)';
     else if (retIsList)                      serializeExpr = '_pgc_ser_vi(_pgc_from_list(_result))';
     else if (retIsTree)                      serializeExpr = '_pgc_from_tree(_result)';
     else                                     serializeExpr = '([&]{ ostringstream _o; _o << _result; return _o.str(); })()';
