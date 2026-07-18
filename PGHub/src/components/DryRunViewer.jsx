@@ -52,7 +52,7 @@ function renderVisualState(data) {
   }
 }
 
-export default function DryRunViewer({ problemId }) {
+export default function DryRunViewer({ problemId, sectionTitle, subtitle }) {
   const { steps, questions, isLoading: loading } = useDryRun(problemId);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [activeQuestion, setActiveQuestion] = useState(null);
@@ -144,12 +144,11 @@ export default function DryRunViewer({ problemId }) {
     }
   };
 
-  if (loading) {
-    return <div className="dryrun-placeholder">Loading Visualizer...</div>;
-  }
-
-  if (steps.length === 0) {
-    return <div className="dryrun-placeholder">No visual dry run for this problem.</div>;
+  // A single authored step is not a "dry run" — it renders a useless one-frame
+  // stepper. The step-by-step visualization (viz_steps) is the real walkthrough
+  // now, so hide this legacy section entirely unless it has ≥2 real steps.
+  if (loading || steps.length < 2) {
+    return null;
   }
 
   // Detect placeholder-only data: rows whose array contents are short string
@@ -164,13 +163,18 @@ export default function DryRunViewer({ problemId }) {
     });
   });
   if (isPlaceholderShape) {
-    return <div className="dryrun-placeholder">No visual dry run for this problem.</div>;
+    return null;
   }
 
   const currentStep = steps[currentStepIndex];
 
   return (
     <div className="dryrun-container">
+      {sectionTitle && (
+        subtitle
+          ? <h4 className="sv-subtitle">{sectionTitle}</h4>
+          : <h3 className="sv-section-title">{sectionTitle}</h3>
+      )}
       {/* Title */}
       <div className="dryrun-title">
         <strong>{currentStep.title}</strong>

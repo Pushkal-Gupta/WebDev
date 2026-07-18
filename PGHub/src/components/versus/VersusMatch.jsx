@@ -516,7 +516,7 @@ export default function VersusMatch({ session }) {
             </div>
           </div>
           <div className="vs-editor-body">
-            <Editor height="100%" language={MONACO_LANG[myLang] || 'python'} theme="vs-dark" value={codeByQ[qIndex] || ''} onChange={onCodeChange}
+            <Editor key={`${qIndex}-${myLang}`} height="100%" language={MONACO_LANG[myLang] || 'python'} theme="vs-dark" value={codeByQ[qIndex] || ''} onChange={onCodeChange}
               options={{ minimap: { enabled: false }, fontSize: 13, scrollBeyondLastLine: false, automaticLayout: true }} />
           </div>
           {err ? <p className="vs-err">{err}</p> : null}

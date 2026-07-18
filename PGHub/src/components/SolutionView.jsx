@@ -3,6 +3,7 @@ import { Copy, Check, ChevronRight, BookOpen, Clock, Cpu } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import DryRunViewer from './DryRunViewer';
 import ProblemVisualizer from './ProblemVisualizer';
+import ErrorBoundary from './ErrorBoundary';
 import LanguageIcon from './LanguageIcon';
 import Markdown from './learn/MarkdownRenderer';
 import { RICH_CONTENT } from '../content/problemContent';
@@ -26,7 +27,9 @@ function EditorialSection({ md }) {
         </div>
       </div>
       <div className="sv-editorial-body">
-        <Markdown>{md}</Markdown>
+        <ErrorBoundary label="editorial" resetKey={md}>
+          <Markdown>{md}</Markdown>
+        </ErrorBoundary>
       </div>
     </section>
   );
@@ -221,7 +224,9 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
                 {isLast && (
                   <div className="sv-subsection">
                     <h4 className="sv-subtitle">Step-by-step visualization</h4>
-                    <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
+                    <ErrorBoundary label="visualization" resetKey={problem?.id}>
+                      <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
+                    </ErrorBoundary>
                   </div>
                 )}
               </div>
@@ -246,12 +251,13 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
         )}
         <div className="sv-section">
           <h3 className="sv-section-title">Step-by-step visualization</h3>
-          <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
+          <ErrorBoundary label="visualization" resetKey={problem?.id}>
+            <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
+          </ErrorBoundary>
         </div>
-        <div className="sv-section">
-          <h3 className="sv-section-title">Visual Dry Run</h3>
-          <DryRunViewer problemId={problem.id} />
-        </div>
+        <ErrorBoundary label="dry run" resetKey={problem?.id} silent>
+          <DryRunViewer problemId={problem.id} sectionTitle="Visual Dry Run" />
+        </ErrorBoundary>
       </div>
     );
   }
@@ -361,12 +367,13 @@ export default function SolutionView({ problem, activeLang: wsLang }) {
                 <>
                   <div className="sv-subsection">
                     <h4 className="sv-subtitle">Step-by-step visualization</h4>
-                    <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
+                    <ErrorBoundary label="visualization" resetKey={problem?.id}>
+                      <ProblemVisualizer problem={problem} vizAnchor={vizAnchor} />
+                    </ErrorBoundary>
                   </div>
-                  <div className="sv-subsection">
-                    <h4 className="sv-subtitle">Visual Dry Run</h4>
-                    <DryRunViewer problemId={problem.id} />
-                  </div>
+                  <ErrorBoundary label="dry run" resetKey={problem?.id} silent>
+                    <DryRunViewer problemId={problem.id} sectionTitle="Visual Dry Run" subtitle />
+                  </ErrorBoundary>
                 </>
               )}
             </div>

@@ -35,7 +35,7 @@ export default function ChallengeToast({ session }) {
         <b>{incoming.fromName || 'A friend'} challenged you</b>
         <span>{incoming.difficulty} · {Math.round((incoming.timeLimit || 900) / 60)} min · {incoming.language}</span>
       </div>
-      <button className="vs-toast-join" onClick={() => { const c = incoming.code; setIncoming(null); nav(`/versus/${c}`); }}>Join</button>
+      <button className="vs-toast-join" onClick={() => { const c = incoming.code; setIncoming(null); nav(`/battle/${c}`); }}>Join</button>
       <button className="vs-toast-x" onClick={() => setIncoming(null)} aria-label="Dismiss"><X size={15} /></button>
     </div>
   );

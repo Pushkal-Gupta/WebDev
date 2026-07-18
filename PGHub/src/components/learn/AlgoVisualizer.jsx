@@ -522,7 +522,25 @@ function SubRow({ subRow, count, gap }) {
 }
 
 export function ArrayBarRenderer({ frame }) {
-  const arr = frame.array || [];
+  // Accept three frame shapes: `array` (raw values), or `cells` ([{value, role}])
+  // from the generic test-case builder. Normalize both to a values array + a
+  // per-index role map so one renderer covers all producers.
+  const cells = Array.isArray(frame.cells) ? frame.cells : null;
+  const arr = Array.isArray(frame.array)
+    ? frame.array
+    : (cells ? cells.map(c => (c && typeof c === 'object' ? c.value : c)) : []);
+  // `highlights` may be a per-index role map ({2:'current'}), a per-index role
+  // array (['current',null,...]), or a plain list of indices to highlight
+  // ([2,3]). Fold all of them — plus cell roles — into one index→role map.
+  let highlights = frame.highlights;
+  if (Array.isArray(highlights) && highlights.every(h => typeof h === 'number')) {
+    const m = {}; for (const i of highlights) m[i] = 'current'; highlights = m;
+  }
+  if (cells) {
+    const m = Array.isArray(highlights) ? { ...highlights } : { ...(highlights || {}) };
+    cells.forEach((c, i) => { if (c && typeof c === 'object' && c.role) m[i] = c.role === 'highlight' ? 'current' : c.role; });
+    highlights = m;
+  }
   // Heuristic: if every value parses as a finite number, render as a bar chart;
   // otherwise render labeled tiles (used by viz like treap, quickhull, persistent
   // segment tree where each entry is a structured string).
@@ -537,7 +555,7 @@ export function ArrayBarRenderer({ frame }) {
         <PointerLabels pointers={frame.pointers} count={arr.length} gap={gap} />
         <div className="viz-array" style={{ display: 'grid', gridTemplateColumns: cols, gap: `${gap}px` }}>
           {arr.map((v, idx) => {
-            const role = frame.highlights?.[idx];
+            const role = highlights?.[idx];
             const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
             const heightPct = Math.max(6, Math.round((Math.abs(v) / max) * 100));
             return (
@@ -566,7 +584,7 @@ export function ArrayBarRenderer({ frame }) {
       <PointerLabels pointers={frame.pointers} count={arr.length} gap={gap} />
       <div className="viz-tiles" style={{ display: 'grid', gridTemplateColumns: cols, gap: `${gap}px` }}>
         {arr.map((v, idx) => {
-          const role = frame.highlights?.[idx];
+          const role = highlights?.[idx];
           const eliminated = frame.eliminated?.has?.(idx) || frame.eliminated?.includes?.(idx);
           return (
             <div
@@ -836,7 +854,11 @@ export function TreeRenderer({ frame }) {
 // Frame: { array, window: [l, r] (inclusive), chip?, pointers? }
 export function SlidingWindowRenderer({ frame }) {
   const arr = frame.array || [];
-  const [l, r] = frame.window || [0, -1];
+  // `window` may be a [l, r] tuple or a { start, end } object (both producers exist).
+  const w = frame.window;
+  const [l, r] = Array.isArray(w)
+    ? w
+    : (w && typeof w === 'object' ? [w.start ?? 0, w.end ?? -1] : [0, -1]);
   // Auto-add l/r labels if no explicit pointers provided.
   const pointers = frame.pointers || (() => {
     const auto = {};
