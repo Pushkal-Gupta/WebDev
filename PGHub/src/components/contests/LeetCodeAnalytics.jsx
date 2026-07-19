@@ -100,6 +100,28 @@ function dampingFactor(contestsPlayed) {
 // the 740-pt fit prefers k+0.
 const SAT = 166;
 
+// Field-bias correction (2026-07-19). Validated against 826 REAL finalized deltas
+// (scripts/validate-rating-predictor.mjs cache): the raw SAT/tanh model is well-
+// calibrated at the TOP but systematically UNDER-predicts below ~1900, because the
+// SAMPLE field under-represents the dense sub-1900 tail — measured residual −26 pts
+// below 1500, ~0 above 2100. We add that residual back as a smooth per-band offset,
+// leaving SAT/K (hence the high-end swings and the confirmed anchors) untouched.
+// Overall this drops bias −14.3 → +0.4 and rmse 28.3 → 23.9. The real long-term fix
+// is a dense per-contest rating scrape; until then this centers the projection.
+const BIAS_CP = [[1450, 26], [1560, 5], [1690, 5], [1760, 12], [1880, 12], [1960, 6], [2080, 6], [2160, 0], [2380, 0], [2440, -3]];
+function fieldBiasCorrection(rating) {
+  if (!(rating > 0)) return 0;
+  if (rating <= BIAS_CP[0][0]) return BIAS_CP[0][1];
+  for (let i = 1; i < BIAS_CP.length; i += 1) {
+    if (rating <= BIAS_CP[i][0]) {
+      const [x0, y0] = BIAS_CP[i - 1];
+      const [x1, y1] = BIAS_CP[i];
+      return y0 + ((y1 - y0) * (rating - x0)) / (x1 - x0);
+    }
+  }
+  return BIAS_CP[BIAS_CP.length - 1][1];
+}
+
 // eslint-disable-next-line react-refresh/only-export-components
 export function predictDelta({ rating, actualRank, contestsPlayed, fieldRatings, fieldSize }) {
   const N = fieldSize || fieldRatings.length;
@@ -112,7 +134,8 @@ export function predictDelta({ rating, actualRank, contestsPlayed, fieldRatings,
   const performanceRank = Math.max(1, Math.min(Math.round(actualRank), N));
   const target = ratingForRank(performanceRank, fieldRatings, N);
   const f = dampingFactor(contestsPlayed);
-  const delta = f * SAT * Math.tanh((target - rating) / SAT);
+  const rawDelta = f * SAT * Math.tanh((target - rating) / SAT);
+  const delta = rawDelta + fieldBiasCorrection(rating);
   return {
     seed,
     performanceRank,

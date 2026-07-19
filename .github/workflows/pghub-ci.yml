@@ -66,6 +66,9 @@ jobs:
           # build still compiles without them, so the check is valid regardless.
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_TURN_URL: ${{ secrets.VITE_TURN_URL }}
+          VITE_TURN_USER: ${{ secrets.VITE_TURN_USER }}
+          VITE_TURN_CRED: ${{ secrets.VITE_TURN_CRED }}
 
       - name: Concept markdown parses (dry, no DB write)
         run: node scripts/import-concepts.js --dry > /dev/null

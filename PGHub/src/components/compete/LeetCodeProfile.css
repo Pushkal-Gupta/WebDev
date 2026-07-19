@@ -283,7 +283,11 @@
 .lpf-chart svg {
   display: block;
   width: 100%;
+  /* viewBox is 640x240; capping width keeps the plotted height ≈240px so the
+     chart never balloons to ~450px on a full-width card. Centered under it. */
+  max-width: 600px;
   height: auto;
+  margin: 0 auto;
 }
 
 /* Interactive compare timeline wrapper — position context for its tooltip;

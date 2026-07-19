@@ -315,11 +315,13 @@ function TopTags({ skills }) {
   );
 }
 
-function RatingSection({ history }) {
+function RatingSection({ history, currentRating }) {
   const points = useMemo(() => ratingPoints(history), [history]);
   if (points.length === 0) return <div className="chk-empty">No attended contests to plot yet.</div>;
   const peak = Math.max(...points.map((p) => p.value));
-  const latest = points[points.length - 1].value;
+  // Prefer the authoritative fetched rating so the graph readout matches the
+  // "Rating" stat card; fall back to the last plotted point if it's absent.
+  const latest = currentRating != null ? currentRating : points[points.length - 1].value;
   return (
     <div className="lpf-chart">
       <LineChart series={[{ points, color: 'var(--accent)' }]} area interactive peakLabel />
@@ -375,7 +377,7 @@ function ProfileBody({ data }) {
       <div className="lpf-grid">
         <section className="lpf-card lpf-card-wide">
           <h3 className="lpf-panel-title"><TrendingUp size={14} /> Rating over time</h3>
-          <RatingSection history={history} />
+          <RatingSection history={history} currentRating={data.rating} />
         </section>
 
         <section className="lpf-card">

@@ -46,6 +46,10 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          # TURN relay for PGBattle video calls (client-baked; VITE_ vars are public by design).
+          VITE_TURN_URL: ${{ secrets.VITE_TURN_URL }}
+          VITE_TURN_USER: ${{ secrets.VITE_TURN_USER }}
+          VITE_TURN_CRED: ${{ secrets.VITE_TURN_CRED }}
         run: npm ci && npm run build
 
       - name: Build onlineChess
