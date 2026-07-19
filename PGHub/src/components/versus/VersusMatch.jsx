@@ -4,15 +4,42 @@ import Editor from '@monaco-editor/react';
 import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, pickRandomProblems, pickProblemsForConfig, matchChannel, setGuestLanguage } from '../../lib/versus';
-import { analyzeComplexity, complexityRank } from '../../lib/complexityAnalyzer';
-import { gradeOnServer } from '../../lib/codeRunner';
-import { generateTemplate } from '../../lib/driverCode';
+import { complexityRank, buildComplexityAnalysis } from '../../lib/complexityAnalyzer';
+import { gradeOnServer, runCodeBatch, runCodeMultiCase } from '../../lib/codeRunner';
+import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../../lib/driverCode';
 import { friendlyError } from '../../lib/errors';
+import SubmissionAnalysis from '../submissionReport';
+import HintsPanel from '../HintsPanel';
 import VideoCall from './VideoCall';
 import '../../styles/versus.css';
 
 const MONACO_LANG = { python: 'python', javascript: 'javascript', java: 'java', cpp: 'cpp' };
 const LANGS = ['python', 'javascript', 'java', 'cpp'];
+
+// Left-panel tabs, drag-reorderable and persisted (mirrors the PGCode workspace).
+const BATTLE_TABS = [
+  { id: 'description', label: 'Description', Icon: FileText },
+  { id: 'testcase', label: 'Testcase', Icon: TestTube },
+  { id: 'submissions', label: 'Submissions', Icon: Award },
+  { id: 'review', label: 'Review', Icon: BarChart3 },
+  { id: 'hints', label: 'Hints', Icon: Lightbulb },
+];
+const BATTLE_TAB_IDS = BATTLE_TABS.map((t) => t.id);
+const TAB_ORDER_KEY = 'pgbattle_tab_order';
+
+// Constraints may arrive as an array or a single blob string with every constraint
+// jammed together. Normalize to one entry per constraint so each renders on its own line.
+function toConstraintList(c) {
+  if (Array.isArray(c)) return c.map((x) => String(x).trim()).filter(Boolean);
+  const s = String(c || '').trim();
+  if (!s) return [];
+  let parts = s.split(/\r?\n|;|·|•|•/).map((p) => p.trim()).filter(Boolean);
+  if (parts.length === 1) {
+    // Still one blob — split before each new comparison-chain start (e.g. "1 <=", "-10^4 <=").
+    parts = parts[0].split(/(?=(?:^|\s)-?\d[\d^]*\s*<=)/).map((p) => p.trim()).filter(Boolean);
+  }
+  return parts;
+}
 
 export default function VersusMatch({ session }) {
   const { code } = useParams();
@@ -23,7 +50,16 @@ export default function VersusMatch({ session }) {
   const [match, setMatch] = useState(null);
   const [problems, setProblems] = useState([]);      // [{id,name,description,difficulty,...}]
   const [qIndex, setQIndex] = useState(0);
-  const [hintsShown, setHintsShown] = useState(0);
+  const [tabOrder, setTabOrder] = useState(() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(TAB_ORDER_KEY) || 'null');
+      if (!Array.isArray(parsed)) return BATTLE_TAB_IDS;
+      const filtered = parsed.filter((id) => BATTLE_TAB_IDS.includes(id));
+      return [...filtered, ...BATTLE_TAB_IDS.filter((id) => !filtered.includes(id))];
+    } catch { return BATTLE_TAB_IDS; }
+  });
+  const [dragTabId, setDragTabId] = useState(null);
+  const [dragOverTabId, setDragOverTabId] = useState(null);
   const [codeByQ, setCodeByQ] = useState({});        // qIndex -> code text
   const [role, setRole] = useState(null);            // 'host' | 'guest'
   const [oppPresent, setOppPresent] = useState(false);
@@ -43,6 +79,7 @@ export default function VersusMatch({ session }) {
   const [subs, setSubs] = useState([]);            // this player's submission history (newest last)
   const [myCx, setMyCx] = useState(null);          // { time, space } — my latest solved complexity
   const [oppCx, setOppCx] = useState(null);        // { time, space, solved } — broadcast from rival
+  const [myReport, setMyReport] = useState(null);  // full client-side analysis of my last accepted submission
 
   const chanRef = useRef(null);
   const typingTimer = useRef(null);
@@ -123,7 +160,7 @@ export default function VersusMatch({ session }) {
     if (!ids.length) { const t = setTimeout(refreshMatch, 700); return () => clearTimeout(t); }
     let live = true;
     (async () => {
-      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases, hints, constraints').in('id', ids);
+      const { data } = await supabase.from('PGcode_problems').select('id, name, description, difficulty, method_name, params, return_type, test_cases, hints, constraints, solutions').in('id', ids);
       if (!data || !live) return;
       const ordered = ids.map((id) => data.find((d) => d.id === id)).filter(Boolean);
       const starters = {};
@@ -139,7 +176,21 @@ export default function VersusMatch({ session }) {
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 500); return () => clearInterval(t); }, []);
 
   // hints reset when switching questions
-  useEffect(() => { setHintsShown(0); }, [qIndex]);
+  const persistTabOrder = (next) => { try { localStorage.setItem(TAB_ORDER_KEY, JSON.stringify(next)); } catch { /* private mode */ } };
+  const handleTabDragStart = (id) => (e) => { setDragTabId(id); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', id); } catch { /* Safari */ } };
+  const handleTabDragOver = (id) => (e) => { if (!dragTabId) return; e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (dragOverTabId !== id) setDragOverTabId(id); };
+  const handleTabDrop = (id) => (e) => {
+    e.preventDefault();
+    if (!dragTabId || dragTabId === id) { setDragTabId(null); setDragOverTabId(null); return; }
+    setTabOrder((prev) => {
+      const from = prev.indexOf(dragTabId), to = prev.indexOf(id);
+      if (from < 0 || to < 0) return prev;
+      const next = prev.slice(); next.splice(from, 1); next.splice(to, 0, dragTabId);
+      persistTabOrder(next); return next;
+    });
+    setDragTabId(null); setDragOverTabId(null);
+  };
+  const handleTabDragEnd = () => { setDragTabId(null); setDragOverTabId(null); };
 
   // fallback poll for missed realtime signals
   useEffect(() => {
@@ -198,13 +249,37 @@ export default function VersusMatch({ session }) {
     } catch { /* ignore — the override already drives the UI */ }
   };
 
+  // Run checks ONLY the visible sample cases (the first few shown in Description /
+  // Testcase), client-side — like a LeetCode "Run". Submit grades the full hidden set.
   const run = async () => {
     const prob = problems[qIndex];
     if (!prob || running || result) return;
-    setRunning(true); setErr('');
+    setRunning(true); setErr(''); setLeftTab('testcase');
     try {
-      const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
-      setCaseInfo({ passed: res?.passed ?? 0, total: res?.total ?? 0, ran: true });
+      const cases = Array.isArray(prob.test_cases) ? prob.test_cases.slice(0, 3) : [];
+      if (!cases.length || !prob.method_name || !prob.params) {
+        // No driver metadata — fall back to a full server grade so Run still reports something.
+        const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
+        setCaseInfo({ passed: res?.passed ?? 0, total: res?.total ?? 0, ran: true });
+      } else {
+        const total = cases.length;
+        const stdins = cases.map((tc) => buildStdin(tc.inputs));
+        const useMultiCase = (myLang === 'java' || myLang === 'cpp') && total > 1;
+        const fullCode = wrapWithDriver(
+          codeByQ[qIndex] || '', myLang,
+          prob.method_name, prob.params, prob.return_type,
+          useMultiCase ? { multiCaseCount: total } : {},
+        );
+        const results = useMultiCase
+          ? await runCodeMultiCase(fullCode, myLang, stdins)
+          : await runCodeBatch(fullCode, myLang, stdins);
+        let passed = 0;
+        for (let i = 0; i < total; i++) {
+          const r = results[i];
+          if (r?.status === 'success' && compareOutput(r.output, cases[i].expected)) passed++;
+        }
+        setCaseInfo({ passed, total, ran: true });
+      }
     } catch (e) { setErr(friendlyError(e, 'Run failed.')); }
     setRunning(false);
   };
@@ -225,9 +300,10 @@ export default function VersusMatch({ session }) {
         const col = role === 'host' ? 'host_solved' : 'guest_solved';
         updateMatch(code, { [col]: solved }).catch(() => {});
         chanRef.current?.send({ type: 'broadcast', event: 'progress', payload: { uid: user.id, solved: solved.length } });
-        const cx = analyzeComplexity(codeByQ[qIndex] || '', myLang, prob.method_name || '');
-        setMyCx({ time: cx.time, space: cx.space });
-        chanRef.current?.send({ type: 'broadcast', event: 'complexity', payload: { uid: user.id, time: cx.time, space: cx.space, solved: solved.length } });
+        const report = buildComplexityAnalysis(codeByQ[qIndex] || '', myLang, prob, elapsed != null ? elapsed * 1000 : null);
+        setMyReport({ q: qIndex, ...report });
+        setMyCx({ time: report.user.time, space: report.user.space });
+        chanRef.current?.send({ type: 'broadcast', event: 'complexity', payload: { uid: user.id, time: report.user.time, space: report.user.space, solved: solved.length } });
         if (solved.length >= numQ && !wonRef.current) {
           wonRef.current = true;
           setResult({ win: true, reason: `You finished all ${numQ} question${numQ > 1 ? 's' : ''} first!` });
@@ -389,13 +465,23 @@ export default function VersusMatch({ session }) {
       <div className="vs-battle-main">
         <div className="vs-prob">
           <div className="vs-ltabs">
-            <button className={`vs-ltab ${leftTab === 'description' ? 'on' : ''}`} onClick={() => setLeftTab('description')}><FileText size={14} /> Description</button>
-            <button className={`vs-ltab ${leftTab === 'testcase' ? 'on' : ''}`} onClick={() => setLeftTab('testcase')}><TestTube size={14} /> Testcase</button>
-            <button className={`vs-ltab ${leftTab === 'submissions' ? 'on' : ''}`} onClick={() => setLeftTab('submissions')}><Award size={14} /> Submissions{subs.length ? ` (${subs.length})` : ''}</button>
-            <button className={`vs-ltab ${leftTab === 'review' ? 'on' : ''}`} onClick={() => setLeftTab('review')}><BarChart3 size={14} /> Review</button>
-            {match.allow_hints && prob?.hints?.length ? (
-              <button className={`vs-ltab ${leftTab === 'hints' ? 'on' : ''}`} onClick={() => setLeftTab('hints')}><Lightbulb size={14} /> Hints</button>
-            ) : null}
+            {tabOrder.map((id) => {
+              const t = BATTLE_TABS.find((b) => b.id === id);
+              if (!t) return null;
+              if (t.id === 'hints' && !(match.allow_hints && prob?.hints?.length)) return null;
+              const Icon = t.Icon;
+              const badge = t.id === 'submissions' && subs.length ? ` (${subs.length})` : '';
+              return (
+                <button key={id} draggable
+                  className={`vs-ltab ${leftTab === id ? 'on' : ''}${dragOverTabId === id ? ' dragover' : ''}${dragTabId === id ? ' dragging' : ''}`}
+                  onClick={() => setLeftTab(id)}
+                  onDragStart={handleTabDragStart(id)} onDragOver={handleTabDragOver(id)}
+                  onDrop={handleTabDrop(id)} onDragEnd={handleTabDragEnd}
+                  title="Drag to reorder">
+                  <Icon size={14} /> {t.label}{badge}
+                </button>
+              );
+            })}
           </div>
 
           <div className="vs-ltab-body">
@@ -414,10 +500,10 @@ export default function VersusMatch({ session }) {
                     ))}
                   </div>
                 ) : null}
-                {prob?.constraints && (Array.isArray(prob.constraints) ? prob.constraints.length : String(prob.constraints).trim()) ? (
+                {toConstraintList(prob?.constraints).length ? (
                   <div className="vs-constraints">
                     <div className="vs-examples-title">Constraints</div>
-                    <ul>{(Array.isArray(prob.constraints) ? prob.constraints : [prob.constraints]).map((c, i) => <li key={i}><code>{c}</code></li>)}</ul>
+                    <ul>{toConstraintList(prob.constraints).map((c, i) => <li key={i}><code>{c}</code></li>)}</ul>
                   </div>
                 ) : null}
               </>
@@ -461,9 +547,8 @@ export default function VersusMatch({ session }) {
 
             {leftTab === 'review' && (
               <div className="vs-review">
+                {/* Head-to-head strip — the battle's unique angle, kept compact above the full report. */}
                 <div className="vs-rv-head"><BarChart3 size={15} /> {myName} <span>vs</span> {oppName}</div>
-                {reviewMetric('Time complexity', myCx?.time, oppCx?.time)}
-                {reviewMetric('Space complexity', myCx?.space, oppCx?.space)}
                 <div className="vs-rv-metric">
                   <div className="vs-rv-mlabel">Solved</div>
                   <div className="vs-rv-row">
@@ -477,20 +562,38 @@ export default function VersusMatch({ session }) {
                     <span className="vs-rv-val">{oppSolvedCount}/{numQ}</span>
                   </div>
                 </div>
-                {!myCx && !oppCx ? <p className="vs-tc-hint">Solve a question to compare complexity. Bars grow as the estimated Big-O gets worse — shorter is better.</p> : null}
+                {(myCx || oppCx) ? (
+                  <>
+                    {reviewMetric('Time vs rival', myCx?.time, oppCx?.time)}
+                    {reviewMetric('Space vs rival', myCx?.space, oppCx?.space)}
+                  </>
+                ) : null}
+
+                {/* Full PGCode-style submission report for my accepted solution on THIS question. */}
+                {myReport && myReport.q === qIndex ? (
+                  <>
+                    <div className="sr-section-title">Your submission analysis{numQ > 1 ? ` — Q${qIndex + 1}` : ''}</div>
+                    <SubmissionAnalysis
+                      analysis={myReport}
+                      codeLen={(codeByQ[qIndex] || '').length}
+                      runtimeMs={myReport.runtimeMs}
+                    />
+                  </>
+                ) : (
+                  <p className="vs-tc-hint">Solve {numQ > 1 ? 'this question' : 'the question'} to see your full complexity report — time vs optimal, Big-O growth curves, runtime and memory percentiles, and code style.</p>
+                )}
               </div>
             )}
 
             {leftTab === 'hints' && match.allow_hints && maxHints > 0 ? (
               <div className="vs-hints">
-                {prob.hints.slice(0, Math.min(hintsShown, maxHints)).map((h, i) => (
-                  <div key={i} className="vs-hint"><Lightbulb size={14} /> <span>{h}</span></div>
-                ))}
-                {hintsShown < maxHints ? (
-                  <button type="button" className="vs-hint-btn" onClick={() => setHintsShown((n) => n + 1)}>
-                    <Lightbulb size={13} /> {hintsShown === 0 ? 'Show a hint' : `Next hint (${hintsShown}/${maxHints})`}
-                  </button>
-                ) : null}
+                <HintsPanel
+                  hints={(prob.hints || []).slice(0, maxHints)}
+                  problemId={`battle-${prob.id}`}
+                  problemName={prob.name}
+                  problemDescription={prob.description}
+                  code={codeByQ[qIndex] || ''}
+                />
               </div>
             ) : null}
           </div>

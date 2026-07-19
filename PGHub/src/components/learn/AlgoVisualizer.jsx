@@ -522,23 +522,27 @@ function SubRow({ subRow, count, gap }) {
 }
 
 export function ArrayBarRenderer({ frame }) {
-  // Accept three frame shapes: `array` (raw values), or `cells` ([{value, role}])
-  // from the generic test-case builder. Normalize both to a values array + a
-  // per-index role map so one renderer covers all producers.
-  const cells = Array.isArray(frame.cells) ? frame.cells : null;
-  const arr = Array.isArray(frame.array)
-    ? frame.array
-    : (cells ? cells.map(c => (c && typeof c === 'object' ? c.value : c)) : []);
-  // `highlights` may be a per-index role map ({2:'current'}), a per-index role
-  // array (['current',null,...]), or a plain list of indices to highlight
-  // ([2,3]). Fold all of them — plus cell roles — into one index→role map.
+  // Accept several frame shapes and normalize to a values array + a per-index
+  // role map so one renderer covers every producer:
+  //  - `array` of raw values, or `array`/`cells` of cell-objects ({value, role|state})
+  //  - `highlights` as an index→role map, a per-index role array, or a list of indices.
+  const source = Array.isArray(frame.array) ? frame.array
+    : (Array.isArray(frame.cells) ? frame.cells : []);
+  const isCellObj = (c) => c && typeof c === 'object' && !Array.isArray(c);
+  const arr = source.map(c => (isCellObj(c) ? c.value : c));
   let highlights = frame.highlights;
   if (Array.isArray(highlights) && highlights.every(h => typeof h === 'number')) {
     const m = {}; for (const i of highlights) m[i] = 'current'; highlights = m;
   }
-  if (cells) {
+  // Fold any per-cell role/state (from cell-objects) into the role map. A
+  // 'default'/'highlight' role maps to no-op / the styled 'current' class.
+  if (source.some(isCellObj)) {
     const m = Array.isArray(highlights) ? { ...highlights } : { ...(highlights || {}) };
-    cells.forEach((c, i) => { if (c && typeof c === 'object' && c.role) m[i] = c.role === 'highlight' ? 'current' : c.role; });
+    source.forEach((c, i) => {
+      if (!isCellObj(c)) return;
+      const role = c.role ?? c.state;
+      if (role && role !== 'default') m[i] = role === 'highlight' ? 'current' : role;
+    });
     highlights = m;
   }
   // Heuristic: if every value parses as a finite number, render as a bar chart;

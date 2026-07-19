@@ -1,6 +1,6 @@
 /* PGBattle — real-time 1v1 coding race. Signature colour is cyan (var(--accent));
    site chrome (primary CTA) stays brand teal (var(--accent)). */
-.vs-page { width: 94%; max-width: var(--container-w); margin: 0 auto; padding: 1.8rem 0 1.4rem; display: flex; flex-direction: column; gap: 1.4rem; min-height: calc(100vh - 130px); }
+.vs-page { width: 94%; max-width: var(--container-w); margin: 0 auto; padding: 1.8rem 0 2.8rem; display: flex; flex-direction: column; gap: 1.4rem; min-height: calc(100vh - 130px); }
 .vs-hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
 .vs-beta { font-size: 0.66rem; font-weight: 700; letter-spacing: 0.14em; color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent); background: color-mix(in srgb, var(--accent) 12%, transparent); border-radius: 999px; padding: 0.18rem 0.7rem; }
 .vs-title { display: flex; align-items: center; gap: 0.55rem; font-size: 2.7rem; font-weight: 800; margin: 0; color: var(--text-main); letter-spacing: -0.02em; }
@@ -209,6 +209,10 @@
 .vs-ltab svg { color: currentColor; }
 .vs-ltab:hover { color: var(--text-main); }
 .vs-ltab.on { color: var(--accent); border-bottom-color: var(--accent); }
+.vs-ltab { cursor: grab; }
+.vs-ltab:active { cursor: grabbing; }
+.vs-ltab.dragging { opacity: 0.45; }
+.vs-ltab.dragover { background: rgba(var(--accent-rgb), 0.1); border-bottom-color: rgba(var(--accent-rgb), 0.5); }
 .vs-ltab-body { padding: 1.2rem 1.4rem 2rem; }
 .vs-prob h3 { margin: 0 0 0.8rem; color: var(--text-main); display: flex; align-items: center; gap: 0.6rem; }
 .vs-diff { font-size: 0.7rem; padding: 0.1rem 0.5rem; border-radius: 999px; text-transform: capitalize; }

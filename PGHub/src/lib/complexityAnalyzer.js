@@ -237,3 +237,15 @@ export function analyzeCodeStyle(code, language = 'python') {
     source: 'heuristic',
   };
 }
+
+// Full client-side submission analysis: estimate the user's complexity, use the problem's
+// canonical python as the "optimal" baseline, and derive runtime/memory beats% from the gap.
+export function buildComplexityAnalysis(userCode, language, problem, runtimeMs) {
+  const method = problem?.method_name || '';
+  const user = analyzeComplexity(userCode, language, method);
+  const canon = problem?.solutions?.python?.code || '';
+  const optimal = canon ? analyzeComplexity(canon, 'python', method) : user;
+  const cmp = compareToOptimal(user, optimal, userCode);
+  const codeStyle = analyzeCodeStyle(userCode, language);
+  return { user, optimal, ...cmp, codeStyle, runtimeMs, source: 'heuristic' };
+}

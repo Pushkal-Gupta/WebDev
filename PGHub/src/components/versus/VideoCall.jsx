@@ -4,18 +4,25 @@ import { supabase } from '../../lib/supabase';
 import { friendlyError } from '../../lib/errors';
 import '../../styles/versus.css';
 
-// STUN finds a direct path; TURN relays media across strict/symmetric NAT so calls still
-// connect. Defaults to free public OpenRelay TURN (public creds, not secrets); override with
-// VITE_TURN_URL / VITE_TURN_USER / VITE_TURN_CRED for a private relay.
+// STUN finds a direct path; TURN relays media across strict/symmetric NAT (mobile
+// carriers, corporate firewalls) so calls still connect. For a reliable cross-network
+// call — especially phone-to-phone — a real TURN relay is REQUIRED; set VITE_TURN_URL /
+// VITE_TURN_USER / VITE_TURN_CRED (e.g. a free Metered relay key) in production.
+// The public OpenRelay fallback only reliably answers on port 80 now (443 is dead), and
+// TURN-over-TCP:80 is the most firewall-tolerant, so it goes first.
 const env = import.meta.env || {};
 const TURN = env.VITE_TURN_URL
-  ? [{ urls: env.VITE_TURN_URL, username: env.VITE_TURN_USER, credential: env.VITE_TURN_CRED }]
+  ? [{ urls: String(env.VITE_TURN_URL).split(',').map((s) => s.trim()), username: env.VITE_TURN_USER, credential: env.VITE_TURN_CRED }]
   : [
+      { urls: 'turn:openrelay.metered.ca:80?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
       { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-      { urls: 'turn:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
     ];
-const ICE = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }, ...TURN] };
+const ICE = {
+  iceServers: [
+    { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun.relay.metered.ca:80'] },
+    ...TURN,
+  ],
+};
 
 // A single draggable comms island for a PGBattle match: video call, audio call, and chat.
 // All signalling + chat ride one Realtime channel `comms:{code}`. The caller RINGS, the
@@ -34,6 +41,8 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const [draft, setDraft] = useState('');
   const [unread, setUnread] = useState(0);
   const [err, setErr] = useState('');
+  const [netState, setNetState] = useState('');    // live ICE connection state readout
+  const relayFound = useRef(false);                // did we ever gather a TURN relay candidate?
 
   const chanRef = useRef(null);
   const pcRef = useRef(null);
@@ -60,7 +69,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     if (remoteVidEl.current) remoteVidEl.current.srcObject = null;
     if (remoteAudEl.current) remoteAudEl.current.srcObject = null;
     if (localVidEl.current) localVidEl.current.srcObject = null;
-    setCall('idle'); setIncoming(null);
+    setCall('idle'); setIncoming(null); setNetState('');
   }, [send]);
 
   const getMedia = async (video) => {
@@ -83,9 +92,16 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   }, []);
 
   const makePc = useCallback((stream) => {
+    relayFound.current = false;
     const pc = new RTCPeerConnection(ICE);
     stream.getTracks().forEach((t) => pc.addTrack(t, stream));
-    pc.onicecandidate = (e) => { if (e.candidate) send({ t: 'ice', candidate: e.candidate.toJSON() }); };
+    pc.onicecandidate = (e) => {
+      if (!e.candidate) return;
+      // Track whether a TURN relay candidate was ever gathered — if the call fails
+      // WITHOUT one, the TURN server is unreachable (the common cross-network failure).
+      if (e.candidate.type === 'relay' || / typ relay /.test(e.candidate.candidate || '')) relayFound.current = true;
+      send({ t: 'ice', candidate: e.candidate.toJSON() });
+    };
     pc.ontrack = (e) => {
       remoteRef.current = e.streams[0];
       // Audio always plays through the dedicated <audio> element (present in both video and
@@ -94,9 +110,21 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
       if (remoteVidEl.current) remoteVidEl.current.srcObject = e.streams[0];
       clearTimeout(watchdog.current); setCall('live');
     };
+    pc.oniceconnectionstatechange = () => {
+      const s = pc.iceConnectionState;
+      setNetState(s);
+      if (s === 'failed') {
+        // Distinguish "no relay path at all" from a transient failure so the user knows
+        // whether to blame TURN config vs. a flaky network.
+        setErr(relayFound.current
+          ? 'Call failed — the media connection could not be established.'
+          : 'Call failed — no TURN relay was reachable. A relay server is needed for cross-network calls.');
+        teardown(false);
+      }
+    };
     pc.onconnectionstatechange = () => {
       const s = pc.connectionState;
-      if (s === 'failed') { setErr('Call dropped — the connection failed.'); teardown(false); }
+      if (s === 'failed') { setErr((prev) => prev || 'Call dropped — the connection failed.'); teardown(false); }
       else if (s === 'disconnected' || s === 'closed') setCall((c) => (c === 'live' ? 'idle' : c));
     };
     pcRef.current = pc;
@@ -253,7 +281,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
             <audio ref={remoteAudEl} autoPlay />
             <div className="vs-meet-name">{oppName}</div>
             {wantVideo ? <video ref={localVidEl} className="vs-meet-local" autoPlay playsInline muted /> : null}
-            {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : 'Connecting…'}</div> : null}
+            {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : (netState === 'checking' ? 'Connecting… (finding a path)' : 'Connecting…')}</div> : null}
           </div>
         </div>
       ) : null}
