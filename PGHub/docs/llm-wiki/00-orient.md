@@ -25,6 +25,9 @@ HTML/CSS/JS, SQL via sql.js). Vite + React 19 SPA, HashRouter, Supabase backend.
 | Make sure a component's CSS actually loads on its route | [`component-css-import.md`](./component-css-import.md) |
 | Seed internal PGArena contests | [`contest-seeding.md`](./contest-seeding.md) |
 | Build external contest aggregation / VisuAlgo gallery | [`entranthub-visualgo-integration.md`](./entranthub-visualgo-integration.md) |
+| Touch PGBattle video/voice/chat (WebRTC, TURN, signaling) | [`../PGBATTLE_REALTIME_COMMS.md`](../PGBATTLE_REALTIME_COMMS.md) — don't re-debug signaling |
+| Tune the LeetCode rating predictor / build a contest field | [`../SYSTEM_ARCHITECTURE.md`](../SYSTEM_ARCHITECTURE.md) §8 + `scripts/validate-*.mjs` |
+| Look up which tech does what (stack only) | [`../TECH_STACK.md`](../TECH_STACK.md) |
 | Edit `src/content/mlContent.js` / any huge file | [`large-file-edit-strategy.md`](./large-file-edit-strategy.md) **before you touch it** |
 | Backfill `explained_samples` for a batch of problems | [`explained-samples-backfill.md`](./explained-samples-backfill.md) |
 | Run any Judge0 work or launch a background script | [`judge0-and-backgrounds.md`](./judge0-and-backgrounds.md) |

@@ -671,6 +671,28 @@ export function useLcContestResult(slug, username, enabled = true) {
   });
 }
 
+// Per-contest field rating distribution (PGcode_lc_contest_field) for the dense-field
+// rating predictor. Returns { ratings:number[], fieldSize } or null when the field
+// hasn't been built for that contest yet (predictor then falls back to the heuristic).
+export function useLcContestField(slug) {
+  return useQuery({
+    queryKey: ['lcContestField', slug || ''],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('PGcode_lc_contest_field')
+        .select('ratings, field_size')
+        .eq('contest_slug', slug)
+        .maybeSingle();
+      if (error || !data || !Array.isArray(data.ratings) || !data.ratings.length) return null;
+      return { ratings: data.ratings, fieldSize: data.field_size };
+    },
+    enabled: !!slug,
+    retry: false,
+    staleTime: 60 * 60 * 1000,
+    gcTime: 2 * 60 * 60 * 1000,
+  });
+}
+
 export function useContest(slug) {
   return useQuery({
     queryKey: ['contest', slug],

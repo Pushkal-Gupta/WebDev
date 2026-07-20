@@ -189,7 +189,7 @@ palettes in `src/styles/theme.css`, plus per-token custom overrides via
 `src/lib/customColors.js`. All colors are theme tokens (`var(--accent)`,
 `var(--bg)`, `var(--hue-*)`, …); no hardcoded hex.
 
-**Compete (PGBattle)** aggregates external contests and LeetCode analytics:
+**Compete** aggregates external contests and LeetCode analytics:
 - `LcContestList` projects the upcoming Weekly/Biweekly schedule from fixed
   **anchors** (a known date + its real contest number) plus the cadence, and
   merges them with real finished contests from the DB. Getting an anchor number
@@ -198,6 +198,25 @@ palettes in `src/styles/theme.css`, plus per-token custom overrides via
   original SVG charts (submission/difficulty/beats/rating-timeline), plus a
   rating-delta **predictor** (from your rank) and **per-contest per-question
   rating** analytics — two distinct surfaces, distinct routes.
+
+**Rating predictor (dense-field).** The projected rating change replicates
+LeetCode's real algorithm over the **actual per-contest field of ratings**, not a
+synthetic sample. A cron (`build-field` edge fn, right after each contest) samples
+usernames across all ranks (ranking API) and fetches each pre-contest rating
+(GraphQL, unrated → 1500), storing the distribution in `PGcode_lc_contest_field`.
+The client (`exactPredictDelta`) computes each looked-up user's expected rank `E`
+over that field, then `delta = (perf − R)·f(k)` where `perf` comes from the
+geometric-mean seed `√(E·rank)` and `f(k) = 0.17 + 1.3/(k+4)` (veterans move less).
+Validated ~rmse 52 / bias +4 on 648 real deltas vs ~90 for the old sample-field
+heuristic; it **falls back** to the heuristic (`predictDelta`) when a contest's
+field hasn't been built yet.
+
+**PGBattle** is a 1v1 real-time coding race with in-match **video call, voice call,
+and chat**. Two Supabase Realtime channels per match: `versus:{code}` (presence +
+progress/typing/win) and `comms:{code}` (WebRTC signaling + chat). Media is
+peer-to-peer over WebRTC (STUN for direct, TURN relay as fallback); Supabase only
+relays the small SDP/ICE messages. **No media server, no chat table** — all
+ephemeral broadcast. Full detail: **`PGBATTLE_REALTIME_COMMS.md`**.
 
 ---
 
@@ -275,6 +294,19 @@ write on lists/progress/submissions.
 | Add a route | `React.lazy` + `<Route>` in `src/App.jsx` |
 | Change theme tokens | `src/styles/theme.css` (all 8 palettes) |
 | Run the checks locally | `npm run ci` (lint + guards + build + concept-parse) |
+| Understand PGBattle video/voice/chat | `PGBATTLE_REALTIME_COMMS.md` |
+| Look up which tech does what | `TECH_STACK.md` |
+| Tune the LeetCode rating predictor | `LeetCodeAnalytics.jsx` + `scripts/validate-*.mjs` |
+
+---
+
+## 12. Companion docs
+
+- **`TECH_STACK.md`** — every technology and what it's used for (stack only).
+- **`PGBATTLE_REALTIME_COMMS.md`** — how the in-match video call, voice call, and
+  chat are established (WebRTC + Supabase Realtime signaling + STUN/TURN).
+- **`GRADING_HARNESS_INVARIANTS.md`** — the two-driver grading contract.
+- **`AUTH_AUDIT.md`**, **`JUDGE0_SELF_HOST.md`** — auth sharing, Judge0 hosting.
 
 ---
 
