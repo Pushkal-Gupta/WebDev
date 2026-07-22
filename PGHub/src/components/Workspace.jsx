@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems, useSubmissionsForProblem, useUpdateSubmissionNotes } from '../lib/queries';
 import Editor from '@monaco-editor/react';
 import { MONACO_THEME_MAP, DARK_PRESETS, registerMonacoThemes } from '../lib/monacoTheme';
+import { splitConstraintBlob } from '../lib/constraints';
 import { ChevronLeft, ChevronRight, ChevronUp, ChevronDown, CheckCircle, RotateCcw, Code2, FileText, Award, MessageSquare, TestTube, Lightbulb, Pin, Lock, Loader2, Copy, Check, StickyNote, Palette, Sparkles } from 'lucide-react';
 import SolutionView from './SolutionView';
 import LanguageIcon from './LanguageIcon';
@@ -1280,7 +1281,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                   const arr = Array.isArray(raw)
                     ? raw
                     : (typeof raw === 'string'
-                        ? raw.split('\n').filter(Boolean)
+                        ? splitConstraintBlob(raw)
                         : [toText(raw)]);
                   const constraintItems = arr.map(toText).filter(t => t && t.trim().length > 0);
                   if (constraintItems.length === 0) return null;

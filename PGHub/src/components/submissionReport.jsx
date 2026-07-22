@@ -215,7 +215,7 @@ export function CodeStylePanel({ style }) {
 
 // Full report block: verdict + complexity-vs-optimal + Big-O curves + beats + code style.
 // `analysis` is the object returned by buildComplexityAnalysis (or an LLM-enriched one).
-export default function SubmissionAnalysis({ analysis, codeLen = 0, runtimeMs, memoryMb }) {
+export default function SubmissionAnalysis({ analysis, codeLen = 0, runtimeMs, memoryMb, uid = 'rv' }) {
   if (!analysis?.user) return null;
   const a = analysis;
   const runValue = runtimeMs ? `${runtimeMs} ms` : (a.runtimeMs ? `${a.runtimeMs} ms` : '');
@@ -230,8 +230,8 @@ export default function SubmissionAnalysis({ analysis, codeLen = 0, runtimeMs, m
       </div>
 
       <div className="ws-bigo-wrap">
-        <BigOCurves title="Time complexity" active={a.user.time} optimal={a.optimal?.time} uid="rv-time" />
-        <BigOCurves title="Space complexity" active={a.user.space} optimal={a.optimal?.space} uid="rv-space" />
+        <BigOCurves title="Time complexity" active={a.user.time} optimal={a.optimal?.time} uid={`${uid}-time`} />
+        <BigOCurves title="Space complexity" active={a.user.space} optimal={a.optimal?.space} uid={`${uid}-space`} />
       </div>
 
       <div className="ws-beats-wrap">

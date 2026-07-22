@@ -3,13 +3,14 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { getMatch, joinMatch, updateMatch, pickRandomProblems, pickProblemsForConfig, matchChannel, setGuestLanguage } from '../../lib/versus';
+import { getMatch, joinMatch, updateMatch, createMatch, pickRandomProblems, pickProblemsForConfig, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { complexityRank, buildComplexityAnalysis } from '../../lib/complexityAnalyzer';
 import { gradeOnServer, runCodeBatch, runCodeMultiCase } from '../../lib/codeRunner';
 import { generateTemplate, wrapWithDriver, buildStdin, compareOutput } from '../../lib/driverCode';
 import { friendlyError } from '../../lib/errors';
 import SubmissionAnalysis from '../submissionReport';
 import HintsPanel from '../HintsPanel';
+import { toConstraintList } from '../../lib/constraints';
 import VideoCall from './VideoCall';
 import '../../styles/versus.css';
 
@@ -26,20 +27,6 @@ const BATTLE_TABS = [
 ];
 const BATTLE_TAB_IDS = BATTLE_TABS.map((t) => t.id);
 const TAB_ORDER_KEY = 'pgbattle_tab_order';
-
-// Constraints may arrive as an array or a single blob string with every constraint
-// jammed together. Normalize to one entry per constraint so each renders on its own line.
-function toConstraintList(c) {
-  if (Array.isArray(c)) return c.map((x) => String(x).trim()).filter(Boolean);
-  const s = String(c || '').trim();
-  if (!s) return [];
-  let parts = s.split(/\r?\n|;|·|•|•/).map((p) => p.trim()).filter(Boolean);
-  if (parts.length === 1) {
-    // Still one blob — split before each new comparison-chain start (e.g. "1 <=", "-10^4 <=").
-    parts = parts[0].split(/(?=(?:^|\s)-?\d[\d^]*\s*<=)/).map((p) => p.trim()).filter(Boolean);
-  }
-  return parts;
-}
 
 export default function VersusMatch({ session }) {
   const { code } = useParams();
@@ -79,7 +66,10 @@ export default function VersusMatch({ session }) {
   const [subs, setSubs] = useState([]);            // this player's submission history (newest last)
   const [myCx, setMyCx] = useState(null);          // { time, space } — my latest solved complexity
   const [oppCx, setOppCx] = useState(null);        // { time, space, solved } — broadcast from rival
-  const [myReport, setMyReport] = useState(null);  // full client-side analysis of my last accepted submission
+  const [myReports, setMyReports] = useState({}); // qIndex -> full client-side analysis of that accepted solution
+  const [rematchOffer, setRematchOffer] = useState(null); // new match code the rival started for a rematch
+  const [rematchBusy, setRematchBusy] = useState(false);
+  const [resultShared, setResultShared] = useState(false);
 
   const chanRef = useRef(null);
   const typingTimer = useRef(null);
@@ -142,6 +132,7 @@ export default function VersusMatch({ session }) {
     ch.on('broadcast', { event: 'win' }, ({ payload }) => {
       if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} finished every question first.` }); }
     });
+    ch.on('broadcast', { event: 'rematch' }, ({ payload }) => { if (payload.uid !== user.id && payload.code) setRematchOffer(payload.code); });
     ch.subscribe((status) => {
       if (status !== 'SUBSCRIBED') return;
       ch.track({ uid: user.id, name: myName, role });
@@ -301,7 +292,7 @@ export default function VersusMatch({ session }) {
         updateMatch(code, { [col]: solved }).catch(() => {});
         chanRef.current?.send({ type: 'broadcast', event: 'progress', payload: { uid: user.id, solved: solved.length } });
         const report = buildComplexityAnalysis(codeByQ[qIndex] || '', myLang, prob, elapsed != null ? elapsed * 1000 : null);
-        setMyReport({ q: qIndex, ...report });
+        setMyReports((prev) => ({ ...prev, [qIndex]: report }));
         setMyCx({ time: report.user.time, space: report.user.space });
         chanRef.current?.send({ type: 'broadcast', event: 'complexity', payload: { uid: user.id, time: report.user.time, space: report.user.space, solved: solved.length } });
         if (solved.length >= numQ && !wonRef.current) {
@@ -317,6 +308,39 @@ export default function VersusMatch({ session }) {
       }
     } catch (e) { setErr(friendlyError(e, 'Grading failed.')); }
     setRunning(false);
+  };
+
+  // Rematch: spin up a fresh match with the SAME config, tell the rival its code over
+  // the (still-open) match channel, and jump into it as host. The rival's finished
+  // overlay surfaces a "Join rematch" button.
+  const startRematch = async () => {
+    if (rematchBusy) return;
+    setRematchBusy(true);
+    try {
+      const m = await createMatch({
+        difficulty: match.difficulty,
+        language: match.language || 'python',
+        timeLimit: match.time_limit_sec,
+        powerup: match.powerup || 'none',
+        numQuestions: match.num_questions,
+        allowHints: match.allow_hints,
+        mode: match.mode,
+        questionConfig: match.question_config,
+        hostId: user.id, hostName: myName,
+      });
+      // Await the broadcast so it flushes before navigation tears the channel down —
+      // otherwise the rival can miss the rematch offer.
+      await chanRef.current?.send({ type: 'broadcast', event: 'rematch', payload: { uid: user.id, name: myName, code: m.id } });
+      nav(`/battle/${m.id}`);
+    } catch (e) { setErr(friendlyError(e, 'Could not start a rematch.')); setRematchBusy(false); }
+  };
+
+  const shareResult = () => {
+    if (!result) return;
+    const verb = result.win ? 'won' : 'lost';
+    const txt = `I ${verb} a PGBattle — solved ${myCount}/${numQ} vs ${oppName} on ${match.difficulty}. Race me: ${window.location.origin}${window.location.pathname}#/battle`;
+    if (navigator.share) { navigator.share({ title: 'PGBattle', text: txt }).catch(() => {}); return; }
+    navigator.clipboard?.writeText(txt); setResultShared(true); setTimeout(() => setResultShared(false), 1500);
   };
 
   if (!user) return <div className="vs-page"><div className="vs-signin"><h3>Sign in to battle</h3></div></div>;
@@ -570,13 +594,14 @@ export default function VersusMatch({ session }) {
                 ) : null}
 
                 {/* Full PGCode-style submission report for my accepted solution on THIS question. */}
-                {myReport && myReport.q === qIndex ? (
+                {myReports[qIndex] ? (
                   <>
                     <div className="sr-section-title">Your submission analysis{numQ > 1 ? ` — Q${qIndex + 1}` : ''}</div>
                     <SubmissionAnalysis
-                      analysis={myReport}
+                      analysis={myReports[qIndex]}
                       codeLen={(codeByQ[qIndex] || '').length}
-                      runtimeMs={myReport.runtimeMs}
+                      runtimeMs={myReports[qIndex].runtimeMs}
+                      uid={`rev${qIndex}`}
                     />
                   </>
                 ) : (
@@ -593,6 +618,7 @@ export default function VersusMatch({ session }) {
                   problemName={prob.name}
                   problemDescription={prob.description}
                   code={codeByQ[qIndex] || ''}
+                  allowAi={false}
                 />
               </div>
             ) : null}
@@ -647,10 +673,51 @@ export default function VersusMatch({ session }) {
               </div>
             </div>
             <div className="vs-result-meta"><Clock size={13} /> {mm}:{ss} left · <span className="vs-diff-inline">{match.difficulty}</span> · {myLang}</div>
+
+            {rematchOffer ? (
+              <div className="vs-rematch-offer"><Swords size={14} /> {oppName} wants a rematch — join below</div>
+            ) : null}
+
             <div className="vs-result-actions">
               <button className="vs-secondary" onClick={() => nav('/battle')}><ArrowLeft size={14} /> Lobby</button>
-              <button className="vs-primary" onClick={() => nav('/battle')}><Zap size={15} /> New race</button>
+              <button className="vs-secondary" onClick={shareResult}>{resultShared ? <><Check size={14} /> Copied</> : <><Share2 size={14} /> Share</>}</button>
+              {rematchOffer
+                ? <button className="vs-primary" onClick={() => nav(`/battle/${rematchOffer}`)}><Swords size={15} /> Join rematch</button>
+                : <button className="vs-primary" onClick={startRematch} disabled={rematchBusy}><Swords size={15} /> {rematchBusy ? 'Starting…' : 'Rematch'}</button>}
             </div>
+
+            {/* Post-match analytics: full submission report for every question you solved. */}
+            {Object.keys(myReports).length ? (
+              <div className="vs-result-analytics">
+                <div className="sr-section-title">Your match analytics</div>
+                {Object.keys(myReports).map(Number).sort((a, b) => a - b).map((qi) => {
+                  const qSubs = subs.filter((s) => s.q === qi);
+                  const accepted = qSubs.find((s) => s.verdict === 'Accepted');
+                  const t = accepted?.time;
+                  const solveTime = t != null ? `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}` : null;
+                  return (
+                    <div key={qi} className="vs-result-report">
+                      <div className="vs-result-report-q">
+                        {numQ > 1 ? `Q${qi + 1} · ` : ''}{problems[qi]?.name || `Question ${qi + 1}`}
+                      </div>
+                      <div className="vs-result-report-stats">
+                        {solveTime ? <span><Clock size={11} /> solved at {solveTime}</span> : null}
+                        <span>{qSubs.length} attempt{qSubs.length === 1 ? '' : 's'}</span>
+                        {accepted?.lang ? <span>{accepted.lang}</span> : null}
+                      </div>
+                      <SubmissionAnalysis
+                        analysis={myReports[qi]}
+                        codeLen={(codeByQ[qi] || '').length}
+                        runtimeMs={myReports[qi].runtimeMs}
+                        uid={`res${qi}`}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="vs-result-noanalytics">No solved questions to analyze this match.</p>
+            )}
           </div>
         </div>
       ) : null}

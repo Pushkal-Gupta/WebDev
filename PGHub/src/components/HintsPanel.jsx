@@ -44,7 +44,7 @@ function renderHint(text) {
   return out;
 }
 
-export default function HintsPanel({ hints = [], problemId, problemName, problemDescription, code, onRevealCountChange }) {
+export default function HintsPanel({ hints = [], problemId, problemName, problemDescription, code, onRevealCountChange, allowAi = true }) {
   const storageKey = problemId ? `pgcode_hints_${problemId}` : null;
   const aiKey = problemId ? `pgcode_aihint_${problemId}` : null;
 
@@ -154,7 +154,7 @@ export default function HintsPanel({ hints = [], problemId, problemName, problem
         })}
       </ol>
 
-      {isAiEnabled() && (
+      {allowAi && isAiEnabled() && (
         <div className="hints-ai">
           <div className="hints-ai-head">
             <Sparkles size={12} /> AI hint
