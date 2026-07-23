@@ -1,8 +1,7 @@
 .solnpage {
-  height: calc(100dvh - var(--pg-nav-h, 120px));
+  min-height: calc(100dvh - var(--pg-nav-h, 120px));
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   background: var(--bg);
 }
 
@@ -30,9 +29,8 @@
 }
 
 .solnpage-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 2rem 0;
+  flex: 1 0 auto;
+  padding: 2rem 0 3rem;
   max-width: var(--container-w);
   margin: 0 auto;
   width: 94%;

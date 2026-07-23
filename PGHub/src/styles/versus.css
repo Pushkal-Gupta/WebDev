@@ -384,6 +384,44 @@
 .vs-result-report-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 0.3rem 0.7rem; margin-bottom: 0.6rem; color: var(--text-dim); font-size: 0.76rem; }
 .vs-result-report-stats span { display: inline-flex; align-items: center; gap: 0.3rem; }
 .vs-result-noanalytics { color: var(--text-dim); font-size: 0.84rem; margin-top: 0.3rem; }
+.vs-result-report-q { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+.vs-copy-sol { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.72rem; font-weight: 600; cursor: pointer; flex-shrink: 0; }
+.vs-copy-sol:hover { color: var(--accent); border-color: var(--accent); }
+
+/* Forfeit button in the battle bar */
+.vs-forfeit { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--text-dim); font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: color 0.15s, border-color 0.15s, background 0.15s; white-space: nowrap; }
+.vs-forfeit:hover { color: var(--hard); border-color: color-mix(in srgb, var(--hard) 45%, transparent); }
+.vs-forfeit.armed { color: #fff; background: var(--hard); border-color: var(--hard); }
+
+/* Quick-reaction bar — floating, game-style */
+.vs-react-bar { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.4rem; padding: 0.4rem 0.55rem; border-radius: 999px; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); box-shadow: 0 8px 24px -10px rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 40; }
+.vs-react-btn { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--c); cursor: pointer; transition: transform 0.12s, background 0.15s; }
+.vs-react-btn:hover { transform: translateY(-2px) scale(1.12); background: color-mix(in srgb, var(--c) 16%, transparent); }
+.vs-react-btn:active { transform: scale(0.94); }
+
+/* Floating reactions that rise and fade */
+.vs-react-layer { position: absolute; inset: 0; pointer-events: none; z-index: 45; overflow: hidden; }
+.vs-react-fly { position: absolute; bottom: 4rem; color: var(--c); filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--c) 55%, transparent)); animation: vs-react-rise 1.6s ease-out forwards; }
+.vs-react-fly.mine { left: 26%; }
+.vs-react-fly.foe { right: 26%; }
+@keyframes vs-react-rise {
+  0% { opacity: 0; transform: translateY(10px) scale(0.6); }
+  18% { opacity: 1; transform: translateY(0) scale(1.15); }
+  40% { transform: translateY(-30px) scale(1); }
+  100% { opacity: 0; transform: translateY(-120px) scale(0.9); }
+}
+
+/* Pre-match 3·2·1 countdown */
+.vs-countdown { position: absolute; inset: 0; z-index: 60; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); }
+.vs-countdown-num { font-family: var(--mono); font-weight: 800; font-size: 6rem; line-height: 1; color: var(--accent); text-shadow: 0 0 40px color-mix(in srgb, var(--accent) 60%, transparent); animation: vs-count-pop 1s ease-out; }
+.vs-countdown-label { font-size: 1rem; font-weight: 600; color: var(--text-dim); letter-spacing: 0.05em; text-transform: uppercase; }
+@keyframes vs-count-pop { 0% { opacity: 0; transform: scale(1.8); } 30% { opacity: 1; transform: scale(1); } 100% { opacity: 0.85; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-react-fly { animation-duration: 1.6s; }
+  .vs-countdown-num { animation: none; }
+  .vs-react-btn:hover { transform: none; }
+}
 .vs-result.win svg { color: var(--accent); fill: color-mix(in srgb, var(--accent) 30%, transparent); }
 .vs-result.lose svg { color: var(--text-dim); }
 .vs-result h2 { margin: 0; font-size: 2rem; color: var(--text-main); }

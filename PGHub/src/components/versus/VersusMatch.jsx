@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3 } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3, Flame, ThumbsUp, Laugh, PartyPopper, Flag } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, createMatch, pickRandomProblems, pickProblemsForConfig, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { complexityRank, buildComplexityAnalysis } from '../../lib/complexityAnalyzer';
@@ -27,6 +27,17 @@ const BATTLE_TABS = [
 ];
 const BATTLE_TAB_IDS = BATTLE_TABS.map((t) => t.id);
 const TAB_ORDER_KEY = 'pgbattle_tab_order';
+
+// Quick reactions/taunts broadcast between rivals mid-match (lucide icons only, no emoji).
+const REACTIONS = [
+  { k: 'fire', Icon: Flame, hue: 'var(--hard)' },
+  { k: 'zap', Icon: Zap, hue: 'var(--warning)' },
+  { k: 'up', Icon: ThumbsUp, hue: 'var(--hue-sky)' },
+  { k: 'laugh', Icon: Laugh, hue: 'var(--medium)' },
+  { k: 'party', Icon: PartyPopper, hue: 'var(--hue-violet)' },
+];
+const REACTION_MS = 1600;
+const COUNTDOWN_MS = 3000; // 3·2·1 before the clock starts (synced to started_at, fair to both)
 
 export default function VersusMatch({ session }) {
   const { code } = useParams();
@@ -70,6 +81,12 @@ export default function VersusMatch({ session }) {
   const [rematchOffer, setRematchOffer] = useState(null); // new match code the rival started for a rematch
   const [rematchBusy, setRematchBusy] = useState(false);
   const [resultShared, setResultShared] = useState(false);
+  const [flyReactions, setFlyReactions] = useState([]); // transient floating reaction icons
+  const [forfeitArmed, setForfeitArmed] = useState(false);
+  const [copiedQ, setCopiedQ] = useState(null); // qIndex whose solution was just copied
+  const reactIdRef = useRef(0);
+  const forfeitTimer = useRef(null);
+  const pushReactionRef = useRef(null);
 
   const chanRef = useRef(null);
   const typingTimer = useRef(null);
@@ -133,6 +150,10 @@ export default function VersusMatch({ session }) {
       if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: false, reason: `${payload.name} finished every question first.` }); }
     });
     ch.on('broadcast', { event: 'rematch' }, ({ payload }) => { if (payload.uid !== user.id && payload.code) setRematchOffer(payload.code); });
+    ch.on('broadcast', { event: 'reaction' }, ({ payload }) => { if (payload.uid !== user.id) pushReactionRef.current(payload.k, false); });
+    ch.on('broadcast', { event: 'forfeit' }, ({ payload }) => {
+      if (payload.uid !== user.id && !wonRef.current) { wonRef.current = true; setResult({ win: true, reason: `${payload.name} forfeited the match.` }); }
+    });
     ch.subscribe((status) => {
       if (status !== 'SUBSCRIBED') return;
       ch.track({ uid: user.id, name: myName, role });
@@ -283,7 +304,7 @@ export default function VersusMatch({ session }) {
       const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
       const passed = res?.passed ?? 0, total = res?.total ?? 0;
       setCaseInfo({ passed, total });
-      const elapsed = match?.started_at ? Math.floor((Date.now() - new Date(match.started_at).getTime()) / 1000) : null;
+      const elapsed = match?.started_at ? Math.max(0, Math.floor((Date.now() - new Date(match.started_at).getTime() - COUNTDOWN_MS) / 1000)) : null;
       setSubs((prev) => [...prev, { q: qIndex, passed, total, verdict: total > 0 && passed === total ? 'Accepted' : 'Wrong Answer', lang: myLang, at: Date.now(), time: elapsed }]);
       if (total > 0 && passed === total && !mySolved.includes(qIndex)) {
         const solved = [...mySolved, qIndex];
@@ -333,6 +354,44 @@ export default function VersusMatch({ session }) {
       await chanRef.current?.send({ type: 'broadcast', event: 'rematch', payload: { uid: user.id, name: myName, code: m.id } });
       nav(`/battle/${m.id}`);
     } catch (e) { setErr(friendlyError(e, 'Could not start a rematch.')); setRematchBusy(false); }
+  };
+
+  // Floating reactions: add a transient icon that animates up and fades. Kept in a ref
+  // so the mount-time channel handler always calls the freshest version.
+  const pushReaction = (k, mine) => {
+    const id = ++reactIdRef.current;
+    setFlyReactions((r) => [...r, { id, k, mine }]);
+    setTimeout(() => setFlyReactions((r) => r.filter((x) => x.id !== id)), REACTION_MS);
+  };
+  pushReactionRef.current = pushReaction;
+  const sendReaction = (k) => {
+    pushReaction(k, true);
+    chanRef.current?.send({ type: 'broadcast', event: 'reaction', payload: { uid: user.id, k } });
+  };
+
+  // Forfeit: two-click arm (no crude confirm dialog). Hands the win to the rival.
+  const forfeit = async () => {
+    if (wonRef.current || result) return;
+    if (!forfeitArmed) {
+      setForfeitArmed(true);
+      clearTimeout(forfeitTimer.current);
+      forfeitTimer.current = setTimeout(() => setForfeitArmed(false), 3000);
+      return;
+    }
+    clearTimeout(forfeitTimer.current);
+    setForfeitArmed(false);
+    wonRef.current = true;
+    setResult({ win: false, reason: 'You forfeited the match.' });
+    const oppRole = role === 'host' ? 'guest' : 'host';
+    const oppId = role === 'host' ? match.guest_id : match.host_id;
+    chanRef.current?.send({ type: 'broadcast', event: 'forfeit', payload: { uid: user.id, name: myName } });
+    try { await updateMatch(code, { status: 'finished', winner: oppRole, winner_id: oppId, finished_at: new Date().toISOString() }); } catch { /* best effort */ }
+  };
+
+  const copySolution = (qi) => {
+    navigator.clipboard?.writeText(codeByQ[qi] || '');
+    setCopiedQ(qi);
+    setTimeout(() => setCopiedQ((c) => (c === qi ? null : c)), 1500);
   };
 
   const shareResult = () => {
@@ -422,7 +481,10 @@ export default function VersusMatch({ session }) {
 
   // ── Battle ──
   const started = match.started_at ? new Date(match.started_at).getTime() : now;
-  const remain = Math.max(0, match.time_limit_sec - Math.floor((now - started) / 1000));
+  const counting = match.status === 'active' && !!match.started_at && (now - started) < COUNTDOWN_MS;
+  const countNum = counting ? Math.max(1, Math.ceil((COUNTDOWN_MS - (now - started)) / 1000)) : 0;
+  const effElapsed = Math.max(0, Math.floor((now - started - COUNTDOWN_MS) / 1000));
+  const remain = Math.max(0, match.time_limit_sec - effElapsed);
   const mm = String(Math.floor(remain / 60)).padStart(2, '0'), ss = String(remain % 60).padStart(2, '0');
   const myCount = mySolved.length;
   const pctMe = numQ ? Math.round((myCount / numQ) * 100) : 0;
@@ -462,6 +524,11 @@ export default function VersusMatch({ session }) {
       <div className="vs-battle-bar">
         <button className="vs-back" onClick={() => nav('/battle')}><ArrowLeft size={15} /></button>
         <div className="vs-timer"><Clock size={15} /> {mm}:{ss}</div>
+        {!result ? (
+          <button className={`vs-forfeit ${forfeitArmed ? 'armed' : ''}`} onClick={forfeit} title="Forfeit the match">
+            <Flag size={13} /> {forfeitArmed ? 'Confirm?' : 'Forfeit'}
+          </button>
+        ) : null}
         {numQ > 1 && (
           <div className="vs-qtabs">
             {[...Array(numQ).keys()].map((i) => (
@@ -654,6 +721,40 @@ export default function VersusMatch({ session }) {
 
       <VideoCall code={code} userId={user.id} myName={myName} oppName={oppName} />
 
+      {/* Quick reactions/taunts — a floating game-style bar */}
+      {!result && !counting ? (
+        <div className="vs-react-bar">
+          {REACTIONS.map((R) => {
+            const Icon = R.Icon;
+            return (
+              <button key={R.k} className="vs-react-btn" style={{ '--c': R.hue }} onClick={() => sendReaction(R.k)} title="Send a reaction">
+                <Icon size={17} />
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {/* Floating reaction icons that animate up and fade */}
+      {flyReactions.length ? (
+        <div className="vs-react-layer">
+          {flyReactions.map((r) => {
+            const R = REACTIONS.find((x) => x.k === r.k);
+            if (!R) return null;
+            const Icon = R.Icon;
+            return <span key={r.id} className={`vs-react-fly ${r.mine ? 'mine' : 'foe'}`} style={{ '--c': R.hue }}><Icon size={30} /></span>;
+          })}
+        </div>
+      ) : null}
+
+      {/* Pre-match 3·2·1 countdown (synced to started_at) */}
+      {counting ? (
+        <div className="vs-countdown">
+          <div className="vs-countdown-num" key={countNum}>{countNum}</div>
+          <div className="vs-countdown-label">Get ready…</div>
+        </div>
+      ) : null}
+
       {result ? (
         <div className="vs-overlay">
           <div className={`vs-result ${result.win ? 'win' : 'lose'}`}>
@@ -698,7 +799,10 @@ export default function VersusMatch({ session }) {
                   return (
                     <div key={qi} className="vs-result-report">
                       <div className="vs-result-report-q">
-                        {numQ > 1 ? `Q${qi + 1} · ` : ''}{problems[qi]?.name || `Question ${qi + 1}`}
+                        <span>{numQ > 1 ? `Q${qi + 1} · ` : ''}{problems[qi]?.name || `Question ${qi + 1}`}</span>
+                        <button className="vs-copy-sol" onClick={() => copySolution(qi)} title="Copy your solution">
+                          {copiedQ === qi ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy code</>}
+                        </button>
                       </div>
                       <div className="vs-result-report-stats">
                         {solveTime ? <span><Clock size={11} /> solved at {solveTime}</span> : null}

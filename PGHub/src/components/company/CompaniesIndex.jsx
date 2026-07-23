@@ -1,8 +1,8 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   Building2, ArrowRight, MapPin, Star, Layers,
-  Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud,
+  Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud, Search, X,
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { COMPANY_GROUPS, membersOf } from '../../content/companyGroups';
@@ -17,6 +17,16 @@ export function CompanyLogo({ c }) {
 
 export default function CompaniesIndex() {
   const { data: companies = [], isLoading } = useCompanies();
+  const [q, setQ] = useState('');
+  const query = q.trim().toLowerCase();
+
+  const results = useMemo(() => {
+    if (!query) return null;
+    return companies
+      .filter((c) => [c.name, c.tagline, c.domain, c.hq, c.region].filter(Boolean)
+        .some((f) => String(f).toLowerCase().includes(query)))
+      .sort((a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0));
+  }, [query, companies]);
 
   const grouped = useMemo(() => {
     const featured = companies.filter(c => c.is_featured);
@@ -70,8 +80,34 @@ export default function CompaniesIndex() {
         <p className="comp-sub">
           {companies.length} companies with their most-asked interview problems, ranked by frequency.
         </p>
+        <div className="comp-search">
+          <Search size={16} className="comp-search-icon" />
+          <input
+            type="text"
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search companies by name, domain, or location…"
+            aria-label="Search companies"
+          />
+          {q ? <button className="comp-search-clear" onClick={() => setQ('')} aria-label="Clear search"><X size={15} /></button> : null}
+        </div>
       </header>
 
+      {results ? (
+        <div className="comp-sections">
+          <section className="comp-section">
+            <h2 className="comp-section-title">{results.length} result{results.length === 1 ? '' : 's'} for “{q.trim()}”</h2>
+            {results.length ? (
+              <div className="comp-grid">{results.map((c) => <CompanyCard key={c.slug} c={c} />)}</div>
+            ) : (
+              <div className="comp-empty">
+                <Building2 size={28} className="comp-empty-icon" />
+                <p className="comp-empty-sub">No companies match “{q.trim()}”. Try a different name or domain.</p>
+              </div>
+            )}
+          </section>
+        </div>
+      ) : (
       <div className="comp-sections">
       <section className="comp-section">
         <h2 className="comp-section-title">Browse by group</h2>
@@ -122,6 +158,7 @@ export default function CompaniesIndex() {
         </section>
       ))}
       </div>
+      )}
     </div>
   );
 }
