@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Users, Search, UserPlus, Check, X, Swords, Clock3, MessageSquare, Send, ArrowLeft } from 'lucide-react';
+import { Users, Search, UserPlus, Check, X, Swords, Clock3, MessageSquare, Send, ArrowLeft, Phone, Video, PhoneCall, PhoneOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { searchUsers, getFriends, getIncomingRequests, getOutgoingRequests, sendFriendRequest, respondFriendRequest, getThread, sendMessage, dmChannel } from '../../lib/friends';
+import { callsEnabled, setCallsEnabled } from '../../lib/callSignal';
 
 function Avatar({ name, url }) {
   if (url) return <img className="vs-fr-av" src={url} alt="" />;
@@ -21,6 +22,8 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
   const [draft, setDraft] = useState('');
   const myName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'You';
   const scrollRef = useRef(null);
+  const [callsOn, setCallsOn] = useState(callsEnabled());
+  const toggleCalls = () => { const next = !callsOn; setCallsEnabled(next); setCallsOn(next); };
 
   const reload = useCallback(() => {
     if (!user) return;
@@ -98,7 +101,12 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
 
   return (
     <div className="vs-friends-card">
-      <div className="vs-fr-head"><Users size={15} /> Friends</div>
+      <div className="vs-fr-head">
+        <Users size={15} /> Friends
+        <button className={`vs-fr-calltoggle ${callsOn ? 'on' : ''}`} onClick={toggleCalls} title={callsOn ? 'Calls enabled — click to disable' : 'Calls disabled — click to enable'}>
+          {callsOn ? <PhoneCall size={13} /> : <PhoneOff size={13} />} Calls {callsOn ? 'on' : 'off'}
+        </button>
+      </div>
 
       <form className="vs-fr-search" onSubmit={runSearch}>
         <Search size={14} />
@@ -142,6 +150,12 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
                 <Avatar name={f.name} url={f.avatar} />
                 <span className="vs-fr-name">{f.name}</span>
                 <button className="vs-fr-icon msg" title={`Message ${f.name}`} onClick={() => setThread(f)}><MessageSquare size={14} /></button>
+                {callsOn ? (
+                  <>
+                    <button className="vs-fr-icon call" title={`Voice call ${f.name}`} onClick={() => window.dispatchEvent(new CustomEvent('pg:start-call', { detail: { toUserId: f.id, toName: f.name, video: false } }))}><Phone size={14} /></button>
+                    <button className="vs-fr-icon call" title={`Video call ${f.name}`} onClick={() => window.dispatchEvent(new CustomEvent('pg:start-call', { detail: { toUserId: f.id, toName: f.name, video: true } }))}><Video size={14} /></button>
+                  </>
+                ) : null}
                 <button className="vs-fr-btn challenge" disabled={!!challengingId} onClick={() => onChallenge(f)}>
                   <Swords size={13} /> {challengingId === f.id ? '…' : 'Challenge'}
                 </button>

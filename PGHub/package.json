@@ -15,6 +15,7 @@
     "dompurify": "^3.4.12"
   },
   "dependencies": {
+    "@mediapipe/tasks-vision": "^0.10.35",
     "@monaco-editor/react": "^4.7.0",
     "@supabase/supabase-js": "^2.101.1",
     "@tanstack/query-sync-storage-persister": "^5.100.10",

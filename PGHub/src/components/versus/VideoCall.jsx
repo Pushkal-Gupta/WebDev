@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Video, VideoOff, Mic, MicOff, Phone, PhoneOff, MessageSquare, Send, X, GripVertical } from 'lucide-react';
+import { Video, VideoOff, Mic, MicOff, Phone, PhoneOff, MessageSquare, Send, X, GripVertical, Maximize2, Minimize2, ScreenShare, ScreenShareOff, Wand2 } from 'lucide-react';
+import { startVirtualBg } from '../../lib/virtualBg';
+
+const SIZES = ['sm', 'md', 'lg'];
 import { supabase } from '../../lib/supabase';
 import { friendlyError } from '../../lib/errors';
 import '../../styles/versus.css';
@@ -29,7 +32,7 @@ const ICE = {
 // callee ACCEPTS (so both have media + a peer connection ready before the SDP/ICE exchange),
 // ICE candidates that arrive early are buffered, and a 25s watchdog fails the call cleanly
 // instead of hanging on "Connecting…". Whoever starts a call/text pings the other side.
-export default function VideoCall({ code, userId, myName = 'You', oppName = 'Rival' }) {
+export default function VideoCall({ code, userId, myName = 'You', oppName = 'Rival', autoStart = null, onEnded }) {
   const [pos, setPos] = useState(null);            // {x,y} once dragged; null = default anchor
   const [call, setCall] = useState('idle');        // idle | ringing | incoming | connecting | live
   const [wantVideo, setWantVideo] = useState(true);
@@ -42,7 +45,24 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const [unread, setUnread] = useState(0);
   const [err, setErr] = useState('');
   const [netState, setNetState] = useState('');    // live ICE connection state readout
+  const [size, setSize] = useState('md');          // call window size: sm | md | lg
+  const [speaking, setSpeaking] = useState(false); // local voice activity (mic pulse)
+  const [remoteSpeaking, setRemoteSpeaking] = useState(false);
+  const [sharing, setSharing] = useState(false);   // screen share active
+  const [bg, setBg] = useState('none');            // virtual background: none | blur
+  const [bgBusy, setBgBusy] = useState(false);
+  const screenStreamRef = useRef(null);
+  const camTrackRef = useRef(null);
+  const bgProcRef = useRef(null);
   const relayFound = useRef(false);                // did we ever gather a TURN relay candidate?
+  const micOnRef = useRef(true);
+  micOnRef.current = micOn;
+  const cycleSize = () => setSize((s) => SIZES[(SIZES.indexOf(s) + 1) % SIZES.length]);
+  const toggleFullscreen = () => {
+    const el = stageEl.current; if (!el) return;
+    if (document.fullscreenElement) document.exitFullscreen?.();
+    else el.requestFullscreen?.().catch(() => {});
+  };
 
   const chanRef = useRef(null);
   const pcRef = useRef(null);
@@ -51,10 +71,13 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const localVidEl = useRef(null);
   const remoteVidEl = useRef(null);
   const remoteAudEl = useRef(null);
+  const stageEl = useRef(null);
   const pendingIce = useRef([]);
   const watchdog = useRef(null);
   const chatEndRef = useRef(null);
   const dragRef = useRef(null);
+  const onEndedRef = useRef(null);
+  useEffect(() => { onEndedRef.current = onEnded; }, [onEnded]);
 
   const send = useCallback((obj) => chanRef.current?.send({ type: 'broadcast', event: 'comms', payload: { from: userId, name: myName, ...obj } }), [userId, myName]);
 
@@ -66,10 +89,14 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     localRef.current?.getTracks().forEach((t) => t.stop());
     localRef.current = null; remoteRef.current = null;
     pendingIce.current = [];
+    screenStreamRef.current?.getTracks().forEach((t) => t.stop());
+    screenStreamRef.current = null; camTrackRef.current = null;
+    bgProcRef.current?.stop(); bgProcRef.current = null;
     if (remoteVidEl.current) remoteVidEl.current.srcObject = null;
     if (remoteAudEl.current) remoteAudEl.current.srcObject = null;
     if (localVidEl.current) localVidEl.current.srcObject = null;
-    setCall('idle'); setIncoming(null); setNetState('');
+    setCall('idle'); setIncoming(null); setNetState(''); setSharing(false); setBg('none');
+    onEndedRef.current?.();
   }, [send]);
 
   const getMedia = async (video) => {
@@ -81,7 +108,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     });
     localRef.current = stream;
     setMicOn(true); setCamOn(video);
-    if (localVidEl.current) localVidEl.current.srcObject = stream;
+    if (localVidEl.current) { localVidEl.current.muted = true; localVidEl.current.srcObject = stream; }
     return stream;
   };
 
@@ -103,11 +130,26 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
       send({ t: 'ice', candidate: e.candidate.toJSON() });
     };
     pc.ontrack = (e) => {
-      remoteRef.current = e.streams[0];
+      const stream = e.streams[0];
+      remoteRef.current = stream;
       // Audio always plays through the dedicated <audio> element (present in both video and
       // voice modes); the remote <video> is muted so we never get two overlapping audio outputs.
-      if (remoteAudEl.current) remoteAudEl.current.srcObject = e.streams[0];
-      if (remoteVidEl.current) remoteVidEl.current.srcObject = e.streams[0];
+      // Explicitly play() + unmute — otherwise the browser's autoplay policy silently blocks the
+      // audio element (the "video comes but no audio" bug), even though the muted video plays.
+      if (remoteAudEl.current) {
+        remoteAudEl.current.srcObject = stream;
+        remoteAudEl.current.muted = false;
+        remoteAudEl.current.volume = 1;
+        remoteAudEl.current.play?.().catch(() => {});
+      }
+      if (remoteVidEl.current) {
+        // React's `muted` JSX attr is unreliable on <video> — set it imperatively, or the
+        // video element ALSO plays the remote audio on top of the <audio> sink, which the
+        // user hears as an echo/replay on the call.
+        remoteVidEl.current.muted = true;
+        remoteVidEl.current.srcObject = stream;
+        remoteVidEl.current.play?.().catch(() => {});
+      }
       clearTimeout(watchdog.current); setCall('live');
     };
     pc.oniceconnectionstatechange = () => {
@@ -150,11 +192,16 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
             setChatOpen((o) => { if (!o) setUnread((u) => u + 1); return o; });
             break;
           case 'ring':
-            if (pcRef.current || call !== 'idle') { send({ t: 'busy' }); break; }
-            setIncoming({ from: payload.from, name: payload.name, video: payload.video }); setCall('incoming');
+            // Calls are strictly 1:1 per room, so a ring while already engaged is ALWAYS the
+            // same caller re-ringing (universal-call retry) — ignore it silently. Replying
+            // "busy" here would tear down the call the instant it connects.
+            if (pcRef.current) break;
+            setIncoming((cur) => (cur && cur.from === payload.from) ? cur : { from: payload.from, name: payload.name, video: payload.video });
+            setCall((c) => (c === 'live' || c === 'connecting') ? c : 'incoming');
             break;
           case 'accept': {  // callee accepted → we (caller) create the offer
             const stream = localRef.current; if (!stream) break;
+            setCall('connecting');  // stop the universal-call re-ring; we're negotiating now
             const pc = makePc(stream);
             const offer = await pc.createOffer(); await pc.setLocalDescription(offer);
             send({ t: 'offer', sdp: offer }); armWatchdog();
@@ -199,6 +246,22 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     try { await getMedia(video); } catch { setErr('Camera/microphone blocked — allow access to call.'); setCall('idle'); return; }
     send({ t: 'ring', video }); armWatchdog();
   };
+
+  // Universal calling: the caller (autoStart set) rings on a short interval until answered,
+  // so a callee that opens the call a moment after the invite still catches a ring.
+  useEffect(() => {
+    if (!autoStart) return undefined;
+    let stop = false;
+    const ring = () => {
+      if (stop) return;
+      if (call === 'idle') startCall(autoStart === 'video');
+      else if (call === 'ringing') send({ t: 'ring', video: autoStart === 'video' });
+    };
+    const t0 = setTimeout(ring, 500);
+    const iv = setInterval(ring, 2200);
+    return () => { stop = true; clearTimeout(t0); clearInterval(iv); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart, call]);
   // callee: accept an incoming ring
   const accept = async () => {
     if (!incoming) return;
@@ -211,6 +274,71 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
 
   const toggleMic = () => { const t = localRef.current?.getAudioTracks()[0]; if (t) { t.enabled = !t.enabled; setMicOn(t.enabled); } };
   const toggleCam = () => { const t = localRef.current?.getVideoTracks()[0]; if (t) { t.enabled = !t.enabled; setCamOn(t.enabled); } };
+
+  const stopScreenShare = useCallback(async () => {
+    const pc = pcRef.current;
+    const sender = pc?.getSenders().find((s) => s.track && s.track.kind === 'video');
+    if (sender && camTrackRef.current) { try { await sender.replaceTrack(camTrackRef.current); } catch { /* gone */ } }
+    screenStreamRef.current?.getTracks().forEach((t) => t.stop());
+    screenStreamRef.current = null; camTrackRef.current = null;
+    if (localVidEl.current) { localVidEl.current.muted = true; localVidEl.current.srcObject = localRef.current; }
+    setSharing(false);
+  }, []);
+
+  const startScreenShare = async () => {
+    if (!navigator.mediaDevices?.getDisplayMedia) { setErr('Screen sharing is not supported in this browser.'); return; }
+    if (bg !== 'none') await clearBg();   // screen share and virtual background are mutually exclusive
+    let ds;
+    try { ds = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false }); }
+    catch { return; } // user cancelled the picker
+    const screenTrack = ds.getVideoTracks()[0];
+    if (!screenTrack) return;
+    screenStreamRef.current = ds;
+    const pc = pcRef.current;
+    const sender = pc?.getSenders().find((s) => s.track && s.track.kind === 'video');
+    try {
+      if (sender) {
+        camTrackRef.current = sender.track;          // remember camera to restore later
+        await sender.replaceTrack(screenTrack);      // no renegotiation needed
+      } else if (pc) {
+        pc.addTrack(screenTrack, ds);                // voice call → add video + renegotiate
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        send({ t: 'offer', sdp: offer });
+      }
+    } catch { /* sender race */ }
+    if (localVidEl.current) { localVidEl.current.muted = true; localVidEl.current.srcObject = ds; }
+    setSharing(true);
+    screenTrack.onended = () => { stopScreenShare(); };
+  };
+  const toggleScreenShare = () => (sharing ? stopScreenShare() : startScreenShare());
+
+  // Virtual background — swaps the outgoing camera track for a segmentation-composited one.
+  const videoSender = () => pcRef.current?.getSenders().find((s) => s.track && s.track.kind === 'video');
+  const clearBg = useCallback(async () => {
+    bgProcRef.current?.stop(); bgProcRef.current = null;
+    const cam = localRef.current?.getVideoTracks()[0];
+    const sender = videoSender();
+    if (sender && cam) { try { await sender.replaceTrack(cam); } catch { /* gone */ } }
+    if (localVidEl.current) { localVidEl.current.muted = true; localVidEl.current.srcObject = localRef.current; }
+    setBg('none');
+  }, []);
+  const applyBg = async () => {
+    const cam = localRef.current?.getVideoTracks()[0];
+    if (!cam) return;
+    setBgBusy(true); setErr('');
+    try {
+      const proc = await startVirtualBg(cam, 'blur');
+      bgProcRef.current?.stop();
+      bgProcRef.current = proc;
+      const sender = videoSender();
+      if (sender) await sender.replaceTrack(proc.track);
+      if (localVidEl.current) { localVidEl.current.muted = true; localVidEl.current.srcObject = new MediaStream([proc.track]); }
+      setBg('blur');
+    } catch { setErr('Background effect could not load — using your normal camera.'); }
+    setBgBusy(false);
+  };
+  const toggleBg = () => { if (bgBusy) return; return bg === 'none' ? applyBg() : clearBg(); };
 
   const sendChat = (e) => {
     e?.preventDefault();
@@ -257,6 +385,34 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     return () => window.removeEventListener('resize', clampIntoView);
   }, [pos, call, chatOpen]);
 
+  // Voice-activity animation: sample local + remote loudness via Web Audio, flip a
+  // boolean when someone crosses the talking threshold (only re-renders on change).
+  useEffect(() => {
+    if (call !== 'live') { setSpeaking(false); setRemoteSpeaking(false); return undefined; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return undefined;
+    const ctx = new AC();
+    ctx.resume?.();
+    const analyser = (stream) => {
+      if (!stream || !stream.getAudioTracks || !stream.getAudioTracks().length) return null;
+      try { const src = ctx.createMediaStreamSource(stream); const an = ctx.createAnalyser(); an.fftSize = 256; an.smoothingTimeConstant = 0.7; src.connect(an); return an; }
+      catch { return null; }
+    };
+    const la = analyser(localRef.current), ra = analyser(remoteRef.current);
+    const buf = new Uint8Array(128);
+    const loud = (an) => { if (!an) return 0; an.getByteFrequencyData(buf); let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i]; return (s / buf.length) / 80; };
+    let raf, lastL = false, lastR = false;
+    const tick = () => {
+      const l = micOnRef.current && loud(la) > 0.06;
+      const r = loud(ra) > 0.06;
+      if (l !== lastL) { lastL = l; setSpeaking(l); }
+      if (r !== lastR) { lastR = r; setRemoteSpeaking(r); }
+      raf = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => { cancelAnimationFrame(raf); try { ctx.close(); } catch { /* already closed */ } };
+  }, [call]);
+
   const style = pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined;
   const inCall = call === 'ringing' || call === 'connecting' || call === 'live';
 
@@ -274,9 +430,9 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
 
       {/* call window (Google-Meet style) */}
       {inCall ? (
-        <div className={`vs-meet ${wantVideo ? '' : 'audio'}`}>
-          <div className="vs-meet-stage">
-            {wantVideo ? <video ref={remoteVidEl} className="vs-meet-remote" autoPlay playsInline muted /> : <div className="vs-meet-avatar"><span>{(oppName || 'R').slice(0, 1).toUpperCase()}</span></div>}
+        <div className={`vs-meet sz-${size} ${wantVideo ? '' : 'audio'}`}>
+          <div className={`vs-meet-stage ${remoteSpeaking ? 'speaking' : ''}`} ref={stageEl}>
+            {wantVideo ? <video ref={remoteVidEl} className="vs-meet-remote" autoPlay playsInline muted /> : <div className={`vs-meet-avatar ${remoteSpeaking ? 'speaking' : ''}`}><span>{(oppName || 'R').slice(0, 1).toUpperCase()}</span></div>}
             {/* single audio sink for the remote peer — works for both video and voice-only calls */}
             <audio ref={remoteAudEl} autoPlay />
             <div className="vs-meet-name">{oppName}</div>
@@ -309,8 +465,12 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
         <button className="vs-island-grip" onPointerDown={onDragStart} title="Drag"><GripVertical size={15} /></button>
         {inCall ? (
           <>
-            <button className={`vs-island-btn ${micOn ? '' : 'off'}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={16} /> : <MicOff size={16} />}</button>
+            <button className={`vs-island-btn ${micOn ? '' : 'off'} ${micOn && speaking ? 'talking' : ''}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={16} /> : <MicOff size={16} />}</button>
             {wantVideo ? <button className={`vs-island-btn ${camOn ? '' : 'off'}`} onClick={toggleCam} title={camOn ? 'Camera off' : 'Camera on'}>{camOn ? <Video size={16} /> : <VideoOff size={16} />}</button> : null}
+            {wantVideo ? <button className={`vs-island-btn ${bg !== 'none' ? 'on' : ''}`} onClick={toggleBg} disabled={bgBusy} title={bg === 'none' ? 'Blur background' : 'Turn off background'}><Wand2 size={15} /></button> : null}
+            <button className={`vs-island-btn ${sharing ? 'on' : ''}`} onClick={toggleScreenShare} title={sharing ? 'Stop sharing' : 'Share screen'}>{sharing ? <ScreenShareOff size={15} /> : <ScreenShare size={15} />}</button>
+            <button className="vs-island-btn" onClick={cycleSize} title={`Resize (${size.toUpperCase()})`}>{size === 'lg' ? <Minimize2 size={15} /> : <Maximize2 size={15} />}</button>
+            {wantVideo ? <button className="vs-island-btn" onClick={toggleFullscreen} title="Fullscreen"><Maximize2 size={15} /></button> : null}
             <button className="vs-island-btn end" onClick={() => teardown(true)} title="Hang up"><PhoneOff size={16} /></button>
           </>
         ) : (

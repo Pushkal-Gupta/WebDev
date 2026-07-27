@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
-import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3, Flame, ThumbsUp, Laugh, PartyPopper, Flag } from 'lucide-react';
+import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3, Flame, ThumbsUp, Laugh, PartyPopper, Flag, Radar, Snowflake } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, joinMatch, updateMatch, createMatch, pickRandomProblems, pickProblemsForConfig, matchChannel, setGuestLanguage } from '../../lib/versus';
 import { complexityRank, buildComplexityAnalysis } from '../../lib/complexityAnalyzer';
@@ -72,9 +72,11 @@ export default function VersusMatch({ session }) {
   const [result, setResult] = useState(null);
   const [copied, setCopied] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
+  const [watchCopied, setWatchCopied] = useState(false);
   const [err, setErr] = useState('');
   const [leftTab, setLeftTab] = useState('description');
   const [subs, setSubs] = useState([]);            // this player's submission history (newest last)
+  const [oppTests, setOppTests] = useState(null);  // Radar powerup: rival's live { q, passed, total }
   const [myCx, setMyCx] = useState(null);          // { time, space } — my latest solved complexity
   const [oppCx, setOppCx] = useState(null);        // { time, space, solved } — broadcast from rival
   const [myReports, setMyReports] = useState({}); // qIndex -> full client-side analysis of that accepted solution
@@ -97,9 +99,11 @@ export default function VersusMatch({ session }) {
   const numQ = match?.num_questions || 1;
   const myLang = langOverride || (role === 'host' ? (match?.host_language || match?.language) : (match?.guest_language || match?.language)) || 'python';
   const inviteUrl = `${window.location.origin}${window.location.pathname}#/battle/${code}`;
+  const watchUrl = `${window.location.origin}${window.location.pathname}#/watch/${code}`;
   const shareText = `Battle me on PGBattle — join with code ${code}: ${inviteUrl}`;
   const copyCode = () => { navigator.clipboard?.writeText(code); setCodeCopied(true); setTimeout(() => setCodeCopied(false), 1500); };
   const copyLink = () => { navigator.clipboard?.writeText(inviteUrl); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const copyWatch = () => { navigator.clipboard?.writeText(watchUrl); setWatchCopied(true); setTimeout(() => setWatchCopied(false), 1500); };
   const nativeShare = () => { navigator.share?.({ title: 'PGBattle', text: `Battle me on PGBattle — code ${code}`, url: inviteUrl }).catch(() => {}); };
 
   // load + join the match; determine role
@@ -134,6 +138,7 @@ export default function VersusMatch({ session }) {
     });
     ch.on('broadcast', { event: 'progress' }, ({ payload }) => { if (payload.uid !== user.id) setOppSolvedCount(payload.solved || 0); });
     ch.on('broadcast', { event: 'complexity' }, ({ payload }) => { if (payload.uid !== user.id) setOppCx({ time: payload.time, space: payload.space, solved: payload.solved }); });
+    ch.on('broadcast', { event: 'tests' }, ({ payload }) => { if (payload.uid !== user.id) setOppTests({ q: payload.q, passed: payload.passed, total: payload.total }); });
     ch.on('broadcast', { event: 'typing' }, ({ payload }) => {
       if (payload.uid === user.id) return;
       setOppTyping(true);
@@ -265,7 +270,7 @@ export default function VersusMatch({ session }) {
   // Testcase), client-side — like a LeetCode "Run". Submit grades the full hidden set.
   const run = async () => {
     const prob = problems[qIndex];
-    if (!prob || running || result) return;
+    if (!prob || running || result || isFrozen()) return;
     setRunning(true); setErr(''); setLeftTab('testcase');
     try {
       const cases = Array.isArray(prob.test_cases) ? prob.test_cases.slice(0, 3) : [];
@@ -273,6 +278,7 @@ export default function VersusMatch({ session }) {
         // No driver metadata — fall back to a full server grade so Run still reports something.
         const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
         setCaseInfo({ passed: res?.passed ?? 0, total: res?.total ?? 0, ran: true });
+        radarBroadcast(res?.passed ?? 0, res?.total ?? 0);
       } else {
         const total = cases.length;
         const stdins = cases.map((tc) => buildStdin(tc.inputs));
@@ -291,6 +297,7 @@ export default function VersusMatch({ session }) {
           if (r?.status === 'success' && compareOutput(r.output, cases[i].expected)) passed++;
         }
         setCaseInfo({ passed, total, ran: true });
+        radarBroadcast(passed, total);
       }
     } catch (e) { setErr(friendlyError(e, 'Run failed.')); }
     setRunning(false);
@@ -298,12 +305,13 @@ export default function VersusMatch({ session }) {
 
   const submit = async () => {
     const prob = problems[qIndex];
-    if (!prob || running || result) return;
+    if (!prob || running || result || isFrozen()) return;
     setRunning(true); setErr('');
     try {
       const res = await gradeOnServer(prob.id, myLang, codeByQ[qIndex] || '');
       const passed = res?.passed ?? 0, total = res?.total ?? 0;
       setCaseInfo({ passed, total });
+      radarBroadcast(passed, total);
       const elapsed = match?.started_at ? Math.max(0, Math.floor((Date.now() - new Date(match.started_at).getTime() - COUNTDOWN_MS) / 1000)) : null;
       setSubs((prev) => [...prev, { q: qIndex, passed, total, verdict: total > 0 && passed === total ? 'Accepted' : 'Wrong Answer', lang: myLang, at: Date.now(), time: elapsed }]);
       if (total > 0 && passed === total && !mySolved.includes(qIndex)) {
@@ -368,6 +376,13 @@ export default function VersusMatch({ session }) {
     pushReaction(k, true);
     chanRef.current?.send({ type: 'broadcast', event: 'reaction', payload: { uid: user.id, k } });
   };
+  // Radar powerup: share this player's live test count so the rival sees exact numbers.
+  const radarBroadcast = (passed, total) => {
+    if (match?.powerup === 'radar') chanRef.current?.send({ type: 'broadcast', event: 'tests', payload: { uid: user.id, q: qIndex, passed, total } });
+  };
+  // Cold Open powerup freezes the guest for 15s after the countdown.
+  const isFrozen = () => match?.powerup === 'freeze' && role === 'guest' && !!match?.started_at
+    && (Date.now() - new Date(match.started_at).getTime()) < (COUNTDOWN_MS + 15000);
 
   // Forfeit: two-click arm (no crude confirm dialog). Hands the win to the rival.
   const forfeit = async () => {
@@ -459,6 +474,7 @@ export default function VersusMatch({ session }) {
               </div>
               <div className="vs-share-row">
                 <button className="vs-share-btn" onClick={copyLink}>{copied ? <Check size={14} /> : <Link2 size={14} />} {copied ? 'Link copied' : 'Copy link'}</button>
+                <button className="vs-share-btn" onClick={copyWatch} title="Link for spectators to watch live (no code shown)">{watchCopied ? <Check size={14} /> : <Eye size={14} />} {watchCopied ? 'Watch link copied' : 'Watch link'}</button>
                 {typeof navigator !== 'undefined' && navigator.share ? <button className="vs-share-btn" onClick={nativeShare}><Share2 size={14} /> Share</button> : null}
                 <a className="vs-share-btn" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`} target="_blank" rel="noreferrer"><MessageSquare size={14} /> WhatsApp</a>
                 <a className="vs-share-btn" href={`mailto:?subject=${encodeURIComponent('Battle me on PGBattle')}&body=${encodeURIComponent(shareText)}`}><Mail size={14} /> Email</a>
@@ -486,6 +502,10 @@ export default function VersusMatch({ session }) {
   const effElapsed = Math.max(0, Math.floor((now - started - COUNTDOWN_MS) / 1000));
   const remain = Math.max(0, match.time_limit_sec - effElapsed);
   const mm = String(Math.floor(remain / 60)).padStart(2, '0'), ss = String(remain % 60).padStart(2, '0');
+  // Cold Open: the guest is frozen for 15s after the countdown.
+  const frozen = match.powerup === 'freeze' && role === 'guest' && !!match.started_at && !counting && (now - started) < (COUNTDOWN_MS + 15000);
+  const freezeLeft = frozen ? Math.max(1, Math.ceil((started + COUNTDOWN_MS + 15000 - now) / 1000)) : 0;
+  const radarOn = match.powerup === 'radar';
   const myCount = mySolved.length;
   const pctMe = numQ ? Math.round((myCount / numQ) * 100) : 0;
   const pctOpp = numQ ? Math.round((oppSolvedCount / numQ) * 100) : 0;
@@ -549,6 +569,7 @@ export default function VersusMatch({ session }) {
             <span className="vs-bp-name">{oppTyping ? <em className="vs-typing">typing…</em> : <><User size={13} /> {oppName}</>}</span>
             <div className="vs-bp-bar"><div className="vs-bp-fill foe" style={{ width: pctOpp + '%' }} /></div>
             <span className="vs-bp-count">{oppSolvedCount}/{numQ}</span>
+            {radarOn && oppTests ? <span className="vs-radar-chip"><Radar size={11} /> {oppTests.passed}/{oppTests.total} tests{numQ > 1 ? ` · Q${oppTests.q + 1}` : ''}</span> : null}
           </div>
         </div>
       </div>
@@ -579,6 +600,9 @@ export default function VersusMatch({ session }) {
             {leftTab === 'description' && (
               <>
                 <h3>{prob ? `${numQ > 1 ? `Q${qIndex + 1}. ` : ''}${prob.name}` : 'Loading…'} {prob ? <span className={`vs-diff ${(prob.difficulty || '').toLowerCase()}`}>{prob.difficulty}</span> : null}</h3>
+                {match.powerup === 'hint' && prob?.hints?.length ? (
+                  <div className="vs-headstart"><Lightbulb size={14} /> <span><b>Head Start:</b> {prob.hints[0]}</span></div>
+                ) : null}
                 <div className="vs-prob-body" dangerouslySetInnerHTML={{ __html: prob?.description || '' }} />
                 {prob?.test_cases?.length ? (
                   <div className="vs-examples">
@@ -703,10 +727,10 @@ export default function VersusMatch({ session }) {
             </div>
             <div className="vs-editor-head-right">
               {caseInfo ? <span className="vs-case-info">{caseInfo.ran ? 'Ran: ' : ''}{caseInfo.passed}/{caseInfo.total} tests</span> : null}
-              <button className="vs-run ghost" onClick={run} disabled={running || !!result}>
+              <button className="vs-run ghost" onClick={run} disabled={running || !!result || frozen}>
                 <Play size={14} /> {running ? 'Running…' : 'Run'}
               </button>
-              <button className="vs-run" onClick={submit} disabled={running || !!result || mySolved.includes(qIndex)}>
+              <button className="vs-run" onClick={submit} disabled={running || !!result || frozen || mySolved.includes(qIndex)}>
                 {mySolved.includes(qIndex) ? <><Check size={14} /> Solved</> : running ? 'Running…' : <><Send size={14} /> Submit</>}
               </button>
             </div>
@@ -752,6 +776,15 @@ export default function VersusMatch({ session }) {
         <div className="vs-countdown">
           <div className="vs-countdown-num" key={countNum}>{countNum}</div>
           <div className="vs-countdown-label">Get ready…</div>
+        </div>
+      ) : null}
+
+      {/* Cold Open powerup: guest is frozen for 15s while the host gets a head start */}
+      {frozen ? (
+        <div className="vs-countdown vs-freeze">
+          <Snowflake size={40} className="vs-freeze-ic" />
+          <div className="vs-countdown-num" key={freezeLeft}>{freezeLeft}</div>
+          <div className="vs-countdown-label">Cold Open — {oppName} got a head start</div>
         </div>
       ) : null}
 

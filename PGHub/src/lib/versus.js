@@ -108,7 +108,7 @@ export async function pickRandomProblems(difficulty, n = 1) {
 export async function getMyRecord(userId) {
   if (!userId) return { wins: 0, losses: 0, total: 0, recent: [] };
   const { data, error } = await supabase.from('PGcode_versus_matches')
-    .select('id, difficulty, language, host_id, guest_id, host_name, guest_name, winner_id, status, finished_at')
+    .select('id, difficulty, language, host_id, guest_id, host_name, guest_name, winner_id, status, finished_at, num_questions')
     .or(`host_id.eq.${userId},guest_id.eq.${userId}`)
     .eq('status', 'finished')
     .order('finished_at', { ascending: false })
@@ -120,9 +120,15 @@ export async function getMyRecord(userId) {
     const won = m.winner_id === userId;
     if (m.winner_id) { won ? wins++ : losses++; }
     const oppName = m.host_id === userId ? (m.guest_name || 'Rival') : (m.host_name || 'Host');
-    return { id: m.id, won, oppName, difficulty: m.difficulty, language: m.language };
+    return { id: m.id, won, oppName, difficulty: m.difficulty, language: m.language, finishedAt: m.finished_at, numQuestions: m.num_questions || 1 };
   });
-  return { wins, losses, total: wins + losses, recent: recent.slice(0, 6) };
+  // Derived rating — deterministic replay of decided matches oldest→newest (no schema,
+  // no race). Base 1000, +25 per win, -20 per loss, floored at 0.
+  const decidedChrono = rows.filter((m) => m.winner_id).slice().reverse();
+  let rating = 1000;
+  for (const m of decidedChrono) rating += (m.winner_id === userId) ? 25 : -20;
+  rating = Math.max(0, rating);
+  return { wins, losses, total: wins + losses, recent: recent.slice(0, 12), rating };
 }
 
 // One realtime channel per match: presence tells us who's in the room; broadcast carries

@@ -65,8 +65,14 @@
 
 /* Record card (real win/loss chart) */
 .vs-record-card { padding: 1.2rem 1.3rem; display: flex; flex-direction: column; gap: 0.9rem; }
-.vs-record-head, .vs-how-head { display: inline-flex; align-items: center; gap: 0.45rem; color: var(--text-dim); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.vs-record-head, .vs-how-head { display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap; color: var(--text-dim); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 .vs-record-head svg { color: var(--accent); }
+.vs-rating { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.74rem; font-weight: 800; letter-spacing: 0; color: var(--accent); background: rgba(var(--accent-rgb), 0.12); border: 1px solid rgba(var(--accent-rgb), 0.3); }
+.vs-rating svg { color: var(--accent); }
+.vs-streak { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.vs-streak.w { color: var(--warning); background: color-mix(in srgb, var(--warning) 14%, transparent); border: 1px solid color-mix(in srgb, var(--warning) 35%, transparent); }
+.vs-streak.w svg { color: var(--warning); }
+.vs-streak.l { color: var(--hard); background: color-mix(in srgb, var(--hard) 12%, transparent); border: 1px solid color-mix(in srgb, var(--hard) 30%, transparent); }
 .vs-record-nums { display: flex; align-items: flex-end; justify-content: space-between; }
 .vs-rn { display: flex; flex-direction: column; align-items: center; gap: 0.1rem; }
 .vs-rn b { font-size: 1.7rem; font-weight: 800; line-height: 1; }
@@ -81,6 +87,20 @@
 .vs-pip { display: inline-flex; align-items: center; justify-content: center; width: 1.6rem; height: 1.6rem; border-radius: 7px; font-size: 0.72rem; font-weight: 800; }
 .vs-pip.w { color: var(--easy); background: color-mix(in srgb, var(--easy) 16%, transparent); }
 .vs-pip.l { color: var(--hard); background: color-mix(in srgb, var(--hard) 16%, transparent); }
+.vs-history { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.vs-history-title { font-family: var(--sans); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); margin-bottom: 0.25rem; }
+.vs-history-row { display: flex; align-items: center; gap: 0.55rem; padding: 0.4rem 0.5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); font-size: 0.8rem; }
+.vs-history-badge { display: inline-flex; align-items: center; justify-content: center; width: 1.35rem; height: 1.35rem; border-radius: 6px; font-size: 0.68rem; font-weight: 800; flex-shrink: 0; }
+.vs-history-badge.w { color: var(--easy); background: color-mix(in srgb, var(--easy) 16%, transparent); }
+.vs-history-badge.l { color: var(--hard); background: color-mix(in srgb, var(--hard) 16%, transparent); }
+.vs-history-opp { font-weight: 600; color: var(--text-main); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vs-history-diff { font-size: 0.7rem; font-weight: 700; text-transform: capitalize; flex-shrink: 0; }
+.vs-history-diff.easy { color: var(--easy); }
+.vs-history-diff.medium { color: var(--medium); }
+.vs-history-diff.hard { color: var(--hard); }
+.vs-history-diff.any { color: var(--text-dim); }
+.vs-history-q { font-family: var(--mono); font-size: 0.7rem; color: var(--text-dim); flex-shrink: 0; }
+.vs-history-time { font-size: 0.7rem; color: var(--text-dim); flex-shrink: 0; }
 .vs-record-empty { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; padding: 1rem 0.5rem; text-align: center; }
 .vs-record-empty svg { color: var(--text-dim); }
 .vs-record-empty p { margin: 0; color: var(--text-dim); font-size: 0.85rem; line-height: 1.5; }
@@ -114,6 +134,12 @@
 .vs-fr-empty { margin: 0.3rem 0; color: var(--text-dim); font-size: 0.8rem; line-height: 1.5; }
 .vs-fr-clear { align-self: flex-start; background: none; border: none; color: var(--accent); font-size: 0.78rem; cursor: pointer; padding: 0.2rem 0; }
 .vs-fr-icon.msg { color: var(--text-dim); } .vs-fr-icon.msg:hover { border-color: var(--accent); color: var(--accent); }
+.vs-fr-icon.call { color: var(--easy); } .vs-fr-icon.call:hover { border-color: var(--easy); background: color-mix(in srgb, var(--easy) 12%, var(--bg)); }
+.vs-fr-calltoggle { margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.66rem; font-weight: 700; letter-spacing: 0; text-transform: none; cursor: pointer; }
+.vs-fr-calltoggle svg { color: currentColor; }
+.vs-fr-calltoggle.on { color: var(--easy); border-color: color-mix(in srgb, var(--easy) 40%, transparent); background: color-mix(in srgb, var(--easy) 12%, transparent); }
+.vs-fr-head { display: flex; }
+.vs-call-toast { border-color: color-mix(in srgb, var(--easy) 45%, var(--border)); }
 
 /* DM thread (grows with content; the page scrolls — never an inner scrollbar) */
 .vs-fr-thread-head { display: flex; align-items: center; gap: 0.5rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); }
@@ -322,8 +348,34 @@
 .vs-ring-decline { background: var(--hard); color: #fff; }
 
 /* Google-Meet-style call window */
-.vs-meet { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 18px 48px -18px rgba(0,0,0,0.6); }
-.vs-meet-stage { position: relative; width: 100%; height: 200px; background: #0a0d0f; }
+.vs-meet { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 18px 48px -18px rgba(0,0,0,0.6); transition: width 0.18s ease; }
+.vs-meet.sz-sm { width: 232px; }
+.vs-meet.sz-md { width: 320px; }
+.vs-meet.sz-lg { width: 460px; }
+.vs-meet-stage { position: relative; width: 100%; height: 200px; background: #0a0d0f; transition: height 0.18s ease; }
+.vs-meet.sz-sm .vs-meet-stage { height: 150px; }
+.vs-meet.sz-md .vs-meet-stage { height: 214px; }
+.vs-meet.sz-lg .vs-meet-stage { height: 300px; }
+.vs-meet-stage:fullscreen { height: 100vh; width: 100vw; background: #000; }
+.vs-meet-stage:fullscreen .vs-meet-remote { object-fit: contain; }
+/* Voice-activity: glow the remote video / pulse the avatar when the rival talks */
+.vs-meet-stage.speaking { box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 22px -4px color-mix(in srgb, var(--accent) 60%, transparent); }
+.vs-meet-avatar.speaking span { animation: vs-talk-pulse 0.9s ease-in-out infinite; box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+@keyframes vs-talk-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent); }
+  70% { box-shadow: 0 0 0 16px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+/* Mic button pulses while you talk */
+.vs-island-btn.talking { border-color: var(--accent); color: var(--accent); animation: vs-mic-pulse 0.85s ease-in-out infinite; }
+@keyframes vs-mic-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 50%, transparent); }
+  70% { box-shadow: 0 0 0 10px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vs-meet-avatar.speaking span, .vs-island-btn.talking { animation: none; }
+}
 .vs-meet-remote { width: 100%; height: 100%; object-fit: cover; display: block; }
 .vs-meet-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 22%, #0a0d0f), #0a0d0f); }
 .vs-meet-avatar span { width: 4.5rem; height: 4.5rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; }
@@ -394,13 +446,13 @@
 .vs-forfeit.armed { color: #fff; background: var(--hard); border-color: var(--hard); }
 
 /* Quick-reaction bar — floating, game-style */
-.vs-react-bar { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.4rem; padding: 0.4rem 0.55rem; border-radius: 999px; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); box-shadow: 0 8px 24px -10px rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 40; }
+.vs-react-bar { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.4rem; padding: 0.4rem 0.55rem; border-radius: 999px; background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--border); box-shadow: 0 8px 24px -10px rgba(0,0,0,0.5); backdrop-filter: blur(6px); z-index: 65; }
 .vs-react-btn { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--c); cursor: pointer; transition: transform 0.12s, background 0.15s; }
 .vs-react-btn:hover { transform: translateY(-2px) scale(1.12); background: color-mix(in srgb, var(--c) 16%, transparent); }
 .vs-react-btn:active { transform: scale(0.94); }
 
 /* Floating reactions that rise and fade */
-.vs-react-layer { position: absolute; inset: 0; pointer-events: none; z-index: 45; overflow: hidden; }
+.vs-react-layer { position: absolute; inset: 0; pointer-events: none; z-index: 66; overflow: hidden; }
 .vs-react-fly { position: absolute; bottom: 4rem; color: var(--c); filter: drop-shadow(0 2px 6px color-mix(in srgb, var(--c) 55%, transparent)); animation: vs-react-rise 1.6s ease-out forwards; }
 .vs-react-fly.mine { left: 26%; }
 .vs-react-fly.foe { right: 26%; }
@@ -422,6 +474,38 @@
   .vs-countdown-num { animation: none; }
   .vs-react-btn:hover { transform: none; }
 }
+
+/* Powerups */
+.vs-radar-chip { display: inline-flex; align-items: center; gap: 0.3rem; margin-top: 0.25rem; padding: 0.12rem 0.5rem; border-radius: 999px; font-family: var(--mono); font-size: 0.7rem; font-weight: 700; color: var(--hue-sky); background: color-mix(in srgb, var(--hue-sky) 14%, transparent); border: 1px solid color-mix(in srgb, var(--hue-sky) 35%, transparent); }
+.vs-headstart { display: flex; align-items: flex-start; gap: 0.5rem; margin: 0.2rem 0 1rem; padding: 0.7rem 0.9rem; border-radius: 10px; background: color-mix(in srgb, var(--medium) 10%, var(--surface)); border: 1px solid color-mix(in srgb, var(--medium) 35%, transparent); color: var(--text-main); font-size: 0.85rem; line-height: 1.5; }
+.vs-headstart svg { color: var(--medium); flex-shrink: 0; margin-top: 2px; }
+.vs-headstart b { color: var(--medium); }
+.vs-freeze { background: color-mix(in srgb, var(--hue-sky) 22%, rgba(0,0,0,0.6)); }
+.vs-freeze-ic { color: var(--hue-sky); margin-bottom: 0.2rem; }
+.vs-freeze .vs-countdown-num { color: var(--hue-sky); text-shadow: 0 0 40px color-mix(in srgb, var(--hue-sky) 60%, transparent); }
+
+/* Spectator (read-only live view) */
+.vs-spectate { position: fixed; inset: 73px 0 0 0; display: flex; flex-direction: column; background: var(--bg); z-index: 50; }
+.vs-spectate-bar { display: flex; align-items: center; gap: 1rem; padding: 0.6rem 1rem; border-bottom: 1px solid var(--border); background: var(--surface); }
+.vs-spectate-badge { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid var(--border); }
+.vs-spectate-badge.live { color: var(--hard); border-color: color-mix(in srgb, var(--hard) 45%, transparent); }
+.vs-spectate-badge.live svg { animation: vs-pulse 1.4s ease-in-out infinite; }
+.vs-spectate-badge.done { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+@keyframes vs-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.vs-spectate-meta { margin-left: auto; color: var(--text-dim); font-size: 0.82rem; text-transform: capitalize; }
+.vs-spectate-stage { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6rem; padding: 2rem 1rem; }
+.vs-spectate-arena { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1.5rem; width: 100%; max-width: 720px; }
+.vs-spectate-side { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+.vs-spectate-avatar { display: inline-flex; align-items: center; justify-content: center; width: 68px; height: 68px; border-radius: 999px; border: 2px solid var(--border); background: var(--surface); }
+.vs-spectate-avatar.host { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+.vs-spectate-avatar.guest { color: var(--hue-pink, var(--hard)); border-color: color-mix(in srgb, var(--hard) 45%, transparent); }
+.vs-spectate-name { font-weight: 700; color: var(--text-main); font-size: 1rem; }
+.vs-spectate-track { width: 100%; max-width: 220px; height: 12px; border-radius: 999px; background: var(--hover-box); overflow: hidden; }
+.vs-spectate-count { font-family: var(--mono); font-weight: 700; color: var(--text-main); }
+.vs-spectate-vs { color: var(--text-dim); }
+.vs-spectate-result { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 1.05rem; color: var(--text-main); background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0.7rem 1.1rem; }
+.vs-spectate-result svg { color: var(--accent); }
+.vs-spectate-hint { display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-dim); font-size: 0.85rem; }
 .vs-result.win svg { color: var(--accent); fill: color-mix(in srgb, var(--accent) 30%, transparent); }
 .vs-result.lose svg { color: var(--text-dim); }
 .vs-result h2 { margin: 0; font-size: 2rem; color: var(--text-main); }

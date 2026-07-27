@@ -1,11 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks, Shuffle } from 'lucide-react';
+import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks, Shuffle, Flame, TrendingUp } from 'lucide-react';
 import { createMatch, getMyRecord, POWERUPS } from '../../lib/versus';
 import { sendChallenge } from '../../lib/friends';
 import { friendlyError } from '../../lib/errors';
 import FriendsPanel from './FriendsPanel';
 import '../../styles/versus.css';
+
+function timeAgo(iso) {
+  if (!iso) return '';
+  const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
+  if (s < 60) return 'just now';
+  const m = Math.floor(s / 60); if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60); if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24); if (d < 7) return `${d}d ago`;
+  return `${Math.floor(d / 7)}w ago`;
+}
 
 const DIFFS = ['Any', 'Easy', 'Medium', 'Hard'];
 const TIMES = [{ label: '10 min', v: 600 }, { label: '15 min', v: 900 }, { label: '25 min', v: 1500 }];
@@ -83,6 +93,14 @@ export default function Versus({ session }) {
   };
 
   const winRate = record && record.total ? Math.round((record.wins / record.total) * 100) : 0;
+  const streak = (() => {
+    const r = record?.recent;
+    if (!r || !r.length) return null;
+    const won = r[0].won;
+    let n = 0;
+    for (const m of r) { if (m.won === won) n++; else break; }
+    return n >= 2 ? { won, n } : null;
+  })();
 
   return (
     <div className="vs-page">
@@ -187,7 +205,17 @@ export default function Versus({ session }) {
         {/* ── Side: record + how it works ── */}
         <div className="vs-side">
           <div className="vs-record-card">
-            <div className="vs-record-head"><Trophy size={15} /> Your record</div>
+            <div className="vs-record-head">
+              <Trophy size={15} /> Your record
+              {record && record.total ? (
+                <span className="vs-rating"><TrendingUp size={12} /> {record.rating}</span>
+              ) : null}
+              {streak ? (
+                <span className={`vs-streak ${streak.won ? 'w' : 'l'}`}>
+                  {streak.won ? <Flame size={12} /> : null}{streak.n} {streak.won ? 'win' : 'loss'} streak
+                </span>
+              ) : null}
+            </div>
             {record && record.total ? (
               <>
                 <div className="vs-record-nums">
@@ -200,8 +228,20 @@ export default function Versus({ session }) {
                   <div className="vs-record-bar-loss" style={{ width: (100 - winRate) + '%' }} />
                 </div>
                 <div className="vs-record-recent">
-                  {record.recent.map((m, i) => (
+                  {record.recent.slice(0, 8).map((m, i) => (
                     <span key={i} className={`vs-pip ${m.won ? 'w' : 'l'}`} title={`${m.won ? 'Won' : 'Lost'} vs ${m.oppName} · ${m.difficulty} · ${m.language}`}>{m.won ? 'W' : 'L'}</span>
+                  ))}
+                </div>
+                <div className="vs-history">
+                  <div className="vs-history-title">Recent battles</div>
+                  {record.recent.map((m, i) => (
+                    <div key={m.id || i} className="vs-history-row">
+                      <span className={`vs-history-badge ${m.won ? 'w' : 'l'}`}>{m.won ? 'W' : 'L'}</span>
+                      <span className="vs-history-opp">{m.oppName}</span>
+                      <span className={`vs-history-diff ${(m.difficulty || '').toLowerCase()}`}>{m.difficulty}</span>
+                      <span className="vs-history-q">{m.numQuestions} Q</span>
+                      <span className="vs-history-time">{timeAgo(m.finishedAt)}</span>
+                    </div>
                   ))}
                 </div>
               </>
