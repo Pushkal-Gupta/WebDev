@@ -23,7 +23,7 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
   const myName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'You';
   const scrollRef = useRef(null);
   const [callsOn, setCallsOn] = useState(callsEnabled());
-  const toggleCalls = () => { const next = !callsOn; setCallsEnabled(next); setCallsOn(next); };
+  const toggleCalls = () => { const next = !callsOn; setCallsEnabled(next); setCallsOn(next); window.dispatchEvent(new CustomEvent('pg:calls-setting')); };
 
   const reload = useCallback(() => {
     if (!user) return;

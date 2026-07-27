@@ -26,6 +26,15 @@ export function genRoom() {
   return `call-${s}`;
 }
 
+// Short, human-shareable room code (no ambiguous chars) for ad-hoc calls between anyone —
+// friends or not. Two people entering the same code land in the same call.
+export function genShortCode() {
+  const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let s = '';
+  for (let i = 0; i < 5; i++) s += c[Math.floor(Math.random() * c.length)];
+  return s;
+}
+
 async function fireAndForget(toUserId, event, payload) {
   const ch = callChannel(toUserId);
   await new Promise((resolve) => {
