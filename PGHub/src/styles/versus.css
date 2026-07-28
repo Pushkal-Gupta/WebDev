@@ -143,7 +143,8 @@
 .vs-call-toast { border-color: color-mix(in srgb, var(--easy) 45%, var(--border)); }
 
 /* Always-available call launcher (bottom-left, on every page) */
-.vs-launcher { position: fixed; left: 1.1rem; bottom: 1.1rem; z-index: 1100; display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
+.vs-launcher { position: fixed; left: 1.1rem; bottom: 1.1rem; z-index: 1100; display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; transition: left 0.3s cubic-bezier(0.22, 1, 0.36, 1), top 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+.vs-launcher.dragging { transition: none; }
 .vs-launcher-fab { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); cursor: grab; touch-action: none; box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--accent) 60%, transparent); transition: filter 0.15s; }
 .vs-launcher-fab:hover { filter: brightness(1.06); }
 .vs-launcher-fab:active { cursor: grabbing; }
@@ -570,4 +571,45 @@
   .vs-prob { border-right: none; border-bottom: 1px solid var(--border); max-height: 40vh; }
   .vs-powerups { grid-template-columns: repeat(2, 1fr); }
   .vs-battle-players { flex-wrap: wrap; }
+}
+
+/* ============================================================================
+   Apple-clean call surfaces — one frosted-glass material, soft depth, spring
+   motion, so the launcher, call window, chat, toasts and code chip all feel like
+   one cohesive system that flows together. Theme-token translucency (all palettes).
+   ============================================================================ */
+.vs-launcher-panel,
+.vs-island-chat,
+.vs-roomcode,
+.vs-toast,
+.vs-island-bar {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  backdrop-filter: blur(22px) saturate(1.6);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6);
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16), 0 20px 52px -22px rgba(0, 0, 0, 0.55);
+}
+.vs-launcher-panel { border-radius: 18px; transform-origin: bottom left; animation: vs-pop 0.26s cubic-bezier(0.22, 1, 0.36, 1); }
+.vs-island-chat { border-radius: 18px; animation: vs-pop 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
+.vs-roomcode { border-radius: 14px; animation: vs-pop 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
+.vs-meet { border-radius: 18px; animation: vs-pop 0.26s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 26px 64px -24px rgba(0, 0, 0, 0.6); }
+.vs-island-bar { border-radius: 999px; }
+@keyframes vs-pop { from { opacity: 0; transform: scale(0.94) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+/* Sections flow into each other with hairline dividers instead of hard lines */
+.vs-launcher-section { border-bottom-color: color-mix(in srgb, var(--border) 45%, transparent); }
+.vs-launcher-head { border-bottom-color: color-mix(in srgb, var(--border) 45%, transparent); }
+
+/* Micro-interactions — subtle press + hover, springy easing */
+.vs-island-btn, .vs-launcher-call, .vs-launcher-new, .vs-launcher-joinbtn, .vs-react-btn, .vs-toast-join, .vs-launcher-fab {
+  transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1), background 0.15s ease, border-color 0.15s ease, color 0.15s ease, filter 0.15s ease;
+}
+.vs-island-btn:active, .vs-launcher-call:active, .vs-launcher-new:active, .vs-launcher-joinbtn:active, .vs-toast-join:active { transform: scale(0.92); }
+.vs-launcher-fab:hover { transform: scale(1.06); }
+.vs-launcher-fab:active { transform: scale(0.96); }
+
+@media (prefers-reduced-motion: reduce) {
+  .vs-launcher-panel, .vs-island-chat, .vs-roomcode, .vs-meet { animation: none; }
+  .vs-island-btn:active, .vs-launcher-fab:hover, .vs-launcher-fab:active,
+  .vs-launcher-call:active, .vs-launcher-new:active, .vs-toast-join:active { transform: none; }
 }

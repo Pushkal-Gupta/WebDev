@@ -1,0 +1,182 @@
+/* ── SceneVisualizer: continuous MANIM-style animation player ── */
+.scene-viz {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 1.1rem 1.2rem 1rem;
+}
+
+.scene-title {
+  font-family: var(--mono);
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin: 0;
+}
+
+.scene-stage {
+  width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(1200px 320px at 50% -10%, rgba(var(--accent-rgb), 0.06), transparent 70%),
+    var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.75rem;
+  overflow: hidden;
+}
+
+.scene-caption {
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-main);
+  background: var(--hover-box);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+  min-height: 2.6rem;
+  transition: color 0.3s ease-out;
+}
+
+.scene-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 0.85rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+}
+.scene-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: border-color 0.2s ease-out, color 0.2s ease-out, transform 0.15s ease-out;
+}
+.scene-controls button:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-1px); }
+.scene-controls button:active { transform: translateY(0); }
+.scene-controls .scene-play {
+  width: 52px; height: 52px;
+  background: var(--accent); color: var(--bg); border-color: var(--accent);
+  border-radius: 999px;
+  box-shadow: 0 2px 10px var(--hover-box);
+  transition: transform 0.18s ease-out, filter 0.2s ease-out;
+}
+.scene-controls .scene-play:hover { transform: scale(1.07); filter: brightness(1.08); color: var(--bg); }
+.scene-controls .scene-loop-on { border-color: var(--accent); color: var(--accent); background: var(--hover-box); }
+
+.scene-track-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 220px;
+}
+.scene-track {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+.scene-track input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  cursor: pointer;
+  position: relative;
+  z-index: 2;
+}
+.scene-beat-tick {
+  position: absolute !important;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px !important;
+  height: 8px !important;
+  padding: 0;
+  border-radius: 999px !important;
+  background: var(--hue-sky) !important;
+  border: 1px solid var(--bg) !important;
+  z-index: 1;
+  cursor: pointer;
+}
+.scene-beat-tick:hover { background: var(--accent) !important; transform: translate(-50%, -50%) scale(1.3); }
+.scene-time {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.scene-speeds {
+  display: inline-flex;
+  gap: 0.2rem;
+  padding: 2px;
+  background: var(--hover-box);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.scene-controls .scene-speed {
+  width: auto; height: auto;
+  padding: 0.28rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  border-radius: 4px;
+}
+.scene-controls .scene-speed:hover { color: var(--text-main); transform: none; }
+.scene-controls .scene-speed.active { background: var(--accent); color: var(--bg); font-weight: 700; }
+
+/* Secondary (de-emphasized) step-by-step under the animation. */
+.viz-secondary {
+  margin-top: 0.9rem;
+  border: 1px dashed var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  opacity: 0.9;
+}
+.viz-secondary > summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 0.55rem 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.viz-secondary > summary::-webkit-details-marker { display: none; }
+.viz-secondary > summary::before { content: '▸'; font-size: 0.7rem; transition: transform 0.2s ease-out; }
+.viz-secondary[open] > summary::before { transform: rotate(90deg); }
+.viz-secondary > summary:hover { color: var(--accent); }
+.viz-secondary .viz { border: none; background: transparent; padding: 0.3rem 0.6rem 0.7rem; margin: 0; }
+.viz-secondary .viz-title { display: none; }
+
+@media (max-width: 920px) {
+  .scene-stage svg { max-height: 52vh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scene-caption { transition: none !important; }
+  .scene-controls button, .scene-controls .scene-play { transition: none !important; }
+}

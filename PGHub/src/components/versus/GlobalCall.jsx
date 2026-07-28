@@ -26,6 +26,7 @@ export default function GlobalCall({ session }) {
   const [enabled, setEnabled] = useState(callsEnabled());
   const [fabShown, setFabShown] = useState(launcherVisible());
   const [pos, setPos] = useState(() => { try { return JSON.parse(localStorage.getItem('pg_launcher_pos') || 'null'); } catch { return null; } });
+  const [dragging, setDragging] = useState(false);
   const dragRef = useRef(null);
   const movedRef = useRef(false);
 
@@ -48,7 +49,7 @@ export default function GlobalCall({ session }) {
     let latest = origin;
     const move = (ev) => {
       const dx = ev.clientX - start.x, dy = ev.clientY - start.y;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) movedRef.current = true;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) { movedRef.current = true; setDragging(true); }
       const w = el.offsetWidth, h = el.offsetHeight;
       latest = {
         x: Math.min(Math.max(6, origin.x + dx), window.innerWidth - w - 6),
@@ -59,7 +60,14 @@ export default function GlobalCall({ session }) {
     const up = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
-      if (movedRef.current) { try { localStorage.setItem('pg_launcher_pos', JSON.stringify(latest)); } catch { /* private */ } }
+      setDragging(false);
+      if (movedRef.current) {
+        // Snap to the nearest side edge (AssistiveTouch-style); keep the vertical position.
+        const w = el.offsetWidth;
+        latest = { x: (latest.x + w / 2 < window.innerWidth / 2) ? 6 : window.innerWidth - w - 6, y: latest.y };
+        setPos(latest);
+        try { localStorage.setItem('pg_launcher_pos', JSON.stringify(latest)); } catch { /* private */ }
+      }
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
@@ -144,7 +152,7 @@ export default function GlobalCall({ session }) {
     <>
       {/* Always-available launcher — on every page, draggable, hideable */}
       {!active && !incoming && fabShown ? (
-        <div className="vs-launcher" ref={dragRef} style={pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined}>
+        <div className={`vs-launcher ${dragging ? 'dragging' : ''}`} ref={dragRef} style={pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined}>
           {launcherOpen ? (
             <div className="vs-launcher-panel">
               <div className="vs-launcher-head">

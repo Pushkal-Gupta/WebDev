@@ -38,7 +38,7 @@ const ICE = {
 // ICE candidates that arrive early are buffered, and a 25s watchdog fails the call cleanly
 // instead of hanging on "Connecting…". Whoever starts a call/text pings the other side.
 export default function VideoCall({ code, userId, myName = 'You', oppName = 'Rival', autoStart = null, onEnded }) {
-  const [pos, setPos] = useState(null);            // {x,y} once dragged; null = default anchor
+  const [pos, setPos] = useState(() => { try { return JSON.parse(localStorage.getItem('pg_call_pos') || 'null'); } catch { return null; } }); // {x,y}; persists where you drop it
   const [call, setCall] = useState('idle');        // idle | ringing | incoming | connecting | live
   const [wantVideo, setWantVideo] = useState(true);
   const [incoming, setIncoming] = useState(null);  // {from,name,video}
@@ -378,17 +378,29 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
     const start = { x: e.clientX, y: e.clientY };
     const base = dragRef.current.getBoundingClientRect();
     const origin = pos || { x: base.left, y: base.top };
+    let latest = origin;
     const move = (ev) => {
       const w = dragRef.current?.offsetWidth || base.width || 0;
       const h = dragRef.current?.offsetHeight || base.height || 0;
       const maxX = Math.max(6, window.innerWidth - w - 6);
       const maxY = Math.max(70, window.innerHeight - h - 6);
-      const x = Math.min(maxX, Math.max(6, origin.x + ev.clientX - start.x));
-      const y = Math.min(maxY, Math.max(70, origin.y + ev.clientY - start.y));
-      setPos({ x, y });
+      latest = {
+        x: Math.min(maxX, Math.max(6, origin.x + ev.clientX - start.x)),
+        y: Math.min(maxY, Math.max(70, origin.y + ev.clientY - start.y)),
+      };
+      setPos(latest);
     };
-    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); };
+    const up = () => {
+      window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up);
+      try { localStorage.setItem('pg_call_pos', JSON.stringify(latest)); } catch { /* private */ }
+    };
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  };
+
+  // Double-click the grip to reset the call window to its default place + size.
+  const resetLayout = () => {
+    setPos(null); setDims(DEFAULT_DIMS);
+    try { localStorage.removeItem('pg_call_pos'); localStorage.removeItem('pg_call_dims'); } catch { /* private */ }
   };
 
   // If the window resizes (or the island grew) such that it now sits off-screen,
@@ -488,7 +500,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
 
       {/* one movable island — start buttons when idle, call controls when live */}
       <div className="vs-island-bar">
-        <button className="vs-island-grip" onPointerDown={onDragStart} title="Drag"><GripVertical size={15} /></button>
+        <button className="vs-island-grip" onPointerDown={onDragStart} onDoubleClick={resetLayout} title="Drag to move · double-click to reset"><GripVertical size={15} /></button>
         {inCall ? (
           <>
             <button className={`vs-island-btn ${micOn ? '' : 'off'} ${micOn && speaking ? 'talking' : ''}`} onClick={toggleMic} title={micOn ? 'Mute' : 'Unmute'}>{micOn ? <Mic size={16} /> : <MicOff size={16} />}</button>

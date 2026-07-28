@@ -3,6 +3,7 @@ import AlgoVisualizer, {
   ArrayBarRenderer, GraphRenderer, SlidingWindowRenderer,
   NumberGridRenderer, TreeRenderer,
 } from './learn/AlgoVisualizer';
+import SceneVisualizer from './learn/SceneVisualizer';
 import { RICH_CONTENT } from '../content/problemContent';
 import { buildGenericTestCaseFrames } from './genericTestCaseViz';
 
@@ -80,14 +81,35 @@ export default function ProblemVisualizer({ problem, vizAnchor = null }) {
   }
 
   const Renderer = RENDERERS[viz.renderer] || ArrayBarRenderer;
+  // A `scene` (continuous MANIM-style animation) can accompany the frame
+  // stepper. When present it leads; the step-by-step stays available but
+  // de-emphasized in a collapsed panel below (never removed — the user still
+  // wants it there).
+  const scene = baseViz?.scene && Array.isArray(baseViz.scene.objects) ? baseViz.scene : null;
+
+  const stepper = (
+    <AlgoVisualizer
+      title={viz.title}
+      frames={viz.frames}
+      render={(frame) => <Renderer frame={frame} />}
+    />
+  );
+
+  if (scene) {
+    return (
+      <div className="viz-compact" style={{ padding: '0.5rem' }}>
+        <SceneVisualizer scene={scene} title={viz.title} />
+        <details className="viz-secondary">
+          <summary>Step-by-step walkthrough</summary>
+          {stepper}
+        </details>
+      </div>
+    );
+  }
 
   return (
     <div className="viz-compact" style={{ padding: '0.5rem' }}>
-      <AlgoVisualizer
-        title={viz.title}
-        frames={viz.frames}
-        render={(frame) => <Renderer frame={frame} />}
-      />
+      {stepper}
     </div>
   );
 }
