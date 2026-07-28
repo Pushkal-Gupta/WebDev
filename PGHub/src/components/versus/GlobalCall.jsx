@@ -1,7 +1,7 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Phone, Video as VideoIcon, X, Users, PhoneCall, Hash, Plus, Check, Copy } from 'lucide-react';
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { Phone, Video as VideoIcon, X, Users, PhoneCall, Hash, Plus, Check, Copy, EyeOff, GripVertical } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
-import { callChannel, sendCallDecline, callsEnabled, genShortCode } from '../../lib/callSignal';
+import { callChannel, sendCallDecline, callsEnabled, genShortCode, launcherVisible, setLauncherVisible } from '../../lib/callSignal';
 import { getFriends } from '../../lib/friends';
 import VideoCall from './VideoCall';
 import '../../styles/versus.css';
@@ -24,13 +24,48 @@ export default function GlobalCall({ session }) {
   const [joinCode, setJoinCode] = useState('');
   const [copied, setCopied] = useState(false);
   const [enabled, setEnabled] = useState(callsEnabled());
+  const [fabShown, setFabShown] = useState(launcherVisible());
+  const [pos, setPos] = useState(() => { try { return JSON.parse(localStorage.getItem('pg_launcher_pos') || 'null'); } catch { return null; } });
+  const dragRef = useRef(null);
+  const movedRef = useRef(false);
 
   useEffect(() => {
-    const onSetting = () => setEnabled(callsEnabled());
+    const onSetting = () => { setEnabled(callsEnabled()); setFabShown(launcherVisible()); };
     window.addEventListener('pg:calls-setting', onSetting);
+    window.addEventListener('pg:launcher-setting', onSetting);
     window.addEventListener('storage', onSetting);
-    return () => { window.removeEventListener('pg:calls-setting', onSetting); window.removeEventListener('storage', onSetting); };
+    return () => { window.removeEventListener('pg:calls-setting', onSetting); window.removeEventListener('pg:launcher-setting', onSetting); window.removeEventListener('storage', onSetting); };
   }, []);
+
+  // Drag the floating button; movement beyond a small threshold is a drag (not a click),
+  // and the position persists. Clamped to the viewport so it can't be lost off-screen.
+  const onFabPointerDown = (e) => {
+    const el = dragRef.current; if (!el) return;
+    const base = el.getBoundingClientRect();
+    const start = { x: e.clientX, y: e.clientY };
+    const origin = pos || { x: base.left, y: base.top };
+    movedRef.current = false;
+    let latest = origin;
+    const move = (ev) => {
+      const dx = ev.clientX - start.x, dy = ev.clientY - start.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) movedRef.current = true;
+      const w = el.offsetWidth, h = el.offsetHeight;
+      latest = {
+        x: Math.min(Math.max(6, origin.x + dx), window.innerWidth - w - 6),
+        y: Math.min(Math.max(60, origin.y + dy), window.innerHeight - h - 6),
+      };
+      setPos(latest);
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      if (movedRef.current) { try { localStorage.setItem('pg_launcher_pos', JSON.stringify(latest)); } catch { /* private */ } }
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
+  const onFabClick = () => { if (movedRef.current) { movedRef.current = false; return; } setLauncherOpen((o) => !o); };
+  const hideLauncher = () => { setLauncherVisible(false); setFabShown(false); setLauncherOpen(false); window.dispatchEvent(new CustomEvent('pg:launcher-setting')); };
 
   useEffect(() => {
     if (!userId) return;
@@ -107,13 +142,14 @@ export default function GlobalCall({ session }) {
 
   return (
     <>
-      {/* Always-available launcher — on every page */}
-      {!active && !incoming ? (
-        <div className="vs-launcher">
+      {/* Always-available launcher — on every page, draggable, hideable */}
+      {!active && !incoming && fabShown ? (
+        <div className="vs-launcher" ref={dragRef} style={pos ? { left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' } : undefined}>
           {launcherOpen ? (
             <div className="vs-launcher-panel">
               <div className="vs-launcher-head">
                 <PhoneCall size={14} /> Call
+                <button className="vs-launcher-hide" onClick={hideLauncher} title="Hide the call button (re-enable in Friends → Calls)"><EyeOff size={13} /> Hide</button>
                 <button className="vs-launcher-x" onClick={() => setLauncherOpen(false)} aria-label="Close"><X size={14} /></button>
               </div>
 
@@ -150,7 +186,7 @@ export default function GlobalCall({ session }) {
               </div>
             </div>
           ) : null}
-          <button className={`vs-launcher-fab ${launcherOpen ? 'on' : ''}`} onClick={() => setLauncherOpen((o) => !o)} title="Call" aria-label="Call">
+          <button className={`vs-launcher-fab ${launcherOpen ? 'on' : ''}`} onPointerDown={onFabPointerDown} onClick={onFabClick} title="Call (drag to move)" aria-label="Call">
             <PhoneCall size={20} />
           </button>
         </div>

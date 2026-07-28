@@ -503,6 +503,29 @@
   margin-top: -1px;
 }
 
+/* ── Sliding pointer tokens ──
+   Each named pointer is one persistent element that glides horizontally to its
+   cell every frame (the MANIM "tracker moves along the number line" motion),
+   rather than remounting. Lanes stack multiple pointers without overlap. */
+.viz-pointer-layer {
+  position: relative;
+  width: 100%;
+  min-height: 28px;
+}
+.viz-pointer-moving {
+  position: absolute;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  will-change: left, top;
+  transition: left 0.44s cubic-bezier(0.34, 1.08, 0.5, 1), top 0.3s ease-out;
+}
+.viz-pointer-moving .viz-pointer-label {
+  box-shadow: 0 0 6px rgba(var(--accent-rgb), 0.35);
+}
+
 /* ── Stat chip (window sum / best palindrome so far / etc.) ── */
 .viz-chip-row {
   display: flex;
@@ -978,6 +1001,7 @@
   .viz-traversal-chip,
   .viz-node-ring,
   .viz-node-pulse { animation: none !important; }
+  .viz-pointer-moving { transition: none !important; }
   .viz-progress-bar-fill,
   .viz-case,
   .viz-case-underline,

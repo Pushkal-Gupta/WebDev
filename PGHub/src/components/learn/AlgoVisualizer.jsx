@@ -276,7 +276,12 @@ export default function AlgoVisualizer({
           <div className="viz-workspace">
             <div className="viz-canvas-col">
               <div className="viz-stage">
-                <div key={`${tabIdx}-${safeIdx}`} className="viz-stage-frame">
+                {/* Stable key across steps (only remounts on case switch) so the
+                   renderer's elements persist and CSS-transition between frames —
+                   bars tween height, cells fade roles, pointers slide. Remounting
+                   per-step (the old behavior) hard-cut every frame and killed the
+                   animation. */}
+                <div key={tabIdx} className="viz-stage-frame">
                   {render(frame, safeIdx)}
                 </div>
               </div>
@@ -410,37 +415,44 @@ export default function AlgoVisualizer({
 // equal fraction of the available width, so the whole array shrinks to fit the
 // container (no fixed px width => no horizontal scrollbar) and pointers / arcs /
 // sub-rows stay perfectly in column with the bars or cells above/below them.
-function PointerLabels({ pointers, count, gap }) {
+// Fixed lane order so a given pointer name keeps the same vertical track across
+// frames — left-side pointers up top, right-side lower — and never jitters.
+const POINTER_LANE_ORDER = ['lo', 'l', 'left', 'low', 'i', 'p', 'mid', 'pivot', 'cur', 'k', 'j', 'r', 'right', 'hi', 'high', 'match'];
+function laneRank(label) {
+  const r = POINTER_LANE_ORDER.indexOf(String(label).toLowerCase());
+  return r === -1 ? POINTER_LANE_ORDER.length : r;
+}
+
+// Sliding pointers: each distinct pointer NAME is one persistent token that
+// slides horizontally (CSS `left` transition) to its cell each frame — the
+// MANIM "tracker moves along the line" motion — instead of remounting per step.
+function PointerLabels({ pointers, count }) {
   if (!pointers || count === 0) return null;
-  // Stack identical-cell labels vertically so they don't overlap.
-  const byIdx = {};
+  const tokens = [];
   Object.entries(pointers).forEach(([k, v]) => {
     const idx = Number(k);
     if (!Number.isFinite(idx) || idx < 0 || idx >= count) return;
-    const labels = Array.isArray(v) ? v : [v];
-    byIdx[idx] = labels;
+    (Array.isArray(v) ? v : [v]).forEach((label) => {
+      if (label != null && String(label).length) tokens.push({ label: String(label), idx });
+    });
   });
-  if (Object.keys(byIdx).length === 0) return null;
+  if (!tokens.length) return null;
+  // One lane per distinct label, ordered by priority so lanes stay stable.
+  const distinct = [...new Set(tokens.map((t) => t.label))].sort((a, b) => laneRank(a) - laneRank(b) || a.localeCompare(b));
+  const lane = Object.fromEntries(distinct.map((l, i) => [l, i]));
+  const ROW_H = 21;
   return (
-    <div
-      className="viz-pointer-row"
-      style={{ display: 'grid', gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))`, gap: `${gap}px` }}
-    >
-      {Array.from({ length: count }).map((_, idx) => {
-        const labels = byIdx[idx];
-        return (
-          <div key={idx} className="viz-pointer-slot">
-            {labels && (
-              <div className="viz-pointer-stack">
-                {labels.map((label, li) => (
-                  <span key={li} className="viz-pointer-label">{label}</span>
-                ))}
-                <span className="viz-pointer-arrow" aria-hidden="true" />
-              </div>
-            )}
-          </div>
-        );
-      })}
+    <div className="viz-pointer-layer" style={{ height: distinct.length * ROW_H + 6 }}>
+      {tokens.map((t) => (
+        <div
+          key={t.label}
+          className="viz-pointer-moving"
+          style={{ left: `${((t.idx + 0.5) / count) * 100}%`, top: `${lane[t.label] * ROW_H}px` }}
+        >
+          <span className="viz-pointer-label">{t.label}</span>
+          <span className="viz-pointer-arrow" aria-hidden="true" />
+        </div>
+      ))}
     </div>
   );
 }

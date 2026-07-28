@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { Video, VideoOff, Mic, MicOff, Phone, PhoneOff, MessageSquare, Send, X, GripVertical, Maximize2, Minimize2, ScreenShare, ScreenShareOff, Wand2 } from 'lucide-react';
+import { Video, VideoOff, Mic, MicOff, Phone, PhoneOff, MessageSquare, Send, X, GripVertical, Maximize2, ScreenShare, ScreenShareOff, Wand2 } from 'lucide-react';
 import { startVirtualBg } from '../../lib/virtualBg';
 
-const SIZES = ['sm', 'md', 'lg'];
+const MIN_W = 200, MAX_W = 760, MIN_H = 130, MAX_H = 540;
+const DEFAULT_DIMS = { w: 320, h: 214 };
+function loadDims() {
+  try { const d = JSON.parse(localStorage.getItem('pg_call_dims') || 'null'); if (d && d.w && d.h) return d; } catch { /* ignore */ }
+  return DEFAULT_DIMS;
+}
 import { supabase } from '../../lib/supabase';
 import { friendlyError } from '../../lib/errors';
 import '../../styles/versus.css';
@@ -45,7 +50,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const [unread, setUnread] = useState(0);
   const [err, setErr] = useState('');
   const [netState, setNetState] = useState('');    // live ICE connection state readout
-  const [size, setSize] = useState('md');          // call window size: sm | md | lg
+  const [dims, setDims] = useState(loadDims);      // free-resizable call window {w,h}
   const [speaking, setSpeaking] = useState(false); // local voice activity (mic pulse)
   const [remoteSpeaking, setRemoteSpeaking] = useState(false);
   const [sharing, setSharing] = useState(false);   // screen share active
@@ -57,7 +62,27 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const relayFound = useRef(false);                // did we ever gather a TURN relay candidate?
   const micOnRef = useRef(true);
   micOnRef.current = micOn;
-  const cycleSize = () => setSize((s) => SIZES[(SIZES.indexOf(s) + 1) % SIZES.length]);
+  // Free drag-to-resize (like the Meet screen-share window): drag the corner handle to any
+  // size within sane bounds; the dimensions persist.
+  const onResizeStart = (e) => {
+    e.preventDefault(); e.stopPropagation();
+    const start = { x: e.clientX, y: e.clientY, w: dims.w, h: dims.h };
+    let latest = dims;
+    const move = (ev) => {
+      latest = {
+        w: Math.round(Math.min(MAX_W, Math.max(MIN_W, start.w + (ev.clientX - start.x)))),
+        h: Math.round(Math.min(MAX_H, Math.max(MIN_H, start.h + (ev.clientY - start.y)))),
+      };
+      setDims(latest);
+    };
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      try { localStorage.setItem('pg_call_dims', JSON.stringify(latest)); } catch { /* private */ }
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  };
   const toggleFullscreen = () => {
     const el = stageEl.current; if (!el) return;
     if (document.fullscreenElement) document.exitFullscreen?.();
@@ -428,16 +453,17 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
         </div>
       ) : null}
 
-      {/* call window (Google-Meet style) */}
+      {/* call window (Google-Meet style) — free drag-to-resize via the corner handle */}
       {inCall ? (
-        <div className={`vs-meet sz-${size} ${wantVideo ? '' : 'audio'}`}>
-          <div className={`vs-meet-stage ${remoteSpeaking ? 'speaking' : ''}`} ref={stageEl}>
+        <div className={`vs-meet ${wantVideo ? '' : 'audio'}`} style={{ width: dims.w }}>
+          <div className={`vs-meet-stage ${remoteSpeaking ? 'speaking' : ''}`} ref={stageEl} style={{ height: dims.h }}>
             {wantVideo ? <video ref={remoteVidEl} className="vs-meet-remote" autoPlay playsInline muted /> : <div className={`vs-meet-avatar ${remoteSpeaking ? 'speaking' : ''}`}><span>{(oppName || 'R').slice(0, 1).toUpperCase()}</span></div>}
             {/* single audio sink for the remote peer — works for both video and voice-only calls */}
             <audio ref={remoteAudEl} autoPlay />
             <div className="vs-meet-name">{oppName}</div>
             {wantVideo ? <video ref={localVidEl} className="vs-meet-local" autoPlay playsInline muted /> : null}
             {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : (netState === 'checking' ? 'Connecting… (finding a path)' : 'Connecting…')}</div> : null}
+            <div className="vs-meet-resize" onPointerDown={onResizeStart} title="Drag to resize" />
           </div>
         </div>
       ) : null}
@@ -469,7 +495,6 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
             {wantVideo ? <button className={`vs-island-btn ${camOn ? '' : 'off'}`} onClick={toggleCam} title={camOn ? 'Camera off' : 'Camera on'}>{camOn ? <Video size={16} /> : <VideoOff size={16} />}</button> : null}
             {wantVideo ? <button className={`vs-island-btn ${bg !== 'none' ? 'on' : ''}`} onClick={toggleBg} disabled={bgBusy} title={bg === 'none' ? 'Blur background' : 'Turn off background'}><Wand2 size={15} /></button> : null}
             <button className={`vs-island-btn ${sharing ? 'on' : ''}`} onClick={toggleScreenShare} title={sharing ? 'Stop sharing' : 'Share screen'}>{sharing ? <ScreenShareOff size={15} /> : <ScreenShare size={15} />}</button>
-            <button className="vs-island-btn" onClick={cycleSize} title={`Resize (${size.toUpperCase()})`}>{size === 'lg' ? <Minimize2 size={15} /> : <Maximize2 size={15} />}</button>
             {wantVideo ? <button className="vs-island-btn" onClick={toggleFullscreen} title="Fullscreen"><Maximize2 size={15} /></button> : null}
             <button className="vs-island-btn end" onClick={() => teardown(true)} title="Hang up"><PhoneOff size={16} /></button>
           </>

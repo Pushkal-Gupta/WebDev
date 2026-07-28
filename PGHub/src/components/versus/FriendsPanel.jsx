@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Users, Search, UserPlus, Check, X, Swords, Clock3, MessageSquare, Send, ArrowLeft, Phone, Video, PhoneCall, PhoneOff } from 'lucide-react';
+import { Users, Search, UserPlus, Check, X, Swords, Clock3, MessageSquare, Send, ArrowLeft, Phone, Video, PhoneCall, PhoneOff, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { searchUsers, getFriends, getIncomingRequests, getOutgoingRequests, sendFriendRequest, respondFriendRequest, getThread, sendMessage, dmChannel } from '../../lib/friends';
-import { callsEnabled, setCallsEnabled } from '../../lib/callSignal';
+import { callsEnabled, setCallsEnabled, launcherVisible, setLauncherVisible } from '../../lib/callSignal';
 
 function Avatar({ name, url }) {
   if (url) return <img className="vs-fr-av" src={url} alt="" />;
@@ -24,6 +24,8 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
   const scrollRef = useRef(null);
   const [callsOn, setCallsOn] = useState(callsEnabled());
   const toggleCalls = () => { const next = !callsOn; setCallsEnabled(next); setCallsOn(next); window.dispatchEvent(new CustomEvent('pg:calls-setting')); };
+  const [fabOn, setFabOn] = useState(launcherVisible());
+  const toggleFab = () => { const next = !fabOn; setLauncherVisible(next); setFabOn(next); window.dispatchEvent(new CustomEvent('pg:launcher-setting')); };
 
   const reload = useCallback(() => {
     if (!user) return;
@@ -106,6 +108,11 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
         <button className={`vs-fr-calltoggle ${callsOn ? 'on' : ''}`} onClick={toggleCalls} title={callsOn ? 'Calls enabled — click to disable' : 'Calls disabled — click to enable'}>
           {callsOn ? <PhoneCall size={13} /> : <PhoneOff size={13} />} Calls {callsOn ? 'on' : 'off'}
         </button>
+        {callsOn ? (
+          <button className={`vs-fr-calltoggle ${fabOn ? 'on' : ''}`} onClick={toggleFab} title={fabOn ? 'Call button shown — click to hide' : 'Call button hidden — click to show'}>
+            {fabOn ? <Eye size={13} /> : <EyeOff size={13} />} Button
+          </button>
+        ) : null}
       </div>
 
       <form className="vs-fr-search" onSubmit={runSearch}>

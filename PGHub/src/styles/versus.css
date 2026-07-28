@@ -138,13 +138,17 @@
 .vs-fr-calltoggle { margin-left: auto; display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.55rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.66rem; font-weight: 700; letter-spacing: 0; text-transform: none; cursor: pointer; }
 .vs-fr-calltoggle svg { color: currentColor; }
 .vs-fr-calltoggle.on { color: var(--easy); border-color: color-mix(in srgb, var(--easy) 40%, transparent); background: color-mix(in srgb, var(--easy) 12%, transparent); }
-.vs-fr-head { display: flex; }
+.vs-fr-head { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.vs-fr-calltoggle + .vs-fr-calltoggle { margin-left: 0; }
 .vs-call-toast { border-color: color-mix(in srgb, var(--easy) 45%, var(--border)); }
 
 /* Always-available call launcher (bottom-left, on every page) */
 .vs-launcher { position: fixed; left: 1.1rem; bottom: 1.1rem; z-index: 1100; display: flex; flex-direction: column; align-items: flex-start; gap: 0.6rem; }
-.vs-launcher-fab { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); cursor: pointer; box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--accent) 60%, transparent); transition: transform 0.15s, filter 0.15s; }
-.vs-launcher-fab:hover { transform: translateY(-2px); filter: brightness(1.06); }
+.vs-launcher-fab { display: inline-flex; align-items: center; justify-content: center; width: 3rem; height: 3rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); cursor: grab; touch-action: none; box-shadow: 0 12px 30px -8px color-mix(in srgb, var(--accent) 60%, transparent); transition: filter 0.15s; }
+.vs-launcher-fab:hover { filter: brightness(1.06); }
+.vs-launcher-fab:active { cursor: grabbing; }
+.vs-launcher-hide { display: inline-flex; align-items: center; gap: 0.25rem; margin-left: auto; padding: 0.15rem 0.45rem; border-radius: 7px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.66rem; font-weight: 600; cursor: pointer; }
+.vs-launcher-hide:hover { color: var(--hard); border-color: color-mix(in srgb, var(--hard) 40%, transparent); }
 .vs-launcher-fab.on { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); }
 .vs-launcher-panel { width: 250px; max-height: 60vh; display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; box-shadow: 0 16px 44px -18px rgba(0,0,0,0.6); }
 .vs-launcher-head { display: flex; align-items: center; gap: 0.4rem; padding: 0.7rem 0.85rem; border-bottom: 1px solid var(--border); font-size: 0.8rem; font-weight: 700; color: var(--text-main); }
@@ -387,15 +391,12 @@
 .vs-ring-decline { background: var(--hard); color: #fff; }
 
 /* Google-Meet-style call window */
-.vs-meet { width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 18px 48px -18px rgba(0,0,0,0.6); transition: width 0.18s ease; }
-.vs-meet.sz-sm { width: 232px; }
-.vs-meet.sz-md { width: 320px; }
-.vs-meet.sz-lg { width: 460px; }
-.vs-meet-stage { position: relative; width: 100%; height: 200px; background: #0a0d0f; transition: height 0.18s ease; }
-.vs-meet.sz-sm .vs-meet-stage { height: 150px; }
-.vs-meet.sz-md .vs-meet-stage { height: 214px; }
-.vs-meet.sz-lg .vs-meet-stage { height: 300px; }
-.vs-meet-stage:fullscreen { height: 100vh; width: 100vw; background: #000; }
+.vs-meet { width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 18px 48px -18px rgba(0,0,0,0.6); }
+.vs-meet-stage { position: relative; width: 100%; height: 214px; background: #0a0d0f; }
+/* Free drag-to-resize handle (bottom-right corner, Meet-style) */
+.vs-meet-resize { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; cursor: nwse-resize; touch-action: none; z-index: 4; background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, var(--accent) 75%, transparent) 50%); border-bottom-right-radius: 4px; }
+.vs-meet-stage:fullscreen { height: 100vh !important; width: 100vw; background: #000; }
+.vs-meet-stage:fullscreen .vs-meet-resize { display: none; }
 .vs-meet-stage:fullscreen .vs-meet-remote { object-fit: contain; }
 /* Voice-activity: glow the remote video / pulse the avatar when the rival talks */
 .vs-meet-stage.speaking { box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 22px -4px color-mix(in srgb, var(--accent) 60%, transparent); }
@@ -418,8 +419,8 @@
 .vs-meet-remote { width: 100%; height: 100%; object-fit: cover; display: block; }
 .vs-meet-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 22%, #0a0d0f), #0a0d0f); }
 .vs-meet-avatar span { width: 4.5rem; height: 4.5rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; }
-.vs-meet-name { position: absolute; left: 8px; bottom: 8px; background: rgba(0,0,0,0.5); color: #fff; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
-.vs-meet-local { position: absolute; right: 8px; bottom: 8px; width: 84px; height: 60px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--accent); background: #111; }
+.vs-meet-name { position: absolute; left: 8px; top: 8px; background: rgba(0,0,0,0.5); color: #fff; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
+.vs-meet-local { position: absolute; left: 8px; bottom: 8px; width: 84px; height: 60px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--accent); background: #111; }
 .vs-meet-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.4); }
 .vs-meet-controls { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; }
 .vs-meet-ctl { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; }
