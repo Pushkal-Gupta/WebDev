@@ -4,6 +4,7 @@ import AlgoVisualizer, {
   NumberGridRenderer, TreeRenderer,
 } from './learn/AlgoVisualizer';
 import SceneVisualizer from './learn/SceneVisualizer';
+import { framesToScene } from './learn/sceneGenerators';
 import { RICH_CONTENT } from '../content/problemContent';
 import { buildGenericTestCaseFrames } from './genericTestCaseViz';
 
@@ -81,11 +82,13 @@ export default function ProblemVisualizer({ problem, vizAnchor = null }) {
   }
 
   const Renderer = RENDERERS[viz.renderer] || ArrayBarRenderer;
-  // A `scene` (continuous MANIM-style animation) can accompany the frame
-  // stepper. When present it leads; the step-by-step stays available but
-  // de-emphasized in a collapsed panel below (never removed — the user still
-  // wants it there).
-  const scene = baseViz?.scene && Array.isArray(baseViz.scene.objects) ? baseViz.scene : null;
+  // A `scene` (continuous MANIM-style animation) leads; the step-by-step stays
+  // available but de-emphasized in a collapsed panel below (never removed — the
+  // user still wants it there). A hand-authored scene wins; otherwise we compile
+  // one automatically from the frame list so every array/window viz animates.
+  const scene = (baseViz?.scene && Array.isArray(baseViz.scene.objects) && baseViz.scene.objects.length)
+    ? baseViz.scene
+    : framesToScene(viz);
 
   const stepper = (
     <AlgoVisualizer
