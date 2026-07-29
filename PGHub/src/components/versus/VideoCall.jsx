@@ -51,6 +51,7 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const [err, setErr] = useState('');
   const [netState, setNetState] = useState('');    // live ICE connection state readout
   const [dims, setDims] = useState(loadDims);      // free-resizable call window {w,h}
+  const [localBox, setLocalBox] = useState(() => { try { return JSON.parse(localStorage.getItem('pg_call_localbox') || 'null'); } catch { return null; } }); // draggable+resizable self-view
   const [speaking, setSpeaking] = useState(false); // local voice activity (mic pulse)
   const [remoteSpeaking, setRemoteSpeaking] = useState(false);
   const [sharing, setSharing] = useState(false);   // screen share active
@@ -399,8 +400,47 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
 
   // Double-click the grip to reset the call window to its default place + size.
   const resetLayout = () => {
-    setPos(null); setDims(DEFAULT_DIMS);
-    try { localStorage.removeItem('pg_call_pos'); localStorage.removeItem('pg_call_dims'); } catch { /* private */ }
+    setPos(null); setDims(DEFAULT_DIMS); setLocalBox(null);
+    try { localStorage.removeItem('pg_call_pos'); localStorage.removeItem('pg_call_dims'); localStorage.removeItem('pg_call_localbox'); } catch { /* private */ }
+  };
+
+  // Self-view ("You") picture-in-picture: draggable anywhere in the call window and
+  // resizable via its own corner — fully under the user's control, position+size persist.
+  const localDims = () => {
+    const w = Math.round(localBox?.w || Math.min(150, Math.round(dims.w * 0.42)));
+    const h = Math.round(w * 0.72);
+    let x = localBox?.x ?? (dims.w - w - 10);
+    let y = localBox?.y ?? 10;
+    x = Math.min(Math.max(4, x), Math.max(4, dims.w - w - 4));
+    y = Math.min(Math.max(4, y), Math.max(4, dims.h - h - 4));
+    return { x, y, w, h };
+  };
+  const onLocalDrag = (e) => {
+    e.stopPropagation();
+    const b = localDims();
+    const start = { x: e.clientX, y: e.clientY };
+    let latest = { x: b.x, y: b.y, w: b.w };
+    const move = (ev) => {
+      const x = Math.min(dims.w - b.w - 4, Math.max(4, b.x + ev.clientX - start.x));
+      const y = Math.min(dims.h - b.h - 4, Math.max(4, b.y + ev.clientY - start.y));
+      latest = { x, y, w: b.w };
+      setLocalBox(latest);
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); try { localStorage.setItem('pg_call_localbox', JSON.stringify(latest)); } catch { /* private */ } };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
+  };
+  const onLocalResize = (e) => {
+    e.stopPropagation(); e.preventDefault();
+    const b = localDims();
+    const start = { x: e.clientX };
+    let latest = { x: b.x, y: b.y, w: b.w };
+    const move = (ev) => {
+      const nw = Math.min(Math.min(340, dims.w - b.x - 4), Math.max(70, b.w + ev.clientX - start.x));
+      latest = { x: b.x, y: b.y, w: nw };
+      setLocalBox(latest);
+    };
+    const up = () => { window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', up); try { localStorage.setItem('pg_call_localbox', JSON.stringify(latest)); } catch { /* private */ } };
+    window.addEventListener('pointermove', move); window.addEventListener('pointerup', up);
   };
 
   // If the window resizes (or the island grew) such that it now sits off-screen,
@@ -473,9 +513,15 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
             {/* single audio sink for the remote peer — works for both video and voice-only calls */}
             <audio ref={remoteAudEl} autoPlay />
             <div className="vs-meet-name">{oppName}</div>
-            {wantVideo ? <video ref={localVidEl} className="vs-meet-local" autoPlay playsInline muted /> : null}
+            {wantVideo ? (() => { const lb = localDims(); return (
+              <div className="vs-meet-local" style={{ left: lb.x, top: lb.y, width: lb.w, height: lb.h }} onPointerDown={onLocalDrag} title="Drag to move · resize from the corner">
+                <video ref={localVidEl} autoPlay playsInline muted />
+                <span className="vs-meet-local-tag">You</span>
+                <div className="vs-meet-local-resize" onPointerDown={onLocalResize} title="Resize your view" />
+              </div>
+            ); })() : null}
             {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : (netState === 'checking' ? 'Connecting… (finding a path)' : 'Connecting…')}</div> : null}
-            <div className="vs-meet-resize" onPointerDown={onResizeStart} title="Drag to resize" />
+            <div className="vs-meet-resize" onPointerDown={onResizeStart} title="Drag to resize the window"><span /></div>
           </div>
         </div>
       ) : null}

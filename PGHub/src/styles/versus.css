@@ -395,7 +395,8 @@
 .vs-meet { width: 320px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 18px 48px -18px rgba(0,0,0,0.6); }
 .vs-meet-stage { position: relative; width: 100%; height: 214px; background: #0a0d0f; }
 /* Free drag-to-resize handle (bottom-right corner, Meet-style) */
-.vs-meet-resize { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; cursor: nwse-resize; touch-action: none; z-index: 4; background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, var(--accent) 75%, transparent) 50%); border-bottom-right-radius: 4px; }
+.vs-meet-resize { position: absolute; right: 0; bottom: 0; width: 34px; height: 34px; cursor: nwse-resize; touch-action: none; z-index: 6; }
+.vs-meet-resize span { position: absolute; right: 6px; bottom: 6px; width: 15px; height: 15px; border-right: 3px solid rgba(255, 255, 255, 0.92); border-bottom: 3px solid rgba(255, 255, 255, 0.92); border-bottom-right-radius: 4px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7)); pointer-events: none; }
 .vs-meet-stage:fullscreen { height: 100vh !important; width: 100vw; background: #000; }
 .vs-meet-stage:fullscreen .vs-meet-resize { display: none; }
 .vs-meet-stage:fullscreen .vs-meet-remote { object-fit: contain; }
@@ -421,7 +422,11 @@
 .vs-meet-avatar { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 22%, #0a0d0f), #0a0d0f); }
 .vs-meet-avatar span { width: 4.5rem; height: 4.5rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 800; }
 .vs-meet-name { position: absolute; left: 8px; top: 8px; background: rgba(0,0,0,0.5); color: #fff; font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 6px; }
-.vs-meet-local { position: absolute; left: 8px; bottom: 8px; width: 84px; height: 60px; object-fit: cover; border-radius: 8px; border: 1.5px solid var(--accent); background: #111; }
+.vs-meet-local { position: absolute; border-radius: 10px; overflow: hidden; border: 2px solid var(--accent); background: #111; cursor: grab; z-index: 5; box-shadow: 0 4px 14px -5px rgba(0, 0, 0, 0.65); touch-action: none; }
+.vs-meet-local:active { cursor: grabbing; }
+.vs-meet-local video { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+.vs-meet-local-tag { position: absolute; left: 5px; bottom: 5px; font-size: 0.6rem; font-weight: 700; color: #fff; background: rgba(0, 0, 0, 0.5); padding: 0.05rem 0.35rem; border-radius: 5px; pointer-events: none; }
+.vs-meet-local-resize { position: absolute; right: 0; bottom: 0; width: 20px; height: 20px; cursor: nwse-resize; touch-action: none; z-index: 6; background: linear-gradient(135deg, transparent 42%, rgba(255, 255, 255, 0.9) 42%, rgba(255, 255, 255, 0.9) 60%, transparent 60%); }
 .vs-meet-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.4); }
 .vs-meet-controls { display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.6rem; }
 .vs-meet-ctl { display: inline-flex; align-items: center; justify-content: center; width: 2.4rem; height: 2.4rem; border-radius: 999px; background: var(--bg); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; }
@@ -592,7 +597,7 @@
 .vs-launcher-panel { border-radius: 18px; transform-origin: bottom left; animation: vs-pop 0.26s cubic-bezier(0.22, 1, 0.36, 1); }
 .vs-island-chat { border-radius: 18px; animation: vs-pop 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
 .vs-roomcode { border-radius: 14px; animation: vs-pop 0.24s cubic-bezier(0.22, 1, 0.36, 1); }
-.vs-meet { border-radius: 18px; animation: vs-pop 0.26s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 26px 64px -24px rgba(0, 0, 0, 0.6); }
+.vs-meet { border-radius: 14px; animation: vs-pop 0.26s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2), 0 26px 64px -24px rgba(0, 0, 0, 0.6); }
 .vs-island-bar { border-radius: 999px; }
 @keyframes vs-pop { from { opacity: 0; transform: scale(0.94) translateY(6px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
@@ -613,3 +618,8 @@
   .vs-island-btn:active, .vs-launcher-fab:hover, .vs-launcher-fab:active,
   .vs-launcher-call:active, .vs-launcher-new:active, .vs-toast-join:active { transform: none; }
 }
+
+/* Message notification toasts (top-right, clear of the bottom-right call/challenge banners) */
+.vs-msg-toasts { position: fixed; top: 4.6rem; right: 1.2rem; z-index: 1200; display: flex; flex-direction: column; gap: 0.5rem; max-width: 340px; }
+.vs-msg-toast { cursor: pointer; }
+.vs-msg-toast .vs-toast-body span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

@@ -136,6 +136,7 @@ const Versus = lazy(() => import('./components/versus/Versus'));
 const VersusMatch = lazy(() => import('./components/versus/VersusMatch'));
 const Spectator = lazy(() => import('./components/versus/Spectator'));
 const GlobalCall = lazy(() => import('./components/versus/GlobalCall'));
+const MessageToast = lazy(() => import('./components/versus/MessageToast'));
 const ReviewQueue = lazy(() => import('./components/ReviewQueue'));
 const Playground = lazy(() => import('./components/Playground'));
 const Workspace = lazy(() => import('./components/Workspace'));
@@ -320,6 +321,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
       {!hideSubNav && <MobileBottomNav />}
       <CommandPalette />
       {session && <ChallengeToast session={session} />}
+      {session && <Suspense fallback={null}><MessageToast session={session} /></Suspense>}
       {session && <Suspense fallback={null}><GlobalCall session={session} /></Suspense>}
       <Suspense fallback={<RouteFallback />}>
         <RouteErrorBoundary key={location.pathname}>

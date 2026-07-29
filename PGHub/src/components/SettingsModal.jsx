@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, RotateCcw, LogOut, RefreshCw, Star, GitBranch, Users as UsersIcon } from 'lucide-react';
+import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, RotateCcw, LogOut, RefreshCw, Star, GitBranch, Users as UsersIcon, PhoneCall, PhoneOff, Eye, EyeOff } from 'lucide-react';
+import { callsEnabled, setCallsEnabled, launcherVisible, setLauncherVisible } from '../lib/callSignal';
 import ShareableCard from './ShareableCard';
 import {
   getAiKey, setAiKey, getProxyUrl, setProxyUrl,
@@ -260,6 +261,10 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [friendProgress, setFriendProgress] = useState({});
+  const [callsOn, setCallsOn] = useState(callsEnabled());
+  const [fabOn, setFabOn] = useState(launcherVisible());
+  const toggleCallsSetting = () => { const n = !callsOn; setCallsEnabled(n); setCallsOn(n); window.dispatchEvent(new CustomEvent('pg:calls-setting')); };
+  const toggleFabSetting = () => { const n = !fabOn; setLauncherVisible(n); setFabOn(n); window.dispatchEvent(new CustomEvent('pg:launcher-setting')); };
   const [displayName, setDisplayName] = useState('');
   const [profileUsername, setProfileUsername] = useState('');
   const [leetcodeHandle, setLeetcodeHandle] = useState('');
@@ -726,6 +731,31 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
 
           {activeTab === 'friends' && (
             <div className="friends-section">
+              {/* Calls are a whole-PGHub feature — control them here, not per-page. */}
+              <div className="friend-group">
+                <span className="friend-group-label"><PhoneCall size={12} /> Calls</span>
+                <div className="settings-toggle-row">
+                  <div className="settings-toggle-text">
+                    <b>Voice & video calls</b>
+                    <span>Call any friend, or share a room code, from any page.</span>
+                  </div>
+                  <button className={`settings-switch ${callsOn ? 'on' : ''}`} onClick={toggleCallsSetting} role="switch" aria-checked={callsOn}>
+                    {callsOn ? <PhoneCall size={13} /> : <PhoneOff size={13} />}<span className="settings-switch-knob" />
+                  </button>
+                </div>
+                {callsOn && (
+                  <div className="settings-toggle-row">
+                    <div className="settings-toggle-text">
+                      <b>Floating call button</b>
+                      <span>Show the draggable call button on every page. Incoming calls still ring when hidden.</span>
+                    </div>
+                    <button className={`settings-switch ${fabOn ? 'on' : ''}`} onClick={toggleFabSetting} role="switch" aria-checked={fabOn}>
+                      {fabOn ? <Eye size={13} /> : <EyeOff size={13} />}<span className="settings-switch-knob" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div className="add-friend-row">
                 <input
                   type="email"
