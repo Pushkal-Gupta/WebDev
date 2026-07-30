@@ -108,54 +108,105 @@ function arrayFramesToScene(viz) {
   }
   if (!lastFull) return null;
 
-  // Layout
+  // Layout. Numeric arrays render as BARS whose heights grow/shrink with the
+  // values (real visual motion); non-numeric arrays render as labeled tiles.
   const gap = 12;
-  const cellW = Math.max(30, Math.min(78, Math.floor((760 - (n - 1) * gap) / n)));
-  const cellH = Math.min(74, cellW);
+  const cellW = Math.max(28, Math.min(76, Math.floor((760 - (n - 1) * gap) / n)));
   const totalW = n * cellW + (n - 1) * gap;
   const startX = Math.round((W - totalW) / 2);
-  const cellY = 150;
   const cellX = (i) => startX + i * (cellW + gap);
   const cellCX = (i) => cellX(i) + cellW / 2;
   const anyChips = frames.some((f) => f.chip);
   const anySub = frames.some((f) => f.subRow && Array.isArray(f.subRow.values));
-  const subY = cellY + cellH + 34;
-  const viewH = anySub ? subY + 46 : cellY + cellH + 56;
+  const numeric = lastFull.every((v) => typeof v === 'number' && Number.isFinite(v))
+    && effArrays.every((a) => a.every((v) => typeof v === 'number' && Number.isFinite(v)));
+  const winOf = (f) => {
+    const w = f.window; if (!w) return null;
+    const l = Array.isArray(w) ? w[0] : w.start; const r = Array.isArray(w) ? w[1] : w.end;
+    return (l >= 0 && r >= l && r < n) ? [l, r] : null;
+  };
 
   const objects = [];
+  let cellY, cellH, topY, subY, viewH;
 
-  // Cells (persist across the whole scene; fill/textFill/scale/lift/value tween).
-  for (let i = 0; i < n; i++) {
-    const fillVals = [], textVals = [], scaleVals = [], liftVals = [], valueVals = [];
-    for (let k = 0; k < F; k++) {
-      const hl = normHighlights(frames[k].highlights);
-      const win = frames[k].window;
-      let role = hl[i];
-      if (!role && renderer === 'window' && win) {
-        const l = Array.isArray(win) ? win[0] : win.start;
-        const r = Array.isArray(win) ? win[1] : win.end;
-        if (i >= l && i <= r) role = 'window';
+  if (numeric) {
+    const MAXBARH = 168, baseY = 292;
+    cellY = baseY - MAXBARH; cellH = MAXBARH; topY = cellY - 36;
+    subY = baseY + 34; viewH = anySub ? subY + 40 : baseY + 52;
+    let maxAbs = 0;
+    for (const a of effArrays) for (const v of a) maxAbs = Math.max(maxAbs, Math.abs(v));
+    const barH = (v) => (maxAbs <= 0 ? 16 : Math.max(16, Math.round((Math.abs(v) / maxAbs) * MAXBARH)));
+    const labelSize = Math.min(14, Math.max(9, Math.round(cellW * 0.3)));
+    for (let i = 0; i < n; i++) {
+      const hVals = [], fillVals = [], textVals = [], liftVals = [], valueVals = [];
+      for (let k = 0; k < F; k++) {
+        const hl = normHighlights(frames[k].highlights);
+        const win = winOf(frames[k]);
+        let role = hl[i];
+        if (!role && renderer === 'window' && win && i >= win[0] && i <= win[1]) role = 'window';
+        const st = styleFor(role);
+        hVals.push(barH(effArrays[k][i]));
+        // Unhighlighted bars get a visible muted fill (not surface, which blends
+        // into the dark stage); the window overlay handles window-role shading.
+        fillVals.push((role && role !== 'window') ? st.fill : 'text-dim');
+        textVals.push(st.textFill); liftVals.push(st.lift || 0); valueVals.push(effArrays[k][i]);
       }
-      const st = styleFor(role);
-      fillVals.push(st.fill);
-      textVals.push(st.textFill);
-      scaleVals.push(st.scale);
-      liftVals.push(st.lift);
-      valueVals.push(effArrays[k][i]);
+      const tracks = {};
+      const ht = buildTrack(hVals, { numeric: true, ease: 'smooth' }); if (ht) tracks.h = ht;
+      const ft = buildTrack(fillVals); if (ft) tracks.fill = ft;
+      const tt = buildTrack(textVals); if (tt) tracks.textFill = tt;
+      const lf = buildTrack(liftVals, { numeric: true, ease: 'back' }); if (lf) tracks.lift = lf;
+      // Stringify so the label SNAPS between values (a numeric track would lerp
+      // and show a meaningless interpolated float mid-transition).
+      const vt = buildTrack(valueVals.map(String)); if (vt) tracks.value = vt;
+      objects.push({
+        id: `bar${i}`, type: 'bar',
+        base: { x: cellX(i), w: cellW, baseY, h: barH(lastFull[i]), value: lastFull[i], idx: i, fill: 'surface', textFill: 'text-main', size: labelSize, rx: 5 },
+        tracks,
+      });
     }
-    const tracks = {};
-    const ft = buildTrack(fillVals); if (ft) tracks.fill = ft;
-    const tt = buildTrack(textVals); if (tt) tracks.textFill = tt;
-    const scEase = 'back';
-    const sc = buildTrack(scaleVals, { numeric: true, ease: scEase }); if (sc) tracks.scale = sc;
-    const lf = buildTrack(liftVals, { numeric: true }); if (lf) tracks.lift = lf;
-    // value only if it actually changes over time
-    const valuesChange = valueVals.some((v, idx) => idx > 0 && v !== valueVals[idx - 1]);
-    if (valuesChange) { const vt = buildTrack(valueVals); if (vt) tracks.value = vt; }
-    objects.push({
-      id: `cell${i}`, type: 'cell',
-      base: { x: cellX(i), y: cellY, w: cellW, h: cellH, rx: 9, value: lastFull[i], idx: i, fill: 'surface', textFill: 'text-main' },
-      tracks,
+  } else {
+    cellY = 150; cellH = Math.min(74, cellW); topY = cellY - 44;
+    subY = cellY + cellH + 34; viewH = anySub ? subY + 46 : cellY + cellH + 56;
+    for (let i = 0; i < n; i++) {
+      const fillVals = [], textVals = [], scaleVals = [], liftVals = [], valueVals = [];
+      for (let k = 0; k < F; k++) {
+        const hl = normHighlights(frames[k].highlights);
+        const win = winOf(frames[k]);
+        let role = hl[i];
+        if (!role && renderer === 'window' && win && i >= win[0] && i <= win[1]) role = 'window';
+        const st = styleFor(role);
+        fillVals.push(st.fill); textVals.push(st.textFill); scaleVals.push(st.scale); liftVals.push(st.lift); valueVals.push(effArrays[k][i]);
+      }
+      const tracks = {};
+      const ft = buildTrack(fillVals); if (ft) tracks.fill = ft;
+      const tt = buildTrack(textVals); if (tt) tracks.textFill = tt;
+      const sc = buildTrack(scaleVals, { numeric: true, ease: 'back' }); if (sc) tracks.scale = sc;
+      const lf = buildTrack(liftVals, { numeric: true }); if (lf) tracks.lift = lf;
+      const valuesChange = valueVals.some((v, idx) => idx > 0 && v !== valueVals[idx - 1]);
+      if (valuesChange) { const vt = buildTrack(valueVals.map(String)); if (vt) tracks.value = vt; }
+      objects.push({
+        id: `cell${i}`, type: 'cell',
+        base: { x: cellX(i), y: cellY, w: cellW, h: cellH, rx: 9, value: lastFull[i], idx: i, fill: 'surface', textFill: 'text-main' },
+        tracks,
+      });
+    }
+  }
+
+  // Sliding range region (window / highlighted span) — a translucent rect that
+  // GLIDES and RESIZES with the active window: genuine motion, not just recolor.
+  if (frames.some((f) => winOf(f))) {
+    const xVals = [], wVals = [], opVals = [];
+    let lastX = startX, lastW = cellW;
+    for (let k = 0; k < F; k++) {
+      const win = winOf(frames[k]);
+      if (win) { lastX = cellX(win[0]) - 6; lastW = cellX(win[1]) + cellW - cellX(win[0]) + 12; xVals.push(lastX); wVals.push(lastW); opVals.push(0.16); }
+      else { xVals.push(lastX); wVals.push(lastW); opVals.push(0); }
+    }
+    objects.unshift({
+      id: 'region', type: 'region',
+      base: { x: startX, y: cellY - 8, w: cellW, h: cellH + 16, rx: 10, fill: 'accent', opacity: 0 },
+      tracks: { x: buildTrack(xVals, { numeric: true, ease: 'smooth' }), w: buildTrack(wVals, { numeric: true, ease: 'smooth' }), opacity: buildTrack(opVals, { numeric: true }) },
     });
   }
 
@@ -181,7 +232,7 @@ function arrayFramesToScene(viz) {
     }
     objects.push({
       id: `ptr_${name}`, type: 'pointer',
-      base: { x: cellCX(0), y: cellY - 44 - laneIdx * 24, value: name },
+      base: { x: cellCX(0), y: topY - laneIdx * 24, value: name },
       tracks: { x: buildTrack(xVals, { numeric: true, ease: 'back' }), opacity: buildTrack(opVals, { numeric: true }) },
     });
   });
@@ -305,7 +356,7 @@ function gridFramesToScene(viz) {
         prev = v;
       }
       const tracks = {};
-      const vt = buildTrack(valueVals); if (vt) tracks.value = vt;
+      const vt = buildTrack(valueVals.map((v) => (v == null ? v : String(v)))); if (vt) tracks.value = vt;
       const ft = buildTrack(fillVals); if (ft) tracks.fill = ft;
       const tt = buildTrack(textVals); if (tt) tracks.textFill = tt;
       const sc = buildTrack(scaleVals, { numeric: true, ease: 'back' }); if (sc) tracks.scale = sc;

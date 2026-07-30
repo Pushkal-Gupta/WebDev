@@ -1,0 +1,152 @@
+/* PGConnect — the social home. Fills the shell; the only scroll is inside panes. */
+.pgc-page { width: 94%; max-width: var(--container-w); margin: 0 auto; padding: 1.4rem 0 1.6rem; flex: 1 1 auto; min-height: 0; display: flex; }
+.pgc-shell { flex: 1; display: grid; grid-template-columns: 210px 1fr; gap: 1rem; min-height: 0; }
+
+.pgc-rail { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 0.7rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); height: fit-content; }
+.pgc-brand { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0.2rem 0.4rem 0.7rem; }
+.pgc-brand-pg { color: var(--text-dim); font-size: 0.62em; opacity: 0.6; font-weight: 600; }
+.pgc-rail-btn { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.7rem; border-radius: 10px; border: none; background: transparent; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: left; transition: background 0.15s, color 0.15s; }
+.pgc-rail-btn:hover { background: var(--hover-box); color: var(--text-main); }
+.pgc-rail-btn.on { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+
+/* Messenger — two panes */
+.pgc-messenger { display: grid; grid-template-columns: 260px 1fr; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); min-height: 0; }
+.pgc-convos { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow-y: auto; min-height: 0; }
+.pgc-convos-head { padding: 0.9rem 1rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-dim); border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--surface); }
+.pgc-convo { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.8rem; border: none; background: transparent; cursor: pointer; text-align: left; border-bottom: 1px solid color-mix(in srgb, var(--border) 45%, transparent); }
+.pgc-convo:hover { background: var(--hover-box); }
+.pgc-convo.on { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.pgc-convo-name { font-size: 0.9rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.pgc-thread { display: flex; flex-direction: column; min-height: 0; }
+.pgc-thread-head { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); }
+.pgc-thread-name { font-weight: 700; color: var(--text-main); }
+.pgc-back { display: none; background: transparent; border: none; color: var(--text-dim); cursor: pointer; }
+.pgc-msgs { flex: 1; overflow-y: auto; min-height: 0; display: flex; flex-direction: column; gap: 0.4rem; padding: 1rem; }
+.pgc-msg { max-width: 74%; padding: 0.5rem 0.8rem; border-radius: 14px; font-size: 0.9rem; line-height: 1.45; word-break: break-word; }
+.pgc-msg.mine { align-self: flex-end; background: var(--accent); color: var(--bg); border-bottom-right-radius: 4px; }
+.pgc-msg.theirs { align-self: flex-start; background: var(--hover-box); color: var(--text-main); border-bottom-left-radius: 4px; }
+.pgc-compose { display: flex; gap: 0.5rem; padding: 0.7rem; border-top: 1px solid var(--border); }
+.pgc-compose input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 0.6rem 1rem; color: var(--text-main); font-size: 0.9rem; }
+.pgc-compose input:focus { outline: none; border-color: var(--accent); }
+.pgc-compose button { display: inline-flex; align-items: center; justify-content: center; width: 2.5rem; height: 2.5rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); cursor: pointer; flex-shrink: 0; }
+.pgc-compose button:disabled { opacity: 0.5; cursor: default; }
+.pgc-thread-empty, .pgc-signin, .pgc-soon { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.6rem; text-align: center; color: var(--text-dim); padding: 2rem; }
+.pgc-thread-empty svg, .pgc-soon svg, .pgc-signin svg { color: var(--accent); opacity: 0.8; }
+.pgc-soon h3, .pgc-signin h2 { margin: 0.3rem 0 0; color: var(--text-main); }
+.pgc-soon p, .pgc-signin p { margin: 0; max-width: 420px; line-height: 1.5; }
+
+/* People */
+.pgc-people { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); overflow-y: auto; min-height: 0; padding: 1rem; }
+.pgc-search { display: flex; align-items: center; gap: 0.5rem; padding: 0.55rem 0.85rem; border: 1px solid var(--border); border-radius: 12px; background: var(--bg); margin-bottom: 1rem; }
+.pgc-search svg { color: var(--text-dim); }
+.pgc-search input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-main); font-size: 0.9rem; }
+.pgc-search button { padding: 0.35rem 0.8rem; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--bg); font-weight: 700; font-size: 0.82rem; cursor: pointer; }
+.pgc-search button:disabled { opacity: 0.5; cursor: default; }
+.pgc-group { margin-bottom: 1.2rem; }
+.pgc-group-label { display: flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 0.5rem; }
+.pgc-person { display: flex; align-items: center; gap: 0.7rem; padding: 0.5rem 0.4rem; border-radius: 10px; }
+.pgc-person:hover { background: var(--hover-box); }
+.pgc-person-name { flex: 1; min-width: 0; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgc-person-name em { color: var(--text-dim); font-weight: 400; font-style: normal; margin-left: 0.35rem; font-size: 0.85em; }
+.pgc-add, .pgc-icon { display: inline-flex; align-items: center; gap: 0.3rem; border: 1px solid var(--border); border-radius: 8px; padding: 0.3rem 0.6rem; background: var(--bg); color: var(--text-dim); cursor: pointer; font-size: 0.8rem; font-weight: 600; }
+.pgc-add:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-icon.ok { color: var(--easy); } .pgc-icon.ok:hover { border-color: var(--easy); }
+.pgc-icon.no:hover { border-color: var(--hard); color: var(--hard); }
+.pgc-icon.msg:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-tag { font-size: 0.72rem; color: var(--text-dim); display: inline-flex; align-items: center; gap: 0.25rem; }
+.pgc-clear { margin-top: 0.5rem; background: transparent; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem; }
+.pgc-empty { color: var(--text-dim); font-size: 0.85rem; padding: 0.8rem; text-align: center; }
+
+.pgc-av { border-radius: 999px; object-fit: cover; flex-shrink: 0; }
+.pgc-av-ph { display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); font-weight: 700; }
+
+@media (max-width: 760px) {
+  .pgc-shell { grid-template-columns: 1fr; }
+  .pgc-rail { flex-direction: row; overflow-x: auto; }
+  .pgc-messenger { grid-template-columns: 1fr; }
+  .pgc-convos.has-active { display: none; }
+  .pgc-thread .pgc-back { display: inline-flex; }
+  .pgc-thread:not(.open) { display: none; }
+}
+
+/* Scroll pane wrapper for Feed/Profile */
+.pgc-scrollpane { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); overflow-y: auto; min-height: 0; }
+.pgc-spin { animation: pgc-spin 0.8s linear infinite; }
+@keyframes pgc-spin { to { transform: rotate(360deg); } }
+
+/* Feed */
+.pgc-feed { display: flex; flex-direction: column; }
+.pgc-composer { display: flex; gap: 0.7rem; padding: 1rem; border-bottom: 1px solid var(--border); }
+.pgc-composer-main { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+.pgc-composer textarea { width: 100%; resize: none; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 0.8rem; color: var(--text-main); font-family: var(--sans); font-size: 0.92rem; line-height: 1.45; }
+.pgc-composer textarea:focus { outline: none; border-color: var(--accent); }
+.pgc-composer-foot { display: flex; align-items: center; justify-content: space-between; }
+.pgc-composer-count { font-size: 0.72rem; color: var(--text-dim); }
+.pgc-composer button { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.9rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.pgc-composer button:disabled { opacity: 0.5; cursor: default; }
+.pgc-feed-scope { display: flex; gap: 0.4rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: blur(8px); z-index: 1; }
+.pgc-feed-scope button { padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.pgc-feed-scope button.on { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: var(--accent); color: var(--accent); }
+.pgc-feed-loading { display: flex; justify-content: center; padding: 3rem; color: var(--accent); }
+.pgc-posts { display: flex; flex-direction: column; }
+.pgc-post { display: flex; gap: 0.7rem; padding: 0.9rem 1rem; border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent); }
+.pgc-post.compact { padding: 0.7rem 0; border-bottom: 1px solid color-mix(in srgb, var(--border) 45%, transparent); }
+.pgc-post-main { flex: 1; min-width: 0; }
+.pgc-post-head { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.2rem; }
+.pgc-post-name { font-weight: 700; color: var(--text-main); }
+.pgc-post-handle { color: var(--text-dim); font-size: 0.85rem; }
+.pgc-post-dot, .pgc-post-time { color: var(--text-dim); font-size: 0.82rem; }
+.pgc-post-follow { margin-left: auto; display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.15rem 0.55rem; border-radius: 999px; border: 1px solid var(--accent); background: transparent; color: var(--accent); font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+.pgc-post-follow.on { background: color-mix(in srgb, var(--accent) 15%, transparent); }
+.pgc-post-body { margin: 0 0 0.5rem; color: var(--text-main); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.pgc-post-actions { display: flex; align-items: center; gap: 1.2rem; }
+.pgc-post-act { display: inline-flex; align-items: center; gap: 0.35rem; background: none; border: none; color: var(--text-dim); font-size: 0.82rem; cursor: pointer; padding: 0; }
+.pgc-post-act.liked { color: var(--hard); }
+.pgc-post-act.liked svg { color: var(--hard); }
+button.pgc-post-act:hover { color: var(--text-main); }
+button.pgc-post-act.liked:hover { color: var(--hard); }
+.pgc-post-act.del:hover { color: var(--hard); }
+
+/* Profile */
+.pgc-profile { display: flex; flex-direction: column; }
+.pgc-banner { position: relative; height: 130px; display: flex; align-items: flex-end; padding: 0.8rem 1.2rem; }
+.pgc-banner-av { position: absolute; left: 1.2rem; bottom: -28px; width: 74px; height: 74px; border-radius: 999px; background: var(--surface); border: 3px solid var(--surface); display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 800; color: var(--accent); box-shadow: 0 4px 14px -4px rgba(0,0,0,0.5); }
+.pgc-edit-btn, .pgc-edit-save, .pgc-edit-cancel { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5); background: rgba(0,0,0,0.35); color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; backdrop-filter: blur(6px); }
+.pgc-edit-btn { margin-left: auto; }
+.pgc-edit-actions { margin-left: auto; display: flex; gap: 0.4rem; }
+.pgc-edit-save { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.pgc-profile-body { padding: 2.4rem 1.2rem 1.2rem; }
+.pgc-profile-name { margin: 0; font-size: 1.4rem; color: var(--text-main); }
+.pgc-profile-handle { color: var(--text-dim); font-size: 0.9rem; }
+.pgc-profile-bio { margin: 0.6rem 0 0; color: var(--text-main); line-height: 1.5; }
+.pgc-profile-stats { display: flex; gap: 1.4rem; margin-top: 0.9rem; flex-wrap: wrap; }
+.pgc-profile-stats span { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--text-dim); font-size: 0.86rem; }
+.pgc-profile-stats b { color: var(--text-main); font-size: 1.05rem; }
+.pgc-profile-stats svg { color: var(--accent); }
+.pgc-edit-form { display: flex; flex-direction: column; gap: 0.8rem; }
+.pgc-edit-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.76rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pgc-edit-form input, .pgc-edit-form textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.75rem; color: var(--text-main); font-family: var(--sans); font-size: 0.9rem; font-weight: 400; text-transform: none; letter-spacing: 0; }
+.pgc-edit-form input:focus, .pgc-edit-form textarea:focus { outline: none; border-color: var(--accent); }
+.pgc-uname { display: flex; align-items: center; gap: 0; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); padding-left: 0.7rem; }
+.pgc-uname span { color: var(--text-dim); }
+.pgc-uname input { border: none; background: transparent; flex: 1; }
+.pgc-bg-picker { display: flex; flex-direction: column; gap: 0.45rem; }
+.pgc-bg-picker > span { font-size: 0.76rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pgc-bg-swatches { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.pgc-bg-swatch { width: 46px; height: 30px; border-radius: 8px; border: 2px solid transparent; cursor: pointer; }
+.pgc-bg-swatch.on { border-color: var(--text-main); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
+.pgc-edit-err { color: var(--hard); font-size: 0.82rem; margin: 0; }
+.pgc-profile-posts { margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+
+/* Feed replies (inline thread) */
+button.pgc-post-act.on { color: var(--accent); }
+.pgc-replies { margin-top: 0.7rem; padding-top: 0.7rem; border-top: 1px solid color-mix(in srgb, var(--border) 45%, transparent); display: flex; flex-direction: column; gap: 0.55rem; }
+.pgc-reply { display: flex; gap: 0.5rem; align-items: flex-start; }
+.pgc-reply-name { font-weight: 700; color: var(--text-main); font-size: 0.85rem; }
+.pgc-reply-body { color: var(--text-main); font-size: 0.88rem; line-height: 1.45; }
+.pgc-reply-compose { display: flex; gap: 0.4rem; margin-top: 0.1rem; }
+.pgc-reply-compose input { flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 999px; padding: 0.4rem 0.8rem; color: var(--text-main); font-size: 0.85rem; }
+.pgc-reply-compose input:focus { outline: none; border-color: var(--accent); }
+.pgc-reply-compose button { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); cursor: pointer; flex-shrink: 0; }
+.pgc-reply-compose button:disabled { opacity: 0.5; cursor: default; }

@@ -137,6 +137,7 @@ const VersusMatch = lazy(() => import('./components/versus/VersusMatch'));
 const Spectator = lazy(() => import('./components/versus/Spectator'));
 const GlobalCall = lazy(() => import('./components/versus/GlobalCall'));
 const MessageToast = lazy(() => import('./components/versus/MessageToast'));
+const PGConnect = lazy(() => import('./components/connect/PGConnect'));
 const ReviewQueue = lazy(() => import('./components/ReviewQueue'));
 const Playground = lazy(() => import('./components/Playground'));
 const Workspace = lazy(() => import('./components/Workspace'));
@@ -348,6 +349,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/battle" element={<Versus session={session} />} />
           <Route path="/battle/:code" element={<VersusMatch session={session} />} />
           <Route path="/watch/:code" element={<Spectator />} />
+          <Route path="/connect" element={<PGConnect session={session} />} />
           <Route path="/learning" element={<LearningHub />} />
           <Route path="/forge" element={<PGForgeHub />} />
           <Route path="/forge/learn" element={<MLHub />} />

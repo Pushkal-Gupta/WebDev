@@ -30,7 +30,7 @@ export default function MessageToast({ session }) {
   return (
     <div className="vs-msg-toasts">
       {msgs.map((m) => (
-        <div key={m.id} className="vs-toast vs-msg-toast" onClick={() => { dismiss(m.id); nav('/battle'); }} role="button">
+        <div key={m.id} className="vs-toast vs-msg-toast" onClick={() => { dismiss(m.id); nav('/connect'); }} role="button">
           <span className="vs-toast-ic"><MessageSquare size={16} /></span>
           <div className="vs-toast-body">
             <b>{m.fromName || 'A friend'}</b>

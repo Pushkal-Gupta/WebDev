@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Map, List, Terminal, Building2, Trophy, Swords, Target,
-  GraduationCap, Brain, Vault,
+  GraduationCap, Brain, Vault, MessageSquare,
 } from 'lucide-react';
 import { usePrefetch } from '../lib/queries';
 import './SubNav.css';
@@ -27,6 +27,7 @@ const TABS = [
   { to: '/practice',                icon: List,          brand: ['PG', 'Code'], prefetch: true },
   { to: '/playground',              icon: Terminal,      brand: ['PG', 'Lab'] },
   { to: '/battle',                  icon: Swords,        brand: ['PG', 'Battle'], matches: ['/battle'] },
+  { to: '/connect',                 icon: MessageSquare, brand: ['PG', 'Connect'], matches: ['/connect'] },
   { to: '/learning',                icon: GraduationCap, brand: ['PG', 'Learn'],
     // PGLearn groups Tutorial + Concepts + Courses + Visualize, so light up the
     // tab anywhere under those routes too.

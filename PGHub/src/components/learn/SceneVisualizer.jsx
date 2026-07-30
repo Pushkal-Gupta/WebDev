@@ -136,9 +136,16 @@ function Mobject({ s, type }) {
       </g>
     );
   }
+  if (type === 'region') {
+    // Translucent shaded range (sliding window / search range) that resizes.
+    return (
+      <rect opacity={opacity} x={s.x ?? 0} y={s.y ?? 0} width={Math.max(0, s.w ?? 0)} height={Math.max(0, s.h ?? 0)}
+        rx={s.rx ?? 8} fill={col(s.fill) || 'var(--hover-box)'} stroke={col(s.stroke) || 'none'} strokeWidth={s.thickness ?? 0} />
+    );
+  }
   if (type === 'bar') {
     const w = s.w ?? 40, x = s.x ?? 0, baseY = s.baseY ?? 0, h = Math.max(0, s.h ?? 0);
-    const y = baseY - h;
+    const y = baseY - h - (s.lift || 0);
     return (
       <g opacity={opacity}>
         <rect x={x} y={y} width={w} height={h} rx={s.rx ?? 5} fill={col(s.fill) || 'var(--border)'} />
