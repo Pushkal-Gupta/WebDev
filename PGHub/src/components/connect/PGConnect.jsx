@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, Users, Search, UserPlus, Check, X, Clock3, Send, Rss, User, ArrowLeft } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
 import {
   searchUsers, getFriends, getIncomingRequests, getOutgoingRequests,
-  sendFriendRequest, respondFriendRequest, getThread, sendMessage, dmChannel,
+  sendFriendRequest, respondFriendRequest, getThread, sendMessage,
 } from '../../lib/friends';
 import FeedTab from './FeedTab';
 import ProfileTab from './ProfileTab';
@@ -39,17 +38,17 @@ export default function PGConnect({ session }) {
   }, [user]);
   useEffect(() => { reload(); }, [reload]);
 
-  // load thread + subscribe to live incoming from anyone (refresh the open thread).
+  // live incoming for the open thread, via the shared DM bus.
   useEffect(() => {
     if (!user) return undefined;
-    const ch = dmChannel(user.id);
-    ch.on('broadcast', { event: 'dm' }, ({ payload }) => {
+    const onDm = (e) => {
+      const payload = e.detail;
       if (active && payload?.from === active.id) {
         setMessages((prev) => [...prev, { id: `r${Date.now()}`, mine: false, body: payload.body, at: new Date().toISOString() }]);
       }
-    });
-    ch.subscribe();
-    return () => { supabase.removeChannel(ch); };
+    };
+    window.addEventListener('pg:dm', onDm);
+    return () => window.removeEventListener('pg:dm', onDm);
   }, [user, active]);
 
   useEffect(() => {
@@ -90,6 +89,11 @@ export default function PGConnect({ session }) {
           <button className={`pgc-rail-btn ${tab === 'people' ? 'on' : ''}`} onClick={() => setTab('people')}><Users size={17} /> People</button>
           <button className={`pgc-rail-btn ${tab === 'feed' ? 'on' : ''}`} onClick={() => setTab('feed')}><Rss size={17} /> Feed</button>
           <button className={`pgc-rail-btn ${tab === 'profile' ? 'on' : ''}`} onClick={() => setTab('profile')}><User size={17} /> Profile</button>
+          <div className="pgc-rail-spacer" />
+          <div className="pgc-rail-user">
+            <Avatar name={myName} url={user?.user_metadata?.avatar_url} size={38} />
+            <span className="pgc-rail-user-name">{myName}<span className="pgc-rail-user-sub">Your account</span></span>
+          </div>
         </nav>
 
         {tab === 'messages' && (

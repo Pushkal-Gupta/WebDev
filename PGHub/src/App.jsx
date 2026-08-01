@@ -5,6 +5,7 @@ import { supabase } from './lib/supabase';
 import { queryClient } from './lib/queryClient';
 import { loadCustomColors, applyCustomColors } from './lib/customColors';
 import { useProfile, qk } from './lib/queries';
+import { startDmBus, stopDmBus } from './lib/dmBus';
 import Navbar from './components/Navbar';
 import SubNav from './components/SubNav';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -138,6 +139,7 @@ const Spectator = lazy(() => import('./components/versus/Spectator'));
 const GlobalCall = lazy(() => import('./components/versus/GlobalCall'));
 const MessageToast = lazy(() => import('./components/versus/MessageToast'));
 const PGConnect = lazy(() => import('./components/connect/PGConnect'));
+const ChatDock = lazy(() => import('./components/connect/ChatDock'));
 const ReviewQueue = lazy(() => import('./components/ReviewQueue'));
 const Playground = lazy(() => import('./components/Playground'));
 const Workspace = lazy(() => import('./components/Workspace'));
@@ -247,6 +249,13 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
   const hideSubNav = isWorkspace || isMatch;
   const { data: profile } = useProfile(session?.user?.id);
 
+  // One app-wide DM subscription; UI pieces consume the `pg:dm` window event it emits.
+  useEffect(() => {
+    const uid = session?.user?.id;
+    if (uid) startDmBus(uid);
+    return () => stopDmBus();
+  }, [session?.user?.id]);
+
   useEffect(() => {
     if (profile?.theme_preset) {
       const fromProfile = normalizeTheme(profile.theme_preset);
@@ -324,6 +333,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
       {session && <ChallengeToast session={session} />}
       {session && <Suspense fallback={null}><MessageToast session={session} /></Suspense>}
       {session && <Suspense fallback={null}><GlobalCall session={session} /></Suspense>}
+      {session && <Suspense fallback={null}><ChatDock session={session} /></Suspense>}
       <Suspense fallback={<RouteFallback />}>
         <RouteErrorBoundary key={location.pathname}>
         <Routes>

@@ -2,12 +2,18 @@
 .pgc-page { width: 94%; max-width: var(--container-w); margin: 0 auto; padding: 1.4rem 0 1.6rem; flex: 1 1 auto; min-height: 0; display: flex; }
 .pgc-shell { flex: 1; display: grid; grid-template-columns: 210px 1fr; gap: 1rem; min-height: 0; }
 
-.pgc-rail { display: flex; flex-direction: column; gap: 0.3rem; padding: 0.9rem 0.7rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); height: fit-content; }
-.pgc-brand { font-family: var(--serif); font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin: 0.2rem 0.4rem 0.7rem; }
-.pgc-brand-pg { color: var(--text-dim); font-size: 0.62em; opacity: 0.6; font-weight: 600; }
-.pgc-rail-btn { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.7rem; border-radius: 10px; border: none; background: transparent; color: var(--text-dim); font-size: 0.9rem; font-weight: 600; cursor: pointer; text-align: left; transition: background 0.15s, color 0.15s; }
+.pgc-rail { display: flex; flex-direction: column; gap: 0.35rem; padding: 1.1rem 0.85rem; border: 1px solid var(--border); border-radius: 18px; background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface) 40%); min-height: 0; }
+.pgc-brand { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 0.1rem 0.5rem 1rem; letter-spacing: -0.01em; }
+.pgc-brand-pg { color: var(--accent); font-size: 0.62em; font-weight: 800; letter-spacing: 0.02em; }
+.pgc-rail-btn { display: flex; align-items: center; gap: 0.7rem; padding: 0.7rem 0.8rem; border-radius: 12px; border: none; background: transparent; color: var(--text-dim); font-size: 0.94rem; font-weight: 600; cursor: pointer; text-align: left; transition: background 0.16s, color 0.16s, transform 0.12s; }
+.pgc-rail-btn svg { flex-shrink: 0; }
 .pgc-rail-btn:hover { background: var(--hover-box); color: var(--text-main); }
-.pgc-rail-btn.on { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.pgc-rail-btn:active { transform: scale(0.98); }
+.pgc-rail-btn.on { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.pgc-rail-spacer { flex: 1 1 auto; min-height: 1rem; }
+.pgc-rail-user { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 0.6rem; margin-top: 0.4rem; border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.pgc-rail-user-name { font-size: 0.88rem; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgc-rail-user-sub { display: block; font-size: 0.7rem; color: var(--text-dim); font-weight: 400; }
 
 /* Messenger — two panes */
 .pgc-messenger { display: grid; grid-template-columns: 260px 1fr; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); min-height: 0; }

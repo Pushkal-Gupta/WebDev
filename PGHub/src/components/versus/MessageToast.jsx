@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MessageSquare, X } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { dmChannel } from '../../lib/friends';
 import '../../styles/versus.css';
 
 // App-level listener: whenever a friend DMs the signed-in user, surface a toast anywhere
@@ -14,15 +12,15 @@ export default function MessageToast({ session }) {
 
   useEffect(() => {
     if (!userId) return undefined;
-    const ch = dmChannel(userId);
-    ch.on('broadcast', { event: 'dm' }, ({ payload }) => {
+    const onDm = (e) => {
+      const payload = e.detail;
       if (!payload?.body) return;
       const id = `${payload.from || 'x'}-${Math.random().toString(36).slice(2, 8)}`;
-      setMsgs((m) => [...m.slice(-2), { id, fromName: payload.fromName, body: String(payload.body) }]);
+      setMsgs((m) => [...m.slice(-2), { id, from: payload.from, fromName: payload.fromName, body: String(payload.body) }]);
       setTimeout(() => setMsgs((m) => m.filter((x) => x.id !== id)), 7000);
-    });
-    ch.subscribe();
-    return () => { supabase.removeChannel(ch); };
+    };
+    window.addEventListener('pg:dm', onDm);
+    return () => window.removeEventListener('pg:dm', onDm);
   }, [userId]);
 
   if (!userId || !msgs.length) return null;
@@ -30,7 +28,7 @@ export default function MessageToast({ session }) {
   return (
     <div className="vs-msg-toasts">
       {msgs.map((m) => (
-        <div key={m.id} className="vs-toast vs-msg-toast" onClick={() => { dismiss(m.id); nav('/connect'); }} role="button">
+        <div key={m.id} className="vs-toast vs-msg-toast" onClick={() => { dismiss(m.id); if (m.from) window.dispatchEvent(new CustomEvent('pg:open-chat', { detail: { friendId: m.from, friendName: m.fromName } })); else nav('/connect'); }} role="button">
           <span className="vs-toast-ic"><MessageSquare size={16} /></span>
           <div className="vs-toast-body">
             <b>{m.fromName || 'A friend'}</b>

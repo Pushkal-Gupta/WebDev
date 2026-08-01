@@ -65,6 +65,16 @@ function normHighlights(h) {
   if (Array.isArray(h)) { const m = {}; for (const i of h) m[i] = 'current'; return m; }
   return h;
 }
+// Normalize a chip (string like "answer 84", or {label,value,tone}) to
+// displayable text + tone. Lets old string-chip frames render in scenes.
+function chipText(raw) {
+  if (raw == null) return null;
+  if (typeof raw === 'string') return raw.length ? { text: raw, tone: 'accent' } : null;
+  if (raw.label != null || raw.value != null) {
+    return { text: `${raw.label != null ? String(raw.label).toUpperCase() + '  ' : ''}${raw.value != null ? raw.value : ''}`, tone: raw.tone || 'accent' };
+  }
+  return null;
+}
 function pointerIndexMap(p) {
   // returns { name: index } for one frame
   const out = {};
@@ -272,12 +282,9 @@ function arrayFramesToScene(viz) {
       const textVals = [], opVals = [], colorVals = [];
       for (let k = 0; k < F; k++) {
         const chips = Array.isArray(frames[k].chip) ? frames[k].chip : (frames[k].chip ? [frames[k].chip] : []);
-        const ch = chips[c];
-        if (ch && (ch.label != null || ch.value != null)) {
-          textVals.push(`${ch.label != null ? String(ch.label).toUpperCase() + '  ' : ''}${ch.value != null ? ch.value : ''}`);
-          opVals.push(1);
-          colorVals.push(ch.tone || 'accent');
-        } else { textVals.push(textVals.length ? textVals[textVals.length - 1] : ''); opVals.push(0); colorVals.push(colorVals.length ? colorVals[colorVals.length - 1] : 'accent'); }
+        const info = chipText(chips[c]);
+        if (info) { textVals.push(info.text); opVals.push(1); colorVals.push(info.tone); }
+        else { textVals.push(textVals.length ? textVals[textVals.length - 1] : ''); opVals.push(0); colorVals.push(colorVals.length ? colorVals[colorVals.length - 1] : 'accent'); }
       }
       const cx = maxChips === 1 ? W / 2 : startX + slotW / 2 + c * slotW;
       objects.push({
@@ -371,8 +378,8 @@ function gridFramesToScene(viz) {
   if (anyChips) {
     const textVals = [], opVals = [], colorVals = [];
     for (let k = 0; k < F; k++) {
-      const ch = Array.isArray(frames[k].chip) ? frames[k].chip[0] : frames[k].chip;
-      if (ch && (ch.label != null || ch.value != null)) { textVals.push(`${ch.label != null ? String(ch.label).toUpperCase() + '  ' : ''}${ch.value != null ? ch.value : ''}`); opVals.push(1); colorVals.push(ch.tone || 'accent'); }
+      const info = chipText(Array.isArray(frames[k].chip) ? frames[k].chip[0] : frames[k].chip);
+      if (info) { textVals.push(info.text); opVals.push(1); colorVals.push(info.tone); }
       else { textVals.push(textVals.length ? textVals[textVals.length - 1] : ''); opVals.push(0); colorVals.push('accent'); }
     }
     objects.push({ id: 'chip0', type: 'label', base: { x: W / 2, y: 42, value: '', fill: 'accent', size: 15, weight: '700' }, tracks: { value: buildTrack(textVals), opacity: buildTrack(opVals, { numeric: true }), fill: buildTrack(colorVals) } });
@@ -463,8 +470,8 @@ function graphFramesToScene(viz) {
   if (anyChips) {
     const textVals = [], opVals = [], colorVals = [];
     for (let k = 0; k < F; k++) {
-      const ch = Array.isArray(frames[k].chip) ? frames[k].chip[0] : frames[k].chip;
-      if (ch && (ch.label != null || ch.value != null)) { textVals.push(`${ch.label != null ? String(ch.label).toUpperCase() + '  ' : ''}${ch.value != null ? ch.value : ''}`); opVals.push(1); colorVals.push(ch.tone || 'accent'); }
+      const info = chipText(Array.isArray(frames[k].chip) ? frames[k].chip[0] : frames[k].chip);
+      if (info) { textVals.push(info.text); opVals.push(1); colorVals.push(info.tone); }
       else { textVals.push(textVals.length ? textVals[textVals.length - 1] : ''); opVals.push(0); colorVals.push('accent'); }
     }
     objects.push({ id: 'chip0', type: 'label', base: { x: W / 2, y: 40, value: '', fill: 'accent', size: 15, weight: '700' }, tracks: { value: buildTrack(textVals), opacity: buildTrack(opVals, { numeric: true }), fill: buildTrack(colorVals) } });

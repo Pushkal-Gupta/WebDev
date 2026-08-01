@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Users, Search, UserPlus, Check, X, Swords, Clock3, MessageSquare, Send, ArrowLeft, Phone, Video } from 'lucide-react';
-import { supabase } from '../../lib/supabase';
-import { searchUsers, getFriends, getIncomingRequests, getOutgoingRequests, sendFriendRequest, respondFriendRequest, getThread, sendMessage, dmChannel } from '../../lib/friends';
+import { searchUsers, getFriends, getIncomingRequests, getOutgoingRequests, sendFriendRequest, respondFriendRequest, getThread, sendMessage } from '../../lib/friends';
 import { callsEnabled } from '../../lib/callSignal';
 
 function Avatar({ name, url }) {
@@ -38,17 +37,17 @@ export default function FriendsPanel({ session, onChallenge, challengingId }) {
 
   useEffect(() => { reload(); }, [reload]);
 
-  // open thread: load history + subscribe to live incoming from this friend
+  // open thread: load history + listen for live incoming from this friend (shared DM bus)
   useEffect(() => {
-    if (!thread || !user) return;
+    if (!thread || !user) return undefined;
     let live = true;
     getThread(user.id, thread.id).then((m) => { if (live) setMessages(m); }).catch(() => {});
-    const ch = dmChannel(user.id);
-    ch.on('broadcast', { event: 'dm' }, ({ payload }) => {
+    const onDm = (e) => {
+      const payload = e.detail;
       if (payload?.from === thread.id) setMessages((prev) => [...prev, { id: `r${Date.now()}`, mine: false, body: payload.body, at: new Date().toISOString() }]);
-    });
-    ch.subscribe();
-    return () => { live = false; supabase.removeChannel(ch); };
+    };
+    window.addEventListener('pg:dm', onDm);
+    return () => { live = false; window.removeEventListener('pg:dm', onDm); };
   }, [thread, user]);
 
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages]);

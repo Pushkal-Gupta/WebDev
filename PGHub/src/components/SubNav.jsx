@@ -27,7 +27,6 @@ const TABS = [
   { to: '/practice',                icon: List,          brand: ['PG', 'Code'], prefetch: true },
   { to: '/playground',              icon: Terminal,      brand: ['PG', 'Lab'] },
   { to: '/battle',                  icon: Swords,        brand: ['PG', 'Battle'], matches: ['/battle'] },
-  { to: '/connect',                 icon: MessageSquare, brand: ['PG', 'Connect'], matches: ['/connect'] },
   { to: '/learning',                icon: GraduationCap, brand: ['PG', 'Learn'],
     // PGLearn groups Tutorial + Concepts + Courses + Visualize, so light up the
     // tab anywhere under those routes too.
@@ -38,6 +37,7 @@ const TABS = [
     matches: ['/compete'] },
   { to: '/career',                 icon: Building2,     brand: ['PG', 'Career'] },
   { to: '/arena',                icon: Target,        brand: ['PG', 'Arena'] },
+  { to: '/connect',                 icon: MessageSquare, brand: ['PG', 'Connect'], matches: ['/connect'] },
   { to: '/vault',                   icon: Vault,         brand: ['PG', 'Vault'],
     matches: ['/vault', '/review', '/lists', '/notebook', '/progress'] },
 ];

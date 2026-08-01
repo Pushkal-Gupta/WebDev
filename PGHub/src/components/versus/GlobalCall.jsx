@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
-import { Phone, Video as VideoIcon, X, Users, PhoneCall, Hash, Plus, Check, Copy, EyeOff, GripVertical } from 'lucide-react';
+import { Phone, Video as VideoIcon, X, Users, PhoneCall, Hash, Check, Copy, EyeOff, GripVertical } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { callChannel, sendCallDecline, callsEnabled, genShortCode, launcherVisible, setLauncherVisible } from '../../lib/callSignal';
 import { getFriends } from '../../lib/friends';
@@ -165,8 +165,8 @@ export default function GlobalCall({ session }) {
               <div className="vs-launcher-section">
                 <div className="vs-launcher-sub"><Hash size={12} /> Room code</div>
                 <div className="vs-launcher-newrow">
-                  <button className="vs-launcher-new" onClick={() => newRoom(true)} title="Start a video room"><Plus size={13} /><VideoIcon size={14} /> Video room</button>
-                  <button className="vs-launcher-new" onClick={() => newRoom(false)} title="Start a voice room"><Plus size={13} /><Phone size={14} /> Voice room</button>
+                  <button className="vs-launcher-new" onClick={() => newRoom(true)} title="Start a video room"><VideoIcon size={15} /> Video room</button>
+                  <button className="vs-launcher-new" onClick={() => newRoom(false)} title="Start a voice room"><Phone size={15} /> Voice room</button>
                 </div>
                 <div className="vs-launcher-join">
                   <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="Enter a code" maxLength={8}
