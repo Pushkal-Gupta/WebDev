@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef, useId } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   Sigma, ListChecks, FileText, Cpu, FolderGit2, Map, Route,
   ArrowRight, ArrowLeft, ArrowUpRight, Code2, BookOpen, Trophy, Table2,

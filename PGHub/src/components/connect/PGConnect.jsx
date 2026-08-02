@@ -1,11 +1,14 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MessageSquare, Users, Search, UserPlus, Check, X, Clock3, Send, Rss, User, ArrowLeft } from 'lucide-react';
+import { MessageSquare, Users, Search, UserPlus, Check, X, Clock3, Send, Rss, User, ArrowLeft, Video as VideoIcon, Phone, Hash, Link2 } from 'lucide-react';
 import {
   searchUsers, getFriends, getIncomingRequests, getOutgoingRequests,
   sendFriendRequest, respondFriendRequest, getThread, sendMessage,
 } from '../../lib/friends';
+import { callsEnabled } from '../../lib/callSignal';
 import FeedTab from './FeedTab';
 import ProfileTab from './ProfileTab';
+import RoomsTab from './RoomsTab';
+import ConnectionsTab from './ConnectionsTab';
 import './PGConnect.css';
 
 function Avatar({ name, url, size = 40 }) {
@@ -75,6 +78,8 @@ export default function PGConnect({ session }) {
   const add = async (id) => { setOutgoing((o) => [...o, id]); try { await sendFriendRequest(user.id, id); } catch { /* ignore */ } };
   const respond = async (rowId, accept) => { setIncoming((r) => r.filter((x) => x.rowId !== rowId)); try { await respondFriendRequest(rowId, accept); } finally { reload(); } };
   const friendIds = new Set(friends.map((f) => f.id));
+  const startRoom = (mode) => window.dispatchEvent(new CustomEvent('pg:start-room', { detail: { mode } }));
+  const callFriend = (f, video) => window.dispatchEvent(new CustomEvent('pg:start-call', { detail: { toUserId: f.id, toName: f.name, video } }));
 
   if (!user) {
     return <div className="pgc-page"><div className="pgc-signin"><MessageSquare size={30} /><h2>Sign in to PGConnect</h2><p>Message friends, find coders, and connect.</p></div></div>;
@@ -82,12 +87,14 @@ export default function PGConnect({ session }) {
 
   return (
     <div className="pgc-page">
-      <div className="pgc-shell">
+      <div className={`pgc-shell ${tab === 'rooms' ? '' : 'has-side'}`}>
         <nav className="pgc-rail">
           <div className="pgc-brand"><span className="pgc-brand-pg">PG</span>Connect</div>
           <button className={`pgc-rail-btn ${tab === 'messages' ? 'on' : ''}`} onClick={() => setTab('messages')}><MessageSquare size={17} /> Messages</button>
+          <button className={`pgc-rail-btn ${tab === 'rooms' ? 'on' : ''}`} onClick={() => setTab('rooms')}><VideoIcon size={17} /> Meet</button>
           <button className={`pgc-rail-btn ${tab === 'people' ? 'on' : ''}`} onClick={() => setTab('people')}><Users size={17} /> People</button>
           <button className={`pgc-rail-btn ${tab === 'feed' ? 'on' : ''}`} onClick={() => setTab('feed')}><Rss size={17} /> Feed</button>
+          <button className={`pgc-rail-btn ${tab === 'accounts' ? 'on' : ''}`} onClick={() => setTab('accounts')}><Link2 size={17} /> Accounts</button>
           <button className={`pgc-rail-btn ${tab === 'profile' ? 'on' : ''}`} onClick={() => setTab('profile')}><User size={17} /> Profile</button>
           <div className="pgc-rail-spacer" />
           <div className="pgc-rail-user">
@@ -183,8 +190,50 @@ export default function PGConnect({ session }) {
           </div>
         )}
 
+        {tab === 'rooms' && <div className="pgc-scrollpane"><RoomsTab friends={friends} /></div>}
+        {tab === 'accounts' && <div className="pgc-scrollpane"><ConnectionsTab user={user} /></div>}
         {tab === 'feed' && <div className="pgc-scrollpane"><FeedTab user={user} myName={myName} /></div>}
         {tab === 'profile' && <div className="pgc-scrollpane"><ProfileTab user={user} myName={myName} /></div>}
+
+        {tab !== 'rooms' && (
+          <aside className="pgc-side">
+            {callsEnabled() ? (
+              <div className="pgc-side-card">
+                <div className="pgc-side-title"><VideoIcon size={14} /> Start a call</div>
+                <button className="pgc-side-action video" onClick={() => startRoom('video')}><VideoIcon size={16} /> New video room</button>
+                <button className="pgc-side-action voice" onClick={() => startRoom('voice')}><Phone size={16} /> New voice room</button>
+                <button className="pgc-side-meet" onClick={() => setTab('rooms')}><Hash size={13} /> Join a code or see all</button>
+              </div>
+            ) : null}
+
+            <div className="pgc-side-card">
+              <div className="pgc-side-title"><Users size={14} /> Quick call</div>
+              {friends.length === 0 ? (
+                <p className="pgc-side-empty">Add friends in People to call them in one tap.</p>
+              ) : (
+                <div className="pgc-side-friends">
+                  {friends.slice(0, 6).map((f) => (
+                    <div key={f.id} className="pgc-side-friend">
+                      <Avatar name={f.name} url={f.avatar} size={32} />
+                      <span className="pgc-side-friend-name">{f.name}</span>
+                      <button title={`Message ${f.name}`} onClick={() => { setActive(f); setTab('messages'); }}><MessageSquare size={14} /></button>
+                      {callsEnabled() ? <button title={`Video call ${f.name}`} onClick={() => callFriend(f, true)}><VideoIcon size={14} /></button> : null}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="pgc-side-card pgc-side-tip">
+              <div className="pgc-side-title"><Rss size={14} /> Get started</div>
+              <ul>
+                <li>Share a post in the Feed</li>
+                <li>Find coders in People and follow them</li>
+                <li>Start a Meet room and share the code</li>
+              </ul>
+            </div>
+          </aside>
+        )}
       </div>
     </div>
   );

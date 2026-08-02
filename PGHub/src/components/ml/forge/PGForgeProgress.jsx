@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router';
 import {
   Target, Award, Trophy, Flame, Check, Activity, ArrowRight,
   User, Share2, Pencil, Send,

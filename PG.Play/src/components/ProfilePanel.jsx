@@ -7,7 +7,7 @@
 // Sign out lives at the bottom; Esc closes.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import { Icon } from '../icons.jsx';
 import { ACHIEVEMENTS } from '../hooks/useAchievements.js';

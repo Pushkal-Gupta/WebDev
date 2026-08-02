@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   ChevronRight, ChevronDown, TrendingDown, Network, GitBranch, Grid3x3, Mail,
   Boxes, Target, Sparkles, BookOpen, Lightbulb, Code2, ListChecks,

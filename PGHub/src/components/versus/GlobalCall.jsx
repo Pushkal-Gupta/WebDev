@@ -100,6 +100,24 @@ export default function GlobalCall({ session }) {
     setJoinCode(''); setLauncherOpen(false);
   };
 
+  // Programmatic room starts (from the PGConnect Rooms hub or anywhere): create a
+  // video/voice room (I'm the caller, code is shown to share) or join one by code.
+  useEffect(() => {
+    const onRoom = (e) => {
+      if (!callsEnabled() || active) return;
+      const { mode, code } = e.detail || {};
+      if (mode === 'join') {
+        const c = (code || '').trim().toUpperCase();
+        if (c.length >= 4) setActive({ room: c, autoStart: null, peerName: 'Guest' });
+        return;
+      }
+      const c = genShortCode();
+      setActive({ room: c, autoStart: mode === 'voice' ? 'voice' : 'video', peerName: 'Guest', shareCode: c });
+    };
+    window.addEventListener('pg:start-room', onRoom);
+    return () => window.removeEventListener('pg:start-room', onRoom);
+  }, [active]);
+
   // Programmatic friend-call starts (from FriendsPanel or anywhere).
   useEffect(() => {
     if (!userId) return undefined;

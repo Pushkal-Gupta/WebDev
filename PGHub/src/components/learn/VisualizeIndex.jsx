@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
   ArrowRight, Play, Search, X, Code2, Film, Zap, Sparkles,
   BarChart3, Crosshair, Rows3, Layers, Link2, Network, Triangle, Hash,

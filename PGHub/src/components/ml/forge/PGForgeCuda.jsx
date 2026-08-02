@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Cpu, Search, ArrowRight } from 'lucide-react';
 import { PG_FORGE_CUDA, PG_FORGE_CUDA_CATEGORIES } from './pgForgeCudaData';
 import Breadcrumb from '../../common/Breadcrumb';

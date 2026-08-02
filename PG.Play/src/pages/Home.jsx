@@ -9,7 +9,7 @@
 // is the editorial layout.
 
 import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { motion, useReducedMotion } from 'framer-motion';
 import { GAMES, EDITORS_PICKS, FILTERS, COLLECTIONS, GENRES, genreMatches } from '../data.js';
 import { Icon } from '../icons.jsx';

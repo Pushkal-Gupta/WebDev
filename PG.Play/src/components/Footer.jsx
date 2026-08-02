@@ -8,7 +8,7 @@
 // Bottom strip carries copyright, an aphorism, theme toggle, privacy link.
 // No new deps; pure links + a click-handler for the theme toggle.
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { GAMES } from '../data.js';
 import { Icon } from '../icons.jsx';
 

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Search, X, ArrowRight, ArrowLeft, BookOpen, Hash, CheckCircle2 } from 'lucide-react';
 import ForgeThumb from './ml/forge/ForgeThumb';
 import { DSA_TUTORIAL, countTutorialItems, countAll } from '../content/dsaTutorial';

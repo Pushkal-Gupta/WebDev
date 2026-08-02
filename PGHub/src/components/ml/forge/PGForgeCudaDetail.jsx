@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router';
 import { Target, Code2 } from 'lucide-react';
 import { getCuda } from './pgForgeCudaData';
 import Breadcrumb from '../../common/Breadcrumb';

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
   Clock, ArrowLeft, Target, Hammer, Wrench, Code2, ListChecks,
   Gauge, Layers, Flag, CheckCircle2, Play,

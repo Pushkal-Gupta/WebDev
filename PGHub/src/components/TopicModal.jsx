@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, Lightbulb } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { supabase } from '../lib/supabase';
 import { useTopicProblems, useUserProgress, useProblemsCompact, filterByRoadmap, qk } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';

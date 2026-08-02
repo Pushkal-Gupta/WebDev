@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, Suspense, lazy as reactLazy, useRef } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, useParams, Link } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from './lib/supabase';
 import { queryClient } from './lib/queryClient';

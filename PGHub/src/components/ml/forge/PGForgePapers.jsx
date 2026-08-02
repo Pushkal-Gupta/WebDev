@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { ChevronRight, ChevronDown, ExternalLink, BookOpen, ArrowLeft, ArrowRight, FileText, Sigma, Code2 } from 'lucide-react';

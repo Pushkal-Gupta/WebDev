@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router';
 import { ArrowLeft, ArrowRight, Info, Lightbulb, Clock, Gauge, ListTree } from 'lucide-react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';

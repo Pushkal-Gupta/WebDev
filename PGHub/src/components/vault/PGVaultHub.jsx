@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ListPlus, Notebook, RotateCcw, TrendingUp, History, Award, ClipboardList, ArrowRight, Brain, Lock } from 'lucide-react';
 import VaultMotif from './VaultMotifs';
 import './PGVaultHub.css';

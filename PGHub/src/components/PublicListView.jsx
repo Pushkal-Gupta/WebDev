@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { Globe } from 'lucide-react';
 import { usePublicList, useMyListProblems, useUserProgress } from '../lib/queries';
 import Breadcrumb from './common/Breadcrumb';

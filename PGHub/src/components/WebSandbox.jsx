@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import Editor from '@monaco-editor/react';
 import { Play, RotateCcw, ExternalLink, Maximize2, Minimize2, FileCode, Palette, Braces, ChevronLeft } from 'lucide-react';
 import PlaygroundSwitcher from './PlaygroundSwitcher';

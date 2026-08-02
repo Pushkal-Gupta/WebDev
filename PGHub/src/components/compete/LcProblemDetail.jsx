@@ -1,6 +1,6 @@
 import './LcProblemDetail.css';
 import { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
   ExternalLink, Gauge, Layers, CalendarDays,
   Hash, Trophy, Target, ArrowLeft,

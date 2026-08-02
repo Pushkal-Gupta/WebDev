@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router';
 import {
   Grid3x3, Flame, Cpu, Zap, Brain, FileText,
   Sparkles, Move3d, Maximize2, Crosshair, Minimize2, Dices, Wand2,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useId, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   BookOpen, ChevronDown, ChevronRight, CheckCircle2, Circle,
   Lock, ExternalLink, Info, AlertTriangle, Lightbulb,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Brain, Sigma, Workflow, ArrowLeft, ArrowRight, BookOpen, Boxes } from 'lucide-react';
 import { PILLARS as REGISTRY } from '../../content/mlContent';
 import { GROUPS } from '../../content/mlGroups';

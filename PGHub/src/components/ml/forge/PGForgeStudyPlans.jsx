@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Clock, ListChecks, ArrowRight } from 'lucide-react';
 import { PG_FORGE_STUDY_PLANS } from './pgForgeStudyPlansData';
 import Breadcrumb from '../../common/Breadcrumb';

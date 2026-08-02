@@ -401,39 +401,70 @@ function graphFramesToScene(viz) {
   const frames = viz.frames;
   const F = frames.length;
   const isTree = viz.renderer === 'tree';
-
-  // Collect the node set + edges from the union of all frames.
-  const nodeIds = [];
-  const seen = new Set();
-  const edgeSet = new Map();
-  for (const f of frames) {
-    for (const nd of (f.nodes || [])) { const id = String(nd.id); if (!seen.has(id)) { seen.add(id); nodeIds.push(id); } }
-    for (const e of (f.edges || [])) { const a = String(e[0] ?? e.a ?? e.from), b = String(e[1] ?? e.b ?? e.to); const key = `${a}|${b}`; if (!edgeSet.has(key)) edgeSet.set(key, [a, b]); }
-  }
-  if (nodeIds.length === 0 || nodeIds.length > 26) return null;
-
   const anyChips = frames.some((f) => f.chip);
-  const topY = anyChips ? 70 : 40;
-  const cxC = W / 2;
-  const N = nodeIds.length;
-  const R = Math.max(90, Math.min(150, N * 16));
-  const cyC = topY + R + 20;
-  const pos = {};
-  nodeIds.forEach((id, i) => {
-    const ang = (i / N) * 2 * Math.PI - Math.PI / 2;
-    pos[id] = { x: cxC + R * Math.cos(ang), y: cyC + R * Math.sin(ang) };
-  });
-  const viewH = cyC + R + 40;
+  const topY = anyChips ? 74 : 44;
+
+  let nodeIds = [], edgeList = [], viewH = 0, nodeR = 20;
+  const pos = {}, labelById = {};
+  let stateMaps = null; // tree only: per-frame { pathId: state }
+
+  if (isTree && frames[0] && frames[0].tree) {
+    // Layered layout: in-order slot -> x, depth -> y. Node ids are root-relative paths
+    // (stable across frames since the tree shape is constant; only states change).
+    const nodesL = [], edgesL = [];
+    let slot = 0, maxDepth = 0;
+    const walk = (node, path, depth, parent) => {
+      if (!node) return;
+      walk(node.left, path + 'L', depth + 1, path);
+      nodesL.push({ id: path, value: node.value, depth, xslot: slot++ });
+      maxDepth = Math.max(maxDepth, depth);
+      if (parent !== null) edgesL.push([parent, path]);
+      walk(node.right, path + 'R', depth + 1, path);
+    };
+    walk(frames[0].tree, 'r', 0, null);
+    if (nodesL.length === 0 || nodesL.length > 31) return null;
+    const slots = Math.max(1, slot);
+    const levelH = Math.min(96, Math.max(62, 300 / (maxDepth + 1)));
+    nodeR = Math.max(13, Math.min(20, (W / slots) * 0.32));
+    for (const nd of nodesL) {
+      pos[nd.id] = { x: W * (nd.xslot + 0.5) / slots, y: topY + nd.depth * levelH };
+      nodeIds.push(nd.id); labelById[nd.id] = nd.value;
+    }
+    edgeList = edgesL;
+    viewH = topY + maxDepth * levelH + 46;
+    stateMaps = frames.map((f) => {
+      const m = {};
+      const sw = (node, path) => { if (!node) return; if (node.state) m[path] = node.state; sw(node.left, path + 'L'); sw(node.right, path + 'R'); };
+      sw(f.tree, 'r');
+      return m;
+    });
+  } else {
+    // Graph: collect nodes/edges from the union of frames, circle layout.
+    const seen = new Set(), edgeSet = new Map();
+    for (const f of frames) {
+      for (const nd of (f.nodes || [])) { const id = String(nd.id); if (!seen.has(id)) { seen.add(id); nodeIds.push(id); } if (nd.label != null && labelById[String(nd.id)] == null) labelById[String(nd.id)] = nd.label; }
+      for (const e of (f.edges || [])) { const a = String(e[0] ?? e.a ?? e.from), b = String(e[1] ?? e.b ?? e.to); const key = `${a}|${b}`; if (!edgeSet.has(key)) edgeSet.set(key, [a, b]); }
+    }
+    if (nodeIds.length === 0 || nodeIds.length > 26) return null;
+    const cxC = W / 2, N = nodeIds.length;
+    const R = Math.max(90, Math.min(150, N * 16));
+    const cyC = topY + R - 4;
+    nodeIds.forEach((id, i) => { const ang = (i / N) * 2 * Math.PI - Math.PI / 2; pos[id] = { x: cxC + R * Math.cos(ang), y: cyC + R * Math.sin(ang) }; });
+    edgeList = [...edgeSet.values()];
+    viewH = cyC + R + 40;
+  }
 
   const NODE_ROLE = {
     current: { fill: 'accent', textFill: 'bg', scale: 1.18 },
     visited: { fill: 'mint', textFill: 'bg', scale: 1 },
     done: { fill: 'mint', textFill: 'bg', scale: 1 },
-    frontier: { fill: 'sky', textFill: 'bg', scale: 1.05 },
+    frontier: { fill: 'sky', textFill: 'bg', scale: 1.06 },
     match: { fill: 'mint', textFill: 'bg', scale: 1.12 },
     default: { fill: 'surface', textFill: 'text-main', scale: 1 },
   };
-  const nodeState = (f, id) => {
+  const stateAt = (k, id) => {
+    if (stateMaps) return stateMaps[k][id] || null;
+    const f = frames[k];
     const nd = (f.nodes || []).find((x) => String(x.id) === id);
     if (nd && nd.state) return nd.state;
     if (f.highlightedNodes && f.highlightedNodes[id]) return f.highlightedNodes[id];
@@ -441,28 +472,27 @@ function graphFramesToScene(viz) {
   };
 
   const objects = [];
-  // Edges first (under nodes).
-  for (const [key, [a, b]] of edgeSet) {
+  // Edges first (under nodes). Highlight an edge once either endpoint is active.
+  for (const [a, b] of edgeList) {
     if (!pos[a] || !pos[b]) continue;
     const strokeVals = [];
     for (let k = 0; k < F; k++) {
-      const present = (frames[k].edges || []).some((e) => (String(e[0] ?? e.a ?? e.from) === a && String(e[1] ?? e.b ?? e.to) === b));
-      const st = (frames[k].edges || []).find((e) => String(e[0] ?? e.a ?? e.from) === a && String(e[1] ?? e.b ?? e.to) === b)?.state;
-      strokeVals.push(st === 'current' || st === 'visited' || st === 'tree' ? 'accent' : present ? 'border' : 'border');
+      const active = [stateAt(k, a), stateAt(k, b)].some((s) => s === 'current' || s === 'visited' || s === 'done');
+      strokeVals.push(active ? 'accent' : 'border');
     }
-    objects.push({ id: `e_${key}`, type: 'line', base: { x: pos[a].x, y: pos[a].y, x2: pos[b].x, y2: pos[b].y, stroke: 'border', thickness: 2 }, tracks: { stroke: buildTrack(strokeVals) } });
+    objects.push({ id: `e_${a}_${b}`, type: 'line', base: { x: pos[a].x, y: pos[a].y, x2: pos[b].x, y2: pos[b].y, stroke: 'border', thickness: 2 }, tracks: { stroke: buildTrack(strokeVals) } });
   }
   // Nodes.
   for (const id of nodeIds) {
     const fillVals = [], textVals = [], scaleVals = [];
     for (let k = 0; k < F; k++) {
-      const st = NODE_ROLE[nodeState(frames[k], id)] || NODE_ROLE.default;
+      const st = NODE_ROLE[stateAt(k, id)] || NODE_ROLE.default;
       fillVals.push(st.fill); textVals.push(st.textFill); scaleVals.push(st.scale);
     }
-    const label = (() => { for (const f of frames) { const nd = (f.nodes || []).find((x) => String(x.id) === id); if (nd && nd.label != null) return nd.label; } return id; })();
+    const label = labelById[id] != null ? labelById[id] : id;
     objects.push({
       id: `n_${id}`, type: 'node',
-      base: { cx: pos[id].x, cy: pos[id].y, r: 20, value: label, fill: 'surface', textFill: 'text-main' },
+      base: { cx: pos[id].x, cy: pos[id].y, r: nodeR, value: label, fill: 'surface', textFill: 'text-main' },
       tracks: { fill: buildTrack(fillVals), textFill: buildTrack(textVals), scale: buildTrack(scaleVals, { numeric: true, ease: 'back' }) },
     });
   }
@@ -476,8 +506,6 @@ function graphFramesToScene(viz) {
     }
     objects.push({ id: 'chip0', type: 'label', base: { x: W / 2, y: 40, value: '', fill: 'accent', size: 15, weight: '700' }, tracks: { value: buildTrack(textVals), opacity: buildTrack(opVals, { numeric: true }), fill: buildTrack(colorVals) } });
   }
-  // `isTree` kept for future layered layout; circle layout works for both today.
-  void isTree;
 
   return {
     title: viz.title,

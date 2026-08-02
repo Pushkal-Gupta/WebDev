@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useProblemsCompact, useUserProgress, useProfile, useRecentProblems, filterByRoadmap } from '../lib/queries';
 import { ChevronDown, Settings, RotateCcw, HelpCircle, Flame, Trophy, Play } from 'lucide-react';
 import './SidePanel.css';

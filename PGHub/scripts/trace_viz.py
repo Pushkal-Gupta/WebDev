@@ -67,6 +67,49 @@ def run(code, method_name, argvals):
 def literal_copy(a):
     return list(a) if isinstance(a, list) else a
 
+def run_sub(code, method_name, argvals):
+    # Like run() but follows sub-frames (comprehensions/genexprs/nested helpers) while inside
+    # the method. Used ONLY as a fallback when the method-frame trace is too short (one-liner
+    # solutions whose loop lives in a genexpr), so it never affects the primary array path.
+    ns = {}
+    exec(PREAMBLE + code, ns)
+    if 'Solution' not in ns:
+        raise RuntimeError('no Solution class')
+    inst = ns['Solution']()
+    method = getattr(inst, method_name)
+    tcode = method.__code__
+    snaps = []; state = {'inside': 0}
+    def cap(frame):
+        d = {}
+        for kk, vv in list(frame.f_locals.items()):
+            if kk == 'self' or kk.startswith('.'):
+                continue
+            sv = snap_val(vv)
+            if sv is not None:
+                d[kk] = sv
+        if d:
+            snaps.append(d)
+    def local_tracer(frame, event, arg):
+        if event == 'line':
+            cap(frame)
+        elif event == 'return':
+            cap(frame)
+            if frame.f_code is tcode:
+                state['inside'] = max(0, state['inside']-1)
+        return local_tracer
+    def global_tracer(frame, event, arg):
+        if frame.f_code is tcode:
+            state['inside'] += 1; return local_tracer
+        if state['inside'] > 0:
+            return local_tracer
+        return None
+    old = sys.gettrace(); sys.settrace(global_tracer)
+    try:
+        ret = method(*[literal_copy(a) for a in argvals])
+    finally:
+        sys.settrace(old)
+    return snaps, ret
+
 def choose_primary(argvals, param_types):
     # index of first list/str param
     best = None
@@ -174,7 +217,7 @@ def build_frames(snaps, ret, primary_name, primary0, other_params, method_name):
     cleaned = []
     for st in dedup:
         prim, idx, accs, elemval = st
-        if idx is None and not accs:
+        if idx is None and not accs and elemval is None:
             if cleaned and cleaned[-1][0] == prim:
                 continue
         cleaned.append(st)
@@ -696,17 +739,30 @@ def main():
         print(json.dumps({'ok':False,'error':'2D/nested primary (needs grid/graph renderer)'})); return
     others = [(param_names[i] if i<len(param_names) else f'p{i}', argvals[i]) for i in range(len(argvals)) if i!=pi and isinstance(argvals[i],(int,float,str)) and not isinstance(argvals[i],bool)]
     others = [(nm,vv) for nm,vv in others if not isinstance(vv,str) or len(vv)<=12]
-    frames = build_frames(snaps, ret, param_names[pi] if pi<len(param_names) else 'arr', primary0, others, method)
-    # quality gate: must hit the 10-frame bar AND show real motion (a gliding pointer or a
-    # mutating array) — never overwrite an existing viz with a static chip-only trace.
-    has_ptr = any('pointers' in f for f in frames)
-    a0 = frames[0].get('array') if frames else None
-    mutates = any(f.get('array') != a0 for f in frames if 'array' in f)
-    if len(frames) < 10:
-        print(json.dumps({'ok':False,'error':f'too few frames ({len(frames)})'})); return
-    if not (has_ptr or mutates):
+    pname = param_names[pi] if pi<len(param_names) else 'arr'
+    frames = build_frames(snaps, ret, pname, primary0, others, method)
+    def gate_ok(fr):
+        if len(fr) < 10:
+            return False
+        a0 = fr[0].get('array') if fr else None
+        return any('pointers' in f for f in fr) or any(f.get('array') != a0 for f in fr if 'array' in f)
+    # Fallback for one-liner / comprehension solutions whose loop lives in a genexpr the
+    # method-frame trace can't see: retry following sub-frames. Only used when the primary
+    # trace fell short, so it can never regress a good method-frame trace.
+    if not gate_ok(frames):
+        try:
+            sub_snaps, sub_ret = run_sub(code, method, argvals)
+            sub_frames = build_frames(sub_snaps, sub_ret, pname, primary0, others, method)
+            if gate_ok(sub_frames):
+                frames = sub_frames
+        except Exception:
+            pass
+    if not gate_ok(frames):
+        if len(frames) < 10:
+            print(json.dumps({'ok':False,'error':f'too few frames ({len(frames)})'})); return
         print(json.dumps({'ok':False,'error':'weak-trace (no motion)'})); return
-    print(json.dumps({'ok':True,'frames':frames,'renderer':'array','nframes':len(frames),'motion':bool(has_ptr or mutates)}))
+    has_ptr = any('pointers' in f for f in frames)
+    print(json.dumps({'ok':True,'frames':frames,'renderer':'array','nframes':len(frames),'motion':True}))
 
 if __name__ == '__main__':
     main()

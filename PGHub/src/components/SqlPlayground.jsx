@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router';
 import Editor from '@monaco-editor/react';
 import { Play, Loader2, RotateCcw, Table, Database, Check, X, BookOpen, ChevronLeft, ArrowRight, ClipboardPaste, Link2, FilePlus2, Trash2, Layers } from 'lucide-react';
 import sqlWasmUrl from 'sql.js/dist/sql-wasm.wasm?url';

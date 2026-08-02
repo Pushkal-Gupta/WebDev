@@ -12,7 +12,7 @@
 // navigating between Home and GamePage.
 
 import { useEffect, useState } from 'react';
-import { HashRouter, Route, Routes, useLocation } from 'react-router-dom';
+import { HashRouter, Route, Routes, useLocation } from 'react-router';
 import Home from './pages/Home.jsx';
 import GamePage from './pages/GamePage.jsx';
 import AchievementToast from './components/AchievementToast.jsx';

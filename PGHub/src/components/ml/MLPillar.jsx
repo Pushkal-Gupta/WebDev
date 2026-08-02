@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router';
 import { ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers, Clock, BarChart3 } from 'lucide-react';
 import { getPillar } from '../../content/mlContent';
 import Breadcrumb from '../common/Breadcrumb';

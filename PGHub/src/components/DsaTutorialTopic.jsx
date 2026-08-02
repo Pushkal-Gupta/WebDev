@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { Search, X } from 'lucide-react';
 import Breadcrumb from './common/Breadcrumb';
 import { DSA_TUTORIAL } from '../content/dsaTutorial';

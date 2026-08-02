@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { Flame, MapPin, BookOpen, Layers, GraduationCap, ArrowRight } from 'lucide-react';
 import { useCompany, useCompanyProblems, useUserProgress, useAllConceptsCompact } from '../../lib/queries';
 import StatusPill from '../StatusPill';

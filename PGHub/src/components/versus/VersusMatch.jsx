@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import Editor from '@monaco-editor/react';
 import { Zap, Copy, Check, Trophy, Clock, Send, User, Swords, ArrowLeft, Link2, Share2, MessageSquare, Mail, Code2, Play, Eye, EyeOff, Lightbulb, FileText, TestTube, Award, BarChart3, Flame, ThumbsUp, Laugh, PartyPopper, Flag, Radar, Snowflake } from 'lucide-react';
 import { supabase } from '../../lib/supabase';

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
   ChevronRight, Trophy, Clock, Play, Square, Award,
   Hourglass, Flag, Target, CalendarClock, Layers, ListChecks, Gauge,

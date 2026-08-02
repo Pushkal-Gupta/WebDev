@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router';
 import { Zap, Clock, User, Swords, ArrowLeft, Trophy, Eye, Flame, ThumbsUp, Laugh, PartyPopper } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { getMatch, matchChannel } from '../../lib/versus';

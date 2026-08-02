@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Flame, Trophy, ArrowLeft, Download, Link2, Check, GitBranch, Globe, Code2, ExternalLink, Award, TrendingUp } from 'lucide-react';
 // Lucide dropped brand icons (Linkedin, Twitter, Github) in recent versions —

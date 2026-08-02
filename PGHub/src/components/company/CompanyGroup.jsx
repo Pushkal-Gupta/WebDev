@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import {
   ArrowRight, Building2, MapPin, Star,
   Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud,

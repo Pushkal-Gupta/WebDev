@@ -6,7 +6,7 @@
 // directly into `useLeaderboard` per game (limit=1) — same source the
 // per-game intro uses, served from the cached edge function.
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { motion, useReducedMotion } from 'framer-motion';
 import { GAMES, EDITORS_PICKS } from '../data.js';
 import { Icon } from '../icons.jsx';

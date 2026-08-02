@@ -1,6 +1,6 @@
 import './LcProblemsBrowser.css';
 import { useMemo, useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Search, ArrowUpDown, ChevronLeft, ChevronRight, ChevronDown, Activity, X, Check, AlertTriangle, RotateCw } from 'lucide-react';
 import { useLcQuestions } from '../../lib/queries';
 import Breadcrumb from '../common/Breadcrumb';

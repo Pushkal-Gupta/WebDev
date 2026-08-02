@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo, lazy, Suspense } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router';
 import './App.css';
 import LeftNav from './components/LeftNav/LeftNav';
 import Board from './components/Board/Board';

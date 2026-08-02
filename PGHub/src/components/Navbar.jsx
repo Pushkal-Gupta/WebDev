@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import LoginModal from './LoginModal';
 import SettingsModal from './SettingsModal';
 import Logo from './Logo';

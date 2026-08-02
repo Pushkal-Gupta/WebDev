@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { BookOpen, ArrowRight, ChevronRight, Layers, ArrowLeft } from 'lucide-react';
 import { useModules, useAllConceptsCompact } from '../../lib/queries';
 import ForgeThumb from '../ml/forge/ForgeThumb';

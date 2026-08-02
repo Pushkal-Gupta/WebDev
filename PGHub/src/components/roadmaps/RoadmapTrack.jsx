@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link, useParams, Navigate } from 'react-router-dom';
+import { Link, useParams, Navigate } from 'react-router';
 import { ChevronRight, Code2, BookOpen, Flag, Layers, Clock } from 'lucide-react';
 import { useRoadmap, useRoadmapNodes, useProblemsCompact, useAllConceptsCompact, useUserProgress, useListProblemIds } from '../../lib/queries';
 import StatusPill from '../StatusPill';

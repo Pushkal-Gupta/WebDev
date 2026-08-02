@@ -4,7 +4,7 @@
 // suppress browser keys (arrows/space/tab) so the canvas owns input.
 
 import { useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router';
 import { GAMES } from '../data.js';
 import GameIntro from '../components/GameIntro.jsx';
 import { startRun } from '../lib/runToken.js';

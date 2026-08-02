@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Shield, BookOpen, Building2, Layers, AlertTriangle, RefreshCw, FileText, ListChecks } from 'lucide-react';
 import { supabase } from '../../lib/supabase';

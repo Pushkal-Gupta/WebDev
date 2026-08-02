@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ArrowRight, Clock, Layers, ArrowLeft } from 'lucide-react';
 import { COURSE_CARDS } from '../../content/courses';
 import ForgeThumb from '../ml/forge/ForgeThumb';

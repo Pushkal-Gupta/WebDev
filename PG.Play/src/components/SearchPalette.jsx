@@ -13,7 +13,7 @@
 
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { GAMES } from '../data.js';
 import { GAME_COVERS } from '../covers.jsx';
 import { Icon } from '../icons.jsx';

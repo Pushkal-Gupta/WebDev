@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import {
   Sigma, Workflow, Layers, Brain, Sparkles, Zap, Network, ArrowRight, Route,
 } from 'lucide-react';

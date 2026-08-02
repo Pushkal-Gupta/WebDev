@@ -104,7 +104,7 @@ export async function getFollowCounts(userId) {
 
 export async function getMyProfile(userId) {
   const { data } = await supabase.from('PGcode_profiles')
-    .select('user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved')
+    .select('user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved, linked_accounts, resume_url')
     .eq('user_id', userId).maybeSingle();
   return data || { user_id: userId };
 }

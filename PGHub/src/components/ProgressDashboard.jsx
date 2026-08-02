@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, lazy, Suspense } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router';
 import { Flame, Target, TrendingUp, Award, History as HistoryIcon, BarChart3, Share2, X, CalendarClock, PieChart, CheckCircle2 } from 'lucide-react';
 import ShareableCard from './ShareableCard';
 import Breadcrumb from './common/Breadcrumb';

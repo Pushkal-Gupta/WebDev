@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Pencil, Check, X, Trophy, Users, Heart, Loader2 } from 'lucide-react';
+import { Pencil, Check, X, Trophy, Users, Heart, Loader2, PenSquare, UserPlus, Video as VideoIcon, ArrowRight, Link2, ExternalLink, FileText } from 'lucide-react';
 import { getMyProfile, updateMyProfile, getFollowCounts, getUserPosts, deletePost } from '../../lib/social';
+import { platformById } from '../../lib/connections';
+
+const goTab = (t) => window.dispatchEvent(new CustomEvent('pg:connect-tab', { detail: t }));
+const startVideoRoom = () => window.dispatchEvent(new CustomEvent('pg:start-room', { detail: { mode: 'video' } }));
 
 // Custom profile backgrounds — theme-token gradients so they adapt to every palette.
 const BG_PRESETS = {
@@ -93,12 +97,56 @@ export default function ProfileTab({ user, myName }) {
               <span><b>{counts.followers}</b> <Users size={12} /> followers</span>
               <span><b>{counts.following}</b> following</span>
             </div>
+            {profile.linked_accounts?.length || profile.resume_url ? (
+              <div className="pgc-profile-links">
+                {(profile.linked_accounts || []).map((a) => {
+                  const p = platformById(a.id); if (!p) return null;
+                  return (
+                    <a key={a.id} className="pgc-plink" href={p.url(a.handle)} target="_blank" rel="noreferrer" style={{ '--pc': `var(${p.hue})` }}>
+                      {p.name}{a.stats?.solved != null ? <b>{a.stats.solved}</b> : <ExternalLink size={11} />}
+                    </a>
+                  );
+                })}
+                {profile.resume_url ? (
+                  <a className="pgc-plink" href={profile.resume_url} target="_blank" rel="noreferrer" style={{ '--pc': 'var(--accent)' }}>
+                    <FileText size={12} /> Resume
+                  </a>
+                ) : null}
+                <button className="pgc-plink-manage" onClick={() => goTab('accounts')}>Manage</button>
+              </div>
+            ) : (
+              <button className="pgc-plink-cta" onClick={() => goTab('accounts')}><Link2 size={14} /> Connect accounts &amp; upload resume</button>
+            )}
           </>
         )}
 
         <div className="pgc-profile-posts">
           <div className="pgc-group-label">Your posts</div>
-          {posts.length === 0 ? <p className="pgc-empty">You haven't posted yet — share something in the Feed.</p> : posts.map((p) => (
+          {posts.length === 0 ? (
+            <div className="pgc-onboard">
+              <p>Your posts will show up here. Get started:</p>
+              <div className="pgc-onboard-cards">
+                <button onClick={() => goTab('feed')}>
+                  <span className="pgc-onboard-ic feed"><PenSquare size={18} /></span>
+                  <b>Write your first post</b>
+                  <span>Share an update or a question in the Feed</span>
+                  <ArrowRight size={15} className="pgc-onboard-go" />
+                </button>
+                <button onClick={() => goTab('people')}>
+                  <span className="pgc-onboard-ic people"><UserPlus size={18} /></span>
+                  <b>Find people to follow</b>
+                  <span>Discover coders and build your network</span>
+                  <ArrowRight size={15} className="pgc-onboard-go" />
+                </button>
+                <button onClick={startVideoRoom}>
+                  <span className="pgc-onboard-ic meet"><VideoIcon size={18} /></span>
+                  <b>Start a Meet room</b>
+                  <span>Video or voice — share the code to invite</span>
+                  <ArrowRight size={15} className="pgc-onboard-go" />
+                </button>
+              </div>
+            </div>
+          ) : posts.map((p) => (
             <article key={p.id} className="pgc-post compact">
               <div className="pgc-post-main">
                 <div className="pgc-post-head"><span className="pgc-post-time">{timeAgo(p.created_at)}</span></div>

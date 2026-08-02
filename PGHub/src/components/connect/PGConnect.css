@@ -1,6 +1,66 @@
 /* PGConnect — the social home. Fills the shell; the only scroll is inside panes. */
 .pgc-page { width: 94%; max-width: var(--container-w); margin: 0 auto; padding: 1.4rem 0 1.6rem; flex: 1 1 auto; min-height: 0; display: flex; }
 .pgc-shell { flex: 1; display: grid; grid-template-columns: 210px 1fr; gap: 1rem; min-height: 0; }
+.pgc-shell.has-side { grid-template-columns: 210px 1fr 300px; }
+
+/* Contextual sidebar — keeps every tab full and puts calling one tap away */
+.pgc-side { display: flex; flex-direction: column; gap: 1rem; min-height: 0; }
+.pgc-side-card { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 1rem; }
+.pgc-side-title { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 0.75rem; }
+.pgc-side-title svg { color: var(--accent); }
+.pgc-side-action { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.6rem 0.8rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-bottom: 0.5rem; transition: border-color 0.15s, color 0.15s; }
+.pgc-side-action.video svg { color: var(--accent); }
+.pgc-side-action.voice svg { color: var(--hue-sky); }
+.pgc-side-action.video:hover { border-color: var(--accent); }
+.pgc-side-action.voice:hover { border-color: var(--hue-sky); }
+.pgc-side-meet { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; background: none; border: none; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 0.35rem; }
+.pgc-side-meet:hover { text-decoration: underline; }
+.pgc-side-empty { color: var(--text-dim); font-size: 0.84rem; margin: 0; line-height: 1.45; }
+.pgc-side-friends { display: flex; flex-direction: column; gap: 0.15rem; }
+.pgc-side-friend { display: flex; align-items: center; gap: 0.55rem; padding: 0.35rem 0.25rem; border-radius: 10px; }
+.pgc-side-friend:hover { background: var(--hover-box); }
+.pgc-side-friend-name { flex: 1; min-width: 0; font-size: 0.86rem; font-weight: 600; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgc-side-friend button { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; flex-shrink: 0; }
+.pgc-side-friend button:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-side-tip { flex: 1 0 auto; }
+.pgc-side-tip ul { margin: 0; padding-left: 1.05rem; display: flex; flex-direction: column; gap: 0.45rem; }
+.pgc-side-tip li { color: var(--text-dim); font-size: 0.85rem; line-height: 1.4; }
+
+/* Rooms / Meet hub */
+.pgc-rooms { padding: 1.6rem 1.6rem 2.4rem; display: flex; flex-direction: column; gap: 1.5rem; }
+.pgc-rooms-hero h1 { margin: 0; font-family: var(--serif); font-size: 1.9rem; color: var(--text-main); letter-spacing: -0.01em; }
+.pgc-rooms-hero p { margin: 0.4rem 0 0; color: var(--text-dim); font-size: 0.98rem; max-width: 560px; line-height: 1.5; }
+.pgc-rooms-off { display: inline-block; margin-top: 0.7rem; font-size: 0.82rem; color: var(--warning); }
+.pgc-rooms-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.pgc-room-card { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0.35rem; text-align: left; padding: 1.2rem; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: border-color 0.16s, transform 0.12s, box-shadow 0.16s; min-height: 150px; }
+button.pgc-room-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -14px rgba(0,0,0,0.45); }
+.pgc-room-card.video:hover { border-color: var(--accent); }
+.pgc-room-card.voice:hover { border-color: var(--hue-sky); }
+button.pgc-room-card:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: none; }
+.pgc-room-ic { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); margin-bottom: 0.3rem; }
+.pgc-room-card.voice .pgc-room-ic { background: color-mix(in srgb, var(--hue-sky) 16%, transparent); color: var(--hue-sky); }
+.pgc-room-card.join .pgc-room-ic { background: color-mix(in srgb, var(--hue-violet) 16%, transparent); color: var(--hue-violet); }
+.pgc-room-t { font-size: 1.02rem; font-weight: 700; color: var(--text-main); }
+.pgc-room-s { font-size: 0.84rem; color: var(--text-dim); line-height: 1.4; }
+.pgc-room-go { position: absolute; top: 1.2rem; right: 1.2rem; color: var(--text-dim); }
+.pgc-room-join { display: flex; gap: 0.4rem; width: 100%; margin-top: 0.4rem; }
+.pgc-room-join input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem 0.7rem; color: var(--text-main); font-size: 0.9rem; letter-spacing: 0.08em; }
+.pgc-room-join input::placeholder { letter-spacing: 0; }
+.pgc-room-join input:focus { outline: none; border-color: var(--hue-violet); }
+.pgc-room-join button { padding: 0.5rem 0.95rem; border-radius: 10px; border: none; background: var(--hue-violet); color: #fff; font-weight: 700; font-size: 0.85rem; cursor: pointer; }
+.pgc-room-join button:disabled { opacity: 0.5; cursor: default; }
+.pgc-rooms-friends { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.6rem; margin-top: 0.4rem; }
+.pgc-rooms-friend { display: flex; align-items: center; gap: 0.6rem; padding: 0.55rem 0.7rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.pgc-rooms-friend-name { flex: 1; min-width: 0; font-weight: 600; font-size: 0.9rem; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgc-rooms-call { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; flex-shrink: 0; }
+.pgc-rooms-call.voice { color: var(--hue-sky); } .pgc-rooms-call.voice:hover { border-color: var(--hue-sky); }
+.pgc-rooms-call.video { color: var(--accent); } .pgc-rooms-call.video:hover { border-color: var(--accent); }
+.pgc-rooms-call:disabled { opacity: 0.5; cursor: default; }
+.pgc-rooms-features { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.7rem; margin-top: 0.4rem; }
+.pgc-feature { display: flex; align-items: flex-start; gap: 0.7rem; padding: 0.8rem; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+.pgc-feature-ic { display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); flex-shrink: 0; }
+.pgc-feature b { display: block; font-size: 0.9rem; color: var(--text-main); margin-bottom: 0.1rem; }
+.pgc-feature span { font-size: 0.8rem; color: var(--text-dim); line-height: 1.4; }
 
 .pgc-rail { display: flex; flex-direction: column; gap: 0.35rem; padding: 1.1rem 0.85rem; border: 1px solid var(--border); border-radius: 18px; background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface) 40%); min-height: 0; }
 .pgc-brand { font-family: var(--serif); font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 0.1rem 0.5rem 1rem; letter-spacing: -0.01em; }
@@ -67,13 +127,20 @@
 .pgc-av { border-radius: 999px; object-fit: cover; flex-shrink: 0; }
 .pgc-av-ph { display: inline-flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--accent) 20%, transparent); color: var(--accent); font-weight: 700; }
 
+@media (max-width: 1080px) {
+  .pgc-shell.has-side { grid-template-columns: 210px 1fr; }
+  .pgc-side { display: none; }
+}
 @media (max-width: 760px) {
-  .pgc-shell { grid-template-columns: 1fr; }
+  .pgc-shell, .pgc-shell.has-side { grid-template-columns: 1fr; }
   .pgc-rail { flex-direction: row; overflow-x: auto; }
+  .pgc-rail-spacer, .pgc-rail-user { display: none; }
   .pgc-messenger { grid-template-columns: 1fr; }
   .pgc-convos.has-active { display: none; }
   .pgc-thread .pgc-back { display: inline-flex; }
   .pgc-thread:not(.open) { display: none; }
+  .pgc-rooms-actions { grid-template-columns: 1fr; }
+  .pgc-room-card { min-height: 0; }
 }
 
 /* Scroll pane wrapper for Feed/Profile */
@@ -144,6 +211,81 @@ button.pgc-post-act.liked:hover { color: var(--hard); }
 .pgc-bg-swatch.on { border-color: var(--text-main); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--accent); }
 .pgc-edit-err { color: var(--hard); font-size: 0.82rem; margin: 0; }
 .pgc-profile-posts { margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.pgc-onboard > p { color: var(--text-dim); font-size: 0.9rem; margin: 0 0 0.9rem; }
+.pgc-onboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.8rem; }
+.pgc-onboard-cards button { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 0.25rem; text-align: left; padding: 1.1rem; border-radius: 14px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; transition: border-color 0.16s, transform 0.12s, box-shadow 0.16s; }
+.pgc-onboard-cards button:hover { transform: translateY(-2px); border-color: var(--accent); box-shadow: 0 10px 26px -14px rgba(0,0,0,0.45); }
+.pgc-onboard-ic { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 11px; margin-bottom: 0.35rem; }
+.pgc-onboard-ic.feed { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.pgc-onboard-ic.people { background: color-mix(in srgb, var(--hue-violet) 16%, transparent); color: var(--hue-violet); }
+.pgc-onboard-ic.meet { background: color-mix(in srgb, var(--hue-sky) 16%, transparent); color: var(--hue-sky); }
+.pgc-onboard-cards b { font-size: 0.95rem; color: var(--text-main); }
+.pgc-onboard-cards button > span:not(.pgc-onboard-ic):not(.pgc-onboard-go) { font-size: 0.82rem; color: var(--text-dim); line-height: 1.4; }
+.pgc-onboard-go { position: absolute; top: 1.1rem; right: 1.1rem; color: var(--text-dim); }
+
+/* Profile: connected-account badges */
+.pgc-profile-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; align-items: center; }
+.pgc-plink { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--pc) 45%, var(--border)); background: color-mix(in srgb, var(--pc) 10%, transparent); color: var(--text-main); font-size: 0.82rem; font-weight: 600; text-decoration: none; }
+.pgc-plink:hover { border-color: var(--pc); }
+.pgc-plink b { color: var(--pc); }
+.pgc-plink svg { color: var(--pc); }
+.pgc-plink-manage { padding: 0.3rem 0.6rem; border-radius: 999px; border: 1px dashed var(--border); background: transparent; color: var(--text-dim); font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+.pgc-plink-manage:hover { color: var(--accent); border-color: var(--accent); }
+.pgc-plink-cta { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 1rem; padding: 0.45rem 0.85rem; border-radius: 999px; border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); color: var(--accent); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.pgc-plink-cta:hover { background: color-mix(in srgb, var(--accent) 18%, transparent); }
+
+/* Connections / Accounts hub */
+.pgc-conns { padding: 1.6rem 1.6rem 2.4rem; display: flex; flex-direction: column; gap: 1.3rem; }
+.pgc-conns-hero h1 { margin: 0; font-family: var(--serif); font-size: 1.9rem; color: var(--text-main); letter-spacing: -0.01em; }
+.pgc-conns-hero p { margin: 0.4rem 0 0; color: var(--text-dim); font-size: 0.98rem; max-width: 580px; line-height: 1.5; }
+.pgc-conns-summary { display: flex; gap: 1rem; flex-wrap: wrap; }
+.pgc-conns-stat { flex: 1; min-width: 130px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); padding: 0.9rem 1.1rem; }
+.pgc-conns-stat b { display: block; font-size: 1.5rem; font-weight: 800; color: var(--text-main); }
+.pgc-conns-stat span { font-size: 0.78rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pgc-conns-err { color: var(--hard); font-size: 0.85rem; margin: 0; }
+.pgc-conns-section { display: flex; flex-direction: column; gap: 0.6rem; }
+.pgc-conns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.9rem; }
+
+/* Resume */
+.pgc-resume { display: flex; align-items: center; gap: 0.9rem; padding: 1rem 1.1rem; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+.pgc-resume-ic { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); flex-shrink: 0; }
+.pgc-resume-body { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.pgc-resume-body b { font-size: 0.98rem; color: var(--text-main); }
+.pgc-resume-body span { font-size: 0.83rem; color: var(--text-dim); }
+.pgc-resume-actions { display: flex; gap: 0.4rem; }
+.pgc-resume-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.8rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 0.84rem; font-weight: 600; cursor: pointer; text-decoration: none; }
+.pgc-resume-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-resume-btn.primary { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.pgc-resume-btn.del:hover { border-color: var(--hard); color: var(--hard); }
+.pgc-resume-btn:disabled { opacity: 0.6; cursor: default; }
+.pgc-conn-card { display: flex; flex-direction: column; gap: 0.75rem; padding: 1rem; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); transition: border-color 0.16s, box-shadow 0.16s; }
+.pgc-conn-card.on { border-color: color-mix(in srgb, var(--pc) 55%, var(--border)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 20%, transparent); }
+.pgc-conn-top { display: flex; align-items: center; gap: 0.65rem; }
+.pgc-conn-ic { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 11px; background: color-mix(in srgb, var(--pc) 15%, transparent); color: var(--pc); flex-shrink: 0; }
+.pgc-conn-name { flex: 1; min-width: 0; display: flex; flex-direction: column; font-weight: 700; font-size: 0.95rem; color: var(--text-main); }
+.pgc-conn-name a { display: inline-flex; align-items: center; gap: 0.25rem; font-size: 0.78rem; font-weight: 500; color: var(--pc); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pgc-conn-name a:hover { text-decoration: underline; }
+.pgc-conn-kind { font-size: 0.72rem; font-weight: 500; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+.pgc-conn-remove { display: inline-flex; align-items: center; justify-content: center; width: 1.8rem; height: 1.8rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; flex-shrink: 0; }
+.pgc-conn-remove:hover { border-color: var(--hard); color: var(--hard); }
+.pgc-conn-stats { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+.pgc-conn-chip { flex: 1; min-width: 52px; text-align: center; padding: 0.4rem 0.25rem; border-radius: 9px; background: var(--bg); border: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
+.pgc-conn-chip b { display: block; font-size: 0.95rem; font-weight: 800; color: var(--text-main); }
+.pgc-conn-chip span { display: block; font-size: 0.62rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.01em; white-space: nowrap; }
+.pgc-conn-open { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.84rem; font-weight: 600; color: var(--pc); text-decoration: none; }
+.pgc-conn-open:hover { text-decoration: underline; }
+.pgc-conn-foot { margin-top: auto; }
+.pgc-conn-add, .pgc-conn-sync { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+.pgc-conn-add:hover { border-color: var(--pc); color: var(--pc); }
+.pgc-conn-sync:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-conn-sync:disabled { opacity: 0.6; cursor: default; }
+.pgc-conn-linked { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.82rem; font-weight: 600; color: var(--easy); }
+.pgc-conn-form { display: flex; gap: 0.35rem; }
+.pgc-conn-form input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 0.45rem 0.6rem; color: var(--text-main); font-size: 0.85rem; }
+.pgc-conn-form input:focus { outline: none; border-color: var(--pc); }
+.pgc-conn-form button { display: inline-flex; align-items: center; justify-content: center; width: 2rem; border-radius: 9px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; }
+.pgc-conn-form button.ok { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+.pgc-conn-form button:disabled { opacity: 0.5; cursor: default; }
 
 /* Feed replies (inline thread) */
 button.pgc-post-act.on { color: var(--accent); }

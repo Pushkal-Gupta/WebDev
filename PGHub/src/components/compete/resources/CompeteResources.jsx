@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { BookOpen, ArrowRight, Lightbulb, ExternalLink } from 'lucide-react';
 import { RESOURCE_GROUPS, RESOURCE_TIPS } from './resourcesData';
 import Breadcrumb from '../../common/Breadcrumb';

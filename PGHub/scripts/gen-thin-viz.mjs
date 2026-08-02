@@ -12,7 +12,7 @@ const ids=JSON.parse(fs.readFileSync(idsFile,'utf8'));
 const py=(s)=>{const p=s?.python;if(!p)return null;if(typeof p==='string')return p;if(p&&typeof p==='object'&&typeof p.code==='string')return p.code;return null;};
 const isList=(t)=>/^List\[/.test(t||'');
 const isStr=(t)=>t==='str';
-function parseLit(s){ try{ return JSON.parse(s);}catch{} try{ return JSON.parse(s.replace(/'/g,'"')); }catch{} return s.replace(/^"|"$/g,''); }
+function parseLit(s){ if(typeof s!=='string') return null; try{ return JSON.parse(s);}catch{} try{ return JSON.parse(s.replace(/'/g,'"')); }catch{} return s.replace(/^"|"$/g,''); }
 
 function primaryIndex(params){
   for(let i=0;i<params.length;i++) if(isList(params[i].type)) return i;
@@ -31,15 +31,17 @@ function pickTC(tcs, pi){
   let best=null, bestScore=-1;
   for(const tc of tcs){
     const ins=tc.inputs; if(!Array.isArray(ins)||!ins.length) continue;
-    let L=0;
-    if(pi>=0 && pi<ins.length) L=sizeOf(parseLit(ins[pi]));
-    else for(const s of ins) L=Math.max(L, sizeOf(parseLit(s)));
+    let L=0, distinct=99;
+    if(pi>=0 && pi<ins.length){ const pv=parseLit(ins[pi]); L=sizeOf(pv);
+      if(Array.isArray(pv)) distinct=new Set(pv.map(x=>JSON.stringify(x))).size;
+      else if(typeof pv==='string') distinct=new Set(pv).size;
+    } else for(const s of ins) L=Math.max(L, sizeOf(parseLit(s)));
     if(L===0) continue;
     let score;
-    if(L>=8 && L<=12) score=100-Math.abs(10-L);
-    else if(L<8) score=50+L;
-    else if(L<=14) score=40-(L-12);
-    else score=10-(L-14);
+    if(L>=8 && L<=14) score=100-Math.abs(11-L);   // ideal size
+    else if(L>14) score=82-Math.min(20,(L-14)/50); // large but truncatable to ~12 -> still good
+    else score=50+L;                                // small: prefer longer
+    if(distinct<3) score-=55;                       // avoid degenerate all-same-value inputs (nothing "moves")
     if(score>bestScore){bestScore=score;best=tc;}
   }
   return best;
@@ -67,8 +69,18 @@ for(let i=0;i<ids.length;i+=80){
     const tcs=Array.isArray(r.test_cases)?r.test_cases:[];
     const tc=pickTC(tcs,pi);
     if(!tc){ fails.push([r.id,'no usable tc']); continue; }
+    // Truncate an oversized 1D primary to a representative ~12 elements (not for
+    // grid/graph/tree/list structural inputs). The solution re-runs on the slice so the
+    // result stays correct for what's shown.
+    let inputs=tc.inputs;
+    const ptype=params[pi]?.type||'';
+    if(pi>=0 && !/List\[List|TreeNode|ListNode/.test(ptype)){
+      const v=parseLit(inputs[pi]);
+      if(Array.isArray(v) && v.length>16){ inputs=[...inputs]; inputs[pi]=JSON.stringify(v.slice(0,12)); }
+      else if(typeof v==='string' && v.length>16){ inputs=[...inputs]; inputs[pi]=JSON.stringify(v.slice(0,12)); }
+    }
     const payload={
-      code, method_name:r.method_name, inputs:tc.inputs,
+      code, method_name:r.method_name, inputs,
       param_types:params.map(p=>p.type), param_names:params.map(p=>p.name)
     };
     const proc=spawnSync('python3',['scripts/trace_viz.py'],{input:JSON.stringify(payload),encoding:'utf8',timeout:15000});

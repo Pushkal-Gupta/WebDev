@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ListOrdered, Trophy, ArrowRight } from 'lucide-react';
 import Breadcrumb from '../common/Breadcrumb';
 import LeetCodeAnalytics from '../contests/LeetCodeAnalytics';

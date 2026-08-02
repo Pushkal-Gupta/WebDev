@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router';
 import Editor from '@monaco-editor/react';
 import { Play, Loader2, RotateCcw, Copy, Check, Share2, Globe, Database, Code2, TerminalSquare, FileInput } from 'lucide-react';
 import { runCode, PLAYGROUND_LANGS } from '../lib/codeRunner';

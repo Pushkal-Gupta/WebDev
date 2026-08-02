@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router';
 import {
   TrendingUp, TrendingDown, MousePointerClick, Search, Trophy, Calendar,
   Hash, CheckCircle2, Award, Globe, Sparkles, SlidersHorizontal,

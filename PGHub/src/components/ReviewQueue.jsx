@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { RotateCcw, Clock, ChevronRight, AlertCircle, CheckCircle } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { friendlyError } from '../lib/errors';

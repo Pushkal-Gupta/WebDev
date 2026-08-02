@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink } from 'react-router';
 import { Terminal, Globe, Database } from 'lucide-react';
 import './PlaygroundSwitcher.css';
 

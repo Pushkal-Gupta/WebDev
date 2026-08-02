@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Search, X, NotebookPen } from 'lucide-react';
 import { useUserProgress, useProblemsCompact } from '../lib/queries';
 import ConfidenceMeter from './vault/ConfidenceMeter';

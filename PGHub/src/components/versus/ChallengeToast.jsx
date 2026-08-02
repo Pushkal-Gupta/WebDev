@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Swords, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { challengeChannel } from '../../lib/friends';

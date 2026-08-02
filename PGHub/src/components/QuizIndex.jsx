@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useRef, lazy, Suspense } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Brain, Sparkles, ArrowRight, ListChecks, Lock, ArrowLeft, X, ChevronDown, Check } from 'lucide-react';
 import { QUIZZES, QUIZZES_BY_TOPIC, TOPIC_LABELS } from '../content/quizzes';
 import { isAiEnabled } from '../lib/ai';

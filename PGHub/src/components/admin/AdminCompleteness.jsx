@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router';
 import { Shield, Check, X, Search, ArrowRight, FileText, ListChecks, Layers } from 'lucide-react';
 import { useProfile, useProblemCompleteness } from '../../lib/queries';
 import './Admin.css';

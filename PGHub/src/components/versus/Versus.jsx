@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Zap, User, HelpCircle, Eye, Radar, EyeOff, Clock, Code2, Minus, Lightbulb, Snowflake, Swords, Trophy, ArrowRight, Hash, ListChecks, Shuffle, Flame, TrendingUp } from 'lucide-react';
 import { createMatch, getMyRecord, POWERUPS } from '../../lib/versus';
 import { sendChallenge } from '../../lib/friends';

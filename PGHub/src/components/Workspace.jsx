@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { useTopicProblems, filterByRoadmap, qk, useProblemCompanies, useSimilarProblems, useSubmissionsForProblem, useUpdateSubmissionNotes } from '../lib/queries';

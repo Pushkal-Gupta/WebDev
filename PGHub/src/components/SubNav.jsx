@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router';
 import {
   Map, List, Terminal, Building2, Trophy, Swords, Target,
   GraduationCap, Brain, Vault, MessageSquare,

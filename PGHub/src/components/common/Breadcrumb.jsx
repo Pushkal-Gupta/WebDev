@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { ArrowLeft, ChevronRight } from 'lucide-react';
 import './Breadcrumb.css';
 

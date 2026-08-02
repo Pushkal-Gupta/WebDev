@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Trophy, ArrowRight, Clock, Star, Radio, CalendarClock, History, Infinity as InfinityIcon, Gauge, Target } from 'lucide-react';
 import { useContests } from '../../lib/queries';
 import ForgeThumb from '../ml/forge/ForgeThumb';

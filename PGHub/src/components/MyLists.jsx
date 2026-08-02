@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useQueryClient } from '@tanstack/react-query';
 import { Plus, Trash2, Pencil, ListPlus, Search, X, ArrowLeft, Share2, Lock, Globe, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';

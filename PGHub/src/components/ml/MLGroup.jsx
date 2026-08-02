@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams, useLocation } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router';
 import { ArrowRight, Brain, Sigma, Workflow, Calculator, Layers, Zap, Network, BarChart3 } from 'lucide-react';
 import { getGroup } from '../../content/mlGroups';
 import { PILLARS as REGISTRY } from '../../content/mlContent';
