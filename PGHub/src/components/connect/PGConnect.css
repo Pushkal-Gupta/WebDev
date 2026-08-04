@@ -197,6 +197,7 @@ button.pgc-post-act.liked:hover { color: var(--hard); }
 .pgc-profile-stats span { display: inline-flex; align-items: center; gap: 0.3rem; color: var(--text-dim); font-size: 0.86rem; }
 .pgc-profile-stats b { color: var(--text-main); font-size: 1.05rem; }
 .pgc-profile-stats svg { color: var(--accent); }
+.pgc-stat-sub { display: block; font-size: 0.68rem; color: var(--text-dim); font-style: normal; margin-top: 0.05rem; }
 .pgc-edit-form { display: flex; flex-direction: column; gap: 0.8rem; }
 .pgc-edit-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.76rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
 .pgc-edit-form input, .pgc-edit-form textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.75rem; color: var(--text-main); font-family: var(--sans); font-size: 0.9rem; font-weight: 400; text-transform: none; letter-spacing: 0; }
@@ -222,6 +223,23 @@ button.pgc-post-act.liked:hover { color: var(--hard); }
 .pgc-onboard-cards b { font-size: 0.95rem; color: var(--text-main); }
 .pgc-onboard-cards button > span:not(.pgc-onboard-ic):not(.pgc-onboard-go) { font-size: 0.82rem; color: var(--text-dim); line-height: 1.4; }
 .pgc-onboard-go { position: absolute; top: 1.1rem; right: 1.1rem; color: var(--text-dim); }
+
+/* Public profile view */
+.pgc-pubhead { padding: 0.8rem 1rem 0; }
+.pgc-back-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.35rem 0.7rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.84rem; font-weight: 600; cursor: pointer; }
+.pgc-back-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-pub-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.pgc-pub-id { min-width: 0; }
+.pgc-pub-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+.pgc-follow-btn, .pgc-msg-btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 0.9rem; border-radius: 999px; font-size: 0.85rem; font-weight: 700; cursor: pointer; border: 1px solid var(--accent); }
+.pgc-follow-btn { background: var(--accent); color: var(--bg); }
+.pgc-follow-btn.on { background: transparent; color: var(--accent); }
+.pgc-msg-btn { background: transparent; color: var(--text-main); border-color: var(--border); }
+.pgc-msg-btn:hover { border-color: var(--accent); color: var(--accent); }
+.pgc-person-open { display: flex; align-items: center; gap: 0.7rem; flex: 1; min-width: 0; background: none; border: none; cursor: pointer; text-align: left; padding: 0; }
+.pgc-post-av { background: none; border: none; padding: 0; cursor: pointer; flex-shrink: 0; }
+button.pgc-post-name.link { background: none; border: none; padding: 0; cursor: pointer; }
+button.pgc-post-name.link:hover, .pgc-person-open:hover .pgc-person-name { text-decoration: underline; }
 
 /* Profile: connected-account badges */
 .pgc-profile-links { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; align-items: center; }

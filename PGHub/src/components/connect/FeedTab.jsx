@@ -15,6 +15,8 @@ function Avatar({ name, url, size = 40 }) {
   return <span className="pgc-av pgc-av-ph" style={{ width: size, height: size, fontSize: size * 0.4 }}>{(name || '?').slice(0, 1).toUpperCase()}</span>;
 }
 
+const viewProfile = (id, name) => { if (id) window.dispatchEvent(new CustomEvent('pg:view-profile', { detail: { id, name } })); };
+
 export default function FeedTab({ user, myName }) {
   const [scope, setScope] = useState('all');
   const [posts, setPosts] = useState(null);
@@ -106,10 +108,10 @@ export default function FeedTab({ user, myName }) {
         <div className="pgc-posts">
           {posts.map((p) => (
             <article key={p.id} className="pgc-post">
-              <Avatar name={p.authorName} url={p.authorAvatar} size={42} />
+              <button className="pgc-post-av" onClick={() => viewProfile(p.author_id, p.authorName)}><Avatar name={p.authorName} url={p.authorAvatar} size={42} /></button>
               <div className="pgc-post-main">
                 <div className="pgc-post-head">
-                  <span className="pgc-post-name">{p.authorName}</span>
+                  <button className="pgc-post-name link" onClick={() => viewProfile(p.author_id, p.authorName)}>{p.authorName}</button>
                   {p.authorUsername ? <span className="pgc-post-handle">@{p.authorUsername}</span> : null}
                   <span className="pgc-post-dot">·</span>
                   <span className="pgc-post-time">{timeAgo(p.created_at)}</span>

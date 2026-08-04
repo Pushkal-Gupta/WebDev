@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams } from 'react-router';
 import { MessageSquare, Users, Search, UserPlus, Check, X, Clock3, Send, Rss, User, ArrowLeft, Video as VideoIcon, Phone, Hash, Link2 } from 'lucide-react';
 import {
   searchUsers, getFriends, getIncomingRequests, getOutgoingRequests,
@@ -7,8 +8,8 @@ import {
 import { callsEnabled } from '../../lib/callSignal';
 import FeedTab from './FeedTab';
 import ProfileTab from './ProfileTab';
-import RoomsTab from './RoomsTab';
 import ConnectionsTab from './ConnectionsTab';
+import PublicProfile from './PublicProfile';
 import './PGConnect.css';
 
 function Avatar({ name, url, size = 40 }) {
@@ -21,6 +22,7 @@ function Avatar({ name, url, size = 40 }) {
 // existing friends/DM infra; Feed + profile customization arrive with their migration.
 export default function PGConnect({ session }) {
   const user = session?.user;
+  const { userId: routeUserId } = useParams();
   const myName = user?.user_metadata?.full_name || user?.user_metadata?.name || user?.email?.split('@')[0] || 'You';
   const [tab, setTab] = useState('messages');
   const [friends, setFriends] = useState([]);
@@ -31,6 +33,7 @@ export default function PGConnect({ session }) {
   const [draft, setDraft] = useState('');
   const [q, setQ] = useState('');
   const [results, setResults] = useState(null);
+  const [viewUser, setViewUser] = useState(routeUserId ? { id: routeUserId, name: null } : null); // public profile being viewed (deep-linkable via /connect/u/:userId)
   const scrollRef = useRef(null);
 
   const reload = useCallback(() => {
@@ -61,6 +64,20 @@ export default function PGConnect({ session }) {
 
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [messages]);
 
+  // child panes (Profile onboarding cards) can switch tabs
+  useEffect(() => {
+    const onTab = (e) => { if (e.detail) { setTab(e.detail); setViewUser(null); } };
+    window.addEventListener('pg:connect-tab', onTab);
+    return () => window.removeEventListener('pg:connect-tab', onTab);
+  }, []);
+
+  // open any user's public profile from the feed, People, or a chat header
+  useEffect(() => {
+    const onView = (e) => { const d = e.detail; if (d?.id) setViewUser({ id: d.id, name: d.name }); };
+    window.addEventListener('pg:view-profile', onView);
+    return () => window.removeEventListener('pg:view-profile', onView);
+  }, []);
+
   const send = async (e) => {
     e?.preventDefault();
     const body = draft.trim();
@@ -80,6 +97,7 @@ export default function PGConnect({ session }) {
   const friendIds = new Set(friends.map((f) => f.id));
   const startRoom = (mode) => window.dispatchEvent(new CustomEvent('pg:start-room', { detail: { mode } }));
   const callFriend = (f, video) => window.dispatchEvent(new CustomEvent('pg:start-call', { detail: { toUserId: f.id, toName: f.name, video } }));
+  const viewProfile = (id, name) => setViewUser({ id, name });
 
   if (!user) {
     return <div className="pgc-page"><div className="pgc-signin"><MessageSquare size={30} /><h2>Sign in to PGConnect</h2><p>Message friends, find coders, and connect.</p></div></div>;
@@ -87,11 +105,10 @@ export default function PGConnect({ session }) {
 
   return (
     <div className="pgc-page">
-      <div className={`pgc-shell ${tab === 'rooms' ? '' : 'has-side'}`}>
+      <div className={`pgc-shell ${tab === 'rooms' && !viewUser ? '' : 'has-side'}`}>
         <nav className="pgc-rail">
           <div className="pgc-brand"><span className="pgc-brand-pg">PG</span>Connect</div>
           <button className={`pgc-rail-btn ${tab === 'messages' ? 'on' : ''}`} onClick={() => setTab('messages')}><MessageSquare size={17} /> Messages</button>
-          <button className={`pgc-rail-btn ${tab === 'rooms' ? 'on' : ''}`} onClick={() => setTab('rooms')}><VideoIcon size={17} /> Meet</button>
           <button className={`pgc-rail-btn ${tab === 'people' ? 'on' : ''}`} onClick={() => setTab('people')}><Users size={17} /> People</button>
           <button className={`pgc-rail-btn ${tab === 'feed' ? 'on' : ''}`} onClick={() => setTab('feed')}><Rss size={17} /> Feed</button>
           <button className={`pgc-rail-btn ${tab === 'accounts' ? 'on' : ''}`} onClick={() => setTab('accounts')}><Link2 size={17} /> Accounts</button>
@@ -103,7 +120,20 @@ export default function PGConnect({ session }) {
           </div>
         </nav>
 
-        {tab === 'messages' && (
+        {viewUser && (
+          <div className="pgc-scrollpane">
+            <PublicProfile
+              key={viewUser.id}
+              user={user}
+              userId={viewUser.id}
+              name={viewUser.name}
+              onBack={() => setViewUser(null)}
+              onMessage={(f) => { setActive(f); setTab('messages'); setViewUser(null); }}
+            />
+          </div>
+        )}
+
+        {!viewUser && tab === 'messages' && (
           <div className="pgc-messenger">
             <aside className={`pgc-convos ${active ? 'has-active' : ''}`}>
               <div className="pgc-convos-head">Chats</div>
@@ -140,7 +170,7 @@ export default function PGConnect({ session }) {
           </div>
         )}
 
-        {tab === 'people' && (
+        {!viewUser && tab === 'people' && (
           <div className="pgc-people">
             <form className="pgc-search" onSubmit={runSearch}>
               <Search size={15} />
@@ -151,8 +181,10 @@ export default function PGConnect({ session }) {
               <div className="pgc-list">
                 {results.length === 0 ? <p className="pgc-empty">No coders found for “{q}”.</p> : results.map((r) => (
                   <div key={r.id} className="pgc-person">
-                    <Avatar name={r.name} url={r.avatar} size={40} />
-                    <span className="pgc-person-name">{r.name}{r.username ? <em>@{r.username}</em> : null}</span>
+                    <button className="pgc-person-open" onClick={() => viewProfile(r.id, r.name)}>
+                      <Avatar name={r.name} url={r.avatar} size={40} />
+                      <span className="pgc-person-name">{r.name}{r.username ? <em>@{r.username}</em> : null}</span>
+                    </button>
                     {friendIds.has(r.id) ? <span className="pgc-tag">friend</span>
                       : outgoing.includes(r.id) ? <span className="pgc-tag"><Clock3 size={12} /> sent</span>
                       : <button className="pgc-add" onClick={() => add(r.id)}><UserPlus size={14} /> Add</button>}
@@ -179,8 +211,10 @@ export default function PGConnect({ session }) {
                   <span className="pgc-group-label"><Users size={13} /> Friends ({friends.length})</span>
                   {friends.length === 0 ? <p className="pgc-empty">No friends yet — search above to add someone.</p> : friends.map((f) => (
                     <div key={f.id} className="pgc-person">
-                      <Avatar name={f.name} url={f.avatar} size={40} />
-                      <span className="pgc-person-name">{f.name}</span>
+                      <button className="pgc-person-open" onClick={() => viewProfile(f.id, f.name)}>
+                        <Avatar name={f.name} url={f.avatar} size={40} />
+                        <span className="pgc-person-name">{f.name}</span>
+                      </button>
                       <button className="pgc-icon msg" title="Message" onClick={() => { setActive(f); setTab('messages'); }}><MessageSquare size={15} /></button>
                     </div>
                   ))}
@@ -190,10 +224,10 @@ export default function PGConnect({ session }) {
           </div>
         )}
 
-        {tab === 'rooms' && <div className="pgc-scrollpane"><RoomsTab friends={friends} /></div>}
-        {tab === 'accounts' && <div className="pgc-scrollpane"><ConnectionsTab user={user} /></div>}
-        {tab === 'feed' && <div className="pgc-scrollpane"><FeedTab user={user} myName={myName} /></div>}
-        {tab === 'profile' && <div className="pgc-scrollpane"><ProfileTab user={user} myName={myName} /></div>}
+        {!viewUser && tab === 'rooms' && <div className="pgc-scrollpane"><RoomsTab friends={friends} /></div>}
+        {!viewUser && tab === 'accounts' && <div className="pgc-scrollpane"><ConnectionsTab user={user} /></div>}
+        {!viewUser && tab === 'feed' && <div className="pgc-scrollpane"><FeedTab user={user} myName={myName} /></div>}
+        {!viewUser && tab === 'profile' && <div className="pgc-scrollpane"><ProfileTab user={user} myName={myName} /></div>}
 
         {tab !== 'rooms' && (
           <aside className="pgc-side">

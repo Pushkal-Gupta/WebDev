@@ -360,6 +360,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
           <Route path="/battle/:code" element={<VersusMatch session={session} />} />
           <Route path="/watch/:code" element={<Spectator />} />
           <Route path="/connect" element={<PGConnect session={session} />} />
+          <Route path="/connect/u/:userId" element={<PGConnect session={session} />} />
           <Route path="/learning" element={<LearningHub />} />
           <Route path="/forge" element={<PGForgeHub />} />
           <Route path="/forge/learn" element={<MLHub />} />

@@ -102,10 +102,14 @@ export async function getFollowCounts(userId) {
   return { followers: followers.count || 0, following: following.count || 0 };
 }
 
+const PROFILE_COLS = 'user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved, linked_accounts, resume_url';
 export async function getMyProfile(userId) {
-  const { data } = await supabase.from('PGcode_profiles')
-    .select('user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved, linked_accounts, resume_url')
-    .eq('user_id', userId).maybeSingle();
+  const { data } = await supabase.from('PGcode_profiles').select(PROFILE_COLS).eq('user_id', userId).maybeSingle();
+  return data || { user_id: userId };
+}
+// Any user's public profile (profiles are public-read via RLS).
+export async function getProfileById(userId) {
+  const { data } = await supabase.from('PGcode_profiles').select(PROFILE_COLS).eq('user_id', userId).maybeSingle();
   return data || { user_id: userId };
 }
 export async function updateMyProfile(userId, fields) {

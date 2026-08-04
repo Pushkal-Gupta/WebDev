@@ -93,7 +93,11 @@ export default function ProfileTab({ user, myName }) {
             {profile.username ? <span className="pgc-profile-handle">@{profile.username}</span> : null}
             {profile.bio ? <p className="pgc-profile-bio">{profile.bio}</p> : null}
             <div className="pgc-profile-stats">
-              <span><b>{profile.total_solved || 0}</b> <Trophy size={12} /> solved</span>
+              {(() => {
+                const across = (profile.linked_accounts || []).reduce((s, a) => s + (Number(a.stats?.solved) || 0), 0);
+                const solved = Math.max(profile.total_solved || 0, across);
+                return <span><b>{solved.toLocaleString()}</b> <Trophy size={12} /> solved{across > 0 ? <em className="pgc-stat-sub">across platforms</em> : null}</span>;
+              })()}
               <span><b>{counts.followers}</b> <Users size={12} /> followers</span>
               <span><b>{counts.following}</b> following</span>
             </div>

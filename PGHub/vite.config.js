@@ -11,7 +11,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'vendor-react':    ['react', 'react-dom', 'react-router-dom'],
+          'vendor-react':    ['react', 'react-dom', 'react-router'],
           'vendor-monaco':   ['@monaco-editor/react'],
           'vendor-reactflow':['reactflow'],
           'vendor-query':    ['@tanstack/react-query', '@tanstack/query-sync-storage-persister', '@tanstack/react-query-persist-client'],

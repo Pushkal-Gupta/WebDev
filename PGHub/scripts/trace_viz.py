@@ -78,8 +78,13 @@ def run_sub(code, method_name, argvals):
     inst = ns['Solution']()
     method = getattr(inst, method_name)
     tcode = method.__code__
-    snaps = []; state = {'inside': 0}
+    snaps = []; state = {'inside': 0, 'stop': False}
+    SNAP_CAP = 8000  # bound memory/time: heavy solutions can emit millions of sub-frame lines
     def cap(frame):
+        if len(snaps) >= SNAP_CAP:
+            state['stop'] = True
+            sys.settrace(None)
+            return
         d = {}
         for kk, vv in list(frame.f_locals.items()):
             if kk == 'self' or kk.startswith('.'):
@@ -90,6 +95,8 @@ def run_sub(code, method_name, argvals):
         if d:
             snaps.append(d)
     def local_tracer(frame, event, arg):
+        if state['stop']:
+            return None
         if event == 'line':
             cap(frame)
         elif event == 'return':
@@ -134,6 +141,115 @@ def safe_result(ret):
         return json.dumps(ret)[:40]
     except Exception:
         return 'result'
+
+CELL_NAME_PAIRS = [('r','c'),('i','j'),('x','y'),('row','col'),('nr','nc'),('cr','cc'),('ci','cj'),('a','b')]
+
+def find_cell(ints, rows, cols):
+    # a (row,col) pair of int locals both in grid range. Named pairs only (avoid mislabeling).
+    for rn, cn in CELL_NAME_PAIRS:
+        if rn in ints and cn in ints and 0 <= ints[rn] < rows and 0 <= ints[cn] < cols:
+            return (ints[rn], ints[cn])
+    return None
+
+def build_grid_traversal_frames(grid, snaps, ret, method_name):
+    rows = len(grid); cols = len(grid[0]) if grid else 0
+    if rows < 2 or cols < 2 or rows > 14 or cols > 16:
+        return None
+    if any(len(row) != cols for row in grid):
+        return None
+    seq = []
+    for s in snaps:
+        ints = {k: v for k, (kind, v) in s.items() if kind == 'num' and isinstance(v, int) and not isinstance(v, bool)}
+        cell = find_cell(ints, rows, cols)
+        if cell and (not seq or seq[-1] != cell):
+            seq.append(cell)
+    total = len(seq)
+    if len(set(seq)) < 8:
+        return None
+    # Cumulative wavefront: each frame fills MORE of the grid (in real visit order), with the
+    # newest batch highlighted. Smooth progressive fill regardless of DFS/scan order — never
+    # a jumpy one-cell-at-a-time scatter.
+    K = min(13, total)
+    frames = [{'grid': [[0]*cols for _ in range(rows)],
+               'caption': f"Trace {method_name}: {rows}x{cols} grid. Cells fill in as the algorithm visits them."}]
+    prev_upto = 0
+    for step in range(1, K + 1):
+        upto = max(step, int(round(step/K * total)))
+        upto = min(upto, total)
+        visited = set(seq[:prev_upto])
+        current = set(seq[prev_upto:upto])
+        grid_state = [[(2 if (i, j) in current else (1 if (i, j) in visited else 0)) for j in range(cols)] for i in range(rows)]
+        frames.append({'grid': grid_state, 'chip': {'label': 'visited', 'value': min(upto, len(set(seq[:upto]))), 'tone': 'sky'},
+                       'caption': f"Explored {upto} of {total} cell-visits."})
+        prev_upto = upto
+    frames.append({'grid': [[1 if (i, j) in set(seq) else 0 for j in range(cols)] for i in range(rows)],
+                   'chip': {'label': 'result', 'value': safe_result(ret), 'tone': 'mint'},
+                   'caption': f"Result: {safe_result(ret)}."})
+    return frames
+
+def pick_driver(snaps):
+    # a loop counter: an int local with many distinct values that mostly increases.
+    hist = {}
+    for s in snaps:
+        for k, (kind, val) in s.items():
+            if kind == 'num' and isinstance(val, int) and not isinstance(val, bool) and not k.startswith('_'):
+                hist.setdefault(k, []).append(val)
+    best = None; bd = 0
+    for k, vs in hist.items():
+        distinct = len(set(vs))
+        if distinct < 8:
+            continue
+        seq = [v for i, v in enumerate(vs) if i == 0 or v != vs[i-1]]
+        if len(seq) < 8:
+            continue
+        # require a STRICTLY-INCREASING counter with near-uniform step: this is what makes a
+        # clean "values tried" ramp. Rejects wrapping vars (hours 0..11,0..) and oscillating
+        # nested-loop vars that would render as meaningless bars.
+        diffs = [seq[i] - seq[i-1] for i in range(1, len(seq))]
+        if not all(d > 0 for d in diffs):
+            continue
+        if max(diffs) > 3 * min(diffs):
+            continue
+        if distinct > bd:
+            bd = distinct; best = k
+    return best
+
+def build_scalar_frames(snaps, ret, driver, method_name):
+    scal = {}
+    for s in snaps:
+        for k, (kind, val) in s.items():
+            if kind in ('num', 'bool') and not k.startswith('_'):
+                scal.setdefault(k, set()).add(val)
+    acc_keys = [k for k, vs in scal.items() if k != driver and len(vs) > 1]
+    acc_keys.sort(key=lambda k: (k not in KNOWN_ACC, k)); acc_keys = acc_keys[:3]
+    rows = []
+    for s in snaps:
+        if driver in s and s[driver][0] == 'num':
+            dv = s[driver][1]
+            av = [(k, s[k][1]) for k in acc_keys if k in s and s[k][0] in ('num', 'bool')]
+            rows.append((dv, av))
+    dd = []
+    for r in rows:
+        if not dd or dd[-1][0] != r[0]:
+            dd.append(r)
+    if len(dd) < 8:
+        return None
+    if len(dd) > 14:
+        step = len(dd)/14.0
+        dd = [dd[int(i*step)] for i in range(14)]
+    values = [dv for dv, _ in dd]
+    frames = [{'array': values, 'caption': f"Trace {method_name}: enumerate {driver}. Each bar is a value tried; watch the accumulator."}]
+    for i, (dv, av) in enumerate(dd):
+        f = {'array': values, 'pointers': {str(i): driver},
+             'highlights': {**{str(j): 'done' for j in range(i)}, str(i): 'current'}}
+        if av:
+            f['chip'] = [{'label': k, 'value': v, 'tone': tone_for(j)} for j, (k, v) in enumerate(av)]
+        f['caption'] = f"{driver} = {dv}" + (("  " + "  ".join(f"{k} = {v}" for k, v in av)) if av else "")
+        frames.append(f)
+    frames.append({'array': values, 'highlights': {str(j): 'done' for j in range(len(values))},
+                   'chip': {'label': 'result', 'value': safe_result(ret), 'tone': 'mint'},
+                   'caption': f"Result: {safe_result(ret)}."})
+    return frames
 
 def build_frames(snaps, ret, primary_name, primary0, other_params, method_name):
     n = len(primary0) if isinstance(primary0,(list,str)) else 0
@@ -610,22 +726,85 @@ def build_list_frames(vidval, snaps, ret, method_name):
     frames.append(rf)
     return frames
 
+def detect_intervals(argvals, param_types):
+    for i, (v, t) in enumerate(zip(argvals, param_types)):
+        if not ('List[List' in (t or '') and isinstance(v, list) and 3 <= len(v) <= 12):
+            continue
+        # length-2 rows are [start,end]; length-3 rows (e.g. car-pooling [num,from,to]) use the
+        # last two columns as the span.
+        if all(isinstance(r, list) and len(r) == 2 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in r) for r in v):
+            spans = [[r[0], r[1]] for r in v]
+        elif all(isinstance(r, list) and len(r) == 3 and all(isinstance(x, (int, float)) and not isinstance(x, bool) for x in r) for r in v):
+            spans = [[r[1], r[2]] for r in v]
+        else:
+            continue
+        if sum(1 for s, e in spans if s <= e) >= len(spans) * 0.7:
+            mx = max(e for s, e in spans); mn = min(s for s, e in spans)
+            if mx > mn and (mx >= len(v) or mn < 0 or (mx - mn) >= len(v)):
+                return i, spans
+    return None
+
+def build_interval_frames(intervals, snaps, ret, method_name):
+    n = len(intervals)
+    mn = min(s for s, e in intervals); mx = max(e for s, e in intervals)
+    span = mx - mn
+    if span <= 0 or n < 3:
+        return None
+    COLS = min(22, max(10, span + 1))
+    def col(x):
+        return min(COLS - 1, max(0, int(round((x - mn) / span * (COLS - 1)))))
+    order = sorted(range(n), key=lambda k: (intervals[k][0], intervals[k][1]))
+    disp = [intervals[k] for k in order]
+    # accumulator: a changing scalar (rooms in use, merged count, ans)
+    scal = {}
+    for s in snaps:
+        for k, (kind, val) in s.items():
+            if kind in ('num', 'bool') and not k.startswith('_'):
+                scal.setdefault(k, []).append(val)
+    acc = None
+    for k, vs in scal.items():
+        if len(set(vs)) > 1:
+            acc = k; break
+    def rowcells(iv, state):
+        s, e = iv; cs, ce = col(s), col(e)
+        return [state if cs <= j <= ce else 0 for j in range(COLS)]
+    frames = [{'grid': [rowcells(iv, 1) for iv in disp],
+               'caption': f"Trace {method_name}: {n} intervals on a timeline [{mn}..{mx}], sorted by start."}]
+    accseq = scal.get(acc, [])
+    for idx in range(n):
+        grid = [rowcells(iv, (2 if r == idx else 1)) for r, iv in enumerate(disp)]
+        f = {'grid': grid, 'caption': f"Process interval [{disp[idx][0]}, {disp[idx][1]}]."}
+        if acc and accseq:
+            f['chip'] = {'label': acc, 'value': accseq[min(idx, len(accseq) - 1)], 'tone': 'accent'}
+        frames.append(f)
+    frames.append({'grid': [rowcells(iv, 1) for iv in disp],
+                   'chip': {'label': 'result', 'value': safe_result(ret), 'tone': 'mint'},
+                   'caption': f"Result: {safe_result(ret)}."})
+    return frames
+
 def detect_graph(argvals, param_types, param_names):
+    # (a) edge-list: rows are [a,b] pairs.
     edge_i = None; edges = None
     for i,(v,t) in enumerate(zip(argvals, param_types)):
-        if isinstance(v, list) and len(v)>0 and all(isinstance(e,list) and len(e)>=2
-                and all(isinstance(x,int) for x in e[:2]) for e in v):
+        if isinstance(v, list) and len(v)>0 and all(isinstance(e,list) and len(e)==2
+                and all(isinstance(x,int) for x in e) for e in v):
             edge_i = i; edges = [[e[0], e[1]] for e in v]; break
-    if edges is None:
-        return None
-    maxnode = max((max(e[0],e[1]) for e in edges), default=-1)
-    n = maxnode + 1
+    if edges is not None:
+        maxnode = max((max(e[0],e[1]) for e in edges), default=-1)
+        n = maxnode + 1
+        for i,(v,t) in enumerate(zip(argvals, param_types)):
+            if i!=edge_i and isinstance(v,int) and not isinstance(v,bool) and v>maxnode and v<=64:
+                n = v; break
+        if 2 <= n <= 14 and len(edges) <= 22:
+            return n, edges
+    # (b) adjacency list: graph[i] = neighbours of node i (values all in [0, len(graph))).
     for i,(v,t) in enumerate(zip(argvals, param_types)):
-        if i!=edge_i and isinstance(v,int) and not isinstance(v,bool) and v>maxnode and v<=64:
-            n = v; break
-    if n < 2 or n > 14 or len(edges) > 22:
-        return None
-    return n, edges
+        if isinstance(v, list) and 2 <= len(v) <= 14 and all(isinstance(row, list) for row in v) \
+                and all(isinstance(x,int) and 0 <= x < len(v) for row in v for x in row):
+            adj_edges = [[u, w] for u, nbrs in enumerate(v) for w in nbrs]
+            if 1 <= len(adj_edges) <= 26:
+                return len(v), adj_edges
+    return None
 
 def build_graph_frames(snaps, ret, n, edges, method_name):
     # node-visit order: prefer a growing list local of node ids (topo/traversal order),
@@ -715,22 +894,62 @@ def main():
         print(json.dumps({'ok':False,'error':'list-trace-failed'})); return
     argvals = [literal(x) for x in inputs]
     snaps, ret = run(code, method, argvals)
+    # (interval path) List[List] of [start,end] pairs -> render on a timeline grid + sweep.
+    # Before the grid path (which would draw an ugly 2-column pairs grid).
+    iv = detect_intervals(argvals, param_types)
+    if iv:
+        ivf = build_interval_frames(iv[1], snaps, ret, method)
+        if ivf and len(ivf) >= 10:
+            print(json.dumps({'ok':True,'frames':ivf,'renderer':'grid','nframes':len(ivf),'motion':True})); return
     # (grid path) if a 2D structure mutates over the run, animate the wavefront/DP-fill.
     gres = build_grid_frames(snaps, ret, method)
     if gres:
         gframes, gchanged = gres
         if len(gframes) >= 10 and gchanged:
             print(json.dumps({'ok':True,'frames':gframes,'renderer':'grid','nframes':len(gframes),'motion':True})); return
-    # (graph path) edge-list + node-count inputs -> animate node processing order
+    # (grid-traversal path) grid input whose DFS/BFS visits cells (tracked by named (r,c)
+    # coord locals via sub-frames) -> animate a 0/1/2 state-grid wavefront.
+    grid_pos = next((i for i,t in enumerate(param_types) if 'List[List' in (t or '')), None)
+    if grid_pos is not None:
+        gridarg = argvals[grid_pos] if grid_pos < len(argvals) else None
+        if isinstance(gridarg, list) and gridarg and isinstance(gridarg[0], list) and all(isinstance(x,(int,float)) and not isinstance(x,bool) for row in gridarg for x in row):
+            try:
+                tsnaps, tret = run_sub(code, method, argvals)
+                gtf = build_grid_traversal_frames(gridarg, tsnaps, tret, method)
+                if gtf and len(gtf) >= 10:
+                    print(json.dumps({'ok':True,'frames':gtf,'renderer':'grid','nframes':len(gtf),'motion':True})); return
+            except Exception:
+                pass
+    # (graph path) edge-list or adjacency-list inputs -> animate node processing order
     gr = detect_graph(argvals, param_types, param_names)
     if gr:
         n_g, edges_g = gr
         grframes = build_graph_frames(snaps, ret, n_g, edges_g, method)
+        if not (grframes and len(grframes) >= 10):
+            try:  # nested DFS/BFS: the visit order lives in sub-frames
+                gsub, gret = run_sub(code, method, argvals)
+                grframes = build_graph_frames(gsub, gret, n_g, edges_g, method)
+            except Exception:
+                pass
         if grframes and len(grframes) >= 10:
             print(json.dumps({'ok':True,'frames':grframes,'renderer':'graph','nframes':len(grframes),'motion':True})); return
     # (array path)
     pi = choose_primary(argvals, param_types)
     if pi is None:
+        # (scalar-loop path) no array input, but a loop counter enumerates values -> render
+        # the tried-values as bars with the accumulator gliding alongside.
+        for src_snaps in (snaps, None):
+            ss = src_snaps
+            if ss is None:
+                try:
+                    ss, ret = run_sub(code, method, argvals)
+                except Exception:
+                    break
+            drv = pick_driver(ss)
+            if drv:
+                sf = build_scalar_frames(ss, ret, drv, method)
+                if sf and len(sf) >= 10:
+                    print(json.dumps({'ok':True,'frames':sf,'renderer':'array','nframes':len(sf),'motion':True})); return
         print(json.dumps({'ok':False,'error':'no list/str param'})); return
     primary0 = argvals[pi]
     if not isinstance(primary0,(list,str)) or len(primary0)==0:
