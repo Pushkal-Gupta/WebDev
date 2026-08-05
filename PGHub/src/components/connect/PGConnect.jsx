@@ -34,6 +34,7 @@ export default function PGConnect({ session }) {
   const [q, setQ] = useState('');
   const [results, setResults] = useState(null);
   const [viewUser, setViewUser] = useState(routeUserId ? { id: routeUserId, name: null } : null); // public profile being viewed (deep-linkable via /connect/u/:userId)
+  const [joinCode, setJoinCode] = useState('');
   const scrollRef = useRef(null);
 
   const reload = useCallback(() => {
@@ -96,6 +97,12 @@ export default function PGConnect({ session }) {
   const respond = async (rowId, accept) => { setIncoming((r) => r.filter((x) => x.rowId !== rowId)); try { await respondFriendRequest(rowId, accept); } finally { reload(); } };
   const friendIds = new Set(friends.map((f) => f.id));
   const startRoom = (mode) => window.dispatchEvent(new CustomEvent('pg:start-room', { detail: { mode } }));
+  const joinRoom = () => {
+    const code = joinCode.trim().toUpperCase();
+    if (code.length < 4) return;
+    window.dispatchEvent(new CustomEvent('pg:start-room', { detail: { mode: 'join', code } }));
+    setJoinCode('');
+  };
   const callFriend = (f, video) => window.dispatchEvent(new CustomEvent('pg:start-call', { detail: { toUserId: f.id, toName: f.name, video } }));
   const viewProfile = (id, name) => setViewUser({ id, name });
 
@@ -105,7 +112,7 @@ export default function PGConnect({ session }) {
 
   return (
     <div className="pgc-page">
-      <div className={`pgc-shell ${tab === 'rooms' && !viewUser ? '' : 'has-side'}`}>
+      <div className="pgc-shell has-side">
         <nav className="pgc-rail">
           <div className="pgc-brand"><span className="pgc-brand-pg">PG</span>Connect</div>
           <button className={`pgc-rail-btn ${tab === 'messages' ? 'on' : ''}`} onClick={() => setTab('messages')}><MessageSquare size={17} /> Messages</button>
@@ -224,7 +231,6 @@ export default function PGConnect({ session }) {
           </div>
         )}
 
-        {!viewUser && tab === 'rooms' && <div className="pgc-scrollpane"><RoomsTab friends={friends} /></div>}
         {!viewUser && tab === 'accounts' && <div className="pgc-scrollpane"><ConnectionsTab user={user} /></div>}
         {!viewUser && tab === 'feed' && <div className="pgc-scrollpane"><FeedTab user={user} myName={myName} /></div>}
         {!viewUser && tab === 'profile' && <div className="pgc-scrollpane"><ProfileTab user={user} myName={myName} /></div>}
@@ -233,10 +239,15 @@ export default function PGConnect({ session }) {
           <aside className="pgc-side">
             {callsEnabled() ? (
               <div className="pgc-side-card">
-                <div className="pgc-side-title"><VideoIcon size={14} /> Start a call</div>
+                <div className="pgc-side-title"><VideoIcon size={14} /> Start a meeting</div>
                 <button className="pgc-side-action video" onClick={() => startRoom('video')}><VideoIcon size={16} /> New video room</button>
                 <button className="pgc-side-action voice" onClick={() => startRoom('voice')}><Phone size={16} /> New voice room</button>
-                <button className="pgc-side-meet" onClick={() => setTab('rooms')}><Hash size={13} /> Join a code or see all</button>
+                <form className="pgc-side-join" onSubmit={(e) => { e.preventDefault(); joinRoom(); }}>
+                  <span className="pgc-side-join-ic"><Hash size={13} /></span>
+                  <input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="Enter a code" maxLength={8} />
+                  <button type="submit" disabled={joinCode.trim().length < 4}>Join</button>
+                </form>
+                <p className="pgc-side-note">Meetings open in a floating window you can drag anywhere.</p>
               </div>
             ) : null}
 

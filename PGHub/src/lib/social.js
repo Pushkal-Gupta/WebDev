@@ -102,16 +102,25 @@ export async function getFollowCounts(userId) {
   return { followers: followers.count || 0, following: following.count || 0 };
 }
 
-const PROFILE_COLS = 'user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved, linked_accounts, resume_url';
-export async function getMyProfile(userId) {
-  const { data } = await supabase.from('PGcode_profiles').select(PROFILE_COLS).eq('user_id', userId).maybeSingle();
-  return data || { user_id: userId };
+// Base columns exist on every deploy. linked_accounts/resume_url arrive with
+// migration 95, so they're fetched separately and degrade to empty if absent —
+// otherwise one 400 on the missing column would blank the whole profile.
+const PROFILE_COLS = 'user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved';
+async function getProfileExtras(userId) {
+  const { data, error } = await supabase.from('PGcode_profiles').select('linked_accounts, resume_url').eq('user_id', userId).maybeSingle();
+  if (error) return {};
+  return { linked_accounts: data?.linked_accounts || [], resume_url: data?.resume_url || null };
 }
+async function fetchProfile(userId) {
+  const [{ data }, extra] = await Promise.all([
+    supabase.from('PGcode_profiles').select(PROFILE_COLS).eq('user_id', userId).maybeSingle(),
+    getProfileExtras(userId),
+  ]);
+  return { ...(data || { user_id: userId }), ...extra };
+}
+export const getMyProfile = fetchProfile;
 // Any user's public profile (profiles are public-read via RLS).
-export async function getProfileById(userId) {
-  const { data } = await supabase.from('PGcode_profiles').select(PROFILE_COLS).eq('user_id', userId).maybeSingle();
-  return data || { user_id: userId };
-}
+export const getProfileById = fetchProfile;
 export async function updateMyProfile(userId, fields) {
   const clean = {};
   for (const k of ['display_name', 'username', 'bio', 'background_preset', 'background_url', 'banner_url']) {

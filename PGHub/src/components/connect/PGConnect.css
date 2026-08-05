@@ -4,8 +4,10 @@
 .pgc-shell.has-side { grid-template-columns: 210px 1fr 300px; }
 
 /* Contextual sidebar — keeps every tab full and puts calling one tap away */
-.pgc-side { display: flex; flex-direction: column; gap: 1rem; min-height: 0; }
-.pgc-side-card { border: 1px solid var(--border); border-radius: 16px; background: var(--surface); padding: 1rem; }
+/* One panel, uniform with the left rail (same border, radius, gradient) */
+.pgc-side { display: flex; flex-direction: column; min-height: 0; border: 1px solid var(--border); border-radius: 18px; background: linear-gradient(180deg, color-mix(in srgb, var(--accent) 6%, var(--surface)), var(--surface) 40%); }
+.pgc-side-card { border: none; background: none; border-radius: 0; padding: 1.1rem 1rem; }
+.pgc-side-card + .pgc-side-card { border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent); }
 .pgc-side-title { display: flex; align-items: center; gap: 0.4rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-dim); margin-bottom: 0.75rem; }
 .pgc-side-title svg { color: var(--accent); }
 .pgc-side-action { display: flex; align-items: center; gap: 0.5rem; width: 100%; padding: 0.6rem 0.8rem; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 0.9rem; font-weight: 600; cursor: pointer; margin-bottom: 0.5rem; transition: border-color 0.15s, color 0.15s; }
@@ -15,6 +17,14 @@
 .pgc-side-action.voice:hover { border-color: var(--hue-sky); }
 .pgc-side-meet { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem; background: none; border: none; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 0.35rem; }
 .pgc-side-meet:hover { text-decoration: underline; }
+.pgc-side-join { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.15rem; }
+.pgc-side-join-ic { display: inline-flex; color: var(--text-dim); flex-shrink: 0; }
+.pgc-side-join input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); border-radius: 9px; padding: 0.5rem 0.6rem; color: var(--text-main); font-size: 0.85rem; letter-spacing: 0.06em; }
+.pgc-side-join input::placeholder { letter-spacing: 0; }
+.pgc-side-join input:focus { outline: none; border-color: var(--accent); }
+.pgc-side-join button { padding: 0.5rem 0.8rem; border-radius: 9px; border: none; background: var(--accent); color: var(--bg); font-weight: 700; font-size: 0.82rem; cursor: pointer; flex-shrink: 0; }
+.pgc-side-join button:disabled { opacity: 0.5; cursor: default; }
+.pgc-side-note { margin: 0.65rem 0 0; font-size: 0.74rem; line-height: 1.4; color: var(--text-dim); }
 .pgc-side-empty { color: var(--text-dim); font-size: 0.84rem; margin: 0; line-height: 1.45; }
 .pgc-side-friends { display: flex; flex-direction: column; gap: 0.15rem; }
 .pgc-side-friend { display: flex; align-items: center; gap: 0.55rem; padding: 0.35rem 0.25rem; border-radius: 10px; }
@@ -23,6 +33,7 @@
 .pgc-side-friend button { display: inline-flex; align-items: center; justify-content: center; width: 1.9rem; height: 1.9rem; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); cursor: pointer; flex-shrink: 0; }
 .pgc-side-friend button:hover { border-color: var(--accent); color: var(--accent); }
 .pgc-side-tip { flex: 1 0 auto; }
+.pgc-side-tip .pgc-side-title { margin-bottom: 0.6rem; }
 .pgc-side-tip ul { margin: 0; padding-left: 1.05rem; display: flex; flex-direction: column; gap: 0.45rem; }
 .pgc-side-tip li { color: var(--text-dim); font-size: 0.85rem; line-height: 1.4; }
 
