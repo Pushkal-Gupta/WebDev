@@ -1,0 +1,42 @@
+// Shim for macOS/clang which lacks GCC's <bits/stdc++.h>. Pulls in the standard headers
+// the driver + solutions use. Only for LOCAL verification (Judge0 runs real GCC).
+#ifndef _PGC_BITS_STDCPP_H
+#define _PGC_BITS_STDCPP_H
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <array>
+#include <list>
+#include <deque>
+#include <queue>
+#include <stack>
+#include <map>
+#include <set>
+#include <unordered_map>
+#include <unordered_set>
+#include <algorithm>
+#include <numeric>
+#include <functional>
+#include <utility>
+#include <tuple>
+#include <bitset>
+#include <cmath>
+#include <cstdlib>
+#include <cstdio>
+#include <cstring>
+#include <cstdint>
+#include <climits>
+#include <cfloat>
+#include <cassert>
+#include <limits>
+#include <iterator>
+#include <memory>
+#include <complex>
+#include <random>
+#include <chrono>
+#include <regex>
+#include <type_traits>
+#endif

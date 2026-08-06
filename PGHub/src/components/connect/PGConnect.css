@@ -81,6 +81,11 @@ button.pgc-room-card:disabled { opacity: 0.5; cursor: default; transform: none; 
 .pgc-rail-btn:hover { background: var(--hover-box); color: var(--text-main); }
 .pgc-rail-btn:active { transform: scale(0.98); }
 .pgc-rail-btn.on { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); box-shadow: inset 3px 0 0 var(--accent); }
+.pgc-rail-ic-wrap { position: relative; display: inline-flex; }
+.pgc-rail-badge { position: absolute; top: -6px; right: -8px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 999px; background: var(--hard); color: #fff; font-size: 0.6rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+/* Presence dot */
+.pgc-av-wrap { position: relative; display: inline-flex; flex-shrink: 0; }
+.pgc-online { position: absolute; right: -1px; bottom: -1px; width: 11px; height: 11px; border-radius: 999px; background: var(--easy); border: 2px solid var(--surface); }
 .pgc-rail-spacer { flex: 1 1 auto; min-height: 1rem; }
 .pgc-rail-user { display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 0.6rem; margin-top: 0.4rem; border-top: 1px solid color-mix(in srgb, var(--border) 60%, transparent); }
 .pgc-rail-user-name { font-size: 0.88rem; font-weight: 700; color: var(--text-main); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -160,7 +165,7 @@ button.pgc-room-card:disabled { opacity: 0.5; cursor: default; transform: none; 
 @keyframes pgc-spin { to { transform: rotate(360deg); } }
 
 /* Feed */
-.pgc-feed { display: flex; flex-direction: column; }
+.pgc-feed { display: flex; flex-direction: column; padding-bottom: 2rem; }
 .pgc-composer { display: flex; gap: 0.7rem; padding: 1rem; border-bottom: 1px solid var(--border); }
 .pgc-composer-main { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
 .pgc-composer textarea { width: 100%; resize: none; background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 0.6rem 0.8rem; color: var(--text-main); font-family: var(--sans); font-size: 0.92rem; line-height: 1.45; }
@@ -170,7 +175,7 @@ button.pgc-room-card:disabled { opacity: 0.5; cursor: default; transform: none; 
 .pgc-composer button { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.9rem; border-radius: 999px; border: none; background: var(--accent); color: var(--bg); font-weight: 700; font-size: 0.85rem; cursor: pointer; }
 .pgc-composer button:disabled { opacity: 0.5; cursor: default; }
 .pgc-feed-scope { display: flex; gap: 0.4rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: color-mix(in srgb, var(--surface) 90%, transparent); backdrop-filter: blur(8px); z-index: 1; }
-.pgc-feed-scope button { padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.pgc-feed-scope button { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.9rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
 .pgc-feed-scope button.on { background: color-mix(in srgb, var(--accent) 15%, transparent); border-color: var(--accent); color: var(--accent); }
 .pgc-feed-loading { display: flex; justify-content: center; padding: 3rem; color: var(--accent); }
 .pgc-posts { display: flex; flex-direction: column; }
@@ -191,6 +196,17 @@ button.pgc-room-card:disabled { opacity: 0.5; cursor: default; transform: none; 
 button.pgc-post-act:hover { color: var(--text-main); }
 button.pgc-post-act.liked:hover { color: var(--hard); }
 .pgc-post-act.del:hover { color: var(--hard); }
+.pgc-post-act.bm.on { color: var(--accent); }
+.pgc-post-act.bm.on svg { color: var(--accent); }
+/* Clickable hashtags in post bodies */
+.pgc-tag-link { display: inline; background: none; border: none; padding: 0; margin: 0; font: inherit; color: var(--accent); font-weight: 600; cursor: pointer; }
+.pgc-tag-link:hover { text-decoration: underline; }
+/* Hashtag filter header */
+.pgc-feed-tag-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.7rem 1rem; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: color-mix(in srgb, var(--surface) 92%, transparent); backdrop-filter: blur(8px); z-index: 1; }
+.pgc-feed-tag-name { display: inline-flex; align-items: center; gap: 0.2rem; font-weight: 800; font-size: 1.05rem; color: var(--text-main); }
+.pgc-feed-tag-name svg { color: var(--accent); }
+.pgc-feed-tag-back { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-dim); font-size: 0.82rem; font-weight: 600; cursor: pointer; }
+.pgc-feed-tag-back:hover { border-color: var(--accent); color: var(--accent); }
 
 /* Profile */
 .pgc-profile { display: flex; flex-direction: column; }
@@ -209,6 +225,15 @@ button.pgc-post-act.liked:hover { color: var(--hard); }
 .pgc-profile-stats b { color: var(--text-main); font-size: 1.05rem; }
 .pgc-profile-stats svg { color: var(--accent); }
 .pgc-stat-sub { display: block; font-size: 0.68rem; color: var(--text-dim); font-style: normal; margin-top: 0.05rem; }
+.pgc-profile-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1.1rem; margin-top: 0.7rem; }
+.pgc-profile-meta span, .pgc-profile-meta a { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.86rem; color: var(--text-dim); text-decoration: none; }
+.pgc-profile-meta a:hover { color: var(--accent); }
+.pgc-profile-meta svg { color: var(--accent); }
+.pgc-profile-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+.pgc-skill { padding: 0.25rem 0.65rem; border-radius: 999px; background: color-mix(in srgb, var(--accent) 10%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border)); color: var(--text-main); font-size: 0.78rem; font-weight: 600; }
+.pgc-edit-row { display: flex; gap: 0.8rem; }
+.pgc-edit-row label { flex: 1; }
+@media (max-width: 640px) { .pgc-edit-row { flex-direction: column; } }
 .pgc-edit-form { display: flex; flex-direction: column; gap: 0.8rem; }
 .pgc-edit-form label { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.76rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
 .pgc-edit-form input, .pgc-edit-form textarea { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.55rem 0.75rem; color: var(--text-main); font-family: var(--sans); font-size: 0.9rem; font-weight: 400; text-transform: none; letter-spacing: 0; }

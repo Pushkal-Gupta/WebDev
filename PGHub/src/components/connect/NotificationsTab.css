@@ -1,0 +1,187 @@
+.pgc-notif {
+  padding: 1.4rem 1.6rem 2.4rem;
+  width: 100%;
+}
+
+.pgc-notif-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 0;
+  color: var(--text-dim);
+}
+
+.pgc-notif-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.pgc-notif-title {
+  margin: 0;
+  font-weight: 700;
+  font-size: 1.4rem;
+  color: var(--text-main);
+}
+
+.pgc-notif-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pgc-notif-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-main);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.pgc-notif-btn:hover {
+  background: var(--hover-box);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pgc-notif-btn-danger:hover {
+  border-color: var(--hard);
+  color: var(--hard);
+}
+
+.pgc-notif-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.pgc-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.8rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background 0.15s ease;
+}
+
+.pgc-notif-item:hover {
+  background: var(--hover-box);
+}
+
+.pgc-notif-unread {
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
+}
+
+.pgc-notif-unread:hover {
+  background: color-mix(in srgb, var(--accent) 13%, transparent);
+}
+
+.pgc-notif-avwrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pgc-notif-badge {
+  position: absolute;
+  right: -3px;
+  bottom: -3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px;
+  height: 19px;
+  border-radius: 999px;
+  color: var(--bg);
+  background: var(--accent);
+  border: 2px solid var(--surface);
+}
+
+.pgc-notif-badge-like {
+  background: var(--hard);
+}
+
+.pgc-notif-body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.pgc-notif-text {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--text-dim);
+}
+
+.pgc-notif-text b {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.pgc-notif-snippet {
+  margin: 0.3rem 0 0;
+  padding-left: 0.65rem;
+  border-left: 2px solid var(--border);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.pgc-notif-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+  padding-top: 0.15rem;
+}
+
+.pgc-notif-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+.pgc-notif-time {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.pgc-notif-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3.5rem 1rem 2.5rem;
+  text-align: center;
+  color: var(--text-dim);
+}
+
+.pgc-notif-empty-title {
+  margin: 0.5rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.pgc-notif-empty-hint {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}

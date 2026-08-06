@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Pencil, Check, X, Trophy, Users, Heart, Loader2, PenSquare, UserPlus, Video as VideoIcon, ArrowRight, Link2, ExternalLink, FileText } from 'lucide-react';
+import { Pencil, Check, X, Trophy, Users, Heart, Loader2, PenSquare, UserPlus, Video as VideoIcon, ArrowRight, Link2, ExternalLink, FileText, MapPin, Building2, Globe as LinkIcon } from 'lucide-react';
 import { getMyProfile, updateMyProfile, getFollowCounts, getUserPosts, deletePost } from '../../lib/social';
 import { platformById } from '../../lib/connections';
 
@@ -29,14 +29,14 @@ export default function ProfileTab({ user, myName }) {
   const [counts, setCounts] = useState({ followers: 0, following: 0 });
   const [posts, setPosts] = useState([]);
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ display_name: '', username: '', bio: '', background_preset: 'aurora' });
+  const [form, setForm] = useState({ display_name: '', username: '', bio: '', background_preset: 'aurora', location: '', company: '', website_url: '', skills: '' });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
 
   const load = useCallback(() => {
     getMyProfile(user.id).then((p) => {
       setProfile(p);
-      setForm({ display_name: p.display_name || myName, username: p.username || '', bio: p.bio || '', background_preset: p.background_preset || 'aurora' });
+      setForm({ display_name: p.display_name || myName, username: p.username || '', bio: p.bio || '', background_preset: p.background_preset || 'aurora', location: p.location || '', company: p.company || '', website_url: p.website_url || '', skills: Array.isArray(p.skills) ? p.skills.join(', ') : '' });
     }).catch(() => {});
     getFollowCounts(user.id).then(setCounts).catch(() => {});
     getUserPosts(user.id, user.id).then(setPosts).catch(() => {});
@@ -47,7 +47,12 @@ export default function ProfileTab({ user, myName }) {
     setSaving(true); setErr('');
     const uname = form.username.trim().toLowerCase().replace(/[^a-z0-9_]/g, '');
     try {
-      await updateMyProfile(user.id, { display_name: form.display_name.trim() || myName, username: uname || null, bio: form.bio.trim() || null, background_preset: form.background_preset });
+      await updateMyProfile(user.id, {
+        display_name: form.display_name.trim() || myName, username: uname || null, bio: form.bio.trim() || null, background_preset: form.background_preset,
+        location: form.location.trim() || null, company: form.company.trim() || null,
+        website_url: form.website_url.trim() || null,
+        skills: [...new Set(form.skills.split(',').map((s) => s.trim()).filter(Boolean))].slice(0, 12),
+      });
       setEditing(false); load();
     } catch (e) { setErr(e.message?.includes('duplicate') || e.code === '23505' ? 'That username is taken.' : 'Could not save.'); }
     setSaving(false);
@@ -65,7 +70,7 @@ export default function ProfileTab({ user, myName }) {
         ) : (
           <div className="pgc-edit-actions">
             <button className="pgc-edit-save" onClick={save} disabled={saving}>{saving ? <Loader2 size={13} className="pgc-spin" /> : <Check size={13} />} Save</button>
-            <button className="pgc-edit-cancel" onClick={() => { setEditing(false); setErr(''); }}><X size={13} /></button>
+            <button className="pgc-edit-cancel" onClick={() => { setEditing(false); setErr(''); }} aria-label="Cancel editing"><X size={13} /></button>
           </div>
         )}
         <span className="pgc-banner-av">{(form.display_name || myName || '?').slice(0, 1).toUpperCase()}</span>
@@ -77,6 +82,12 @@ export default function ProfileTab({ user, myName }) {
             <label>Display name<input value={form.display_name} onChange={(e) => setForm((f) => ({ ...f, display_name: e.target.value }))} maxLength={40} /></label>
             <label>Username<div className="pgc-uname"><span>@</span><input value={form.username} onChange={(e) => setForm((f) => ({ ...f, username: e.target.value }))} maxLength={24} placeholder="username" /></div></label>
             <label>Bio<textarea value={form.bio} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} maxLength={200} rows={2} placeholder="Tell people what you're building…" /></label>
+            <div className="pgc-edit-row">
+              <label>Location<input value={form.location} onChange={(e) => setForm((f) => ({ ...f, location: e.target.value }))} maxLength={60} placeholder="City, Country" /></label>
+              <label>Company / School<input value={form.company} onChange={(e) => setForm((f) => ({ ...f, company: e.target.value }))} maxLength={60} placeholder="Where you work or study" /></label>
+            </div>
+            <label>Website<input value={form.website_url} onChange={(e) => setForm((f) => ({ ...f, website_url: e.target.value }))} maxLength={120} placeholder="https://…" /></label>
+            <label>Skills<input value={form.skills} onChange={(e) => setForm((f) => ({ ...f, skills: e.target.value }))} maxLength={200} placeholder="Comma-separated, e.g. Python, DP, Systems" /></label>
             <div className="pgc-bg-picker">
               <span>Background</span>
               <div className="pgc-bg-swatches">
@@ -92,6 +103,16 @@ export default function ProfileTab({ user, myName }) {
             <h2 className="pgc-profile-name">{profile.display_name || myName}</h2>
             {profile.username ? <span className="pgc-profile-handle">@{profile.username}</span> : null}
             {profile.bio ? <p className="pgc-profile-bio">{profile.bio}</p> : null}
+            {profile.location || profile.company || profile.website_url ? (
+              <div className="pgc-profile-meta">
+                {profile.location ? <span><MapPin size={13} /> {profile.location}</span> : null}
+                {profile.company ? <span><Building2 size={13} /> {profile.company}</span> : null}
+                {profile.website_url ? <a href={/^https?:\/\//.test(profile.website_url) ? profile.website_url : `https://${profile.website_url}`} target="_blank" rel="noreferrer"><LinkIcon size={13} /> {profile.website_url.replace(/^https?:\/\//, '')}</a> : null}
+              </div>
+            ) : null}
+            {Array.isArray(profile.skills) && profile.skills.length ? (
+              <div className="pgc-profile-skills">{profile.skills.map((s) => <span key={s} className="pgc-skill">{s}</span>)}</div>
+            ) : null}
             <div className="pgc-profile-stats">
               {(() => {
                 const across = (profile.linked_accounts || []).reduce((s, a) => s + (Number(a.stats?.solved) || 0), 0);
@@ -157,7 +178,7 @@ export default function ProfileTab({ user, myName }) {
                 <p className="pgc-post-body">{p.body}</p>
                 <div className="pgc-post-actions">
                   <span className="pgc-post-act"><Heart size={14} /> {p.like_count || 0}</span>
-                  <button className="pgc-post-act del" onClick={() => removePost(p.id)}><X size={13} /></button>
+                  <button className="pgc-post-act del" onClick={() => removePost(p.id)} aria-label="Delete post"><X size={13} /></button>
                 </div>
               </div>
             </article>

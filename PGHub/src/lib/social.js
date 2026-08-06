@@ -106,26 +106,115 @@ export async function getFollowCounts(userId) {
 // migration 95, so they're fetched separately and degrade to empty if absent —
 // otherwise one 400 on the missing column would blank the whole profile.
 const PROFILE_COLS = 'user_id, display_name, username, bio, avatar_url, background_preset, background_url, banner_url, total_solved';
-async function getProfileExtras(userId) {
+async function getProfileExtras(userId) { // migration 95
   const { data, error } = await supabase.from('PGcode_profiles').select('linked_accounts, resume_url').eq('user_id', userId).maybeSingle();
   if (error) return {};
   return { linked_accounts: data?.linked_accounts || [], resume_url: data?.resume_url || null };
 }
+async function getSocialExtras(userId) { // migration 96 — separate so a missing 96 col can't drop 95's
+  const { data, error } = await supabase.from('PGcode_profiles').select('location, company, website_url, skills, pinned_post_id').eq('user_id', userId).maybeSingle();
+  if (error) return {};
+  return { location: data?.location ?? null, company: data?.company ?? null, website_url: data?.website_url ?? null, skills: data?.skills ?? null, pinned_post_id: data?.pinned_post_id ?? null };
+}
 async function fetchProfile(userId) {
-  const [{ data }, extra] = await Promise.all([
+  const [{ data }, extra, social] = await Promise.all([
     supabase.from('PGcode_profiles').select(PROFILE_COLS).eq('user_id', userId).maybeSingle(),
     getProfileExtras(userId),
+    getSocialExtras(userId),
   ]);
-  return { ...(data || { user_id: userId }), ...extra };
+  return { ...(data || { user_id: userId }), ...extra, ...social };
 }
 export const getMyProfile = fetchProfile;
 // Any user's public profile (profiles are public-read via RLS).
 export const getProfileById = fetchProfile;
 export async function updateMyProfile(userId, fields) {
-  const clean = {};
+  // Base columns exist everywhere; extras arrive with migration 96. Save base
+  // first (must succeed), then extras best-effort so a pre-migration DB can't
+  // block saving name/bio.
+  const base = {}, extra = {};
   for (const k of ['display_name', 'username', 'bio', 'background_preset', 'background_url', 'banner_url']) {
-    if (k in fields) clean[k] = fields[k];
+    if (k in fields) base[k] = fields[k];
   }
-  const { error } = await supabase.from('PGcode_profiles').upsert({ user_id: userId, ...clean });
+  for (const k of ['location', 'company', 'website_url', 'skills', 'pinned_post_id']) {
+    if (k in fields) extra[k] = fields[k];
+  }
+  const { error } = await supabase.from('PGcode_profiles').upsert({ user_id: userId, ...base });
   if (error) throw error;
+  if (Object.keys(extra).length) {
+    const { error: e2 } = await supabase.from('PGcode_profiles').update(extra).eq('user_id', userId);
+    if (e2 && !/does not exist|schema cache|column/i.test(e2.message || '')) throw e2;
+  }
+}
+
+// ---- Bookmarks (migration 96; degrade to empty if absent) ----
+export async function getBookmarkSet(userId) {
+  if (!userId) return new Set();
+  const { data, error } = await supabase.from('PGcode_post_bookmarks').select('post_id').eq('user_id', userId);
+  if (error) return new Set();
+  return new Set((data || []).map((b) => b.post_id));
+}
+export async function setBookmark(userId, postId, on) {
+  if (on) {
+    const { error } = await supabase.from('PGcode_post_bookmarks').insert({ user_id: userId, post_id: postId });
+    if (error && error.code !== '23505') throw error;
+  } else {
+    const { error } = await supabase.from('PGcode_post_bookmarks').delete().eq('user_id', userId).eq('post_id', postId);
+    if (error) throw error;
+  }
+}
+export async function getBookmarkedPosts(userId, viewerId, limit = 40) {
+  const { data, error } = await supabase.from('PGcode_post_bookmarks')
+    .select('post_id').eq('user_id', userId).order('created_at', { ascending: false }).limit(limit);
+  if (error || !data?.length) return [];
+  const ids = data.map((b) => b.post_id);
+  const { data: posts } = await supabase.from('PGcode_posts').select('*').in('id', ids);
+  const order = new Map(ids.map((id, i) => [id, i]));
+  const sorted = (posts || []).sort((a, b) => (order.get(a.id) ?? 0) - (order.get(b.id) ?? 0));
+  return attachAuthors(sorted, viewerId);
+}
+
+// ---- Explore / discovery ----
+export async function getTopPosts(viewerId, limit = 20) {
+  const { data, error } = await supabase.from('PGcode_posts').select('*')
+    .is('reply_to', null).order('like_count', { ascending: false }).order('created_at', { ascending: false }).limit(limit);
+  if (error) return [];
+  return attachAuthors((data || []).filter((p) => (p.like_count || 0) > 0), viewerId);
+}
+export async function getPostsByTag(tag, viewerId, limit = 40) {
+  const clean = String(tag).replace(/[^a-zA-Z0-9_]/g, '');
+  if (!clean) return [];
+  // Escape `_` (a LIKE wildcard) so #a_b doesn't match #axb; broad-match in SQL then
+  // post-filter for the exact whole tag so #react no longer returns #reactive.
+  const pattern = `%#${clean.replace(/_/g, '\\_')}%`;
+  const exact = new RegExp(`(^|[^\\w])#${clean}([^\\w]|$)`, 'i');
+  const { data, error } = await supabase.from('PGcode_posts').select('*')
+    .is('reply_to', null).ilike('body', pattern).order('created_at', { ascending: false }).limit(limit);
+  if (error) return [];
+  return attachAuthors((data || []).filter((p) => exact.test(p.body || '')), viewerId);
+}
+export async function getSuggestedPeople(viewerId, limit = 12) {
+  const { data, error } = await supabase.from('PGcode_profiles')
+    .select('user_id, display_name, username, avatar_url, total_solved')
+    .not('username', 'is', null).order('total_solved', { ascending: false }).limit(limit + 8);
+  if (error) return [];
+  let following = new Set();
+  try { following = await getFollowSet(viewerId); } catch { /* ignore */ }
+  return (data || []).filter((p) => p.user_id !== viewerId && !following.has(p.user_id)).slice(0, limit);
+}
+export async function getLeaderboard(limit = 15) {
+  const { data, error } = await supabase.from('PGcode_profiles')
+    .select('user_id, display_name, username, avatar_url, total_solved, linked_accounts')
+    .order('total_solved', { ascending: false }).limit(limit + 20);
+  if (error) {
+    const base = await supabase.from('PGcode_profiles').select('user_id, display_name, username, avatar_url, total_solved').order('total_solved', { ascending: false }).limit(limit);
+    return (base.data || []).map((p) => ({ ...p, solved: p.total_solved || 0 })).filter((p) => p.solved > 0);
+  }
+  return (data || [])
+    .map((p) => {
+      const across = Array.isArray(p.linked_accounts) ? p.linked_accounts.reduce((s, a) => s + (Number(a.stats?.solved) || 0), 0) : 0;
+      return { ...p, solved: Math.max(p.total_solved || 0, across) };
+    })
+    .filter((p) => p.solved > 0)
+    .sort((a, b) => b.solved - a.solved)
+    .slice(0, limit);
 }

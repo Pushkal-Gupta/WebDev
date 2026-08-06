@@ -1,15 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams } from 'react-router';
-import { MessageSquare, Users, Search, UserPlus, Check, X, Clock3, Send, Rss, User, ArrowLeft, Video as VideoIcon, Phone, Hash, Link2 } from 'lucide-react';
+import { MessageSquare, Users, Search, UserPlus, Check, X, Clock3, Send, Rss, User, ArrowLeft, Video as VideoIcon, Phone, Hash, Link2, Compass, Bell } from 'lucide-react';
 import {
   searchUsers, getFriends, getIncomingRequests, getOutgoingRequests,
   sendFriendRequest, respondFriendRequest, getThread, sendMessage,
 } from '../../lib/friends';
 import { callsEnabled } from '../../lib/callSignal';
+import { getUnreadCount } from '../../lib/notifications';
+import { usePresence } from '../../lib/presence';
 import FeedTab from './FeedTab';
 import ProfileTab from './ProfileTab';
 import ConnectionsTab from './ConnectionsTab';
 import PublicProfile from './PublicProfile';
+import NotificationsTab from './NotificationsTab';
+import ExploreTab from './ExploreTab';
 import './PGConnect.css';
 
 function Avatar({ name, url, size = 40 }) {
@@ -17,9 +21,10 @@ function Avatar({ name, url, size = 40 }) {
   return <span className="pgc-av pgc-av-ph" style={{ width: size, height: size, fontSize: size * 0.4 }}>{(name || '?').slice(0, 1).toUpperCase()}</span>;
 }
 
-// PGConnect — the social home: messaging (WhatsApp-style), people, and (next) a feed +
-// customizable profiles. This foundation ships Messages + People fully working on the
-// existing friends/DM infra; Feed + profile customization arrive with their migration.
+// PGConnect — the social home. Tabs: Messages, Feed, Explore, People, Notifications,
+// Accounts, Profile — plus public-profile views and a Start-a-meeting sidebar. Built on
+// the friends/DM infra, the social tables (posts/likes/follows/bookmarks/notifications),
+// and account connections. All reads degrade gracefully when a migration isn't applied.
 export default function PGConnect({ session }) {
   const user = session?.user;
   const { userId: routeUserId } = useParams();
@@ -35,6 +40,8 @@ export default function PGConnect({ session }) {
   const [results, setResults] = useState(null);
   const [viewUser, setViewUser] = useState(routeUserId ? { id: routeUserId, name: null } : null); // public profile being viewed (deep-linkable via /connect/u/:userId)
   const [joinCode, setJoinCode] = useState('');
+  const [unreadNotifs, setUnreadNotifs] = useState(0);
+  const presence = usePresence(user?.id);
   const scrollRef = useRef(null);
 
   const reload = useCallback(() => {
@@ -44,6 +51,7 @@ export default function PGConnect({ session }) {
     getOutgoingRequests(user.id).then(setOutgoing).catch(() => {});
   }, [user]);
   useEffect(() => { reload(); }, [reload]);
+  useEffect(() => { if (user) getUnreadCount(user.id).then(setUnreadNotifs).catch(() => {}); }, [user]);
 
   // live incoming for the open thread, via the shared DM bus.
   useEffect(() => {
@@ -116,8 +124,12 @@ export default function PGConnect({ session }) {
         <nav className="pgc-rail">
           <div className="pgc-brand"><span className="pgc-brand-pg">PG</span>Connect</div>
           <button className={`pgc-rail-btn ${tab === 'messages' ? 'on' : ''}`} onClick={() => setTab('messages')}><MessageSquare size={17} /> Messages</button>
-          <button className={`pgc-rail-btn ${tab === 'people' ? 'on' : ''}`} onClick={() => setTab('people')}><Users size={17} /> People</button>
           <button className={`pgc-rail-btn ${tab === 'feed' ? 'on' : ''}`} onClick={() => setTab('feed')}><Rss size={17} /> Feed</button>
+          <button className={`pgc-rail-btn ${tab === 'explore' ? 'on' : ''}`} onClick={() => setTab('explore')}><Compass size={17} /> Explore</button>
+          <button className={`pgc-rail-btn ${tab === 'people' ? 'on' : ''}`} onClick={() => setTab('people')}><Users size={17} /> People</button>
+          <button className={`pgc-rail-btn ${tab === 'notifications' ? 'on' : ''}`} onClick={() => { setTab('notifications'); setUnreadNotifs(0); }}>
+            <span className="pgc-rail-ic-wrap"><Bell size={17} />{unreadNotifs > 0 ? <span className="pgc-rail-badge">{unreadNotifs > 9 ? '9+' : unreadNotifs}</span> : null}</span> Notifications
+          </button>
           <button className={`pgc-rail-btn ${tab === 'accounts' ? 'on' : ''}`} onClick={() => setTab('accounts')}><Link2 size={17} /> Accounts</button>
           <button className={`pgc-rail-btn ${tab === 'profile' ? 'on' : ''}`} onClick={() => setTab('profile')}><User size={17} /> Profile</button>
           <div className="pgc-rail-spacer" />
@@ -148,7 +160,7 @@ export default function PGConnect({ session }) {
                 <p className="pgc-empty">No friends yet. Find people in the People tab.</p>
               ) : friends.map((f) => (
                 <button key={f.id} className={`pgc-convo ${active?.id === f.id ? 'on' : ''}`} onClick={() => setActive(f)}>
-                  <Avatar name={f.name} url={f.avatar} size={38} />
+                  <span className="pgc-av-wrap"><Avatar name={f.name} url={f.avatar} size={38} />{presence.has(f.id) ? <span className="pgc-online" title="Online" /> : null}</span>
                   <span className="pgc-convo-name">{f.name}</span>
                 </button>
               ))}
@@ -157,7 +169,7 @@ export default function PGConnect({ session }) {
               {active ? (
                 <>
                   <div className="pgc-thread-head">
-                    <button className="pgc-back" onClick={() => setActive(null)}><ArrowLeft size={16} /></button>
+                    <button className="pgc-back" onClick={() => setActive(null)} aria-label="Back to chats"><ArrowLeft size={16} /></button>
                     <Avatar name={active.name} url={active.avatar} size={34} />
                     <span className="pgc-thread-name">{active.name}</span>
                   </div>
@@ -166,8 +178,8 @@ export default function PGConnect({ session }) {
                       : messages.map((m) => <div key={m.id} className={`pgc-msg ${m.mine ? 'mine' : 'theirs'}`}>{m.body}</div>)}
                   </div>
                   <form className="pgc-compose" onSubmit={send}>
-                    <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${active.name}`} maxLength={2000} />
-                    <button type="submit" disabled={!draft.trim()}><Send size={16} /></button>
+                    <input value={draft} onChange={(e) => setDraft(e.target.value)} placeholder={`Message ${active.name}`} aria-label={`Message ${active.name}`} maxLength={2000} />
+                    <button type="submit" disabled={!draft.trim()} aria-label="Send message"><Send size={16} /></button>
                   </form>
                 </>
               ) : (
@@ -181,7 +193,7 @@ export default function PGConnect({ session }) {
           <div className="pgc-people">
             <form className="pgc-search" onSubmit={runSearch}>
               <Search size={15} />
-              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a coder by name or username" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Find a coder by name or username" aria-label="Search people" />
               <button type="submit" disabled={q.trim().length < 2}>Search</button>
             </form>
             {results ? (
@@ -208,8 +220,8 @@ export default function PGConnect({ session }) {
                       <div key={r.rowId} className="pgc-person">
                         <Avatar name={r.name} size={40} />
                         <span className="pgc-person-name">{r.name}</span>
-                        <button className="pgc-icon ok" onClick={() => respond(r.rowId, true)}><Check size={15} /></button>
-                        <button className="pgc-icon no" onClick={() => respond(r.rowId, false)}><X size={15} /></button>
+                        <button className="pgc-icon ok" onClick={() => respond(r.rowId, true)} aria-label="Accept request"><Check size={15} /></button>
+                        <button className="pgc-icon no" onClick={() => respond(r.rowId, false)} aria-label="Decline request"><X size={15} /></button>
                       </div>
                     ))}
                   </div>
@@ -219,7 +231,7 @@ export default function PGConnect({ session }) {
                   {friends.length === 0 ? <p className="pgc-empty">No friends yet — search above to add someone.</p> : friends.map((f) => (
                     <div key={f.id} className="pgc-person">
                       <button className="pgc-person-open" onClick={() => viewProfile(f.id, f.name)}>
-                        <Avatar name={f.name} url={f.avatar} size={40} />
+                        <span className="pgc-av-wrap"><Avatar name={f.name} url={f.avatar} size={40} />{presence.has(f.id) ? <span className="pgc-online" title="Online" /> : null}</span>
                         <span className="pgc-person-name">{f.name}</span>
                       </button>
                       <button className="pgc-icon msg" title="Message" onClick={() => { setActive(f); setTab('messages'); }}><MessageSquare size={15} /></button>
@@ -232,6 +244,8 @@ export default function PGConnect({ session }) {
         )}
 
         {!viewUser && tab === 'accounts' && <div className="pgc-scrollpane"><ConnectionsTab user={user} /></div>}
+        {!viewUser && tab === 'explore' && <div className="pgc-scrollpane"><ExploreTab user={user} /></div>}
+        {!viewUser && tab === 'notifications' && <div className="pgc-scrollpane"><NotificationsTab user={user} /></div>}
         {!viewUser && tab === 'feed' && <div className="pgc-scrollpane"><FeedTab user={user} myName={myName} /></div>}
         {!viewUser && tab === 'profile' && <div className="pgc-scrollpane"><ProfileTab user={user} myName={myName} /></div>}
 
@@ -259,7 +273,7 @@ export default function PGConnect({ session }) {
                 <div className="pgc-side-friends">
                   {friends.slice(0, 6).map((f) => (
                     <div key={f.id} className="pgc-side-friend">
-                      <Avatar name={f.name} url={f.avatar} size={32} />
+                      <span className="pgc-av-wrap"><Avatar name={f.name} url={f.avatar} size={32} />{presence.has(f.id) ? <span className="pgc-online" title="Online" /> : null}</span>
                       <span className="pgc-side-friend-name">{f.name}</span>
                       <button title={`Message ${f.name}`} onClick={() => { setActive(f); setTab('messages'); }}><MessageSquare size={14} /></button>
                       {callsEnabled() ? <button title={`Video call ${f.name}`} onClick={() => callFriend(f, true)}><VideoIcon size={14} /></button> : null}

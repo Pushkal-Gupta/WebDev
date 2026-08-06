@@ -66,7 +66,7 @@ function runJava(code, method, params, rt, cases){
 function runCpp(code, method, params, rt, cases){
   const wrapped = wrapWithDriver(stripNodeClasses(code), 'cpp', method, params, rt, {multiCaseCount:cases.length});
   fs.writeFileSync(`${DIR}/main.cpp`, wrapped);
-  const comp = spawnSync('g++',['-std=c++17','-O1',`${DIR}/main.cpp`,'-o',`${DIR}/a.out`],{encoding:'utf8',timeout:40000});
+  const comp = spawnSync('g++',['-std=c++17','-O1','-I','scripts/_cppshim',`${DIR}/main.cpp`,'-o',`${DIR}/a.out`],{encoding:'utf8',timeout:40000});
   if(comp.status!==0) return {compile:false, err:(comp.stderr||'').split('\n').filter(Boolean).slice(0,2).join(' ').slice(0,120)};
   const stdin = cases.map(c=>c.inputs.join('\n')).join('\n'+JAVA_CASE_SEP+'\n')+'\n';
   const run = spawnSync(`${DIR}/a.out`,[],{input:stdin,encoding:'utf8',timeout:15000,maxBuffer:5e7});
@@ -77,10 +77,14 @@ function runCpp(code, method, params, rt, cases){
 const summary = {total:0,noSol:0,noTests:0,allPass:0,someFail:0,compileFail:0,timeout:0};
 const fails = [];
 let scanned=0, processed=0;
-for (let from=0;;from+=300){
+const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
+// RESIZE-SAFE: small pages + pacing so a full sweep never bursts the giant test_cases JSONB.
+const PAGE=100;
+for (let from=0;;from+=PAGE){
   let data,error;
-  for(let a=0;a<4;a++){({data,error}=await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,solutions,test_cases').order('id').range(from,from+299));if(!error)break;}
+  for(let a=0;a<4;a++){({data,error}=await sb.from('PGcode_problems').select('id,name,method_name,params,return_type,solutions,test_cases').order('id').range(from,from+PAGE-1));if(!error)break;await sleep(2000*(a+1));}
   if(error){console.error('ERR',error.message);break;}
+  await sleep(300);
   for(const r of data){
     if(ONLY && !ONLY.has(r.id)) continue;
     if(!ONLY && processed>=LIMIT) break;
@@ -106,7 +110,7 @@ for (let from=0;;from+=300){
     else { summary.someFail++; fails.push({id:r.id,name:r.name,bad,n:tcs.length,samples}); }
   }
   process.stderr.write(`\r${LANG} scanned ${scanned} processed ${processed} | pass ${summary.allPass} fail ${summary.someFail} compileFail ${summary.compileFail}`);
-  if(data.length<300) break;
+  if(data.length<PAGE) break;
   if(!ONLY && processed>=LIMIT) break;
 }
 try{ fs.rmSync(DIR,{recursive:true,force:true}); }catch{}
