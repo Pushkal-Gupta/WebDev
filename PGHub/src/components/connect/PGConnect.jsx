@@ -123,6 +123,7 @@ export default function PGConnect({ session }) {
       <div className="pgc-shell has-side">
         <nav className="pgc-rail">
           <div className="pgc-brand"><span className="pgc-brand-pg">PG</span>Connect</div>
+          <button className={`pgc-rail-btn ${tab === 'profile' ? 'on' : ''}`} onClick={() => setTab('profile')}><User size={17} /> Profile</button>
           <button className={`pgc-rail-btn ${tab === 'messages' ? 'on' : ''}`} onClick={() => setTab('messages')}><MessageSquare size={17} /> Messages</button>
           <button className={`pgc-rail-btn ${tab === 'feed' ? 'on' : ''}`} onClick={() => setTab('feed')}><Rss size={17} /> Feed</button>
           <button className={`pgc-rail-btn ${tab === 'explore' ? 'on' : ''}`} onClick={() => setTab('explore')}><Compass size={17} /> Explore</button>
@@ -131,7 +132,6 @@ export default function PGConnect({ session }) {
             <span className="pgc-rail-ic-wrap"><Bell size={17} />{unreadNotifs > 0 ? <span className="pgc-rail-badge">{unreadNotifs > 9 ? '9+' : unreadNotifs}</span> : null}</span> Notifications
           </button>
           <button className={`pgc-rail-btn ${tab === 'accounts' ? 'on' : ''}`} onClick={() => setTab('accounts')}><Link2 size={17} /> Accounts</button>
-          <button className={`pgc-rail-btn ${tab === 'profile' ? 'on' : ''}`} onClick={() => setTab('profile')}><User size={17} /> Profile</button>
           <div className="pgc-rail-spacer" />
           <div className="pgc-rail-user">
             <Avatar name={myName} url={user?.user_metadata?.avatar_url} size={38} />

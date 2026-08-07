@@ -5,6 +5,7 @@ import { supabase } from './lib/supabase';
 import { queryClient } from './lib/queryClient';
 import { loadCustomColors, applyCustomColors } from './lib/customColors';
 import { useProfile, qk } from './lib/queries';
+import { modeOf } from './lib/themes';
 import { startDmBus, stopDmBus } from './lib/dmBus';
 import Navbar from './components/Navbar';
 import SubNav from './components/SubNav';
@@ -179,7 +180,7 @@ const QuizRunner = lazy(() => import('./components/QuizRunner'));
 const PublicProfile = lazy(() => import('./components/profile/PublicProfile'));
 const ShareableCard = lazy(() => import('./components/ShareableCard'));
 
-const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light'];
+const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light', 'nord', 'nord-light', 'rose-pine', 'rose-pine-dawn', 'gruvbox', 'mocha', 'cyberpunk', 'forest'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
 
 // Intercept Supabase OAuth callback errors (?error=…&error_description=…) and
@@ -263,6 +264,7 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
         setTheme(fromProfile);
         localStorage.setItem('pg-theme', fromProfile);
         document.documentElement.setAttribute('data-theme', fromProfile);
+        document.documentElement.setAttribute('data-theme-mode', modeOf(fromProfile));
       }
     }
   }, [profile, theme, setTheme]);
@@ -279,8 +281,17 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
     'solarized-dark':{ mode: 'dark',  pair: 'solarized' },
     dracula:         { mode: 'dark',  pair: 'dracula-light' },
     'dracula-light': { mode: 'light', pair: 'dracula' },
+    nord:            { mode: 'dark',  pair: 'nord-light' },
+    'nord-light':    { mode: 'light', pair: 'nord' },
+    'rose-pine':     { mode: 'dark',  pair: 'rose-pine-dawn' },
+    'rose-pine-dawn':{ mode: 'light', pair: 'rose-pine' },
+    gruvbox:         { mode: 'dark',  pair: 'nord-light' },
+    mocha:           { mode: 'dark',  pair: 'rose-pine-dawn' },
+    cyberpunk:       { mode: 'dark',  pair: 'nord-light' },
+    forest:          { mode: 'dark',  pair: 'nord-light' },
   };
 
+  const applyThemeRef = useRef(null);
   const applyTheme = (newTheme) => {
     const normalized = normalizeTheme(newTheme);
     setTheme(normalized);
@@ -297,6 +308,15 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
       });
     }
   };
+
+  // Let anywhere (e.g. the command palette) switch themes. Keep the latest
+  // applyTheme in a ref so the listener subscribes only once.
+  useEffect(() => { applyThemeRef.current = applyTheme; });
+  useEffect(() => {
+    const onSet = (e) => applyThemeRef.current?.(e.detail);
+    window.addEventListener('pg:set-theme', onSet);
+    return () => window.removeEventListener('pg:set-theme', onSet);
+  }, []);
 
   const toggleTheme = () => {
     // Always flip to the paired sibling so palette identity is preserved
@@ -476,6 +496,9 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    // Keep the mode attribute in sync so the Navbar toggle shows the correct
+    // position on initial load (not just after the first user toggle).
+    document.documentElement.setAttribute('data-theme-mode', modeOf(theme));
     // Base palette wins via [data-theme] cascade; re-apply user overrides on
     // top so a Custom accent etc. survives palette flips.
     applyCustomColors(loadCustomColors());

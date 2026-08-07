@@ -20,8 +20,10 @@ import {
   StickyNote,
   Brain,
   Vault,
+  Palette,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { THEME_PRESETS } from '../lib/themes';
 import { useProblemsCompact, useAllConceptsCompact, useTopics } from '../lib/queries';
 import './CommandPalette.css';
 
@@ -167,6 +169,13 @@ export default function CommandPalette() {
       keywords: 'feeling lucky random surprise me roll',
       run: runRandomUnsolved,
     },
+    ...THEME_PRESETS.map((t) => ({
+      id: `theme-${t.id}`,
+      label: `Theme: ${t.name}`,
+      icon: Palette,
+      keywords: `theme color palette appearance ${t.mode} ${t.name}`,
+      run: () => window.dispatchEvent(new CustomEvent('pg:set-theme', { detail: t.id })),
+    })),
   ]), [runRandomUnsolved]);
 
   const results = useMemo(() => {

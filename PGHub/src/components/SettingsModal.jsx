@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, RotateCcw, LogOut, RefreshCw, Star, GitBranch, Users as UsersIcon, PhoneCall, PhoneOff, Eye, EyeOff } from 'lucide-react';
+import { X, UserPlus, Users, Check, Clock, Trash2, Palette, Code2, Sparkles, RotateCcw, LogOut, RefreshCw, Star, GitBranch, Users as UsersIcon, PhoneCall, PhoneOff, Eye, EyeOff, SlidersHorizontal, Gauge, Type, Zap, LayoutGrid } from 'lucide-react';
 import { callsEnabled, setCallsEnabled, launcherVisible, setLauncherVisible } from '../lib/callSignal';
 import ShareableCard from './ShareableCard';
 import {
@@ -99,20 +99,7 @@ function ColorCustomizer({ theme, onChange }) {
   );
 }
 
-// Each preset declares its mode and a `pair` pointing to its opposite-mode
-// sibling. The Dark/Light toggle in TopBar flips to that pair so users keep
-// their palette identity (dracula stays dracula, etc.) across modes.
-const THEME_PRESETS = [
-  { id: 'dark',             name: 'Default Dark',     mode: 'dark',  pair: 'light',            swatches: ['#030a0a', '#061010', '#00fff5'] },
-  { id: 'light',            name: 'Default Light',    mode: 'light', pair: 'dark',             swatches: ['#f5f2ed', '#ffffff', '#008a7e'] },
-  { id: 'midnight',         name: 'Midnight',         mode: 'dark',  pair: 'midnight-light',   swatches: ['#0b1024', '#131a3a', '#a78bfa'] },
-  { id: 'midnight-light',   name: 'Midnight Light',   mode: 'light', pair: 'midnight',         swatches: ['#eef1ff', '#dfe5ff', '#6b4dff'] },
-  { id: 'solarized',        name: 'Solarized Light',  mode: 'light', pair: 'solarized-dark',   swatches: ['#fdf6e3', '#eee8d5', '#268bd2'] },
-  { id: 'solarized-dark',   name: 'Solarized Dark',   mode: 'dark',  pair: 'solarized',        swatches: ['#002b36', '#073642', '#268bd2'] },
-  { id: 'dracula',          name: 'Dracula',          mode: 'dark',  pair: 'dracula-light',    swatches: ['#282a36', '#21222c', '#ff79c6'] },
-  { id: 'dracula-light',    name: 'Dracula Light',    mode: 'light', pair: 'dracula',          swatches: ['#f4f4ff', '#e5e5f5', '#c4378a'] },
-];
-
+import { THEME_PRESETS } from '../lib/themes';
 export { THEME_PRESETS };
 
 const LANG_OPTIONS = [
@@ -120,6 +107,27 @@ const LANG_OPTIONS = [
   { value: 'javascript', label: 'JavaScript' },
   { value: 'java',       label: 'Java' },
   { value: 'cpp',        label: 'C++' },
+];
+
+const DENSITY_OPTIONS = [
+  { value: 'comfortable', label: 'Comfortable' },
+  { value: 'compact',     label: 'Compact' },
+];
+
+const FONT_SCALE_OPTIONS = [
+  { value: 'small',   label: 'Small' },
+  { value: 'default', label: 'Default' },
+  { value: 'large',   label: 'Large' },
+];
+
+const CONNECT_TAB_OPTIONS = [
+  { value: 'messages',      label: 'Messages' },
+  { value: 'feed',          label: 'Feed' },
+  { value: 'explore',       label: 'Explore' },
+  { value: 'people',        label: 'People' },
+  { value: 'notifications', label: 'Notifications' },
+  { value: 'accounts',      label: 'Accounts' },
+  { value: 'profile',       label: 'Profile' },
 ];
 
 const PROVIDER_META = {
@@ -323,6 +331,41 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
   useEffect(() => { localStorage.setItem('pg-editor-minimap', String(editorMinimap)); }, [editorMinimap]);
   useEffect(() => { localStorage.setItem('pg-editor-word-wrap', String(editorWordWrap)); }, [editorWordWrap]);
 
+  // Global interface preferences — persisted to localStorage and mirrored onto
+  // <html> as data-* attributes so the CSS below can react app-wide.
+  const [density, setDensity] = useState(() => localStorage.getItem('pg-pref-density') || 'comfortable');
+  const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem('pg-pref-reduce-motion') === 'true');
+  const [fontScale, setFontScale] = useState(() => localStorage.getItem('pg-pref-font-scale') || 'default');
+  const [connectTab, setConnectTab] = useState(() => localStorage.getItem('pg-connect-tab-default') || 'messages');
+  useEffect(() => {
+    localStorage.setItem('pg-pref-density', density);
+    document.documentElement.setAttribute('data-density', density);
+  }, [density]);
+  useEffect(() => {
+    localStorage.setItem('pg-pref-reduce-motion', String(reduceMotion));
+    if (reduceMotion) document.documentElement.setAttribute('data-reduce-motion', 'true');
+    else document.documentElement.removeAttribute('data-reduce-motion');
+  }, [reduceMotion]);
+  useEffect(() => {
+    localStorage.setItem('pg-pref-font-scale', fontScale);
+    document.documentElement.setAttribute('data-font-scale', fontScale);
+  }, [fontScale]);
+  useEffect(() => {
+    localStorage.setItem('pg-connect-tab-default', connectTab);
+  }, [connectTab]);
+
+  const resetPreferences = () => {
+    ['pg-pref-density', 'pg-pref-reduce-motion', 'pg-pref-font-scale', 'pg-connect-tab-default']
+      .forEach(k => localStorage.removeItem(k));
+    setDensity('comfortable');
+    setReduceMotion(false);
+    setFontScale('default');
+    setConnectTab('messages');
+    document.documentElement.setAttribute('data-density', 'comfortable');
+    document.documentElement.removeAttribute('data-reduce-motion');
+    document.documentElement.setAttribute('data-font-scale', 'default');
+  };
+
   useEffect(() => { setLocalPreferredLang(preferredLang || 'python'); }, [preferredLang]);
 
   useEffect(() => {
@@ -500,6 +543,12 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
             Appearance
           </button>
           <button
+            className={`settings-tab ${activeTab === 'preferences' ? 'active' : ''}`}
+            onClick={() => setActiveTab('preferences')}
+          >
+            Preferences
+          </button>
+          <button
             className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
             onClick={() => setActiveTab('profile')}
           >
@@ -625,6 +674,83 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
                   ><span /></button>
                 </div>
                 <p className="settings-hint">Applies on next problem load. Stored locally per browser.</p>
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'preferences' && (
+            <div className="appearance-section">
+              <div className="appearance-block">
+                <label className="settings-label"><SlidersHorizontal size={12} /> Interface Preferences</label>
+                <p className="settings-hint" style={{ marginTop: 0 }}>
+                  Tune spacing, motion, and text size across the whole app. Stored locally per browser and applied instantly.
+                </p>
+
+                <div className="settings-pref-row">
+                  <span className="settings-pref-name"><Gauge size={12} style={{ marginRight: 5, verticalAlign: '-2px' }} />Density</span>
+                  <div className="settings-pref-control">
+                    {DENSITY_OPTIONS.map(o => (
+                      <button
+                        key={o.value}
+                        type="button"
+                        className={`settings-pref-pill ${density === o.value ? 'active' : ''}`}
+                        onClick={() => setDensity(o.value)}
+                        aria-pressed={density === o.value}
+                      >{o.label}</button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="settings-pref-row">
+                  <span className="settings-pref-name"><Zap size={12} style={{ marginRight: 5, verticalAlign: '-2px' }} />Reduce motion</span>
+                  <button
+                    type="button"
+                    className={`settings-toggle ${reduceMotion ? 'on' : ''}`}
+                    onClick={() => setReduceMotion(v => !v)}
+                    aria-pressed={reduceMotion}
+                  ><span /></button>
+                </div>
+
+                <div className="settings-pref-row">
+                  <span className="settings-pref-name"><Type size={12} style={{ marginRight: 5, verticalAlign: '-2px' }} />Font size</span>
+                  <div className="settings-pref-control">
+                    {FONT_SCALE_OPTIONS.map(o => (
+                      <button
+                        key={o.value}
+                        type="button"
+                        className={`settings-pref-pill ${fontScale === o.value ? 'active' : ''}`}
+                        onClick={() => setFontScale(o.value)}
+                        aria-pressed={fontScale === o.value}
+                      >{o.label}</button>
+                    ))}
+                  </div>
+                </div>
+                <p className="settings-hint">Reduce motion near-instantly settles animations and transitions. Font size scales the base text across every page.</p>
+              </div>
+
+              <div className="appearance-block">
+                <label className="settings-label"><LayoutGrid size={12} /> PGConnect landing tab</label>
+                <select
+                  className="settings-input settings-pref-select"
+                  value={connectTab}
+                  onChange={(e) => setConnectTab(e.target.value)}
+                >
+                  {CONNECT_TAB_OPTIONS.map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </select>
+                <p className="settings-hint">The section PGConnect opens to by default when you enter it.</p>
+              </div>
+
+              <div className="appearance-block">
+                <button
+                  type="button"
+                  className="settings-reset-prefs"
+                  onClick={resetPreferences}
+                >
+                  <RotateCcw size={13} /> Reset preferences to defaults
+                </button>
+                <p className="settings-hint" style={{ marginTop: 0 }}>Restores density, motion, font size, and landing tab to their original values.</p>
               </div>
             </div>
           )}

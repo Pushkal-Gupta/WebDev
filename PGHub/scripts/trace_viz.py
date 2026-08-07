@@ -1,4 +1,4 @@
-import sys, ast, json, io
+import sys, ast, json, io, re
 
 KNOWN_PTR = {'i','j','k','idx','index','w','p','q','r','lo','hi','mid','left','right','l','cur','pos_i'}
 KNOWN_ACC = {'ans','total','cnt','count','res','result','sum','pos','running','best','acc','score','out','val','v','carry','depth','streak','maxlen','ml','curr','cur_sum','s_sum'}
@@ -183,6 +183,98 @@ def build_grid_traversal_frames(grid, snaps, ret, method_name):
                        'caption': f"Explored {upto} of {total} cell-visits."})
         prev_upto = upto
     frames.append({'grid': [[1 if (i, j) in set(seq) else 0 for j in range(cols)] for i in range(rows)],
+                   'chip': {'label': 'result', 'value': safe_result(ret), 'tone': 'mint'},
+                   'caption': f"Result: {safe_result(ret)}."})
+    return frames
+
+def build_digit_frames(snaps, ret, digits, method_name, nquery):
+    # digits = list of digit CHARS (the primary). Find the loop var that walks them (single-char
+    # string values matching the digits, LSB-or-MSB order) and glide a pointer; show numeric
+    # accumulators (total/ans/sign) as chips. Correct because the char var genuinely walks digits.
+    n = len(digits)
+    digitset = set(digits)
+    char_key = None
+    for s in snaps:
+        for k, (kind, val) in s.items():
+            if kind == 'str' and len(val) == 1 and val in digitset:
+                # candidate; confirm it takes several digit values across the run
+                seq = [ss[k][1] for ss in snaps if k in ss and ss[k][0] == 'str' and len(ss[k][1]) == 1]
+                trans = [v for i, v in enumerate(seq) if i == 0 or v != seq[i-1]]
+                if len(trans) >= max(3, n-2) and all(v in digitset for v in trans):
+                    char_key = k; break
+        if char_key:
+            break
+    if not char_key:
+        return None
+    # accumulators: changing numeric scalars
+    scal = {}
+    for s in snaps:
+        for k, (kind, val) in s.items():
+            if kind in ('num', 'bool') and not k.startswith('_'):
+                scal.setdefault(k, []).append(val)
+    accs = [k for k, vs in scal.items() if len(set(vs)) > 1]
+    accs.sort(key=lambda k: (k not in KNOWN_ACC, k)); accs = accs[:2]
+    # walk snaps: each char transition advances the digit pointer (in appearance order)
+    rows = []; last = object(); syn = -1
+    for s in snaps:
+        if char_key in s and s[char_key][0] == 'str':
+            cv = s[char_key][1]
+            if cv != last:
+                syn += 1; last = cv
+            av = [(k, s[k][1]) for k in accs if k in s and s[k][0] in ('num', 'bool')]
+            rows.append((min(syn, n-1), cv, tuple(av)))
+    dd = []
+    for r in rows:
+        if not dd or dd[-1] != r:
+            dd.append(r)
+    if len(dd) < 4:
+        return None
+    if len(dd) > 14:
+        step = len(dd)/14.0
+        dd = [dd[int(i*step)] for i in range(14)]
+    frames = [{'array': digits, 'caption': f"Trace {method_name} on the digits of {nquery}."}]
+    for idx, cv, av in dd:
+        f = {'array': digits, 'pointers': {str(idx): 'digit'},
+             'highlights': {**{str(j): 'done' for j in range(idx)}, str(idx): 'current'}}
+        if av:
+            f['chip'] = [{'label': k, 'value': v, 'tone': tone_for(i)} for i, (k, v) in enumerate(av)]
+        f['caption'] = (f"digit {cv}" + ("  " + "  ".join(f"{k}={v}" for k, v in av) if av else ""))
+        frames.append(f)
+    frames.append({'array': digits, 'highlights': {str(j): 'done' for j in range(n)},
+                   'chip': {'label': 'result', 'value': safe_result(ret), 'tone': 'mint'},
+                   'caption': f"Result: {safe_result(ret)}."})
+    return frames
+
+def build_formula_frames(snaps, ret, param_names, argvals, method_name):
+    # Closed-form / few-step problems with no loop: reveal the computed intermediate values
+    # one at a time (each a bar with its name+value), then the result. Honest formula unfold.
+    param_set = set(param_names or [])
+    latest = {}; order = []
+    for s in snaps:
+        for k, (kind, val) in s.items():
+            if kind in ('num',) and not k.startswith('_') and k not in param_set:
+                if k not in latest:
+                    order.append(k)
+                latest[k] = val
+    interm = [k for k in order if isinstance(latest[k], (int, float)) and not isinstance(latest[k], bool)]
+    interm = interm[:8]
+    if len(interm) < 2:
+        return None
+    if any(abs(latest[k]) > 10**12 for k in interm):
+        return None
+    values = [str(latest[k]) for k in interm]  # strings -> uniform tiles (not height-skewed bars)
+    inbits = []
+    for i, a in enumerate(argvals):
+        if isinstance(a, (int, float)) and not isinstance(a, bool):
+            inbits.append(f"{(param_names[i] if i < len(param_names) else 'p'+str(i))} = {a}")
+    frames = [{'array': values, 'caption': f"Compute {method_name}({', '.join(inbits)}). Each bar is an intermediate value building to the answer."}]
+    for i, k in enumerate(interm):
+        frames.append({'array': values,
+                       'pointers': {str(i): k},
+                       'highlights': {**{str(j): 'done' for j in range(i)}, str(i): 'current'},
+                       'chip': {'label': k, 'value': latest[k], 'tone': tone_for(i)},
+                       'caption': f"{k} = {latest[k]}"})
+    frames.append({'array': values, 'highlights': {str(j): 'done' for j in range(len(values))},
                    'chip': {'label': 'result', 'value': safe_result(ret), 'tone': 'mint'},
                    'caption': f"Result: {safe_result(ret)}."})
     return frames
@@ -950,6 +1042,36 @@ def main():
                 sf = build_scalar_frames(ss, ret, drv, method)
                 if sf and len(sf) >= 10:
                     print(json.dumps({'ok':True,'frames':sf,'renderer':'array','nframes':len(sf),'motion':True})); return
+        # (digit path) int problem that processes the digits of n. Synthesize the digit array
+        # as the primary and sub-frame-trace so the real per-digit loop var + accumulator show
+        # (correct, unlike the old digit path: the element var genuinely walks these digits).
+        if re.search(r'str\(\s*\w+\s*\)|% *10|// *10|digit', code):
+            for ai, a in enumerate(argvals):
+                if isinstance(a, int) and not isinstance(a, bool):
+                    cand = list(str(abs(a)))
+                    if len(cand) >= 4:
+                        nm = (param_names[ai] if ai < len(param_names) else 'n') + ' digits'
+                        try:
+                            dsnaps, dret = run_sub(code, method, argvals)
+                        except Exception:
+                            break
+                        df = build_digit_frames(dsnaps, dret, cand, method, a)
+                        if df and len(df) >= 8:
+                            print(json.dumps({'ok':True,'frames':df,'renderer':'array','nframes':len(df),'motion':True})); return
+                    break
+        # (formula path) no loop, but computed intermediates -> reveal the computation. Method
+        # frame first, then sub-frames (some formulas call helpers). >=5 frames (short is honest).
+        for src in (snaps, 'sub'):
+            fs = snaps
+            fret = ret
+            if src == 'sub':
+                try:
+                    fs, fret = run_sub(code, method, argvals)
+                except Exception:
+                    break
+            ff = build_formula_frames(fs, fret, param_names, argvals, method)
+            if ff and len(ff) >= 5:
+                print(json.dumps({'ok':True,'frames':ff,'renderer':'array','nframes':len(ff),'motion':True})); return
         print(json.dumps({'ok':False,'error':'no list/str param'})); return
     primary0 = argvals[pi]
     if not isinstance(primary0,(list,str)) or len(primary0)==0:

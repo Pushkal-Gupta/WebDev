@@ -118,42 +118,46 @@ export default function ExternalContestsCalendar() {
 
   return (
     <div className="exc-wrap">
-      <p className="ctx-sub exc-intro">
-        Live and upcoming contests across every platform — countdown rings tick down to the start.
-      </p>
-
-      {/* Compact summary + slim 7-day strip — no tall empty bands */}
-      <div className="exc-summary">
-        <div className="exc-stat">
-          <span className="exc-stat-n" style={{ color: 'var(--easy)' }}>{liveNow}</span>
-          <span className="exc-stat-l">live now</span>
-        </div>
-        <div className="exc-stat">
-          <span className="exc-stat-n">{upcoming7d}</span>
-          <span className="exc-stat-l">next 7 days</span>
-        </div>
-        <div className="exc-stat">
-          <span className="exc-stat-n">{upcomingTotal}</span>
-          <span className="exc-stat-l">upcoming</span>
-        </div>
-        <div className="exc-stat">
-          <span className="exc-stat-n">{presentPlatforms.length}</span>
-          <span className="exc-stat-l">platforms</span>
-        </div>
-        {nextUp && (
-          <div className="exc-next">
-            <span className="exc-next-lbl">Next up</span>
-            <span className="exc-next-name" title={nextUp.name}>
-              <span className="exc-next-dot" style={{ background: PLATFORM_HUE[nextUp.platform] || 'var(--accent)' }} />
-              {nextUp.name}
-            </span>
-            <span className="exc-next-when">{fmtCountdown(new Date(nextUp.start_time).getTime() - now)}</span>
+      {/* Row 1 — hero: one-line intro + at-a-glance stats */}
+      <header className="exc-hero">
+        <p className="ctx-sub exc-intro">
+          Live and upcoming contests across every platform — countdown rings tick down to the start.
+        </p>
+        <div className="exc-summary">
+          <div className="exc-stat">
+            <span className="exc-stat-n" style={{ color: 'var(--easy)' }}>{liveNow}</span>
+            <span className="exc-stat-l">live now</span>
           </div>
-        )}
-      </div>
+          <div className="exc-stat">
+            <span className="exc-stat-n">{upcoming7d}</span>
+            <span className="exc-stat-l">next 7 days</span>
+          </div>
+          <div className="exc-stat">
+            <span className="exc-stat-n">{upcomingTotal}</span>
+            <span className="exc-stat-l">upcoming</span>
+          </div>
+          <div className="exc-stat">
+            <span className="exc-stat-n">{presentPlatforms.length}</span>
+            <span className="exc-stat-l">platforms</span>
+          </div>
+          {nextUp && (
+            <div className="exc-next">
+              <span className="exc-next-lbl">Next up</span>
+              <span className="exc-next-name" title={nextUp.name}>
+                <span className="exc-next-dot" style={{ background: PLATFORM_HUE[nextUp.platform] || 'var(--accent)' }} />
+                {nextUp.name}
+              </span>
+              <span className="exc-next-when">{fmtCountdown(new Date(nextUp.start_time).getTime() - now)}</span>
+            </div>
+          )}
+        </div>
+      </header>
 
-      {/* This-week timeline — stacked platform-hued bars per upcoming day */}
-      <div className="exc-week" aria-label="This week">
+      {/* Row 2 — primary list: platform + time filters and the colorful card gallery */}
+      <ContestsGalleryGrid contests={contests} />
+
+      {/* Row 3 — this-week calendar: stacked platform-hued bars per upcoming day */}
+      <section className="exc-week" aria-label="This week">
         <span className="exc-week-head">
           <CalendarRange size={13} /> This week
         </span>
@@ -177,10 +181,7 @@ export default function ExternalContestsCalendar() {
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Colorful card gallery — platform filter + live countdowns live inside */}
-      <ContestsGalleryGrid contests={contests} />
+      </section>
     </div>
   );
 }

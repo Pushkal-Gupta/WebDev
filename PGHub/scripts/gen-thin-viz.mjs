@@ -35,7 +35,10 @@ function pickTC(tcs, pi){
     if(pi>=0 && pi<ins.length){ const pv=parseLit(ins[pi]); L=sizeOf(pv);
       if(Array.isArray(pv)) distinct=new Set(pv.map(x=>JSON.stringify(x))).size;
       else if(typeof pv==='string') distinct=new Set(pv).size;
-    } else for(const s of ins) L=Math.max(L, sizeOf(parseLit(s)));
+    } else { // scalar/int: size = digit count of the largest int; diversity = distinct digits
+      for(const s of ins){ const v=parseLit(s); const sz=sizeOf(v); if(sz>L){ L=sz;
+        if(typeof v==='number'&&Number.isInteger(v)) distinct=new Set(String(Math.abs(v))).size; } }
+    }
     if(L===0) continue;
     let score;
     if(L>=8 && L<=14) score=100-Math.abs(11-L);   // ideal size

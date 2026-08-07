@@ -20,10 +20,23 @@
     <script>
       (function () {
         try {
+          var ALL = ['dark','light','midnight','midnight-light','solarized','solarized-dark','dracula','dracula-light','nord','nord-light','rose-pine','rose-pine-dawn','gruvbox','mocha','cyberpunk','forest'];
+          var LIGHT = ['light','midnight-light','solarized','dracula-light','nord-light','rose-pine-dawn'];
           var t = localStorage.getItem('pg-theme') || 'dark';
-          var ok = ['dark','light','midnight','solarized','dracula'].indexOf(t) >= 0 ? t : 'dark';
+          var ok = ALL.indexOf(t) >= 0 ? t : 'dark';
           document.documentElement.setAttribute('data-theme', ok);
-        } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+          document.documentElement.setAttribute('data-theme-mode', LIGHT.indexOf(ok) >= 0 ? 'light' : 'dark');
+          // Visual preferences (Settings → Preferences) applied before paint so they
+          // take effect on every load, not only after the Settings modal mounts.
+          var dens = localStorage.getItem('pg-pref-density');
+          if (dens === 'compact') document.documentElement.setAttribute('data-density', 'compact');
+          var fs = localStorage.getItem('pg-pref-font-scale');
+          if (fs === 'small' || fs === 'large') document.documentElement.setAttribute('data-font-scale', fs);
+          if (localStorage.getItem('pg-pref-reduce-motion') === 'true') document.documentElement.setAttribute('data-reduce-motion', 'true');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+          document.documentElement.setAttribute('data-theme-mode', 'dark');
+        }
       })();
     </script>
     <style id="pg-shell-style">

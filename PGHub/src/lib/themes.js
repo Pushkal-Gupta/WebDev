@@ -1,0 +1,29 @@
+// Theme registry — the single source of truth for the palette picker and any
+// theme-switching UI. Each preset declares its mode and a `pair` pointing to its
+// opposite-mode sibling so the Dark/Light toggle keeps palette identity.
+// `swatches` are [bg, surface, accent] for the picker chips. Full palettes live
+// in src/styles/theme.css as [data-theme="<id>"] blocks; ids here must match, and
+// must also appear in VALID_THEMES + THEME_META in src/App.jsx.
+export const THEME_PRESETS = [
+  { id: 'dark',             name: 'Default Dark',     mode: 'dark',  pair: 'light',            swatches: ['#030a0a', '#061010', '#00fff5'] },
+  { id: 'light',            name: 'Default Light',    mode: 'light', pair: 'dark',             swatches: ['#f5f2ed', '#ffffff', '#008a7e'] },
+  { id: 'midnight',         name: 'Midnight',         mode: 'dark',  pair: 'midnight-light',   swatches: ['#0b1024', '#131a3a', '#a78bfa'] },
+  { id: 'midnight-light',   name: 'Midnight Light',   mode: 'light', pair: 'midnight',         swatches: ['#eef1ff', '#dfe5ff', '#6b4dff'] },
+  { id: 'solarized',        name: 'Solarized Light',  mode: 'light', pair: 'solarized-dark',   swatches: ['#fdf6e3', '#eee8d5', '#268bd2'] },
+  { id: 'solarized-dark',   name: 'Solarized Dark',   mode: 'dark',  pair: 'solarized',        swatches: ['#002b36', '#073642', '#268bd2'] },
+  { id: 'dracula',          name: 'Dracula',          mode: 'dark',  pair: 'dracula-light',    swatches: ['#282a36', '#21222c', '#ff79c6'] },
+  { id: 'dracula-light',    name: 'Dracula Light',    mode: 'light', pair: 'dracula',          swatches: ['#f4f4ff', '#e5e5f5', '#c4378a'] },
+  { id: 'nord',             name: 'Nord',             mode: 'dark',  pair: 'nord-light',       swatches: ['#2e3440', '#3b4252', '#88c0d0'] },
+  { id: 'nord-light',       name: 'Nord Light',       mode: 'light', pair: 'nord',             swatches: ['#eceff4', '#ffffff', '#5e81ac'] },
+  { id: 'rose-pine',        name: 'Rosé Pine',        mode: 'dark',  pair: 'rose-pine-dawn',   swatches: ['#191724', '#1f1d2e', '#ebbcba'] },
+  { id: 'rose-pine-dawn',   name: 'Rosé Pine Dawn',   mode: 'light', pair: 'rose-pine',        swatches: ['#faf4ed', '#fffaf3', '#b4637a'] },
+  { id: 'gruvbox',          name: 'Gruvbox',          mode: 'dark',  pair: 'nord-light',       swatches: ['#282828', '#32302f', '#fabd2f'] },
+  { id: 'mocha',            name: 'Catppuccin Mocha', mode: 'dark',  pair: 'rose-pine-dawn',   swatches: ['#1e1e2e', '#181825', '#cba6f7'] },
+  { id: 'cyberpunk',        name: 'Cyberpunk',        mode: 'dark',  pair: 'nord-light',       swatches: ['#0d0221', '#170a33', '#ff2a6d'] },
+  { id: 'forest',           name: 'Forest',           mode: 'dark',  pair: 'nord-light',       swatches: ['#0f1a14', '#16241b', '#4ade80'] },
+];
+
+const LIGHT_THEMES = new Set(THEME_PRESETS.filter((t) => t.mode === 'light').map((t) => t.id));
+// 'dark' | 'light' for a theme id (unknown → dark). Used to keep data-theme-mode
+// correct on initial load so the Navbar toggle shows the right position.
+export const modeOf = (id) => (LIGHT_THEMES.has(id) ? 'light' : 'dark');
