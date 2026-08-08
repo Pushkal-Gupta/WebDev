@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router';
 import {
   Building2, ArrowRight, MapPin, Star, Layers,
-  Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud, Search, X,
+  Sparkles, Rocket, Landmark, Briefcase, LineChart, Cloud, Search, X, LayoutGrid, List,
 } from 'lucide-react';
 import { useCompanies } from '../../lib/queries';
 import { COMPANY_GROUPS, membersOf } from '../../content/companyGroups';
@@ -18,6 +18,8 @@ export function CompanyLogo({ c }) {
 export default function CompaniesIndex() {
   const { data: companies = [], isLoading } = useCompanies();
   const [q, setQ] = useState('');
+  const [view, setView] = useState(() => localStorage.getItem('pg-companies-view') || 'grid');
+  const setViewMode = (v) => { setView(v); localStorage.setItem('pg-companies-view', v); };
   const query = q.trim().toLowerCase();
 
   const results = useMemo(() => {
@@ -74,9 +76,15 @@ export default function CompaniesIndex() {
   }
 
   return (
-    <div className="comp-container">
+    <div className="comp-container" data-view={view}>
       <header className="comp-header">
-        <h1 className="comp-title"><span className="comp-title-pre">PG</span>Career</h1>
+        <div className="comp-title-row">
+          <h1 className="comp-title"><span className="comp-title-pre">PG</span>Career</h1>
+          <div className="comp-viewtoggle" role="group" aria-label="View mode">
+            <button type="button" className={view === 'grid' ? 'on' : ''} onClick={() => setViewMode('grid')} aria-label="Grid view" aria-pressed={view === 'grid'}><LayoutGrid size={15} /></button>
+            <button type="button" className={view === 'list' ? 'on' : ''} onClick={() => setViewMode('list')} aria-label="List view" aria-pressed={view === 'list'}><List size={15} /></button>
+          </div>
+        </div>
         <p className="comp-sub">
           {companies.length} companies with their most-asked interview problems, ranked by frequency.
         </p>

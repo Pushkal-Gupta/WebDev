@@ -117,6 +117,22 @@
   align-content: start;
 }
 
+/* View toggle (grid ⇄ list) */
+.comp-title-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+.comp-viewtoggle { display: inline-flex; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; flex-shrink: 0; }
+.comp-viewtoggle button { display: inline-flex; align-items: center; justify-content: center; width: 2.1rem; height: 1.9rem; border: none; background: var(--surface); color: var(--text-dim); cursor: pointer; }
+.comp-viewtoggle button + button { border-left: 1px solid var(--border); }
+.comp-viewtoggle button:hover { color: var(--text-main); }
+.comp-viewtoggle button.on { background: color-mix(in srgb, var(--accent) 16%, transparent); color: var(--accent); }
+
+/* List mode: company grids collapse to full-width compact rows (group grid unaffected) */
+.comp-container[data-view="list"] .comp-grid { grid-template-columns: 1fr; gap: 0.45rem; }
+.comp-container[data-view="list"] .comp-grid .comp-card { flex-direction: row; align-items: center; gap: 0.9rem; padding: 0.6rem 0.9rem; }
+.comp-container[data-view="list"] .comp-grid .comp-card-head { flex: 0 0 auto; margin: 0; }
+.comp-container[data-view="list"] .comp-grid .comp-card-title { white-space: nowrap; }
+.comp-container[data-view="list"] .comp-grid .comp-card-desc { flex: 1 1 auto; margin: 0; min-height: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.comp-container[data-view="list"] .comp-grid .comp-card-foot { flex: 0 0 auto; margin: 0; }
+
 .comp-group-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
