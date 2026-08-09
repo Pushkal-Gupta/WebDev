@@ -183,9 +183,10 @@ export async function getTopPosts(viewerId, limit = 20) {
 export async function getPostsByTag(tag, viewerId, limit = 40) {
   const clean = String(tag).replace(/[^a-zA-Z0-9_]/g, '');
   if (!clean) return [];
-  // Escape `_` (a LIKE wildcard) so #a_b doesn't match #axb; broad-match in SQL then
-  // post-filter for the exact whole tag so #react no longer returns #reactive.
-  const pattern = `%#${clean.replace(/_/g, '\\_')}%`;
+  // Escape the LIKE special chars completely — the backslash escape-char FIRST, then the
+  // `_`/`%` wildcards — so #a_b doesn't match #axb; broad-match in SQL then post-filter for
+  // the exact whole tag so #react no longer returns #reactive.
+  const pattern = `%#${clean.replace(/[\\%_]/g, '\\$&')}%`;
   const exact = new RegExp(`(^|[^\\w])#${clean}([^\\w]|$)`, 'i');
   const { data, error } = await supabase.from('PGcode_posts').select('*')
     .is('reply_to', null).ilike('body', pattern).order('created_at', { ascending: false }).limit(limit);
