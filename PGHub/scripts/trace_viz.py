@@ -968,7 +968,7 @@ def main():
                 tf = build_tree_frames(t_root, t_snaps, t_ret, method)
             except Exception as e:
                 tf = None
-            if tf and len(tf) >= 10:
+            if tf and len(tf) >= 5:
                 print(json.dumps({'ok':True,'frames':tf,'renderer':'tree','nframes':len(tf),'motion':True})); return
         print(json.dumps({'ok':False,'error':'tree-trace-failed'})); return
     # (linked-list path) ListNode input -> value array with gliding slow/fast/cur pointers.
@@ -981,7 +981,7 @@ def main():
                 lf = build_list_frames(l_vidval, l_snaps, l_ret, method)
             except Exception:
                 lf = None
-            if lf and len(lf) >= 10:
+            if lf and len(lf) >= 5:
                 print(json.dumps({'ok':True,'frames':lf,'renderer':'array','nframes':len(lf),'motion':True})); return
         print(json.dumps({'ok':False,'error':'list-trace-failed'})); return
     argvals = [literal(x) for x in inputs]
@@ -991,13 +991,13 @@ def main():
     iv = detect_intervals(argvals, param_types)
     if iv:
         ivf = build_interval_frames(iv[1], snaps, ret, method)
-        if ivf and len(ivf) >= 10:
+        if ivf and len(ivf) >= 5:
             print(json.dumps({'ok':True,'frames':ivf,'renderer':'grid','nframes':len(ivf),'motion':True})); return
     # (grid path) if a 2D structure mutates over the run, animate the wavefront/DP-fill.
     gres = build_grid_frames(snaps, ret, method)
     if gres:
         gframes, gchanged = gres
-        if len(gframes) >= 10 and gchanged:
+        if len(gframes) >= 5 and gchanged:
             print(json.dumps({'ok':True,'frames':gframes,'renderer':'grid','nframes':len(gframes),'motion':True})); return
     # (grid-traversal path) grid input whose DFS/BFS visits cells (tracked by named (r,c)
     # coord locals via sub-frames) -> animate a 0/1/2 state-grid wavefront.
@@ -1008,7 +1008,7 @@ def main():
             try:
                 tsnaps, tret = run_sub(code, method, argvals)
                 gtf = build_grid_traversal_frames(gridarg, tsnaps, tret, method)
-                if gtf and len(gtf) >= 10:
+                if gtf and len(gtf) >= 5:
                     print(json.dumps({'ok':True,'frames':gtf,'renderer':'grid','nframes':len(gtf),'motion':True})); return
             except Exception:
                 pass
@@ -1017,13 +1017,13 @@ def main():
     if gr:
         n_g, edges_g = gr
         grframes = build_graph_frames(snaps, ret, n_g, edges_g, method)
-        if not (grframes and len(grframes) >= 10):
+        if not (grframes and len(grframes) >= 5):
             try:  # nested DFS/BFS: the visit order lives in sub-frames
                 gsub, gret = run_sub(code, method, argvals)
                 grframes = build_graph_frames(gsub, gret, n_g, edges_g, method)
             except Exception:
                 pass
-        if grframes and len(grframes) >= 10:
+        if grframes and len(grframes) >= 5:
             print(json.dumps({'ok':True,'frames':grframes,'renderer':'graph','nframes':len(grframes),'motion':True})); return
     # (array path)
     pi = choose_primary(argvals, param_types)
@@ -1040,7 +1040,7 @@ def main():
             drv = pick_driver(ss)
             if drv:
                 sf = build_scalar_frames(ss, ret, drv, method)
-                if sf and len(sf) >= 10:
+                if sf and len(sf) >= 5:
                     print(json.dumps({'ok':True,'frames':sf,'renderer':'array','nframes':len(sf),'motion':True})); return
         # (digit path) int problem that processes the digits of n. Synthesize the digit array
         # as the primary and sub-frame-trace so the real per-digit loop var + accumulator show
@@ -1083,7 +1083,7 @@ def main():
     pname = param_names[pi] if pi<len(param_names) else 'arr'
     frames = build_frames(snaps, ret, pname, primary0, others, method)
     def gate_ok(fr):
-        if len(fr) < 10:
+        if len(fr) < 5:
             return False
         a0 = fr[0].get('array') if fr else None
         return any('pointers' in f for f in fr) or any(f.get('array') != a0 for f in fr if 'array' in f)
@@ -1099,7 +1099,7 @@ def main():
         except Exception:
             pass
     if not gate_ok(frames):
-        if len(frames) < 10:
+        if len(frames) < 5:
             print(json.dumps({'ok':False,'error':f'too few frames ({len(frames)})'})); return
         print(json.dumps({'ok':False,'error':'weak-trace (no motion)'})); return
     has_ptr = any('pointers' in f for f in frames)
