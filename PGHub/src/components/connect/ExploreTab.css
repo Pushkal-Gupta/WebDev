@@ -28,6 +28,12 @@
 
 .pgc-explore-section { display: flex; flex-direction: column; }
 
+.pgc-explore-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.pgc-explore-tag { display: inline-flex; align-items: center; gap: 0.25rem; padding: 0.35rem 0.7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text-main); font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease; }
+.pgc-explore-tag:hover { border-color: var(--accent); color: var(--accent); background: rgba(var(--accent-rgb), 0.06); }
+.pgc-explore-tag svg { color: var(--accent); }
+.pgc-explore-tagcount { margin-left: 0.15rem; padding: 0.02rem 0.4rem; border-radius: 999px; background: var(--hover-box); color: var(--text-dim); font-size: 0.7rem; font-weight: 700; }
+
 .pgc-explore-empty {
   display: flex;
   align-items: center;

@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Trophy, UserPlus, UserCheck, Heart, MessageCircle, TrendingUp, Loader2, Users } from 'lucide-react';
-import { getLeaderboard, getSuggestedPeople, getTopPosts, getFollowSet, setFollow } from '../../lib/social';
+import { Trophy, UserPlus, UserCheck, Heart, MessageCircle, TrendingUp, Loader2, Users, Hash } from 'lucide-react';
+import { getLeaderboard, getSuggestedPeople, getTopPosts, getFollowSet, setFollow, getTrendingTags } from '../../lib/social';
+
+const openTag = (tag) => {
+  window.dispatchEvent(new CustomEvent('pg:connect-tab', { detail: 'feed' }));
+  window.dispatchEvent(new CustomEvent('pg:open-tag', { detail: tag }));
+};
 import './ExploreTab.css';
 
 function timeAgo(iso) {
@@ -23,17 +28,20 @@ export default function ExploreTab({ user }) {
   const [leaders, setLeaders] = useState(null);
   const [people, setPeople] = useState([]);
   const [posts, setPosts] = useState([]);
+  const [tags, setTags] = useState([]);
   const [following, setFollowing] = useState(() => new Set());
 
   const load = useCallback(async () => {
-    const [lb, sp, tp, fs] = await Promise.all([
+    const [lb, sp, tp, tt, fs] = await Promise.all([
       getLeaderboard().catch(() => []),
       getSuggestedPeople(user.id).catch(() => []),
       getTopPosts(user.id).catch(() => []),
+      getTrendingTags().catch(() => []),
       getFollowSet(user.id).catch(() => new Set()),
     ]);
     setPeople(sp || []);
     setPosts(tp || []);
+    setTags(tt || []);
     setFollowing(fs instanceof Set ? fs : new Set());
     setLeaders(lb || []);
   }, [user.id]);
@@ -74,6 +82,20 @@ export default function ExploreTab({ user }) {
         <h1>Explore</h1>
         <p className="pgc-explore-sub">Discover top coders, people to follow, and what the community is posting.</p>
       </header>
+
+      {tags.length > 0 ? (
+        <section className="pgc-explore-section">
+          <div className="pgc-group-label"><Hash size={14} /> Trending tags</div>
+          <div className="pgc-explore-tags">
+            {tags.map((t) => (
+              <button key={t.tag} className="pgc-explore-tag" onClick={() => openTag(t.tag)}>
+                <Hash size={13} />{t.tag}
+                <span className="pgc-explore-tagcount">{t.count}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="pgc-explore-section">
         <div className="pgc-group-label"><Trophy size={14} /> Leaderboard</div>

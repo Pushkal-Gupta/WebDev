@@ -43,13 +43,20 @@ Build the output with a Node or Python script (assign each editorial to a variab
 Write ${dir}/out-0.json = a JSON array of { id, editorial_md }, one per problem. Valid JSON only. Do NOT touch the database or any source file. End with a one-line count summary.`;
 
 phase('Generate');
-const results = await parallel(tasks.map((t) => () =>
-  agent(t.kind === 'viz' ? vizPrompt(t.dir) : apprPrompt(t.dir), {
-    label: `${t.kind}:${t.idx}`,
-    phase: 'Generate',
-    agentType: 'general-purpose',
-  }).then(() => ({ ok: true, kind: t.kind })).catch(() => ({ ok: false, kind: t.kind }))
-));
+// One retry per task so a transient API error (connection-closed / stall) doesn't waste a slice.
+// A hard spend-cap rejection will still fail both attempts — that's surfaced, not silently retried forever.
+const runOne = async (t, attempt = 1) => {
+  const prompt = t.kind === 'viz' ? vizPrompt(t.dir) : apprPrompt(t.dir);
+  try {
+    const r = await agent(prompt, { label: `${t.kind}:${t.idx}${attempt > 1 ? '.r' : ''}`, phase: 'Generate', agentType: 'general-purpose' });
+    if (r == null && attempt < 2) return runOne(t, attempt + 1);
+    return { ok: r != null, kind: t.kind };
+  } catch {
+    if (attempt < 2) return runOne(t, attempt + 1);
+    return { ok: false, kind: t.kind };
+  }
+};
+const results = await parallel(tasks.map((t) => () => runOne(t)));
 
 const done = results.filter((r) => r && r.ok).length;
 const vizDone = results.filter((r) => r && r.ok && r.kind === 'viz').length;

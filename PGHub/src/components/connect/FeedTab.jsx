@@ -1,9 +1,28 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Heart, MessageCircle, Trash2, UserPlus, UserCheck, Send, Rss, Loader2, Bookmark, Hash, ArrowLeft } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Link } from 'react-router';
+import { Heart, MessageCircle, Trash2, UserPlus, UserCheck, Send, Rss, Loader2, Bookmark, Hash, ArrowLeft, Puzzle, X, Search } from 'lucide-react';
 import {
   getFeed, createPost, deletePost, setLike, getFollowSet, setFollow, getReplies,
-  getBookmarkSet, setBookmark, getBookmarkedPosts, getPostsByTag,
+  getBookmarkSet, setBookmark, getBookmarkedPosts, getPostsByTag, searchProblems,
 } from '../../lib/social';
+
+const DIFF_CLASS = { Easy: 'easy', Medium: 'medium', Hard: 'hard' };
+
+// Rich card for a problem shared into the feed. Links to the problem page.
+function AttachedProblem({ att }) {
+  if (!att || att.type !== 'problem') return null;
+  const to = att.topic ? `/category/${att.topic}/${att.id}` : `/solution/${att.id}`;
+  return (
+    <Link to={to} className="pgc-attach-card" title={`Open ${att.name}`}>
+      <span className="pgc-attach-ico"><Puzzle size={16} /></span>
+      <span className="pgc-attach-main">
+        <span className="pgc-attach-name">{att.name}</span>
+        <span className="pgc-attach-sub">Practice problem</span>
+      </span>
+      {att.difficulty ? <span className={`pgc-attach-diff ${DIFF_CLASS[att.difficulty] || 'medium'}`}>{att.difficulty}</span> : null}
+    </Link>
+  );
+}
 
 function timeAgo(iso) {
   const s = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 1000));
@@ -31,6 +50,11 @@ export default function FeedTab({ user, myName }) {
   const [openReplies, setOpenReplies] = useState(null);
   const [replies, setReplies] = useState({});
   const [replyDraft, setReplyDraft] = useState('');
+  const [attachOpen, setAttachOpen] = useState(false);
+  const [attachQ, setAttachQ] = useState('');
+  const [attachResults, setAttachResults] = useState(null);
+  const [attachment, setAttachment] = useState(null); // { type:'problem', id, name, difficulty, topic }
+  const attachTimer = useRef(null);
 
   const load = useCallback(() => {
     const fetcher = activeTag ? getPostsByTag(activeTag, user.id)
@@ -56,20 +80,40 @@ export default function FeedTab({ user, myName }) {
   const openTag = (tag) => { setActiveTag(tag); setOpenReplies(null); };
   const clearTag = () => setActiveTag(null);
 
+  // Explore's trending-tag chips deep-link into the feed via this event.
+  useEffect(() => {
+    const onTag = (e) => { if (e.detail) { setActiveTag(String(e.detail).replace(/^#/, '')); setOpenReplies(null); } };
+    window.addEventListener('pg:open-tag', onTag);
+    return () => window.removeEventListener('pg:open-tag', onTag);
+  }, []);
+
   const renderBody = (text) => String(text).split(/(#[a-zA-Z0-9_]+)/g).map((part, i) => (
     /^#[a-zA-Z0-9_]+$/.test(part)
       ? <button key={i} type="button" className="pgc-tag-link" onClick={() => openTag(part.slice(1))}>{part}</button>
       : part
   ));
 
+  const onAttachQ = (val) => {
+    setAttachQ(val);
+    if (attachTimer.current) clearTimeout(attachTimer.current);
+    if (val.trim().length < 2) { setAttachResults(null); return; }
+    attachTimer.current = setTimeout(() => {
+      searchProblems(val).then(setAttachResults).catch(() => setAttachResults([]));
+    }, 220);
+  };
+  const pickProblem = (p) => {
+    setAttachment({ type: 'problem', id: p.id, name: p.name, difficulty: p.difficulty, topic: p.topic_id });
+    setAttachOpen(false); setAttachQ(''); setAttachResults(null);
+  };
+
   const submit = async (e) => {
     e?.preventDefault();
     const body = draft.trim();
-    if (!body || posting) return;
+    if ((!body && !attachment) || posting) return;
     setPosting(true);
     try {
-      const created = await createPost(user.id, body);
-      setDraft('');
+      const created = await createPost(user.id, body, null, attachment);
+      setDraft(''); setAttachment(null); setAttachOpen(false); setAttachQ(''); setAttachResults(null);
       if (created && !activeTag && scope !== 'saved') setPosts((p) => [created, ...(p || [])]);
     } catch { /* ignore */ }
     setPosting(false);
@@ -125,9 +169,44 @@ export default function FeedTab({ user, myName }) {
         <Avatar name={myName} size={40} />
         <div className="pgc-composer-main">
           <textarea value={draft} onChange={(e) => setDraft(e.target.value)} placeholder="Share an update, ask a question, or add #tags…" aria-label="Share a post" maxLength={2000} rows={2} />
+          {attachment ? (
+            <div className="pgc-attach-preview">
+              <Puzzle size={14} />
+              <span className="pgc-attach-preview-name">{attachment.name}</span>
+              {attachment.difficulty ? <span className={`pgc-attach-diff ${DIFF_CLASS[attachment.difficulty] || 'medium'}`}>{attachment.difficulty}</span> : null}
+              <button type="button" className="pgc-attach-x" onClick={() => setAttachment(null)} aria-label="Remove attached problem"><X size={13} /></button>
+            </div>
+          ) : null}
+          {attachOpen && !attachment ? (
+            <div className="pgc-attach-picker">
+              <div className="pgc-attach-search">
+                <Search size={14} />
+                <input autoFocus value={attachQ} onChange={(e) => onAttachQ(e.target.value)} placeholder="Search a problem to attach…" aria-label="Search a problem" />
+                <button type="button" onClick={() => { setAttachOpen(false); setAttachQ(''); setAttachResults(null); }} aria-label="Close problem search"><X size={14} /></button>
+              </div>
+              {attachResults === null ? (
+                attachQ.trim().length >= 2 ? <div className="pgc-attach-hint"><Loader2 size={14} className="pgc-spin" /></div> : <div className="pgc-attach-hint">Type at least 2 characters.</div>
+              ) : attachResults.length === 0 ? (
+                <div className="pgc-attach-hint">No problems match “{attachQ.trim()}”.</div>
+              ) : (
+                <ul className="pgc-attach-results">
+                  {attachResults.map((p) => (
+                    <li key={p.id}><button type="button" onClick={() => pickProblem(p)}>
+                      <Puzzle size={14} />
+                      <span className="pgc-attach-rname">{p.name}</span>
+                      {p.difficulty ? <span className={`pgc-attach-diff ${DIFF_CLASS[p.difficulty] || 'medium'}`}>{p.difficulty}</span> : null}
+                    </button></li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ) : null}
           <div className="pgc-composer-foot">
+            <button type="button" className={`pgc-composer-attach ${attachOpen || attachment ? 'on' : ''}`} onClick={() => setAttachOpen((v) => !v)} title="Attach a problem">
+              <Puzzle size={14} /> Problem
+            </button>
             <span className="pgc-composer-count">{draft.length}/2000</span>
-            <button type="submit" disabled={!draft.trim() || posting}>{posting ? <Loader2 size={14} className="pgc-spin" /> : <Send size={14} />} Post</button>
+            <button type="submit" disabled={(!draft.trim() && !attachment) || posting}>{posting ? <Loader2 size={14} className="pgc-spin" /> : <Send size={14} />} Post</button>
           </div>
         </div>
       </form>
@@ -166,7 +245,8 @@ export default function FeedTab({ user, myName }) {
                     </button>
                   ) : null}
                 </div>
-                <p className="pgc-post-body">{renderBody(p.body)}</p>
+                {p.body ? <p className="pgc-post-body">{renderBody(p.body)}</p> : null}
+                {p.attachment ? <AttachedProblem att={p.attachment} /> : null}
                 <div className="pgc-post-actions">
                   <button className={`pgc-post-act ${p.likedByMe ? 'liked' : ''}`} onClick={() => toggleLike(p)}>
                     <Heart size={15} fill={p.likedByMe ? 'currentColor' : 'none'} /> {p.like_count || 0}

@@ -951,6 +951,105 @@ def build_graph_frames(snaps, ret, n, edges, method_name):
                    'caption': f"Result: {safe_result(ret)}."})
     return frames
 
+def build_result_frames(snaps, ret, method_name, exclude=None):
+    # Animate the construction of a result/output list. Covers the common case the primary-array
+    # trace can't: the input is never mutated (so it shows no motion) while a separate local list
+    # is built up (res.append) OR pre-allocated then filled by index (dp[i] = ...).
+    exclude = exclude or set()
+    hist = {}
+    for s in snaps:
+        for k,(kind,val) in s.items():
+            if kind in ('lnum','lstr') and not k.startswith('_') and k not in exclude:
+                hist.setdefault(k, []).append(list(val))
+    if not hist:
+        return None
+    ret_list = ret if isinstance(ret,list) and ret and all(isinstance(e,(int,float,str)) and not isinstance(e,bool) for e in ret) else None
+    NAMEY = {'res','result','ans','out','output','ret','arr','order','path','dp','ways','stack','queue','cur','curr','seq'}
+    def growing(k):
+        seq = hist[k]; lens=[len(x) for x in seq]; final=seq[-1]
+        if len(final)<3 or lens[0]>1: return -1
+        if any(lens[i]<lens[i-1] for i in range(1,len(lens))): return -1
+        if len(set(lens))<3: return -1
+        sc=len(set(lens))
+        if ret_list is not None and final==ret_list: sc+=100
+        if k in KNOWN_ACC or k in NAMEY: sc+=20
+        return sc
+    def filling(k):
+        # constant length >=3, values mutate over the trace at >=3 distinct signatures
+        seq=hist[k]; L=len(seq[0])
+        if L<3 or any(len(x)!=L for x in seq): return -1
+        sigs=[tuple(x) for x in seq]
+        if len(set(sigs))<3: return -1
+        sc=len(set(sigs))
+        if ret_list is not None and seq[-1]==ret_list: sc+=100
+        if k in KNOWN_ACC or k in NAMEY: sc+=20
+        return sc
+    best=None; bestsc=0; mode=None
+    for k in hist:
+        g=growing(k)
+        if g>bestsc: bestsc=g; best=k; mode='grow'
+    if best is None:
+        for k in hist:
+            fll=filling(k)
+            if fll>bestsc: bestsc=fll; best=k; mode='fill'
+    if best is None:
+        return None
+    seq=hist[best]
+    if mode=='grow':
+        by_len={}; order=[]
+        for x in seq:
+            L=len(x)
+            if L not in by_len: order.append(L)
+            by_len[L]=x
+        states=[by_len[L] for L in sorted(order)]
+    else:
+        states=[]; seen=set()
+        for x in seq:
+            sig=tuple(x)
+            if sig not in seen: seen.add(sig); states.append(x)
+    final=states[-1]; N=len(final)
+    if len(states)<3: return None
+    if len(states)>13:
+        step=len(states)/13.0
+        samp=[states[int(i*step)] for i in range(13)]
+        if samp[-1]!=final: samp.append(final)
+        states=samp
+    label = best if best in NAMEY or best in KNOWN_ACC else 'result'
+    frames=[]
+    if mode=='grow':
+        frames.append({'array':[], 'caption':f"Build {label} for {method_name}: start empty."})
+        prev=0
+        for st in states:
+            L=len(st); f={'array':list(st)}; hl={}
+            for d in range(prev): hl[str(d)]='done'
+            for d in range(prev,L): hl[str(d)]='match'
+            if L>0: f['pointers']={str(L-1):'add'}
+            if hl: f['highlights']=hl
+            added=st[prev:L] if L>prev else []
+            f['caption']=(f"Append {json.dumps(added)[:30]} -> {label} has {L}." if added else f"{label} holds {L}.")
+            frames.append(f); prev=L
+    else:
+        base=states[0]; f0={'array':list(base),'caption':f"Fill {label} for {method_name}: {N} slots, initial state."}
+        frames.append(f0)
+        prev=list(base)
+        for st in states:
+            f={'array':list(st)}; hl={}; changed=[i for i in range(N) if i>=len(prev) or st[i]!=prev[i]]
+            for i in range(N): hl[str(i)]='done'
+            for i in changed: hl[str(i)]='current'
+            if changed: f['pointers']={str(changed[-1]):label}
+            f['highlights']=hl
+            f['caption']=(f"Set index {changed[-1]} = {json.dumps(st[changed[-1]])[:20]}." if changed else f"{label} updated.")
+            frames.append(f); prev=list(st)
+    frames.append({'array':list(final), 'highlights':{str(i):'done' for i in range(N)},
+                   'chip':{'label':label,'value':str(N),'tone':'mint'},
+                   'caption':f"{method_name} returns {label} ({N} element{'s' if N!=1 else ''})."})
+    # dedup consecutive identical-array frames
+    out=[]
+    for f in frames:
+        if out and out[-1].get('array')==f.get('array') and out[-1].get('caption')==f.get('caption'): continue
+        out.append(f)
+    return out if len(out)>=5 else None
+
 def main():
     payload = json.load(sys.stdin)
     code = payload['code']
@@ -1072,6 +1171,17 @@ def main():
             ff = build_formula_frames(fs, fret, param_names, argvals, method)
             if ff and len(ff) >= 5:
                 print(json.dumps({'ok':True,'frames':ff,'renderer':'array','nframes':len(ff),'motion':True})); return
+        # (result path) scalar input but a result list is built/filled -> animate its construction.
+        for rsrc in (snaps, 'sub'):
+            rs, rr = snaps, ret
+            if rsrc == 'sub':
+                try:
+                    rs, rr = run_sub(code, method, argvals)
+                except Exception:
+                    break
+            rf = build_result_frames(rs, rr, method)
+            if rf and len(rf) >= 5:
+                print(json.dumps({'ok':True,'frames':rf,'renderer':'array','nframes':len(rf),'motion':True})); return
         print(json.dumps({'ok':False,'error':'no list/str param'})); return
     primary0 = argvals[pi]
     if not isinstance(primary0,(list,str)) or len(primary0)==0:
@@ -1099,6 +1209,16 @@ def main():
         except Exception:
             pass
     if not gate_ok(frames):
+        # (result path) input never moved -> animate a result/output list being built or filled.
+        rf = build_result_frames(snaps, ret, method, exclude={pname})
+        if not rf:
+            try:
+                rs, rr = run_sub(code, method, argvals)
+                rf = build_result_frames(rs, rr, method, exclude={pname})
+            except Exception:
+                rf = None
+        if rf and len(rf) >= 5:
+            print(json.dumps({'ok':True,'frames':rf,'renderer':'array','nframes':len(rf),'motion':True})); return
         if len(frames) < 5:
             print(json.dumps({'ok':False,'error':f'too few frames ({len(frames)})'})); return
         print(json.dumps({'ok':False,'error':'weak-trace (no motion)'})); return

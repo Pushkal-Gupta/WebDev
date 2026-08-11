@@ -54,14 +54,31 @@ export async function getReplies(postId, viewerId) {
   return attachAuthors(data || [], viewerId);
 }
 
-export async function createPost(authorId, body, replyTo = null) {
+export async function createPost(authorId, body, replyTo = null, attachment = null) {
   const text = (body || '').trim();
-  if (!authorId || !text) return null;
-  const { data, error } = await supabase.from('PGcode_posts')
-    .insert({ author_id: authorId, body: text.slice(0, 2000), reply_to: replyTo })
-    .select('*').single();
+  // A post needs either text or an attachment (share a problem with no caption is fine).
+  if (!authorId || (!text && !attachment)) return null;
+  const row = { author_id: authorId, body: text.slice(0, 2000), reply_to: replyTo };
+  if (attachment) row.attachment = attachment;
+  let { data, error } = await supabase.from('PGcode_posts').insert(row).select('*').single();
+  // Degrade if migration 97 (attachment column) isn't applied yet — still post the text.
+  if (error && attachment && /attachment|column|schema cache/i.test(error.message || '')) {
+    ({ data, error } = await supabase.from('PGcode_posts')
+      .insert({ author_id: authorId, body: text.slice(0, 2000), reply_to: replyTo })
+      .select('*').single());
+  }
   if (error) throw error;
   return (await attachAuthors([data], authorId))[0];
+}
+
+// Typeahead over the catalog for the feed "share a problem" composer. Small, name-matched.
+export async function searchProblems(q, limit = 8) {
+  const term = String(q || '').trim();
+  if (term.length < 2) return [];
+  const { data, error } = await supabase.from('PGcode_problems')
+    .select('id, name, difficulty, topic_id').ilike('name', `%${term}%`).limit(limit);
+  if (error) return [];
+  return data || [];
 }
 
 export async function deletePost(postId) {
@@ -193,6 +210,27 @@ export async function getPostsByTag(tag, viewerId, limit = 40) {
   if (error) return [];
   return attachAuthors((data || []).filter((p) => exact.test(p.body || '')), viewerId);
 }
+// Trending hashtags: aggregate #tags across recent top-level posts, most-used first.
+export async function getTrendingTags(limit = 10) {
+  const { data, error } = await supabase.from('PGcode_posts')
+    .select('body').is('reply_to', null).order('created_at', { ascending: false }).limit(300);
+  if (error) return [];
+  const counts = new Map();
+  for (const p of (data || [])) {
+    const seen = new Set();
+    for (const m of String(p.body || '').matchAll(/#([a-zA-Z0-9_]{2,30})/g)) {
+      const tag = m[1].toLowerCase();
+      if (seen.has(tag)) continue; // count each post once per tag
+      seen.add(tag);
+      counts.set(tag, (counts.get(tag) || 0) + 1);
+    }
+  }
+  return [...counts.entries()]
+    .map(([tag, count]) => ({ tag, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, limit);
+}
+
 export async function getSuggestedPeople(viewerId, limit = 12) {
   const { data, error } = await supabase.from('PGcode_profiles')
     .select('user_id, display_name, username, avatar_url, total_solved')
