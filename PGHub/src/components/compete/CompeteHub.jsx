@@ -134,24 +134,26 @@ const SECTION_CARDS = [
 // Three clear clusters so the hub reads as a coherent module, not a wall of cards.
 const SECTION_BY_KEY = Object.fromEntries(SECTION_CARDS.map((s) => [s.section, s]));
 const EXPLORE_BY_TO = Object.fromEntries(EXPLORE.map((e) => [e.to, e]));
+// Balanced 4-4-4 so every row fills evenly at 1 / 2 / 4 columns (all divisors of 4),
+// giving uniform card widths across every group and screen size.
 const COMPETE_GROUPS = [
   {
     title: 'Your LeetCode',
     intent: 'Look yourself (or anyone) up, predict your rating change, and study the rated set.',
     sections: ['profile', 'analytics'],
-    links: ['/compete/leetcode/problems', '/compete/leetcode/contests', '/compete/leetcode/llms'],
+    links: ['/compete/leetcode/problems', '/compete/leetcode/contests'],
   },
   {
-    title: 'Contest calendar',
+    title: 'Contests & calendar',
     intent: 'Every round across the judges in one timeline — never miss a start.',
     sections: ['calendar'],
-    links: ['/compete/competitions', '/compete/hackathons'],
+    links: ['/compete/competitions', '/compete/hackathons', '/compete/conferences'],
   },
   {
     title: 'Explore & grow',
-    intent: 'Data-science contests, open-source seasons, conferences, and a shelf of resources.',
+    intent: 'Data-science contests, open-source seasons, model benchmarks, and a shelf of resources.',
     sections: [],
-    links: ['/compete/kaggle', '/compete/gsoc', '/compete/conferences', '/compete/resources'],
+    links: ['/compete/kaggle', '/compete/gsoc', '/compete/resources', '/compete/leetcode/llms'],
   },
 ];
 
