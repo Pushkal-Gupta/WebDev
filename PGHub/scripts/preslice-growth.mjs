@@ -15,6 +15,14 @@ while (true) { const { data, error } = await sb.from('PGcode_problems').select('
 const targets = rows.filter((r) => r.method_name && Array.isArray(r.params) && r.params.length && r.solutions?.python?.code)
   .map((r) => ({ id: r.id, name: r.name, difficulty: r.difficulty, constraints: String(r.constraints || '').slice(0, 500), method_name: r.method_name, params: r.params, return_type: r.return_type, python: r.solutions.python.code }));
 const skipped = rows.length - targets.length;
+// Fetch 2 EXISTING sample input-tuples per target so agents copy the EXACT string format
+// (e.g. str params are JSON-quoted like "\"abc\""). Done as small single-row reads (resize-safe).
+const byId = Object.fromEntries(targets.map((t) => [t.id, t]));
+for (const t of targets) {
+  const { data: row } = await sb.from('PGcode_problems').select('test_cases').eq('id', t.id).single();
+  const cs = (Array.isArray(row?.test_cases) ? row.test_cases : []).filter((c) => Array.isArray(c.inputs) && !c.stress).slice(0, 2);
+  byId[t.id].sampleInputs = cs.map((c) => c.inputs);
+}
 const chunks = []; for (let i = 0; i < targets.length; i += PER) chunks.push(targets.slice(i, i + PER));
 fs.rmSync(`${SP}/growth/wf`, { recursive: true, force: true });
 chunks.forEach((c, i) => { const dir = `${SP}/growth/wf/s${i}`; fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(`${dir}/slice.json`, JSON.stringify(c)); });
