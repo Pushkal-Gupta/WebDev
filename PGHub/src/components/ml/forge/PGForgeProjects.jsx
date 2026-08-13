@@ -23,7 +23,7 @@ export default function PGForgeProjects() {
 
       <section className="forge-pj-grid">
         {PG_FORGE_PROJECTS.map((p, i) => (
-          <Link key={p.slug} to={`/ml/projects/${p.slug}`} className="forge-pj-card">
+          <Link key={p.slug} to={`/forge/projects/${p.slug}`} className="forge-pj-card">
             <div className="forge-thumb-frame forge-pj-card-thumb">
               <ForgeThumb seed={p.title} index={i} topic={p.tags && p.tags[0]} label={p.title} />
               <span className={`forge-pj-diff forge-pj-diff-${p.difficulty}`}>{p.difficulty}</span>

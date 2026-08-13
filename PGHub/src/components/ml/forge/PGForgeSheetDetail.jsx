@@ -217,7 +217,7 @@ export default function PGForgeSheetDetail() {
   const { slug } = useParams();
   const sheet = useMemo(() => getSheet(slug), [slug]);
 
-  if (!sheet) return <Navigate to="/ml/sheets" replace />;
+  if (!sheet) return <Navigate to="/forge/sheets" replace />;
 
   const TitleIcon = TITLE_ICONS[sheet.icon] || FileText;
   const sectionCount = sheet.sections.length;

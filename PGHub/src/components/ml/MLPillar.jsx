@@ -47,7 +47,7 @@ export default function MLPillar() {
           {lessons.map((l, i) => (
             <Link
               key={l.slug}
-              to={`/ml/${pillarSlug}/${l.slug}${location.search}`}
+              to={`/forge/${pillarSlug}/${l.slug}${location.search}`}
               className="mlhub-pillar mlhub-lesson-card"
             >
               <span className="mlhub-pillar-stripe" aria-hidden="true" />

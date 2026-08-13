@@ -55,7 +55,7 @@ export default function MLGroup() {
           const lessonCount = mod.lessons?.length || 0;
           const ModuleIcon = MODULE_ICONS[m.slug] || Sigma;
           return (
-            <Link key={m.slug} to={`/ml/${m.slug}${location.search}`} className="mlhub-pillar mlhub-lesson-card">
+            <Link key={m.slug} to={`/forge/${m.slug}${location.search}`} className="mlhub-pillar mlhub-lesson-card">
               <span className="mlhub-pillar-stripe" aria-hidden="true" />
               <div className="mlhub-lesson-thumb" aria-hidden="true">
                 <ForgeThumb seed={m.label} index={i} kind={m.slug} label={m.label.split(/\s+/)[0]} />

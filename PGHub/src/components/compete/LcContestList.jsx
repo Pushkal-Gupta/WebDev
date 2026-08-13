@@ -383,23 +383,19 @@ export default function LcContestList() {
         </div>
       )}
 
-      {/* TODO(pghub-weekly): build the internal weekly ranked contest — a recurring
-          PGHub-hosted round where members submit and get ranked on a live
-          leaderboard. For now this is a placeholder linking to the existing
-          internal contests area; wire it to a real schedule + leaderboard later. */}
       <section className="lcc-pghub">
         <div className="lcc-pghub-ico">
           <Sparkles size={20} />
         </div>
         <div className="lcc-pghub-body">
-          <span className="lcc-pghub-tag">Coming soon</span>
-          <h3 className="lcc-pghub-title">PGHub Weekly</h3>
+          <span className="lcc-pghub-tag">On PGHub</span>
+          <h3 className="lcc-pghub-title">PGHub contests</h3>
           <p className="lcc-pghub-sub">
-            A members-only weekly round, graded server-side, with a live ranked leaderboard.
-            Show up, solve, climb the board.
+            ICPC-style internal rounds, graded server-side. Join a live contest or replay a
+            past round — same editor and grader you practice with.
           </p>
         </div>
-        <Link to="/contests" className="lcc-pghub-cta">
+        <Link to="/arena" className="lcc-pghub-cta">
           Browse contests
           <ArrowRight size={14} />
         </Link>

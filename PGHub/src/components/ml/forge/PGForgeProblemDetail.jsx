@@ -647,7 +647,7 @@ export default function PGForgeProblemDetail() {
     [problem],
   );
 
-  if (!problem) return <Navigate to="/ml/problems" replace />;
+  if (!problem) return <Navigate to="/forge/problems" replace />;
 
   return (
     <div className="forge-pd" style={{ '--pd-hue': hue }}>

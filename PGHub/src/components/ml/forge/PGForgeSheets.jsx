@@ -32,7 +32,7 @@ export default function PGForgeSheets() {
         {PG_FORGE_SHEETS.map((sheet, i) => {
           const Icon = ICONS[sheet.icon] || FileText;
           return (
-            <Link key={sheet.slug} to={`/ml/sheets/${sheet.slug}`} className="forge-sh-card">
+            <Link key={sheet.slug} to={`/forge/sheets/${sheet.slug}`} className="forge-sh-card">
               <div className="forge-thumb-frame forge-sh-card-thumb">
                 <ForgeThumb kind={THUMB_KINDS[sheet.slug] || 'auto'} index={i} topic={sheet.slug} seed={sheet.title} label={sheet.title} />
               </div>

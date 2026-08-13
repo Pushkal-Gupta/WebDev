@@ -21,6 +21,14 @@ export const THEME_PRESETS = [
   { id: 'mocha',            name: 'Catppuccin Mocha', mode: 'dark',  pair: 'rose-pine-dawn',   swatches: ['#1e1e2e', '#181825', '#cba6f7'] },
   { id: 'cyberpunk',        name: 'Cyberpunk',        mode: 'dark',  pair: 'nord-light',       swatches: ['#0d0221', '#170a33', '#ff2a6d'] },
   { id: 'forest',           name: 'Forest',           mode: 'dark',  pair: 'nord-light',       swatches: ['#0f1a14', '#16241b', '#4ade80'] },
+  { id: 'tokyo-night',      name: 'Tokyo Night',      mode: 'dark',  pair: 'tokyo-day',        swatches: ['#1a1b26', '#24283b', '#7aa2f7'] },
+  { id: 'tokyo-day',        name: 'Tokyo Day',        mode: 'light', pair: 'tokyo-night',      swatches: ['#e6e7ed', '#ffffff', '#2e7de9'] },
+  { id: 'one-dark',         name: 'One Dark',         mode: 'dark',  pair: 'one-light',        swatches: ['#282c34', '#31363f', '#61afef'] },
+  { id: 'one-light',        name: 'One Light',        mode: 'light', pair: 'one-dark',         swatches: ['#eaeaeb', '#ffffff', '#4078f2'] },
+  { id: 'everforest',       name: 'Everforest',       mode: 'dark',  pair: 'everforest-light', swatches: ['#2d353b', '#343f44', '#a7c080'] },
+  { id: 'everforest-light', name: 'Everforest Light', mode: 'light', pair: 'everforest',       swatches: ['#eef1e5', '#fdf6e3', '#8da101'] },
+  { id: 'ayu-mirage',       name: 'Ayu Mirage',       mode: 'dark',  pair: 'ayu-light',        swatches: ['#1f2430', '#242936', '#ffcc66'] },
+  { id: 'ayu-light',        name: 'Ayu Light',        mode: 'light', pair: 'ayu-mirage',       swatches: ['#f0eee4', '#fcfcfc', '#f2ae49'] },
 ];
 
 const LIGHT_THEMES = new Set(THEME_PRESETS.filter((t) => t.mode === 'light').map((t) => t.id));

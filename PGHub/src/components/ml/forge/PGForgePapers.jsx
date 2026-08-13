@@ -145,7 +145,7 @@ function StepExplanation({ step }) {
         </div>
       )}
       {step.problem && (
-        <Link to={`/ml/problems/${step.problem}`} className="forge-step-solve">
+        <Link to={`/forge/problems/${step.problem}`} className="forge-step-solve">
           Solve this <ArrowRight size={14} />
         </Link>
       )}
@@ -344,7 +344,7 @@ export default function PGForgePapers() {
   return (
     <div className="forge-papers">
       <nav className="forge-crumb">
-        <Link to="/ml" className="forge-crumb-link">PGForge</Link>
+        <Link to="/forge" className="forge-crumb-link">PGForge</Link>
         <ChevronRight size={13} />
         {paper ? (
           <>

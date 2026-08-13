@@ -538,6 +538,27 @@
   gap: 0.6rem;
 }
 
+.accent-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.7rem;
+}
+.accent-preset-dot {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.accent-preset-dot:hover { transform: scale(1.12); border-color: var(--text-dim); }
+.accent-preset-dot.is-active {
+  border-color: var(--text-main);
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--text-main);
+  transform: scale(1.12);
+}
 .color-picker-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

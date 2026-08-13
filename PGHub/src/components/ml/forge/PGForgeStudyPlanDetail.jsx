@@ -40,7 +40,7 @@ export default function PGForgeStudyPlanDetail() {
         />
         <div className="forge-spd-empty">
           <p>That study plan does not exist.</p>
-          <Link to="/ml/study-plans" className="forge-spd-back"><ArrowLeft size={14} /> Back to all plans</Link>
+          <Link to="/forge/study-plans" className="forge-spd-back"><ArrowLeft size={14} /> Back to all plans</Link>
         </div>
       </div>
     );

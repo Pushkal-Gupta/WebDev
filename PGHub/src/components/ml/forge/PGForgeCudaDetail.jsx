@@ -9,7 +9,7 @@ export default function PGForgeCudaDetail() {
   const { slug } = useParams();
   const lesson = useMemo(() => getCuda(slug), [slug]);
 
-  if (!lesson) return <Navigate to="/ml/cuda" replace />;
+  if (!lesson) return <Navigate to="/forge/cuda" replace />;
 
   return (
     <div className="forge-cd">

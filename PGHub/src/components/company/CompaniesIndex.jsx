@@ -127,7 +127,7 @@ export default function CompaniesIndex() {
             return (
               <Link
                 key={slug}
-                to={`/company/g/${slug}`}
+                to={`/career/g/${slug}`}
                 className="comp-card comp-group-card"
                 style={{ '--group-hue': hueVar }}
               >
@@ -173,7 +173,7 @@ export default function CompaniesIndex() {
 
 function CompanyCard({ c }) {
   return (
-    <Link to={`/company/${c.slug}`} className="comp-card">
+    <Link to={`/career/${c.slug}`} className="comp-card">
       <div className="comp-card-head">
         <CompanyLogo c={c} />
         <h3 className="comp-card-title">{c.name}</h3>

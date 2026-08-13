@@ -180,7 +180,7 @@ const QuizRunner = lazy(() => import('./components/QuizRunner'));
 const PublicProfile = lazy(() => import('./components/profile/PublicProfile'));
 const ShareableCard = lazy(() => import('./components/ShareableCard'));
 
-const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light', 'nord', 'nord-light', 'rose-pine', 'rose-pine-dawn', 'gruvbox', 'mocha', 'cyberpunk', 'forest'];
+const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light', 'nord', 'nord-light', 'rose-pine', 'rose-pine-dawn', 'gruvbox', 'mocha', 'cyberpunk', 'forest', 'tokyo-night', 'tokyo-day', 'one-dark', 'one-light', 'everforest', 'everforest-light', 'ayu-mirage', 'ayu-light'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
 
 // Intercept Supabase OAuth callback errors (?error=…&error_description=…) and
@@ -289,6 +289,14 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
     mocha:           { mode: 'dark',  pair: 'rose-pine-dawn' },
     cyberpunk:       { mode: 'dark',  pair: 'nord-light' },
     forest:          { mode: 'dark',  pair: 'nord-light' },
+    'tokyo-night':   { mode: 'dark',  pair: 'tokyo-day' },
+    'tokyo-day':     { mode: 'light', pair: 'tokyo-night' },
+    'one-dark':      { mode: 'dark',  pair: 'one-light' },
+    'one-light':     { mode: 'light', pair: 'one-dark' },
+    everforest:      { mode: 'dark',  pair: 'everforest-light' },
+    'everforest-light': { mode: 'light', pair: 'everforest' },
+    'ayu-mirage':    { mode: 'dark',  pair: 'ayu-light' },
+    'ayu-light':     { mode: 'light', pair: 'ayu-mirage' },
   };
 
   const applyThemeRef = useRef(null);

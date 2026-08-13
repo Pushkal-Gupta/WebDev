@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import {
   Target, Award, Trophy, Flame, Check, Activity, ArrowRight,
@@ -42,7 +42,19 @@ export default function PGForgeProgress({ session }) {
   // Context-aware back nav: reached from PGVault (?from=vault) -> back to Vault;
   // reached from PGForge -> back to PGForge. Same page, different origin crumb.
   const fromVault = new URLSearchParams(useLocation().search).get('from') === 'vault';
-  const back = fromVault ? { to: '/vault', label: 'PGVault' } : { to: '/ml', label: 'PGForge' };
+  const back = fromVault ? { to: '/vault', label: 'PGVault' } : { to: '/forge', label: 'PGForge' };
+
+  // Share = copy this page's URL (native share sheet when available).
+  const [shared, setShared] = useState(false);
+  const shareProgress = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) { await navigator.share({ title: 'My PGForge progress', url }); return; }
+      await navigator.clipboard.writeText(url);
+      setShared(true);
+      setTimeout(() => setShared(false), 2000);
+    } catch { /* user dismissed share sheet */ }
+  };
 
   // Title lookup so recent solves can show their problem name.
   const titleBySlug = useMemo(() => {
@@ -145,17 +157,17 @@ export default function PGForgeProgress({ session }) {
             </div>
           </div>
           <div className="fp-profile-actions">
-            <button type="button" className="fp-btn fp-btn-primary">
-              <Share2 size={14} /> Share progress
+            <button type="button" className="fp-btn fp-btn-primary" onClick={shareProgress}>
+              <Share2 size={14} /> {shared ? 'Link copied' : 'Share progress'}
             </button>
             {user ? (
-              <Link to="/account" className="fp-btn fp-btn-ghost">
+              <button type="button" className="fp-btn fp-btn-ghost" onClick={() => window.dispatchEvent(new Event('pg:open-settings'))}>
                 <Pencil size={14} /> Edit profile
-              </Link>
+              </button>
             ) : (
-              <Link to="/account" className="fp-btn fp-btn-ghost">
+              <button type="button" className="fp-btn fp-btn-ghost" onClick={() => window.dispatchEvent(new Event('pg:open-login'))}>
                 <Send size={14} /> Sign in
-              </Link>
+              </button>
             )}
           </div>
         </section>
@@ -308,7 +320,7 @@ export default function PGForgeProgress({ session }) {
         {recent.length === 0 ? (
           <div className="fp-empty">
             <p>No problems solved yet — solve one to start your streak.</p>
-            <Link to="/ml/problems" className="fp-empty-link">
+            <Link to="/forge/problems" className="fp-empty-link">
               Browse problems <ArrowRight size={14} />
             </Link>
           </div>
@@ -316,7 +328,7 @@ export default function PGForgeProgress({ session }) {
           <ul className="fp-recent-list">
             {recent.map((r) => (
               <li key={r.slug} className="fp-recent-row">
-                <Link to={`/ml/problems/${r.slug}`} className="fp-recent-link">
+                <Link to={`/forge/problems/${r.slug}`} className="fp-recent-link">
                   <span className="fp-recent-title">{titleBySlug[r.slug] || r.slug}</span>
                   <span className={`fp-recent-diff fp-diff-${r.difficulty}`}>{r.difficulty}</span>
                   <span className="fp-recent-date">{relativeDate(r.ts)}</span>

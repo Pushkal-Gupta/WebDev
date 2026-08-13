@@ -121,7 +121,7 @@ export default function PGForgeCuda() {
           {filtered.map((lesson, i) => {
             const thumb = thumbFor(lesson);
             return (
-            <Link key={lesson.slug} to={`/ml/cuda/${lesson.slug}`} className="forge-cuda-card">
+            <Link key={lesson.slug} to={`/forge/cuda/${lesson.slug}`} className="forge-cuda-card">
               <div className="forge-thumb-frame">
                 <ForgeThumb kind={thumb.kind} label={thumb.label} seed={lesson.title} index={i} />
               </div>

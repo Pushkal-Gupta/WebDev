@@ -569,10 +569,10 @@ export default function PGForgeHub() {
             The math, the code, and the papers behind machine learning — read the intuition, drag the visual, then build it yourself.
           </p>
           <div className="forge-hero-ctas">
-            <Link to="/ml/math" className="forge-hero-cta forge-hero-cta-primary">
+            <Link to="/forge/math" className="forge-hero-cta forge-hero-cta-primary">
               Start with the math <ArrowRight size={15} />
             </Link>
-            <Link to="/ml/problems" className="forge-hero-cta forge-hero-cta-ghost">
+            <Link to="/forge/problems" className="forge-hero-cta forge-hero-cta-ghost">
               <Code2 size={15} /> Solve a problem
             </Link>
           </div>
@@ -633,7 +633,7 @@ export default function PGForgeHub() {
             <span>Paper, rebuilt</span>
           </div>
           {featured && (
-            <Link to="/ml/papers" className="forge-feature-card">
+            <Link to="/forge/papers" className="forge-feature-card">
               <div className="forge-thumb-frame forge-feature-thumb">
                 <AttentionPaperViz />
               </div>
@@ -653,7 +653,7 @@ export default function PGForgeHub() {
           </div>
           <div className="forge-problem-list">
             {sampleProblems.map((p) => (
-              <Link key={p.slug} to={`/ml/problems/${p.slug}`} className="forge-problem-row">
+              <Link key={p.slug} to={`/forge/problems/${p.slug}`} className="forge-problem-row">
                 <Code2 size={14} className="forge-problem-icon" />
                 <span className="forge-problem-name">{p.title}</span>
                 <span className={`forge-problem-diff forge-problem-diff-${p.difficulty}`}>{p.difficulty}</span>

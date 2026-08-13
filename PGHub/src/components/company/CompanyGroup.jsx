@@ -61,7 +61,7 @@ export default function CompanyGroup() {
       ) : (
         <div className="comp-grid comp-group-members">
           {members.map((c) => (
-            <Link key={c.slug} to={`/company/${c.slug}`} className="comp-card">
+            <Link key={c.slug} to={`/career/${c.slug}`} className="comp-card">
               <div className="comp-card-head">
                 <CompanyLogo c={c} />
                 <h3 className="comp-card-title">{c.name}</h3>

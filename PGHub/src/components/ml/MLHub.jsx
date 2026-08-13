@@ -15,7 +15,7 @@ function totalLessons(slugs) {
 export default function MLHub() {
   return (
     <div className="mlhub">
-      <Link to="/ml" className="learn-crumb">
+      <Link to="/forge" className="learn-crumb">
         <ArrowLeft size={13} />
         <span>PGForge</span>
         <span className="learn-crumb-sep">/</span>
@@ -24,7 +24,7 @@ export default function MLHub() {
 
       <header className="mlhub-hero">
         <h1 className="mlhub-title">Lessons</h1>
-        <p className="mlhub-sub">How the architectures work — deep nets, attention and transformers, generative models, and RL. For the underlying math, see <Link to="/ml/math" className="mlhub-sub-link">Foundations</Link>.</p>
+        <p className="mlhub-sub">How the architectures work — deep nets, attention and transformers, generative models, and RL. For the underlying math, see <Link to="/forge/math" className="mlhub-sub-link">Foundations</Link>.</p>
       </header>
 
       <section className="mlhub-pillars mlhub-pillars-auto mlhub-pillars-2">
@@ -37,7 +37,7 @@ export default function MLHub() {
           return (
             <Link
               key={groupSlug}
-              to={`/ml/g/${groupSlug}`}
+              to={`/forge/g/${groupSlug}`}
               className="mlhub-pillar mlhub-lesson-card"
             >
               <span className="mlhub-pillar-stripe" aria-hidden="true" />

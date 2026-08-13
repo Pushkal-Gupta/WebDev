@@ -128,7 +128,7 @@ function ContestCard({ c, now }) {
   const status = contestStatus(c, now);
   const StatusIcon = status.Icon;
   return (
-    <Link to={`/contests/${c.slug}`} className="ctx-card">
+    <Link to={`/arena/${c.slug}`} className="ctx-card">
       <div className="ctx-card-thumb">
         <ForgeThumb seed={c.name || c.slug} kind={contestThumbKind(c)} label={diff} />
       </div>

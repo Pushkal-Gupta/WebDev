@@ -550,7 +550,7 @@ export default function MLLesson() {
       <div className="ml-lesson">
         <Breadcrumb items={[
           { label: 'PGForge', to: '/ml' },
-          { label: pillar?.title || 'Lessons', to: `/ml/${pillarSlug}${location.search}` },
+          { label: pillar?.title || 'Lessons', to: `/forge/${pillarSlug}${location.search}` },
           { label: 'Lesson' },
         ]} />
         <h1 className="ml-lesson-title">Not found</h1>
@@ -563,7 +563,7 @@ export default function MLLesson() {
     <div className="ml-lesson" ref={scrollRef}>
       <Breadcrumb items={[
         { label: 'PGForge', to: '/ml' },
-        { label: pillar?.title || 'Lessons', to: `/ml/${pillarSlug}${location.search}` },
+        { label: pillar?.title || 'Lessons', to: `/forge/${pillarSlug}${location.search}` },
         { label: lesson.title || 'Lesson' },
       ]} />
 
@@ -639,7 +639,7 @@ export default function MLLesson() {
       {(prev || next) && (
         <nav className="ml-lesson-nav" aria-label="Lesson navigation">
           {prev ? (
-            <Link to={`/ml/${pillarSlug}/${prev.slug}${location.search}`} className="ml-lesson-navcard ml-lesson-navcard-prev">
+            <Link to={`/forge/${pillarSlug}/${prev.slug}${location.search}`} className="ml-lesson-navcard ml-lesson-navcard-prev">
               <ArrowLeft size={15} className="ml-lesson-navicon" />
               <span className="ml-lesson-navtext">
                 <span className="ml-lesson-navdir">Previous</span>
@@ -648,7 +648,7 @@ export default function MLLesson() {
             </Link>
           ) : <span className="ml-lesson-navspacer" aria-hidden="true" />}
           {next ? (
-            <Link to={`/ml/${pillarSlug}/${next.slug}${location.search}`} className="ml-lesson-navcard ml-lesson-navcard-next">
+            <Link to={`/forge/${pillarSlug}/${next.slug}${location.search}`} className="ml-lesson-navcard ml-lesson-navcard-next">
               <span className="ml-lesson-navtext">
                 <span className="ml-lesson-navdir">Next</span>
                 <span className="ml-lesson-navtitle">{next.title}</span>

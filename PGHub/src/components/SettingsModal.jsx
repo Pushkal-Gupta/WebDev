@@ -21,7 +21,17 @@ const COLOR_TOKENS = [
   { token: '--text-dim',  label: 'Dim text (labels)' },
   { token: '--border',    label: 'Border' },
   { token: '--hover-box', label: 'Hover tint' },
+  { token: '--easy',      label: 'Easy difficulty' },
+  { token: '--medium',    label: 'Medium difficulty' },
+  { token: '--hard',      label: 'Hard difficulty' },
+  { token: '--hue-sky',   label: 'Data · sky' },
+  { token: '--hue-violet',label: 'Data · violet' },
+  { token: '--hue-pink',  label: 'Data · pink' },
+  { token: '--hue-mint',  label: 'Data · mint' },
 ];
+
+// Curated one-click accent swatches (sets --accent + its -rgb companion via applyCustomColors).
+const ACCENT_PRESETS = ['#00fff5', '#7aa2f7', '#a78bfa', '#f7768e', '#4ade80', '#fabd2f', '#ff9e64', '#ff2a6d', '#61afef', '#cba6f7'];
 
 function rgbStringToHex(s) {
   // Accepts "#aabbcc", "rgb(170,187,204)", or "rgba(...)" — returns 6-digit hex.
@@ -82,6 +92,19 @@ function ColorCustomizer({ theme, onChange }) {
       <p className="settings-hint" style={{ marginTop: 0 }}>
         Override individual tokens. Overrides stack on top of the base theme above and survive theme switches.
       </p>
+      <div className="accent-preset-row" role="group" aria-label="Quick accent">
+        {ACCENT_PRESETS.map((hex) => (
+          <button
+            key={hex}
+            type="button"
+            className={`accent-preset-dot${(colors['--accent'] || '').toLowerCase() === hex ? ' is-active' : ''}`}
+            style={{ background: hex }}
+            title={`Accent ${hex}`}
+            aria-label={`Set accent ${hex}`}
+            onClick={() => onPick('--accent', hex)}
+          />
+        ))}
+      </div>
       <div className="color-picker-grid">
         {COLOR_TOKENS.map(({ token, label }) => (
           <label key={token} className="color-picker-row">

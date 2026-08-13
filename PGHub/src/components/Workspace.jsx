@@ -1221,7 +1221,7 @@ export default function Workspace({ session, theme, roadmapMode, preferredLang }
                     <span className="ws-companies-label">Asked at</span>
                     <div className="ws-company-chips">
                       {problemCompanies.map(c => (
-                        <Link key={c.slug} to={`/company/${c.slug}`} className="ws-company-chip">{c.name}</Link>
+                        <Link key={c.slug} to={`/career/${c.slug}`} className="ws-company-chip">{c.name}</Link>
                       ))}
                     </div>
                   </div>

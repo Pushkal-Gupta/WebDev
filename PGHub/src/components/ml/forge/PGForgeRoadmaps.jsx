@@ -58,7 +58,7 @@ export default function PGForgeRoadmaps() {
                 <span className="forge-rm-num">{i + 1}</span>
                 {i < steps.length - 1 && <span className="forge-rm-line" />}
               </div>
-              <Link to={`/ml/${s.slug}`} className="forge-rm-card">
+              <Link to={`/forge/${s.slug}`} className="forge-rm-card">
                 <div className="forge-thumb-frame forge-rm-card-thumb">
                   <ForgeThumb seed={s.title} index={i} />
                 </div>

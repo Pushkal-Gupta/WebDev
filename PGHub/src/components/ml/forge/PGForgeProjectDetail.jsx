@@ -40,7 +40,7 @@ export default function PGForgeProjectDetail() {
         />
         <div className="forge-pjd-empty">
           <p>That project does not exist.</p>
-          <Link to="/ml/projects" className="forge-pjd-back"><ArrowLeft size={14} /> Back to all projects</Link>
+          <Link to="/forge/projects" className="forge-pjd-back"><ArrowLeft size={14} /> Back to all projects</Link>
         </div>
       </div>
     );
@@ -167,7 +167,7 @@ export default function PGForgeProjectDetail() {
         </section>
 
         <div className="forge-pjd-footer">
-          <Link to="/ml/projects" className="forge-pjd-back"><ArrowLeft size={14} /> All projects</Link>
+          <Link to="/forge/projects" className="forge-pjd-back"><ArrowLeft size={14} /> All projects</Link>
           {(project.cells?.length || project.starterSnippet) && (
             <span className="forge-pjd-footer-hint"><Play size={13} /> Run the cells above to begin</span>
           )}
