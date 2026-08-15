@@ -16,8 +16,11 @@
   border: 1px solid var(--border);
   border-radius: 16px;
   width: 100%;
-  max-width: 720px;
-  max-height: 88vh;
+  max-width: 880px;
+  /* Constant shape: the box holds a steady height so switching tabs never makes
+     it jump/resize. The body scrolls internally when a tab's content is taller. */
+  height: 82vh;
+  max-height: 760px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -203,6 +206,8 @@
 .settings-body {
   padding: 2rem;
   overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
   flex: 1;
 }
 

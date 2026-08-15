@@ -42,6 +42,27 @@
   flex-shrink: 0;
 }
 
+/* Drag-to-reorder affordance: a grip that only takes space on hover, and a drop-target
+   cue. Keeps the resting nav identical to before; reveals reordering only on intent. */
+.sub-nav-grip {
+  width: 0;
+  opacity: 0;
+  margin-right: -0.4rem;
+  color: var(--text-dim);
+  transition: width var(--t), opacity var(--t), margin var(--t);
+  cursor: grab;
+}
+.sub-nav-link:hover .sub-nav-grip {
+  width: 12px;
+  opacity: 0.6;
+  margin-right: 0;
+}
+.sub-nav-link.drag-over {
+  box-shadow: inset 2px 0 0 var(--accent);
+  background: var(--hover-box);
+}
+.sub-nav-link[draggable="true"]:active { cursor: grabbing; }
+
 .sub-nav-link::before {
   content: '';
   position: absolute;

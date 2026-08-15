@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router';
 import {
   Map, List, Terminal, Building2, Trophy, Swords, Target,
-  GraduationCap, Brain, Vault, Network,
+  GraduationCap, Brain, Vault, Network, GripVertical,
 } from 'lucide-react';
 import { usePrefetch } from '../lib/queries';
 import './SubNav.css';
@@ -43,19 +43,63 @@ const TABS = [
 ];
 
 
+const DEFAULT_ORDER = TABS.map(t => t.to);
+const ORDER_KEY = 'pg-subnav-order';
+function loadOrder() {
+  try { const s = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null'); if (Array.isArray(s) && s.length) return s; } catch { /* ignore */ }
+  return DEFAULT_ORDER;
+}
+
 export default function SubNav() {
   const { prefetchProblems } = usePrefetch();
   const location = useLocation();
+  const [order, setOrder] = useState(loadOrder);
+  const [dragTo, setDragTo] = useState(null);
+  const dragFrom = useRef(null);
 
   const pathMatches = (item) => {
     if (!item.matches) return false;
     return item.matches.some(p => location.pathname === p || location.pathname.startsWith(p + '/'));
   };
 
+  // Apply the saved order; any tab missing from it (e.g. a newly-added one) appends
+  // at the end so the nav never silently drops a destination.
+  const orderedTabs = useMemo(() => {
+    const byTo = Object.fromEntries(TABS.map(t => [t.to, t]));
+    const seen = new Set();
+    const out = [];
+    for (const to of order) if (byTo[to] && !seen.has(to)) { out.push(byTo[to]); seen.add(to); }
+    for (const t of TABS) if (!seen.has(t.to)) out.push(t);
+    return out;
+  }, [order]);
+
+  const commit = useCallback((next) => {
+    setOrder(next);
+    try { localStorage.setItem(ORDER_KEY, JSON.stringify(next)); } catch { /* ignore */ }
+  }, []);
+
+  // Settings can reset the nav back to the shipped order.
+  useEffect(() => {
+    const reset = () => { try { localStorage.removeItem(ORDER_KEY); } catch { /* ignore */ } setOrder(DEFAULT_ORDER); };
+    window.addEventListener('pg:reset-navbar', reset);
+    return () => window.removeEventListener('pg:reset-navbar', reset);
+  }, []);
+
+  const onDrop = useCallback((targetTo) => {
+    const from = dragFrom.current;
+    dragFrom.current = null; setDragTo(null);
+    if (!from || from === targetTo) return;
+    const cur = orderedTabs.map(t => t.to);
+    const fi = cur.indexOf(from), ti = cur.indexOf(targetTo);
+    if (fi < 0 || ti < 0) return;
+    cur.splice(ti, 0, cur.splice(fi, 1)[0]);
+    commit(cur);
+  }, [orderedTabs, commit]);
+
   return (
     <nav className="sub-nav">
       <div className="sub-nav-inner">
-        {TABS.map(item => {
+        {orderedTabs.map(item => {
           const Icon = item.icon;
           const matched = pathMatches(item);
           return (
@@ -63,9 +107,16 @@ export default function SubNav() {
               key={item.to}
               to={item.to}
               end={item.end}
-              className={({ isActive }) => `sub-nav-link ${isActive || matched ? 'active' : ''}`}
+              draggable
+              onDragStart={(e) => { dragFrom.current = item.to; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', item.to); } catch { /* ignore */ } }}
+              onDragEnd={() => { dragFrom.current = null; setDragTo(null); }}
+              onDragOver={(e) => { e.preventDefault(); if (dragTo !== item.to) setDragTo(item.to); }}
+              onDrop={(e) => { e.preventDefault(); onDrop(item.to); }}
+              className={({ isActive }) => `sub-nav-link ${isActive || matched ? 'active' : ''}${dragTo === item.to ? ' drag-over' : ''}`}
               onMouseEnter={item.prefetch ? prefetchProblems : undefined}
+              title="Drag to reorder"
             >
+              <GripVertical size={12} className="sub-nav-grip" aria-hidden="true" />
               <Icon size={16} />
               {item.brand
                 ? <span className="sub-nav-brand"><span className="sub-nav-pg">{item.brand[0]}</span>{item.brand[1]}</span>

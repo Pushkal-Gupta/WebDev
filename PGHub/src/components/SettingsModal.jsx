@@ -559,40 +559,26 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
         </div>
 
         <div className="settings-tabs">
-          <button
-            className={`settings-tab ${activeTab === 'appearance' ? 'active' : ''}`}
-            onClick={() => setActiveTab('appearance')}
-          >
-            Appearance
-          </button>
-          <button
-            className={`settings-tab ${activeTab === 'preferences' ? 'active' : ''}`}
-            onClick={() => setActiveTab('preferences')}
-          >
-            Preferences
-          </button>
-          <button
-            className={`settings-tab ${activeTab === 'profile' ? 'active' : ''}`}
-            onClick={() => setActiveTab('profile')}
-          >
-            Profile
-          </button>
-          <button
-            className={`settings-tab ${activeTab === 'ai' ? 'active' : ''}`}
-            onClick={() => setActiveTab('ai')}
-          >
-            AI
-          </button>
-          <button
-            className={`settings-tab ${activeTab === 'friends' ? 'active' : ''}`}
-            onClick={() => setActiveTab('friends')}
-          >
-            Friends
-          </button>
+          {[
+            ['theme', 'Theme'],
+            ['editor', 'Editor'],
+            ['preferences', 'Interface'],
+            ['profile', 'Profile'],
+            ['ai', 'AI'],
+            ['friends', 'Friends'],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              className={`settings-tab ${activeTab === id ? 'active' : ''}`}
+              onClick={() => setActiveTab(id)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         <div className="settings-body">
-          {activeTab === 'appearance' && (
+          {activeTab === 'theme' && (
             <div className="appearance-section">
               <div className="appearance-block">
                 <label className="settings-label">
@@ -625,7 +611,11 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
               </div>
 
               <ColorCustomizer theme={theme} />
+            </div>
+          )}
 
+          {activeTab === 'editor' && (
+            <div className="appearance-section">
               <div className="appearance-block">
                 <label className="settings-label">
                   <Code2 size={12} /> Default Coding Language
@@ -763,6 +753,18 @@ export default function SettingsModal({ session, onClose, theme, applyTheme, set
                   ))}
                 </select>
                 <p className="settings-hint">The section PGConnect opens to by default when you enter it.</p>
+              </div>
+
+              <div className="appearance-block">
+                <label className="settings-label"><LayoutGrid size={12} /> Navigation bar</label>
+                <p className="settings-hint" style={{ marginTop: 0 }}>Drag any tab in the top nav to reorder it — your layout is saved. Reset it here.</p>
+                <button
+                  type="button"
+                  className="settings-reset-prefs"
+                  onClick={() => { window.dispatchEvent(new Event('pg:reset-navbar')); setMessage({ type: 'success', text: 'Navigation order reset to default.' }); }}
+                >
+                  <RotateCcw size={13} /> Reset navbar order
+                </button>
               </div>
 
               <div className="appearance-block">

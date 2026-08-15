@@ -180,7 +180,7 @@ const QuizRunner = lazy(() => import('./components/QuizRunner'));
 const PublicProfile = lazy(() => import('./components/profile/PublicProfile'));
 const ShareableCard = lazy(() => import('./components/ShareableCard'));
 
-const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light', 'nord', 'nord-light', 'rose-pine', 'rose-pine-dawn', 'gruvbox', 'mocha', 'cyberpunk', 'forest', 'tokyo-night', 'tokyo-day', 'one-dark', 'one-light', 'everforest', 'everforest-light', 'ayu-mirage', 'ayu-light'];
+const VALID_THEMES = ['dark', 'light', 'midnight', 'midnight-light', 'solarized', 'solarized-dark', 'dracula', 'dracula-light', 'nord', 'nord-light', 'rose-pine', 'rose-pine-dawn', 'gruvbox', 'mocha', 'cyberpunk', 'forest', 'tokyo-night', 'tokyo-day', 'one-dark', 'one-light', 'everforest', 'everforest-light', 'ayu-mirage', 'ayu-light', 'gruvbox-light', 'latte', 'cyberpunk-light', 'forest-light'];
 const normalizeTheme = (t) => (VALID_THEMES.includes(t) ? t : 'dark');
 
 // Intercept Supabase OAuth callback errors (?error=…&error_description=…) and
@@ -285,10 +285,14 @@ function AppContent({ session, theme, setTheme, roadmapMode, setRoadmapMode }) {
     'nord-light':    { mode: 'light', pair: 'nord' },
     'rose-pine':     { mode: 'dark',  pair: 'rose-pine-dawn' },
     'rose-pine-dawn':{ mode: 'light', pair: 'rose-pine' },
-    gruvbox:         { mode: 'dark',  pair: 'nord-light' },
-    mocha:           { mode: 'dark',  pair: 'rose-pine-dawn' },
-    cyberpunk:       { mode: 'dark',  pair: 'nord-light' },
-    forest:          { mode: 'dark',  pair: 'nord-light' },
+    gruvbox:         { mode: 'dark',  pair: 'gruvbox-light' },
+    'gruvbox-light': { mode: 'light', pair: 'gruvbox' },
+    mocha:           { mode: 'dark',  pair: 'latte' },
+    latte:           { mode: 'light', pair: 'mocha' },
+    cyberpunk:       { mode: 'dark',  pair: 'cyberpunk-light' },
+    'cyberpunk-light':{ mode: 'light', pair: 'cyberpunk' },
+    forest:          { mode: 'dark',  pair: 'forest-light' },
+    'forest-light':  { mode: 'light', pair: 'forest' },
     'tokyo-night':   { mode: 'dark',  pair: 'tokyo-day' },
     'tokyo-day':     { mode: 'light', pair: 'tokyo-night' },
     'one-dark':      { mode: 'dark',  pair: 'one-light' },

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef, useState, useLayoutEffect } from 'react';
 import { useParams, Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { Flame, Trophy, ArrowLeft, Download, Link2, Check, GitBranch, Globe, Code2, ExternalLink, Award, TrendingUp } from 'lucide-react';
@@ -491,6 +491,30 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
 
   const [copied, setCopied] = useState(false);
   const cardRef = useRef(null);
+
+  // Scale the fixed 1200px card to fit whatever container it lives in (page OR the
+  // narrow settings modal). transform:scale doesn't shrink the layout box, so we also
+  // pull the margins in on all sides — otherwise the 1200px footprint overflows narrow
+  // parents horizontally. This replaces the viewport media queries (which never fired
+  // inside a narrow modal on a wide screen), so no container can scroll sideways.
+  useLayoutEffect(() => {
+    const card = cardRef.current;
+    const wrap = card?.parentElement;
+    if (!card || !wrap) return;
+    const NAT_W = 1200;
+    const fit = () => {
+      const s = Math.min(1, wrap.clientWidth / NAT_W);
+      const natH = card.classList.contains('sc-card--lc') ? 1000 : 820;
+      card.style.setProperty('--sc-scale', s);
+      card.style.marginBottom = `${-natH * (1 - s)}px`;
+      card.style.marginLeft = `${-(NAT_W / 2) * (1 - s)}px`;
+      card.style.marginRight = `${-(NAT_W / 2) * (1 - s)}px`;
+    };
+    fit();
+    const ro = new ResizeObserver(fit);
+    ro.observe(wrap);
+    return () => ro.disconnect();
+  }, [lcStats]);
 
   const handleDownload = async () => {
     const svg = buildSvg({ displayName, handle, solved, totalProblems, streak, byDifficulty, topTopics, dateStr, learn, githubStats, leetcodeStats: lcStats, leetcodeSpark: lcSpark, leetcodeTopPct: lcTopPct, leetcodeHandle: lcHandle });
