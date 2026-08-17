@@ -242,7 +242,7 @@ Fonts: **Lora** (serif, branding) · **Space Mono** (monospace, UI) · **Inter**
 
 ## License
 
-This project is proprietary. All rights reserved.
+Licensed under the **GNU General Public License v3.0** — see [LICENSE](../LICENSE). You may use, study, share, and modify this project under the terms of the GPLv3; derivative works must remain under the same license.
 
 ---
 

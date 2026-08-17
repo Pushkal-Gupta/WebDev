@@ -257,6 +257,9 @@
 .vs-toast-body span { color: var(--text-dim); font-size: 0.76rem; text-transform: capitalize; }
 .vs-toast-join { background: var(--accent); color: #06202b; border: none; border-radius: 9px; padding: 0.45rem 0.9rem; font-weight: 700; font-size: 0.82rem; cursor: pointer; flex-shrink: 0; }
 .vs-toast-x { background: none; border: none; color: var(--text-dim); cursor: pointer; display: inline-flex; padding: 0.2rem; flex-shrink: 0; }
+.vs-notice-toast { border-color: color-mix(in srgb, var(--warning) 45%, var(--border)); }
+.vs-notice-toast .vs-toast-ic { background: color-mix(in srgb, var(--warning) 16%, transparent); color: var(--warning); }
+.vs-notice-toast .vs-toast-body span { text-transform: none; }
 
 /* Battle — sits directly below the sticky 72px navbar (SubNav hidden on match routes) */
 .vs-battle { position: fixed; inset: 73px 0 0 0; display: flex; flex-direction: column; background: var(--bg); z-index: 50; }
@@ -400,8 +403,19 @@
 /* Free drag-to-resize handle (bottom-right corner, Meet-style) */
 .vs-meet-resize { position: absolute; right: 0; bottom: 0; width: 34px; height: 34px; cursor: nwse-resize; touch-action: none; z-index: 6; }
 .vs-meet-resize span { position: absolute; right: 6px; bottom: 6px; width: 15px; height: 15px; border-right: 3px solid rgba(255, 255, 255, 0.92); border-bottom: 3px solid rgba(255, 255, 255, 0.92); border-bottom-right-radius: 4px; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.7)); pointer-events: none; }
+/* Invisible resize hit-zones on every edge + the remaining corners (SE keeps the
+   visible grip above). Thin edges, slightly larger corners, each with its own cursor. */
+.vs-meet-resize-edge { position: absolute; z-index: 5; touch-action: none; }
+.vs-re-n { top: 0; left: 12px; right: 12px; height: 8px; cursor: ns-resize; }
+.vs-re-s { bottom: 0; left: 12px; right: 12px; height: 8px; cursor: ns-resize; }
+.vs-re-e { top: 12px; bottom: 12px; right: 0; width: 8px; cursor: ew-resize; }
+.vs-re-w { top: 12px; bottom: 12px; left: 0; width: 8px; cursor: ew-resize; }
+.vs-re-ne { top: 0; right: 0; width: 18px; height: 18px; cursor: nesw-resize; z-index: 6; }
+.vs-re-nw { top: 0; left: 0; width: 18px; height: 18px; cursor: nwse-resize; z-index: 6; }
+.vs-re-sw { bottom: 0; left: 0; width: 18px; height: 18px; cursor: nesw-resize; z-index: 6; }
 .vs-meet-stage:fullscreen { height: 100vh !important; width: 100vw; background: #000; }
-.vs-meet-stage:fullscreen .vs-meet-resize { display: none; }
+.vs-meet-stage:fullscreen .vs-meet-resize,
+.vs-meet-stage:fullscreen .vs-meet-resize-edge { display: none; }
 .vs-meet-stage:fullscreen .vs-meet-remote { object-fit: contain; }
 /* Voice-activity: glow the remote video / pulse the avatar when the rival talks */
 .vs-meet-stage.speaking { box-shadow: inset 0 0 0 3px var(--accent), inset 0 0 22px -4px color-mix(in srgb, var(--accent) 60%, transparent); }

@@ -152,7 +152,7 @@ Personal blog with long-form essays.
 ├── index.html            # Root redirect → PG/main.html
 ├── CNAME                 # Custom domain config
 ├── .nojekyll             # Bypass Jekyll on GitHub Pages
-└── LICENSE               # MIT
+└── LICENSE               # GPLv3
 ```
 
 ---
@@ -186,4 +186,4 @@ onlineChess Supabase Edge Functions require the [Supabase CLI](https://supabase.
 
 ## License
 
-[MIT](LICENSE)
+[GNU General Public License v3.0](LICENSE) — use, study, share, and modify under the GPLv3; derivative works stay under the same license.

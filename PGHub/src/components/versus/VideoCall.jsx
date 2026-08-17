@@ -63,23 +63,40 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
   const relayFound = useRef(false);                // did we ever gather a TURN relay candidate?
   const micOnRef = useRef(true);
   micOnRef.current = micOn;
-  // Free drag-to-resize (like the Meet screen-share window): drag the corner handle to any
-  // size within sane bounds; the dimensions persist.
-  const onResizeStart = (e) => {
+  // Free drag-to-resize (like the Meet screen-share window): drag ANY edge or corner to
+  // resize. `dir` is a compass string (n/s/e/w/ne/nw/se/sw). When a west/north edge is
+  // dragged, the opposite edge is anchored — so the window grows/shrinks toward the
+  // pointer instead of only ever from the bottom-right. Both size and position persist.
+  const onResizeStart = (e, dir = 'se') => {
     e.preventDefault(); e.stopPropagation();
+    const rect = dragRef.current?.getBoundingClientRect();
+    const startLeft = pos?.x ?? (rect ? rect.left : 0);
+    const startTop = pos?.y ?? (rect ? rect.top : 0);
     const start = { x: e.clientX, y: e.clientY, w: dims.w, h: dims.h };
-    let latest = dims;
+    const hx = dir.includes('e') ? 1 : dir.includes('w') ? -1 : 0;
+    const vy = dir.includes('s') ? 1 : dir.includes('n') ? -1 : 0;
+    let latestDims = dims;
+    let latestPos = { x: startLeft, y: startTop };
     const move = (ev) => {
-      latest = {
-        w: Math.round(Math.min(MAX_W, Math.max(MIN_W, start.w + (ev.clientX - start.x)))),
-        h: Math.round(Math.min(MAX_H, Math.max(MIN_H, start.h + (ev.clientY - start.y)))),
-      };
-      setDims(latest);
+      const dx = ev.clientX - start.x, dy = ev.clientY - start.y;
+      const w = Math.round(Math.min(MAX_W, Math.max(MIN_W, hx === 1 ? start.w + dx : hx === -1 ? start.w - dx : start.w)));
+      const h = Math.round(Math.min(MAX_H, Math.max(MIN_H, vy === 1 ? start.h + dy : vy === -1 ? start.h - dy : start.h)));
+      // Anchor the opposite edge when dragging left/top: chrome height is constant, so
+      // moving the top-left by the size delta keeps the far edge visually fixed.
+      const x = hx === -1 ? startLeft + (start.w - w) : startLeft;
+      const y = vy === -1 ? startTop + (start.h - h) : startTop;
+      latestDims = { w, h };
+      latestPos = { x, y };
+      setDims(latestDims);
+      setPos(latestPos);
     };
     const up = () => {
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerup', up);
-      try { localStorage.setItem('pg_call_dims', JSON.stringify(latest)); } catch { /* private */ }
+      try {
+        localStorage.setItem('pg_call_dims', JSON.stringify(latestDims));
+        localStorage.setItem('pg_call_pos', JSON.stringify(latestPos));
+      } catch { /* private */ }
     };
     window.addEventListener('pointermove', move);
     window.addEventListener('pointerup', up);
@@ -521,7 +538,12 @@ export default function VideoCall({ code, userId, myName = 'You', oppName = 'Riv
               </div>
             ); })() : null}
             {call !== 'live' ? <div className="vs-meet-status">{call === 'ringing' ? 'Ringing…' : (netState === 'checking' ? 'Connecting… (finding a path)' : 'Connecting…')}</div> : null}
-            <div className="vs-meet-resize" onPointerDown={onResizeStart} title="Drag to resize the window"><span /></div>
+            {/* Resize from any edge or corner — 4 edges + 4 corners. The SE corner keeps
+                the visible grip; the rest are invisible hit-zones with the right cursor. */}
+            {['n', 's', 'e', 'w', 'ne', 'nw', 'sw'].map((d) => (
+              <div key={d} className={`vs-meet-resize-edge vs-re-${d}`} onPointerDown={(e) => onResizeStart(e, d)} title="Drag to resize the window" />
+            ))}
+            <div className="vs-meet-resize vs-re-se" onPointerDown={(e) => onResizeStart(e, 'se')} title="Drag to resize the window"><span /></div>
           </div>
         </div>
       ) : null}

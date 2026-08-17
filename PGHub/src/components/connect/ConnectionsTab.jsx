@@ -63,7 +63,16 @@ export default function ConnectionsTab({ user }) {
     const file = e.target.files?.[0]; if (!file) return;
     setBusy('resume'); setErr('');
     try { const url = await uploadResume(user.id, file); setResume(url); }
-    catch (er) { setErr(`Resume: ${er.message || 'upload failed'}`); }
+    catch (er) {
+      const m = (er?.message || '').toLowerCase();
+      setErr(
+        m.includes('bucket') ? 'Resume storage is still warming up — please try again in a moment.'
+        : (m.includes('row-level') || m.includes('security') || m.includes('unauthorized') || m.includes('jwt')) ? 'Please sign in again to upload your resume.'
+        : (m.includes('mime') || m.includes('pdf')) ? 'Please choose a PDF file.'
+        : (m.includes('large') || m.includes('exceeded') || m.includes('size')) ? 'That PDF is too large (max 8 MB).'
+        : 'Could not upload your resume. Please try again.'
+      );
+    }
     setBusy(null); if (fileRef.current) fileRef.current.value = '';
   };
   const dropResume = async () => { try { await removeResume(user.id); setResume(null); } catch { setErr('Could not remove resume.'); } };

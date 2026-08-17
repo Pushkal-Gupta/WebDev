@@ -27,8 +27,16 @@ export default function GlobalCall({ session }) {
   const [fabShown, setFabShown] = useState(launcherVisible());
   const [pos, setPos] = useState(() => { try { return JSON.parse(localStorage.getItem('pg_launcher_pos') || 'null'); } catch { return null; } });
   const [dragging, setDragging] = useState(false);
+  const [notice, setNotice] = useState('');   // friendly heads-up (e.g. "already in this room")
   const dragRef = useRef(null);
   const movedRef = useRef(false);
+  const noticeTimer = useRef(null);
+
+  const showNotice = useCallback((msg) => {
+    setNotice(msg);
+    if (noticeTimer.current) clearTimeout(noticeTimer.current);
+    noticeTimer.current = setTimeout(() => setNotice(''), 3500);
+  }, []);
 
   useEffect(() => {
     const onSetting = () => { setEnabled(callsEnabled()); setFabShown(launcherVisible()); };
@@ -96,6 +104,10 @@ export default function GlobalCall({ session }) {
   const joinRoom = () => {
     const code = joinCode.trim().toUpperCase();
     if (code.length < 4) return;
+    if (active) {
+      showNotice(active.room === code ? "You're already in this room." : "You're already in a call — hang up first to join another.");
+      return;
+    }
     setActive({ room: code, autoStart: null, peerName: 'Guest' });
     setJoinCode(''); setLauncherOpen(false);
   };
@@ -104,11 +116,17 @@ export default function GlobalCall({ session }) {
   // video/voice room (I'm the caller, code is shown to share) or join one by code.
   useEffect(() => {
     const onRoom = (e) => {
-      if (!callsEnabled() || active) return;
+      if (!callsEnabled()) { showNotice('Calls are turned off — enable them in Friends → Calls.'); return; }
       const { mode, code } = e.detail || {};
+      if (active) {
+        const c = (code || '').trim().toUpperCase();
+        showNotice(mode === 'join' && active.room === c ? "You're already in this room." : "You're already in a call — hang up first to start another.");
+        return;
+      }
       if (mode === 'join') {
         const c = (code || '').trim().toUpperCase();
         if (c.length >= 4) setActive({ room: c, autoStart: null, peerName: 'Guest' });
+        else showNotice('That room code looks too short — check it and try again.');
         return;
       }
       const c = genShortCode();
@@ -116,7 +134,7 @@ export default function GlobalCall({ session }) {
     };
     window.addEventListener('pg:start-room', onRoom);
     return () => window.removeEventListener('pg:start-room', onRoom);
-  }, [active]);
+  }, [active, showNotice]);
 
   // Programmatic friend-call starts (from FriendsPanel or anywhere).
   useEffect(() => {
@@ -215,6 +233,17 @@ export default function GlobalCall({ session }) {
           <button className={`vs-launcher-fab ${launcherOpen ? 'on' : ''}`} onPointerDown={onFabPointerDown} onClick={onFabClick} title="Call (drag to move)" aria-label="Call">
             <PhoneCall size={20} />
           </button>
+        </div>
+      ) : null}
+
+      {notice ? (
+        <div className="vs-toast vs-notice-toast" role="status">
+          <span className="vs-toast-ic"><Hash size={16} /></span>
+          <div className="vs-toast-body">
+            <b>Heads up</b>
+            <span>{notice}</span>
+          </div>
+          <button className="vs-toast-x" onClick={() => setNotice('')} aria-label="Dismiss"><X size={15} /></button>
         </div>
       ) : null}
 
