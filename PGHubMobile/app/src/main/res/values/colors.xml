@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- PG Hub dark palette -->
+    <color name="pg_bg">#0A1615</color>
+    <color name="pg_surface">#0F1E1D</color>
+    <color name="pg_text">#FFFFFF</color>
+    <color name="pg_dim">#6F9B98</color>
+    <color name="pg_accent">#00FFF5</color>
+    <color name="pg_border">#17423E</color>
+    <color name="black">#000000</color>
+    <color name="white">#FFFFFF</color>
+</resources>

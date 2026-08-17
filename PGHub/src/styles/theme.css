@@ -13,15 +13,16 @@
   --playground-w: 1520px;
   --playground-gutter: 3rem;
 
-  /* Dark mode (default) — matches blog exactly */
-  --bg: #030a0a;
-  --surface: #061010;
+  /* Dark mode (default) — lifted off near-black so the UI reads less heavy while
+     keeping the teal-green tint and the bright cyan accent. */
+  --bg: #0a1615;
+  --surface: #0f1e1d;
   --text-main: #ffffff;
-  --text-dim: #5c8582;
+  --text-dim: #6f9b98;
   --accent: #00fff5;
-  --border: #0f2b29;
-  --card-bg: #061010;
-  --hover-box: rgba(0, 255, 245, 0.05);
+  --border: #17423e;
+  --card-bg: #0f1e1d;
+  --hover-box: rgba(0, 255, 245, 0.06);
 
   /* Status Colors */
   --easy: #4caf50;

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base theme; Compose owns the real styling. This keeps the splash / window
+         background aligned with the dark palette so there is no white flash. -->
+    <style name="Theme.PGHubMobile" parent="android:Theme.Material.NoActionBar">
+        <item name="android:statusBarColor">@color/pg_bg</item>
+        <item name="android:navigationBarColor">@color/pg_bg</item>
+        <item name="android:windowBackground">@color/pg_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>

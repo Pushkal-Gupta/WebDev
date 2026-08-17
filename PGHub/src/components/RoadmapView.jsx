@@ -213,6 +213,28 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
     if (node.type === 'custom') setSelectedTopic(node);
   };
 
+  // ReactFlow's `fitView` prop only fits once on init — on a window resize (maximize /
+  // minimize / restore) it keeps the stale viewport transform, so the graph ends up
+  // off-center or clipped until the user pans. Grab the instance via onInit and re-fit
+  // on resize, and when the tab becomes visible again (layout may have changed while hidden).
+  const [rfInstance, setRfInstance] = useState(null);
+  useEffect(() => {
+    if (!rfInstance) return undefined;
+    let raf = 0;
+    const refit = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => rfInstance.fitView({ duration: 200 }));
+    };
+    const onVis = () => { if (!document.hidden) refit(); };
+    window.addEventListener('resize', refit);
+    document.addEventListener('visibilitychange', onVis);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', refit);
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [rfInstance]);
+
   return (
     <div style={{ width: '100%', height: 'calc(100vh - 100px)', background: 'var(--bg)', display: 'flex', flexDirection: 'row' }}>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -223,6 +245,7 @@ export default function RoadmapView({ roadmapMode, setRoadmapMode, session }) {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onNodeClick={onNodeClick}
+        onInit={setRfInstance}
         fitView
         attributionPosition="bottom-right"
         minZoom={0.1}

@@ -493,22 +493,28 @@ export default function ShareableCard({ embedded = false, presetUsername = null,
   const cardRef = useRef(null);
 
   // Scale the fixed 1200px card to fit whatever container it lives in (page OR the
-  // narrow settings modal). transform:scale doesn't shrink the layout box, so we also
-  // pull the margins in on all sides — otherwise the 1200px footprint overflows narrow
-  // parents horizontally. This replaces the viewport media queries (which never fired
-  // inside a narrow modal on a wide screen), so no container can scroll sideways.
+  // narrow settings modal). transform:scale doesn't reflow the layout box, so we pull
+  // the empty space below the card back in with a negative margin-bottom. Horizontal
+  // centering is handled by the wrap (flex + justify-center) with the invisible layout
+  // overflow clipped by its overflow:hidden — so no negative side margins (those fought
+  // the flex centering and shifted the card off-edge). This container-driven scale
+  // replaces the viewport media queries, which never fired for a narrow modal on a wide
+  // screen. Requires the wrap chain to allow shrinking (min-width:0) so clientWidth
+  // reports the true available width, not the 1200px child's intrinsic width.
   useLayoutEffect(() => {
     const card = cardRef.current;
     const wrap = card?.parentElement;
     if (!card || !wrap) return;
     const NAT_W = 1200;
     const fit = () => {
-      const s = Math.min(1, wrap.clientWidth / NAT_W);
+      const avail = wrap.clientWidth;
+      if (!avail) return;
+      const s = Math.min(1, avail / NAT_W);
       const natH = card.classList.contains('sc-card--lc') ? 1000 : 820;
       card.style.setProperty('--sc-scale', s);
       card.style.marginBottom = `${-natH * (1 - s)}px`;
-      card.style.marginLeft = `${-(NAT_W / 2) * (1 - s)}px`;
-      card.style.marginRight = `${-(NAT_W / 2) * (1 - s)}px`;
+      card.style.marginLeft = '0';
+      card.style.marginRight = '0';
     };
     fit();
     const ro = new ResizeObserver(fit);
