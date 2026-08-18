@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <title>PG.Blog — Essays on AI and Systems | Pushkal Gupta</title>
+    <meta
+      name="description"
+      content="Long-form essays by Pushkal Gupta on artificial intelligence, power, and the future of work — each argued from first principles."
+    />
+    <link rel="canonical" href="https://pushkalgupta.com/blog/" />
+    <link rel="alternate" type="application/rss+xml" title="PG.Blog — Pushkal Gupta" href="/blog/feed.xml" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="Pushkal Gupta" />
+    <meta name="theme-color" content="#030a0a" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pushkal Gupta" />
+    <meta property="og:url" content="https://pushkalgupta.com/blog/" />
+    <meta property="og:title" content="PG.Blog — Essays on AI, Systems and Technology" />
+    <meta
+      property="og:description"
+      content="Long-form essays on artificial intelligence, power structures, the future of work, and how systems actually work — each argued from first principles."
+    />
+    <meta property="og:image" content="https://pushkalgupta.com/og-1200.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PG.Blog — Essays on AI, Systems and Technology" />
+    <meta
+      name="twitter:description"
+      content="Long-form essays on artificial intelligence, power structures, the future of work, and how systems actually work."
+    />
+    <meta name="twitter:image" content="https://pushkalgupta.com/og-1200.png" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "@id": "https://pushkalgupta.com/blog/",
+        "name": "PG.Blog",
+        "url": "https://pushkalgupta.com/blog/",
+        "description": "Essays on artificial intelligence, power structures, the future of work, and how systems actually work.",
+        "inLanguage": "en",
+        "author": {
+          "@type": "Person",
+          "name": "Pushkal Gupta",
+          "url": "https://pushkalgupta.com/"
+        },
+        "blogPost": [
+          { "@type": "BlogPosting", "headline": "AI and the Lion's Cage \u2014 The Last Tool We Build", "url": "https://pushkalgupta.com/blog/ai-and-the-lions-cage/", "datePublished": "2026-03-11" },
+          { "@type": "BlogPosting", "headline": "The Architecture of Power \u2014 How Society Actually Works", "url": "https://pushkalgupta.com/blog/the-architecture-of-power/", "datePublished": "2026-04-08" },
+          { "@type": "BlogPosting", "headline": "The Golden Cage \u2014 Why Work Matters in the Age of AI", "url": "https://pushkalgupta.com/blog/why-work-matters-in-the-age-of-ai/", "datePublished": "2026-04-27" },
+          { "@type": "BlogPosting", "headline": "Does AI Actually Think \u2014 Why Architecture Matters More Than Data", "url": "https://pushkalgupta.com/blog/does-ai-actually-think/", "datePublished": "2026-05-18" },
+          { "@type": "BlogPosting", "headline": "The One-Way Mind \u2014 Why AI Imitates Understanding", "url": "https://pushkalgupta.com/blog/the-one-way-mind/", "datePublished": "2026-06-29" }
+        ]
+      }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="blog.css" />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <div class="nav-group">
+          <a
+            href="/"
+            onclick="if(document.body.classList.contains('is-reading-mode')){showHome();return false;}return true;"
+            class="brand-link"
+            >Pushkal Gupta Blog</a
+          >
+          <div class="header-right">
+            <div class="toggle-wrap" onclick="toggleTheme()">
+              <span class="toggle-label" id="mode-label">Dark</span>
+              <div class="switch-base"></div>
+            </div>
+            <button id="auth-btn" class="auth-btn" onclick="handleAuth()">
+              LOGIN
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="container" id="main-ui">
+      <main id="home-view">
+        <h1 class="blog-h1">Essays</h1>
+        <p class="tagline">
+          Exploring systems from first principles. Writing to understand things
+          clearly.
+        </p>
+        <!-- Rendered statically, not by blog.js. A crawler that does not run
+             JavaScript still sees every essay and a real link to it; blog.js
+             only attaches the click handler that opens the in-page reader. Keep
+             this list and the POSTS array in blog.js in sync — the ids and slugs
+             have to match or the reader will not open. -->
+        <div id="post-list">
+          <a class="feed-item" href="ai-and-the-lions-cage/" data-post-id="ai-cage">
+            <div class="post-date"><time datetime="2026-03-11">11.03.2026</time></div>
+            <div class="post-title">AI and the Lion&#39;s Cage — The Last Tool We Build</div>
+          </a>
+          <a class="feed-item" href="the-architecture-of-power/" data-post-id="power">
+            <div class="post-date"><time datetime="2026-04-08">08.04.2026</time></div>
+            <div class="post-title">The Architecture of Power — How Society Actually Works</div>
+          </a>
+          <a class="feed-item" href="why-work-matters-in-the-age-of-ai/" data-post-id="work-matters">
+            <div class="post-date"><time datetime="2026-04-27">27.04.2026</time></div>
+            <div class="post-title">The Golden Cage — Why Work Matters in the Age of AI</div>
+          </a>
+          <a class="feed-item" href="does-ai-actually-think/" data-post-id="ebm-reasoning">
+            <div class="post-date"><time datetime="2026-05-18">18.05.2026</time></div>
+            <div class="post-title">Does AI Actually Think - Why Architecture Matters More Than Data</div>
+          </a>
+          <a class="feed-item" href="the-one-way-mind/" data-post-id="one-way-mind">
+            <div class="post-date"><time datetime="2026-06-29">29.06.2026</time></div>
+            <div class="post-title">The One-Way Mind — Why AI Imitates Understanding, and What That Predicts</div>
+          </a>
+        </div>
+        <p class="blog-subscribe">
+          <a href="/blog/feed.xml">Subscribe by RSS</a> &middot;
+          <a href="/">More from Pushkal Gupta</a>
+        </p>
+      </main>
+    </div>
+
+    <div id="post-view" class="hidden">
+      <div id="p-content"><div id="loader" class="hidden"></div></div>
+      <div class="container">
+        <div class="comments-section">
+          <div class="comment-count" id="c-count">0 Comments</div>
+          <div id="comment-input-area"></div>
+          <div id="comments-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Modal (login / signup / reset / otp / new-password) -->
+    <div id="auth-modal" class="pgauth-overlay hidden">
+      <button onclick="closeAuthModal()" class="pgauth-close" aria-label="Close">&times;</button>
+      <div class="pgauth-stack">
+        <div class="pgauth-brand">
+          <div class="pgauth-brand-row">
+            <svg class="pgauth-mark" width="40" height="36" viewBox="0 0 36 32" aria-hidden="true">
+              <path d="M3 4 L3 28 M3 4 L10.5 4 Q15.5 4 15.5 10 Q15.5 16 10.5 16 L3 16" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M33 9.5 Q33 4 27 4 Q20.5 4 20.5 11.5 L20.5 20.5 Q20.5 28 27 28 Q33 28 33 22.5 L33 18.5 L27.5 18.5" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <span class="pgauth-wordmark">Pushkal Gupta <span class="accent">Blog</span></span>
+          </div>
+          <span class="pgauth-tagline">Exploring systems from first principles. Writing to understand things clearly.</span>
+        </div>
+
+        <div class="pgauth-card">
+          <!-- Screen 1: normal login / signup / reset-email-request -->
+          <div id="screen-main">
+            <div class="pgauth-head">
+              <h3 id="modal-title">Welcome back</h3>
+              <p class="pgauth-sub" id="modal-subtitle">Enter your credentials to continue</p>
+            </div>
+            <div class="pgauth-form">
+              <div class="pgauth-field">
+                <label for="auth-email">Email</label>
+                <input type="email" id="auth-email" class="pgauth-input" placeholder="me@example.com" />
+              </div>
+              <div class="pgauth-field" id="password-container">
+                <div class="pgauth-label-row">
+                  <label for="auth-password">Password</label>
+                  <button type="button" class="pgauth-link" id="forgot-password-link" onclick="setAuthMode('reset')">Forgot password?</button>
+                </div>
+                <div class="pgauth-passwrap">
+                  <input type="password" id="auth-password" class="pgauth-input" placeholder="Enter your password" />
+                  <button type="button" class="pgauth-eye" onclick="togglePassVis(this, 'auth-password')" aria-label="Show password">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </button>
+                </div>
+              </div>
+              <button onclick="submitAuth()" id="submit-auth-btn" class="pgauth-primary">Sign in</button>
+              <div class="pgauth-divider"><span>Or continue with</span></div>
+              <div class="pgauth-social">
+                <button type="button" class="pgauth-social-btn" onclick="loginWithGoogle()">
+                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" width="16" height="16" />
+                  Google
+                </button>
+                <button type="button" class="pgauth-social-btn" onclick="loginWithGithub()">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.71 1.26 3.37.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.29 1.19-3.1-.12-.29-.52-1.47.11-3.06 0 0 .97-.31 3.18 1.18a11.1 11.1 0 0 1 5.8 0c2.21-1.49 3.18-1.18 3.18-1.18.63 1.59.23 2.77.11 3.06.74.81 1.19 1.84 1.19 3.1 0 4.42-2.69 5.4-5.25 5.68.41.36.78 1.06.78 2.13v3.16c0 .31.21.68.8.56C20.21 21.39 23.5 17.08 23.5 12 23.5 5.65 18.35.5 12 .5z" />
+                  </svg>
+                  GitHub
+                </button>
+              </div>
+              <p class="pgauth-foot" id="auth-switch-text">
+                New here? <span onclick="setAuthMode('signup')">Create account</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Screen 2: OTP entry (after reset email sent) -->
+          <div id="screen-otp" class="hidden">
+            <div class="pgauth-head">
+              <h3>Check your email</h3>
+              <p class="pgauth-sub">Enter the code we just sent</p>
+            </div>
+            <div class="pgauth-form">
+              <p class="pgauth-hint">We sent an 8-digit code to <strong id="otp-email-display"></strong>.</p>
+              <div class="pgauth-field">
+                <label for="otp-input">Recovery code</label>
+                <input type="text" id="otp-input" class="pgauth-input" maxlength="8" placeholder="00000000" autocomplete="one-time-code" inputmode="numeric" />
+              </div>
+              <button onclick="submitOtp()" id="submit-otp-btn" class="pgauth-primary">Verify code</button>
+              <p class="pgauth-foot">
+                <span onclick="setAuthMode('reset')">Resend code</span> &nbsp;·&nbsp; <span onclick="setAuthMode('login')">Back to login</span>
+              </p>
+            </div>
+          </div>
+
+          <!-- Screen 3: set new password (after OTP verified) -->
+          <div id="screen-new-pass" class="hidden">
+            <div class="pgauth-head">
+              <h3>Set a new password</h3>
+              <p class="pgauth-sub">Pick something memorable</p>
+            </div>
+            <div class="pgauth-form">
+              <div class="pgauth-field">
+                <label for="reset-new-pass">New password</label>
+                <input type="password" id="reset-new-pass" class="pgauth-input" placeholder="At least 6 characters" />
+              </div>
+              <div class="pgauth-field">
+                <label for="reset-confirm-pass">Confirm password</label>
+                <input type="password" id="reset-confirm-pass" class="pgauth-input" placeholder="Re-enter it" />
+              </div>
+              <button onclick="submitNewPassword()" id="submit-newpass-btn" class="pgauth-primary">Set password</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account Modal (for logged-in users) -->
+    <div id="account-modal" class="modal-overlay hidden">
+      <div class="modal-content">
+        <h3>Account</h3>
+        <p class="account-email" id="account-email-display"></p>
+
+        <div id="change-password-section">
+          <p class="section-label">Change Password</p>
+          <input type="password" id="new-password" placeholder="New password" />
+          <input
+            type="password"
+            id="confirm-password"
+            placeholder="Confirm new password"
+          />
+          <button
+            class="primary-btn"
+            id="change-pass-btn"
+            onclick="changePassword()"
+          >
+            Update Password
+          </button>
+        </div>
+
+        <p id="oauth-note" class="oauth-note hidden">
+          Signed in with Google — password change not available.
+        </p>
+
+        <button onclick="handleLogout()" class="logout-btn">Logout</button>
+        <button onclick="closeAccountModal()" class="close-x">×</button>
+      </div>
+    </div>
+
+    <!-- Both deferred: neither blocks first paint, and deferred scripts run in
+         document order, so blog.js still sees `supabase` at its top level. The
+         post list above is static HTML, so the page is readable before either
+         of these arrives. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="blog.js"></script>
+  </body>
+</html>

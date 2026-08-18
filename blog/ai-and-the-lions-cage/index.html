@@ -6,6 +6,7 @@
     <title>AI and the Lion&#x27;s Cage — Why AI Is Different</title>
     <meta name="description" content="Humans never beat lions on strength — we beat them with tools. AI is the first tool that improves itself, which is why it breaks the old pattern." />
     <link rel="canonical" href="https://pushkalgupta.com/blog/ai-and-the-lions-cage/" />
+    <link rel="alternate" type="application/rss+xml" title="PG.Blog — Pushkal Gupta" href="/blog/feed.xml" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
     <meta name="author" content="Pushkal Gupta" />
     <meta name="keywords" content="AI safety, artificial intelligence, technology, first principles" />
@@ -39,9 +40,11 @@
       "keywords": "AI safety, artificial intelligence, technology, first principles",
       "author": { "@type": "Person", "name": "Pushkal Gupta", "url": "https://pushkalgupta.com/" },
       "publisher": { "@type": "Person", "name": "Pushkal Gupta", "url": "https://pushkalgupta.com/" },
-      "isPartOf": { "@type": "Blog", "@id": "https://pushkalgupta.com/blog/blog.html", "name": "PG.Blog" }
+      "isPartOf": { "@type": "Blog", "@id": "https://pushkalgupta.com/blog/", "name": "PG.Blog" }
     }
     </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -827,16 +830,43 @@
         }
       }
     </style>
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Pushkal Gupta",
+      "item": "https://pushkalgupta.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Essays",
+      "item": "https://pushkalgupta.com/blog/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "AI and the Lion's Cage",
+      "item": "https://pushkalgupta.com/blog/ai-and-the-lions-cage/"
+    }
+  ]
+}
+    </script>
+
   </head>
   <body>
 
     <!-- Standalone-view chrome. Each essay is a complete page so a reader
-         arriving from search gets the whole thing — but blog.html also frames
+         arriving from search gets the whole thing — but the blog index also frames
          these files in its reader iframe, where site chrome would be a second
          header. So: render the crumb, then remove it when framed. It is a real
          <a>, which also gives crawlers a path back up to the blog and root. -->
     <nav id="pg-crumb">
-      <a href="/">Pushkal Gupta</a><span> / </span><a href="/blog/blog.html">Essays</a>
+      <a href="/">Pushkal Gupta</a><span> / </span><a href="/blog/">Essays</a>
     </nav>
     <style>
       #pg-crumb {
@@ -851,11 +881,6 @@
       #pg-crumb a:hover { text-decoration: underline; }
       #pg-crumb span { color: var(--dim, #909090); }
     </style>
-    <script>
-      if (window.self !== window.top) {
-        document.getElementById('pg-crumb').remove();
-      }
-    </script>
     <div class="wrap">
       <h1>AI and the Lion's Cage — The Last Tool That Builds Itself</h1>
 
@@ -4357,5 +4382,78 @@
         Nature (2025) · China Interim Measures for Generative AI (2023)
       </div>
     </div>
+    <!-- Real links from every essay to every other one. Two reasons: a reader who
+         landed here from search has somewhere to go next, and it gives the five
+         essays a connected link graph instead of five orphans that are only
+         reachable from the index. Removed when framed by the reader, which has
+         its own list — see the crumb script above. -->
+    <nav id="pg-more" aria-label="More essays">
+      <h2 class="pg-more-head">More essays</h2>
+      <div class="pg-more-grid">
+        <a class="pg-more-item" href="/blog/the-architecture-of-power/">
+          <span class="pg-more-title">The Architecture of Power</span>
+          <span class="pg-more-blurb">How millions of people organise into layers that feel natural.</span>
+        </a>
+        <a class="pg-more-item" href="/blog/why-work-matters-in-the-age-of-ai/">
+          <span class="pg-more-title">The Golden Cage</span>
+          <span class="pg-more-blurb">A perfect cage where no effort is allowed &mdash; and what it reveals.</span>
+        </a>
+        <a class="pg-more-item" href="/blog/does-ai-actually-think/">
+          <span class="pg-more-title">Does AI Actually Think?</span>
+          <span class="pg-more-blurb">Why recognising a hummed melody is architecture, not data scale.</span>
+        </a>
+        <a class="pg-more-item" href="/blog/the-one-way-mind/">
+          <span class="pg-more-title">The One-Way Mind</span>
+          <span class="pg-more-blurb">The reversal curse: models learn directions, not facts.</span>
+        </a>
+      </div>
+      <p class="pg-more-all"><a href="/blog/">All essays</a> &middot; <a href="/">pushkalgupta.com</a></p>
+    </nav>
+    <style>
+      #pg-more {
+        max-width: 780px;
+        margin: 4rem auto 3rem;
+        padding: 2rem 1.4rem 0;
+        border-top: 1px solid var(--border, #242424);
+        font-family: "Inter", system-ui, sans-serif;
+      }
+      .pg-more-head {
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--dim, #909090);
+        font-weight: 600;
+        margin: 0 0 1.4rem;
+      }
+      .pg-more-grid { display: grid; gap: 0.4rem; }
+      .pg-more-item {
+        display: block;
+        padding: 0.85rem 1rem;
+        border: 1px solid var(--border, #242424);
+        border-radius: 8px;
+        text-decoration: none;
+        transition: border-color 0.2s, background 0.2s;
+      }
+      .pg-more-item:hover { border-color: var(--accent, #00d4cc); background: rgba(127, 127, 127, 0.06); }
+      .pg-more-title { display: block; color: var(--text, #f0f0f0); font-weight: 600; font-size: 0.95rem; }
+      .pg-more-blurb { display: block; color: var(--dim, #909090); font-size: 0.82rem; margin-top: 0.25rem; line-height: 1.5; }
+      .pg-more-all { margin: 1.6rem 0 0; font-size: 0.82rem; }
+      .pg-more-all a { color: var(--accent, #00d4cc); text-decoration: none; }
+      .pg-more-all a:hover { text-decoration: underline; }
+    </style>
+    <script>
+      // Framed by the blog reader: drop the standalone-only chrome. The reader
+      // supplies its own header and post list, and a link inside the iframe
+      // would navigate the frame rather than the page.
+      //
+      // This has to live at the END of body: #pg-more is the last thing on the
+      // page, so a script placed with the crumb up top runs before it exists.
+      if (window.self !== window.top) {
+        document.getElementById('pg-crumb')?.remove();
+        document.getElementById('pg-more')?.remove();
+      }
+    </script>
+
+
   </body>
 </html>

@@ -547,3 +547,44 @@ h2.section-label {
   font-weight: 400;
   margin-top: 0;
 }
+
+/* ─── Site footer ───────────────────────────────────────────────────────────── */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding: 3rem 0 4rem;
+  margin-top: 2rem;
+}
+.footer-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2.5rem;
+}
+.footer-col { display: flex; flex-direction: column; gap: 0.6rem; }
+.footer-head {
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--text-dim);
+  margin: 0 0 0.4rem;
+}
+.footer-col a {
+  font-family: var(--sans);
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color var(--t);
+}
+.footer-col a:hover { color: var(--accent); }
+.footer-note {
+  font-family: var(--serif);
+  font-size: 0.82rem;
+  color: var(--text-dim);
+  margin: 2.5rem 0 0;
+  max-width: 48ch;
+}
+
+@media (max-width: 620px) {
+  .footer-cols { grid-template-columns: 1fr; gap: 2rem; }
+}

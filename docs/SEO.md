@@ -50,6 +50,16 @@ markup that is simply there.
 | `/favicon.svg`, `/site.webmanifest`, `/images/logo.png` referenced root-absolute from sub-path apps | 404 in production — no favicon anywhere | Made relative (`./…`), matching Vite's `base: ''` |
 | No `404.html` | GitHub Pages' default 404, no way back into the site | Custom 404 with `noindex` and links to every section |
 | `PGHub/CLAUDE.md`, QA backlogs, `docs/`, `supabase/` all publicly served | Internal notes live and indexable; wasted crawl budget | Excluded in the deploy workflow, plus `robots.txt` rules |
+| Blog post list was painted in by `blog.js` | Zero essays were reachable by a crawler that doesn't run JS | Post list is static HTML in `blog/index.html`; JS only upgrades the links into the reader |
+| Blog index lived at `/blog/blog.html` | Ugly URL for the section's landing page | Moved to `/blog/`; the old path is a `noindex` redirect stub |
+| Essays were orphans — reachable only from the index | Weak internal link graph; a reader from search had nowhere to go | "More essays" block on every essay linking to all the others, plus `BreadcrumbList` JSON-LD |
+| No feed | No discovery channel that doesn't go through Google | `blog/feed.xml` (RSS 2.0), generated, linked via `<link rel="alternate">` and a visible link |
+| 21 coursework demos in `PG.Web_Basics/` were indexable | 10–360 words each, several with duplicate titles — thin content dragging on the whole domain | `noindex, follow` on all of them; only the section index stays indexable |
+| Supabase's 120KB bundle was a synchronous `<script>` in the blog index's `<head>` | Render-blocking on a page whose content needs no JS | Both scripts `defer`, on the blog and the homepage |
+| Essays had no `preconnect` to the font origin | Full DNS+TCP+TLS before the render-blocking font CSS could even be requested | `preconnect` to `fonts.googleapis.com` / `fonts.gstatic.com` |
+| PG.Play overwrote `document.title` with "22 playable titles" | The *rendered* title is what Google indexes, so the static keyword-carrying title was being thrown away | Runtime title keeps the keywords: "22 free browser games, no download" |
+| `public/` published alongside `dist/` for all three apps | ~320MB of exact duplicate assets, each reachable at two URLs | Excluded in the workflow — published site went from 773MB to 417MB |
+| Homepage ended abruptly after the project list | No consistent link block on the most-crawled page | Footer with grouped links to every section plus the feed |
 
 ---
 
@@ -100,6 +110,16 @@ than a metadata pass, which is why neither is done here.
 2. Give it `<title>`, `<meta name="description">`, `<link rel="canonical">`, OG tags.
 3. Add it to the `PAGES` list in `scripts/generate-sitemap.mjs`.
 4. Run `node scripts/generate-sitemap.mjs` and commit the regenerated `sitemap.xml`.
+
+**Adding an essay** — the post list exists in four places that must agree:
+
+1. `blog/index.html` — the static `<a class="feed-item" data-post-id="…">` row.
+2. `blog/blog.js` — the `POSTS` array (`id` and `slug` must match the markup).
+3. `scripts/generate-sitemap.mjs` and `scripts/generate-feed.mjs` — then re-run both.
+4. The "More essays" block at the foot of every *other* essay.
+
+If the markup and `POSTS` drift, `blog.js` leaves the link alone rather than
+swallowing the click, so the essay still opens — just without the comments panel.
 
 The generator fails loudly if a listed URL's source file is missing, so a rename
 that forgets step 3 breaks the build rather than silently shipping a 404 in the

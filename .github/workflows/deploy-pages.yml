@@ -83,6 +83,14 @@ jobs:
           # audits and per-project docs/ were all live and indexable (PGHub/CLAUDE.md
           # was a public 46KB file). None of it is linked from the site, so dropping
           # it costs nothing and keeps crawl budget on real pages.
+          #
+          # The `public/` excludes matter most. Vite copies each app's public/ INTO
+          # its dist/ at build time, so publishing both shipped every game asset,
+          # cover and audio file twice — ~320MB of exact duplicates, each reachable
+          # at two URLs. PGHub/content is the markdown corpus that import scripts
+          # compile into the bundle; nothing fetches it at runtime. Together these
+          # cut the published site from ~773MB to well under half that, which also
+          # matters because GitHub Pages' published-size limit is 1GB.
           mkdir -p _site
           rsync -a \
             --exclude='.git' \
@@ -105,6 +113,16 @@ jobs:
             --exclude='.java_test_harness' \
             --exclude='PGHub/logs' \
             --exclude='PG.Play/frost-fight-gallery' \
+            --exclude='**/public' \
+            --exclude='PGHub/content' \
+            --exclude='bug-reports' \
+            --exclude='*.log' \
+            --exclude='*.db' \
+            --exclude='scratchpad*.json' \
+            --exclude='package.json' \
+            --exclude='package-lock.json' \
+            --exclude='vite.config.js' \
+            --exclude='eslint.config.js' \
             ./ _site/
           # Pages must not run Jekyll (we ship folders that start with _ / .).
           touch _site/.nojekyll

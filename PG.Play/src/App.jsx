@@ -58,11 +58,14 @@ export default function App() {
     if (typeof window !== 'undefined') window.__pgplay_setTheme = setTheme;
   }, []);
 
-  // Honest tab title: show the count of actually-playable titles, not a
-  // marketing claim that might go stale as the roster moves.
+  // Honest tab title: the count of actually-playable titles, not a marketing
+  // claim that goes stale as the roster moves. It also carries what someone
+  // would actually search for — this overwrites the <title> in index.html, and
+  // the rendered title is the one Google indexes, so "22 playable titles" on
+  // its own would throw away every keyword the static tag was carrying.
   useEffect(() => {
     const playable = GAMES.filter((g) => g.playable).length;
-    document.title = `PG.Play — ${playable} playable titles`;
+    document.title = `PG.Play — ${playable} free browser games, no download`;
   }, []);
 
   // Score bus + achievements should run regardless of route so a game can

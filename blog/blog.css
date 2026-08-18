@@ -806,3 +806,14 @@ textarea {
   color: var(--text-main);
   margin: 0 0 0.6rem;
 }
+
+/* Feed + cross-site link under the post list. Small on purpose: it is a way
+   out for people who want one, not a call to action. */
+.blog-subscribe {
+  margin: 2.2rem 0 0;
+  font-family: var(--mono, "Space Mono", monospace);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+.blog-subscribe a { color: var(--accent); text-decoration: none; }
+.blog-subscribe a:hover { text-decoration: underline; }

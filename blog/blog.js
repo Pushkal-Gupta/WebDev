@@ -543,16 +543,23 @@ function init() {
   const savedTheme = localStorage.getItem("theme") || "dark";
   applyTheme(savedTheme);
 
-  // Real <a href> pointing at the essay's own canonical URL: crawlers follow it
-  // and readers with JS off still reach the essay. The click handler cancels the
-  // navigation and opens the in-page reader (with comments) instead.
-  document.getElementById("post-list").innerHTML = POSTS.map(
-    (p) =>
-      `<a class="feed-item" href="${p.slug}/" onclick="loadPost('${p.id}'); return false;">
-         <div class="post-date">${p.date}</div>
-         <div class="post-title">${escapeHtml(p.title)}</div>
-       </a>`,
-  ).join("");
+  // The post list is static markup in blog/index.html (so it survives a crawler that
+  // never runs this file, and a reader with JS off). All we do here is upgrade
+  // each real link into the in-page reader, which adds comments and keeps the
+  // theme toggle live. Cmd/Ctrl-click and middle-click fall through to the
+  // browser so "open in new tab" still works.
+  document.querySelectorAll("#post-list .feed-item").forEach((el) => {
+    const id = el.dataset.postId;
+    // If the markup and POSTS ever drift apart, leave the link alone rather
+    // than swallowing the click into a reader that cannot open — the href still
+    // goes to the essay, so the worst case is losing the comments panel.
+    if (!POSTS.some((p) => p.id === id)) return;
+    el.addEventListener("click", (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+      e.preventDefault();
+      loadPost(id);
+    });
+  });
 
   // Handle OAuth redirect: Supabase fires onAuthStateChange after redirect
   supabaseClient.auth.onAuthStateChange((event, session) => {

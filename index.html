@@ -83,7 +83,7 @@
                 { "@type": "ListItem", "position": 1, "name": "PG.Hub — Coding Hub", "url": "https://pushkalgupta.com/PGHub/dist/" },
                 { "@type": "ListItem", "position": 2, "name": "PG.Play — Browser Arcade", "url": "https://pushkalgupta.com/PG.Play/dist/" },
                 { "@type": "ListItem", "position": 3, "name": "PG.Chess — Online Chess", "url": "https://pushkalgupta.com/onlineChess/dist/" },
-                { "@type": "ListItem", "position": 4, "name": "PG.Blog — Essays", "url": "https://pushkalgupta.com/blog/blog.html" }
+                { "@type": "ListItem", "position": 4, "name": "PG.Blog — Essays", "url": "https://pushkalgupta.com/blog/" }
               ]
             }
           }
@@ -166,7 +166,7 @@
             </span>
           </a>
 
-          <a class="feat-card" href="/blog/blog.html">
+          <a class="feat-card" href="/blog/">
             <span class="feat-status s-done">Completed</span>
             <span class="feat-name">PG.Blog — Essays</span>
             <span class="feat-desc">
@@ -215,6 +215,38 @@
         </div>
       </div>
     </main>
+
+    <!-- A second, plain path to everything on the site. The cards above are the
+         primary navigation, but a footer gives crawlers a consistent link block
+         on the page they will visit most, and gives readers who scrolled past
+         the cards somewhere to go. -->
+    <footer class="site-footer">
+      <div class="pg-wrap">
+        <div class="footer-cols">
+          <div class="footer-col">
+            <h2 class="footer-head">Build</h2>
+            <a href="/PGHub/dist/">PG.Hub — DSA roadmap &amp; practice</a>
+            <a href="/onlineChess/dist/">PG.Chess — online chess</a>
+            <a href="/PG.Play/dist/">PG.Play — browser arcade</a>
+          </div>
+          <div class="footer-col">
+            <h2 class="footer-head">Read</h2>
+            <a href="/blog/">All essays</a>
+            <a href="/blog/the-one-way-mind/">The One-Way Mind</a>
+            <a href="/blog/does-ai-actually-think/">Does AI Actually Think?</a>
+            <a href="/blog/feed.xml">RSS feed</a>
+          </div>
+          <div class="footer-col">
+            <h2 class="footer-head">Elsewhere</h2>
+            <a href="https://github.com/Pushkal-Gupta" rel="me noopener">GitHub</a>
+          </div>
+        </div>
+        <p class="footer-note">
+          Built and maintained by Pushkal Gupta. Everything here is free and runs
+          in the browser.
+        </p>
+      </div>
+    </footer>
 
     <!-- Auth Modal -->
     <div id="auth-modal" class="pgauth-overlay hidden">
@@ -335,7 +367,10 @@
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="PG/main.js"></script>
+    <!-- Deferred: the project list is static HTML, so nothing on this page waits
+         on Supabase. These only power the login button. Deferred scripts run in
+         document order, so main.js still sees `supabase` at its top level. -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="PG/main.js"></script>
   </body>
 </html>

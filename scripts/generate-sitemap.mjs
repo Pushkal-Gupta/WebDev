@@ -36,7 +36,7 @@ const PAGES = [
   ['/onlineChess/dist/',                          'onlineChess/index.html',                           'weekly',  '0.9'],
 
   // Blog.
-  ['/blog/blog.html',                             'blog/blog.html',                                   'weekly',  '0.9'],
+  ['/blog/',                                      'blog/index.html',                                  'weekly',  '0.9'],
   ['/blog/ai-and-the-lions-cage/',                'blog/ai-and-the-lions-cage/index.html',            'yearly',  '0.8'],
   ['/blog/the-architecture-of-power/',            'blog/the-architecture-of-power/index.html',        'yearly',  '0.8'],
   ['/blog/why-work-matters-in-the-age-of-ai/',    'blog/why-work-matters-in-the-age-of-ai/index.html','yearly',  '0.8'],
