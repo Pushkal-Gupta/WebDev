@@ -16,17 +16,22 @@ function label(p, fallback = 'Coder') {
   return p?.display_name || p?.username || fallback;
 }
 
-// Search users by username or display name (excluding self + non-named rows).
+// Search users by username, display name, or LeetCode handle (excluding self).
+// The term is interpolated into a PostgREST `.or()` string, so strip the
+// characters that are structural there — `,` (splits filters), `(` `)` (group),
+// `%` `*` (wildcards) — otherwise a handle like "Pushkal-Gupta,x" or a stray
+// paren silently breaks the whole filter and search returns nobody.
 export async function searchUsers(query, selfId) {
-  const q = (query || '').trim();
+  const q = (query || '').trim().replace(/[,()%*]/g, ' ').trim();
   if (q.length < 2) return [];
   const { data, error } = await supabase.from('PGcode_profiles')
-    .select('user_id, display_name, username, avatar_url')
-    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%`)
+    .select('user_id, display_name, username, avatar_url, leetcode_handle')
+    .or(`username.ilike.%${q}%,display_name.ilike.%${q}%,leetcode_handle.ilike.%${q}%`)
     .limit(12);
   if (error) throw error;
-  return (data || []).filter((p) => p.user_id !== selfId && (p.display_name || p.username))
-    .map((p) => ({ id: p.user_id, name: label(p), username: p.username, avatar: p.avatar_url }));
+  return (data || [])
+    .filter((p) => p.user_id !== selfId && (p.display_name || p.username || p.leetcode_handle))
+    .map((p) => ({ id: p.user_id, name: label(p, p.leetcode_handle || 'Coder'), username: p.username || p.leetcode_handle, avatar: p.avatar_url }));
 }
 
 // Accepted friends (either direction), with their profile.

@@ -350,7 +350,7 @@ function ProfileBody({ data }) {
   const stats = [
     { icon: Swords, label: 'Rating', value: data.rating != null ? Math.round(data.rating) : '—', hue: 'var(--accent)', big: true },
     { icon: Award, label: 'Rank', value: data.ranking != null ? `#${Number(data.ranking).toLocaleString()}` : '—' },
-    { icon: Globe, label: 'Contest rank', value: data.globalRanking != null ? `#${data.globalRanking.toLocaleString()}` : '—' },
+    { icon: Globe, label: 'Global rank', value: data.globalRanking != null ? `#${data.globalRanking.toLocaleString()}` : '—' },
     { icon: Percent, label: 'Top', value: data.topPercentage != null ? `${data.topPercentage.toFixed(2)}%` : '—' },
     { icon: Trophy, label: 'Attended', value: data.attendedContestsCount ?? history.length },
     { icon: Check, label: 'Solved', value: num(submit?.total) != null ? submit.total.toLocaleString() : '—' },

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, Trophy, Users, UserPlus, UserCheck, MessageSquare, Loader2, FileText, ExternalLink, Heart, Share2, Check } from 'lucide-react';
 import { getProfileById, getFollowCounts, getFollowSet, setFollow, getUserPosts } from '../../lib/social';
+import { sendFriendRequest, getFriends, getOutgoingRequests } from '../../lib/friends';
 import { platformById } from '../../lib/connections';
 
 const BG_PRESETS = {
@@ -24,6 +25,7 @@ export default function PublicProfile({ user, userId, name, onBack, onMessage })
   const [counts, setCounts] = useState({ followers: 0, following: 0 });
   const [posts, setPosts] = useState([]);
   const [following, setFollowing] = useState(false);
+  const [friendState, setFriendState] = useState('none'); // none | sent | friends
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
@@ -39,11 +41,21 @@ export default function PublicProfile({ user, userId, name, onBack, onMessage })
       getFollowCounts(userId),
       getUserPosts(userId, user.id),
       getFollowSet(user.id),
-    ]).then(([p, c, ps, fset]) => {
+      getFriends(user.id),
+      getOutgoingRequests(user.id),
+    ]).then(([p, c, ps, fset, friends, outgoing]) => {
       setProfile(p); setCounts(c); setPosts(ps || []); setFollowing(fset.has(userId));
+      if ((friends || []).some((f) => f.id === userId)) setFriendState('friends');
+      else if ((outgoing || []).includes(userId)) setFriendState('sent');
+      else setFriendState('none');
     }).catch(() => {}).finally(() => setLoading(false));
   }, [userId, user.id]);
   useEffect(() => { load(); }, [load]);
+
+  const addFriend = async () => {
+    setFriendState('sent');
+    try { await sendFriendRequest(user.id, userId); } catch { setFriendState('none'); }
+  };
 
   const toggleFollow = async () => {
     const next = !following;
@@ -77,6 +89,11 @@ export default function PublicProfile({ user, userId, name, onBack, onMessage })
                 <button className={`pgc-follow-btn ${following ? 'on' : ''}`} onClick={toggleFollow}>
                   {following ? <><UserCheck size={14} /> Following</> : <><UserPlus size={14} /> Follow</>}
                 </button>
+                {friendState === 'friends'
+                  ? <button className="pgc-follow-btn on" disabled><UserCheck size={14} /> Friends</button>
+                  : friendState === 'sent'
+                  ? <button className="pgc-follow-btn" disabled><Check size={14} /> Requested</button>
+                  : <button className="pgc-follow-btn" onClick={addFriend}><Users size={14} /> Add friend</button>}
                 <button className="pgc-msg-btn" onClick={() => onMessage?.({ id: userId, name: dName })}><MessageSquare size={14} /> Message</button>
               </>
             ) : null}
