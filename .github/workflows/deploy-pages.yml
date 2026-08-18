@@ -68,6 +68,11 @@ jobs:
           # The whole repo IS the site (root landing + sub-path projects + static
           # folders). Copy it, minus repo plumbing, node_modules, and source-only
           # game art (built into PG.Play/dist, never served directly).
+          # The Vite apps (PGHub / PG.Play / onlineChess) are served from their dist/,
+          # so their src/ and scripts/ are build-only — exclude them so build tooling
+          # and seed/migration scripts are never served on the live domain. Only these
+          # three apps have src/ or scripts/ dirs; the static folders have none, so the
+          # blanket **/src and **/scripts patterns can't strip anything that's served.
           mkdir -p _site
           rsync -a \
             --exclude='.git' \
@@ -75,6 +80,9 @@ jobs:
             --exclude='_site' \
             --exclude='node_modules' \
             --exclude='**/node_modules' \
+            --exclude='**/src' \
+            --exclude='**/scripts' \
+            --exclude='.DS_Store' \
             --exclude='PG.Play/assets' \
             ./ _site/
           # Pages must not run Jekyll (we ship folders that start with _ / .).
