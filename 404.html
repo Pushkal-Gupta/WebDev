@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found — Pushkal Gupta</title>
+    <!-- GitHub Pages serves this for any unmatched path, with a real HTTP 404.
+         noindex keeps it out of search; the links below give both a lost reader
+         and a crawler that followed a stale URL a way back into the site. -->
+    <meta name="robots" content="noindex, follow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Lora:ital,wght@0,400&family=Inter:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #030a0a;
+        --text: #ffffff;
+        --dim: #4a7370;
+        --accent: #00fff5;
+        --border: #0f2b29;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", system-ui, sans-serif;
+        padding: 2rem;
+      }
+      .wrap { max-width: 34rem; width: 100%; }
+      .code {
+        font-family: "Space Mono", monospace;
+        font-size: 0.65rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--dim);
+        margin-bottom: 1rem;
+      }
+      h1 {
+        font-family: "Space Mono", monospace;
+        font-size: clamp(1.5rem, 4vw, 2.1rem);
+        letter-spacing: -0.02em;
+        margin: 0 0 1rem;
+      }
+      p {
+        font-family: "Lora", serif;
+        color: var(--dim);
+        line-height: 1.7;
+        margin: 0 0 2rem;
+      }
+      ul { list-style: none; padding: 0; margin: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+      li { border-bottom: 1px solid var(--border); }
+      li:last-child { border-bottom: none; }
+      a {
+        display: block;
+        padding: 0.9rem 1.2rem;
+        color: var(--text);
+        text-decoration: none;
+        font-family: "Space Mono", monospace;
+        font-size: 0.82rem;
+        transition: background 0.2s, color 0.2s;
+      }
+      a:hover { background: rgba(0, 255, 245, 0.05); color: var(--accent); }
+      a span { color: var(--dim); font-family: "Inter", sans-serif; font-size: 0.75rem; display: block; margin-top: 0.25rem; }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <p class="code">Error 404</p>
+      <h1>This page doesn't exist</h1>
+      <p>
+        The address you followed doesn't match anything here — it may have moved,
+        or the link may have been mistyped. Everything on the site is reachable
+        from these:
+      </p>
+      <ul>
+        <li><a href="/">Home<span>All projects, in one place</span></a></li>
+        <li><a href="/PGHub/dist/">PG.Hub<span>DSA roadmap, practice problems, compiler</span></a></li>
+        <li><a href="/PG.Play/dist/">PG.Play<span>Hand-built browser arcade</span></a></li>
+        <li><a href="/onlineChess/dist/">PG.Chess<span>Online multiplayer chess and analysis</span></a></li>
+        <li><a href="/blog/blog.html">PG.Blog<span>Essays on AI, systems and technology</span></a></li>
+      </ul>
+    </main>
+  </body>
+</html>

@@ -27,10 +27,10 @@ export default function SidePanel({ session, roadmapMode, setRoadmapMode }) {
   }), [profile]);
 
   // Problem of the Day — deterministic by UTC date so the same problem
-  // surfaces all day, then rotates at midnight UTC. Prefer the rich-content
-  // flagships (presence of test_cases) when available.
+  // surfaces all day, then rotates at midnight UTC. Prefer high-signal
+  // flagships (frequency_score) so POTD lands a well-known problem, not filler.
   const potd = useMemo(() => {
-    const pool = (problemsData || []).filter(p => Array.isArray(p.test_cases) && p.test_cases.length >= 5);
+    const pool = (problemsData || []).filter(p => typeof p.frequency_score === 'number' && p.frequency_score >= 50);
     const list = pool.length > 0 ? pool : (problemsData || []).slice(0, 100);
     if (list.length === 0) return null;
     // Days since unix epoch as the seed; deterministic per UTC day.

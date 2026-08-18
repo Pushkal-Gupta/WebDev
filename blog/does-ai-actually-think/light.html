@@ -3,22 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      Does AI Actually Think - Why Architecture Matters More Than Data
-    </title>
+    <title>Does AI Actually Think? Architecture Over Data</title>
+    <link rel="canonical" href="https://pushkalgupta.com/blog/does-ai-actually-think/" />
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="Your brain recognises a hummed melody in milliseconds on 20 watts. Energy-based models explain why that is architecture, not data scale." />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --bg: #0a0a0a;
-        --card: #141414;
-        --text: #f0f0f0;
-        --muted: #c8c8c8;
-        --dim: #909090;
-        --border: #242424;
-        --accent: #00d4cc;
+        --bg: #f5f2ed;
+        --card: #ffffff;
+        --text: #1a1a1a;
+        --muted: #3a3a3a;
+        --dim: #666666;
+        --border: #e0ddd7;
+        --accent: #007a72;
       }
       *,
       *::before,
@@ -707,6 +708,33 @@
     </style>
   </head>
   <body>
+
+    <!-- Standalone-view chrome. Each essay is a complete page so a reader
+         arriving from search gets the whole thing — but blog.html also frames
+         these files in its reader iframe, where site chrome would be a second
+         header. So: render the crumb, then remove it when framed. It is a real
+         <a>, which also gives crawlers a path back up to the blog and root. -->
+    <nav id="pg-crumb">
+      <a href="/">Pushkal Gupta</a><span> / </span><a href="/blog/blog.html">Essays</a>
+    </nav>
+    <style>
+      #pg-crumb {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 0.8rem;
+        padding: 1.1rem 1.4rem 0;
+        max-width: 780px;
+        margin: 0 auto;
+        opacity: 0.65;
+      }
+      #pg-crumb a { color: var(--accent, #00d4cc); text-decoration: none; }
+      #pg-crumb a:hover { text-decoration: underline; }
+      #pg-crumb span { color: var(--dim, #909090); }
+    </style>
+    <script>
+      if (window.self !== window.top) {
+        document.getElementById('pg-crumb').remove();
+      }
+    </script>
     <div class="wrap">
       <h1>Does AI Actually Think - Why Architecture Matters More Than Data</h1>
 
@@ -1127,13 +1155,13 @@
               y1="250"
               x2="660"
               y2="250"
-              stroke="#444"
+              stroke="#ccc"
               stroke-width="1"
             />
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="12"
-              fill="#909090"
+              fill="#666666"
               x="360"
               y="310"
               text-anchor="middle"
@@ -1143,7 +1171,7 @@
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="12"
-              fill="#909090"
+              fill="#666666"
               x="18"
               y="140"
               text-anchor="middle"
@@ -1154,13 +1182,13 @@
             <!-- Landscape curve -->
             <path
               d="M70,135 C110,135 125,55 165,55 C205,55 225,195 255,195 C285,195 305,55 355,55 C405,55 415,235 445,235 C475,235 498,72 535,72 C572,72 582,195 605,195 C628,195 645,135 660,135"
-              stroke="#00d4cc"
+              stroke="#007a72"
               stroke-width="2.5"
               fill="none"
             />
             <path
               d="M70,135 C110,135 125,55 165,55 C205,55 225,195 255,195 C285,195 305,55 355,55 C405,55 415,235 445,235 C475,235 498,72 535,72 C572,72 582,195 605,195 C628,195 645,135 660,135 L660,250 L70,250 Z"
-              fill="#00d4cc"
+              fill="#007a72"
               opacity="0.04"
             />
 
@@ -1223,12 +1251,12 @@
             </text>
 
             <!-- Global minimum: deepest valley at (445, 235) -->
-            <circle cx="445" cy="235" r="5" fill="#00d4cc" />
+            <circle cx="445" cy="235" r="5" fill="#007a72" />
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="12"
               font-weight="600"
-              fill="#00d4cc"
+              fill="#007a72"
               x="445"
               y="278"
               text-anchor="middle"
@@ -1237,11 +1265,11 @@
             </text>
 
             <!-- Another valid solution: valley at (605, 195) -->
-            <circle cx="605" cy="195" r="4" fill="#00d4cc" opacity="0.6" />
+            <circle cx="605" cy="195" r="4" fill="#007a72" opacity="0.6" />
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="11"
-              fill="#909090"
+              fill="#666666"
               x="562"
               y="220"
               text-anchor="middle"
@@ -2218,7 +2246,7 @@
             <defs>
               <linearGradient id="spec2" x1="0%" y1="0%" x2="100%" y2="0%">
                 <stop offset="0%" stop-color="#e05050" />
-                <stop offset="100%" stop-color="#00d4cc" />
+                <stop offset="100%" stop-color="#007a72" />
               </linearGradient>
             </defs>
             <rect
@@ -2253,7 +2281,7 @@
               font-family="Inter,system-ui,sans-serif"
               font-size="11"
               font-weight="700"
-              fill="#00d4cc"
+              fill="#007a72"
               x="620"
               y="40"
               text-anchor="end"
@@ -2263,7 +2291,7 @@
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="10"
-              fill="#00d4cc"
+              fill="#007a72"
               x="620"
               y="90"
               text-anchor="end"
@@ -2275,7 +2303,7 @@
               y1="45"
               x2="380"
               y2="75"
-              stroke="#fff"
+              stroke="#333"
               stroke-width="2"
             />
             <rect
@@ -2292,7 +2320,7 @@
               font-family="Inter,system-ui,sans-serif"
               font-size="11"
               font-weight="700"
-              fill="#00d4cc"
+              fill="#007a72"
               x="380"
               y="97"
               text-anchor="middle"
@@ -2302,7 +2330,7 @@
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="9"
-              fill="#c8c8c8"
+              fill="#3a3a3a"
               x="380"
               y="113"
               text-anchor="middle"
@@ -2331,7 +2359,7 @@
             <text
               font-family="Inter,system-ui,sans-serif"
               font-size="10"
-              fill="#666"
+              fill="#999"
               x="340"
               y="163"
               text-anchor="middle"

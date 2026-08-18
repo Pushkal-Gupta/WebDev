@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase';
+import React, { useState } from 'react';
+import { useTopicVideos } from '../lib/queries';
 import { Play, BookOpen, Zap, Clock, Target } from 'lucide-react';
 import './LearningsSection.css';
 
@@ -389,40 +389,14 @@ const TOPIC_CONCEPTS = {
 };
 
 export default function LearningsSection({ topicId }) {
-  const [videos, setVideos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: videos = [], isLoading: loading } = useTopicVideos(topicId);
   const [expandedId, setExpandedId] = useState(null);
-
-  useEffect(() => {
-    // Reset expanded state when switching topics
+  const [prevTopic, setPrevTopic] = useState(topicId);
+  // Collapse any expanded card when switching topics (reset-on-prop-change).
+  if (topicId !== prevTopic) {
+    setPrevTopic(topicId);
     setExpandedId(null);
-    setLoading(true);
-
-    async function fetchVideos() {
-      try {
-        const { data, error } = await supabase
-          .from('PGcode_topic_videos')
-          .select('*')
-          .eq('topic_id', topicId)
-          .order('sort_order', { ascending: true });
-
-        if (error) throw error;
-        // Deduplicate by youtube_video_id
-        const seen = new Set();
-        const unique = (data || []).filter(v => {
-          if (seen.has(v.youtube_video_id)) return false;
-          seen.add(v.youtube_video_id);
-          return true;
-        });
-        setVideos(unique);
-      } catch (err) {
-        console.error('Error fetching learning videos:', err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchVideos();
-  }, [topicId]);
+  }
 
   if (loading) {
     return <div className="learnings-loading">Loading content...</div>;

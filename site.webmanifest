@@ -1,0 +1,13 @@
+{
+  "name": "Pushkal Gupta",
+  "short_name": "PG",
+  "description": "Coding hub, browser arcade, online chess, and essays on AI and systems.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#030a0a",
+  "theme_color": "#030a0a",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any", "purpose": "any" }
+  ]
+}

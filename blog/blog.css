@@ -160,6 +160,10 @@ header {
   border-radius: 8px;
   align-items: center;
   background: transparent;
+  /* .feed-item is an <a> now (real href so crawlers can follow it to the
+     essay) — strip the default link styling so it still reads as a row. */
+  text-decoration: none;
+  color: inherit;
 }
 
 /* Hover state: cyan background tint and text color swap */
@@ -791,3 +795,14 @@ textarea {
   line-height: 1.4;
 }
 @media (max-width: 520px) { .pgauth-card { padding: 1.8rem 1.5rem; } }
+
+/* The blog index had no <h1> — search engines had nothing to read the page as.
+   Sized to sit with the tagline rather than shout over it. */
+.blog-h1 {
+  font-family: var(--mono, "Space Mono", monospace);
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-main);
+  margin: 0 0 0.6rem;
+}

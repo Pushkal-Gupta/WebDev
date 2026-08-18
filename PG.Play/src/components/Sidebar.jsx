@@ -82,7 +82,7 @@ export default function Sidebar({
       <div className="sidebar-brand">
         <a
           className="sidebar-brand-mark"
-          href="https://pushkalgupta.com/PG/main.html"
+          href="https://pushkalgupta.com/"
           aria-label="Back to Pushkal Gupta home">
           <span className="sidebar-brand-name">PG</span>
           <span className="sidebar-brand-dot" aria-hidden="true"/>

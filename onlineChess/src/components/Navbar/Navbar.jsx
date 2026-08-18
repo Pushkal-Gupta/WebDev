@@ -14,7 +14,7 @@ export default function Navbar({ activeTab, onTabClick }) {
 
   return (
     <nav className={styles.navbar}>
-      <a className={styles.brand} href="../../PG/main.html">PG.Chess</a>
+      <a className={styles.brand} href="/">PG.Chess</a>
       <ul className={styles.navList}>
         {NAV_ITEMS.map((item, i) => {
           const index = i + 1;

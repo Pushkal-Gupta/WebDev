@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router';
 import { supabase } from '../lib/supabase';
-import { useTopicProblems, useUserProgress, useProblemsCompact, filterByRoadmap, qk } from '../lib/queries';
+import { useUserProgress, useProblemsCompact, filterByRoadmap, qk } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import LearningsSection from './LearningsSection';
 import './TopicModal.css';
@@ -13,11 +13,19 @@ const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
 export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const queryClient = useQueryClient();
   const userId = session?.user?.id;
-  const { data: rawProblems, isLoading } = useTopicProblems(topic?.id);
-  const { data: allProblems } = useProblemsCompact();
+  // Derive this topic's problems from the already-cached full catalog (loaded on
+  // the roadmap and persisted 24h) — a topic click is then instant with zero
+  // network, and can't hit the per-topic query's timeout/empty-cache failure that
+  // showed "No problems added yet." for a full topic. The list only renders
+  // id/name/difficulty/leetcode_url, all present in the compact catalog.
+  const { data: allProblems, isLoading: catalogLoading, isError: catalogError } = useProblemsCompact();
   const { data: progressBundle } = useUserProgress(userId);
   const userProgress = progressBundle?.byId || {};
-  const loading = isLoading;
+  const rawProblems = useMemo(
+    () => (allProblems || []).filter(p => p.topic_id === topic?.id),
+    [allProblems, topic?.id]
+  );
+  const loading = catalogLoading && !allProblems;
 
   const [activeTab, setActiveTab] = useState('problems');
   const [width, setWidth] = useState(() => {
@@ -43,18 +51,21 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   // limit on the topic-scoped subset (which would pick the top 100 problems
   // IN this topic, not the topic-subset of the global top 100).
   const problems = useMemo(() => {
-    if (!rawProblems) return [];
+    if (!rawProblems.length) return [];
     let filtered = rawProblems;
     if (roadmapMode !== 'all' && allProblems && allProblems.length) {
       const allowed = new Set(filterByRoadmap(allProblems, roadmapMode).map(p => p.id));
-      filtered = rawProblems.filter(p => allowed.has(p.id));
+      const intersected = rawProblems.filter(p => allowed.has(p.id));
+      // Never show an empty topic under a limited mode when it genuinely has
+      // problems (matches the roadmap's "every topic keeps >=1 problem" rule).
+      filtered = intersected.length ? intersected : rawProblems;
     }
     const isGeneric = (name) => /Pattern #\d+|Challenge #\d+/.test(name);
     return [...filtered].sort((a, b) => {
       const ag = isGeneric(a.name) ? 1 : 0;
       const bg = isGeneric(b.name) ? 1 : 0;
       if (ag !== bg) return ag - bg;
-      return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      return (difficultyOrder[a.difficulty] ?? 1) - (difficultyOrder[b.difficulty] ?? 1);
     });
   }, [rawProblems, allProblems, roadmapMode]);
 
@@ -262,8 +273,8 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                                 )}
                               </div>
                             </div>
-                            <div className={`col-diff diff-${prob.difficulty.toLowerCase()}`}>
-                              {prob.difficulty}
+                            <div className={`col-diff diff-${(prob.difficulty || 'Easy').toLowerCase()}`}>
+                              {prob.difficulty || 'Easy'}
                             </div>
                             <div className="col-solution">
                               <Link to={`/solution/${prob.id}`} className="solution-link" title="View Solution">
@@ -274,7 +285,11 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                         );
                       })}
                       {problems.length === 0 && (
-                        <div className="emptyState">No problems added yet.</div>
+                        <div className="emptyState">
+                          {catalogError
+                            ? 'Could not load problems. Check your connection and try again.'
+                            : 'No problems added yet.'}
+                        </div>
                       )}
                     </div>
                   )}

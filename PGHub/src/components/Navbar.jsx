@@ -27,8 +27,8 @@ export default function Navbar({ session, theme, toggleTheme, applyTheme, setPre
   const { pathname } = useLocation();
   const isHome = pathname === '/' || pathname === '';
   const brandHref = isHome
-    ? 'https://pushkalgupta.com/PG/main.html'
-    : 'https://pushkalgupta.com/PGHub/dist/index.html';
+    ? 'https://pushkalgupta.com/'
+    : 'https://pushkalgupta.com/PGHub/dist/';
 
   return (
     <header className="pg-header">

@@ -1,6 +1,20 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PG.Quiz — A Simple Browser Quiz Game</title>
+    <meta name="description" content="A short multiple-choice quiz that runs in the browser and scores you as you go. One of Pushkal Gupta's early web projects." />
+    <link rel="canonical" href="https://pushkalgupta.com/PG.Quiz/Quiz.html" />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="Pushkal Gupta" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pushkal Gupta" />
+    <meta property="og:url" content="https://pushkalgupta.com/PG.Quiz/Quiz.html" />
+    <meta property="og:title" content="PG.Quiz — A Simple Browser Quiz Game" />
+    <meta property="og:description" content="A short multiple-choice quiz that runs in the browser and scores you as you go. One of Pushkal Gupta's early web projects." />
+    <meta property="og:image" content="https://pushkalgupta.com/og-1200.png" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link
       rel="icon"
       href="https://png.pngtree.com/png-vector/20230120/ourmid/pngtree-quiz-logo-with-speech-bubble-symbols-png-image_6568572.png"
@@ -13,11 +27,32 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <style>
+      /* These pages use a Bootstrap navbar brand where a heading should be, so
+         they ship no <h1> at all — a screen reader gets no page title, and a
+         crawler no statement of what the page is. This adds the missing heading
+         without touching the visual design. It names the page exactly as the
+         <title> does; it is not extra keyword text. */
+      .pg-visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+
   </head>
   <body>
+    <h1 class="pg-visually-hidden">PG.Quiz — a simple browser quiz game</h1>
     <div class="container">
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="../PG/main.html">PG.Quiz</a>
+        <a class="navbar-brand" href="/">PG.Quiz</a>
         <button
           class="navbar-toggler"
           type="button"

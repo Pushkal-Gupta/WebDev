@@ -300,144 +300,16 @@ async function checkUser() {
 }
 
 // ─── Projects ─────────────────────────────────────────────────────────────────
-// featured: true  — shown as large cards at the top
-// featured: false — shown as compact list rows below
-// status: "progress" | "done" | "update"
-
-const PROJECTS = [
-  {
-    featured: true,
-    name: "PG.Blog",
-    desc: "Essays on tech, systems, and ideas. Read, comment, and join the discussion.",
-    date: "Mar 2026",
-    status: "done",
-    url: "../blog/blog.html",
-  },
-  {
-    featured: true,
-    name: "PG.Hub",
-    desc: "Your all-in-one coding hub — follow a visual DSA roadmap, solve LeetCode-style problems, enter contests, run code in the built-in compiler, learn ML concepts, and explore interactive visualizations.",
-    date: "Jun 2026",
-    status: "done",
-    url: "../PGHub/dist/index.html",
-  },
-  {
-    featured: true,
-    name: "PG.Play",
-    desc: "A small arcade for short breaks — play alone or with a friend.",
-    date: "Apr 2026",
-    status: "update",
-    url: "../PG.Play/dist/index.html",
-  },
-  {
-    featured: true,
-    name: "PG.Chess",
-    desc: "Real-time multiplayer chess with online rooms, live chat, AI engine, eval bar, and opening detection.",
-    date: "Mar 2026",
-    status: "update",
-    url: "../onlineChess/dist/index.html",
-  },
-  {
-    featured: false,
-    name: "PG.Chess2P",
-    desc: "",
-    date: "Jun 2024",
-    status: "done",
-    url: "../chess/p3.html",
-  },
-  {
-    featured: false,
-    name: "PG.Web Basics",
-    desc: "",
-    date: "Feb 2024",
-    status: "done",
-    url: "../PG.Web_Basics/index.html",
-  },
-  {
-    featured: false,
-    name: "PG.Employee System",
-    desc: "",
-    date: "Jun 2024",
-    status: "update",
-    url: "../employeeSystem/p2.html",
-  },
-  {
-    featured: false,
-    name: "PG.Student System",
-    desc: "",
-    date: "Mar 2024",
-    status: "done",
-    url: "../studentSystem/p1.html",
-  },
-  {
-    featured: false,
-    name: "PG.Quiz",
-    desc: "",
-    date: "Oct 2023",
-    status: "update",
-    url: "../PG.Quiz/Quiz.html",
-  },
-];
-
-const STATUS_LABEL = {
-  progress: "In Progress",
-  done: "Completed",
-  update: "Update Required",
-};
-const STATUS_CLASS = {
-  progress: "s-progress",
-  done: "s-done",
-  update: "s-update",
-};
-
-// ─── Render ───────────────────────────────────────────────────────────────────
-
-function renderProjects() {
-  const featured = PROJECTS.filter((p) => p.featured);
-  const others = PROJECTS.filter((p) => !p.featured);
-
-  const featuredHtml = featured
-    .map(
-      (p) => `
-      <div class="feat-card" onclick="window.location.href='${p.url}'">
-        <span class="feat-status ${STATUS_CLASS[p.status]}">${STATUS_LABEL[p.status]}</span>
-        <div class="feat-name">${p.name}</div>
-        <div class="feat-desc">${p.desc}</div>
-        <div class="feat-footer">
-          <span class="feat-date">${p.date}</span>
-          <button class="visit-btn" onclick="event.stopPropagation();window.location.href='${p.url}'">Visit →</button>
-        </div>
-      </div>`,
-    )
-    .join("");
-
-  const othersHtml = others
-    .map(
-      (p) => `
-      <div class="other-item" onclick="window.location.href='${p.url}'">
-        <span class="other-name">${p.name}</span>
-        <span class="other-status ${STATUS_CLASS[p.status]}">${STATUS_LABEL[p.status]}</span>
-        <span class="other-date">${p.date}</span>
-        <button class="other-visit" onclick="event.stopPropagation();window.location.href='${p.url}'">Visit →</button>
-      </div>`,
-    )
-    .join("");
-
-  document.getElementById("display").innerHTML = `
-    <div class="pg-wrap page-body">
-      <p class="section-label">Featured</p>
-      <div class="featured-grid">${featuredHtml}</div>
-      <p class="section-label">More</p>
-      <div class="other-list">${othersHtml}</div>
-    </div>`;
-}
+// The project list used to be rendered here into #display. It now lives as
+// static HTML in the root index.html so search engines (and anyone with JS off)
+// see the copy and can follow real <a href> links instead of onclick handlers.
+// Edit index.html to add or change a project — and mirror the URL into
+// sitemap.xml.
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 
 function init() {
   applyTheme(localStorage.getItem("theme") || "dark");
-
-  renderProjects();
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === "SIGNED_IN" || event === "TOKEN_REFRESHED") {

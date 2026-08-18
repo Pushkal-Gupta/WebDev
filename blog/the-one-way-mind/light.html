@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>
-      The One-Way Mind — Why AI Imitates Understanding, and What It Predicts
-    </title>
+    <title>The One-Way Mind — Why AI Imitates Understanding</title>
+    <link rel="canonical" href="https://pushkalgupta.com/blog/the-one-way-mind/" />
+    <meta name="robots" content="noindex, follow" />
+    <meta name="description" content="A model names Tom Cruise&#x27;s mother, then fails to name her son. The reversal curse shows language models learn directions, not facts." />
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
@@ -707,6 +708,33 @@
     </style>
   </head>
   <body>
+
+    <!-- Standalone-view chrome. Each essay is a complete page so a reader
+         arriving from search gets the whole thing — but blog.html also frames
+         these files in its reader iframe, where site chrome would be a second
+         header. So: render the crumb, then remove it when framed. It is a real
+         <a>, which also gives crawlers a path back up to the blog and root. -->
+    <nav id="pg-crumb">
+      <a href="/">Pushkal Gupta</a><span> / </span><a href="/blog/blog.html">Essays</a>
+    </nav>
+    <style>
+      #pg-crumb {
+        font-family: "Inter", system-ui, sans-serif;
+        font-size: 0.8rem;
+        padding: 1.1rem 1.4rem 0;
+        max-width: 780px;
+        margin: 0 auto;
+        opacity: 0.65;
+      }
+      #pg-crumb a { color: var(--accent, #00d4cc); text-decoration: none; }
+      #pg-crumb a:hover { text-decoration: underline; }
+      #pg-crumb span { color: var(--dim, #909090); }
+    </style>
+    <script>
+      if (window.self !== window.top) {
+        document.getElementById('pg-crumb').remove();
+      }
+    </script>
     <div class="wrap">
       <h1>The One-Way Mind — Why AI Imitates Understanding, and What That Predicts</h1>
 

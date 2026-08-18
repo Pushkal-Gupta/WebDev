@@ -1,0 +1,25 @@
+# https://pushkalgupta.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Repo plumbing. The deploy workflow now strips markdown, docs/ and supabase/
+# from the published site, so most of this is belt-and-braces — it also covers
+# the window before the next deploy, when Google may still hold URLs it crawled
+# back when GitHub Pages was serving CLAUDE.md and the QA backlogs in the clear.
+Disallow: /*.md$
+Disallow: /*.sql$
+Disallow: /supabase/
+Disallow: /PGHub/docs/
+Disallow: /PG.Play/docs/
+Disallow: /onlineChess/docs/
+Disallow: /PGHub/logs/
+Disallow: /*/node_modules/
+
+# NOTE: the light-theme twin of each essay (/blog/<slug>/light.html) is
+# deliberately NOT disallowed here. It carries <link rel="canonical"> back to the
+# dark version plus "noindex, follow" — and Google has to be able to fetch the
+# page to see either of those. Blocking it would strand the duplicate instead of
+# folding it into the canonical.
+
+Sitemap: https://pushkalgupta.com/sitemap.xml

@@ -22,14 +22,22 @@ function rankScore(p) {
   return s;
 }
 
-// Returns the canonical roadmap ordering (highest-quality first). Memoized
-// by reference so React can compare cheaply.
+// Returns the canonical roadmap ordering (highest-quality first). Cached by the
+// input array's reference: on a roadmap mount, `filterByRoadmap` runs across all
+// six PGcode-N modes plus 'all' against the SAME cached catalog array — without
+// this WeakMap that re-sorts ~4500 rows a dozen-plus times synchronously on the
+// first paint. Same array in → same sorted array out, computed once.
+const _canonicalSortCache = new WeakMap();
 function canonicalSort(problems) {
-  return [...problems].sort((a, b) => {
+  const cached = _canonicalSortCache.get(problems);
+  if (cached) return cached;
+  const sorted = [...problems].sort((a, b) => {
     const sa = rankScore(a), sb = rankScore(b);
     if (sa !== sb) return sb - sa;
     return (a.name || '').localeCompare(b.name || '');
   });
+  _canonicalSortCache.set(problems, sorted);
+  return sorted;
 }
 
 // Back-compat: kept for any place that asks "is this single problem in the
@@ -235,6 +243,7 @@ export const qk = {
   edges: ['edges'],
   problems: ['problems'],
   topicProblems: (topicId) => ['problems', 'topic', topicId],
+  topicVideos: (topicId) => ['topicVideos', topicId],
   userProgress: (userId) => ['userProgress', userId || 'anon'],
   profile: (userId) => ['profile', userId || 'anon'],
   dryRunSteps: (problemId) => ['dryRun', 'steps', problemId],
@@ -328,19 +337,33 @@ export function useProblemsCompact() {
   return useQuery({
     queryKey: qk.problems,
     queryFn: async () => {
-      const all = [];
+      // `frequency_score` + `tags` are light and let `rankScore` actually rank
+      // (without them the PGcode-N buckets + POTD collapse to roadmap_set only).
+      // Heavy JSONB (test_cases/hints/solutions) stays OUT — it would bloat this
+      // whole-catalog payload past the statement timeout.
       const PAGE = 1000;
-      let page = 0;
-      while (page < 20) {
+      const cols = 'id, name, topic_id, difficulty, roadmap_set, leetcode_url, leetcode_number, frequency_score, tags';
+      const fetchPage = async (p) => {
         const { data, error } = await supabase
           .from('PGcode_problems')
-          .select('id, name, topic_id, difficulty, roadmap_set, leetcode_url, leetcode_number')
-          .range(page * PAGE, page * PAGE + PAGE - 1);
+          .select(cols)
+          .range(p * PAGE, p * PAGE + PAGE - 1);
         if (error) throw error;
-        if (!data?.length) break;
-        all.push(...data);
-        if (data.length < PAGE) break;
-        page += 1;
+        return data || [];
+      };
+      // Fetch pages in parallel batches instead of one-at-a-time: the ~4.5k-row
+      // catalog goes from 5 sequential round-trips to ~1. Stop once a batch's
+      // last page comes back short (rows are contiguous, so that means the end).
+      const all = [];
+      const BATCH = 6;
+      let base = 0;
+      while (base < 40) {
+        const pages = await Promise.all(
+          Array.from({ length: BATCH }, (_, i) => fetchPage(base + i))
+        );
+        for (const pg of pages) all.push(...pg);
+        if (pages[pages.length - 1].length < PAGE) break;
+        base += BATCH;
       }
       return all;
     },
@@ -348,25 +371,62 @@ export function useProblemsCompact() {
   });
 }
 
+// LIGHT columns only — a topic can hold 600+ problems, and pulling every heavy
+// JSONB (description/test_cases/solutions/viz_steps) across all of them blows the
+// Postgres statement timeout → 500 → the Workspace hangs on "Loading…". Paginate
+// past the 1000-row db-max-rows cap so a large topic (Arrays) can't silently
+// truncate. Shared by the hook AND the hover-prefetch so both use identical
+// columns + error semantics (a `select('*')` prefetch that swallowed its timeout
+// into `[]` used to poison this cache → topic showed "No problems added yet").
+async function fetchTopicProblems(topicId) {
+  const cols = 'id, name, difficulty, topic_id, method_name, params, return_type, leetcode_number, frequency_score, tags';
+  const all = [];
+  const PAGE = 1000;
+  let page = 0;
+  while (page < 20) {
+    const { data, error } = await supabase
+      .from('PGcode_problems')
+      .select(cols)
+      .eq('topic_id', topicId)
+      .range(page * PAGE, page * PAGE + PAGE - 1);
+    if (error) throw error;
+    if (!data?.length) break;
+    all.push(...data);
+    if (data.length < PAGE) break;
+    page += 1;
+  }
+  return all;
+}
+
 export function useTopicProblems(topicId) {
   return useQuery({
     queryKey: qk.topicProblems(topicId),
-    queryFn: async () => {
-      // LIGHT columns only — a topic can hold 600+ problems, and pulling every
-      // heavy JSONB (description/test_cases/solutions/viz_steps) across all of them
-      // blows the Postgres statement timeout → 500 → the Workspace hangs on
-      // "Loading…". This set is enough for the nav list + roadmap filtering; the
-      // ACTIVE problem's full detail is fetched as a single fast by-id row.
-      const { data, error } = await supabase
-        .from('PGcode_problems')
-        .select('id, name, difficulty, topic_id, method_name, params, return_type, leetcode_number, frequency_score, tags')
-        .eq('topic_id', topicId);
-      if (error) throw error;
-      return data || [];
-    },
+    queryFn: () => fetchTopicProblems(topicId),
     enabled: !!topicId,
     staleTime: 10 * 60 * 1000,
     retry: 1,
+  });
+}
+
+export function useTopicVideos(topicId) {
+  return useQuery({
+    queryKey: qk.topicVideos(topicId),
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('PGcode_topic_videos')
+        .select('*')
+        .eq('topic_id', topicId)
+        .order('sort_order', { ascending: true });
+      if (error) throw error;
+      const seen = new Set();
+      return (data || []).filter(v => {
+        if (seen.has(v.youtube_video_id)) return false;
+        seen.add(v.youtube_video_id);
+        return true;
+      });
+    },
+    enabled: !!topicId,
+    staleTime: 30 * 60 * 1000,
   });
 }
 
@@ -375,12 +435,24 @@ export function useUserProgress(userId) {
     queryKey: qk.userProgress(userId),
     queryFn: async () => {
       if (!userId) return { rows: [], byId: {} };
-      const { data, error } = await supabase
-        .from('PGcode_user_progress')
-        .select('*')
-        .eq('user_id', userId);
-      if (error) throw error;
-      const rows = data || [];
+      // Paginate past the 1000-row db-max-rows cap — a heavy user can have more
+      // than 1000 progress rows, and a truncated fetch would render their solved
+      // problems as not-done on the roadmap.
+      const rows = [];
+      const PAGE = 1000;
+      let page = 0;
+      while (page < 20) {
+        const { data, error } = await supabase
+          .from('PGcode_user_progress')
+          .select('*')
+          .eq('user_id', userId)
+          .range(page * PAGE, page * PAGE + PAGE - 1);
+        if (error) throw error;
+        if (!data?.length) break;
+        rows.push(...data);
+        if (data.length < PAGE) break;
+        page += 1;
+      }
       const byId = {};
       rows.forEach(r => { byId[r.problem_id] = r; });
       return { rows, byId };
@@ -1515,13 +1587,7 @@ export function usePrefetch() {
     if (!topicId) return;
     queryClient.prefetchQuery({
       queryKey: qk.topicProblems(topicId),
-      queryFn: async () => {
-        const { data } = await supabase
-          .from('PGcode_problems')
-          .select('*')
-          .eq('topic_id', topicId);
-        return data || [];
-      },
+      queryFn: () => fetchTopicProblems(topicId),
       staleTime: 10 * 60 * 1000,
     });
   }, [queryClient]);

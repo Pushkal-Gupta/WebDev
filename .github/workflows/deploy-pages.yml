@@ -73,17 +73,38 @@ jobs:
           # and seed/migration scripts are never served on the live domain. Only these
           # three apps have src/ or scripts/ dirs; the static folders have none, so the
           # blanket **/src and **/scripts patterns can't strip anything that's served.
+          #
+          # `**/scripts` only matches a *nested* scripts/ — rsync needs a literal
+          # slash for the pattern to apply — so the repo-root scripts/ (sitemap
+          # generator) needs its own `/scripts` rule. Same for /supabase.
+          #
+          # Everything below the .DS_Store line is internal material that GitHub
+          # Pages was happily serving to anyone who asked: CLAUDE.md, QA backlogs,
+          # audits and per-project docs/ were all live and indexable (PGHub/CLAUDE.md
+          # was a public 46KB file). None of it is linked from the site, so dropping
+          # it costs nothing and keeps crawl budget on real pages.
           mkdir -p _site
           rsync -a \
             --exclude='.git' \
             --exclude='.github' \
+            --exclude='.claude' \
             --exclude='_site' \
             --exclude='node_modules' \
             --exclude='**/node_modules' \
             --exclude='**/src' \
             --exclude='**/scripts' \
+            --exclude='/scripts' \
             --exclude='.DS_Store' \
             --exclude='PG.Play/assets' \
+            --exclude='*.md' \
+            --exclude='**/docs' \
+            --exclude='/docs' \
+            --exclude='**/supabase' \
+            --exclude='/supabase' \
+            --exclude='**/test' \
+            --exclude='.java_test_harness' \
+            --exclude='PGHub/logs' \
+            --exclude='PG.Play/frost-fight-gallery' \
             ./ _site/
           # Pages must not run Jekyll (we ship folders that start with _ / .).
           touch _site/.nojekyll

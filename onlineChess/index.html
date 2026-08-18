@@ -2,14 +2,70 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/images/logo.png" />
+    <link rel="icon" type="image/png" href="./images/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>PG.Chess</title>
+    <title>PG.Chess — Play Chess Online Free vs Friends or Bots</title>
+    <meta name="description" content="Play chess free in your browser: online multiplayer, 24 bots from 100 to 2800 ELO, Stockfish analysis, puzzles and endgame training. No download." />
+    <link rel="canonical" href="https://pushkalgupta.com/onlineChess/dist/" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+    <meta name="author" content="Pushkal Gupta" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Pushkal Gupta" />
+    <meta property="og:url" content="https://pushkalgupta.com/onlineChess/dist/" />
+    <meta property="og:title" content="PG.Chess — Play Chess Online Free vs Friends or Bots" />
+    <meta property="og:description" content="Play chess free in your browser: online multiplayer, 24 bots from 100 to 2800 ELO, Stockfish analysis, puzzles and endgame training. No download." />
+    <meta property="og:image" content="https://pushkalgupta.com/og-1200.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PG.Chess — Play Chess Online Free vs Friends or Bots" />
+    <meta name="twitter:description" content="Play chess free in your browser: online multiplayer, 24 bots from 100 to 2800 ELO, Stockfish analysis, puzzles and endgame training. No download." />
+    <meta name="twitter:image" content="https://pushkalgupta.com/og-1200.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "PG.Chess",
+        "url": "https://pushkalgupta.com/onlineChess/dist/",
+        "description": "Free online chess: real-time multiplayer, 24 AI bots, Stockfish analysis, puzzles, opening and endgame training.",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any (web browser)",
+        "browserRequirements": "Requires JavaScript.",
+        "inLanguage": "en",
+        "isPartOf": { "@type": "WebSite", "@id": "https://pushkalgupta.com/#website" },
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "author": { "@type": "Person", "name": "Pushkal Gupta", "url": "https://pushkalgupta.com/" },
+        "featureList": [
+          "Real-time online multiplayer and local two-player games",
+          "24 AI bots from 100 to 2800 ELO, powered by Stockfish",
+          "Stockfish game analysis with brilliant/blunder move classification",
+          "Puzzle Rush, Streak and Daily puzzles with Glicko-2 ratings",
+          "Opening explorer and Syzygy endgame tablebase training",
+          "PGN import/export and game import from Lichess and Chess.com"
+        ]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <noscript>
+      <!-- These apps are client-rendered, so without JS the page is blank —
+           for a reader with scripts off and as the text baseline a crawler sees
+           before it runs the bundle. Real links, so the crawl can continue. -->
+      <div style="max-width:44rem;margin:3rem auto;padding:0 1.5rem;font-family:system-ui,sans-serif;line-height:1.7">
+        <h1>PG.Chess — play chess online, free</h1>
+        <p>Real-time online multiplayer, 24 AI bots from 100 to 2800 ELO, Stockfish game analysis with move classification, an evaluation bar, opening explorer, puzzles and endgame training — all in the browser.</p>
+        <p><strong>This app needs JavaScript enabled.</strong> With scripts off you can still browse the rest of the site:</p>
+        <ul>
+        <li><a href="https://pushkalgupta.com/">Pushkal Gupta — home</a></li>
+        <li><a href="https://pushkalgupta.com/blog/blog.html">PG.Blog — essays on AI and systems</a></li>
+        <li><a href="https://pushkalgupta.com/PGHub/dist/">PG.Hub — coding hub and DSA roadmap</a></li>
+        <li><a href="https://pushkalgupta.com/PG.Play/dist/">PG.Play — browser arcade</a></li>
+        </ul>
+      </div>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

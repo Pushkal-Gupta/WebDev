@@ -41,7 +41,7 @@ A production-grade chess application with real-time multiplayer, AI opponents, a
 - 6 piece sets, board/background themes, 5 synthesized sound themes (Web Audio API)
 - Dark/light mode, high contrast, reduced motion, adjustable piece scale
 
-**Live:** [pushkalgupta.com/onlineChess](https://pushkalgupta.com/onlineChess/dist/index.html)
+**Live:** [pushkalgupta.com/onlineChess](https://pushkalgupta.com/onlineChess/dist/)
 
 ---
 
@@ -65,7 +65,7 @@ A structured Data Structures & Algorithms platform with interactive visualizatio
 
 **Database:** 10 PostgreSQL tables with RLS — topics, edges, problems, templates, solution approaches, dry runs, questions, user progress, profiles, videos
 
-**Live:** [pushkalgupta.com/PGHub](https://pushkalgupta.com/PGHub/dist/index.html)
+**Live:** [pushkalgupta.com/PGHub](https://pushkalgupta.com/PGHub/dist/)
 
 ---
 
@@ -75,7 +75,7 @@ Landing page with authentication and project navigation.
 
 **Stack:** Vanilla JS | Supabase Auth (email + Google OAuth)
 
-**Live:** [pushkalgupta.com](https://pushkalgupta.com/PG/main.html)
+**Live:** [pushkalgupta.com](https://pushkalgupta.com/)
 
 ---
 
@@ -113,7 +113,7 @@ Personal blog with long-form essays.
 | **Auth** | Email + Google OAuth via Supabase Auth |
 | **Database** | PostgreSQL with Row-Level Security on all user tables |
 | **Hosting** | GitHub Pages with custom domain (`pushkalgupta.com`) |
-| **Routing** | Root `index.html` redirects to `PG/main.html` |
+| **Routing** | Root `index.html` is the landing page; `PG/main.html` redirects to it |
 
 ---
 
@@ -149,7 +149,7 @@ Personal blog with long-form essays.
 ├── studentSystem/        # Student management
 ├── supabase/             # Shared Supabase config
 │
-├── index.html            # Root redirect → PG/main.html
+├── index.html            # Landing page (static project list + site-wide SEO tags)
 ├── CNAME                 # Custom domain config
 ├── .nojekyll             # Bypass Jekyll on GitHub Pages
 └── LICENSE               # GPLv3

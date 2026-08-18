@@ -10,47 +10,45 @@ const POSTS = [
   {
     id: "ai-cage",
     date: "11.03.2026",
+    slug: "ai-and-the-lions-cage",
     title: "AI and the Lion's Cage — The Last Tool We Build",
-    darkFile: "ai-cage-dark.html",
-    lightFile: "ai-cage-light.html",
   },
   {
     id: "power",
     date: "08.04.2026",
+    slug: "the-architecture-of-power",
     title: "The Architecture of Power — How Society Actually Works",
-    darkFile: "power-dark.html",
-    lightFile: "power-light.html",
   },
   {
     id: "work-matters",
     date: "27.04.2026",
+    slug: "why-work-matters-in-the-age-of-ai",
     title: "The Golden Cage — Why Work Matters in the Age of AI",
-    darkFile: "work-dark.html",
-    lightFile: "work-light.html",
   },
   {
     id: "ebm-reasoning",
     date: "18.05.2026",
+    slug: "does-ai-actually-think",
     title: "Does AI Actually Think - Why Architecture Matters More Than Data",
-    darkFile: "ebm-reasoning-dark.html",
-    lightFile: "ebm-reasoning-light.html",
   },
   {
     id: "one-way-mind",
     date: "29.06.2026",
+    slug: "the-one-way-mind",
     title:
       "The One-Way Mind — Why AI Imitates Understanding, and What That Predicts",
-    darkFile: "the-one-way-mind-dark.html",
-    lightFile: "the-one-way-mind-light.html",
-  },
-  {
-    id: "upcoming",
-    date: "xx.xx.2026",
-    title: "How Data Reaches You(A first Principles Approach)",
-    darkFile: "how-data-reaches-you-dark.html",
-    lightFile: "how-data-reaches-you-light.html",
   },
 ];
+
+// Each essay lives at /blog/<slug>/ (dark, the canonical URL Google indexes)
+// with a light-theme twin at /blog/<slug>/light.html that is canonicalised back
+// to it. Both are complete standalone pages, so a reader arriving straight from
+// search gets the whole essay; the reader shell below just frames one in an
+// iframe and bolts comments onto it.
+function postUrl(p, theme) {
+  return theme === "light" ? `${p.slug}/light.html` : `${p.slug}/`;
+}
+
 let currentActivePost = null;
 let scrollSaveTimer = null;
 
@@ -99,10 +97,7 @@ function toggleTheme() {
   const loader = document.getElementById("loader");
   if (loader) loader.classList.remove("hidden");
 
-  ifr.src =
-    target === "dark"
-      ? currentActivePost.darkFile
-      : currentActivePost.lightFile;
+  ifr.src = postUrl(currentActivePost, target);
 
   ifr.onload = () => {
     if (loader) loader.classList.add("hidden");
@@ -548,12 +543,15 @@ function init() {
   const savedTheme = localStorage.getItem("theme") || "dark";
   applyTheme(savedTheme);
 
+  // Real <a href> pointing at the essay's own canonical URL: crawlers follow it
+  // and readers with JS off still reach the essay. The click handler cancels the
+  // navigation and opens the in-page reader (with comments) instead.
   document.getElementById("post-list").innerHTML = POSTS.map(
     (p) =>
-      `<div class="feed-item" onclick="loadPost('${p.id}')">
+      `<a class="feed-item" href="${p.slug}/" onclick="loadPost('${p.id}'); return false;">
          <div class="post-date">${p.date}</div>
-         <div class="post-title">${p.title}</div>
-       </div>`,
+         <div class="post-title">${escapeHtml(p.title)}</div>
+       </a>`,
   ).join("");
 
   // Handle OAuth redirect: Supabase fires onAuthStateChange after redirect
@@ -591,9 +589,10 @@ function loadPost(postId, isRefresh = false) {
   document.getElementById("post-view").classList.remove("hidden");
 
   document.getElementById("p-content").innerHTML =
-    `<div id="loader"></div><iframe id="reader-frame" src="${
-      theme === "dark" ? p.darkFile : p.lightFile
-    }" onload="onIframeLoad('${p.id}')"></iframe>`;
+    `<div id="loader"></div><iframe id="reader-frame" src="${postUrl(
+      p,
+      theme,
+    )}" onload="onIframeLoad('${p.id}')"></iframe>`;
 
   fetchComments(postId);
 
