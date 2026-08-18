@@ -302,6 +302,18 @@
   font-size: 0.82rem;
 }
 
+.problemNameLink {
+  text-decoration: none;
+  cursor: pointer;
+  transition: color 0.12s ease;
+}
+
+.problemNameLink:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .col-diff {
   font-family: var(--mono);
   font-weight: 700;

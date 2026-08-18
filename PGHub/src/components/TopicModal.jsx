@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { X, Star, CheckCircle, ExternalLink, Video, FileText, ChevronLeft, Code2, Lightbulb } from 'lucide-react';
 import { Link } from 'react-router';
 import { supabase } from '../lib/supabase';
-import { useUserProgress, useProblemsCompact, filterByRoadmap, qk } from '../lib/queries';
+import { useUserProgress, useProblemsCompact, filterByRoadmap, usePrefetch, qk } from '../lib/queries';
 import { primaryTopicLabel } from '../lib/topicLabel';
 import LearningsSection from './LearningsSection';
 import './TopicModal.css';
@@ -12,6 +12,7 @@ const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
 
 export default function TopicModal({ topic, onClose, roadmapMode, session }) {
   const queryClient = useQueryClient();
+  const { prefetchProblemFull } = usePrefetch();
   const userId = session?.user?.id;
   // Derive this topic's problems from the already-cached full catalog (loaded on
   // the roadmap and persisted 24h) — a topic click is then instant with zero
@@ -68,6 +69,13 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
       return (difficultyOrder[a.difficulty] ?? 1) - (difficultyOrder[b.difficulty] ?? 1);
     });
   }, [rawProblems, allProblems, roadmapMode]);
+
+  // Warm each listed problem's full detail into cache the moment the panel opens
+  // (capped so a huge topic doesn't fire hundreds of requests) — clicking any of
+  // them then enters the Workspace instantly. Row hover covers anything past the cap.
+  useEffect(() => {
+    problems.slice(0, 30).forEach(p => prefetchProblemFull(p.id));
+  }, [problems, prefetchProblemFull]);
 
   const progressMutation = useMutation({
     mutationFn: async ({ problemId, patch }) => {
@@ -241,7 +249,7 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                         const progress = userProgress[prob.id] || {};
                         const displayName = prob.name.replace(/Pattern #(\d+)/, 'Problem #$1').replace(/Challenge #(\d+)/, 'Problem #$1');
                         return (
-                          <div key={prob.id} className="tableRow">
+                          <div key={prob.id} className="tableRow" onMouseEnter={() => prefetchProblemFull(prob.id)}>
                             <div className="col-status">
                               <CheckCircle
                                 size={18}
@@ -259,7 +267,9 @@ export default function TopicModal({ topic, onClose, roadmapMode, session }) {
                               />
                             </div>
                             <div className="col-problem">
-                              <span className="problemName">{displayName}</span>
+                              <Link to={`/category/${topic.id}/${prob.id}`} className="problemName problemNameLink" title="Open in workspace">
+                                {displayName}
+                              </Link>
                             </div>
                             <div className="col-solve">
                               <div className="solveIcons">

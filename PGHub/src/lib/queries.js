@@ -1592,6 +1592,22 @@ export function usePrefetch() {
     });
   }, [queryClient]);
 
+  // Warm the full by-id detail (description/test_cases/solutions/viz_steps) into
+  // the SAME cache key the Workspace reads (`['problemFull', id]`) so opening a
+  // problem from the roadmap loads instantly. prefetchQuery no-ops when the key
+  // is already fresh, so calling this per-row on hover / per-list on open is safe.
+  const prefetchProblemFull = useCallback((problemId) => {
+    if (!problemId) return;
+    queryClient.prefetchQuery({
+      queryKey: ['problemFull', problemId],
+      queryFn: async () => {
+        const { data } = await supabase.from('PGcode_problems').select('*').eq('id', problemId).maybeSingle();
+        return data || null;
+      },
+      staleTime: 60 * 60 * 1000,
+    });
+  }, [queryClient]);
+
   const prefetchProblems = useCallback(() => {
     queryClient.prefetchQuery({
       queryKey: qk.problems,
@@ -1621,7 +1637,7 @@ export function usePrefetch() {
     });
   }, [queryClient]);
 
-  return { prefetchTopicProblems, prefetchProblems, prefetchDryRun };
+  return { prefetchTopicProblems, prefetchProblemFull, prefetchProblems, prefetchDryRun };
 }
 
 // ---- Discussion (comments + votes) -----------------------------------------
