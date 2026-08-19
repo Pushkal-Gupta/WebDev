@@ -307,19 +307,19 @@ async function checkUser() {
 const PROJECTS = [
   {
     featured: true,
-    name: "PG.Blog",
-    desc: "Essays on tech, systems, and ideas. Read, comment, and join the discussion.",
-    date: "Mar 2026",
-    status: "done",
-    url: "../blog/blog.html",
-  },
-  {
-    featured: true,
     name: "PG.Hub",
     desc: "Your all-in-one coding hub — follow a visual DSA roadmap, solve LeetCode-style problems, enter contests, run code in the built-in compiler, learn ML concepts, and explore interactive visualizations.",
     date: "Jun 2026",
     status: "done",
     url: "../PGHub/dist/index.html",
+  },
+  {
+    featured: true,
+    name: "PG.Blog",
+    desc: "Essays on tech, systems, and ideas. Read, comment, and join the discussion.",
+    date: "Mar 2026",
+    status: "done",
+    url: "../blog/blog.html",
   },
   {
     featured: true,
