@@ -12,9 +12,10 @@
 // crawler to ignore the field.
 //
 // Only canonical, indexable URLs belong here. Anything carrying `noindex` or a
-// canonical pointing elsewhere (the light-theme essay twins, /PG/main.html) is
-// deliberately absent: listing a URL you also tell Google not to index is a
-// contradiction it reports as a Search Console warning.
+// canonical pointing elsewhere (the light-theme essay twins) is deliberately
+// absent: listing a URL you also tell Google not to index is a contradiction it
+// reports as a Search Console warning. The homepage is /PG/main.html (the root
+// `/` only redirects there), so we list the real page, not the redirect.
 
 import { execFileSync } from 'node:child_process';
 import { writeFileSync, existsSync } from 'node:fs';
@@ -26,7 +27,7 @@ const ORIGIN = 'https://pushkalgupta.com';
 
 // [ url path, file whose git history dates it, changefreq, priority ]
 const PAGES = [
-  ['/',                                           'index.html',                                       'weekly',  '1.0'],
+  ['/PG/main.html',                               'PG/main.html',                                     'weekly',  '1.0'],
 
   // Apps. These are hash-routed single-page apps, so every in-app route lives
   // behind a `#` and cannot be listed separately — one URL each is all Google
