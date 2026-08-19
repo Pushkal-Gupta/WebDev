@@ -184,6 +184,17 @@ onlineChess Supabase Edge Functions require the [Supabase CLI](https://supabase.
 
 ---
 
+## Contributing
+
+Contributions are welcome — bug reports, fixes, new problems and lessons, visualizations, and features. Start with **[CONTRIBUTING.md](CONTRIBUTING.md)** for how to propose a change and the rules every project follows, then read the guide for the specific project you're touching:
+
+- PG Hub — [`PGHub/CONTRIBUTING.md`](PGHub/CONTRIBUTING.md)
+- PG.Play — [`PG.Play/CONTRIBUTING.md`](PG.Play/CONTRIBUTING.md)
+
+By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Found a security issue? Please report it privately — see [SECURITY.md](SECURITY.md).
+
+---
+
 ## License
 
 [GNU General Public License v3.0](LICENSE) — use, study, share, and modify under the GPLv3; derivative works stay under the same license.

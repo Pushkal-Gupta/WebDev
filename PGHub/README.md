@@ -240,6 +240,12 @@ Fonts: **Lora** (serif, branding) · **Space Mono** (monospace, UI) · **Inter**
 
 ---
 
+## Contributing
+
+Contributions are welcome — bug fixes, new problems and lessons, visualizations, and features. This is a quality-first project and the merge bar is high, but the door is open to anyone willing to meet it. Read **[CONTRIBUTING.md](CONTRIBUTING.md)** in full before opening a pull request, and note the repo-wide guide at [`../CONTRIBUTING.md`](../CONTRIBUTING.md). By participating you agree to the [Code of Conduct](../CODE_OF_CONDUCT.md); report security issues privately via [SECURITY.md](../SECURITY.md).
+
+---
+
 ## License
 
 Licensed under the **GNU General Public License v3.0** — see [LICENSE](../LICENSE). You may use, study, share, and modify this project under the terms of the GPLv3; derivative works must remain under the same license.

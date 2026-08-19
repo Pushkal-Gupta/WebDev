@@ -89,7 +89,7 @@ Do not "fix" LaTeX source files by rewriting them to Unicode — fix the rendere
 
 ## 6. Security
 
-- Report vulnerabilities **privately** (see `SECURITY.md` if present, otherwise open a minimal private report to the maintainer) — never in a public issue or PR.
+- Report vulnerabilities **privately** — see [`../SECURITY.md`](../SECURITY.md) — never in a public issue or PR.
 - Never commit credentials, tokens, or a populated `.env`. Rotate anything exposed.
 - Dual-use or security-sensitive changes require explicit maintainer sign-off.
 
