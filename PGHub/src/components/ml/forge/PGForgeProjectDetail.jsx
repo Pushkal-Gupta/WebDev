@@ -33,7 +33,7 @@ export default function PGForgeProjectDetail() {
       <div className="forge-pjd">
         <Breadcrumb
           items={[
-            { label: 'PGForge', to: '/ml' },
+            { label: 'PGForge', to: '/forge' },
             { label: 'Projects', to: '/ml/projects' },
             { label: 'Project' },
           ]}
@@ -52,7 +52,7 @@ export default function PGForgeProjectDetail() {
     <div className="forge-pjd" style={{ '--pjd-hue': hue }}>
       <Breadcrumb
         items={[
-          { label: 'PGForge', to: '/ml' },
+          { label: 'PGForge', to: '/forge' },
           { label: 'Projects', to: '/ml/projects' },
           { label: project.title || 'Project' },
         ]}

@@ -19,7 +19,7 @@ const THUMB_KINDS = {
 export default function PGForgeSheets() {
   return (
     <div className="forge-sh">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Sheets' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'Sheets' }]} />
 
       <header className="forge-sh-header">
         <h1 className="forge-sh-title">Reference sheets</h1>

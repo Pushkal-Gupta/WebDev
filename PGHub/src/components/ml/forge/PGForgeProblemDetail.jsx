@@ -653,7 +653,7 @@ export default function PGForgeProblemDetail() {
     <div className="forge-pd" style={{ '--pd-hue': hue }}>
       <Breadcrumb
         items={[
-          { label: 'PGForge', to: '/ml' },
+          { label: 'PGForge', to: '/forge' },
           { label: 'Problems', to: '/ml/problems' },
           { label: problem.title || 'Problem' },
         ]}

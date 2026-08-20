@@ -95,11 +95,11 @@ Do not "fix" LaTeX source files by rewriting them to Unicode — fix the rendere
 
 ---
 
-## 7. Licensing and conduct
+## 7. Licensing, AI disclosure, and conduct
 
-- By contributing, you agree your contribution is licensed under this repository's `LICENSE`.
-- Contributions must be your own work (or properly attributed and license-compatible). Do not paste code, content, or visualizations from sources you do not have the right to relicense.
-- Be direct, be technical, be respectful. Reviews critique the code, not the person — and contributors extend the same courtesy.
+- **Contributor License Agreement.** By contributing you agree to the terms in the repository-wide [`../CONTRIBUTING.md`](../CONTRIBUTING.md#licensing-and-contributor-license-agreement): the public project stays GPLv3, but you grant the maintainer the right to **relicense and commercialize your contribution, including selling it as part of a proprietary or enterprise product.** Contributions must be your own work (or properly attributed and license-compatible) — do not paste code, content, or visualizations you do not have the right to license this way.
+- **Disclose AI assistance.** AI tools are allowed, but state in the PR what was AI-generated or AI-assisted, and remember you are fully responsible for its correctness, quality, and licensing. Unreviewed AI dumps are closed on sight.
+- Be direct, be technical, be respectful. Reviews critique the code, not the person — and contributors extend the same courtesy. See [`../CODE_OF_CONDUCT.md`](../CODE_OF_CONDUCT.md).
 
 ---
 

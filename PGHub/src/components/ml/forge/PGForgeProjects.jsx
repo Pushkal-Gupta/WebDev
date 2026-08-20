@@ -9,7 +9,7 @@ import './PGForgeProjects.css';
 export default function PGForgeProjects() {
   return (
     <div className="forge-pj">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Projects' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'Projects' }]} />
 
       <header className="forge-pj-header">
         <h1 className="forge-pj-title">

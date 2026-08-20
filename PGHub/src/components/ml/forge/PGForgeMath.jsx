@@ -46,7 +46,7 @@ export default function PGForgeMath() {
 
   return (
     <div className="fmath">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Foundations' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'Foundations' }]} />
 
       <header className="fmath-head">
         <h1 className="fmath-title">

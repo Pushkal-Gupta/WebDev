@@ -235,7 +235,7 @@ export default function PGForgeSheetDetail() {
 
       <Breadcrumb
         items={[
-          { label: 'PGForge', to: '/ml' },
+          { label: 'PGForge', to: '/forge' },
           { label: 'Sheets', to: '/ml/sheets' },
           { label: sheet.title || 'Sheet' },
         ]}

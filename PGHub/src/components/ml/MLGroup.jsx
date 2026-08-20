@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useParams, useLocation } from 'react-router';
 import { ArrowRight, Brain, Sigma, Workflow, Calculator, Layers, Zap, Network, BarChart3 } from 'lucide-react';
-import { getGroup } from '../../content/mlGroups';
+import { getGroup, forgeTrail } from '../../content/mlGroups';
 import { PILLARS as REGISTRY } from '../../content/mlContent';
 import Breadcrumb from '../common/Breadcrumb';
 import ForgeThumb from './forge/ForgeThumb';
@@ -27,7 +27,7 @@ export default function MLGroup() {
   if (!group) {
     return (
       <div className="mlhub">
-        <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Group' }]} />
+        <Breadcrumb items={forgeTrail({ current: 'Group', search: location.search })} />
         <h1 className="mlhub-title">Not found</h1>
         <p className="mlhub-sub">No group matches "{groupSlug}".</p>
       </div>
@@ -38,7 +38,7 @@ export default function MLGroup() {
 
   return (
     <div className="mlhub">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: group.title }]} />
+      <Breadcrumb items={forgeTrail({ groupSlug, current: group.title, search: location.search })} />
 
       <header className="mlhub-hero">
         <div className="mlhub-hero-icon">

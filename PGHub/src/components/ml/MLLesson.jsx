@@ -4,6 +4,7 @@ import { ArrowLeft, ArrowRight, Info, Lightbulb, Clock, Gauge, ListTree } from '
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 import { getLesson, getPillar } from '../../content/mlContent';
+import { forgeTrail } from '../../content/mlGroups';
 import Breadcrumb from '../common/Breadcrumb';
 
 function katexHtml(tex, displayMode = false) {
@@ -548,11 +549,12 @@ export default function MLLesson() {
   if (!lesson) {
     return (
       <div className="ml-lesson">
-        <Breadcrumb items={[
-          { label: 'PGForge', to: '/ml' },
-          { label: pillar?.title || 'Lessons', to: `/forge/${pillarSlug}${location.search}` },
-          { label: 'Lesson' },
-        ]} />
+        <Breadcrumb items={forgeTrail({
+          moduleSlug: pillarSlug,
+          moduleTitle: pillar?.title || 'Lessons',
+          current: 'Lesson',
+          search: location.search,
+        })} />
         <h1 className="ml-lesson-title">Not found</h1>
         <p className="ml-lesson-sub">No lesson "{lessonSlug}" in {pillar?.title || pillarSlug}.</p>
       </div>
@@ -561,11 +563,12 @@ export default function MLLesson() {
 
   return (
     <div className="ml-lesson" ref={scrollRef}>
-      <Breadcrumb items={[
-        { label: 'PGForge', to: '/ml' },
-        { label: pillar?.title || 'Lessons', to: `/forge/${pillarSlug}${location.search}` },
-        { label: lesson.title || 'Lesson' },
-      ]} />
+      <Breadcrumb items={forgeTrail({
+        moduleSlug: pillarSlug,
+        moduleTitle: pillar?.title || 'Lessons',
+        current: lesson.title || 'Lesson',
+        search: location.search,
+      })} />
 
       <header className="ml-lesson-hero">
         <span className="ml-lesson-stripe" aria-hidden="true" />

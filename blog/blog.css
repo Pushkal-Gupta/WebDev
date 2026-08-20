@@ -795,25 +795,3 @@ textarea {
   line-height: 1.4;
 }
 @media (max-width: 520px) { .pgauth-card { padding: 1.8rem 1.5rem; } }
-
-/* The blog index had no <h1> — search engines had nothing to read the page as.
-   Sized to sit with the tagline rather than shout over it. */
-.blog-h1 {
-  font-family: var(--mono, "Space Mono", monospace);
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-  margin: 0 0 0.6rem;
-}
-
-/* Feed + cross-site link under the post list. Small on purpose: it is a way
-   out for people who want one, not a call to action. */
-.blog-subscribe {
-  margin: 2.2rem 0 0;
-  font-family: var(--mono, "Space Mono", monospace);
-  font-size: 0.72rem;
-  color: var(--text-dim);
-}
-.blog-subscribe a { color: var(--accent); text-decoration: none; }
-.blog-subscribe a:hover { text-decoration: underline; }

@@ -244,6 +244,8 @@ Fonts: **Lora** (serif, branding) · **Space Mono** (monospace, UI) · **Inter**
 
 Contributions are welcome — bug fixes, new problems and lessons, visualizations, and features. This is a quality-first project and the merge bar is high, but the door is open to anyone willing to meet it. Read **[CONTRIBUTING.md](CONTRIBUTING.md)** in full before opening a pull request, and note the repo-wide guide at [`../CONTRIBUTING.md`](../CONTRIBUTING.md). By participating you agree to the [Code of Conduct](../CODE_OF_CONDUCT.md); report security issues privately via [SECURITY.md](../SECURITY.md).
 
+UI changes require screenshots or a screen recording, and any AI-assisted work must be disclosed in the PR. **Contributions are made under a Contributor License Agreement** ([details](../CONTRIBUTING.md#licensing-and-contributor-license-agreement)): the project stays GPLv3, but by contributing you agree the maintainer may also relicense and commercialize your contribution, including as part of a proprietary or enterprise product.
+
 ---
 
 ## License

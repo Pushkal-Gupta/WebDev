@@ -25,7 +25,7 @@ export default function PGForgeProblems() {
 
   return (
     <div className="forge-pb">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Problems' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'Problems' }]} />
 
       <header className="forge-pb-header">
         <h1 className="forge-pb-title">Build the machinery yourself</h1>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useParams, useLocation } from 'react-router';
 import { ArrowRight, Brain, Sigma, Network, Workflow, Zap, Layers, Clock, BarChart3 } from 'lucide-react';
 import { getPillar } from '../../content/mlContent';
+import { forgeTrail } from '../../content/mlGroups';
 import Breadcrumb from '../common/Breadcrumb';
 import ForgeThumb from './forge/ForgeThumb';
 import './MLHub.css';
@@ -16,7 +17,7 @@ export default function MLPillar() {
   if (!pillar) {
     return (
       <div className="mlhub">
-        <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Pillar' }]} />
+        <Breadcrumb items={forgeTrail({ moduleSlug: pillarSlug, current: 'Pillar', search: location.search })} />
         <h1 className="mlhub-title">Not found</h1>
         <p className="mlhub-sub">No pillar matches "{pillarSlug}".</p>
       </div>
@@ -28,7 +29,7 @@ export default function MLPillar() {
 
   return (
     <div className="mlhub">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: pillar.title }]} />
+      <Breadcrumb items={forgeTrail({ moduleSlug: pillarSlug, current: pillar.title, search: location.search })} />
 
       <header className="mlhub-hero">
         <div className="mlhub-pillar-head" style={{ marginBottom: '0.6rem' }}>

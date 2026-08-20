@@ -343,7 +343,7 @@ export default function PGForgeArena() {
 
   return (
     <div className="forge-arena">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Arena' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'Arena' }]} />
 
       <header className="forge-arena-header">
         <h1 className="forge-arena-h1">Arena</h1>

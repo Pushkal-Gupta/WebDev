@@ -106,6 +106,7 @@ function PapersBrowse({ onOpen }) {
             <p className="forge-paper-card-authors">
               {p.authors.split(',')[0]} et al. · {p.year} · {p.venue}
             </p>
+            {p.summary && <p className="forge-paper-card-summary">{p.summary}</p>}
             <div className="forge-paper-card-tags">
               {p.topic && <span className="forge-chip forge-chip-topic">{p.topic}</span>}
               {p.difficulty && <span className="forge-chip forge-chip-diff">{p.difficulty}</span>}

@@ -18,7 +18,7 @@ export default function PGForgeStudyPlans() {
 
   return (
     <div className="forge-sp">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'Study plans' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'Study plans' }]} />
 
       <header className="forge-sp-header">
         <h1 className="forge-sp-title">Study Plans</h1>

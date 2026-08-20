@@ -15,7 +15,7 @@ export default function PGForgeCudaDetail() {
     <div className="forge-cd">
       <Breadcrumb
         items={[
-          { label: 'PGForge', to: '/ml' },
+          { label: 'PGForge', to: '/forge' },
           { label: 'CUDA kernels', to: '/ml/cuda' },
           { label: lesson.title || 'Kernel' },
         ]}

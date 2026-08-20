@@ -52,7 +52,7 @@ export default function PGForgeCuda() {
 
   return (
     <div className="forge-cuda">
-      <Breadcrumb items={[{ label: 'PGForge', to: '/ml' }, { label: 'CUDA kernels' }]} />
+      <Breadcrumb items={[{ label: 'PGForge', to: '/forge' }, { label: 'CUDA kernels' }]} />
 
       <header className="forge-cuda-header">
         <h1 className="forge-cuda-title">CUDA kernels</h1>

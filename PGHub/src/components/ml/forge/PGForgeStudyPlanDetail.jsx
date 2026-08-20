@@ -33,7 +33,7 @@ export default function PGForgeStudyPlanDetail() {
       <div className="forge-spd">
         <Breadcrumb
           items={[
-            { label: 'PGForge', to: '/ml' },
+            { label: 'PGForge', to: '/forge' },
             { label: 'Study plans', to: '/ml/study-plans' },
             { label: 'Plan' },
           ]}
@@ -50,7 +50,7 @@ export default function PGForgeStudyPlanDetail() {
     <div className="forge-spd">
       <Breadcrumb
         items={[
-          { label: 'PGForge', to: '/ml' },
+          { label: 'PGForge', to: '/forge' },
           { label: 'Study plans', to: '/ml/study-plans' },
           { label: plan.title || 'Plan' },
         ]}

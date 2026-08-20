@@ -192,11 +192,29 @@
   color: var(--text-dim);
 }
 
+/* Every card carries its paper's summary, so the grid is browsable without
+   opening 30 papers to find out what each one is. Clamped to four lines: the
+   summaries run 1-3 sentences, and an unclamped one would drag its row taller
+   than the rest of the grid. */
+.forge-paper-card-summary {
+  margin: 0;
+  font-family: var(--sans, system-ui, sans-serif);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  line-clamp: 4;
+  overflow: hidden;
+}
+
 .forge-paper-card-tags {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
   margin-top: auto;
+  padding-top: 0.15rem;
 }
 
 .forge-paper-card-go {
@@ -223,8 +241,11 @@
   display: flex;
   flex-direction: column;
   gap: 1.3rem;
-  flex: 1 1 auto;
-  min-height: 0;
+  /* Never shrink below content: with `1 1 auto` + `min-height: 0` a detail
+     taller than the viewport collapsed under its own rows and the overflow
+     spilled outside the scroll container's padding box, which is why the
+     prev/next nav sat flush against the bottom edge with no gutter. */
+  flex: 1 0 auto;
 }
 
 .forge-detail-back {
@@ -350,6 +371,10 @@
   gap: 1rem;
   margin-top: auto;
   padding-top: 0.6rem;
+  /* Bottom gutter lives on the last element rather than the scroll container,
+     so it is part of the scrollable content and cannot be eaten by flex
+     overflow the way the container's padding-bottom was. */
+  margin-bottom: 1.75rem;
 }
 
 .forge-prevnext-card {

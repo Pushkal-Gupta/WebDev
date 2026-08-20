@@ -193,6 +193,8 @@ Contributions are welcome — bug reports, fixes, new problems and lessons, visu
 
 By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Found a security issue? Please report it privately — see [SECURITY.md](SECURITY.md).
 
+**Note on licensing:** the project is open-source under the GPLv3, but contributions are made under a Contributor License Agreement (in [CONTRIBUTING.md](CONTRIBUTING.md#licensing-and-contributor-license-agreement)) — by contributing you agree the maintainer may also relicense and commercialize your contribution, including as part of a proprietary or enterprise product. Any UI change requires screenshots or a screen recording, and AI-assisted contributions must be disclosed.
+
 ---
 
 ## License
